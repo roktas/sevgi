@@ -1,0 +1,81 @@
+inherit_gem:
+  rubocop-shopify: rubocop.yml
+
+require:
+  - "rubocop-md"
+  - "rubocop-minitest"
+  - "rubocop-packaging"
+  - "rubocop-performance"
+  - "rubocop-rake"
+
+Layout/ExtraSpacing:
+  Exclude: 
+    - "**/lib/sevgi/standard/**/*.rb"
+    - "**/test/**/*.rb"
+Layout/HashAlignment:
+  Enabled: true
+  EnforcedHashRocketStyle: table
+  EnforcedColonStyle: table
+Layout/LineLength:
+  Max: 140
+  Exclude: 
+    - "**/test/**/*.rb"
+Layout/MultilineArrayLineBreaks:
+  Exclude: 
+    - "**/test/**/*.rb"
+Layout/MultilineMethodArgumentLineBreaks:
+  Exclude: 
+    - "**/test/**/*.rb"
+Layout/MultilineOperationIndentation:
+  Enabled: false
+
+Metrics/BlockLength:
+  Exclude: 
+    - "**/test/**/*.rb"
+    - "*.gemspec"
+Metrics/ClassLength:
+  Exclude: 
+    - "**/test/**/*.rb"
+Metrics/MethodLength:
+  Exclude: 
+    - "**/test/**/*.rb"
+
+Naming/MethodName:
+  Enabled: false
+
+Minitest/UselessAssertion:
+  Exclude:
+    - "**/test/test_common.rb" # TODO: to avoid a bug
+
+Style/AsciiComments:
+  Enabled: false
+Style/ClassAndModuleChildren:
+  Exclude: 
+    - "**/test/**/*.rb"
+Style/Documentation:
+  Enabled: false
+Style/LambdaCall:
+  Enabled: false
+Style/MethodCallWithArgsParentheses:
+  Exclude: 
+    - "**/test/**/*.rb"
+Style/ParallelAssignment:
+  Enabled: false
+Style/SymbolArray:
+  Exclude: 
+    - "**/lib/sevgi/standard/**/*.rb"
+    - "**/test/**/*.rb"
+Style/SymbolLiteral:
+  Exclude: 
+    - "**/lib/sevgi/standard/**/*.rb"
+    - "**/test/**/*.rb"
+Style/TrailingCommaInArguments:
+  Exclude: 
+    - "**/test/**/*.rb"
+
+AllCops:
+  NewCops: enable
+  Exclude:
+    - "vendor/**/*"
+    - "_/**/*"
+    - "**/_/**/*"

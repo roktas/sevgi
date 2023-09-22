@@ -1,0 +1,29 @@
+#!/usr/bin/env -S ruby -S sevgi
+
+def pacman(id, color)
+  layer id: do
+    circle id: "head", cx: 80, cy: 50, r: 40, fill: color
+    circle id: "eye", cx: 90, cy: 28, r: 6, fill: "black"
+    polygon id: "mouth", points: %w[80,50 120,20 120,80], fill: "#666"
+
+    TileH "dot", id: "dots", n: 3, d: 18, i: "dot" do
+      circle cx: 120, cy: 50, r: 6, fill: color
+    end
+  end
+end
+
+doc = SVG width: 200, height: 100 do
+  r = rect id: "frame", width: 200, height: 100, rx: 5, fill: "#666"
+end
+
+doc.svg id: "page2" do
+  pacman("pacman-cyan-small", "cyan").Scale(0.2)
+end
+
+doc.svg id: "page1" do
+  pacman("pacman-yellow-big", "yellow")
+end
+
+# Id collision
+
+doc.Save

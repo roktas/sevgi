@@ -1,0 +1,136 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "sevgi/external"
+
+module Sevgi
+  module CLI
+    extend self
+
+    CLIError = Class.new(Sevgi::Error)
+
+    PROGNAME = "sevgi"
+    ENVVOMIT = "SEVGI_VOMIT"
+
+    Options = Struct.new(:library, :vomit, :help, :version) do
+      class << self
+        def parse(argv)
+          new.tap do |options|
+            argv.first.start_with?("-") ? option(argv, options) : break until argv.empty?
+
+            next unless options.library
+
+            CLIError.("No library found: #{options.library}") unless ::File.exist?(options.library)
+          end
+        end
+
+        private
+
+        def option(argv, options)
+          case (arg = argv.shift)
+          when "-l", "--library"   then options.library = argv.shift
+          when "-x", "--exception" then options.vomit = true
+          when "-h", "--help"      then options.help = true
+          when "-v", "--version"   then options.version = true
+          else                          CLIError.("Not a valid option: #{arg}")
+          end
+        end
+      end
+    end
+
+    private_constant :Options
+
+    def call(argv)
+      return puts(help)           if (options = Options.parse(argv)).help
+      return puts(Sevgi::VERSION) if options.version
+
+      Signal.trap("INT") { Kernel.abort("") }
+      Kernel.load(file = options.library) if options.library
+      Kernel.load(file = script(argv))
+    rescue Exception => e # rubocop:disable Lint/RescueException
+      die(e, file, options)
+    end
+
+    private
+
+    def description(e, file)
+      case e
+      when ArgumentError   then "Programming error"
+      when GeometryError   then "Geometry error"
+      when ValidationError then "Validation error"
+      else                      "Error"
+      end => error
+
+      <<~DESCRIPTION
+        #{error} #{scene(e.backtrace, file)}
+          #{e.message}
+      DESCRIPTION
+    end
+
+    def die(e, file, options)
+      abort(e.message) if e.is_a?(CLIError)
+
+      raise e if options.vomit || ENV[ENVVOMIT]
+
+      warn(description(e, file))
+      warn("")
+      abort(postmortem(file))
+    end
+
+    def help
+      <<~HELP
+        Usage: #{PROGNAME} [options...] <SCRIPT> [ARGS...]
+
+        See documentation for detailed help.
+
+        Options:
+
+          -l, --library FILE    Preload library FILE
+          -x, --exception       Raise exceptions instead of abort
+          -h, --help            Show this help
+          -v, --version         Display version
+      HELP
+    end
+
+    def postmortem(file)
+      <<~POSTMORTEM
+        For more details, run the script again:
+
+          - By using the -x switch
+
+              #{PROGNAME} -x #{file}
+
+          - By setting the #{ENVVOMIT} environment variable
+
+              #{ENVVOMIT}=t #{file}
+
+        If you think this is a bug, you can report it by creating an issue.
+      POSTMORTEM
+    end
+
+    def scene(backtrace, file)
+      default = "in #{file}"
+      return default unless backtrace
+
+      path = ::File.expand_path(file)
+      _, line = backtrace.map { _1.split(":")[..1] }.find do |spot|
+        ::File.expand_path(spot.first) == path
+      end
+
+      line ? "in '#{file}', around line #{line}" : default
+    end
+
+    def script(argv)
+      CLIError.("No script file given.")        unless (file = argv.shift)
+      CLIError.("No such script file: #{file}") unless ::File.exist?(file)
+
+      file
+    end
+  end
+end
+
+def main
+  Sevgi::CLI.(ARGV)
+end
+
+main
