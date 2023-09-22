@@ -1,0 +1,17 @@
+name: Site
+on:
+  push:              { branches: [ "edge" ], paths: ["srv"] }
+  pull_request:      { branches: [ "edge" ], paths: ["srv"] }
+  workflow_dispatch:
+jobs:
+  site:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v4
+      - name: Deploy 🥁
+        uses: shalzz/zola-deploy-action@v0.17.2
+        env:
+          BUILD_DIR: srv
+          PAGES_BRANCH: site
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

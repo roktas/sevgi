@@ -1,0 +1,9 @@
+*.old
+.envrc
+/.VSCodeCounter/
+/.local/
+/coverage/
+/pkg/
+/srv/themes/adidoks/
+/vendor/
+_/

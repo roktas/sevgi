@@ -1,0 +1,7 @@
+#!/usr/bin/env -S ruby -S sevgi
+
+Lib "guidesheet"
+
+SPACE = 15.0
+
+Guidesheet.(Ts(Canvas(:a4, SPACE), unit: 6, multiple: 5)).Save
