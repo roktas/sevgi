@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.version                           = Sevgi::VERSION
   s.summary                           = "Toolkit for Creating SVG Content Programmatically with Ruby"
   s.description                       = "Toolkit for Creating SVG Content Programmatically with Ruby"
-  s.homepage                          = "https://roktas.dev/sevgi"
+  s.homepage                          = "https://sevgi.roktas.dev"
   s.files                             = Dir["CHANGELOG.md", "LICENSE", "README.md", "lib/**/*"]
   s.executables                       = ["sevgi"]
   s.require_paths                     = ["lib"]
