@@ -62,21 +62,39 @@
     </style>
 
     <script>
-      function showTab(evt, contentId) {
-        const tabContents = document.getElementsByClassName("tab-content");
-        const tabLinks = document.getElementsByClassName("tab-link");
+      const tabLinks    = document.getElementsByClassName('tab-link')
+      const tabContents = document.getElementsByClassName("tab-content")
 
+      function showTab(evt, contentId) {
         for (content of tabContents) {
-          content.style.display = "none";
+          content.style.display = "none"
         }
 
         for (link of tabLinks) {
-          link.className = link.className.replace(" active", "");
+          link.className = link.className.replace(" active", "")
         }
 
-        document.getElementById(contentId).style.display = "block";
-        evt.currentTarget.className += " active";
+        document.getElementById(contentId).style.display = "block"
+        evt.currentTarget.className += " active"
       }
+
+      window.addEventListener(
+        "load",
+        function() {
+          var index = 1
+
+          const timer = setInterval(() => {
+            tabLinks[index++ % 3].click()
+          }, 2000)
+    
+          document.getElementById('Slides').addEventListener(
+            "mouseover", () => {
+              clearInterval(timer)
+            },
+            false
+          )
+        }
+      )
     </script>
 
     <section class="section container-fluid mt-n3 pb-3">
@@ -85,7 +103,7 @@
           <img src="/assets/light/banner.svg" alt="{{ section.title }}" style="height: 8em;">
         </p>
 
-        <div class="col-lg-12 text-center">
+        <div id="Slides" class="col-lg-12 text-center">
           <div class="tab d-flex justify-content-center">
             <button class="tab-link active" onclick="showTab(event, 'Script')">Script</button>
             <button class="tab-link"        onclick="showTab(event, 'Output')">Output</button>
