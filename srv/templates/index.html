@@ -8,7 +8,7 @@
   {% else %}
     {% set title = "" %}
   {% endif %}
-  
+
   {% if config.extra.title_addition and title %}
     {% set title_addition = title_separator ~ config.extra.title_addition %}
   {% elif config.extra.title_addition %}
@@ -16,9 +16,9 @@
   {% else %}
     {% set title_addition = "" %}
   {% endif %}
-  
+
   {% set description = config.description %}
-  
+
   {{ macros_head::seo(title=title, title_addition=title_addition, description=description, is_home=true) }}
 {% endblock seo %}
 
@@ -128,7 +128,7 @@
         <div class="col-lg-5">
           <h2 class="h4">The power of Ruby ⚡️</h2>
           <p>Take advantage of Ruby's elegant programming and computational power to create pixel-perfect graphics without using a vector graphics editor in certain scenarios.</p>
-        </div>      
+        </div>
         <div class="col-lg-5">
           <h2 class="h4">Rich helpers 🛠️</h2>
           <p>Thanks to a mixin based design, you can easily add custom features and use a rich set of methods, especially for tiling, hatching and various geometric operations.</p>
