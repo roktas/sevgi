@@ -81,7 +81,7 @@
       window.addEventListener(
         "load",
         function() {
-          var index = 1
+          let index = 1
 
           const timer = setInterval(() => {
             tabLinks[index++ % 3].click()
@@ -90,8 +90,7 @@
           document.getElementById('Slides').addEventListener(
             "mouseover", () => {
               clearInterval(timer)
-            },
-            false
+            }
           )
         }
       )
