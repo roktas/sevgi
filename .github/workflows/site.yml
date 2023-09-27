@@ -1,7 +1,7 @@
 name: Site
 on:
-  push:              { branches: [ "edge" ], paths: ["srv"] }
-  pull_request:      { branches: [ "edge" ], paths: ["srv"] }
+  push:              { branches: [ "edge" ], paths: ["srv/**"] }
+  pull_request:      { branches: [ "edge" ], paths: ["srv/**"] }
   workflow_dispatch:
 jobs:
   site:
