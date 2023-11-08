@@ -63,8 +63,8 @@ module Sevgi
       def teardown = setup
 
       def test_class_relations
-        UNRELATED.each { |klass| refute(klass <= Document::Default) }
-        RELATED.each   { |klass| assert(klass <= Document::Default) }
+        UNRELATED.each { |klass| refute_operator(klass, :<=, Document::Default) }
+        RELATED.each   { |klass| assert_operator(klass, :<=, Document::Default) }
       end
 
       def test_method_missing_caching_with_block
