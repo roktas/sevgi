@@ -73,7 +73,7 @@ GEM
     rubygems-tasks (0.2.6)
       irb (~> 1.0)
       rake (>= 10.0.0)
-    sorbet-runtime (0.5.11128)
+    sorbet-runtime (0.5.11139)
     stringio (3.0.9)
     unicode-display_width (2.5.0)
 
