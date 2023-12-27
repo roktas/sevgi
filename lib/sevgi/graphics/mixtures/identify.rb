@@ -59,7 +59,9 @@ module Sevgi
           SEPARATOR = "-"
 
           IdentifyAs = Data.define(:id) do
-            def label(*indexes) = (id and [id, *indexes].map(&:to_s).join(SEPARATOR))
+            def label(*indexes)
+              id and [id, *indexes].map(&:to_s).join(SEPARATOR)
+            end
           end
 
           IdentifyAsList = Class.new(IdentifyAs) do

@@ -8,9 +8,9 @@ Minitest::Reporters.use!([Minitest::Reporters::SpecReporter.new])
 
 unless defined?(TestHelper)
   module TestHelper
-    def wtf(...)  = (Kernel.puts(...) or Kernel.exit!(0))
+    def wtf(...)  = Kernel.puts(...) or Kernel.exit!(0)
 
-    def wtf!(...) = (pp(...)          or Kernel.exit!(0))
+    def wtf!(...) = pp(...)          or Kernel.exit!(0)
 
     def out(actual, file: "/tmp/out", indent: " " * 12)
       File.write(file, actual.gsub(/^/, indent))
