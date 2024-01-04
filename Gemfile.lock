@@ -54,7 +54,7 @@ GEM
       parser (>= 3.2.1.0)
     rubocop-md (1.2.2)
       rubocop (>= 1.0)
-    rubocop-minitest (0.34.2)
+    rubocop-minitest (0.34.3)
       rubocop (>= 1.39, < 2.0)
       rubocop-ast (>= 1.30.0, < 2.0)
     rubocop-packaging (0.5.2)
@@ -74,7 +74,7 @@ GEM
     rubygems-tasks (0.2.6)
       irb (~> 1.0)
       rake (>= 10.0.0)
-    sorbet-runtime (0.5.11164)
+    sorbet-runtime (0.5.11175)
     stringio (3.1.0)
     unicode-display_width (2.5.0)
 
@@ -102,4 +102,4 @@ RUBY VERSION
    ruby 3.3.0p0
 
 BUNDLED WITH
-   2.5.3
+   2.5.4
