@@ -17,7 +17,7 @@ module Sevgi
     pocket:    Dim[90.0,  140.0],
     travelers: Dim[110.0, 210.0],
     us:        Dim[215.9, 279.4],
-    xlarge:    Dim[190.0, 250.0],
+    xlarge:    Dim[190.0, 250.0]
   }.tap do
     def _1.default_proc = proc { |_, key| ArgumentError.("No such paper: #{key}") }
 

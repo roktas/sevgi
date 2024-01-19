@@ -33,7 +33,7 @@ module Sevgi
 
         def import(attributes)
           hash = attributes.compact.to_a.map do |key, value|
-            [key.to_sym, value.is_a?(::Hash) ? value.transform_keys!(&:to_sym) : value]
+            [ key.to_sym, value.is_a?(::Hash) ? value.transform_keys!(&:to_sym) : value ]
           end.to_h
 
           @store.merge!(hash)
@@ -91,10 +91,10 @@ module Sevgi
         private
 
         UPDATER = {
-          ::String => proc { |old_value, new_value| [old_value, new_value].reject(&:empty?).join(" ") },
-          ::Symbol => proc { |old_value, new_value| [old_value, new_value].reject(&:empty?).join(" ").to_sym },
-          ::Array  => proc { |old_value, new_value| [old_value, new_value] },
-          ::Hash   => proc { |old_value, new_value| merge(old_value, new_value.transform_keys(&:to_sym)) },
+          ::String => proc { |old_value, new_value| [ old_value, new_value ].reject(&:empty?).join(" ") },
+          ::Symbol => proc { |old_value, new_value| [ old_value, new_value ].reject(&:empty?).join(" ").to_sym },
+          ::Array  => proc { |old_value, new_value| [ old_value, new_value ] },
+          ::Hash   => proc { |old_value, new_value| merge(old_value, new_value.transform_keys(&:to_sym)) }
         }.freeze
 
         def update(id, new_value)
@@ -105,16 +105,16 @@ module Sevgi
           ArgumentError.("Incompatible values: #{new_value} vs #{old_value}") unless new_value.is_a?(old_value.class)
           ArgumentError.("Unsupported value for update: #{new_value}")        unless UPDATER.key?(new_value.class)
 
-          [old_value, new_value]
+          [ old_value, new_value ]
         end
 
         private_constant :UPDATER
 
         def to_xml(id, value)
           case value
-          when ::Hash  then %[#{id}="#{value.map { "#{_1}:#{_2}" }.join("; ")}"]
-          when ::Array then %[#{id}="#{value.join(" ")}"]
-          else              %[#{id}=#{value.to_s.encode(xml: :attr)}]
+          when ::Hash  then %(#{id}="#{value.map { "#{_1}:#{_2}" }.join("; ")}")
+          when ::Array then %(#{id}="#{value.join(" ")}")
+          else              %(#{id}=#{value.to_s.encode(xml: :attr)})
           end
         end
       end

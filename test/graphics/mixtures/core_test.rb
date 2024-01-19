@@ -16,14 +16,14 @@ module Sevgi
           [
             1, doc.children.size,
             2, doc.children[0].children.size,
-            0, doc.children[0].children[0].children.size,
+            0, doc.children[0].children[0].children.size
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
 
           [
             "main",   doc[:id],
             "group1", doc.children[0][:id],
             "line1",  doc.children[0].children[0][:id],
-            "line2",  doc.children[0].children[1][:id],
+            "line2",  doc.children[0].children[1][:id]
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
         end
 
@@ -37,14 +37,14 @@ module Sevgi
           [
             1, doc.children.size,
             2, doc.children[0].children.size,
-            0, doc.children[0].children[0].children.size,
+            0, doc.children[0].children[0].children.size
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
 
           [
             "main",   doc[:id],
             "group1", doc.children[0][:id],
             "line2",  doc.children[0].children[0][:id],
-            "line1",  doc.children[0].children[1][:id],
+            "line1",  doc.children[0].children[1][:id]
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
         end
       end

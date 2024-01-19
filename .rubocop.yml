@@ -1,11 +1,9 @@
 inherit_gem:
-  rubocop-shopify: rubocop.yml
+  rubocop-rails-omakase: rubocop.yml
 
 require:
   - "rubocop-md"
-  - "rubocop-minitest"
   - "rubocop-packaging"
-  - "rubocop-performance"
   - "rubocop-rake"
 
 Layout/ExtraSpacing:
@@ -47,6 +45,9 @@ Minitest/UselessAssertion:
   Exclude:
     - "**/test/test_common.rb" # TODO: to avoid a bug
 
+Rails/RefuteMethods:
+  Enabled: false
+      
 Style/AsciiComments:
   Enabled: false
 Style/ClassAndModuleChildren:

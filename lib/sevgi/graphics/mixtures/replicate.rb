@@ -5,6 +5,7 @@ module Sevgi
     module Mixtures
       module Replicate
         module InstanceMethods
+          # rubocop:disable Metrics/MethodLength
           def Replicate(nx: Undefined, dx: Undefined, ix: nil, ny: Undefined, dy: Undefined, iy: nil, id: nil, &block)
             Ensure.without_block(block, nx:, dx:, ny:, dy:)
 
@@ -32,9 +33,7 @@ module Sevgi
 
             With do |base|
               layer(id:) do
-                (n - 1).times do |time|
-                  base.DuplicateH((time + 1) * d, parent: self)
-                end
+                (n - 1).times { |time| base.DuplicateH((time + 1) * d, parent: self) }
               end.tap do |element|
                 base.AdoptFirst(element)
                 IdentifyAsList(element.children, i)
@@ -47,9 +46,7 @@ module Sevgi
 
             With do |base|
               layer(id:) do
-                (n - 1).times do |time|
-                  base.DuplicateV((time + 1) * d, parent: self)
-                end
+                (n - 1).times { |time| base.DuplicateV((time + 1) * d, parent: self) }
               end.tap do |element|
                 base.AdoptFirst(element)
                 IdentifyAsList(element.children, i)
@@ -89,7 +86,7 @@ module Sevgi
             ny:     proc { |name, value| "Argument '#{name}' must be a positive integer" unless value.positive?        },
             d:      proc { |name, value| "Argument '#{name}' must be a number"           unless value.is_a?(::Numeric) },
             dx:     proc { |name, value| "Argument '#{name}' must be a number"           unless value.is_a?(::Numeric) },
-            dy:     proc { |name, value| "Argument '#{name}' must be a number"           unless value.is_a?(::Numeric) },
+            dy:     proc { |name, value| "Argument '#{name}' must be a number"           unless value.is_a?(::Numeric) }
           }.freeze
 
           def with_block(block, **)

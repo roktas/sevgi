@@ -20,9 +20,7 @@ module Sevgi
       here = Dir.pwd
       until (found = match(&block))
         Dir.chdir("..")
-        return if Dir.pwd == here
-
-        here = Dir.pwd
+        Dir.pwd == here ? return : here = Dir.pwd
       end
 
       Location[::File.expand_path(found, here), found, here]

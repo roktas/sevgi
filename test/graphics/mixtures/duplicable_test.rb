@@ -15,7 +15,7 @@ module Sevgi
             2,                doc.children.size,
             "original",       doc.children[0][:id],
             "main var",       doc.children[0][:"data-var"],
-            "duplicated var", doc.children[1][:"data-var"],
+            "duplicated var", doc.children[1][:"data-var"]
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
         end
 
@@ -54,14 +54,14 @@ module Sevgi
           [
             2, doc.children.size,
             1, doc.children[0].children.size,
-            2, doc.children[1].children.size,
+            2, doc.children[1].children.size
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
 
           assert_nil(doc.children[1].children.last)
 
           [
             "element1 of group1", group1.children.first[:"data-var"],
-            "element1 of group2", group2.children.first[:"data-var"],
+            "element1 of group2", group2.children.first[:"data-var"]
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
         end
 
@@ -86,13 +86,13 @@ module Sevgi
           [
             2, doc.children.size,
             2, doc.children[0].children.size,
-            3, doc.children[1].children.size,
+            3, doc.children[1].children.size
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
 
           [
             ids.values_at(:group1, :group2),     doc.children.map(&:object_id),
             ids.values_at(:element1, :element2), doc.children[0].children.map(&:object_id),
-            ids[:element3],                      doc.children[1].children.last.object_id,
+            ids[:element3],                      doc.children[1].children.last.object_id
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
 
           refute_equal(ids.values_at(:element1, :element2), doc.children[1].children.map(&:object_id).first(2))
@@ -112,7 +112,7 @@ module Sevgi
           [
             3,                doc.children.size,
             "translate(1 0)", element2[:transform],
-            "translate(0 1)", element3[:transform],
+            "translate(0 1)", element3[:transform]
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
         end
       end

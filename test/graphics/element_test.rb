@@ -7,15 +7,15 @@ module Sevgi
     class Element
       class ElementInstanceTest < Minitest::Test
         def test_element_contruction_basics_without_using_blocks
-          root = Element.send(:new, :g, parent: Element::RootParent, attributes: { "data-var": 42 }, contents: ["foo"])
+          root = Element.send(:new, :g, parent: Element::RootParent, attributes: { "data-var": 42 }, contents: [ "foo" ])
 
           [
             :g,                  root.name,
             Element::RootParent, root.parent,
             [],                  root.children,
             { "data-var": 42 },  root.attributes.to_h,
-            ["foo"],             root.contents.map(&:to_s),
-            true,                Element.root?(root),
+            [ "foo" ],             root.contents.map(&:to_s),
+            true,                Element.root?(root)
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
 
           child = Element.send(:new, :"missing-glyph", parent: root, attributes: { id: "glyph" })
@@ -26,7 +26,7 @@ module Sevgi
             [],               child.children,
             { id: "glyph" },  child.attributes.to_h,
             false,            Element.root?(child),
-            [child],          root.children,
+            [ child ],          root.children
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
         end
 
@@ -39,14 +39,14 @@ module Sevgi
           [
             :g,                  root.name,
             Element::RootParent, root.parent,
-            [child],             root.children,
+            [ child ],             root.children,
             { "data-var": 42 },  root.attributes.to_h,
             true,                Element.root?(root),
             :"missing-glyph",    child.name,
             root,                child.parent,
             [],                  child.children,
             { id: "glyph" },     child.attributes.to_h,
-            false,               Element.root?(child),
+            false,               Element.root?(child)
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
         end
       end
@@ -57,10 +57,10 @@ module Sevgi
 
           [
             {}, parsed[:attributes],
-            [], parsed[:contents],
+            [], parsed[:contents]
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
 
-          assert_raises(ArgumentError) { Dispatch.parse(:svg, ["foo"]) }
+          assert_raises(ArgumentError) { Dispatch.parse(:svg, [ "foo" ]) }
         end
 
         def test_arguments_parsing_with_various_arguments
@@ -68,8 +68,8 @@ module Sevgi
 
           [
             { x: 19, y: 42 },                     parsed[:attributes],
-            [Content::Encoded, Content::Encoded], parsed[:contents].map(&:class),
-            ["foo", "bar &amp; baz"],             parsed[:contents].map(&:to_s),
+            [ Content::Encoded, Content::Encoded ], parsed[:contents].map(&:class),
+            [ "foo", "bar &amp; baz" ],             parsed[:contents].map(&:to_s)
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
         end
 
@@ -77,8 +77,8 @@ module Sevgi
           parsed = Dispatch.parse(:svg, Content::Verbatim.new("bar & baz"))
 
           [
-            [Content::Verbatim], parsed[:contents].map(&:class),
-            ["bar & baz"],        parsed[:contents].map(&:to_s),
+            [ Content::Verbatim ], parsed[:contents].map(&:class),
+            [ "bar & baz" ],        parsed[:contents].map(&:to_s)
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
         end
 
@@ -91,20 +91,20 @@ module Sevgi
           [
             :svg,                root.name,
             Element::RootParent, root.parent,
-            [child],             root.children,
+            [ child ],             root.children,
             { "data-var": 42 },  root.attributes.to_h,
             true,                Element.root?(root),
             :"missing-glyph",    child.name,
             root,                child.parent,
             [],                  child.children,
             { id: "glyph" },     child.attributes.to_h,
-            false,               Element.root?(child),
+            false,               Element.root?(child)
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
         end
       end
 
       class ElementMethodMissingTest < Minitest::Test
-        def setup    = [:svg, :marker].each { Element.remove_method(_1) if Element.method_defined?(_1) }
+        def setup    = [ :svg, :marker ].each { Element.remove_method(_1) if Element.method_defined?(_1) }
 
         def teardown = setup
 

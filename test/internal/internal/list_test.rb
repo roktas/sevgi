@@ -9,7 +9,7 @@ module Sevgi
 
       mod.import(x: 19, y: 42)
 
-      assert_equal([19, 42], [mod[:x], mod[:y]])
+      assert_equal([ 19, 42 ], [ mod[:x], mod[:y] ])
     end
 
     def test_list_import_merging
@@ -18,7 +18,7 @@ module Sevgi
       mod.import(x: 19, y: 42)
       mod.import(y: 13, z: 100)
 
-      assert_equal([19, 42, 100], [mod[:x], mod[:y], mod[:z]])
+      assert_equal([ 19, 42, 100 ], [ mod[:x], mod[:y], mod[:z] ])
     end
 
     def test_valid_method

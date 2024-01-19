@@ -50,13 +50,13 @@ module Sevgi
     end
 
     class DocumentMethodMissingTest < Minitest::Test
-      UNRELATED = [Element, Document::Base, Document::Minimal].freeze
-      RELATED   = [Document::Default, *ObjectSpace.each_object(Class).select { |klass| klass < Document::Default }]
+      UNRELATED = [ Element, Document::Base, Document::Minimal ].freeze
+      RELATED   = [ Document::Default, *ObjectSpace.each_object(Class).select { |klass| klass < Document::Default } ]
 
       def setup
         [
           *UNRELATED,
-          *RELATED,
+          *RELATED
         ].each { |klass| klass.remove_method(:marker) if klass.method_defined?(:marker) }
       end
 
@@ -74,7 +74,7 @@ module Sevgi
           [
             self.class,
             *UNRELATED,
-            *RELATED,
+            *RELATED
           ].each { |klass| test.refute(klass.method_defined?(:marker)) }
 
           marker
@@ -82,7 +82,7 @@ module Sevgi
           [
             self.class,
             *RELATED,
-            *UNRELATED,
+            *UNRELATED
           ].each { |klass| test.assert(klass.method_defined?(:marker)) }
         end
       end
@@ -93,7 +93,7 @@ module Sevgi
         [
           doc.class,
           *UNRELATED,
-          *RELATED,
+          *RELATED
         ].each { |klass| refute(klass.method_defined?(:marker)) }
 
         doc.Within { marker }
@@ -101,7 +101,7 @@ module Sevgi
         [
           doc.class,
           *RELATED,
-          *UNRELATED,
+          *UNRELATED
         ].each { |klass| assert(klass.method_defined?(:marker)) }
       end
     end

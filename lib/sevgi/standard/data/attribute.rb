@@ -4,7 +4,7 @@ module Sevgi
   module Standard
     module Attribute
       import(
-        Animation: %i[
+        Animation:                %i[
           accelerate
           accumulate
           additive
@@ -33,7 +33,7 @@ module Sevgi
           values
         ],
 
-        AnimationAddition: %i[
+        AnimationAddition:        %i[
           accumulate
           additive
         ],
@@ -43,7 +43,7 @@ module Sevgi
           attributeType
         ],
 
-        AnimationValue: %i[
+        AnimationValue:           %i[
           accelerate
           autoReverse
           by
@@ -56,7 +56,7 @@ module Sevgi
           values
         ],
 
-        AnimationTiming: %i[
+        AnimationTiming:          %i[
           begin
           dur
           end
@@ -68,7 +68,7 @@ module Sevgi
           restart
         ],
 
-        Aria: %i[
+        Aria:                     %i[
           aria-activedescendant
           aria-atomic
           aria-autocomplete
@@ -119,13 +119,13 @@ module Sevgi
           aria-valuetext
         ],
 
-        ConditionalProcessing: %i[
+        ConditionalProcessing:    %i[
           requiredExtensions
           requiredFeatures
           systemLanguage
         ],
 
-        Core: %i[
+        Core:                     %i[
           autofocus
           id
           lang
@@ -135,13 +135,13 @@ module Sevgi
           xml:space
         ],
 
-        EventAnimation: %i[
+        EventAnimation:           %i[
           onbegin
           onend
           onrepeat
         ],
 
-        EventDocument: %i[
+        EventDocument:            %i[
           onabort
           onerror
           onresize
@@ -149,13 +149,13 @@ module Sevgi
           onunload
         ],
 
-        EventDocumentElement: %i[
+        EventDocumentElement:     %i[
           oncopy
           oncut
           onpaste
         ],
 
-        EventGlobal: %i[
+        EventGlobal:              %i[
           oncancel
           oncanplay
           oncanplaythrough
@@ -214,13 +214,13 @@ module Sevgi
           onwaiting
         ],
 
-        EventGraphical: %i[
+        EventGraphical:           %i[
           onactivate
           onfocusin
           onfocusout
         ],
 
-        FilterPrimitive: %i[
+        FilterPrimitive:          %i[
           height
           result
           width
@@ -228,7 +228,7 @@ module Sevgi
           y
         ],
 
-        FilterTransferFunction: %i[
+        FilterTransferFunction:   %i[
           amplitude
           exponent
           intercept
@@ -238,7 +238,7 @@ module Sevgi
           type
         ],
 
-        Presentation: %i[
+        Presentation:             %i[
           alignment-baseline
           baseline-shift
           clip
@@ -303,12 +303,12 @@ module Sevgi
           writing-mode
         ],
 
-        Style: %i[
+        Style:                    %i[
           class
           style
         ],
 
-        Xlink: %i[
+        Xlink:                    %i[
           xlink:actuate
           xlink:arcrole
           xlink:href
@@ -320,7 +320,7 @@ module Sevgi
 
         # Uncategorized attributes (for the sake of completeness)
 
-        Uncategorized: %i[
+        Uncategorized:            %i[
           accent-height
           alphabetic
           arabic-form
@@ -480,7 +480,7 @@ module Sevgi
 
         # Deprecated attributes
 
-        Deprecated: %i[
+        Deprecated:               %i[
           accent-height
           alphabetic
           amplitude
@@ -489,7 +489,7 @@ module Sevgi
           attributeType
           baseProfile
           bbox
-        ],
+        ]
       )
     end
   end

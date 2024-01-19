@@ -12,7 +12,7 @@ module Sevgi
 
         Tsquare.new(
           hruler: Utensils::Ruler.new(brut: canvas.width,  unit:, multiple:, minspace: canvas.left),
-          vruler: Utensils::Ruler.new(brut: canvas.height, unit:, multiple:, minspace: canvas.top),
+          vruler: Utensils::Ruler.new(brut: canvas.height, unit:, multiple:, minspace: canvas.top)
         )
       end
     end

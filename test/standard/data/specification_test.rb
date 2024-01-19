@@ -27,7 +27,7 @@ module Sevgi
               :x1,
               :x2,
               :y1,
-              :y2,
+              :y2
             ],
 
             elements:   [
@@ -36,10 +36,10 @@ module Sevgi
               :animate,
               :animateTransform,
               :set,
-              :stop,
+              :stop
             ],
 
-            model:      :SomeElements,
+            model:      :SomeElements
           },
           Specification[:linearGradient],
         )
@@ -59,7 +59,7 @@ module Sevgi
               :"horiz-origin-y",
               :"vert-adv-y",
               :"vert-origin-x",
-              :"vert-origin-y",
+              :"vert-origin-y"
             ],
 
             elements:   [
@@ -69,10 +69,10 @@ module Sevgi
               :"glyph",
               :"hkern",
               :"missing-glyph",
-              :"vkern",
+              :"vkern"
             ],
 
-            model:      :SomeElements,
+            model:      :SomeElements
           },
           Specification[:font],
         )

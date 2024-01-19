@@ -4,7 +4,7 @@ module Sevgi
   module Standard
     module Element
       import(
-        Animation: %i[
+        Animation:           %i[
           animate
           animateMotion
           animateTransform
@@ -12,7 +12,7 @@ module Sevgi
           set
         ],
 
-        Container: %i[
+        Container:           %i[
           a
           defs
           g
@@ -25,13 +25,13 @@ module Sevgi
           symbol
         ],
 
-        Descriptive: %i[
+        Descriptive:         %i[
           desc
           metadata
           title
         ],
 
-        Filter: %i[
+        Filter:              %i[
           feBlend
           feColorMatrix
           feComponentTransfer
@@ -59,7 +59,7 @@ module Sevgi
           feTurbulence
         ],
 
-        FilterPrimitive: %i[
+        FilterPrimitive:     %i[
           feBlend
           feColorMatrix
           feComponentTransfer
@@ -84,13 +84,13 @@ module Sevgi
           feTurbulence
         ],
 
-        FilterLightSource: %i[
+        FilterLightSource:   %i[
           feDistantLight
           fePointLight
           feSpotLight
         ],
 
-        Font: %i[
+        Font:                %i[
           font
           font-face
           font-face-format
@@ -101,13 +101,13 @@ module Sevgi
           vkern
         ],
 
-        Gradient: %i[
+        Gradient:            %i[
           linearGradient
           radialGradient
           stop
         ],
 
-        Graphics: %i[
+        Graphics:            %i[
           circle
           ellipse
           image
@@ -125,7 +125,7 @@ module Sevgi
           use
         ],
 
-        NeverRendered: %i[
+        NeverRendered:       %i[
           clipPath
           defs
           hatch
@@ -141,7 +141,7 @@ module Sevgi
           title
         ],
 
-        PaintServer: %i[
+        PaintServer:         %i[
           hatch
           linearGradient
           pattern
@@ -149,7 +149,7 @@ module Sevgi
           solidcolor
         ],
 
-        Renderable: %i[
+        Renderable:          %i[
           a
           circle
           ellipse
@@ -170,7 +170,7 @@ module Sevgi
           use
         ],
 
-        Shape: %i[
+        Shape:               %i[
           circle
           ellipse
           line
@@ -180,7 +180,7 @@ module Sevgi
           rect
         ],
 
-        ShapeBasic: %i[
+        ShapeBasic:          %i[
           circle
           ellipse
           line
@@ -189,7 +189,7 @@ module Sevgi
           rect
         ],
 
-        Structural: %i[
+        Structural:          %i[
           defs
           g
           svg
@@ -197,7 +197,7 @@ module Sevgi
           use
         ],
 
-        Text: %i[
+        Text:                %i[
           glyph
           glyphRef
           text
@@ -206,13 +206,13 @@ module Sevgi
           tspan
         ],
 
-        TextChild: %i[
+        TextChild:           %i[
           textPath
           tref
           tspan
         ],
 
-        UnrelatedCommon: %i[
+        UnrelatedCommon:     %i[
           a
           clipPath
           color-profile
@@ -234,7 +234,7 @@ module Sevgi
 
         # Uncategorized elements (for the sake of completeness)
 
-        Uncategorized: %i[
+        Uncategorized:       %i[
           clipPath
           color-profile
           cursor
@@ -248,7 +248,7 @@ module Sevgi
 
         # Deprecated elements
 
-        Deprecated: %i[
+        Deprecated:          %i[
           cursor
           font
           font-face
@@ -262,7 +262,7 @@ module Sevgi
           missing-glyph
           tref
           vkern
-        ],
+        ]
       )
     end
   end

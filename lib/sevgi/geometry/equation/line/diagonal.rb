@@ -18,26 +18,20 @@ module Sevgi
           end
 
           def eql?(other)
-            self.class == other.class && [slope, intercept] == [other.slope, other.intercept]
+            self.class == other.class && [ slope, intercept ] == [ other.slope, other.intercept ]
           end
 
           alias_method :==, :eql?
 
           def hash
-            [self.class, slope, intercept].hash
+            [ self.class, slope, intercept ].hash
           end
 
           def intersection(other)
             case other
-            when Diagonal
-              x = (other.intercept - intercept) / (slope - other.slope)
-              y = y(x)
-            when Horizontal
-              y = other.y
-              x = x(y)
-            when Vertical
-              x = other.x
-              y = y(x)
+            when Diagonal   then y = y(x = (other.intercept - intercept) / (slope - other.slope))
+            when Horizontal then x = x(y = other.y)
+            when Vertical   then y = y(x = other.x)
             end
 
             Point[x, y]

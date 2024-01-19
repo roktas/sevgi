@@ -10,8 +10,8 @@ module Sevgi
 
         def test_sweep_diagonal
           initials   = rect345.corners
-          directions = [direction = F.complement(direction345), -direction]
-          steps      = [step = 0.1, -step]
+          directions = [ direction = F.complement(direction345), -direction ]
+          steps      = [ step = 0.1, -step ]
           nsteps     = (length345 / step).to_i
           limit      = nsteps + 2 # +1 for each unisweep, +2 in total
           expected   = nsteps - 1

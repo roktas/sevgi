@@ -35,9 +35,9 @@ module Sevgi
 
       def parts(lps, mps, nps)
         [
-          Parts.new(halves: lps,                   majors: mps,                   minors: nps),                   # points
-          Parts.new(halves: [lps.first, lps.last], majors: [mps.first, mps.last], minors: [nps.first, nps.last]), # contours
-          Parts.new(halves: segments(lps),         majors: segments(mps),         minors: segments(nps)),         # segments
+          Parts.new(halves: lps, majors: mps, minors: nps), # points
+          Parts.new(halves: [ lps.first, lps.last ], majors: [ mps.first, mps.last ], minors: [ nps.first, nps.last ]), # contours
+          Parts.new(halves: segments(lps), majors: segments(mps), minors: segments(nps)) # segments
         ]
       end
 

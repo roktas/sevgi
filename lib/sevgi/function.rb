@@ -3,15 +3,15 @@
 module Sevgi
   module Function
     module External
-      EXTENSIONS  = ["sevgi", "rb"].freeze
-      DIRECTORIES = ["lib", "library"].freeze
+      EXTENSIONS  = [ "sevgi", "rb" ].freeze
+      DIRECTORIES = [ "lib", "library" ].freeze
 
       def Lib(name)
         start = ::File.dirname(caller_locations(1..1).first.path)
 
         paths = F.variations(name, DIRECTORIES, EXTENSIONS)
 
-        raise Error, "No library found matching: #{name}" unless (location = Locate.(paths, start))
+        raise(Error, "No library found matching: #{name}") unless (location = Locate.(paths, start))
 
         Kernel.load(location.file)
       end

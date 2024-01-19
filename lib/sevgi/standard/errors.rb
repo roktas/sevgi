@@ -14,7 +14,7 @@ module Sevgi
 
       def variant(message)
         Class.new(self) do
-          define_method(:message) { [@context, message, @args.map { "'#{_1}'" }.join(", ")].join(": ") }
+          define_method(:message) { [ @context, message, @args.map { "'#{_1}'" }.join(", ") ].join(": ") }
         end
       end
     end

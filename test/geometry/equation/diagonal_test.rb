@@ -12,7 +12,7 @@ module Sevgi
           def test_fixtures_construction
             [
               0.0, segment345.line.y(0),
-              4.0, segment543.line.y(0),
+              4.0, segment543.line.y(0)
             ].each_slice(2) { |expected, actual| assert_in_delta(expected, actual) }
           end
 
@@ -21,14 +21,14 @@ module Sevgi
 
             [
               -10.0, line.y(0),
-              F.atan(2), line.direction,
+              F.atan(2), line.direction
             ].each_slice(2) { |expected, actual| assert_in_delta(expected, actual) }
           end
 
           def test_diagonal_line_construction_from_segments
             [
               10.0,  Line.from_segment(Segment.directed(length: 1.0, direction: F.atan(2))).y(5),
-              -10.0, Line.from_segment(Segment.directed(length: 1.0, direction: -F.atan(2))).y(5),
+              -10.0, Line.from_segment(Segment.directed(length: 1.0, direction: -F.atan(2))).y(5)
             ].each_slice(2) { |expected, actual| assert_in_delta(expected, actual) }
           end
 

@@ -34,7 +34,7 @@ module Sevgi
 
       def run_passive(*)
         warn("  ==> #{file}")
-        Shell.run("sevgi", "-l", "/dev/stdin", file, *) { puts INTERCEPTOR }
+        Shell.run("sevgi", "-l", "/dev/stdin", file, *) { puts(INTERCEPTOR) }
       end
 
       private

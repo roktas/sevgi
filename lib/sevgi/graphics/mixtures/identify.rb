@@ -31,7 +31,7 @@ module Sevgi
                 next unless (id = element[:id])
 
                 if @namespace.key?(id)
-                  (@collision[id] ||= [@namespace[id]]) << element
+                  (@collision[id] ||= [ @namespace[id] ]) << element
                 else
                   @namespace[id] = element
                 end
@@ -60,7 +60,7 @@ module Sevgi
 
           IdentifyAs = Data.define(:id) do
             def label(*indexes)
-              id and [id, *indexes].map(&:to_s).join(SEPARATOR)
+              id and [ id, *indexes ].map(&:to_s).join(SEPARATOR)
             end
           end
 

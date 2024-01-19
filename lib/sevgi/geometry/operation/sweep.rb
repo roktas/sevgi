@@ -13,7 +13,7 @@ module Sevgi
 
           [
             *unisweep(element, line.shift(-step), -step, limit:).reverse,
-            *unisweep(element, line, step, limit:),
+            *unisweep(element, line, step, limit:)
           ].tap do |segments|
             yield(segments) if block
           end

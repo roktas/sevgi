@@ -3,7 +3,7 @@
 module Sevgi
   Margin = Data.define(:top, :right, :bottom, :left) do
     def initialize(top: nil, right: nil, bottom: nil, left: nil)
-      case [top, right, bottom, left]
+      case [ top, right, bottom, left ]
       in Numeric,  Numeric,  Numeric,  Numeric  then # nop
       in Numeric,  Numeric,  Numeric,  NilClass then left                     = right
       in Numeric,  Numeric,  NilClass, NilClass then bottom, left             = top, right

@@ -56,7 +56,7 @@ module Sevgi
 
             root.Traverse(
               0,
-              proc { |element, depth| render_leave(element, depth) },
+              proc { |element, depth| render_leave(element, depth) }
             )      { |element, depth| render_enter(element, depth) }
 
             output.join("\n")
@@ -99,7 +99,7 @@ module Sevgi
           end
 
           def attributes_inline(element, depth, lines)
-            line = "<#{[element.name, *lines].join(" ")}"
+            line = "<#{[ element.name, *lines ].join(" ")}"
 
             append(depth, (childless?(element) ? "#{line}/>".tap { closed } : "#{line}>"))
           end

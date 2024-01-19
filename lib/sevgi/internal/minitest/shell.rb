@@ -45,14 +45,14 @@ module Sevgi
           out = stdout.readlines.map(&:chomp)
           err = stderr.readlines.map(&:chomp)
 
-          [out, err, thread.value]
+          [ out, err, thread.value ]
         end
 
         def handle_sigint(pid)
           message, signal = if @coathooks > 1
-            ["SIGINT received again. Force quitting...", "KILL"]
+            [ "SIGINT received again. Force quitting...", "KILL" ]
           else
-            ["SIGINT received.", "TERM"]
+            [ "SIGINT received.", "TERM" ]
           end
 
           warn("\n#{message}")

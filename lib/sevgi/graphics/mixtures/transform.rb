@@ -9,7 +9,7 @@ module Sevgi
             tap do
               next if x.to_f == 0.0 && (y.nil? || y.to_f == 0.0)
 
-              attributes[:"transform+"] = "translate(#{(y ? [x, y] : [x]).join(" ")})"
+              attributes[:"transform+"] = "translate(#{(y ? [ x, y ] : [ x ]).join(" ")})"
             end
           end
 
@@ -17,7 +17,7 @@ module Sevgi
             tap do
               next if x.to_f == 0.0 && (y.nil? || y.to_f == 0.0)
 
-              attributes[:"transform+"] = "scale(#{(y ? [x, y] : [x]).join(", ")})"
+              attributes[:"transform+"] = "scale(#{(y ? [ x, y ] : [ x ]).join(", ")})"
             end
           end
 
@@ -49,7 +49,7 @@ module Sevgi
 
               next if a.to_f == 0.0
 
-              attributes[:"transform+"] = "rotate(#{[a, *origin].join(", ")})"
+              attributes[:"transform+"] = "rotate(#{[ a, *origin ].join(", ")})"
             end
           end
 

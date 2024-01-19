@@ -15,7 +15,7 @@ module Sevgi
         @suites ||= @scripts.map(&:suite).uniq
       end
 
-      NON_VALIDS = ["gotcha"]
+      NON_VALIDS = [ "gotcha" ]
 
       def non_valids
         NON_VALIDS.map { self[_1] }.flatten

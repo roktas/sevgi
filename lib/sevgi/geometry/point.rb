@@ -26,11 +26,11 @@ module Sevgi
       end
 
       def infinite?
-        [x, y].any?(&:infinite?)
+        [ x, y ].any?(&:infinite?)
       end
 
       def nan?
-        [x, y].any?(&:nan?)
+        [ x, y ].any?(&:nan?)
       end
 
       def to_s
@@ -42,7 +42,7 @@ module Sevgi
       end
 
       def unordered_between?(p, q)
-        nan? ? false : between?([p, q].min, [p, q].max)
+        nan? ? false : between?([ p, q ].min, [ p, q ].max)
       end
 
       def <=>(other)

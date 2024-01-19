@@ -17,7 +17,7 @@ module Sevgi
               top_left:     position,
               top_right:    position.translate(dx: rect.width),
               bottom_right: position.translate(dx: rect.width, dy: rect.height),
-              bottom_left:  position.translate(dy: rect.height),
+              bottom_left:  position.translate(dy: rect.height)
             )
           end
         end
@@ -33,7 +33,7 @@ module Sevgi
               top:    Segment[corner.top_left,    corner.top_right],
               right:  Segment[corner.top_right,   corner.bottom_right],
               bottom: Segment[corner.bottom_left, corner.bottom_right],
-              left:   Segment[corner.top_left,    corner.bottom_left],
+              left:   Segment[corner.top_left,    corner.bottom_left]
             )
           end
         end

@@ -4,7 +4,7 @@ require "minitest/autorun"
 require "minitest/reporters"
 require "minitest/focus"
 
-Minitest::Reporters.use!([Minitest::Reporters::SpecReporter.new])
+Minitest::Reporters.use!([ Minitest::Reporters::SpecReporter.new ])
 
 unless defined?(TestHelper)
   module TestHelper

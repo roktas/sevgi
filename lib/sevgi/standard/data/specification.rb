@@ -4,7 +4,7 @@ module Sevgi
   module Standard
     module Specification
       import(
-        a: {
+        a:                   {
           attributes: %i[
             Aria
             ConditionalProcessing
@@ -37,10 +37,10 @@ module Sevgi
             UnrelatedCommon
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        animate: {
+        animate:             {
           attributes: %i[
             AnimationAddition
             AnimationAttributeTarget
@@ -62,10 +62,10 @@ module Sevgi
             Descriptive
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        animateMotion: {
+        animateMotion:       {
           attributes: %i[
             AnimationAddition
             AnimationAttributeTarget
@@ -92,10 +92,10 @@ module Sevgi
             mpath
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        animateTransform: {
+        animateTransform:    {
           attributes: %i[
             AnimationAddition
             AnimationAttributeTarget
@@ -117,10 +117,10 @@ module Sevgi
             Descriptive
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        circle: {
+        circle:              {
           attributes: %i[
             Aria
             ConditionalProcessing
@@ -143,10 +143,10 @@ module Sevgi
             Descriptive
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        clipPath: {
+        clipPath:            {
           attributes: %i[
             ConditionalProcessing
             Core
@@ -165,10 +165,10 @@ module Sevgi
             use
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        "color-profile": {
+        "color-profile":     {
           attributes: %i[
             Core
             Xlink
@@ -182,10 +182,10 @@ module Sevgi
             Descriptive
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        cursor: {
+        cursor:              {
           attributes: %i[
             ConditionalProcessing
             Core
@@ -200,10 +200,10 @@ module Sevgi
             Descriptive
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        defs: {
+        defs:                {
           attributes: %i[
             Core
             EventDocument
@@ -223,10 +223,10 @@ module Sevgi
             UnrelatedCommon
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        desc: {
+        desc:                {
           attributes: %i[
             Core
             EventDocument
@@ -237,10 +237,10 @@ module Sevgi
 
           elements:   nil,
 
-          model:      :CDataOnly,
+          model:      :CDataOnly
         },
 
-        discard: {
+        discard:             {
           attributes: %i[
             Aria
             ConditionalProcessing
@@ -258,10 +258,10 @@ module Sevgi
             script
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        ellipse: {
+        ellipse:             {
           attributes: %i[
             Aria
             ConditionalProcessing
@@ -285,10 +285,10 @@ module Sevgi
             Descriptive
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        feBlend: {
+        feBlend:             {
           attributes: %i[
             Core
             FilterPrimitive
@@ -305,10 +305,10 @@ module Sevgi
             set
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        feColorMatrix: {
+        feColorMatrix:       {
           attributes: %i[
             Core
             FilterPrimitive
@@ -325,7 +325,7 @@ module Sevgi
             set
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
         feComponentTransfer: {
@@ -345,10 +345,10 @@ module Sevgi
             feFuncG
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        feComposite: {
+        feComposite:         {
           attributes: %i[
             Core
             FilterPrimitive
@@ -369,10 +369,10 @@ module Sevgi
             set
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        feConvolveMatrix: {
+        feConvolveMatrix:    {
           attributes: %i[
             Core
             FilterPrimitive
@@ -396,10 +396,10 @@ module Sevgi
             set
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        feDiffuseLighting: {
+        feDiffuseLighting:   {
           attributes: %i[
             Core
             FilterPrimitive
@@ -415,10 +415,10 @@ module Sevgi
           elements:   nil,
 
           # Any number of Descriptive elements and exactly one FilterLightSource element, in any order.
-          model:      :SpecialFeDiffuseLighting,
+          model:      :SpecialFeDiffuseLighting
         },
 
-        feDisplacementMap: {
+        feDisplacementMap:   {
           attributes: %i[
             Core
             FilterPrimitive
@@ -437,10 +437,10 @@ module Sevgi
             set
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        feDistantLight: {
+        feDistantLight:      {
           attributes: %i[
             Core
             Style
@@ -454,10 +454,10 @@ module Sevgi
             set
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        feDropShadow: {
+        feDropShadow:        {
           attributes: %i[
             Core
             FilterPrimitive
@@ -476,10 +476,10 @@ module Sevgi
             set
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        feFlood: {
+        feFlood:             {
           attributes: %i[
             Core
             FilterPrimitive
@@ -492,10 +492,10 @@ module Sevgi
             set
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        feFuncA: {
+        feFuncA:             {
           attributes: %i[
             Core
             FilterTransferFunction
@@ -507,10 +507,10 @@ module Sevgi
             set
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        feFuncB: {
+        feFuncB:             {
           attributes: %i[
             Core
             FilterTransferFunction
@@ -522,10 +522,10 @@ module Sevgi
             set
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        feFuncG: {
+        feFuncG:             {
           attributes: %i[
             Core
             FilterTransferFunction
@@ -537,10 +537,10 @@ module Sevgi
             set
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        feFuncR: {
+        feFuncR:             {
           attributes: %i[
             Core
             FilterTransferFunction
@@ -552,10 +552,10 @@ module Sevgi
             set
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        feGaussianBlur: {
+        feGaussianBlur:      {
           attributes: %i[
             Core
             FilterPrimitive
@@ -572,10 +572,10 @@ module Sevgi
             set
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        feImage: {
+        feImage:             {
           attributes: %i[
             Core
             FilterPrimitive
@@ -594,10 +594,10 @@ module Sevgi
             set
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        feMerge: {
+        feMerge:             {
           attributes: %i[
             Core
             FilterPrimitive
@@ -609,10 +609,10 @@ module Sevgi
             feMergeNode
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        feMergeNode: {
+        feMergeNode:         {
           attributes: %i[
             Core
             Style
@@ -625,10 +625,10 @@ module Sevgi
             set
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        feMorphology: {
+        feMorphology:        {
           attributes: %i[
             Core
             FilterPrimitive
@@ -645,10 +645,10 @@ module Sevgi
             set
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        feOffset: {
+        feOffset:            {
           attributes: %i[
             Core
             FilterPrimitive
@@ -665,10 +665,10 @@ module Sevgi
             set
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        fePointLight: {
+        fePointLight:        {
           attributes: %i[
             Core
             Style
@@ -683,10 +683,10 @@ module Sevgi
             set
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        feSpecularLighting: {
+        feSpecularLighting:  {
           attributes: %i[
             Core
             FilterPrimitive
@@ -703,10 +703,10 @@ module Sevgi
           elements:   nil,
 
           # Exactly one FilterLightSource element first and any number of Descriptive elements in any order.
-          model:      :SpecialFeSpecularLighting,
+          model:      :SpecialFeSpecularLighting
         },
 
-        feSpotLight: {
+        feSpotLight:         {
           attributes: %i[
             Core
             Style
@@ -726,10 +726,10 @@ module Sevgi
             set
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        feTile: {
+        feTile:              {
           attributes: %i[
             Core
             FilterPrimitive
@@ -744,10 +744,10 @@ module Sevgi
             set
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        feTurbulence: {
+        feTurbulence:        {
           attributes: %i[
             Core
             FilterPrimitive
@@ -766,10 +766,10 @@ module Sevgi
             set
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        filter: {
+        filter:              {
           attributes: %i[
             Core
             Presentation
@@ -793,10 +793,10 @@ module Sevgi
             set
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        font: {
+        font:                {
           attributes: %i[
             Core
             Presentation
@@ -821,10 +821,10 @@ module Sevgi
             vkern
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        "font-face": {
+        "font-face":         {
           attributes: %i[
             Core
 
@@ -866,10 +866,10 @@ module Sevgi
           elements:   nil,
 
           # Any number of Descriptive elements and at most one font-face element in any order.
-          model:      :SpecialFontFace,
+          model:      :SpecialFontFace
         },
 
-        "font-face-format": {
+        "font-face-format":  {
           attributes: %i[
             Core
 
@@ -878,10 +878,10 @@ module Sevgi
 
           elements:   nil,
 
-          model:      :NoneElements,
+          model:      :NoneElements
         },
 
-        "font-face-name": {
+        "font-face-name":    {
           attributes: %i[
             Core
 
@@ -890,10 +890,10 @@ module Sevgi
 
           elements:   nil,
 
-          model:      :NoneElements,
+          model:      :NoneElements
         },
 
-        "font-face-src": {
+        "font-face-src":     {
           attributes: %i[
             Core
           ],
@@ -903,10 +903,10 @@ module Sevgi
             font-face-uri
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        "font-face-uri": {
+        "font-face-uri":     {
           attributes: %i[
             Core
             Xlink
@@ -916,10 +916,10 @@ module Sevgi
             font-face-format
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        foreignObject: {
+        foreignObject:       {
           attributes: %i[
             Aria
             ConditionalProcessing
@@ -940,10 +940,10 @@ module Sevgi
 
           elements:   nil,
 
-          model:      :CDataOnly,
+          model:      :CDataOnly
         },
 
-        g: {
+        g:                   {
           attributes: %i[
             Aria
             ConditionalProcessing
@@ -966,10 +966,10 @@ module Sevgi
             UnrelatedCommon
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        glyph: {
+        glyph:               {
           attributes: %i[
             Core
             Presentation
@@ -995,10 +995,10 @@ module Sevgi
             UnrelatedCommon
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        glyphRef: {
+        glyphRef:            {
           attributes: %i[
             Core
             Presentation
@@ -1015,10 +1015,10 @@ module Sevgi
 
           elements:   nil,
 
-          model:      :NoneElements,
+          model:      :NoneElements
         },
 
-        hatch: {
+        hatch:               {
           attributes: %i[
             Core
             EventGlobal
@@ -1043,10 +1043,10 @@ module Sevgi
             style
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        hatchpath: {
+        hatchpath:           {
           attributes: %i[
             Core
             EventGlobal
@@ -1065,10 +1065,10 @@ module Sevgi
             style
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        hkern: {
+        hkern:               {
           attributes: %i[
             Core
 
@@ -1081,10 +1081,10 @@ module Sevgi
 
           elements:   nil,
 
-          model:      :NoneElements,
+          model:      :NoneElements
         },
 
-        image: {
+        image:               {
           attributes: %i[
             Aria
             ConditionalProcessing
@@ -1112,10 +1112,10 @@ module Sevgi
             Descriptive
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        line: {
+        line:                {
           attributes: %i[
             Aria
             ConditionalProcessing
@@ -1139,10 +1139,10 @@ module Sevgi
             Descriptive
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        linearGradient: {
+        linearGradient:      {
           attributes: %i[
             Core
             EventDocumentElement
@@ -1170,10 +1170,10 @@ module Sevgi
             stop
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        marker: {
+        marker:              {
           attributes: %i[
             Core
             EventDocumentElement
@@ -1200,10 +1200,10 @@ module Sevgi
             UnrelatedCommon
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        mask: {
+        mask:                {
           attributes: %i[
             ConditionalProcessing
             Core
@@ -1227,10 +1227,10 @@ module Sevgi
             UnrelatedCommon
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        metadata: {
+        metadata:            {
           attributes: %i[
             Core
             EventDocumentElement
@@ -1240,10 +1240,10 @@ module Sevgi
 
           elements:   nil,
 
-          model:      :CDataOnly,
+          model:      :CDataOnly
         },
 
-        "missing-glyph": {
+        "missing-glyph":     {
           attributes: %i[
             Core
             Presentation
@@ -1265,10 +1265,10 @@ module Sevgi
             UnrelatedCommon
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        mpath: {
+        mpath:               {
           attributes: %i[
             Core
             EventDocumentElement
@@ -1283,10 +1283,10 @@ module Sevgi
             Descriptive
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        path: {
+        path:                {
           attributes: %i[
             Aria
             ConditionalProcessing
@@ -1307,10 +1307,10 @@ module Sevgi
             Descriptive
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        pattern: {
+        pattern:             {
           attributes: %i[
             Core
             EventGlobal
@@ -1339,10 +1339,10 @@ module Sevgi
             UnrelatedCommon
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        polygon: {
+        polygon:             {
           attributes: %i[
             Aria
             ConditionalProcessing
@@ -1363,10 +1363,10 @@ module Sevgi
             Descriptive
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        polyline: {
+        polyline:            {
           attributes: %i[
             Aria
             ConditionalProcessing
@@ -1387,10 +1387,10 @@ module Sevgi
             Descriptive
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        radialGradient: {
+        radialGradient:      {
           attributes: %i[
             Core
             EventDocumentElement
@@ -1420,10 +1420,10 @@ module Sevgi
             stop
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        rect: {
+        rect:                {
           attributes: %i[
             Aria
             ConditionalProcessing
@@ -1449,10 +1449,10 @@ module Sevgi
             Descriptive
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        script: {
+        script:              {
           attributes: %i[
             Core
             EventDocumentElement
@@ -1467,10 +1467,10 @@ module Sevgi
 
           elements:   nil,
 
-          model:      :CDataOnly,
+          model:      :CDataOnly
         },
 
-        set: {
+        set:                 {
           attributes: %i[
             AnimationAttributeTarget
             AnimationTiming
@@ -1490,10 +1490,10 @@ module Sevgi
             Descriptive
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        stop: {
+        stop:                {
           attributes: %i[
             Core
             EventDocumentElement
@@ -1509,10 +1509,10 @@ module Sevgi
             set
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        style: {
+        style:               {
           attributes: %i[
             Core
             EventDocumentElement
@@ -1526,10 +1526,10 @@ module Sevgi
 
           elements:   nil,
 
-          model:      :CDataOnly,
+          model:      :CDataOnly
         },
 
-        svg: {
+        svg:                 {
           attributes: %i[
             Aria
             ConditionalProcessing
@@ -1565,10 +1565,10 @@ module Sevgi
             UnrelatedCommon
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        switch: {
+        switch:              {
           attributes: %i[
             Aria
             ConditionalProcessing
@@ -1597,10 +1597,10 @@ module Sevgi
             use
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        symbol: {
+        symbol:              {
           attributes: %i[
             Aria
             Core
@@ -1630,10 +1630,10 @@ module Sevgi
             UnrelatedCommon
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        text: {
+        text:                {
           attributes: %i[
             Aria
             ConditionalProcessing
@@ -1662,10 +1662,10 @@ module Sevgi
             a
           ],
 
-          model:      :CDataOrSomeElements,
+          model:      :CDataOrSomeElements
         },
 
-        textPath: {
+        textPath:            {
           attributes: %i[
             Aria
             ConditionalProcessing
@@ -1698,10 +1698,10 @@ module Sevgi
             tspan
           ],
 
-          model:      :CDataOrSomeElements,
+          model:      :CDataOrSomeElements
         },
 
-        title: {
+        title:               {
           attributes: %i[
             Core
             EventDocumentElement
@@ -1711,10 +1711,10 @@ module Sevgi
 
           elements:   nil,
 
-          model:      :CDataOnly,
+          model:      :CDataOnly
         },
 
-        tref: {
+        tref:                {
           attributes: %i[
             ConditionalProcessing
             Core
@@ -1733,10 +1733,10 @@ module Sevgi
             set
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        tspan: {
+        tspan:               {
           attributes: %i[
             Aria
             ConditionalProcessing
@@ -1767,10 +1767,10 @@ module Sevgi
             tspan
           ],
 
-          model:      :CDataOrSomeElements,
+          model:      :CDataOrSomeElements
         },
 
-        use: {
+        use:                 {
           attributes: %i[
             Aria
             ConditionalProcessing
@@ -1795,10 +1795,10 @@ module Sevgi
             Descriptive
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        view: {
+        view:                {
           attributes: %i[
             Aria
             Core
@@ -1817,10 +1817,10 @@ module Sevgi
             Descriptive
           ],
 
-          model:      :SomeElements,
+          model:      :SomeElements
         },
 
-        vkern: {
+        vkern:               {
           attributes: %i[
             Core
 
@@ -1833,8 +1833,8 @@ module Sevgi
 
           elements:   nil,
 
-          model:      :NoneElements,
-        },
+          model:      :NoneElements
+        }
       )
     end
   end

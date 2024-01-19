@@ -45,7 +45,7 @@ module Sevgi
       end
 
       def infinite?
-        [position, ending].any(&:infinite?)
+        [ position, ending ].any(&:infinite?)
       end
 
       def length
@@ -82,7 +82,7 @@ module Sevgi
         end
 
         def forward(p, q = nil)
-          new(position: (points = [p, q || p]).sort!.shift, ending: points.shift)
+          new(position: (points = [ p, q || p ]).sort!.shift, ending: points.shift)
         end
 
         def directed(position: Point.origin, length:, direction:)

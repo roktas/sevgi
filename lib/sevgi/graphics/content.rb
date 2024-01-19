@@ -7,7 +7,7 @@ module Sevgi
 
       def initialize(content)     = @content = content
 
-      def render(renderer, depth) = raise NotImplementedError
+      def render(renderer, depth) = raise(NotImplementedError)
 
       def to_s                    = content.to_s
 
@@ -28,7 +28,7 @@ module Sevgi
           super
         end
 
-        def render(renderer, depth)
+        def render(renderer, depth) # rubocop:disable Metrics/MethodLength
           depth += 1
 
           renderer.append(depth, "<![CDATA[")

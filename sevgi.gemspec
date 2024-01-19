@@ -14,8 +14,8 @@ Gem::Specification.new do |s|
   s.description                       = "Toolkit for Creating SVG Content Programmatically with Ruby"
   s.homepage                          = "https://sevgi.roktas.dev"
   s.files                             = Dir["CHANGELOG.md", "LICENSE", "README.md", "lib/**/*"]
-  s.executables                       = ["sevgi"]
-  s.require_paths                     = ["lib"]
+  s.executables                       = [ "sevgi" ]
+  s.require_paths                     = [ "lib" ]
   s.required_ruby_version             = ">= 3.2.2"
   s.metadata["changelog_uri"]         = "https://github.com/roktas/sevgi/blob/main/CHANGELOG.md"
   s.metadata["source_code_uri"]       = "https://github.com/roktas/sevgi"
