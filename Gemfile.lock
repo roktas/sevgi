@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    sevgi (0.0.0)
+    sevgi (0.0.1)
 
 GEM
   remote: https://rubygems.org/
@@ -74,7 +74,7 @@ GEM
       parser (>= 3.2.1.0)
     rubocop-md (1.2.2)
       rubocop (>= 1.0)
-    rubocop-minitest (0.34.4)
+    rubocop-minitest (0.34.5)
       rubocop (>= 1.39, < 2.0)
       rubocop-ast (>= 1.30.0, < 2.0)
     rubocop-packaging (0.5.2)
@@ -103,7 +103,7 @@ GEM
     rubygems-tasks (0.2.6)
       irb (~> 1.0)
       rake (>= 10.0.0)
-    sorbet-runtime (0.5.11212)
+    sorbet-runtime (0.5.11213)
     stringio (3.1.0)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
