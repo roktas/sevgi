@@ -1,0 +1,56 @@
+#!/usr/bin/env -S ruby -S sevgi
+
+WIDTH   = 20
+HEIGHT  = 150
+ENSPACE = " "
+
+STYLE = {
+  ".labels": { font:   "3pt monospace"                             },
+  ".majors": { stroke: "black", "stroke-width": 0.2                },
+  ".halves": { stroke: "black", "stroke-width": 0.1                },
+  ".minors": { stroke: "black", "stroke-width": 0.1                },
+  ".frame":  { stroke: "black", "stroke-width": 0.05, fill: "none" }
+}
+
+SVG :inkscape, :a4 do
+  css STYLE
+
+  rect id: "frame", width: WIDTH, height: HEIGHT, class: "frame"
+
+  layer id: "minors" do
+    length = 2
+
+    (0..HEIGHT).step(1) do |y|
+      line x1: 0, y1: y, x2: length, y2: y, class: "minors"
+      line x1: WIDTH, y1: y, x2: WIDTH - length, y2: y, class: "minors"
+    end
+  end
+
+  layer id: "halves" do
+    length = 4
+
+    (0..HEIGHT).step(5) do |y|
+      line x1: 0, y1: y, x2: length, y2: y, class: "halves"
+      line x1: WIDTH, y1: y, x2: WIDTH - length, y2: y, class: "halves"
+    end
+  end
+
+  layer id: "majors" do
+    length = 6
+
+    (10..HEIGHT - 10).step(10) do |y|
+      line x1: 0, y1: y, x2: length, y2: y, class: "majors"
+      line x1: WIDTH, y1: y, x2: WIDTH - length, y2: y, class: "majors"
+    end
+
+    layer id: "labels" do
+      [
+        3.5,
+        *(10..HEIGHT - 10).step(10).to_a.map { _1 + 1.4 },
+        HEIGHT - 1
+      ].each_with_index do |y, i|
+        text "#{i.to_s.rjust(2, ENSPACE)}", x: length + 1.4, y: y, class: "labels"
+      end
+    end
+  end
+end.Save
