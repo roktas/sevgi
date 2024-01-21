@@ -17,28 +17,28 @@ module Sevgi
             path(d: "M #{x1} #{y1} V #{y2}", **)
           end
 
-          def cline(x1: 0, y1: 0, angle:, length:, **)
+          def cline(x: 0, y: 0, angle:, length:, **)
             dx = length * ::Math.cos(angle.to_f / 180 * ::Math::PI)
             dy = length * ::Math.sin(angle.to_f / 180 * ::Math::PI)
-            path(d: "M #{x1} #{y1} l #{dx} #{dy}", **)
+            path(d: "M #{x} #{y} l #{dx} #{dy}", **)
           end
 
           def css(hash, **)
             style(Content::CSS.new(hash), type: "text/css", **)
           end
 
-          def cxline(x1: 0, y1: 0, angle:, dx:, **)
+          def cxline(x: 0, y: 0, angle:, dx:, **)
             dy = dx * ::Math.tan(angle.to_f / 180 * ::Math::PI)
-            path(d: "M #{x1} #{y1} l #{dx} #{dy}", **)
+            path(d: "M #{x} #{y} l #{dx} #{dy}", **)
           end
 
-          def cyline(x1: 0, y1: 0, angle:, dy:, **)
+          def cyline(x: 0, y: 0, angle:, dy:, **)
             dx = dy / ::Math.tan(angle.to_f / 180 * ::Math::PI)
-            path(d: "M #{x1} #{y1} l #{dx} #{dy}", **)
+            path(d: "M #{x} #{y} l #{dx} #{dy}", **)
           end
 
-          def hline(x1: 0, y1: 0, length:, **)
-            path(d: "M #{x1} #{y1} h #{length}", **)
+          def hline(x: 0, y: 0, length:, **)
+            path(d: "M #{x} #{y} h #{length}", **)
           end
 
           def layer(...)
@@ -53,8 +53,8 @@ module Sevgi
             rect(width: length, height: length, **)
           end
 
-          def vline(x1: 0, y1: 0, length:, **)
-            path(d: "M #{x1} #{y1} v #{length}", **)
+          def vline(x: 0, y: 0, length:, **)
+            path(d: "M #{x} #{y} v #{length}", **)
           end
         end
       end
