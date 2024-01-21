@@ -39,7 +39,7 @@ module Guidesheet
     ".major": { stroke: Color.blue,    "stroke-width": Width.broad                         },
     ".mark":  { stroke: Color.black                                                        },
     ".minor": { stroke: Color.magenta, "stroke-width": Width.fine                          },
-    ".slant": { stroke: Color.green                                                        },
+    ".slant": { stroke: Color.green                                                        }
   }.freeze
 
   def call(ts)
