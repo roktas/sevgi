@@ -31,12 +31,15 @@ Metrics/BlockLength:
   Exclude: 
     - "**/test/**/*.rb"
     - "*.gemspec"
+    - "**/srv/examples/**/*.sevgi"
 Metrics/ClassLength:
   Exclude: 
     - "**/test/**/*.rb"
+    - "**/srv/examples/**/*.sevgi"
 Metrics/MethodLength:
   Exclude: 
     - "**/test/**/*.rb"
+    - "**/srv/examples/**/*.sevgi"
 
 Naming/MethodName:
   Enabled: false
@@ -60,6 +63,7 @@ Style/LambdaCall:
 Style/MethodCallWithArgsParentheses:
   Exclude: 
     - "**/test/**/*.rb"
+    - "**/srv/examples/**/*.sevgi"
 Style/ParallelAssignment:
   Enabled: false
 Style/SymbolArray:
@@ -76,6 +80,8 @@ Style/TrailingCommaInArguments:
 
 AllCops:
   NewCops: enable
+  Include:
+    - "**/srv/examples/**/*.sevgi"
   Exclude:
     - "vendor/**/*"
     - "_/**/*"
