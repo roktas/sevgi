@@ -4,7 +4,8 @@ module Sevgi
   module Graphics
     module Document
       class HTML < Default
-        document :html, preambles: []
+        document :html,
+          preambles: []
       end
     end
   end
