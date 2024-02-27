@@ -3,6 +3,9 @@ on:
   push:              { branches: [ "edge" ], paths: ["srv/**"] }
   pull_request:      { branches: [ "edge" ], paths: ["srv/**"] }
   workflow_dispatch:
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
 jobs:
   site:
     runs-on: ubuntu-latest
@@ -10,7 +13,7 @@ jobs:
       - name: Checkout 🛎️
         uses: actions/checkout@v4
       - name: Deploy 🥁
-        uses: shalzz/zola-deploy-action@v0.17.2
+        uses: shalzz/zola-deploy-action@v0.18.0
         env:
           BUILD_DIR: srv
           PAGES_BRANCH: site
