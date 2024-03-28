@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require "digest"
+require "fileutils"
+require "pathname"
 
 module Sevgi
   module Function
@@ -22,6 +24,16 @@ module Sevgi
 
       def variations(name, dirs, exts)
         dirs.product(exts).map { |dir, ext| ::File.join(dir, "#{name}.#{ext}") }
+      end
+
+      def touch(*paths, ext: nil)
+        path = ::File.join(*paths)
+        path = Pathname.new(path).sub_ext(ext) if ext
+
+        ::FileUtils.mkdir_p(::File.dirname(path))
+        ::FileUtils.touch(path)
+
+        path
       end
     end
 
