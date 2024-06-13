@@ -1,0 +1,33 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="100">
+  <rect id="frame" width="200" height="100" rx="5" fill="#666"/>
+  <svg>
+    <g transform="scale(0.2)">
+      <circle cx="80" cy="50" r="40" fill="yellow"/>
+      <circle cx="90" cy="28" r="6" fill="black"/>
+      <polygon points="80,50 120,20 120,80" fill="#666"/>
+      <g>
+        <symbol>
+          <circle cx="120" cy="50" r="6" fill="yellow"/>
+        </symbol>
+        <use xlink:href="#dot"/>
+        <use xlink:href="#dot" transform="translate(18 0)"/>
+        <use xlink:href="#dot" transform="translate(36 0)"/>
+      </g>
+    </g>
+  </svg>
+  <g>
+    <circle id="head" cx="80" cy="50" r="40" fill="yellow"/>
+    <circle id="eye" cx="90" cy="28" r="6" fill="black"/>
+    <polygon id="mouth" points="80,50 120,20 120,80" fill="#666"/>
+    <g id="dots">
+      <symbol id="dot">
+        <circle cx="120" cy="50" r="6" fill="yellow"/>
+      </symbol>
+      <use id="dot-1" xlink:href="#dot"/>
+      <use id="dot-2" xlink:href="#dot" transform="translate(18 0)"/>
+      <use id="dot-3" xlink:href="#dot" transform="translate(36 0)"/>
+    </g>
+  </g>
+</svg>

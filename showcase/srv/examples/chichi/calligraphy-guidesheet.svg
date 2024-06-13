@@ -1,0 +1,390 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg
+  id="Guides"
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+  xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+  shape-rendering="crispEdges"
+  width="210.0mm"
+  height="297.0mm"
+  viewBox="-15 -28.5 210 297"
+>
+  <style id="style" type="text/css">
+    <![CDATA[
+      * {
+        overflow: visible;
+      }
+      .cross {
+        stroke-width: 0.04;
+      }
+      .date {
+        stroke: gray;
+        stroke-width: 0.08;
+        fill: #ececec;
+      }
+      .edge {
+        stroke: magenta;
+      }
+      .halve {
+        stroke: black;
+        stroke-width: 0.04;
+      }
+      .major {
+        stroke: blue;
+        stroke-width: 0.16;
+      }
+      .mark {
+        stroke: black;
+      }
+      .minor {
+        stroke: magenta;
+        stroke-width: 0.04;
+      }
+      .slant {
+        stroke: green;
+      }
+    ]]>
+  </style>
+  <defs>
+    <g id="MarkMajor" role="inkscape:symbol">
+      <path d="M -4 0 L 4 0"/>
+      <path d="M 0 -4 L 0 4"/>
+    </g>
+    <g id="MarkMinor" role="inkscape:symbol">
+      <path d="M -2 0 L 2 0"/>
+      <path d="M 0 -2 L 0 2"/>
+    </g>
+  </defs>
+  <g id="Date" inkscape:groupmode="layer" sodipodi:insensitive="true">
+    <rect id="Date-Year" x="120.0" y="-15" width="30" height="8" class="date year"/>
+    <rect id="Date-Month" x="150.0" y="-15" width="15" height="8" class="date month"/>
+    <rect id="Date-Day" x="165.0" y="-15" width="15" height="8" class="date day"/>
+  </g>
+  <g id="Marks" inkscape:groupmode="layer" sodipodi:insensitive="true">
+    <g id="Marks-Halve" inkscape:groupmode="layer" sodipodi:insensitive="true">
+      <g id="Marks-Halve-Horizontal" inkscape:groupmode="layer" sodipodi:insensitive="true">
+        <use xlink:href="#MarkMinor" x="0.0" y="15.0" class="mark halve"/>
+        <use xlink:href="#MarkMinor" x="180.0" y="15.0" class="mark halve"/>
+        <use xlink:href="#MarkMinor" x="0.0" y="45.0" class="mark halve"/>
+        <use xlink:href="#MarkMinor" x="180.0" y="45.0" class="mark halve"/>
+        <use xlink:href="#MarkMinor" x="0.0" y="75.0" class="mark halve"/>
+        <use xlink:href="#MarkMinor" x="180.0" y="75.0" class="mark halve"/>
+        <use xlink:href="#MarkMinor" x="0.0" y="105.0" class="mark halve"/>
+        <use xlink:href="#MarkMinor" x="180.0" y="105.0" class="mark halve"/>
+        <use xlink:href="#MarkMinor" x="0.0" y="135.0" class="mark halve"/>
+        <use xlink:href="#MarkMinor" x="180.0" y="135.0" class="mark halve"/>
+        <use xlink:href="#MarkMinor" x="0.0" y="165.0" class="mark halve"/>
+        <use xlink:href="#MarkMinor" x="180.0" y="165.0" class="mark halve"/>
+        <use xlink:href="#MarkMinor" x="0.0" y="195.0" class="mark halve"/>
+        <use xlink:href="#MarkMinor" x="180.0" y="195.0" class="mark halve"/>
+        <use xlink:href="#MarkMinor" x="0.0" y="225.0" class="mark halve"/>
+        <use xlink:href="#MarkMinor" x="180.0" y="225.0" class="mark halve"/>
+      </g>
+      <g id="Marks-Halve-Vertical" inkscape:groupmode="layer" sodipodi:insensitive="true">
+        <use xlink:href="#MarkMinor" x="15.0" y="0.0" class="mark halve"/>
+        <use xlink:href="#MarkMinor" x="15.0" y="240.0" class="mark halve"/>
+        <use xlink:href="#MarkMinor" x="45.0" y="0.0" class="mark halve"/>
+        <use xlink:href="#MarkMinor" x="45.0" y="240.0" class="mark halve"/>
+        <use xlink:href="#MarkMinor" x="75.0" y="0.0" class="mark halve"/>
+        <use xlink:href="#MarkMinor" x="75.0" y="240.0" class="mark halve"/>
+        <use xlink:href="#MarkMinor" x="105.0" y="0.0" class="mark halve"/>
+        <use xlink:href="#MarkMinor" x="105.0" y="240.0" class="mark halve"/>
+        <use xlink:href="#MarkMinor" x="135.0" y="0.0" class="mark halve"/>
+        <use xlink:href="#MarkMinor" x="135.0" y="240.0" class="mark halve"/>
+        <use xlink:href="#MarkMinor" x="165.0" y="0.0" class="mark halve"/>
+        <use xlink:href="#MarkMinor" x="165.0" y="240.0" class="mark halve"/>
+      </g>
+    </g>
+    <g id="Marks-Major" inkscape:groupmode="layer" sodipodi:insensitive="true">
+      <g id="Marks-Major-Horizontal" inkscape:groupmode="layer" sodipodi:insensitive="true">
+        <use xlink:href="#MarkMajor" x="0.0" y="0.0" class="mark major"/>
+        <use xlink:href="#MarkMajor" x="180.0" y="0.0" class="mark major"/>
+        <use xlink:href="#MarkMajor" x="0.0" y="30.0" class="mark major"/>
+        <use xlink:href="#MarkMajor" x="180.0" y="30.0" class="mark major"/>
+        <use xlink:href="#MarkMajor" x="0.0" y="60.0" class="mark major"/>
+        <use xlink:href="#MarkMajor" x="180.0" y="60.0" class="mark major"/>
+        <use xlink:href="#MarkMajor" x="0.0" y="90.0" class="mark major"/>
+        <use xlink:href="#MarkMajor" x="180.0" y="90.0" class="mark major"/>
+        <use xlink:href="#MarkMajor" x="0.0" y="120.0" class="mark major"/>
+        <use xlink:href="#MarkMajor" x="180.0" y="120.0" class="mark major"/>
+        <use xlink:href="#MarkMajor" x="0.0" y="150.0" class="mark major"/>
+        <use xlink:href="#MarkMajor" x="180.0" y="150.0" class="mark major"/>
+        <use xlink:href="#MarkMajor" x="0.0" y="180.0" class="mark major"/>
+        <use xlink:href="#MarkMajor" x="180.0" y="180.0" class="mark major"/>
+        <use xlink:href="#MarkMajor" x="0.0" y="210.0" class="mark major"/>
+        <use xlink:href="#MarkMajor" x="180.0" y="210.0" class="mark major"/>
+        <use xlink:href="#MarkMajor" x="0.0" y="240.0" class="mark major"/>
+        <use xlink:href="#MarkMajor" x="180.0" y="240.0" class="mark major"/>
+      </g>
+      <g id="Marks-Major-Vertical" inkscape:groupmode="layer" sodipodi:insensitive="true">
+        <use xlink:href="#MarkMajor" x="0.0" y="0.0" class="mark major"/>
+        <use xlink:href="#MarkMajor" x="0.0" y="240.0" class="mark major"/>
+        <use xlink:href="#MarkMajor" x="30.0" y="0.0" class="mark major"/>
+        <use xlink:href="#MarkMajor" x="30.0" y="240.0" class="mark major"/>
+        <use xlink:href="#MarkMajor" x="60.0" y="0.0" class="mark major"/>
+        <use xlink:href="#MarkMajor" x="60.0" y="240.0" class="mark major"/>
+        <use xlink:href="#MarkMajor" x="90.0" y="0.0" class="mark major"/>
+        <use xlink:href="#MarkMajor" x="90.0" y="240.0" class="mark major"/>
+        <use xlink:href="#MarkMajor" x="120.0" y="0.0" class="mark major"/>
+        <use xlink:href="#MarkMajor" x="120.0" y="240.0" class="mark major"/>
+        <use xlink:href="#MarkMajor" x="150.0" y="0.0" class="mark major"/>
+        <use xlink:href="#MarkMajor" x="150.0" y="240.0" class="mark major"/>
+        <use xlink:href="#MarkMajor" x="180.0" y="0.0" class="mark major"/>
+        <use xlink:href="#MarkMajor" x="180.0" y="240.0" class="mark major"/>
+      </g>
+    </g>
+  </g>
+  <g id="Crosses" inkscape:groupmode="layer" sodipodi:insensitive="true">
+    <g id="Crosses-Edge" inkscape:groupmode="layer" sodipodi:insensitive="true">
+      <path d="M 180.0 234.0 L 174.0 240.0" class="cross edge"/>
+      <path d="M 180.0 228.0 L 168.0 240.0" class="cross edge"/>
+      <path d="M 180.0 222.0 L 162.0 240.0" class="cross edge"/>
+      <path d="M 180.0 216.0 L 156.0 240.0" class="cross edge"/>
+      <path d="M 180.0 210.0 L 150.0 240.0" class="cross edge"/>
+      <path d="M 180.0 204.0 L 144.0 240.0" class="cross edge"/>
+      <path d="M 180.0 198.0 L 138.0 240.0" class="cross edge"/>
+      <path d="M 180.0 192.0 L 132.0 240.0" class="cross edge"/>
+      <path d="M 180.0 186.0 L 126.0 240.0" class="cross edge"/>
+      <path d="M 180.0 180.0 L 120.0 240.0" class="cross edge"/>
+      <path d="M 180.0 174.0 L 114.0 240.0" class="cross edge"/>
+      <path d="M 180.0 168.0 L 108.0 240.0" class="cross edge"/>
+      <path d="M 180.0 162.0 L 102.0 240.0" class="cross edge"/>
+      <path d="M 180.0 156.0 L 96.0 240.0" class="cross edge"/>
+      <path d="M 180.0 150.0 L 90.0 240.0" class="cross edge"/>
+      <path d="M 180.0 144.0 L 84.0 240.0" class="cross edge"/>
+      <path d="M 180.0 138.0 L 78.0 240.0" class="cross edge"/>
+      <path d="M 180.0 132.0 L 72.0 240.0" class="cross edge"/>
+      <path d="M 180.0 126.0 L 66.0 240.0" class="cross edge"/>
+      <path d="M 180.0 120.0 L 60.0 240.0" class="cross edge"/>
+      <path d="M 180.0 114.0 L 54.0 240.0" class="cross edge"/>
+      <path d="M 180.0 108.0 L 48.0 240.0" class="cross edge"/>
+      <path d="M 180.0 102.0 L 42.0 240.0" class="cross edge"/>
+      <path d="M 180.0 96.0 L 36.0 240.0" class="cross edge"/>
+      <path d="M 180.0 90.0 L 30.0 240.0" class="cross edge"/>
+      <path d="M 180.0 84.0 L 24.0 240.0" class="cross edge"/>
+      <path d="M 180.0 78.0 L 18.0 240.0" class="cross edge"/>
+      <path d="M 180.0 72.0 L 12.0 240.0" class="cross edge"/>
+      <path d="M 180.0 66.0 L 6.0 240.0" class="cross edge"/>
+      <path d="M 180.0 60.0 L 0.0 240.0" class="cross edge"/>
+      <path d="M 180.0 54.0 L 0.0 234.0" class="cross edge"/>
+      <path d="M 180.0 48.0 L 0.0 228.0" class="cross edge"/>
+      <path d="M 180.0 42.0 L 0.0 222.0" class="cross edge"/>
+      <path d="M 180.0 36.0 L 0.0 216.0" class="cross edge"/>
+      <path d="M 180.0 30.0 L 0.0 210.0" class="cross edge"/>
+      <path d="M 180.0 24.0 L 0.0 204.0" class="cross edge"/>
+      <path d="M 180.0 18.0 L 0.0 198.0" class="cross edge"/>
+      <path d="M 180.0 12.0 L 0.0 192.0" class="cross edge"/>
+      <path d="M 180.0 6.0 L 0.0 186.0" class="cross edge"/>
+      <path d="M 180.0 0.0 L 0.0 180.0" class="cross edge"/>
+      <path d="M 174.0 0.0 L 0.0 174.0" class="cross edge"/>
+      <path d="M 168.0 0.0 L 0.0 168.0" class="cross edge"/>
+      <path d="M 162.0 0.0 L 0.0 162.0" class="cross edge"/>
+      <path d="M 156.0 0.0 L 0.0 156.0" class="cross edge"/>
+      <path d="M 150.0 0.0 L 0.0 150.0" class="cross edge"/>
+      <path d="M 144.0 0.0 L 0.0 144.0" class="cross edge"/>
+      <path d="M 138.0 0.0 L 0.0 138.0" class="cross edge"/>
+      <path d="M 132.0 0.0 L 0.0 132.0" class="cross edge"/>
+      <path d="M 126.0 0.0 L 0.0 126.0" class="cross edge"/>
+      <path d="M 120.0 0.0 L 0.0 120.0" class="cross edge"/>
+      <path d="M 114.0 0.0 L 0.0 114.0" class="cross edge"/>
+      <path d="M 108.0 0.0 L 0.0 108.0" class="cross edge"/>
+      <path d="M 102.0 0.0 L 0.0 102.0" class="cross edge"/>
+      <path d="M 96.0 0.0 L 0.0 96.0" class="cross edge"/>
+      <path d="M 90.0 0.0 L 0.0 90.0" class="cross edge"/>
+      <path d="M 84.0 0.0 L 0.0 84.0" class="cross edge"/>
+      <path d="M 78.0 0.0 L 0.0 78.0" class="cross edge"/>
+      <path d="M 72.0 0.0 L 0.0 72.0" class="cross edge"/>
+      <path d="M 66.0 0.0 L 0.0 66.0" class="cross edge"/>
+      <path d="M 60.0 0.0 L 0.0 60.0" class="cross edge"/>
+      <path d="M 54.0 0.0 L 0.0 54.0" class="cross edge"/>
+      <path d="M 48.0 0.0 L 0.0 48.0" class="cross edge"/>
+      <path d="M 42.0 0.0 L 0.0 42.0" class="cross edge"/>
+      <path d="M 36.0 0.0 L 0.0 36.0" class="cross edge"/>
+      <path d="M 30.0 0.0 L 0.0 30.0" class="cross edge"/>
+      <path d="M 24.0 0.0 L 0.0 24.0" class="cross edge"/>
+      <path d="M 18.0 0.0 L 0.0 18.0" class="cross edge"/>
+      <path d="M 12.0 0.0 L 0.0 12.0" class="cross edge"/>
+      <path d="M 6.0 0.0 L 0.0 6.0" class="cross edge"/>
+    </g>
+    <g id="Crosses-Slant" inkscape:groupmode="layer" sodipodi:insensitive="true">
+      <path d="M 180.0 231.427754 L 178.947461 240.0" class="cross slant"/>
+      <path d="M 180.0 201.116859 L 175.225751 240.0" class="cross slant"/>
+      <path d="M 180.0 170.805964 L 171.504041 240.0" class="cross slant"/>
+      <path d="M 180.0 140.495069 L 167.782331 240.0" class="cross slant"/>
+      <path d="M 180.0 110.184175 L 164.060621 240.0" class="cross slant"/>
+      <path d="M 180.0 79.87328 L 160.338911 240.0" class="cross slant"/>
+      <path d="M 180.0 49.562385 L 156.617201 240.0" class="cross slant"/>
+      <path d="M 180.0 19.25149 L 152.895491 240.0" class="cross slant"/>
+      <path d="M 178.642076 0.0 L 149.173781 240.0" class="cross slant"/>
+      <path d="M 174.920366 0.0 L 145.452071 240.0" class="cross slant"/>
+      <path d="M 171.198656 0.0 L 141.730361 240.0" class="cross slant"/>
+      <path d="M 167.476946 0.0 L 138.008651 240.0" class="cross slant"/>
+      <path d="M 163.755236 0.0 L 134.286942 240.0" class="cross slant"/>
+      <path d="M 160.033526 0.0 L 130.565232 240.0" class="cross slant"/>
+      <path d="M 156.311816 0.0 L 126.843522 240.0" class="cross slant"/>
+      <path d="M 152.590106 0.0 L 123.121812 240.0" class="cross slant"/>
+      <path d="M 148.868397 0.0 L 119.400102 240.0" class="cross slant"/>
+      <path d="M 145.146687 0.0 L 115.678392 240.0" class="cross slant"/>
+      <path d="M 141.424977 0.0 L 111.956682 240.0" class="cross slant"/>
+      <path d="M 137.703267 0.0 L 108.234972 240.0" class="cross slant"/>
+      <path d="M 133.981557 0.0 L 104.513262 240.0" class="cross slant"/>
+      <path d="M 130.259847 0.0 L 100.791552 240.0" class="cross slant"/>
+      <path d="M 126.538137 0.0 L 97.069842 240.0" class="cross slant"/>
+      <path d="M 122.816427 0.0 L 93.348133 240.0" class="cross slant"/>
+      <path d="M 119.094717 0.0 L 89.626423 240.0" class="cross slant"/>
+      <path d="M 115.373007 0.0 L 85.904713 240.0" class="cross slant"/>
+      <path d="M 111.651297 0.0 L 82.183003 240.0" class="cross slant"/>
+      <path d="M 107.929587 0.0 L 78.461293 240.0" class="cross slant"/>
+      <path d="M 104.207878 0.0 L 74.739583 240.0" class="cross slant"/>
+      <path d="M 100.486168 0.0 L 71.017873 240.0" class="cross slant"/>
+      <path d="M 96.764458 0.0 L 67.296163 240.0" class="cross slant"/>
+      <path d="M 93.042748 0.0 L 63.574453 240.0" class="cross slant"/>
+      <path d="M 89.321038 0.0 L 59.852743 240.0" class="cross slant"/>
+      <path d="M 85.599328 0.0 L 56.131033 240.0" class="cross slant"/>
+      <path d="M 81.877618 0.0 L 52.409323 240.0" class="cross slant"/>
+      <path d="M 78.155908 0.0 L 48.687614 240.0" class="cross slant"/>
+      <path d="M 74.434198 0.0 L 44.965904 240.0" class="cross slant"/>
+      <path d="M 70.712488 0.0 L 41.244194 240.0" class="cross slant"/>
+      <path d="M 66.990778 0.0 L 37.522484 240.0" class="cross slant"/>
+      <path d="M 63.269069 0.0 L 33.800774 240.0" class="cross slant"/>
+      <path d="M 59.547359 0.0 L 30.079064 240.0" class="cross slant"/>
+      <path d="M 55.825649 0.0 L 26.357354 240.0" class="cross slant"/>
+      <path d="M 52.103939 0.0 L 22.635644 240.0" class="cross slant"/>
+      <path d="M 48.382229 0.0 L 18.913934 240.0" class="cross slant"/>
+      <path d="M 44.660519 0.0 L 15.192224 240.0" class="cross slant"/>
+      <path d="M 40.938809 0.0 L 11.470514 240.0" class="cross slant"/>
+      <path d="M 37.217099 0.0 L 7.748805 240.0" class="cross slant"/>
+      <path d="M 33.495389 0.0 L 4.027095 240.0" class="cross slant"/>
+      <path d="M 29.773679 0.0 L 0.305385 240.0" class="cross slant"/>
+      <path d="M 26.051969 0.0 L 0.0 212.176264" class="cross slant"/>
+      <path d="M 22.330259 0.0 L 0.0 181.865369" class="cross slant"/>
+      <path d="M 18.60855 0.0 L 0.0 151.554474" class="cross slant"/>
+      <path d="M 14.88684 0.0 L 0.0 121.243579" class="cross slant"/>
+      <path d="M 11.16513 0.0 L 0.0 90.932685" class="cross slant"/>
+      <path d="M 7.44342 0.0 L 0.0 60.62179" class="cross slant"/>
+      <path d="M 3.72171 0.0 L 0.0 30.310895" class="cross slant"/>
+    </g>
+  </g>
+  <g id="Halves" inkscape:groupmode="layer" sodipodi:insensitive="true">
+    <g id="Halves-Horizontal" inkscape:groupmode="layer" sodipodi:insensitive="true">
+      <path d="M 0.0 15.0 L 180.0 15.0" class="rule halve horizontal"/>
+      <path d="M 0.0 45.0 L 180.0 45.0" class="rule halve horizontal"/>
+      <path d="M 0.0 75.0 L 180.0 75.0" class="rule halve horizontal"/>
+      <path d="M 0.0 105.0 L 180.0 105.0" class="rule halve horizontal"/>
+      <path d="M 0.0 135.0 L 180.0 135.0" class="rule halve horizontal"/>
+      <path d="M 0.0 165.0 L 180.0 165.0" class="rule halve horizontal"/>
+      <path d="M 0.0 195.0 L 180.0 195.0" class="rule halve horizontal"/>
+      <path d="M 0.0 225.0 L 180.0 225.0" class="rule halve horizontal"/>
+    </g>
+    <g id="Halves-Vertical" inkscape:groupmode="layer" sodipodi:insensitive="true">
+      <path d="M 15.0 0.0 L 15.0 240.0" class="rule halve vertical"/>
+      <path d="M 45.0 0.0 L 45.0 240.0" class="rule halve vertical"/>
+      <path d="M 75.0 0.0 L 75.0 240.0" class="rule halve vertical"/>
+      <path d="M 105.0 0.0 L 105.0 240.0" class="rule halve vertical"/>
+      <path d="M 135.0 0.0 L 135.0 240.0" class="rule halve vertical"/>
+      <path d="M 165.0 0.0 L 165.0 240.0" class="rule halve vertical"/>
+    </g>
+  </g>
+  <g id="Minors" inkscape:groupmode="layer" sodipodi:insensitive="true">
+    <g id="Minors-Horizontal" inkscape:groupmode="layer" sodipodi:insensitive="true">
+      <path d="M 0.0 0.0 L 180.0 0.0" class="rule minor horizontal"/>
+      <path d="M 0.0 6.0 L 180.0 6.0" class="rule minor horizontal"/>
+      <path d="M 0.0 12.0 L 180.0 12.0" class="rule minor horizontal"/>
+      <path d="M 0.0 18.0 L 180.0 18.0" class="rule minor horizontal"/>
+      <path d="M 0.0 24.0 L 180.0 24.0" class="rule minor horizontal"/>
+      <path d="M 0.0 30.0 L 180.0 30.0" class="rule minor horizontal"/>
+      <path d="M 0.0 36.0 L 180.0 36.0" class="rule minor horizontal"/>
+      <path d="M 0.0 42.0 L 180.0 42.0" class="rule minor horizontal"/>
+      <path d="M 0.0 48.0 L 180.0 48.0" class="rule minor horizontal"/>
+      <path d="M 0.0 54.0 L 180.0 54.0" class="rule minor horizontal"/>
+      <path d="M 0.0 60.0 L 180.0 60.0" class="rule minor horizontal"/>
+      <path d="M 0.0 66.0 L 180.0 66.0" class="rule minor horizontal"/>
+      <path d="M 0.0 72.0 L 180.0 72.0" class="rule minor horizontal"/>
+      <path d="M 0.0 78.0 L 180.0 78.0" class="rule minor horizontal"/>
+      <path d="M 0.0 84.0 L 180.0 84.0" class="rule minor horizontal"/>
+      <path d="M 0.0 90.0 L 180.0 90.0" class="rule minor horizontal"/>
+      <path d="M 0.0 96.0 L 180.0 96.0" class="rule minor horizontal"/>
+      <path d="M 0.0 102.0 L 180.0 102.0" class="rule minor horizontal"/>
+      <path d="M 0.0 108.0 L 180.0 108.0" class="rule minor horizontal"/>
+      <path d="M 0.0 114.0 L 180.0 114.0" class="rule minor horizontal"/>
+      <path d="M 0.0 120.0 L 180.0 120.0" class="rule minor horizontal"/>
+      <path d="M 0.0 126.0 L 180.0 126.0" class="rule minor horizontal"/>
+      <path d="M 0.0 132.0 L 180.0 132.0" class="rule minor horizontal"/>
+      <path d="M 0.0 138.0 L 180.0 138.0" class="rule minor horizontal"/>
+      <path d="M 0.0 144.0 L 180.0 144.0" class="rule minor horizontal"/>
+      <path d="M 0.0 150.0 L 180.0 150.0" class="rule minor horizontal"/>
+      <path d="M 0.0 156.0 L 180.0 156.0" class="rule minor horizontal"/>
+      <path d="M 0.0 162.0 L 180.0 162.0" class="rule minor horizontal"/>
+      <path d="M 0.0 168.0 L 180.0 168.0" class="rule minor horizontal"/>
+      <path d="M 0.0 174.0 L 180.0 174.0" class="rule minor horizontal"/>
+      <path d="M 0.0 180.0 L 180.0 180.0" class="rule minor horizontal"/>
+      <path d="M 0.0 186.0 L 180.0 186.0" class="rule minor horizontal"/>
+      <path d="M 0.0 192.0 L 180.0 192.0" class="rule minor horizontal"/>
+      <path d="M 0.0 198.0 L 180.0 198.0" class="rule minor horizontal"/>
+      <path d="M 0.0 204.0 L 180.0 204.0" class="rule minor horizontal"/>
+      <path d="M 0.0 210.0 L 180.0 210.0" class="rule minor horizontal"/>
+      <path d="M 0.0 216.0 L 180.0 216.0" class="rule minor horizontal"/>
+      <path d="M 0.0 222.0 L 180.0 222.0" class="rule minor horizontal"/>
+      <path d="M 0.0 228.0 L 180.0 228.0" class="rule minor horizontal"/>
+      <path d="M 0.0 234.0 L 180.0 234.0" class="rule minor horizontal"/>
+      <path d="M 0.0 240.0 L 180.0 240.0" class="rule minor horizontal"/>
+    </g>
+    <g id="Minors-Vertical" inkscape:groupmode="layer" sodipodi:insensitive="true">
+      <path d="M 0.0 0.0 L 0.0 240.0" class="rule minor vertical"/>
+      <path d="M 6.0 0.0 L 6.0 240.0" class="rule minor vertical"/>
+      <path d="M 12.0 0.0 L 12.0 240.0" class="rule minor vertical"/>
+      <path d="M 18.0 0.0 L 18.0 240.0" class="rule minor vertical"/>
+      <path d="M 24.0 0.0 L 24.0 240.0" class="rule minor vertical"/>
+      <path d="M 30.0 0.0 L 30.0 240.0" class="rule minor vertical"/>
+      <path d="M 36.0 0.0 L 36.0 240.0" class="rule minor vertical"/>
+      <path d="M 42.0 0.0 L 42.0 240.0" class="rule minor vertical"/>
+      <path d="M 48.0 0.0 L 48.0 240.0" class="rule minor vertical"/>
+      <path d="M 54.0 0.0 L 54.0 240.0" class="rule minor vertical"/>
+      <path d="M 60.0 0.0 L 60.0 240.0" class="rule minor vertical"/>
+      <path d="M 66.0 0.0 L 66.0 240.0" class="rule minor vertical"/>
+      <path d="M 72.0 0.0 L 72.0 240.0" class="rule minor vertical"/>
+      <path d="M 78.0 0.0 L 78.0 240.0" class="rule minor vertical"/>
+      <path d="M 84.0 0.0 L 84.0 240.0" class="rule minor vertical"/>
+      <path d="M 90.0 0.0 L 90.0 240.0" class="rule minor vertical"/>
+      <path d="M 96.0 0.0 L 96.0 240.0" class="rule minor vertical"/>
+      <path d="M 102.0 0.0 L 102.0 240.0" class="rule minor vertical"/>
+      <path d="M 108.0 0.0 L 108.0 240.0" class="rule minor vertical"/>
+      <path d="M 114.0 0.0 L 114.0 240.0" class="rule minor vertical"/>
+      <path d="M 120.0 0.0 L 120.0 240.0" class="rule minor vertical"/>
+      <path d="M 126.0 0.0 L 126.0 240.0" class="rule minor vertical"/>
+      <path d="M 132.0 0.0 L 132.0 240.0" class="rule minor vertical"/>
+      <path d="M 138.0 0.0 L 138.0 240.0" class="rule minor vertical"/>
+      <path d="M 144.0 0.0 L 144.0 240.0" class="rule minor vertical"/>
+      <path d="M 150.0 0.0 L 150.0 240.0" class="rule minor vertical"/>
+      <path d="M 156.0 0.0 L 156.0 240.0" class="rule minor vertical"/>
+      <path d="M 162.0 0.0 L 162.0 240.0" class="rule minor vertical"/>
+      <path d="M 168.0 0.0 L 168.0 240.0" class="rule minor vertical"/>
+      <path d="M 174.0 0.0 L 174.0 240.0" class="rule minor vertical"/>
+      <path d="M 180.0 0.0 L 180.0 240.0" class="rule minor vertical"/>
+    </g>
+  </g>
+  <g id="Majors" inkscape:groupmode="layer" sodipodi:insensitive="true">
+    <g id="Majors-Horizontal" inkscape:groupmode="layer" sodipodi:insensitive="true">
+      <path d="M 0.0 0.0 L 180.0 0.0" class="rule major horizontal"/>
+      <path d="M 0.0 30.0 L 180.0 30.0" class="rule major horizontal"/>
+      <path d="M 0.0 60.0 L 180.0 60.0" class="rule major horizontal"/>
+      <path d="M 0.0 90.0 L 180.0 90.0" class="rule major horizontal"/>
+      <path d="M 0.0 120.0 L 180.0 120.0" class="rule major horizontal"/>
+      <path d="M 0.0 150.0 L 180.0 150.0" class="rule major horizontal"/>
+      <path d="M 0.0 180.0 L 180.0 180.0" class="rule major horizontal"/>
+      <path d="M 0.0 210.0 L 180.0 210.0" class="rule major horizontal"/>
+      <path d="M 0.0 240.0 L 180.0 240.0" class="rule major horizontal"/>
+    </g>
+    <g id="Majors-Vertical" inkscape:groupmode="layer" sodipodi:insensitive="true">
+      <path d="M 0.0 0.0 L 0.0 240.0" class="rule major vertical"/>
+      <path d="M 30.0 0.0 L 30.0 240.0" class="rule major vertical"/>
+      <path d="M 60.0 0.0 L 60.0 240.0" class="rule major vertical"/>
+      <path d="M 90.0 0.0 L 90.0 240.0" class="rule major vertical"/>
+      <path d="M 120.0 0.0 L 120.0 240.0" class="rule major vertical"/>
+      <path d="M 150.0 0.0 L 150.0 240.0" class="rule major vertical"/>
+      <path d="M 180.0 0.0 L 180.0 240.0" class="rule major vertical"/>
+    </g>
+  </g>
+</svg>

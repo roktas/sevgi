@@ -1,0 +1,19 @@
+# frozen_string_literal: true
+
+module Sevgi
+  module Graphics
+    module Document
+      class Inkscape < Default
+        document :inkscape,
+          attributes: {
+            "xmlns:inkscape":  "http://www.inkscape.org/namespaces/inkscape",
+            "xmlns:sodipodi":  "http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd",
+            "shape-rendering": "crispEdges"
+          }
+
+        mixture Mixtures::Inkscape
+        mixture Mixtures::RDF
+      end
+    end
+  end
+end

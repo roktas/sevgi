@@ -1,0 +1,134 @@
+module Guidesheet
+  extend self
+
+  module Color
+    extend self
+
+    def black     = "black"
+    def blue      = "blue"
+    def gray      = "gray"
+    def green     = "green"
+    def lightgray = "#ececec"
+    def magenta   = "magenta"
+    def orange    = "orange"
+    def white     = "white"
+  end
+
+  Weight = Data.define(:weight) do
+    def extrabroad = 4.0 * weight
+    def broad      = 2.0 * weight
+    def medium     = weight
+    def fine       = weight / 2.0
+    def extrafine  = weight / 4.0
+  end
+
+  EDGE    = 45
+  SLANT   = 7
+  MINUNIT = 3.0
+  WIDTH   = 0.08
+
+  Width   = Weight.new(WIDTH)
+
+  Style = {
+    "*":      { overflow: "visible"                                                        },
+
+    ".cross": {                        "stroke-width": Width.fine                          },
+    ".date":  { stroke: Color.gray,    "stroke-width": Width.medium, fill: Color.lightgray },
+    ".edge":  { stroke: Color.magenta                                                      },
+    ".halve": { stroke: Color.black,   "stroke-width": Width.fine                          },
+    ".major": { stroke: Color.blue,    "stroke-width": Width.broad                         },
+    ".mark":  { stroke: Color.black                                                        },
+    ".minor": { stroke: Color.magenta, "stroke-width": Width.fine                          },
+    ".slant": { stroke: Color.green                                                        }
+  }.freeze
+
+  def call(grid)
+    halveable = grid.x.u >= MINUNIT
+
+    SVG :inkscape, grid.canvas, id: "Guides" do
+      css Style, id: "style"
+
+      defs do
+        symbol! id: "MarkMajor" do
+          Cline x1: -4, y1: 0,  x2: 4, y2: 0
+          Cline x1: 0,  y1: -4, x2: 0, y2: 4
+        end
+
+        symbol! id: "MarkMinor" do
+          Cline x1: -2, y1: 0,  x2: 2, y2: 0
+          Cline x1: 0,  y1: -2, x2: 0, y2: 2
+        end
+      end
+
+      layer id: "Date" do
+        rect id: "Date-Year",  x: grid.width - 60,  y: -15, width: 30, height: 8, class: %w[ date year  ]
+        rect id: "Date-Month", x: grid.width - 30,  y: -15, width: 15, height: 8, class: %w[ date month ]
+        rect id: "Date-Day",   x: grid.width - 15,  y: -15, width: 15, height: 8, class: %w[ date day   ]
+      end
+
+      layer id: "Marks" do
+        layer id: "Marks-Halve" do
+          layer id: "Marks-Halve-Horizontal" do
+            grid.x.halve.points.flatten.each { use "xlink:href": "#MarkMinor", x: _1.x, y: _1.y, class: %w[ mark halve ] }
+          end
+
+          layer id: "Marks-Halve-Vertical" do
+            grid.y.halve.points.flatten.each { use "xlink:href": "#MarkMinor", x: _1.x, y: _1.y, class: %w[ mark halve ] }
+          end
+        end if halveable
+
+        layer id: "Marks-Major" do
+          layer id: "Marks-Major-Horizontal" do
+            grid.x.major.points.flatten.each { use "xlink:href": "#MarkMajor", x: _1.x, y: _1.y, class: %w[ mark major ] }
+          end
+
+          layer id: "Marks-Major-Vertical" do
+            grid.y.major.points.flatten.each { use "xlink:href": "#MarkMajor", x: _1.x, y: _1.y, class: %w[ mark major ] }
+          end
+        end
+      end
+
+      layer id: "Crosses" do
+        layer id: "Crosses-Edge" do
+          Hatch(grid.box, direction: -EDGE, step: grid.x.su * F.sqrt2h, class: %w[ cross edge ])
+        end
+
+        layer id: "Crosses-Slant" do
+          Hatch(grid.box, direction: SLANT - 90.0, step: grid.x.su * F.cos(EDGE + SLANT), class: %w[ cross slant ])
+        end
+      end
+
+      layer id: "Halves" do
+        layer id: "Halves-Horizontal" do
+          Draw(grid.x.halve.lines, class: %w[ rule halve horizontal ])
+        end
+
+        layer id: "Halves-Vertical" do
+          Draw(grid.y.halve.lines, class: %w[ rule halve vertical ])
+        end
+      end if halveable
+
+      layer id: "Minors" do
+        layer id: "Minors-Horizontal" do
+          Draw(grid.x.minor.lines, class: %w[ rule minor horizontal ])
+        end
+
+        layer id: "Minors-Vertical" do
+          Draw(grid.y.minor.lines, class: %w[ rule minor vertical ])
+        end
+      end
+
+      layer id: "Majors" do
+        layer id: "Majors-Horizontal" do
+          Draw(grid.x.major.lines, class: %w[ rule major horizontal ])
+        end
+
+        layer id: "Majors-Vertical" do
+          Draw(grid.y.major.lines, class: %w[ rule major vertical ])
+        end
+      end
+    end
+  end
+end
+
+# vim: ft=ruby

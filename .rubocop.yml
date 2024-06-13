@@ -1,0 +1,77 @@
+inherit_gem:
+  rubocop-rails-omakase: rubocop.yml
+
+require:
+  - "rubocop-md"
+  - "rubocop-packaging"
+  - "rubocop-rake"
+
+Layout/ExtraSpacing:
+  Exclude: 
+    - "**/standard/**/*.rb"
+    - "**/test/**/*.rb"
+Layout/HashAlignment:
+  Enabled: true
+  EnforcedHashRocketStyle: table
+  EnforcedColonStyle: table
+Layout/LineLength:
+  Max: 140
+  Exclude: 
+    - "**/test/**/*.rb"
+Layout/MultilineArrayLineBreaks:
+  Exclude: 
+    - "**/test/**/*.rb"
+Layout/MultilineMethodArgumentLineBreaks:
+  Exclude: 
+    - "**/test/**/*.rb"
+    - "**/standard/**/color.rb"
+Layout/MultilineOperationIndentation:
+  Enabled: false
+Layout/SpaceBeforeComma:
+  Exclude:
+    - "**/standard/**/color.rb"
+
+Metrics/BlockLength:
+  Exclude: 
+    - "**/test/**/*.rb"
+    - "**/*.gemspec"
+    - "**/*.sevgi"
+Metrics/ClassLength:
+  Exclude: 
+    - "**/test/**/*.rb"
+    - "**/*.sevgi"
+Metrics/MethodLength:
+  Exclude: 
+    - "**/test/**/*.rb"
+    - "**/*.sevgi"
+
+Naming/MethodName:
+  Enabled: false
+
+Rails/RefuteMethods:
+  Enabled: false
+      
+Style/AsciiComments:
+  Enabled: false
+Style/Documentation:
+  Enabled: false
+Style/LambdaCall:
+  Enabled: false
+Style/ParallelAssignment:
+  Enabled: false
+Style/TrailingCommaInArguments:
+  Exclude: 
+    - "**/test/**/*.rb"
+Style/TrailingCommaInArrayLiteral:
+  Exclude: 
+    - "**/test/**/*.rb"
+
+AllCops:
+  NewCops: enable
+  Include:
+    - "**/*.rb"
+    - "**/*.sevgi"
+  Exclude:
+    - "vendor/**/*"
+    - "_/**/*"
+    - "**/_/**/*"

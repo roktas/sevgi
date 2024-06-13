@@ -1,0 +1,21 @@
+#!/usr/bin/env -S ruby -S sevgi
+
+elem = {}
+
+main = SVG width: 200, height: 100 do
+  rect id: "frame", width: 200, height: 100, rx: 5, fill: "#666"
+
+  elem[:pacman] = g id: :pacman do
+    circle id: "head", cx: 110, cy: 50, r: 40, fill: "yellow"
+    circle id: "eye", cx: 120, cy: 28, r: 6, fill: "black"
+    polygon id: "mouth", points: %w[ 110,50 150,20 150,80 ], fill: "#666"
+
+    TileH "dot", id: "dots", n: 3, d: 18, i: "dot" do
+      circle cx: 150, cy: 50, r: 6, fill: "yellow"
+    end
+  end
+end
+
+main.Append(elem[:pacman].Duplicate.Scale(0.4), elem[:pacman].Duplicate.Scale(0.15))
+
+main.Save

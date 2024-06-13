@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block seo %}
+  {{ super() }}
+
+  {% if config.title %}
+    {% set title = config.title %}
+  {% else %}
+    {% set title = "" %}
+  {% endif %}
+
+  {% if config.extra.title_addition and title %}
+    {% set title_addition = title_separator ~ config.extra.title_addition %}
+  {% elif config.extra.title_addition %}
+    {% set title_addition = config.extra.title_addition %}
+  {% else %}
+    {% set title_addition = "" %}
+  {% endif %}
+
+  {% set description = config.description %}
+
+  {{ macros_head::seo(title=title, title_addition=title_addition, description=description, is_home=true) }}
+{% endblock seo %}
+
+{% block content %}
+<div class="wrap container" role="document">
+  <div class="content">
+    <style>
+      .tab {
+        overflow: hidden;
+      }
+
+      .tab button {
+        background-color: inherit;
+        border-radius: 2px;
+        float: left;
+        border: none;
+        outline: none;
+        cursor: pointer;
+        padding: 14px 16px;
+        transition: 0.5s;
+      }
+
+      .tab button:hover {
+        background-color: #ccc;
+      }
+
+      .tab button.active {
+        background-color: #ddd;
+      }
+
+      .tab-content {
+        display: none;
+        border-top: none;
+      }
+
+      .tab-content img {
+        max-width: 100%;
+        height: auto;
+        padding: 20px;
+      }
+    </style>
+
+    <script>
+      const tabLinks    = document.getElementsByClassName('tab-link')
+      const tabContents = document.getElementsByClassName("tab-content")
+
+      function showTab(evt, contentId) {
+        for (content of tabContents) {
+          content.style.display = "none"
+        }
+
+        for (link of tabLinks) {
+          link.className = link.className.replace(" active", "")
+        }
+
+        document.getElementById(contentId).style.display = "block"
+        evt.currentTarget.className += " active"
+      }
+
+      window.addEventListener(
+        "load",
+        function() {
+          let index = 1
+
+          const timer = setInterval(() => {
+            tabLinks[index++ % 3].click()
+          }, 2000)
+    
+          document.getElementById('Slides').addEventListener(
+            "mouseover", () => {
+              clearInterval(timer)
+            }
+          )
+        }
+      )
+    </script>
+
+    <section class="section container-fluid mt-n3 pb-3">
+      <div class="row justify-content-center">
+        <p align="center">
+          <img src="/assets/light/banner.svg" alt="{{ section.title }}" style="height: 8em;">
+        </p>
+
+        <div id="Slides" class="col-lg-12 text-center">
+          <div class="tab d-flex justify-content-center">
+            <button class="tab-link active" onclick="showTab(event, 'Script')">Script</button>
+            <button class="tab-link"        onclick="showTab(event, 'Output')">Output</button>
+            <button class="tab-link"        onclick="showTab(event, 'Image')">Image</button>
+          </div>
+
+          <div id="Script" class="tab-content" style="display: block;">
+            <img src="/assets/light/pacman-script.png" alt="Script">
+          </div>
+
+          <div id="Output" class="tab-content">
+            <img src="/assets/light/pacman-output.png" alt="Output">
+          </div>
+
+          <div id="Image" class="tab-content">
+            <img src="/assets/light/pacman.svg" width="2000px" height="1000px" alt="Image">
+          </div>
+        </div>
+
+        <div class="col-lg-9 col-xl-8 text-center">
+          <p class="lead">{{ section.extra.lead | default(value="Please start setting config.toml and adding your content.") | safe }}</p>
+          <a class="btn btn-primary btn-lg px-4 mb-2" href="{{ get_url(path=section.extra.url | default(value="/")) | safe }}" role="button">{{ section.extra.url_button | default(value="Quick Start") }}</a>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<section class="section section-sm">
+  <div class="container">
+    <div class="row justify-content-center text-center">
+      {% if section.extra.list %}
+        {% for val in section.extra.list %}
+        <div class="col-lg-5">
+          <h2 class="h4">{{ val.title }}</h2>
+          <p>{{ val.content | safe }}</p>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="col-lg-5">
+          <h2 class="h4">The power of Ruby ⚡️</h2>
+          <p>Take advantage of Ruby's elegant programming and computational power to create pixel-perfect graphics without using a vector graphics editor in certain scenarios.</p>
+        </div>
+        <div class="col-lg-5">
+          <h2 class="h4">Rich helpers 🛠️</h2>
+          <p>Thanks to a mixin based design, you can easily add custom features and use a rich set of methods, especially for tiling, hatching and various geometric operations.</p>
+        </div>
+        <div class="col-lg-5">
+          <h2 class="h4">Neat output ✨</h2>
+          <p>Properly indented and informally validated SVG output to satisfy your possible aesthetic obsessions. The code produced is visually comprehensible without artificial bloats.</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<section class="section section-sm container-fluid">
+  <div class="row justify-content-center text-center">
+    <div class="col-lg-9"></div>
+  </div>
+</section>
+{% endblock content %}
