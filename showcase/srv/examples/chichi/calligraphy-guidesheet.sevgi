@@ -1,7 +1,0 @@
-#!/usr/bin/env -S ruby -S sevgi
-
-Load "library/guidesheet"
-
-Guidesheet.(
-  Grid(Canvas(:a4, 15.0), unit: 6, multiple: 5)
-).Save

@@ -69,45 +69,12 @@ module Sevgi
   require "sevgi/geometry"
 
   module External
-    def Grid(canvas, unit:, multiple:)
-      ArgumentError.("Must be a Canvas: #{canvas}") unless canvas.is_a?(Graphics::Canvas)
-
-      Geometry::Grid[
-        Geometry::Ruler.new(brut: canvas.width,  unit:, multiple:, margin: canvas.left),
-        Geometry::Ruler.new(brut: canvas.height, unit:, multiple:, margin: canvas.top)
-      ]
-    end
-
     def Point(...)
       Geometry::Point.new(...)
     end
 
-    def Ruler(...)
-      Geometry::Ruler.new(...)
-    end
-
     Promote Geometry
   end
-
-  # Glue Graphics and Geometry
-
-  module Graphics
-    module Mixtures
-      module Hatch
-        module InstanceMethods
-          def Draw(lines, **kwargs)
-            Array(lines).map { it.draw(self, **kwargs) }
-          end
-
-          def Hatch(element, initial: nil, direction:, step:, **kwargs) # TODO: angle vs direction
-            Draw(Geometry::Operation.sweep!(element, initial: initial || element.position, direction:, step:), **kwargs)
-          end
-        end
-      end
-    end
-  end
-
-  Mixin Graphics::Mixtures::Hatch
 
   # Externals for Standard
 
