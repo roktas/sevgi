@@ -11,6 +11,8 @@ module Sevgi
 
       def approx(precision = nil)     = with(length: F.approx(length, precision), angle: F.approx(angle, precision))
 
+      def com                         = angle - 90.0
+
       def eq?(other, precision: nil)  = self.class.eq?(self, other, precision:)
 
       def eql?(other)                 = self.class == other.class && deconstruct == other.deconstruct
@@ -22,6 +24,10 @@ module Sevgi
       def line(point = Origin)        = Line[length, angle, position: Tuple[Point, point]]
 
       def nan?                        = deconstruct.any?(&:nan?)
+
+      def reverse                     = with(angle: angle + 180.0)
+
+      def sup                         = angle - 180.0
 
       def x                           = length * F.cos(angle)
 

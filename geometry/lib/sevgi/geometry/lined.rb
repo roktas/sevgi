@@ -183,10 +183,18 @@ module Sevgi
           end
         end
 
-        Open  = Class.new(Lined)
+        Open  = Class.new(Lined) do
+          def draw!(node, **) = node.polyline(points: points.map { it.deconstruct.map(&:to_s).join(",") }, **)
+
+          def draw(...)       = approx.draw!(...)
+        end
 
         Close = Class.new(Lined) do
           def self.new_by_points(*points) = super(*points, points.first)
+
+          def draw!(node, **) = node.polygon(points: points.map { it.deconstruct.map(&:to_s).join(",") }, **)
+
+          def draw(...)       = approx.draw!(...)
         end
       end
     end

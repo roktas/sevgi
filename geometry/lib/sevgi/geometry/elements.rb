@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require_relative "elements/line"
+require_relative "elements/parm"
 require_relative "elements/polygon"
 require_relative "elements/polyline"
-require_relative "elements/quad"
 require_relative "elements/rect"
 require_relative "elements/tri"
 
