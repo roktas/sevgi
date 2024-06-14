@@ -19,8 +19,6 @@ module Sevgi
 
       def acute?(degrees, precision: nil)       = le?(degrees, 90.0, precision:) && ge?(degrees, 0.0, precision:)
 
-      def array_approx(array, precision = nil)  = array.map { approx(it, precision) } # TODO: xxx
-
       def approx(float, precision = nil)        = float.round(precision || Function::Math.precision)
 
       def asin(value)                           = to_degrees(::Math.asin(value))
@@ -36,8 +34,6 @@ module Sevgi
       def cot(degrees)                          = 1.0 / ::Math.tan(to_radians(degrees))
 
       def count(length, division)               = (length / division.to_f).to_i
-
-      def array_eq?(left, right, precision: nil) = array_approx(left, precision) == array_approx(right, precision) # TODO: xxx
 
       def eq?(left, right, precision: nil)      = approx(left, precision) == approx(right, precision)
 
