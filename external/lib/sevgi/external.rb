@@ -74,6 +74,7 @@ module Sevgi
     end
 
     Promote Geometry
+    Promote Geometry::Origin, :Origin
   end
 
   # Externals for Standard
