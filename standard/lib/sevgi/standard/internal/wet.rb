@@ -11,7 +11,7 @@ module Sevgi
 
   unless defined?(Wet)
     module Wet
-      # Copied from https://github.com/dry-rb/dry-core.  All kudos to the original authors.
+      # Copied from https://github.com/dry-rb/dry-core. All kudos to the original authors.
 
       EMPTY_ARRAY  = [].freeze
       EMPTY_HASH   = {}.freeze
@@ -36,6 +36,9 @@ module Sevgi
 
         def undefined.coalesce(*args)      = args.find(Self) { |x| !equal?(x) }
       end.freeze
+
+      Function = Module.new unless defined?(Function)
+      F        = Function unless defined?(F)
 
       def self.included(base)
         super

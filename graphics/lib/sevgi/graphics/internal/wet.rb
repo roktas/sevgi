@@ -11,7 +11,7 @@ module Sevgi
 
   unless defined?(Wet)
     module Wet
-      # Copied from https://github.com/dry-rb/dry-core.  All kudos to the original authors.
+      # Copied from https://github.com/dry-rb/dry-core. All kudos to the original authors.
 
       EMPTY_ARRAY  = [].freeze
       EMPTY_HASH   = {}.freeze
