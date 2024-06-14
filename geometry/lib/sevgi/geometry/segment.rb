@@ -13,6 +13,8 @@ module Sevgi
 
       def com                         = angle - 90.0
 
+      def ending(starting)            = Tuple[Point, starting].translate(x, y)
+
       def eq?(other, precision: nil)  = self.class.eq?(self, other, precision:)
 
       def eql?(other)                 = self.class == other.class && deconstruct == other.deconstruct
@@ -23,6 +25,10 @@ module Sevgi
 
       def line(point = Origin)        = Line[length, angle, position: Tuple[Point, point]]
 
+      def lx                          = x.abs
+
+      def ly                          = y.abs
+
       def nan?                        = deconstruct.any?(&:nan?)
 
       def reverse                     = with(angle: angle + 180.0)
@@ -32,8 +38,6 @@ module Sevgi
       def x                           = length * F.cos(angle)
 
       def y                           = length * F.sin(angle)
-
-      def ending(starting)            = Tuple[Point, starting].translate(x, y)
 
       class << self
         def call(starting, ending)
@@ -52,5 +56,7 @@ module Sevgi
         def vertical(length)    = self[length,  90.0]
       end
     end
+
+    LengthAngle = Data.define(:length, :angle)
   end
 end
