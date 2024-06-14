@@ -69,10 +69,6 @@ module Sevgi
   require "sevgi/geometry"
 
   module External
-    def Point(...)
-      Geometry::Point.new(...)
-    end
-
     Promote Geometry
     Promote Geometry::Origin, :Origin
   end
