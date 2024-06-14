@@ -26,6 +26,8 @@ module Sevgi
           end
         end
 
+        def draw(...)      = approx.draw!(...)
+
         def points(approximate = false)
           approximate ? (@points_approx ||= @points.map(&:approx)) : @points
         end
@@ -185,16 +187,12 @@ module Sevgi
 
         Open  = Class.new(Lined) do
           def draw!(node, **) = node.polyline(points: points.map { it.deconstruct.map(&:to_s).join(",") }, **)
-
-          def draw(...)       = approx.draw!(...)
         end
 
         Close = Class.new(Lined) do
           def self.new_by_points(*points) = super(*points, points.first)
 
           def draw!(node, **) = node.polygon(points: points.map { it.deconstruct.map(&:to_s).join(",") }, **)
-
-          def draw(...)       = approx.draw!(...)
         end
       end
     end
