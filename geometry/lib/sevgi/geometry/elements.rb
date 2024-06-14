@@ -5,7 +5,6 @@ require_relative "elements/parm"
 require_relative "elements/polygon"
 require_relative "elements/polyline"
 require_relative "elements/rect"
-require_relative "elements/tri"
 
 require_relative "elements/circle"
 require_relative "elements/curve"
