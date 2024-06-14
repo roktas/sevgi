@@ -53,7 +53,7 @@ module Sevgi
         return Equation.horizontal(y) if F.horizontal?(angle)
         return Equation.vertical(x)   if F.vertical?(angle)
 
-        Equation.diagonal(slope: (slope = F.slopea(angle)), intercept: F.intercept(self, angle, slope))
+        Equation.diagonal(slope: (slope = F.tan(angle)), intercept: y - slope * x)
       end
     end
 

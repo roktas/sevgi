@@ -4,7 +4,7 @@ module Sevgi
   module Geometry
     module Element
       class Base
-        def at(point = nil, dx: 0, dy: 0) = translate(F.dxp(position, point ||= position) + dx, F.dyp(position, point) + dy)
+        def at(point = nil, dx: 0, dy: 0) = translate(((point ||= position).x - position.x) + dx, (point.y - position.y) + dy)
 
         def box                           = raise(NoMethodError, "#{self.class}#box must be implemented")
 

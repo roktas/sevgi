@@ -29,8 +29,8 @@ module Sevgi
             dy ||= 0.0
 
             if distance
-              dx += F.rx(distance, angle = F.angles(slope))
-              dy -= F.ry(distance, angle)
+              dx += distance * F.sin(angle = F.atan(slope))
+              dy -= distance * F.cos(angle)
             end
 
             Diagonal.new(slope:, intercept: intercept - slope * dx + dy)

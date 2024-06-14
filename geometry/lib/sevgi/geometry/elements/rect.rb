@@ -22,7 +22,7 @@ module Sevgi
       class << self
         def call(top_left, bottom_right)
           top_left, bottom_right = Tuples[Point, top_left, bottom_right]
-          width = F.width(top_left, bottom_right)
+          width = (bottom_right.x - top_left.x).abs
 
           new_by_points(
             top_left,
