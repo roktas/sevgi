@@ -27,8 +27,6 @@ module Sevgi
 
       def atan2(y, x)                           = to_degrees(::Math.atan2(y, x))
 
-      def complement(degrees)                   = 90.0 - degrees
-
       def cos(degrees)                          = ::Math.cos(to_radians(degrees))
 
       def cot(degrees)                          = 1.0 / ::Math.tan(to_radians(degrees))
@@ -39,17 +37,11 @@ module Sevgi
 
       def ge?(left, right, precision: nil)      = approx(left, precision) >= approx(right, precision)
 
-      def golden                                = @golden ||= ((1.0 + ::Math.sqrt(5)) / 2.0)
-
       def gt?(left, right, precision: nil)      = approx(left, precision) > approx(right, precision)
-
-      def horizontal?(degrees, precision = nil) = zero?(degrees % 180.0, precision:)
 
       def le?(left, right, precision: nil)      = approx(left, precision) <= approx(right, precision)
 
       def lt?(left, right, precision: nil)      = approx(left, precision) < approx(right, precision)
-
-      def nangle(degrees)                       = degrees - 90.0
 
       def nonzero?(...)                         = !zero?(...)
 
@@ -57,17 +49,9 @@ module Sevgi
 
       def obtuse?(degrees, precision: nil)      = le?(degrees, 180.0, precision:) && ge?(degrees, 90.0, precision:)
 
-      def ordinary!(degrees, precision: nil)    = (ordinary?(degrees, precision:) or raise(ArgumentError, "Angle must >= 0 and <= 180: #{degrees}"))
-
-      def ordinary?(degrees, precision: nil)    = le?(degrees, 180.0, precision:) && ge?(degrees, 0.0, precision:)
-
       def round(float, precision)               = precision ? float.round(precision) : float
 
       def sin(degrees)                          = ::Math.sin(to_radians(degrees))
-
-      def sqrt2                                 = @sqrt2  ||= ::Math.sqrt(2)
-
-      def sqrt2h                                = @sqrt2h ||= (sqrt2 / 2.0)
 
       def tan(degrees)                          = ::Math.tan(to_radians(degrees))
 
@@ -76,8 +60,6 @@ module Sevgi
       def to_radians(degrees)                   = degrees.to_f / 180 * ::Math::PI
 
       def unordered_between?(item, interval)    = item.between?(interval.min, interval.max)
-
-      def vertical?(degrees, precision = nil)   = zero?(degrees % 90.0, precision:)
 
       def zero?(value, precision: nil)          = eq?(value, 0.0, precision:)
     end

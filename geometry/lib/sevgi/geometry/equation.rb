@@ -50,8 +50,8 @@ module Sevgi
 
     class Point
       def equation(angle)
-        return Equation.horizontal(y) if F.horizontal?(angle)
-        return Equation.vertical(x)   if F.vertical?(angle)
+        return Equation.horizontal(y) if F.zero?(angle % 180.0)
+        return Equation.vertical(x)   if F.zero?(angle % 90.0)
 
         Equation.diagonal(slope: (slope = F.tan(angle)), intercept: y - slope * x)
       end
