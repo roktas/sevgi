@@ -59,8 +59,6 @@ module Sevgi
 
       def to_radians(degrees)                   = degrees.to_f / 180 * ::Math::PI
 
-      def unordered_between?(item, interval)    = item.between?(interval.min, interval.max)
-
       def zero?(value, precision: nil)          = eq?(value, 0.0, precision:)
     end
 

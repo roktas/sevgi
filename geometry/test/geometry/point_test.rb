@@ -60,11 +60,11 @@ module Sevgi
       def test_point_extremes
         interval = [ Point[0, 5], Point[0, 3] ]
         [
-          interval.min,                                Point[0, 3],
-          interval.max,                                Point[0, 5],
-          F.unordered_between?(Point[0, 4], interval), true,
-          F.unordered_between?(Point[0, 5], interval), true,
-          F.unordered_between?(Point[0, 6], interval), false
+          interval.min,                                     Point[0, 3],
+          interval.max,                                     Point[0, 5],
+          Point[0, 4].between?(interval.min, interval.max), true,
+          Point[0, 5].between?(interval.min, interval.max), true,
+          Point[0, 6].between?(interval.min, interval.max), false
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
     end
