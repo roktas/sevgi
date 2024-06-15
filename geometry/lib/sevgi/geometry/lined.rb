@@ -26,7 +26,9 @@ module Sevgi
           end
         end
 
-        def draw(...)      = approx.draw!(...)
+        def draw(...)
+          approx.draw!(...)
+        end
 
         def points(approximate = false)
           approximate ? (@points_approx ||= @points.map(&:approx)) : @points
