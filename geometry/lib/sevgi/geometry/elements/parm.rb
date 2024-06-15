@@ -9,18 +9,12 @@ module Sevgi
         def [](horizontal, vertical, position: Origin)
           horizontal, vertical = Tuples[Segment, horizontal, vertical]
 
-          new_by_segments(
-            horizontal,
-            vertical.reverse,
-            horizontal.reverse,
-            vertical,
-            position:
-          )
+          new_by_segments(horizontal, vertical.reverse, horizontal.reverse, vertical, position:)
         end
 
         def new_by_height(horizontal:, tallness:, position: Origin)
           horizontal = Tuple[Segment, horizontal]
-          tallness = Tuple[LengthAngle, tallness]
+          tallness   = Tuple[LengthAngle, tallness]
 
           height = tallness.length - horizontal.ly
           angle  = tallness.angle
