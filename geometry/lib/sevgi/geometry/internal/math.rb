@@ -15,10 +15,6 @@ module Sevgi
 
       def acot(value)                      = 90.0 - to_degrees(::Math.atan(value))
 
-      def acute!(degrees, precision: nil)  = (acute?(degrees, precision:) or raise(ArgumentError, "Angle must >= 0 and <= 90: #{degrees}"))
-
-      def acute?(degrees, precision: nil)  = le?(degrees, 90.0, precision:) && ge?(degrees, 0.0, precision:)
-
       def approx(float, precision = nil)   = float.round(precision || Function::Math.precision)
 
       def asin(value)                      = to_degrees(::Math.asin(value))
@@ -44,10 +40,6 @@ module Sevgi
       def lt?(left, right, precision: nil) = approx(left, precision) < approx(right, precision)
 
       def nonzero?(...)                    = !zero?(...)
-
-      def obtuse!(degrees, precision: nil) = (obtuse?(degrees, precision:) or raise(ArgumentError, "Angle must >= 90 and <= 180: #{degrees}"))
-
-      def obtuse?(degrees, precision: nil) = le?(degrees, 180.0, precision:) && ge?(degrees, 90.0, precision:)
 
       def round(float, precision)          = precision ? float.round(precision) : float
 
