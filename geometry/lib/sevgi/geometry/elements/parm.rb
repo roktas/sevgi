@@ -1,41 +1,43 @@
 # frozen_string_literal: true
 
+# Parallelogram
+
 module Sevgi
   module Geometry
     class Parm < Element.lined(4)
       class << self
-        def [](hsegment, vsegment, position: Origin)
-          hsegment, vsegment = Tuples[Segment, hsegment, vsegment]
+        def [](horizontal, vertical, position: Origin)
+          horizontal, vertical = Tuples[Segment, horizontal, vertical]
 
           new_by_segments(
-            hsegment,
-            vsegment.reverse,
-            hsegment.reverse,
-            vsegment,
+            horizontal,
+            vertical.reverse,
+            horizontal.reverse,
+            vertical,
             position:
           )
         end
 
-        def new_by_height(hsegment:, length_angle:, position: Origin)
-          hsegment     = Tuple[Segment, hsegment]
-          length_angle = Tuple[LengthAngle, length_angle]
+        def new_by_height(horizontal:, tallness:, position: Origin)
+          horizontal = Tuple[Segment, horizontal]
+          tallness = Tuple[LengthAngle, tallness]
 
-          height = length_angle.length - hsegment.ly
-          angle  = length_angle.angle
+          height = tallness.length - horizontal.ly
+          angle  = tallness.angle
           length = height / F.sin(angle)
 
-          self[hsegment, Segment[length, angle], position:]
+          self[horizontal, Segment[length, angle], position:]
         end
 
-        def new_by_width(vsegment:, length_angle:, position: Origin)
-          vsegment     = Tuple[Segment, vsegment]
-          length_angle = Tuple[LengthAngle, length_angle]
+        def new_by_width(vertical:, wideness:, position: Origin)
+          vertical = Tuple[Segment, vertical]
+          wideness = Tuple[LengthAngle, wideness]
 
-          width  = length_angle.length - vsegment.lx
-          angle  = length_angle.angle
+          width  = wideness.length - vertical.lx
+          angle  = wideness.angle
           length = width / F.cos(angle)
 
-          self[Segment[length, angle], vsegment, position:]
+          self[Segment[length, angle], vertical, position:]
         end
       end
     end
