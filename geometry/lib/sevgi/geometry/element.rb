@@ -3,6 +3,8 @@
 module Sevgi
   module Geometry
     class Element
+      # Core API
+
       def at(point = nil, dx: 0, dy: 0) = translate(((point ||= position).x - position.x) + dx, (point.y - position.y) + dy)
 
       def box                           = raise(NoMethodError, "#{self.class}#box must be implemented")
@@ -14,6 +16,10 @@ module Sevgi
       def position                      = raise(NoMethodError, "#{self.class}#position must be implemented")
 
       def translate(x, y)               = raise(NoMethodError, "#{self.class}#translate must be implemented")
+
+      def self.lined(...)               = Lined.build(...)
+
+      def self.arced(...)               = Arced.build(...)
 
       class Lined < self # rubocop:disable Metrics/ClassLength
         private_class_method(:new)
@@ -212,12 +218,6 @@ module Sevgi
 
       class Arced < self # rubocop:disable Metrics/ClassLength
       end
-
-      # Interface
-
-      def self.lined(...) = Lined.build(...)
-
-      def self.arced(...) = Arced.build(...)
     end
 
     require_relative "elements/line"
