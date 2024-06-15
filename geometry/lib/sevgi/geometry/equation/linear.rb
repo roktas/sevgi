@@ -39,8 +39,8 @@ module Sevgi
           def to_s
             strings = []
 
-            strings << "#{F.approx(slope)} * x"     if F.nonzero?(slope)
-            strings << F.approx(intercept).abs.to_s if F.nonzero?(intercept)
+            strings << "#{F.approx(slope)} * x"     unless F.zero?(slope)
+            strings << F.approx(intercept).abs.to_s unless F.zero?(intercept)
 
             "Linear<y = #{strings.join(intercept.positive? ? " + " : " - ")}>"
           end

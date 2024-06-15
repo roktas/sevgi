@@ -39,8 +39,6 @@ module Sevgi
 
       def lt?(left, right, precision: nil) = approx(left, precision) < approx(right, precision)
 
-      def nonzero?(...)                    = !zero?(...)
-
       def round(float, precision)          = precision ? float.round(precision) : float
 
       def sin(degrees)                     = ::Math.sin(to_radians(degrees))
