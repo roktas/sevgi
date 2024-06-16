@@ -7,7 +7,7 @@ module Sevgi
     class Element
       private_class_method :new
 
-      RootParent = Object.new.tap { |this| def this.inspect = "RootParent" }.freeze
+      RootParent = Object.new.tap { def it.inspect = "RootParent" }.freeze
 
       module Ident
         def id(given) = (@id ||= {})[given] ||= given.to_s.tr("_", "-").to_sym
