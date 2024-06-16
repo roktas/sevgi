@@ -5,8 +5,6 @@ module Sevgi
     class Rect < Element.lined(4)
       def draw!(node, **) = node.rect(x: position.x, y: position.y, width: width, height: height, **)
 
-      def draw(...)       = approx.draw!(...)
-
       def height          = @height ||= segments[1].length
 
       def width           = @width  ||= segments[0].length
