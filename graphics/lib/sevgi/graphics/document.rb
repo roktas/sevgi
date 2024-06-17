@@ -13,10 +13,6 @@ module Sevgi
         class << self
           attr_reader :available
 
-          def call(document, canvas = nil, **, &block)
-            (klass = self[document]).root(**klass.attributes, **(canvas ? Canvas.(canvas).attributes : {}), **, &block)
-          end
-
           def register(name, klass) = (available[name] = klass)
 
           def [](name)              = available[name]
