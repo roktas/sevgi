@@ -61,7 +61,7 @@ module Sevgi
         def call(*, **)
           options = DEFAULTS.merge(**)
 
-          self.Process(*, **options) if respond_to?(:Process)
+          self.PreRender(*, **options) if respond_to?(:PreRender)
           self.Render(*, **options)
         end
 

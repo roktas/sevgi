@@ -16,7 +16,7 @@ module Sevgi
         mixture :Underscore
         mixture :Validate
 
-        def Process(**options)
+        def PreRender(**options)
           self.Validate if options[:validate]
           self.Lint     if options[:lint]
         end
