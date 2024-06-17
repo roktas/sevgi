@@ -174,9 +174,7 @@ module Sevgi
 
         private_constant :Renderer
 
-        module InstanceMethods
-          def Render(**) = Renderer.(self, **)
-        end
+        def Render(**) = Renderer.(self, **)
       end
     end
   end

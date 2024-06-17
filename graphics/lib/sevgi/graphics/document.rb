@@ -1,8 +1,89 @@
 # frozen_string_literal: true
 
-require_relative "document/base"
-require_relative "document/minimal"
+module Sevgi
+  module Graphics
+    module Document
+      def self.call(document, canvas = nil, **, &block)
+        (klass = Profile[document]).root(**klass.attributes, **(canvas ? Canvas.(canvas).attributes : {}), **, &block)
+      end
 
-require_relative "document/default"
-require_relative "document/html"
-require_relative "document/inkscape"
+      class Profile
+        @available = {}
+
+        class << self
+          attr_reader :available
+
+          def call(document, canvas = nil, **, &block)
+            (klass = self[document]).root(**klass.attributes, **(canvas ? Canvas.(canvas).attributes : {}), **, &block)
+          end
+
+          def register(name, klass) = (available[name] = klass)
+
+          def [](name)              = available[name]
+        end
+
+        attr_reader :name, :attributes, :preambles
+
+        def initialize(name, attributes: nil, preambles: nil)
+          @name       = name
+          @attributes = attributes || {}
+          @preambles  = preambles
+        end
+      end
+
+      private_constant :Profile
+
+      module DSL
+        attr_reader :profile
+
+        def document(name, attributes: {}, preambles: nil)
+          @profile = Profile.new(name, attributes:, preambles:).tap do
+            Profile.register(name, self)
+          end
+        end
+
+        def mixture(mixture, ns: Graphics::Mixtures)
+          mod = ns.const_get(mixture)
+
+          include(mod)
+          extend(mod::ClassMethods) if defined?(mod::ClassMethods)
+        end
+      end
+
+      private_constant :DSL
+
+      DEFAULTS = { lint: true, validate: true }.freeze
+
+      class Proto < Element
+        public_class_method :new
+
+        extend DSL
+
+        mixture :Core
+        mixture :Polyfills
+        mixture :Render
+        mixture :Wrappers
+
+        def call(*, **)
+          options = DEFAULTS.merge(**)
+
+          self.Process(*, **options) if respond_to?(:Process)
+          self.Render(*, **options)
+        end
+
+        class << self
+          def attributes = self == Proto ? {} : { **superclass.attributes, **profile.attributes }
+
+          def preambles  = self == Proto ? nil : profile.preambles || superclass.preambles
+        end
+      end
+
+      require_relative "document/base"
+      require_relative "document/minimal"
+
+      require_relative "document/default"
+      require_relative "document/html"
+      require_relative "document/inkscape"
+    end
+  end
+end

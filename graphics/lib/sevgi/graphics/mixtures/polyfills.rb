@@ -4,11 +4,9 @@ module Sevgi
   module Graphics
     module Mixtures
       module Polyfills
-        module InstanceMethods
-          def layer(...)     = g(...)
+        def layer(...)     = g(...)
 
-          def symbol!(...)   = symbol(...)
-        end
+        def symbol!(...)   = symbol(...)
       end
     end
   end

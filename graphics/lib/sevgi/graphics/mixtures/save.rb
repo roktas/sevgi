@@ -4,17 +4,15 @@ module Sevgi
   module Graphics
     module Mixtures
       module Save
-        module InstanceMethods
-          EXT = ".svg"
+        EXT = ".svg"
 
-          def Out(*, **)        = F.out(self.(**), *)
+        def Out(*, **)        = F.out(self.(**), *)
 
-          def Out!(*, **)       = F.out(self.(**), *, update: true)
+        def Out!(*, **)       = F.out(self.(**), *, update: true)
 
-          def Save(*paths, **)  = Out(F.touch(*(paths.empty? ? caller_locations(1..1).first.path : paths), ext: EXT), **)
+        def Save(*paths, **)  = Out(F.touch(*(paths.empty? ? caller_locations(1..1).first.path : paths), ext: EXT), **)
 
-          def Save!(*paths, **) = Out!(F.touch(*(paths.empty? ? caller_locations(1..1).first.path : paths), ext: EXT), **)
-        end
+        def Save!(*paths, **) = Out!(F.touch(*(paths.empty? ? caller_locations(1..1).first.path : paths), ext: EXT), **)
       end
     end
   end

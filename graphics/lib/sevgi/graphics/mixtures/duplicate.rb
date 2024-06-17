@@ -4,31 +4,29 @@ module Sevgi
   module Graphics
     module Mixtures
       module Duplicate
-        module InstanceMethods
-          def Duplicate(dx: nil, dy: nil, parent: nil, &block)
-            duplicated = dup
+        def Duplicate(dx: nil, dy: nil, parent: nil, &block)
+          duplicated = dup
 
-            duplicated.Traverse do |element|
-              element.children = element.children.map(&:dup)
-              id = (element.attributes = element.attributes.dup).delete(:id)
-              element[:_id] = id if id
-              block&.call(element)
-            end
-
-            duplicated.Translate(dx, dy) if dx || dy
-
-            duplicated.Adopt(parent)
-
-            duplicated
+          duplicated.Traverse do |element|
+            element.children = element.children.map(&:dup)
+            id = (element.attributes = element.attributes.dup).delete(:id)
+            element[:_id] = id if id
+            block&.call(element)
           end
 
-          def DuplicateH(dx, parent: nil, &block)
-            Duplicate(dx:, dy: 0, parent:, &block)
-          end
+          duplicated.Translate(dx, dy) if dx || dy
 
-          def DuplicateV(dy, parent: nil, &block)
-            Duplicate(dx: 0, dy:, parent:, &block)
-          end
+          duplicated.Adopt(parent)
+
+          duplicated
+        end
+
+        def DuplicateH(dx, parent: nil, &block)
+          Duplicate(dx:, dy: 0, parent:, &block)
+        end
+
+        def DuplicateV(dy, parent: nil, &block)
+          Duplicate(dx: 0, dy:, parent:, &block)
         end
       end
     end

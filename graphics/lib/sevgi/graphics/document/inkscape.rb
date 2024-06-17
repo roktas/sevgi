@@ -11,8 +11,8 @@ module Sevgi
             "shape-rendering": "crispEdges"
           }
 
-        mixture Mixtures::Inkscape
-        mixture Mixtures::RDF
+        mixture :Inkscape
+        mixture :RDF
       end
     end
   end

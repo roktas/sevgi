@@ -17,7 +17,7 @@ module Sevgi
     end
 
     def SVG(document = :default, canvas = nil, **, &block)
-      Graphics::Profile.(document, canvas, **, &block)
+      Graphics::Document.(document, canvas, **, &block)
     end
 
     extend self

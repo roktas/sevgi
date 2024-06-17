@@ -33,33 +33,31 @@ module Sevgi
 
     module Mixtures
       module Call
-        module InstanceMethods
-          def Call(mod, ...)
-            Callable.call(mod, self, ...)
-          end
+        def Call(mod, ...)
+          Callable.call(mod, self, ...)
+        end
 
-          private
+        private
 
-          # rubocop:disable Metrics/MethodLength
-          def CallWithin(mod, container, element, *args, **kwargs, &block)
-            raise(ArgumentError, "Must be a module: #{mod}") unless mod.instance_of?(::Module)
+        # rubocop:disable Metrics/MethodLength
+        def CallWithin(mod, container, element, *args, **kwargs, &block)
+          raise(ArgumentError, "Must be a module: #{mod}") unless mod.instance_of?(::Module)
 
-            kwargs = kwargs.merge(id: F.demodulize(mod).to_sym) unless kwargs.key?(:id)
+          kwargs = kwargs.merge(id: F.demodulize(mod).to_sym) unless kwargs.key?(:id)
 
-            public_send(container, **kwargs) do
-              Callable.callables(mod).each do |method|
-                public_send(element) do
-                  Within(self, method.name, self, &block)
+          public_send(container, **kwargs) do
+            Callable.callables(mod).each do |method|
+              public_send(element) do
+                Within(self, method.name, self, &block)
 
-                  method.bind(self).call(*args)
-                end
+                method.bind(self).call(*args)
               end
             end
-
-            self
           end
-          # rubocop:enable Metrics/MethodLength
+
+          self
         end
+        # rubocop:enable Metrics/MethodLength
       end
     end
   end
