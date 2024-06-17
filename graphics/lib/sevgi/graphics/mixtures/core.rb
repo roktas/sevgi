@@ -50,9 +50,7 @@ module Sevgi
 
           def Root
             element = self
-            while element
-              break if element.Root?
-
+            while element.Root?
               element = element.parent
             end
             element
@@ -62,12 +60,34 @@ module Sevgi
             self.class.root?(self)
           end
 
+          Traversal = Data.define(:value)
+
+          def Stay(...) = Traversal.new(...)
+
           def Traverse(depth = 0, leave = nil, &block)
+            ArgumentError.("Block required") unless block
+
             tap do
-              yield(self, depth)
+              yield(self, depth).tap { return it.value if it.is_a?(Traversal) }
 
               children.each { |child| child.Traverse(depth + 1, leave, &block) }
-              leave&.call(self, depth)
+
+              leave&.call(self, depth).tap { return it.value if it.is_a?(Traversal) }
+            end
+          end
+
+          def TraverseUp(height = 0, &block)
+            ArgumentError.("Block required") unless block
+
+            element = self
+
+            loop do
+              yield(element, height).tap { return it.value if it.is_a?(Traversal) }
+
+              break if element.Root?
+
+              element = element.parent
+              height += 1
             end
           end
 

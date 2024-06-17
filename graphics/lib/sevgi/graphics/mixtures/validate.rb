@@ -11,6 +11,10 @@ module Sevgi
             Content.text(contents)
           end
 
+          def NS?(name)
+            self.class.attributes.key?(key = :"xmlns:#{name}") || TraverseUp { Stay(true) if it.has?(key) } || false
+          end
+
           require "sevgi/standard"
 
           def Validate

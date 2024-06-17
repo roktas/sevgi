@@ -14,7 +14,7 @@ module Sevgi
             Element::RootParent, root.parent,
             [],                  root.children,
             { "data-var": 42 },  root.attributes.to_h,
-            [ "foo" ],             root.contents.map(&:to_s),
+            [ "foo" ],           root.contents.map(&:to_s),
             true,                Element.root?(root)
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
 
@@ -26,7 +26,7 @@ module Sevgi
             [],               child.children,
             { id: "glyph" },  child.attributes.to_h,
             false,            Element.root?(child),
-            [ child ],          root.children
+            [ child ],        root.children
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
         end
 
@@ -39,7 +39,7 @@ module Sevgi
           [
             :g,                  root.name,
             Element::RootParent, root.parent,
-            [ child ],             root.children,
+            [ child ],           root.children,
             { "data-var": 42 },  root.attributes.to_h,
             true,                Element.root?(root),
             :"missing-glyph",    child.name,
@@ -67,7 +67,7 @@ module Sevgi
           parsed = Dispatch.parse(:svg, "foo", "bar & baz", x: 19, y: 42)
 
           [
-            { x: 19, y: 42 },                     parsed[:attributes],
+            { x: 19, y: 42 },                       parsed[:attributes],
             [ Content::Encoded, Content::Encoded ], parsed[:contents].map(&:class),
             [ "foo", "bar &amp; baz" ],             parsed[:contents].map(&:to_s)
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
@@ -78,7 +78,7 @@ module Sevgi
 
           [
             [ Content::Verbatim ], parsed[:contents].map(&:class),
-            [ "bar & baz" ],        parsed[:contents].map(&:to_s)
+            [ "bar & baz" ],       parsed[:contents].map(&:to_s)
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
         end
 
@@ -91,7 +91,7 @@ module Sevgi
           [
             :svg,                root.name,
             Element::RootParent, root.parent,
-            [ child ],             root.children,
+            [ child ],           root.children,
             { "data-var": 42 },  root.attributes.to_h,
             true,                Element.root?(root),
             :"missing-glyph",    child.name,

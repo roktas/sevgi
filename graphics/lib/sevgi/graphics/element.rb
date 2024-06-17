@@ -20,9 +20,9 @@ module Sevgi
       def initialize(name, attributes: {}, contents: [], parent:, &block)
         @name       = name
         @attributes = Attributes.new(attributes)
+        @children   = []
         @contents   = contents
         @parent     = parent
-        @children   = []
 
         parent.children << self unless self.class.root?(self)
 
@@ -39,7 +39,7 @@ module Sevgi
 
       protected
 
-      attr_writer :children, :attributes
+        attr_writer :children, :attributes
 
       class << self
         def element(name, *, parent:, &block) = new(name, **Dispatch.parse(name, *), parent:, &block)
