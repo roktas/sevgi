@@ -39,9 +39,7 @@ module Sevgi
         end
 
         def mixture(mixture, ns: Graphics::Mixtures)
-          mod = ns.const_get(mixture)
-
-          include(mod)
+          include(mod = ns.const_get(mixture))
           extend(mod::ClassMethods) if defined?(mod::ClassMethods)
         end
       end
