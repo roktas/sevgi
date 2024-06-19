@@ -156,6 +156,8 @@ module Sevgi
             Error.("Element points must form a closed path") if self.class.close? && !points.first.eq?(points.last)
           end
 
+        # Class methods
+
         SHORTCUTS = ("A".."Z").to_a.freeze
 
         # rubocop:disable Metrics/MethodLength
