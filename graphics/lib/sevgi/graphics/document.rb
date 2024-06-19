@@ -15,7 +15,7 @@ module Sevgi
         end
 
         def self.[](name)              = available[name]
-        
+
         def self.register(name, klass) = (available[name] = klass)
 
         attr_reader :name, :attributes, :preambles
