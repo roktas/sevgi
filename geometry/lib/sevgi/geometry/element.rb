@@ -182,32 +182,32 @@ module Sevgi
             end
           end
           # rubocop:enable Metrics/MethodLength
+        end
 
-          def self.[](...)            = new_by_segments(...)
+        def self.[](...)            = new_by_segments(...)
 
-          def self.call(...)          = new_by_points(...)
+        def self.call(...)          = new_by_points(...)
 
-          def self.new_by_points(...) = new_by_points!(...)
+        def self.new_by_points(...) = new_by_points!(...)
 
-          def self.new_by_points!(*points)
-            new do
-              @points   = Tuples[Point, *points]
-            end
-          end
-
-          def self.new_by_segments(*segments, position: Origin)
-            new do
-              @position = Tuple[Point, position]
-              @segments = Tuples[Segment, *segments]
-            end
+        def self.new_by_points!(*points)
+          new do
+            @points   = Tuples[Point, *points]
           end
         end
 
-        Open  = Class.new(Lined) do
+        def self.new_by_segments(*segments, position: Origin)
+          new do
+            @position = Tuple[Point, position]
+            @segments = Tuples[Segment, *segments]
+          end
+        end
+
+        Open  = Class.new(self) do
           def draw!(node, **) = node.polyline(points: points.map { it.deconstruct.map(&:to_s).join(",") }, **)
         end
 
-        Close = Class.new(Lined) do
+        Close = Class.new(self) do
           def self.new_by_points(*points) = super(*points, points.first)
 
           def draw!(node, **) = node.polygon(points: points.map { it.deconstruct.map(&:to_s).join(",") }, **)
