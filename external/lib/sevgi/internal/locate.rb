@@ -31,16 +31,16 @@ module Sevgi
 
     private
 
-    def match(&block)
-      finder = block ||
-        if exclude.nil?
-          proc { |path| ::File.exist?(path) }
-        else
-          proc { |path| !exclude.include?(::File.expand_path(path)) && ::File.exist?(path) }
-        end
+      def match(&block)
+        finder = block ||
+          if exclude.nil?
+            proc { |path| ::File.exist?(path) }
+          else
+            proc { |path| !exclude.include?(::File.expand_path(path)) && ::File.exist?(path) }
+          end
 
-      paths.find { finder.call(it) }
-    end
+        paths.find { finder.call(it) }
+      end
 
     def self.call(*, **, &block) = new(*, **).call(&block)
   end

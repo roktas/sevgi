@@ -31,13 +31,13 @@ module Sevgi
 
       private
 
-      def compute
-        @inner = size.with(width: width - margin.left - margin.right, height: height - margin.top - margin.bottom)
-      end
+        def compute
+          @inner = size.with(width: width - margin.left - margin.right, height: height - margin.top - margin.bottom)
+        end
 
-      def prettify(*floats)
-        floats.map { (i = it.to_i) == it.to_f ? i : it }
-      end
+        def prettify(*floats)
+          floats.map { (i = it.to_i) == it.to_f ? i : it }
+        end
 
       def self.call(arg = Size.default, *)
         canvas(arg).with(*)

@@ -51,58 +51,57 @@ module Sevgi
 
     private
 
-    def die(e, file, options)
-      abort(e.message) if e.is_a?(CLIError)
+      def die(e, file, options)
+        abort(e.message) if e.is_a?(CLIError)
 
-      raise(e) if options.vomit || ENV[ENVVOMIT]
+        raise(e) if options.vomit || ENV[ENVVOMIT]
 
-      warn("")
-      abort(postmortem(file))
-    end
+        warn("")
+        abort(postmortem(file))
+      end
 
-    # codebeat:disable[ABC,LOC]
-    def help
-      <<~HELP
-        Usage: #{PROGNAME} [options...] <SCRIPT> [ARGS...]
+      # codebeat:disable[ABC,LOC]
+      def help
+        <<~HELP
+          Usage: #{PROGNAME} [options...] <SCRIPT> [ARGS...]
 
-        See documentation for detailed help.
+          See documentation for detailed help.
 
-        Options:
+          Options:
 
           -l, --preload FILE    Preload Ruby FILE
           -r, --require LIB     Require Ruby LIB
           -x, --exception       Raise exception instead of abort
           -h, --help            Show this help
           -v, --version         Display version
-      HELP
-    end
+        HELP
+      end
 
-    def postmortem(file)
-      <<~POSTMORTEM
-        For more details, run the script again:
+      def postmortem(file)
+        <<~POSTMORTEM
+          For more details, run the script again:
 
           - By using the -x switch
 
-              #{PROGNAME} -x #{file}
+          #{PROGNAME} -x #{file}
 
           - By setting the #{ENVVOMIT} environment variable
 
-              #{ENVVOMIT}=t #{file}
+          #{ENVVOMIT}=t #{file}
 
-        If you think this is a bug, you can report it by creating an issue.
-      POSTMORTEM
-    end
+          If you think this is a bug, you can report it by creating an issue.
+        POSTMORTEM
+      end
 
-    def run(file, options)
-      CLIError.("No script file given.") unless file
+      def run(file, options)
+        CLIError.("No script file given.") unless file
 
-      Signal.trap("INT") { Kernel.abort("") }
+        Signal.trap("INT") { Kernel.abort("") }
 
-      ::Kernel.require(options.require) if options.require
-      ::Kernel.load(options.preload)    if options.preload
+        ::Kernel.require(options.require) if options.require
+        ::Kernel.load(options.preload)    if options.preload
 
-      Sevgi::Sandbox.run(file) { include(Sevgi::External) }
-    end
-    # codebeat:enable[ABC,LOC]
+        Sevgi::Sandbox.run(file) { include(Sevgi::External) }
+      end
   end
 end

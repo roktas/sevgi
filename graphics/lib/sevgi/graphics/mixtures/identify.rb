@@ -25,17 +25,17 @@ module Sevgi
 
           private
 
-          def build
-            element.Traverse do |element|
-              next unless (id = element[:id])
+            def build
+              element.Traverse do |element|
+                next unless (id = element[:id])
 
-              if @namespace.key?(id)
-                (@collision[id] ||= [ @namespace[id] ]) << element
-              else
-                @namespace[id] = element
+                if @namespace.key?(id)
+                  (@collision[id] ||= [ @namespace[id] ]) << element
+                else
+                  @namespace[id] = element
+                end
               end
             end
-          end
         end
 
         def Disidentify

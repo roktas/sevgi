@@ -27,9 +27,9 @@ module Sevgi
 
       private
 
-      def load(rootdir)
-        ::Dir["#{rootdir}/**/*.sevgi"].grep_v(%r{(/_|/lib/|/library/)}).map { Script.new(it) }
-      end
+        def load(rootdir)
+          ::Dir["#{rootdir}/**/*.sevgi"].grep_v(%r{(/_|/lib/|/library/)}).map { Script.new(it) }
+        end
     end
   end
 end

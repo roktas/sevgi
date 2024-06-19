@@ -102,18 +102,18 @@ module Sevgi
 
         private
 
-        def call(**kwargs)
-          kwargs.each do |name, value|
-            issue = "Argument '#{name}' required" if value == Undefined
+          def call(**kwargs)
+            kwargs.each do |name, value|
+              issue = "Argument '#{name}' required" if value == Undefined
 
-            unless issue
-              next unless (assertion = ASSERTION[name])
-              next unless (issue = assertion.call(name, value))
+              unless issue
+                next unless (assertion = ASSERTION[name])
+                next unless (issue = assertion.call(name, value))
+              end
+
+              ArgumentError.(issue)
             end
-
-            ArgumentError.(issue)
           end
-        end
       end
     end
   end

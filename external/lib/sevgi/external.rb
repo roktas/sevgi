@@ -11,9 +11,9 @@ module Sevgi
     class << self
       private
 
-      def Promote(constant, symbol = Undefined)
-        @constants[Undefined.default(symbol, constant.to_s.split("::").last.to_sym)] = constant
-      end
+        def Promote(constant, symbol = Undefined)
+          @constants[Undefined.default(symbol, constant.to_s.split("::").last.to_sym)] = constant
+        end
     end
 
     def Extern(*modules, &block)

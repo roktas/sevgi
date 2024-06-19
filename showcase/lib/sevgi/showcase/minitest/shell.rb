@@ -34,33 +34,33 @@ module Sevgi
 
         private
 
-        def inputs(stdin, thread, &block)
-          stdin.instance_exec(thread, &block)
-          stdin.close unless stdin.closed?
-        end
-
-        def outputs(stdout, stderr, thread)
-          trap("INT") { handle_sigint(thread.pid) } # handle `^C`
-
-          out = stdout.readlines.map(&:chomp)
-          err = stderr.readlines.map(&:chomp)
-
-          [ out, err, thread.value ]
-        end
-
-        def handle_sigint(pid)
-          message, signal = if @coathooks > 1
-            [ "SIGINT received again. Force quitting...", "KILL" ]
-          else
-            [ "SIGINT received.", "TERM" ]
+          def inputs(stdin, thread, &block)
+            stdin.instance_exec(thread, &block)
+            stdin.close unless stdin.closed?
           end
 
-          warn("\n#{message}")
-          ::Process.kill(signal, pid)
-          @coathooks += 1
-        rescue Errno::ESRCH
-          warn("No process to kill.")
-        end
+          def outputs(stdout, stderr, thread)
+            trap("INT") { handle_sigint(thread.pid) } # handle `^C`
+
+            out = stdout.readlines.map(&:chomp)
+            err = stderr.readlines.map(&:chomp)
+
+            [ out, err, thread.value ]
+          end
+
+          def handle_sigint(pid)
+            message, signal = if @coathooks > 1
+              [ "SIGINT received again. Force quitting...", "KILL" ]
+            else
+              [ "SIGINT received.", "TERM" ]
+            end
+
+            warn("\n#{message}")
+            ::Process.kill(signal, pid)
+            @coathooks += 1
+          rescue Errno::ESRCH
+            warn("No process to kill.")
+          end
       end
 
       extend self

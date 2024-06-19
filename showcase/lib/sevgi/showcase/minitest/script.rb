@@ -39,12 +39,12 @@ module Sevgi
 
       private
 
-      def sanitize(file)
-        file.tap do
-          ArgumentError.("No such file: #{file}")      unless ::File.exist?(file)
-          ArgumentError.("Not an executable: #{file}") unless ::File.executable?(file)
+        def sanitize(file)
+          file.tap do
+            ArgumentError.("No such file: #{file}")      unless ::File.exist?(file)
+            ArgumentError.("Not an executable: #{file}") unless ::File.executable?(file)
+          end
         end
-      end
     end
   end
 end

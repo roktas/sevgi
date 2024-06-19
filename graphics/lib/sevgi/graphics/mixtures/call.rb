@@ -37,25 +37,24 @@ module Sevgi
 
         private
 
-        # rubocop:disable Metrics/MethodLength
-        def CallWithin(mod, container, element, *args, **kwargs, &block)
-          raise(ArgumentError, "Must be a module: #{mod}") unless mod.instance_of?(::Module)
+          # rubocop:disable Metrics/MethodLength
+          def CallWithin(mod, container, element, *args, **kwargs, &block)
+            raise(ArgumentError, "Must be a module: #{mod}") unless mod.instance_of?(::Module)
 
-          kwargs = kwargs.merge(id: F.demodulize(mod).to_sym) unless kwargs.key?(:id)
+            kwargs = kwargs.merge(id: F.demodulize(mod).to_sym) unless kwargs.key?(:id)
 
-          public_send(container, **kwargs) do
-            Callable.callables(mod).each do |method|
-              public_send(element) do
-                Within(self, method.name, self, &block)
+            public_send(container, **kwargs) do
+              Callable.callables(mod).each do |method|
+                public_send(element) do
+                  Within(self, method.name, self, &block)
 
-                method.bind(self).call(*args)
+                  method.bind(self).call(*args)
+                end
               end
             end
-          end
 
-          self
-        end
-        # rubocop:enable Metrics/MethodLength
+            self
+          end
       end
     end
   end

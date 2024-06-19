@@ -41,29 +41,29 @@ module Sevgi
 
       private
 
-      def description(e, file)
-        case e
-        when ValidationError then "Validation error"
-        else                      "Error"
-        end => error
+        def description(e, file)
+          case e
+          when ValidationError then "Validation error"
+          else                      "Error"
+          end => error
 
-        <<~DESCRIPTION
-          #{error} #{context(e.backtrace, file)}
-            #{e.message}
-        DESCRIPTION
-      end
-
-      def context(backtrace, file)
-        default = "in file '#{file}'"
-        return default unless backtrace
-
-        path = ::File.expand_path(file)
-        _, line = backtrace.map { it.split(":")[..1] }.find do |spot|
-          ::File.expand_path(spot.first) == path
+          <<~DESCRIPTION
+            #{error} #{context(e.backtrace, file)}
+              #{e.message}
+          DESCRIPTION
         end
 
-        line ? "in file '#{file}', around line #{line}" : default
-      end
+        def context(backtrace, file)
+          default = "in file '#{file}'"
+          return default unless backtrace
+
+          path = ::File.expand_path(file)
+          _, line = backtrace.map { it.split(":")[..1] }.find do |spot|
+            ::File.expand_path(spot.first) == path
+          end
+
+          line ? "in file '#{file}', around line #{line}" : default
+        end
     end
 
     def self.run(file, ...)

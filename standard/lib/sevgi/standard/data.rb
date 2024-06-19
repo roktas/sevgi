@@ -54,28 +54,28 @@ module Sevgi
 
       private
 
-      @spec = {}
+        @spec = {}
 
-      def expand(name)
-        @spec[name] ||= if data[name]
-          data[name].dup.tap do |spec|
-            expand_names(spec[:elements],   Element.data)
-            expand_names(spec[:attributes], Attribute.data)
+        def expand(name)
+          @spec[name] ||= if data[name]
+            data[name].dup.tap do |spec|
+              expand_names(spec[:elements],   Element.data)
+              expand_names(spec[:attributes], Attribute.data)
+            end
           end
         end
-      end
 
-      def expand_names(names, list)
-        return unless names
+        def expand_names(names, list)
+          return unless names
 
-        names.replace(names.map { |name| group?(name) ? list[name] : name }.flatten)
-      end
+          names.replace(names.map { |name| group?(name) ? list[name] : name }.flatten)
+        end
 
-      # For testing purposes
+        # For testing purposes
 
-      def charge = data.keys { expand(it) }
+        def charge = data.keys { expand(it) }
 
-      def flush  = (@spec = {})
+        def flush  = (@spec = {})
     end
 
     private_constant :Specification

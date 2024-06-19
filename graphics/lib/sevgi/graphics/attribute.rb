@@ -90,33 +90,33 @@ module Sevgi
 
         private
 
-        UPDATER = {
-          ::String => proc { |old_value, new_value| [ old_value, new_value ].reject(&:empty?).join(" ") },
-          ::Symbol => proc { |old_value, new_value| [ old_value, new_value ].reject(&:empty?).join(" ").to_sym },
-          ::Array  => proc { |old_value, new_value| [ old_value, new_value ] },
-          ::Hash   => proc { |old_value, new_value| merge(old_value, new_value.transform_keys(&:to_sym)) }
-        }.freeze
+          UPDATER = {
+            ::String => proc { |old_value, new_value| [ old_value, new_value ].reject(&:empty?).join(" ") },
+            ::Symbol => proc { |old_value, new_value| [ old_value, new_value ].reject(&:empty?).join(" ").to_sym },
+            ::Array  => proc { |old_value, new_value| [ old_value, new_value ] },
+            ::Hash   => proc { |old_value, new_value| merge(old_value, new_value.transform_keys(&:to_sym)) }
+          }.freeze
 
-        def update(id, new_value)
-          (old_value = @store[id]).nil? ? new_value : UPDATER[new_value.class].call(*sanitized(old_value, new_value))
-        end
-
-        def sanitized(old_value, new_value)
-          ArgumentError.("Incompatible values: #{new_value} vs #{old_value}") unless new_value.is_a?(old_value.class)
-          ArgumentError.("Unsupported value for update: #{new_value}")        unless UPDATER.key?(new_value.class)
-
-          [ old_value, new_value ]
-        end
-
-        private_constant :UPDATER
-
-        def to_xml(id, value)
-          case value
-          when ::Hash  then %(#{id}="#{value.map { "#{_1}:#{_2}" }.join("; ")}")
-          when ::Array then %(#{id}="#{value.join(" ")}")
-          else              %(#{id}=#{value.to_s.encode(xml: :attr)})
+          def update(id, new_value)
+            (old_value = @store[id]).nil? ? new_value : UPDATER[new_value.class].call(*sanitized(old_value, new_value))
           end
-        end
+
+          def sanitized(old_value, new_value)
+            ArgumentError.("Incompatible values: #{new_value} vs #{old_value}") unless new_value.is_a?(old_value.class)
+            ArgumentError.("Unsupported value for update: #{new_value}")        unless UPDATER.key?(new_value.class)
+
+            [ old_value, new_value ]
+          end
+
+          private_constant :UPDATER
+
+          def to_xml(id, value)
+            case value
+            when ::Hash  then %(#{id}="#{value.map { "#{_1}:#{_2}" }.join("; ")}")
+            when ::Array then %(#{id}="#{value.join(" ")}")
+            else              %(#{id}=#{value.to_s.encode(xml: :attr)})
+            end
+          end
       end
     end
 
