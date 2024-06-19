@@ -58,6 +58,9 @@ Style/ClassMethodsDefinitions:
   Enabled: true
 Style/Documentation:
   Enabled: false
+Layout/IndentationConsistency:
+  EnforcedStyle: indented_internal_methods
+  Enabled: true
 Style/LambdaCall:
   Enabled: false
 Style/ParallelAssignment:

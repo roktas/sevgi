@@ -5,7 +5,25 @@ require "forwardable"
 module Sevgi
   module Graphics
     class Canvas
+      def self.call(arg = Size.default, *)
+        canvas(arg).with(*)
+      end
+
+      class << self
+        private
+
+          def canvas(arg)
+            case arg
+            when Canvas             then arg
+            when Size               then new(**arg.to_h)
+            when ::Symbol, ::String then new(**Size.public_send(arg).to_h)
+            else                    ArgumentError.("Argument must be a Symbol (size) or Canvas instance: #{arg}")
+            end
+          end
+      end
+
       extend Forwardable
+
       def_delegators :@margin, *Margin.members
       def_delegators :@size,   *Size.members
 
@@ -38,23 +56,6 @@ module Sevgi
         def prettify(*floats)
           floats.map { (i = it.to_i) == it.to_f ? i : it }
         end
-
-      def self.call(arg = Size.default, *)
-        canvas(arg).with(*)
-      end
-
-      class << self
-        private
-
-          def canvas(arg)
-            case arg
-            when Canvas             then arg
-            when Size               then new(**arg.to_h)
-            when ::Symbol, ::String then new(**Size.public_send(arg).to_h)
-            else                    ArgumentError.("Argument must be a Symbol (size) or Canvas instance: #{arg}")
-            end
-          end
-      end
     end
   end
 end

@@ -5,6 +5,21 @@ module Sevgi
     Segment = Data.define(:length, :angle) do
       include Comparable
 
+      def self.call(starting, ending)
+        starting, ending = Tuples[Point, starting, ending]
+        self[Point.length(starting, ending), Point.angle(starting, ending)]
+      end
+
+      def self.eq?(this, that, precision: nil)
+        this, that = Tuples[self, this, that]
+        F.eq?(this.length, that.length, precision:) && F.eq?(this.angle, that.angle, precision:)
+      end
+
+      def self.horizontal!(length) = self[length, 180.0]
+      def self.horizontal(length)  = self[length,   0.0]
+      def self.vertical!(length)   = self[length, -90.0]
+      def self.vertical(length)    = self[length,  90.0]
+
       def initialize(length:, angle:) = super(length: length.to_f, angle: angle.to_f)
 
       def <=>(other)                  = ((other = Tuple[Segment, other]).nan? || nan?) ? nil : length <=> other.length
@@ -38,21 +53,6 @@ module Sevgi
       def x                           = length * F.cos(angle)
 
       def y                           = length * F.sin(angle)
-
-      def self.call(starting, ending)
-        starting, ending = Tuples[Point, starting, ending]
-        self[Point.length(starting, ending), Point.angle(starting, ending)]
-      end
-
-      def self.eq?(this, that, precision: nil)
-        this, that = Tuples[self, this, that]
-        F.eq?(this.length, that.length, precision:) && F.eq?(this.angle, that.angle, precision:)
-      end
-
-      def self.horizontal!(length) = self[length, 180.0]
-      def self.horizontal(length)  = self[length,   0.0]
-      def self.vertical!(length)   = self[length, -90.0]
-      def self.vertical(length)    = self[length,  90.0]
     end
 
     LengthAngle = Data.define(:length, :angle)

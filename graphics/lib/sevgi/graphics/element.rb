@@ -5,6 +5,20 @@ require "sevgi/standard"
 module Sevgi
   module Graphics
     class Element
+      def self.element(name, *, parent:, &block) = new(name, **Dispatch.parse(name, *), parent:, &block)
+
+      def self.root(*, &block)                   = element(:svg, *, parent: RootParent, &block)
+
+      def self.root?(element)                    = element.parent == RootParent
+
+      class << self
+        require "sevgi/standard"
+
+        def valid?(name)                      = Standard.element?(name)
+      rescue ::LoadError
+        def valid?(...)                       = true
+      end
+
       private_class_method :new
 
       RootParent = Object.new.tap { def it.inspect = "RootParent" }.freeze
@@ -39,21 +53,7 @@ module Sevgi
 
       protected
 
-        attr_writer :children, :attributes
-
-      def self.element(name, *, parent:, &block) = new(name, **Dispatch.parse(name, *), parent:, &block)
-
-      def self.root(*, &block)                   = element(:svg, *, parent: RootParent, &block)
-
-      def self.root?(element)                    = element.parent == RootParent
-
-      class << self
-        require "sevgi/standard"
-
-        def valid?(name)                      = Standard.element?(name)
-      rescue ::LoadError
-        def valid?(...)                       = true
-      end
+      attr_writer :children, :attributes
 
       module Dispatch
         extend self

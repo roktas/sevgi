@@ -24,8 +24,26 @@ module Sevgi
 
     Point = Data.define(:x, :y) do
       include Comparable
-
       include Affinity
+
+      def self.angle(starting, ending)
+        starting, ending = Tuples[Point, starting, ending]
+        F.atan2(ending.y - starting.y, ending.x - starting.x)
+      end
+
+      def self.eq?(this, that, precision: nil)
+        this, that = Tuples[self, this, that]
+        F.eq?(this.x, that.x, precision:) && F.eq?(this.y, that.y, precision:)
+      end
+
+      def self.length(starting, ending)
+        starting, ending = Tuples[Point, starting, ending]
+        ::Math.sqrt((starting.y - ending.y) ** 2 + (starting.x - ending.x) ** 2)
+      end
+
+      def self.origin
+        new(x: 0.0, y: 0.0)
+      end
 
       def initialize(x:, y:)         = super(x: x.to_f, y: y.to_f)
 
@@ -56,25 +74,6 @@ module Sevgi
       def to_s                       = "(#{to_cs})"
 
       alias_method :==, :eql?
-
-      def self.angle(starting, ending)
-        starting, ending = Tuples[Point, starting, ending]
-        F.atan2(ending.y - starting.y, ending.x - starting.x)
-      end
-
-      def self.eq?(this, that, precision: nil)
-        this, that = Tuples[self, this, that]
-        F.eq?(this.x, that.x, precision:) && F.eq?(this.y, that.y, precision:)
-      end
-
-      def self.length(starting, ending)
-        starting, ending = Tuples[Point, starting, ending]
-        ::Math.sqrt((starting.y - ending.y) ** 2 + (starting.x - ending.x) ** 2)
-      end
-
-      def self.origin
-        new(x: 0.0, y: 0.0)
-      end
     end
 
     Origin = Point.origin

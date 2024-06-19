@@ -5,6 +5,8 @@ require "forwardable"
 module Sevgi
   module Geometry
     class Line < Element.lined(1, open: true)
+      def self.[](length, angle, position: Origin) = new_by_segments(Segment[length, angle], position:)
+
       extend Forwardable
 
       def_delegators :head, :length, :angle
@@ -33,8 +35,6 @@ module Sevgi
 
           point.between?(points.min, points.max)
         end
-
-      def self.[](length, angle, position: Origin) = new_by_segments(Segment[length, angle], position:)
     end
   end
 end

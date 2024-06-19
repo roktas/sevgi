@@ -6,6 +6,16 @@ module Sevgi
   class Sandbox
     include Singleton
 
+    def self.run(file, ...)
+      self.instance.create.load(file, ...)
+    ensure
+      self.instance.shutdown
+    end
+
+    def self.load(file, ...)
+      self.instance.current.load(file, ...)
+    end
+
     def initialize
       @sandboxes = []
     end
@@ -64,16 +74,6 @@ module Sevgi
 
           line ? "in file '#{file}', around line #{line}" : default
         end
-    end
-
-    def self.run(file, ...)
-      self.instance.create.load(file, ...)
-    ensure
-      self.instance.shutdown
-    end
-
-    def self.load(file, ...)
-      self.instance.current.load(file, ...)
     end
   end
 end

@@ -3,6 +3,12 @@
 module Sevgi
   module Geometry
     class Equation
+      def self.diagonal(slope:, intercept:) = Linear::Diagonal.new(slope:, intercept:)
+
+      def self.horizontal(const)            = Linear::Horizontal.new(const)
+
+      def self.vertical(const)              = Linear::Vertical.new(const)
+
       def intersect(other)
         Error.("Must be an equation: #{other}") unless other.is_a?(Equation)
 
@@ -38,12 +44,6 @@ module Sevgi
         def quadratic_vs_quadratic(...)
           raise(NotImplementedError)
         end
-
-      def self.diagonal(slope:, intercept:) = Linear::Diagonal.new(slope:, intercept:)
-
-      def self.horizontal(const)            = Linear::Horizontal.new(const)
-
-      def self.vertical(const)              = Linear::Vertical.new(const)
     end
 
     class Point

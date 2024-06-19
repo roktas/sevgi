@@ -3,6 +3,10 @@
 module Sevgi
   module Geometry
     class Element
+      def self.lined(...)               = Lined.build(...)
+
+      def self.arced(...)               = Arced.build(...)
+
       # Core API
 
       def at(point = nil, dx: 0, dy: 0) = translate(((point ||= position).x - position.x) + dx, (point.y - position.y) + dy)
@@ -17,11 +21,66 @@ module Sevgi
 
       def translate(x, y)               = raise(NoMethodError, "#{self.class}#translate must be implemented")
 
-      def self.lined(...)               = Lined.build(...)
-
-      def self.arced(...)               = Arced.build(...)
-
       class Lined < self # rubocop:disable Metrics/ClassLength
+        Open  = Class.new(self) do
+          def draw!(node, **) = node.polyline(points: points.map { it.deconstruct.map(&:to_s).join(",") }, **)
+        end
+
+        Close = Class.new(self) do
+          def self.new_by_points(*points) = super(*points, points.first)
+
+          def draw!(node, **) = node.polygon(points: points.map { it.deconstruct.map(&:to_s).join(",") }, **)
+        end
+
+        # Class methods
+
+        SHORTCUTS = ("A".."Z").to_a.freeze
+
+        # rubocop:disable Metrics/MethodLength
+        def self.build(size = Undefined, open: false)
+          Class.new(open ? Open : Close) do
+            define_singleton_method(:close?) { !open             }
+
+            define_singleton_method(:open?)  { open              }
+
+            define_singleton_method(:poly?)  { size == Undefined }
+
+            define_singleton_method(:size)   { size              }
+
+            unless size == Undefined
+              SHORTCUTS[..size.clamp(..SHORTCUTS.size)].each_with_index do |name, i|
+                define_method(name) { points[i] or Error.("No such point: #{name}") }
+              end
+
+              methods = SHORTCUTS[..size.clamp(..SHORTCUTS.size)].each_cons(2).each_with_index.map do |names, i|
+                define_method(name = names.join) { lines[i] or Error.("No such line: #{name}") }
+              end
+
+              alias_method "#{SHORTCUTS[size - 1]}#{SHORTCUTS.first}", methods.last
+            end
+          end
+          # rubocop:enable Metrics/MethodLength
+        end
+
+        def self.[](...)            = new_by_segments(...)
+
+        def self.call(...)          = new_by_points(...)
+
+        def self.new_by_points(...) = new_by_points!(...)
+
+        def self.new_by_points!(*points)
+          new do
+            @points   = Tuples[Point, *points]
+          end
+        end
+
+        def self.new_by_segments(*segments, position: Origin)
+          new do
+            @position = Tuple[Point, position]
+            @segments = Tuples[Segment, *segments]
+          end
+        end
+
         private_class_method(:new)
 
         def initialize(&block)
@@ -155,65 +214,6 @@ module Sevgi
             Error.("Wrong number of segments; expected #{ns} where found #{segments.size}") unless segments.size == ns
             Error.("Element points must form a closed path") if self.class.close? && !points.first.eq?(points.last)
           end
-
-        # Class methods
-
-        SHORTCUTS = ("A".."Z").to_a.freeze
-
-        # rubocop:disable Metrics/MethodLength
-        def self.build(size = Undefined, open: false)
-          Class.new(open ? Open : Close) do
-            define_singleton_method(:close?) { !open             }
-
-            define_singleton_method(:open?)  { open              }
-
-            define_singleton_method(:poly?)  { size == Undefined }
-
-            define_singleton_method(:size)   { size              }
-
-            unless size == Undefined
-              SHORTCUTS[..size.clamp(..SHORTCUTS.size)].each_with_index do |name, i|
-                define_method(name) { points[i] or Error.("No such point: #{name}") }
-              end
-
-              methods = SHORTCUTS[..size.clamp(..SHORTCUTS.size)].each_cons(2).each_with_index.map do |names, i|
-                define_method(name = names.join) { lines[i] or Error.("No such line: #{name}") }
-              end
-
-              alias_method "#{SHORTCUTS[size - 1]}#{SHORTCUTS.first}", methods.last
-            end
-          end
-          # rubocop:enable Metrics/MethodLength
-        end
-
-        def self.[](...)            = new_by_segments(...)
-
-        def self.call(...)          = new_by_points(...)
-
-        def self.new_by_points(...) = new_by_points!(...)
-
-        def self.new_by_points!(*points)
-          new do
-            @points   = Tuples[Point, *points]
-          end
-        end
-
-        def self.new_by_segments(*segments, position: Origin)
-          new do
-            @position = Tuple[Point, position]
-            @segments = Tuples[Segment, *segments]
-          end
-        end
-
-        Open  = Class.new(self) do
-          def draw!(node, **) = node.polyline(points: points.map { it.deconstruct.map(&:to_s).join(",") }, **)
-        end
-
-        Close = Class.new(self) do
-          def self.new_by_points(*points) = super(*points, points.first)
-
-          def draw!(node, **) = node.polygon(points: points.map { it.deconstruct.map(&:to_s).join(",") }, **)
-        end
       end
 
       class Arced < self # rubocop:disable Metrics/ClassLength

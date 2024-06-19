@@ -2,6 +2,8 @@
 
 module Sevgi
   class Locate
+    def self.call(*, **, &block) = new(*, **).call(&block)
+
     Location = Data.define(:file, :slug, :dir)
 
     private_constant :Location
@@ -41,8 +43,6 @@ module Sevgi
 
         paths.find { finder.call(it) }
       end
-
-    def self.call(*, **, &block) = new(*, **).call(&block)
   end
 
   private_constant :Locate
