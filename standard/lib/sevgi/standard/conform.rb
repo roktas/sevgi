@@ -32,14 +32,12 @@ module Sevgi
 
       @cache = {}
 
-      class << self
-        def call(element, attributes: nil, cdata: nil, elements: nil)
-          Element.ignore?(element) or (@cache[element] ||= new(element)).call(
-            attributes: Attribute.concerns(attributes),
-            elements:   Element.concerns(elements),
-            cdata:
-          )
-        end
+      def self.call(element, attributes: nil, cdata: nil, elements: nil)
+        Element.ignore?(element) or (@cache[element] ||= new(element)).call(
+          attributes: Attribute.concerns(attributes),
+          elements:   Element.concerns(elements),
+          cdata:
+        )
       end
     end
 

@@ -8,16 +8,14 @@ module Sevgi
 
     def valid?(name)     = data.key?(name)
 
-    class << self
-      def extended(base)
-        super
+    def self.extended(base)
+      super
 
-        base.class_exec do
-          @data = {}
+      base.class_exec do
+        @data = {}
 
-          class << self
-            attr_reader :data
-          end
+        class << self
+          attr_reader :data
         end
       end
     end

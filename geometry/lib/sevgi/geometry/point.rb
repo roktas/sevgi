@@ -57,25 +57,23 @@ module Sevgi
 
       alias_method :==, :eql?
 
-      class << self
-        def angle(starting, ending)
-          starting, ending = Tuples[Point, starting, ending]
-          F.atan2(ending.y - starting.y, ending.x - starting.x)
-        end
+      def self.angle(starting, ending)
+        starting, ending = Tuples[Point, starting, ending]
+        F.atan2(ending.y - starting.y, ending.x - starting.x)
+      end
 
-        def eq?(this, that, precision: nil)
-          this, that = Tuples[self, this, that]
-          F.eq?(this.x, that.x, precision:) && F.eq?(this.y, that.y, precision:)
-        end
+      def self.eq?(this, that, precision: nil)
+        this, that = Tuples[self, this, that]
+        F.eq?(this.x, that.x, precision:) && F.eq?(this.y, that.y, precision:)
+      end
 
-        def length(starting, ending)
-          starting, ending = Tuples[Point, starting, ending]
-          ::Math.sqrt((starting.y - ending.y) ** 2 + (starting.x - ending.x) ** 2)
-        end
+      def self.length(starting, ending)
+        starting, ending = Tuples[Point, starting, ending]
+        ::Math.sqrt((starting.y - ending.y) ** 2 + (starting.x - ending.x) ** 2)
+      end
 
-        def origin
-          new(x: 0.0, y: 0.0)
-        end
+      def self.origin
+        new(x: 0.0, y: 0.0)
       end
     end
 

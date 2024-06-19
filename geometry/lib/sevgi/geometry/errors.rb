@@ -2,9 +2,7 @@
 
 module Sevgi
   class Error < StandardError
-    class << self
-      def call(...) = raise(self, ...)
-    end
+    def self.call(...) = raise(self, ...)
   end unless defined?(Error)
 
   module Geometry

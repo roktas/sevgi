@@ -42,9 +42,7 @@ module Sevgi
       paths.find { finder.call(it) }
     end
 
-    class << self
-      def call(*, **, &block) = new(*, **).call(&block)
-    end
+    def self.call(*, **, &block) = new(*, **).call(&block)
   end
 
   private_constant :Locate

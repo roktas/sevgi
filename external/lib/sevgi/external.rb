@@ -14,12 +14,6 @@ module Sevgi
       def Promote(constant, symbol = Undefined)
         @constants[Undefined.default(symbol, constant.to_s.split("::").last.to_sym)] = constant
       end
-
-      def included(base)
-        super
-
-        @constants.each { |args| base.const_set(*args) }
-      end
     end
 
     def Extern(*modules, &block)
@@ -32,6 +26,12 @@ module Sevgi
 
     def Extern!(receiver, ...)
       receiver.send(:include, Extern(...))
+    end
+
+    def self.included(base)
+      super
+
+      @constants.each { |args| base.const_set(*args) }
     end
   end
 

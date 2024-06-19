@@ -41,13 +41,13 @@ module Sevgi
 
         attr_writer :children, :attributes
 
+      def self.element(name, *, parent:, &block) = new(name, **Dispatch.parse(name, *), parent:, &block)
+
+      def self.root(*, &block)                   = element(:svg, *, parent: RootParent, &block)
+
+      def self.root?(element)                    = element.parent == RootParent
+
       class << self
-        def element(name, *, parent:, &block) = new(name, **Dispatch.parse(name, *), parent:, &block)
-
-        def root(*, &block)                   = element(:svg, *, parent: RootParent, &block)
-
-        def root?(element)                    = element.parent == RootParent
-
         require "sevgi/standard"
 
         def valid?(name)                      = Standard.element?(name)

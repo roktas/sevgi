@@ -17,39 +17,33 @@ module Sevgi
         define_method(side) { lines[i] }
       end
 
-      class << self
-        def call(top_left, bottom_right)
-          top_left, bottom_right = Tuples[Point, top_left, bottom_right]
-          width = (bottom_right.x - top_left.x).abs
+      def self.call(top_left, bottom_right)
+        top_left, bottom_right = Tuples[Point, top_left, bottom_right]
+        width = (bottom_right.x - top_left.x).abs
 
-          new_by_points(
-            top_left,
-            top_left.translate(width, 0.0),
-            bottom_right,
-            bottom_right.translate(-width, 0.0)
-          )
-        end
+        new_by_points(
+          top_left,
+          top_left.translate(width, 0.0),
+          bottom_right,
+          bottom_right.translate(-width, 0.0)
+        )
+      end
 
-        def [](width, height, position: Origin)
-          new_by_segments(
-            Segment.horizontal(width),
-            Segment.vertical(height),
-            Segment.horizontal!(width),
-            Segment.vertical!(height),
-            position:
-          )
-        end
+      def self.[](width, height, position: Origin)
+        new_by_segments(
+          Segment.horizontal(width),
+          Segment.vertical(height),
+          Segment.horizontal!(width),
+          Segment.vertical!(height),
+          position:
+        )
       end
     end
 
     class Square < Rect
       alias_method :length, :width
 
-      class << self
-        def [](length, position: Origin)
-          super(length, length, position:)
-        end
-      end
+      def self.[](length, position: Origin) = super(length, length, position:)
     end
   end
 end

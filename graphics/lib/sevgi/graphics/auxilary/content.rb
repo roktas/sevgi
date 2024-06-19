@@ -11,17 +11,15 @@ module Sevgi
 
       def to_s                    = content.to_s
 
-      class << self
-        def cdata(...)            = CData.new(...)
+      def self.cdata(...)            = CData.new(...)
 
-        def css(...)              = CSS.new(...)
+      def self.css(...)              = CSS.new(...)
 
-        def encoded(...)          = Encoded.new(...)
+      def self.encoded(...)          = Encoded.new(...)
 
-        def text(contents)        = Array(contents).map(&:to_s).join("\n")
+      def self.text(contents)        = Array(contents).map(&:to_s).join("\n")
 
-        def verbatim(...)         = Verbatim.new(...)
-      end
+      def self.verbatim(...)         = Verbatim.new(...)
 
       class CData < Content
         def render(renderer, depth)

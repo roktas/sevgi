@@ -16,18 +16,16 @@ module Sevgi
         end
       end
 
-      class << self
-        def call(mod, receiver, ...)
-          tap do
-            callables(mod).each { it.bind(receiver).call(...) }
-          end
+      def self.call(mod, receiver, ...)
+        tap do
+          callables(mod).each { it.bind(receiver).call(...) }
         end
+      end
 
-        def callables(mod)
-          raise(ArgumentError, "Must be a module: #{mod}") unless mod.instance_of?(::Module)
+      def self.callables(mod)
+        raise(ArgumentError, "Must be a module: #{mod}") unless mod.instance_of?(::Module)
 
-          (mod.respond_to?(:callables) ? mod.callables : mod.instance_methods).map { mod.instance_method(it) }
-        end
+        (mod.respond_to?(:callables) ? mod.callables : mod.instance_methods).map { mod.instance_method(it) }
       end
     end
 

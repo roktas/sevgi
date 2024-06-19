@@ -12,30 +12,30 @@ module Sevgi
     ENVVOMIT = "SEVGI_VOMIT"
 
     Options = Struct.new(:preload, :require, :vomit, :help, :version) do
-      class << self
-        # codebeat:disable[ABC,BLOCK_NESTING,LOC]
-        def parse(argv)
-          new.tap do |options|
-            argv.first.start_with?("-") ? option(argv, options) : break until argv.empty?
+      # codebeat:disable[ABC,BLOCK_NESTING,LOC]
+      def self.parse(argv)
+        new.tap do |options|
+          argv.first.start_with?("-") ? option(argv, options) : break until argv.empty?
 
-            CLIError.("No preload file found: #{options.preload}") if options.preload && !::File.exist?(options.preload)
-          end
+          CLIError.("No preload file found: #{options.preload}") if options.preload && !::File.exist?(options.preload)
         end
+      end
 
+      class << self
         private
 
-        def option(argv, options)
-          case (arg = argv.shift)
-          when "-l", "--preload"   then options.preload = argv.shift
-          when "-r", "--require"   then options.require = argv.shift
-          when "-x", "--exception" then options.vomit   = true
-          when "-h", "--help"      then options.help    = true
-          when "-v", "--version"   then options.version = true
-          else                          CLIError.("Not a valid option: #{arg}")
+          def option(argv, options)
+            case (arg = argv.shift)
+            when "-l", "--preload"   then options.preload = argv.shift
+            when "-r", "--require"   then options.require = argv.shift
+            when "-x", "--exception" then options.vomit   = true
+            when "-h", "--help"      then options.help    = true
+            when "-v", "--version"   then options.version = true
+            else                          CLIError.("Not a valid option: #{arg}")
+            end
           end
-        end
-        # codebeat:enable[ABC,BLOCK_NESTING,LOC]
       end
+      # codebeat:enable[ABC,BLOCK_NESTING,LOC]
     end
 
     private_constant :Options

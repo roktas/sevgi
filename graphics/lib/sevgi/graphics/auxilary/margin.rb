@@ -32,15 +32,13 @@ module Sevgi
       alias_method :==,   :eql?
       alias_method :to_a, :deconstruct
 
-      class << self
-        def margin(array)
-          self[
-            *(array = Array(array)[0...(size = Margin.members.size)]).fill(nil, array.size, size - array.size)
-          ]
-        end
-
-        def zero = (@zero ||= self[0.0, 0.0, 0.0, 0.0])
+      def self.margin(array)
+        self[
+          *(array = Array(array)[0...(size = Margin.members.size)]).fill(nil, array.size, size - array.size)
+        ]
       end
+
+      def self.zero = (@zero ||= self[0.0, 0.0, 0.0, 0.0])
     end
   end
 end

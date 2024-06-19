@@ -39,21 +39,21 @@ module Sevgi
         floats.map { (i = it.to_i) == it.to_f ? i : it }
       end
 
-      class << self
-        def call(arg = Size.default, *)
-          canvas(arg).with(*)
-        end
+      def self.call(arg = Size.default, *)
+        canvas(arg).with(*)
+      end
 
+      class << self
         private
 
-        def canvas(arg)
-          case arg
-          when Canvas             then arg
-          when Size               then new(**arg.to_h)
-          when ::Symbol, ::String then new(**Size.public_send(arg).to_h)
-          else                    ArgumentError.("Argument must be a Symbol (size) or Canvas instance: #{arg}")
+          def canvas(arg)
+            case arg
+            when Canvas             then arg
+            when Size               then new(**arg.to_h)
+            when ::Symbol, ::String then new(**Size.public_send(arg).to_h)
+            else                    ArgumentError.("Argument must be a Symbol (size) or Canvas instance: #{arg}")
+            end
           end
-        end
       end
     end
   end

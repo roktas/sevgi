@@ -167,9 +167,7 @@ module Sevgi
 
           def unclosed = @closed = false
 
-          class << self
-            def call(root, **) = new(root, **).call(*root.class.preambles)
-          end
+          def self.call(root, **) = new(root, **).call(*root.class.preambles)
         end
 
         private_constant :Renderer

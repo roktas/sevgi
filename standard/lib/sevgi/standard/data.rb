@@ -17,9 +17,7 @@ module Sevgi
 
       def concerns(names)        = names ? names.reject { ignore?(it) } : names
 
-      class << self
-        def extended(base) = base.extend(List)
-      end
+      def self.extended(base)    = base.extend(List)
     end
 
     private_constant :Common

@@ -5,34 +5,32 @@
 module Sevgi
   module Geometry
     class Parm < Element.lined(4)
-      class << self
-        def [](horizontal, vertical, position: Origin)
-          horizontal, vertical = Tuples[Segment, horizontal, vertical]
+      def self.[](horizontal, vertical, position: Origin)
+        horizontal, vertical = Tuples[Segment, horizontal, vertical]
 
-          new_by_segments(horizontal, vertical.reverse, horizontal.reverse, vertical, position:)
-        end
+        new_by_segments(horizontal, vertical.reverse, horizontal.reverse, vertical, position:)
+      end
 
-        def new_by_height(horizontal:, tallness:, position: Origin)
-          horizontal = Tuple[Segment, horizontal]
-          tallness   = Tuple[LengthAngle, tallness]
+      def self.new_by_height(horizontal:, tallness:, position: Origin)
+        horizontal = Tuple[Segment, horizontal]
+        tallness   = Tuple[LengthAngle, tallness]
 
-          height = tallness.length - horizontal.ly
-          angle  = tallness.angle
-          length = height / F.sin(angle)
+        height = tallness.length - horizontal.ly
+        angle  = tallness.angle
+        length = height / F.sin(angle)
 
-          self[horizontal, Segment[length, angle], position:]
-        end
+        self[horizontal, Segment[length, angle], position:]
+      end
 
-        def new_by_width(vertical:, wideness:, position: Origin)
-          vertical = Tuple[Segment, vertical]
-          wideness = Tuple[LengthAngle, wideness]
+      def self.new_by_width(vertical:, wideness:, position: Origin)
+        vertical = Tuple[Segment, vertical]
+        wideness = Tuple[LengthAngle, wideness]
 
-          width  = wideness.length - vertical.lx
-          angle  = wideness.angle
-          length = width / F.cos(angle)
+        width  = wideness.length - vertical.lx
+        angle  = wideness.angle
+        length = width / F.cos(angle)
 
-          self[Segment[length, angle], vertical, position:]
-        end
+        self[Segment[length, angle], vertical, position:]
       end
     end
   end

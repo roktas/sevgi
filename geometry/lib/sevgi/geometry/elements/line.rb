@@ -34,9 +34,7 @@ module Sevgi
           point.between?(points.min, points.max)
         end
 
-      class << self
-        def [](length, angle, position: Origin) = new_by_segments(Segment[length, angle], position:)
-      end
+      def self.[](length, angle, position: Origin) = new_by_segments(Segment[length, angle], position:)
     end
   end
 end

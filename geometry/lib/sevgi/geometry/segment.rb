@@ -39,22 +39,20 @@ module Sevgi
 
       def y                           = length * F.sin(angle)
 
-      class << self
-        def call(starting, ending)
-          starting, ending = Tuples[Point, starting, ending]
-          self[Point.length(starting, ending), Point.angle(starting, ending)]
-        end
-
-        def eq?(this, that, precision: nil)
-          this, that = Tuples[self, this, that]
-          F.eq?(this.length, that.length, precision:) && F.eq?(this.angle, that.angle, precision:)
-        end
-
-        def horizontal!(length) = self[length, 180.0]
-        def horizontal(length)  = self[length,   0.0]
-        def vertical!(length)   = self[length, -90.0]
-        def vertical(length)    = self[length,  90.0]
+      def self.call(starting, ending)
+        starting, ending = Tuples[Point, starting, ending]
+        self[Point.length(starting, ending), Point.angle(starting, ending)]
       end
+
+      def self.eq?(this, that, precision: nil)
+        this, that = Tuples[self, this, that]
+        F.eq?(this.length, that.length, precision:) && F.eq?(this.angle, that.angle, precision:)
+      end
+
+      def self.horizontal!(length) = self[length, 180.0]
+      def self.horizontal(length)  = self[length,   0.0]
+      def self.vertical!(length)   = self[length, -90.0]
+      def self.vertical(length)    = self[length,  90.0]
     end
 
     LengthAngle = Data.define(:length, :angle)

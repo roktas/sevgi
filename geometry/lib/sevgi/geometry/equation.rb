@@ -39,13 +39,11 @@ module Sevgi
           raise(NotImplementedError)
         end
 
-      class << self
-        def diagonal(slope:, intercept:) = Linear::Diagonal.new(slope:, intercept:)
+      def self.diagonal(slope:, intercept:) = Linear::Diagonal.new(slope:, intercept:)
 
-        def horizontal(const)            = Linear::Horizontal.new(const)
+      def self.horizontal(const)            = Linear::Horizontal.new(const)
 
-        def vertical(const)              = Linear::Vertical.new(const)
-      end
+      def self.vertical(const)              = Linear::Vertical.new(const)
     end
 
     class Point

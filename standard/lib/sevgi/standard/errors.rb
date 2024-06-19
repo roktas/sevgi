@@ -9,16 +9,14 @@ module Sevgi
       super()
     end
 
-    class << self
-      def call(context, args = []) = raise(new(context, args))
+    def self.call(context, args = []) = raise(new(context, args))
 
-      def variant(message)
-        Class.new(self) do
-          define_method(:message) do
-            [ @context, message  ].tap do |messages|
-              messages << @args.map { "'#{it}'" }.join(", ") unless @args.empty?
-            end.join(": ")
-          end
+    def self.variant(message)
+      Class.new(self) do
+        define_method(:message) do
+          [ @context, message  ].tap do |messages|
+            messages << @args.map { "'#{it}'" }.join(", ") unless @args.empty?
+          end.join(": ")
         end
       end
     end

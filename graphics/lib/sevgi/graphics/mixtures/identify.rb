@@ -64,23 +64,19 @@ module Sevgi
         end
 
         IdentifyAsList = Class.new(IdentifyAs) do
-          class << self
-            def call(element, i)
-              element.each_with_index do |it, index|
-                i and (label = self[i].label(index + 1)) and it[:id] = label
-              end
+          def self.call(element, i)
+            element.each_with_index do |it, index|
+              i and (label = self[i].label(index + 1)) and it[:id] = label
             end
           end
         end
 
         IdentifyAsTable = Class.new(IdentifyAs) do
-          class << self
-            def call(element, ix: nil, iy: nil)
-              element.each_with_index do |row, irow|
-                iy and (label = self[iy].label(irow + 1)) and row[:id] = label
-                ix and row.children.each_with_index do |col, icol|
-                  (label = self[ix].label(irow + 1, icol + 1)) and col[:id] = label
-                end
+          def self.call(element, ix: nil, iy: nil)
+            element.each_with_index do |row, irow|
+              iy and (label = self[iy].label(irow + 1)) and row[:id] = label
+              ix and row.children.each_with_index do |col, icol|
+                (label = self[ix].label(irow + 1, icol + 1)) and col[:id] = label
               end
             end
           end

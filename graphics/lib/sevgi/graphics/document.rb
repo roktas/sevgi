@@ -12,11 +12,11 @@ module Sevgi
 
         class << self
           attr_reader :available
-
-          def register(name, klass) = (available[name] = klass)
-
-          def [](name)              = available[name]
         end
+
+        def self.register(name, klass) = (available[name] = klass)
+
+        def self.[](name)              = available[name]
 
         attr_reader :name, :attributes, :preambles
 
@@ -65,11 +65,9 @@ module Sevgi
           self.Render(*, **options)
         end
 
-        class << self
-          def attributes = self == Proto ? {} : { **superclass.attributes, **profile.attributes }
+        def self.attributes = self == Proto ? {} : { **superclass.attributes, **profile.attributes }
 
-          def preambles  = self == Proto ? nil : profile.preambles || superclass.preambles
-        end
+        def self.preambles  = self == Proto ? nil : profile.preambles || superclass.preambles
       end
 
       require_relative "document/base"

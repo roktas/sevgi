@@ -66,16 +66,14 @@ module Sevgi
       end
     end
 
-    class << self
-      def run(file, ...)
-        self.instance.create.load(file, ...)
-      ensure
-        self.instance.shutdown
-      end
+    def self.run(file, ...)
+      self.instance.create.load(file, ...)
+    ensure
+      self.instance.shutdown
+    end
 
-      def load(file, ...)
-        self.instance.current.load(file, ...)
-      end
+    def self.load(file, ...)
+      self.instance.current.load(file, ...)
     end
   end
 end

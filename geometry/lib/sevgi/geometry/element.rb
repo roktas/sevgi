@@ -156,48 +156,46 @@ module Sevgi
             Error.("Element points must form a closed path") if self.class.close? && !points.first.eq?(points.last)
           end
 
-        class << self
-          SHORTCUTS = ("A".."Z").to_a.freeze
+        SHORTCUTS = ("A".."Z").to_a.freeze
 
-          # rubocop:disable Metrics/MethodLength
-          def build(size = Undefined, open: false)
-            Class.new(open ? Open : Close) do
-              define_singleton_method(:close?) { !open             }
+        # rubocop:disable Metrics/MethodLength
+        def self.build(size = Undefined, open: false)
+          Class.new(open ? Open : Close) do
+            define_singleton_method(:close?) { !open             }
 
-              define_singleton_method(:open?)  { open              }
+            define_singleton_method(:open?)  { open              }
 
-              define_singleton_method(:poly?)  { size == Undefined }
+            define_singleton_method(:poly?)  { size == Undefined }
 
-              define_singleton_method(:size)   { size              }
+            define_singleton_method(:size)   { size              }
 
-              unless size == Undefined
-                SHORTCUTS[..size.clamp(..SHORTCUTS.size)].each_with_index do |name, i|
-                  define_method(name) { points[i] or Error.("No such point: #{name}") }
-                end
-
-                methods = SHORTCUTS[..size.clamp(..SHORTCUTS.size)].each_cons(2).each_with_index.map do |names, i|
-                  define_method(name = names.join) { lines[i] or Error.("No such line: #{name}") }
-                end
-
-                alias_method "#{SHORTCUTS[size - 1]}#{SHORTCUTS.first}", methods.last
+            unless size == Undefined
+              SHORTCUTS[..size.clamp(..SHORTCUTS.size)].each_with_index do |name, i|
+                define_method(name) { points[i] or Error.("No such point: #{name}") }
               end
+
+              methods = SHORTCUTS[..size.clamp(..SHORTCUTS.size)].each_cons(2).each_with_index.map do |names, i|
+                define_method(name = names.join) { lines[i] or Error.("No such line: #{name}") }
+              end
+
+              alias_method "#{SHORTCUTS[size - 1]}#{SHORTCUTS.first}", methods.last
             end
           end
           # rubocop:enable Metrics/MethodLength
 
-          def [](...)            = new_by_segments(...)
+          def self.[](...)            = new_by_segments(...)
 
-          def call(...)          = new_by_points(...)
+          def self.call(...)          = new_by_points(...)
 
-          def new_by_points(...) = new_by_points!(...)
+          def self.new_by_points(...) = new_by_points!(...)
 
-          def new_by_points!(*points)
+          def self.new_by_points!(*points)
             new do
               @points   = Tuples[Point, *points]
             end
           end
 
-          def new_by_segments(*segments, position: Origin)
+          def self.new_by_segments(*segments, position: Origin)
             new do
               @position = Tuple[Point, position]
               @segments = Tuples[Segment, *segments]
