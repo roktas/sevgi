@@ -2,4 +2,5 @@
 
 require_relative "internal/wet"
 
+require_relative "internal/file"
 require_relative "internal/string"
