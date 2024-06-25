@@ -83,13 +83,9 @@ module Sevgi
 
   # Other externals
 
-  EXTENSION = "sevgi"
-
   module External
     def Load(file)
-      start = ::File.dirname(exclude = caller_locations(1..1).first.path)
-
-      raise(Error, "Cannot load a file matching: #{file}") unless (location = Locate.(F.qualify(file, EXTENSION), start, exclude:))
+      location = Sevgi.locate(file, ::File.dirname(exclude = caller_locations(1..1).first.path), exclude:)
 
       Sandbox.load(location.file)
     end

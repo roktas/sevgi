@@ -41,7 +41,7 @@ module Sevgi
       def load(file, receiver = Undefined, &preblock)
         return if @loaded[file = F.existing!(file, extensions: [ EXTENSION ])]
 
-        Undefined.default(receiver, TOPLEVEL_BINDING.receiver).instance_exec(&preblock) if preblock
+        Undefined.default(receiver, TOPLEVEL_BINDING.receiver).instance_exec(@module, &preblock) if preblock
 
         ::Kernel.load(file, @module) and (@loaded[file] = true)
       rescue Exception => e # rubocop:disable Lint/RescueException

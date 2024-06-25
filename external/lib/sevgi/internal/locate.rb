@@ -46,4 +46,12 @@ module Sevgi
   end
 
   private_constant :Locate
+
+  EXTENSION = "sevgi"
+
+  def self.locate(filename, start, exclude:)
+    Locate.(F.qualify(filename, EXTENSION), start, exclude:).tap do
+      raise(Error, "Cannot load a file matching: #{file}") unless it
+    end
+  end
 end
