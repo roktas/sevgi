@@ -51,7 +51,7 @@ module Sevgi
 
   def self.locate(filename, start, exclude:)
     Locate.(F.qualify(filename, EXTENSION), start, exclude:).tap do
-      raise(Error, "Cannot load a file matching: #{file}") unless it
+      raise(Error, "Cannot load a file matching: #{filename}") unless it
     end
   end
 end
