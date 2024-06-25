@@ -29,9 +29,13 @@ module Sevgi
     end
 
     def self.included(base)
+      return if base.instance_variable_defined?("@_external_included_")
+
       super
 
       @constants.each { |args| base.const_set(*args) }
+
+      base.instance_variable_set("@_external_included_", true)
     end
   end
 
