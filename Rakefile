@@ -2,6 +2,10 @@
 
 # rubocop:disable Metrics/BlockLength
 
+Rake::FileUtilsExt.verbose_flag = false
+
+def yellow(string) = "\e[1;33m#{string}\e[0m"
+
 rootdir  = File.expand_path(__dir__)
 version  = File.read("#{rootdir}/VERSION").strip
 projects = Hash[*
@@ -20,23 +24,23 @@ projects.each do |project, package|
     %i[ lint test ].each do |tn|
       desc "#{tn.capitalize} #{project.capitalize}"
       task tn do |t|
-        puts "==> #{t}"
+        warn "#{yellow(t)}"
         Dir.chdir(project) do
           sh "rake #{tn}"
         end
-        puts ""
+        warn ""
       end
     end
 
     desc "Package #{package}"
     task :package => %w[ pkg ] do |t|
-      puts "==> #{t}"
+      warn "#{yellow(t)}"
       Dir.chdir(project) do
         sh <<~CMD
           rake package && gem build #{gemspec} && mv #{package}-#{version}.gem #{rootdir}/pkg/ && rm -rf pkg
         CMD
       end
-      puts ""
+      warn ""
     end
 
     desc "Build #{package}"
@@ -44,9 +48,9 @@ projects.each do |project, package|
 
     desc "Push #{package}"
     task push: :build do |t|
-      puts "==> #{t}"
+      warn "#{yellow(t)}"
       sh "gem push #{gem}"
-      puts ""
+      warn ""
     end
   end
 end
