@@ -51,10 +51,6 @@ module Sevgi
         Element.valid?(Element.id(name)) || super
       end
 
-      protected
-
-      attr_writer :children, :attributes
-
       module Dispatch
         extend self
 
@@ -84,6 +80,10 @@ module Sevgi
       end
 
       private_constant :Dispatch
+
+      protected
+
+        attr_writer :children, :attributes
     end
   end
 end

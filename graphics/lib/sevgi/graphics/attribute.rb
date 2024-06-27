@@ -86,7 +86,7 @@ module Sevgi
 
         protected
 
-        attr_reader :store
+          attr_reader :store
 
         private
 
