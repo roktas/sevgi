@@ -77,14 +77,6 @@ module Sevgi
     Promote Geometry::Origin, :Origin
   end
 
-  # Externals for Standard
-
-  require "sevgi/standard"
-
-  module External
-    Promote Standard::Color, :Color
-  end
-
   # Other externals
 
   module External
