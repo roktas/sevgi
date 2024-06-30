@@ -60,10 +60,6 @@ module Sevgi
     def SVG(...)
       Graphics.SVG(...)
     end
-
-    def Verbatim(content)
-      Graphics::Content.verbatim(content)
-    end
   end
 
   # Externals for Geometry
