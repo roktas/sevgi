@@ -64,8 +64,6 @@ module Sevgi
     def Verbatim(content)
       Graphics::Content.verbatim(content)
     end
-
-    Promote Callable
   end
 
   # Externals for Geometry
