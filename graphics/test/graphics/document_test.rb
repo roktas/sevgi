@@ -43,7 +43,7 @@ module Sevgi
           <svg data-var="xxx" width="210.0mm" height="297.0mm" viewBox="-5 -3 210 297"/>
         SVG
 
-        actual = SVG(DOC, Canvas(:a4, 3, 5)).Render
+        actual = SVG(DOC, Canvas(:a4, margins: [ 3, 5 ])).Render
 
         assert_equal(expected, actual)
       end

@@ -16,7 +16,7 @@ module Sevgi
       Graphics::Canvas.(...)
     end
 
-    def SVG(document = :default, canvas = nil, **, &block)
+    def SVG(document = :default, canvas = Undefined, **, &block)
       Graphics::Document.(document, canvas, **, &block)
     end
 

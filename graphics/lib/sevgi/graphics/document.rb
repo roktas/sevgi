@@ -3,8 +3,14 @@
 module Sevgi
   module Graphics
     module Document
-      def self.call(document, canvas = nil, **, &block)
-        (klass = Profile[document]).root(**klass.attributes, **(canvas ? Canvas.(canvas).attributes : {}), **, &block)
+      def self.call(document, canvas = Undefined, **, &block)
+        case canvas
+        when Undefined, ::NilClass then {}
+        when Canvas                then canvas.attributes
+        else                            Canvas.(canvas).attributes
+        end => attributes
+
+        (klass = Profile[document]).root(**klass.attributes, **attributes, **, &block)
       end
 
       class Profile
