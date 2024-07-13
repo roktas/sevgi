@@ -18,28 +18,25 @@ module Sevgi
       def_delegators :@margin, *Margin.members
       def_delegators :@size,   *Size.members
 
-      attr_reader :size, :margin, :origin, :inner
+      attr_reader :size, :margin, :inner
 
-      def initialize(width:, height:, origin: Undefined, unit: "mm", name: :custom, margins: [])
+      def initialize(width:, height:, unit: "mm", name: :custom, margins: [])
         @size   = Size[width, height, unit, name]
         @margin = Margin[*margins]
-        @origin = originate(origin)
 
         compute
         freeze
       end
 
-      def attributes      = { **viewport, viewBox: viewbox }
+      def attributes(...)             = { **viewport, viewBox: viewbox(...) }
 
-      def conforming(...) = self.class.conforming(self, ...)
+      def conforming(...)             = self.class.conforming(self, ...)
 
-      def viewport        = { width: "#{width}#{unit}", height: "#{height}#{unit}" }
+      def viewport                    = { width: "#{width}#{unit}", height: "#{height}#{unit}" }
 
-      def viewbox         = prettify(*origin, width, height).join(" ")
+      def viewbox(origin = Undefined) = prettify(*originate(origin), width, height).join(" ")
 
-      def with(**kwargs)
-        self.class.new(**size.to_h, margins: kwargs.fetch(:margins, margin.to_a), origin: kwargs.fetch(:origin, Undefined))
-      end
+      def with(**kwargs)              = self.class.new(**size.to_h, margins: kwargs.fetch(:margins, margin.to_a))
 
       private
 
