@@ -14,6 +14,11 @@ module Sevgi
           end
         end
 
+        def Group(mod, *args, **kwargs, &block)
+          kwargs = kwargs.merge(id: F.demodulize(mod).to_sym) unless kwargs.key?(:id)
+          g(**kwargs) { Call(mod, *args, &block) }
+        end
+
         def Layer(mod, *args, **kwargs, &block)
           kwargs = kwargs.merge(id: F.demodulize(mod).to_sym) unless kwargs.key?(:id)
           layer(**kwargs) { Call(mod, *args, &block) }
