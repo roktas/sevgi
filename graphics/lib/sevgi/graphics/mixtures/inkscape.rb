@@ -28,6 +28,19 @@ module Sevgi
           g("inkscape:groupmode": "layer", "sodipodi:insensitive": "true", **, &block)
         end
 
+        def Pages(rows:, cols:, width:, height:, gap:, id: "namedview", **) # rubocop:disable Metrics/MethodLength
+          [].tap do |matrix|
+            Element(:"sodipodi:namedview", id:) do
+              rows.times do |row|
+                cols.times do |col|
+                  matrix << (x, y, label = col * (height + gap), row * (width + gap), "#{row + 1}x#{col + 1}")
+                  Element(:"inkscape:page", id: "pageview-#{label}", x:, y:, width:, height:, **)
+                end
+              end
+            end
+          end
+        end
+
         # Internal symbol which does not show up Symbols Menu
         def symbol!(**, &block)
           if Is?(:defs)
@@ -35,6 +48,11 @@ module Sevgi
           else
             defs { g(role: "inkscape:symbol", **, &block) }
           end
+        end
+
+        def Symbol!(mod, *args, **kwargs, &block)
+          kwargs = kwargs.merge(id: F.demodulize(mod).to_sym) unless kwargs.key?(:id)
+          symbol!(**kwargs) { Call(mod, *args, &block) }
         end
       end
     end

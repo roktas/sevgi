@@ -24,6 +24,7 @@ module Sevgi
           output = "#{content.chomp}\n"
 
           ::File.write(file, output) if !update || changed?(file, output, &filter)
+          file
         end
       end
 
