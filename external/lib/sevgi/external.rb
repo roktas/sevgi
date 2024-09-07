@@ -74,10 +74,14 @@ module Sevgi
   # Other externals
 
   module External
-    def Load(file)
-      location = Sevgi.locate(file, ::File.dirname(exclude = caller_locations(1..1).first.path), exclude:)
+    def Load(*files)
+      start = ::File.dirname(caller_locations(1..1).first.path)
 
-      Sandbox.load(location.file)
+      files.each do |file|
+        location = Sevgi.locate(file, start, exclude: start)
+
+        Sandbox.load(location.file)
+      end
     end
 
     module Function
