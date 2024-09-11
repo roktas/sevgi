@@ -28,14 +28,18 @@ module Sevgi
         end
       end
 
-      def touch(*paths, ext: nil)
+      def subext(ext, *paths)
         path = ::File.join(*paths)
-        path = Pathname.new(path).sub_ext(ext) if ext
+        return path unless ext
 
-        ::FileUtils.mkdir_p(::File.dirname(path))
-        ::FileUtils.touch(path)
+        Pathname.new(path).sub_ext(ext).to_s
+      end
 
-        path
+      def touch(*paths)
+        ::File.join(*paths).tap do |path|
+          ::FileUtils.mkdir_p(::File.dirname(path))
+          ::FileUtils.touch(path)
+        end
       end
     end
 

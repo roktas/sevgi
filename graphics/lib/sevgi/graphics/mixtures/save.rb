@@ -6,13 +6,21 @@ module Sevgi
       module Save
         EXT = ".svg"
 
-        def Out(*, **)                 = F.out(self.(**), *)
+        def Out(*, **, &filter)
+          F.out(self.(**), *, update: true, &filter)
+        end
 
-        def Out!(*, **, &filter)       = F.out(self.(**), *, update: true, &filter)
+        def Save(path = nil, default: nil, &filter)
+          default ||= F.subext(EXT, caller_locations(1..1).first.path)
 
-        def Save(*paths, **)           = Out(F.touch(*(paths.empty? ? caller_locations(1..1).first.path : paths), ext: EXT), **)
+          if path
+            ::File.directory?(path) ? ::File.join(path, ::File.basename(default)) : path
+          else
+            default
+          end => path
 
-        def Save!(*paths, **, &filter) = Out!(F.touch(*(paths.empty? ? caller_locations(1..1).first.path : paths), ext: EXT), **, &filter)
+          Out(F.touch(path), &filter)
+        end
       end
     end
   end
