@@ -48,10 +48,6 @@ module Sevgi
   Callable = Graphics::Callable
 
   module External
-    def Canvas(...)
-      Graphics.Canvas(...)
-    end
-
     def Paper(width, height, name = :custom, unit: "mm")
       name.tap { Graphics::Paper.define!(name, width:, height:, unit:) }
     end
