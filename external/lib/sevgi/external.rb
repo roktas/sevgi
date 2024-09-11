@@ -52,6 +52,10 @@ module Sevgi
       Graphics.Canvas(...)
     end
 
+    def Paper(width, height, name = :custom, unit: "mm")
+      name.tap { Graphics::Paper.define!(name, width:, height:, unit:) }
+    end
+
     def Mixin(mod, document = Graphics::Document::Base, &block)
       document.mixture(mod)
       document.mixture(::Module.new(&block)) if block

@@ -8,20 +8,20 @@ module Sevgi
       def self.call(arg = Undefined, **kwargs)
         case arg
         when Undefined          then new(**kwargs)
-        when ::Symbol, ::String then new(**Size.public_send(arg).to_h, **kwargs)
-        else                    ArgumentError.("Argument must be a Size symbol: #{arg}")
+        when ::Symbol, ::String then new(**Paper.public_send(arg).to_h, **kwargs)
+        else                         ArgumentError.("Argument must be a Paper symbol: #{arg}")
         end
       end
 
       extend Forwardable
 
       def_delegators :@margin, *Margin.members
-      def_delegators :@size,   *Size.members
+      def_delegators :@size,   *Paper.members
 
       attr_reader :size, :margin, :inner
 
       def initialize(width:, height:, unit: "mm", name: :custom, margins: [])
-        @size   = Size[width, height, unit, name]
+        @size   = Paper[width, height, unit, name]
         @margin = Margin[*margins]
 
         compute

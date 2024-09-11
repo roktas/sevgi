@@ -4,7 +4,7 @@
 
 module Sevgi
   module Graphics
-    Size = Data.define(:width, :height, :unit, :name) do
+    Paper = Data.define(:width, :height, :unit, :name) do
       include Comparable
 
       def initialize(width:, height:, unit: "mm", name: :custom)
@@ -22,9 +22,22 @@ module Sevgi
       def shortest    = [ width, height ].min
 
       alias_method :==,   :eql?
-    end
 
-    class Size
+      class << self
+        def define!(name, ...)
+          raise ArgumentError, "Paper already defined: #{name}" if respond_to?(name)
+
+          define(name, ...)
+        end
+
+        private
+
+        def define(name, **spec)
+          singleton_class.attr_reader name
+          instance_variable_set("@#{name}", new(name:, **spec))
+        end
+      end
+
       {
         a0:        [ 841,  1189, "mm" ],
         a1:        [ 594,   841, "mm" ],
@@ -76,7 +89,7 @@ module Sevgi
         icon128:   [ 128,   128, "px" ],
         icon256:   [ 256,   256, "px" ],
         icon512:   [ 512,   512, "px" ],
-      }.each { |name, spec| define_singleton_method(name) { self[*spec, name] } }
+      }.each { |name, (width, height, unit)| define(name, width:, height:, unit:) }
 
       class << self
         alias_method :default, :a4
