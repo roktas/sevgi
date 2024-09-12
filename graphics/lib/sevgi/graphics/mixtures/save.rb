@@ -7,7 +7,7 @@ module Sevgi
         EXT = ".svg"
 
         def Out(*, **, &filter)
-          F.out(self.(**), *, update: true, &filter)
+          F.out(self.(**), *, &filter)
         end
 
         def Save(path = nil, default: nil, &filter)

@@ -16,15 +16,16 @@ module Sevgi
         Digest::SHA1.digest(old_content) != Digest::SHA1.digest(content)
       end
 
-      def out(content, *paths, update: false, &filter)
+      def out(content, *paths, &filter)
         if paths.empty?
           ::Kernel.puts(content)
         else
           file   = ::File.expand_path(::File.join(*paths))
           output = "#{content.chomp}\n"
 
-          ::File.write(file, output) if !update || changed?(file, output, &filter)
-          file
+          return unless changed?(file, output, &filter)
+
+          file.tap { ::File.write(file, output) }
         end
       end
 
