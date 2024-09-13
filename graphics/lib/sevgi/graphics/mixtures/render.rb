@@ -112,6 +112,7 @@ module Sevgi
 
               if floating?(element)
                 append(depth, *element.contents.map(&:to_s))
+                closed
               else
                 element.contents.each { |content| content.render(self, depth) }
               end
@@ -124,6 +125,7 @@ module Sevgi
 
             def has_inline_content?(element)
               return false if ELEMENTS_WITH_BLOCK_CONTENT.include?(element.name)
+              return false if floating?(element)
 
               element.contents.size == 1 || ELEMENTS_WITH_INLINE_CONTENT.include?(element.name)
             end

@@ -266,7 +266,7 @@ module Sevgi
       )
 
       def ignore?(element)
-        element.to_s.include?(":")
+        (name = element.to_s).include?(":") || name.start_with?("_")
       end
     end
   end
