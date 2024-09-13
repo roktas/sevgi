@@ -117,7 +117,7 @@ module Sevgi
               end
             end
 
-            def floating?(element) = element.Is?(:"-")
+            def floating?(element) = element.Is?(:_)
 
             ELEMENTS_WITH_INLINE_CONTENT = %i[ title ].freeze
             ELEMENTS_WITH_BLOCK_CONTENT  = %i[ style ].freeze

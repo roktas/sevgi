@@ -5,7 +5,7 @@ module Sevgi
     module Mixtures
       module Underscore
         def _(*contents)
-          self.class.call(:_, parent: self, contents:)
+          Element(:_, *contents)
         end
 
         def Ancestral
