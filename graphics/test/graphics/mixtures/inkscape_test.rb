@@ -29,7 +29,7 @@ module Sevgi
               </defs>
               <g id="ia" inkscape:groupmode="layer" sodipodi:insensitive="true">
                 <g id="iy-1" inkscape:groupmode="layer" sodipodi:insensitive="true">
-                  <use id="ix-1-1" xlink:href="#rectangular"/>
+                  <use id="ix-1-1" href="#rectangular"/>
                 </g>
               </g>
             </svg>

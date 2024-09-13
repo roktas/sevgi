@@ -395,7 +395,7 @@ module Sevgi
               </symbol>
               <g id="ia">
                 <g id="iy-1">
-                  <use id="ix-1-1" xlink:href="#rectangular"/>
+                  <use id="ix-1-1" href="#rectangular"/>
                 </g>
               </g>
             </svg>
@@ -418,16 +418,16 @@ module Sevgi
               </symbol>
               <g id="ia">
                 <g id="iy-1">
-                  <use id="ix-1-1" xlink:href="#rectangular"/>
-                  <use id="ix-1-2" xlink:href="#rectangular" transform="translate(1 0)"/>
+                  <use id="ix-1-1" href="#rectangular"/>
+                  <use id="ix-1-2" href="#rectangular" transform="translate(1 0)"/>
                 </g>
                 <g id="iy-2" transform="translate(0 4)">
-                  <use id="ix-2-1" xlink:href="#rectangular"/>
-                  <use id="ix-2-2" xlink:href="#rectangular" transform="translate(1 0)"/>
+                  <use id="ix-2-1" href="#rectangular"/>
+                  <use id="ix-2-2" href="#rectangular" transform="translate(1 0)"/>
                 </g>
                 <g id="iy-3" transform="translate(0 8)">
-                  <use id="ix-3-1" xlink:href="#rectangular"/>
-                  <use id="ix-3-2" xlink:href="#rectangular" transform="translate(1 0)"/>
+                  <use id="ix-3-1" href="#rectangular"/>
+                  <use id="ix-3-2" href="#rectangular" transform="translate(1 0)"/>
                 </g>
               </g>
             </svg>
@@ -450,16 +450,16 @@ module Sevgi
               </symbol>
               <g>
                 <g id="iy-1">
-                  <use id="ix-1-1" xlink:href="#rectangular"/>
-                  <use id="ix-1-2" xlink:href="#rectangular" transform="translate(1 0)"/>
+                  <use id="ix-1-1" href="#rectangular"/>
+                  <use id="ix-1-2" href="#rectangular" transform="translate(1 0)"/>
                 </g>
                 <g id="iy-2" transform="translate(0 4)">
-                  <use id="ix-2-1" xlink:href="#rectangular"/>
-                  <use id="ix-2-2" xlink:href="#rectangular" transform="translate(1 0)"/>
+                  <use id="ix-2-1" href="#rectangular"/>
+                  <use id="ix-2-2" href="#rectangular" transform="translate(1 0)"/>
                 </g>
                 <g id="iy-3" transform="translate(0 8)">
-                  <use id="ix-3-1" xlink:href="#rectangular"/>
-                  <use id="ix-3-2" xlink:href="#rectangular" transform="translate(1 0)"/>
+                  <use id="ix-3-1" href="#rectangular"/>
+                  <use id="ix-3-2" href="#rectangular" transform="translate(1 0)"/>
                 </g>
               </g>
             </svg>
@@ -482,16 +482,16 @@ module Sevgi
               </symbol>
               <g>
                 <g>
-                  <use id="ix-1-1" xlink:href="#rectangular"/>
-                  <use id="ix-1-2" xlink:href="#rectangular" transform="translate(1 0)"/>
+                  <use id="ix-1-1" href="#rectangular"/>
+                  <use id="ix-1-2" href="#rectangular" transform="translate(1 0)"/>
                 </g>
                 <g transform="translate(0 4)">
-                  <use id="ix-2-1" xlink:href="#rectangular"/>
-                  <use id="ix-2-2" xlink:href="#rectangular" transform="translate(1 0)"/>
+                  <use id="ix-2-1" href="#rectangular"/>
+                  <use id="ix-2-2" href="#rectangular" transform="translate(1 0)"/>
                 </g>
                 <g transform="translate(0 8)">
-                  <use id="ix-3-1" xlink:href="#rectangular"/>
-                  <use id="ix-3-2" xlink:href="#rectangular" transform="translate(1 0)"/>
+                  <use id="ix-3-1" href="#rectangular"/>
+                  <use id="ix-3-2" href="#rectangular" transform="translate(1 0)"/>
                 </g>
               </g>
             </svg>
@@ -514,16 +514,16 @@ module Sevgi
               </symbol>
               <g>
                 <g>
-                  <use xlink:href="#rectangular"/>
-                  <use xlink:href="#rectangular" transform="translate(1 0)"/>
+                  <use href="#rectangular"/>
+                  <use href="#rectangular" transform="translate(1 0)"/>
                 </g>
                 <g transform="translate(0 4)">
-                  <use xlink:href="#rectangular"/>
-                  <use xlink:href="#rectangular" transform="translate(1 0)"/>
+                  <use href="#rectangular"/>
+                  <use href="#rectangular" transform="translate(1 0)"/>
                 </g>
                 <g transform="translate(0 8)">
-                  <use xlink:href="#rectangular"/>
-                  <use xlink:href="#rectangular" transform="translate(1 0)"/>
+                  <use href="#rectangular"/>
+                  <use href="#rectangular" transform="translate(1 0)"/>
                 </g>
               </g>
             </svg>
@@ -571,7 +571,7 @@ module Sevgi
                 <rect width="5" height="8"/>
               </symbol>
               <g id="ia">
-                <use id="iy-1" xlink:href="#rectangular"/>
+                <use id="iy-1" href="#rectangular"/>
               </g>
             </svg>
           SVG
@@ -592,9 +592,9 @@ module Sevgi
                 <rect width="5" height="8"/>
               </symbol>
               <g id="ia">
-                <use id="iy-1" xlink:href="#rectangular"/>
-                <use id="iy-2" xlink:href="#rectangular" transform="translate(4 0)"/>
-                <use id="iy-3" xlink:href="#rectangular" transform="translate(8 0)"/>
+                <use id="iy-1" href="#rectangular"/>
+                <use id="iy-2" href="#rectangular" transform="translate(4 0)"/>
+                <use id="iy-3" href="#rectangular" transform="translate(8 0)"/>
               </g>
             </svg>
           SVG
@@ -615,9 +615,9 @@ module Sevgi
                 <rect width="5" height="8"/>
               </symbol>
               <g>
-                <use id="iy-1" xlink:href="#rectangular"/>
-                <use id="iy-2" xlink:href="#rectangular" transform="translate(4 0)"/>
-                <use id="iy-3" xlink:href="#rectangular" transform="translate(8 0)"/>
+                <use id="iy-1" href="#rectangular"/>
+                <use id="iy-2" href="#rectangular" transform="translate(4 0)"/>
+                <use id="iy-3" href="#rectangular" transform="translate(8 0)"/>
               </g>
             </svg>
           SVG
@@ -638,9 +638,9 @@ module Sevgi
                 <rect width="5" height="8"/>
               </symbol>
               <g>
-                <use xlink:href="#rectangular"/>
-                <use xlink:href="#rectangular" transform="translate(4 0)"/>
-                <use xlink:href="#rectangular" transform="translate(8 0)"/>
+                <use href="#rectangular"/>
+                <use href="#rectangular" transform="translate(4 0)"/>
+                <use href="#rectangular" transform="translate(8 0)"/>
               </g>
             </svg>
           SVG
@@ -687,7 +687,7 @@ module Sevgi
                 <rect width="5" height="8"/>
               </symbol>
               <g id="ia">
-                <use id="ix-1" xlink:href="#rectangular"/>
+                <use id="ix-1" href="#rectangular"/>
               </g>
             </svg>
           SVG
@@ -708,9 +708,9 @@ module Sevgi
                 <rect width="5" height="8"/>
               </symbol>
               <g id="ia">
-                <use id="ix-1" xlink:href="#rectangular"/>
-                <use id="ix-2" xlink:href="#rectangular" transform="translate(0 4)"/>
-                <use id="ix-3" xlink:href="#rectangular" transform="translate(0 8)"/>
+                <use id="ix-1" href="#rectangular"/>
+                <use id="ix-2" href="#rectangular" transform="translate(0 4)"/>
+                <use id="ix-3" href="#rectangular" transform="translate(0 8)"/>
               </g>
             </svg>
           SVG
@@ -731,9 +731,9 @@ module Sevgi
                 <rect width="5" height="8"/>
               </symbol>
               <g>
-                <use id="ix-1" xlink:href="#rectangular"/>
-                <use id="ix-2" xlink:href="#rectangular" transform="translate(0 4)"/>
-                <use id="ix-3" xlink:href="#rectangular" transform="translate(0 8)"/>
+                <use id="ix-1" href="#rectangular"/>
+                <use id="ix-2" href="#rectangular" transform="translate(0 4)"/>
+                <use id="ix-3" href="#rectangular" transform="translate(0 8)"/>
               </g>
             </svg>
           SVG
@@ -754,9 +754,9 @@ module Sevgi
                 <rect width="5" height="8"/>
               </symbol>
               <g>
-                <use xlink:href="#rectangular"/>
-                <use xlink:href="#rectangular" transform="translate(0 4)"/>
-                <use xlink:href="#rectangular" transform="translate(0 8)"/>
+                <use href="#rectangular"/>
+                <use href="#rectangular" transform="translate(0 4)"/>
+                <use href="#rectangular" transform="translate(0 8)"/>
               </g>
             </svg>
           SVG

@@ -9,8 +9,8 @@
     <symbol id="dot">
       <circle cx="120" cy="50" r="6" fill="yellow"/>
     </symbol>
-    <use xlink:href="#dot" id="dot-1"/>
-    <use xlink:href="#dot" transform="translate(18 0)" id="dot-2"/>
-    <use xlink:href="#dot" transform="translate(36 0)" id="dot-3"/>
+    <use href="#dot" id="dot-1"/>
+    <use href="#dot" transform="translate(18 0)" id="dot-2"/>
+    <use href="#dot" transform="translate(36 0)" id="dot-3"/>
   </g>
 </svg>

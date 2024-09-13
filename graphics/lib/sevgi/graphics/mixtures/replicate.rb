@@ -57,21 +57,21 @@ module Sevgi
           Ensure.with_block(block, symbol:, nx:, dx:, ny:, dy:)
 
           symbol!(id: symbol, &block)
-          use("xlink:href": "##{symbol}").Replicate(nx:, dx:, ix:, ny:, dy:, iy:, id:)
+          use("href": "##{symbol}").Replicate(nx:, dx:, ix:, ny:, dy:, iy:, id:)
         end
 
         def TileH(symbol = Undefined, n: Undefined, d: Undefined, i: nil, id: nil, &block)
           Ensure.with_block(block, symbol:, n:, d:)
 
           symbol!(id: symbol, &block)
-          use("xlink:href": "##{symbol}").ReplicateH(n:, d:, i:, id:)
+          use("href": "##{symbol}").ReplicateH(n:, d:, i:, id:)
         end
 
         def TileV(symbol = Undefined, n: Undefined, d: Undefined, i: nil, id: nil, &block)
           Ensure.with_block(block, symbol:, n:, d:)
 
           symbol!(id: symbol, &block)
-          use("xlink:href": "##{symbol}").ReplicateV(n:, d:, i:, id:)
+          use("href": "##{symbol}").ReplicateV(n:, d:, i:, id:)
         end
       end
 

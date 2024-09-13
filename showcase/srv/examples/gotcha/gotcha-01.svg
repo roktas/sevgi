@@ -11,9 +11,9 @@
         <symbol>
           <circle cx="120" cy="50" r="6" fill="yellow"/>
         </symbol>
-        <use xlink:href="#dot"/>
-        <use xlink:href="#dot" transform="translate(18 0)"/>
-        <use xlink:href="#dot" transform="translate(36 0)"/>
+        <use href="#dot"/>
+        <use href="#dot" transform="translate(18 0)"/>
+        <use href="#dot" transform="translate(36 0)"/>
       </g>
     </g>
   </svg>
@@ -25,9 +25,9 @@
       <symbol id="dot">
         <circle cx="120" cy="50" r="6" fill="yellow"/>
       </symbol>
-      <use id="dot-1" xlink:href="#dot"/>
-      <use id="dot-2" xlink:href="#dot" transform="translate(18 0)"/>
-      <use id="dot-3" xlink:href="#dot" transform="translate(36 0)"/>
+      <use id="dot-1" href="#dot"/>
+      <use id="dot-2" href="#dot" transform="translate(18 0)"/>
+      <use id="dot-3" href="#dot" transform="translate(36 0)"/>
     </g>
   </g>
 </svg>

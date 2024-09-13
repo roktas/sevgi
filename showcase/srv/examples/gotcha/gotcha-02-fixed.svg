@@ -11,9 +11,9 @@
         <symbol id="cyan-dot">
           <circle cx="120" cy="50" r="6" fill="cyan"/>
         </symbol>
-        <use id="cyan-dot-1" xlink:href="#cyan-dot"/>
-        <use id="cyan-dot-2" xlink:href="#cyan-dot" transform="translate(18 0)"/>
-        <use id="cyan-dot-3" xlink:href="#cyan-dot" transform="translate(36 0)"/>
+        <use id="cyan-dot-1" href="#cyan-dot"/>
+        <use id="cyan-dot-2" href="#cyan-dot" transform="translate(18 0)"/>
+        <use id="cyan-dot-3" href="#cyan-dot" transform="translate(36 0)"/>
       </g>
     </g>
   </svg>
@@ -26,9 +26,9 @@
         <symbol id="yellow-dot">
           <circle cx="120" cy="50" r="6" fill="yellow"/>
         </symbol>
-        <use id="yellow-dot-1" xlink:href="#yellow-dot"/>
-        <use id="yellow-dot-2" xlink:href="#yellow-dot" transform="translate(18 0)"/>
-        <use id="yellow-dot-3" xlink:href="#yellow-dot" transform="translate(36 0)"/>
+        <use id="yellow-dot-1" href="#yellow-dot"/>
+        <use id="yellow-dot-2" href="#yellow-dot" transform="translate(18 0)"/>
+        <use id="yellow-dot-3" href="#yellow-dot" transform="translate(36 0)"/>
       </g>
     </g>
   </svg>
