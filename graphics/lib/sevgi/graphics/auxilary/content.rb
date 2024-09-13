@@ -13,6 +13,8 @@ module Sevgi
 
       def self.cdata(...)         = CData.new(...)
 
+      def self.contents(*args)    = args.map { it.is_a?(Content) ? it : encoded(it) }
+
       def self.css(...)           = CSS.new(...)
 
       def self.encoded(...)       = Encoded.new(...)

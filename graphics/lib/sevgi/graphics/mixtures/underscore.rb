@@ -8,6 +8,16 @@ module Sevgi
           Element(:_, *contents)
         end
 
+        def Comment(comment)
+          _ Content.verbatim("<!-- #{comment} -->")
+        end
+
+        def Mark(begining: "BEGIN", ending: "END")
+          Comment(begining)
+          yield
+          Comment(ending)
+        end
+
         def Ancestral
           {}.tap do |result|
             Root.Traverse { |element| result.merge!(element[:_]) if element.has?(:_) }

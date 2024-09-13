@@ -32,7 +32,7 @@ module Sevgi
         end
 
         def Element(tag, *contents, **attributes, &block)
-          self.class.send(:new, tag.to_sym, contents: contents.map { Content.encoded(it) }, attributes:, parent: self, &block)
+          self.class.send(:new, tag.to_sym, contents: Content.contents(*contents), attributes:, parent: self, &block)
         end
 
         def Is?(name)
