@@ -10,7 +10,7 @@ module Sevgi
           duplicated.Traverse do |element|
             element.children = element.children.map(&:dup)
             id = (element.attributes = element.attributes.dup).delete(:id)
-            element[:_id] = id if id
+            element[:"#{ATTRIBUTE_INTERNAL_PREFIX}id"] = id if id
             block&.call(element)
           end
 

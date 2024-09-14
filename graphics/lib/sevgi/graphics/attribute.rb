@@ -4,21 +4,21 @@
 
 module Sevgi
   module Graphics
+    ATTRIBUTE_INTERNAL_PREFIX = "-"
+    ATTRIBUTE_UPDATE_SUFFIX   = "+"
+
     module Attribute
       module Ident
-        INTERNAL_PREFIX = "_"
-        UPDATE_SUFFIX   = "+"
-
         def internal?(given)
-          (@internal ||= {})[given] ||= given.start_with?(INTERNAL_PREFIX)
+          (@internal ||= {})[given] ||= given.start_with?(ATTRIBUTE_INTERNAL_PREFIX)
         end
 
         def id(given)
-          (@id ||= {})[given] ||= (updateable?(given) ? given.to_s.delete_suffix(UPDATE_SUFFIX) : given).to_sym
+          (@id ||= {})[given] ||= (updateable?(given) ? given.to_s.delete_suffix(ATTRIBUTE_UPDATE_SUFFIX) : given).to_sym
         end
 
         def updateable?(given)
-          (@updateable ||= {})[given] ||= given.end_with?(UPDATE_SUFFIX)
+          (@updateable ||= {})[given] ||= given.end_with?(ATTRIBUTE_UPDATE_SUFFIX)
         end
       end
 
