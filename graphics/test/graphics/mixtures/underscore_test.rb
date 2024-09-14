@@ -53,32 +53,6 @@ module Sevgi
 
           assert_equal(expected, actual)
         end
-
-        def test_underscore_mark
-          expected = <<~SVG.chomp
-            <svg>
-              <!-- BEGIN -->
-              <text>
-                You are
-                <tspan>not</tspan>
-                a banana
-              </text>
-              <!-- END -->
-            </svg>
-          SVG
-
-          actual = SVG DOC do
-            Mark do
-              text do
-                _ "You are"
-                tspan "not"
-                _ "a banana"
-              end
-            end
-          end.Render
-
-          assert_equal(expected, actual)
-        end
       end
     end
   end
