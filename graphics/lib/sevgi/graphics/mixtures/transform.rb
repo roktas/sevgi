@@ -19,7 +19,7 @@ module Sevgi
 
             next if values.map(&:to_f).all? { it == 0.0 }
 
-            attributes[:"transform+"] = "matrix(#{values.join(" ")})"
+            attributes[:"transform#{ATTRIBUTE_UPDATE_SUFFIX}"] = "matrix(#{values.join(" ")})"
           end
         end
 
@@ -29,7 +29,7 @@ module Sevgi
 
             next if a.to_f == 0.0
 
-            attributes[:"transform+"] = "rotate(#{[ a, *origin ].join(", ")})"
+            attributes[:"transform#{ATTRIBUTE_UPDATE_SUFFIX}"] = "rotate(#{[ a, *origin ].join(", ")})"
           end
         end
 
@@ -37,7 +37,7 @@ module Sevgi
           tap do
             next if x.to_f == 0.0 && (y.nil? || y.to_f == 0.0)
 
-            attributes[:"transform+"] = "scale(#{(y ? [ x, y ] : [ x ]).join(", ")})"
+            attributes[:"transform#{ATTRIBUTE_UPDATE_SUFFIX}"] = "scale(#{(y ? [ x, y ] : [ x ]).join(", ")})"
           end
         end
 
@@ -55,7 +55,7 @@ module Sevgi
           tap do
             next if a.to_f == 0.0
 
-            attributes[:"transform+"] = "skewX(#{a})"
+            attributes[:"transform#{ATTRIBUTE_UPDATE_SUFFIX}"] = "skewX(#{a})"
           end
         end
 
@@ -63,7 +63,7 @@ module Sevgi
           tap do
             next if a.to_f == 0.0
 
-            attributes[:"transform+"] = "skewY(#{a})"
+            attributes[:"transform#{ATTRIBUTE_UPDATE_SUFFIX}"] = "skewY(#{a})"
           end
         end
 
@@ -71,7 +71,7 @@ module Sevgi
           tap do
             next if x.to_f == 0.0 && (y.nil? || y.to_f == 0.0)
 
-            attributes[:"transform+"] = "translate(#{(y ? [ x, y ] : [ x ]).join(" ")})"
+            attributes[:"transform#{ATTRIBUTE_UPDATE_SUFFIX}"] = "translate(#{(y ? [ x, y ] : [ x ]).join(" ")})"
           end
         end
       end
