@@ -8,7 +8,7 @@
   </symbol>
   <g id="dots">
     <use id="dot-1" href="#dot"/>
-    <use id="dot-2" href="#dot" transform="translate(18 0)"/>
-    <use id="dot-3" href="#dot" transform="translate(36 0)"/>
+    <use id="dot-2" href="#dot" x="18"/>
+    <use id="dot-3" href="#dot" x="36"/>
   </g>
 </svg>

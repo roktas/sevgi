@@ -10,8 +10,8 @@ module Sevgi
         mixture :Duplicate
         mixture :Identify
         mixture :Lint
-        mixture :Replicate
         mixture :Save
+        mixture :Tile
         mixture :Transform
         mixture :Underscore
         mixture :Validate
