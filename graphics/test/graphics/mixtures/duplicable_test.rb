@@ -103,8 +103,8 @@ module Sevgi
 
           doc = SVG do
             element1 = line
-            element2 = element1.DuplicateH(1)
-            element3 = element1.DuplicateV(1)
+            element2 = element1.DuplicateX(1)
+            element3 = element1.DuplicateY(1)
           end
 
           assert_nil(element1[:transform])

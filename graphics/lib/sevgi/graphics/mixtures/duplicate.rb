@@ -21,13 +21,9 @@ module Sevgi
           duplicated
         end
 
-        def DuplicateH(dx, parent: nil, &block)
-          Duplicate(dx:, dy: 0, parent:, &block)
-        end
+        def DuplicateX(dx, parent: nil, &block) = Duplicate(dx:, dy: 0, parent:, &block)
 
-        def DuplicateV(dy, parent: nil, &block)
-          Duplicate(dx: 0, dy:, parent:, &block)
-        end
+        def DuplicateY(dy, parent: nil, &block) = Duplicate(dx: 0, dy:, parent:, &block)
       end
     end
   end
