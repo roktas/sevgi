@@ -17,9 +17,7 @@ module Sevgi
       end
 
       def self.call(mod, receiver, ...)
-        tap do
-          callables(mod).each { it.bind(receiver).call(...) }
-        end
+        callables(mod).map { it.bind(receiver).call(...) }.last # return last callable return value
       end
 
       def self.callables(mod)
