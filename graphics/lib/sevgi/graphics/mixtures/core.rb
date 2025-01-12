@@ -90,12 +90,12 @@ module Sevgi
           end
         end
 
-        def With(element = nil, ...)
-          tap { (element || self).parent.instance_exec(self, ...) }
+        def With(*args, **kwargs, &block)
+          tap { (args.shift || self).parent.instance_exec(*args, **kwargs, &block) }
         end
 
-        def Within(element = nil, ...)
-          tap { (element || self).instance_exec(...) }
+        def Within(*args, **kwargs, &block)
+          tap { (args.shift || self).instance_exec(*args, **kwargs, &block) }
         end
 
         def <<(element)
