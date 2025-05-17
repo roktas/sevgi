@@ -7,8 +7,8 @@
     <circle cx="120" cy="50" r="6" fill="yellow"/>
   </symbol>
   <g id="dots">
-    <use id="dot-1" href="#dot"/>
-    <use id="dot-2" href="#dot" x="18"/>
-    <use id="dot-3" href="#dot" x="36"/>
+    <use id="dot-1" href="#dot" class="tile-col-1 tile-col-first"/>
+    <use id="dot-2" href="#dot" class="tile-col-2" x="18"/>
+    <use id="dot-3" href="#dot" class="tile-col-3 tile-col-last" x="36"/>
   </g>
 </svg>
