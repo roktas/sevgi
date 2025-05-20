@@ -118,6 +118,35 @@ module Sevgi
           assert_equal(expected, actual)
         end
 
+        focus
+        def test_tile_with_proc
+          expected = <<~SVG.chomp
+            <svg>
+              <defs>
+                <g id="rect">
+                  <rect width="5" height="8"/>
+                </g>
+              </defs>
+              <use id="rect-1-1" href="#rect"/>
+              <use id="rect-1-2" href="#rect" x="1"/>
+              <use id="rect-2-1" href="#rect" y="4"/>
+              <use id="rect-2-2" href="#rect" x="1" y="4"/>
+              <use id="rect-3-1" href="#rect" y="8"/>
+              <use id="rect-3-2" href="#rect" x="1" y="8"/>
+            </svg>
+          SVG
+
+          proc = proc do |element, x:, y:, nx:, ny:|
+            element.attributes.delete(:class)
+          end
+
+          actual = SVG DOC do
+            Tile("rect", nx: 2, dx: 1, ny: 3, dy: 4, proc:) { rect(width: 5, height: 8) }
+          end.Render
+
+          assert_equal(expected, actual)
+        end
+
         def test_tile_bang
           expected = <<~SVG.chomp
             <svg>

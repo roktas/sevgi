@@ -28,7 +28,7 @@ module Sevgi
                   class: [ *rs, *cs ].join(" "),
                   **coords.(x * dx + ox, y * dy + oy)
                 )
-                proc.call(element:, x:, y:, nx:, ny:) if proc
+                proc.call(element, x:, y:, nx:, ny:) if proc
               end
             end
           end
@@ -55,7 +55,7 @@ module Sevgi
                 class: cs.join(" "),
                 **coords.(x * d + o)
               )
-              proc.call(element:, x:, n:) if proc
+              proc.call(element, x:, n:) if proc
             end
           end
         end
@@ -81,7 +81,7 @@ module Sevgi
                 class: rs.join(" "),
                 **coords.(y * d + o)
               )
-              proc.call(element:, y:, n:) if proc
+              proc.call(element, y:, n:) if proc
             end
           end
         end
