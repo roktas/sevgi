@@ -23,21 +23,17 @@ module Sevgi
 
       alias_method :==,   :eql?
 
-      class << self
-        def define!(name, ...)
-          raise ArgumentError, "Paper already defined: #{name}" if defined?(name)
+      def self.define!(name, ...)
+        raise ArgumentError, "Paper already defined: #{name}" if exist?(name)
 
-          define(name, ...)
-        end
+        define(name, ...)
+      end
 
-        def defined?(name) = respond_to?(name)
+      def self.exist?(name) = respond_to?(name)
 
-        private
-
-        def define(name, **spec)
-          singleton_class.attr_reader name
-          instance_variable_set("@#{name}", new(name:, **spec))
-        end
+      def self.define(name, **spec)
+        singleton_class.attr_reader name
+        instance_variable_set("@#{name}", new(name:, **spec))
       end
 
       {
