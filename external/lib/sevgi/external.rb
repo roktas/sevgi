@@ -49,7 +49,7 @@ module Sevgi
 
   module External
     def Paper(width, height, name = :custom, unit: "mm")
-      name.tap { Graphics::Paper.define!(name, width:, height:, unit:) }
+      name.tap { Graphics::Paper.define!(name, width:, height:, unit:) unless Graphics::Paper.defined?(name) }
     end
 
     def Mixin(mod, document = Graphics::Document::Base, &block)

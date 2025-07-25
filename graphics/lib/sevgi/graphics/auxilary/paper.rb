@@ -25,10 +25,12 @@ module Sevgi
 
       class << self
         def define!(name, ...)
-          raise ArgumentError, "Paper already defined: #{name}" if respond_to?(name)
+          raise ArgumentError, "Paper already defined: #{name}" if defined?(name)
 
           define(name, ...)
         end
+
+        def defined?(name) = respond_to?(name)
 
         private
 
