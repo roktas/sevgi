@@ -35,7 +35,7 @@
     ]]>
   </style>
   <rect id="frame" width="20" height="150" class="frame"/>
-  <g id="minors" inkscape:groupmode="layer" sodipodi:insensitive="true">
+  <g id="minors" inkscape:groupmode="layer">
     <path d="M 0 0 h 2" class="minors"/>
     <path d="M 20 0 h -2" class="minors"/>
     <path d="M 0 1 h 2" class="minors"/>
@@ -339,7 +339,7 @@
     <path d="M 0 150 h 2" class="minors"/>
     <path d="M 20 150 h -2" class="minors"/>
   </g>
-  <g id="halves" inkscape:groupmode="layer" sodipodi:insensitive="true">
+  <g id="halves" inkscape:groupmode="layer">
     <path d="M 0 0 h 4" class="halves"/>
     <path d="M 20 0 h -4" class="halves"/>
     <path d="M 0 5 h 4" class="halves"/>
@@ -403,7 +403,7 @@
     <path d="M 0 150 h 4" class="halves"/>
     <path d="M 20 150 h -4" class="halves"/>
   </g>
-  <g id="majors" inkscape:groupmode="layer" sodipodi:insensitive="true">
+  <g id="majors" inkscape:groupmode="layer">
     <path d="M 0 10 h 6" class="majors"/>
     <path d="M 20 10 h -6" class="majors"/>
     <path d="M 0 20 h 6" class="majors"/>
@@ -432,7 +432,7 @@
     <path d="M 20 130 h -6" class="majors"/>
     <path d="M 0 140 h 6" class="majors"/>
     <path d="M 20 140 h -6" class="majors"/>
-    <g id="labels" inkscape:groupmode="layer" sodipodi:insensitive="true">
+    <g id="labels" inkscape:groupmode="layer">
       <text x="7.4" y="3.5" class="labels"> 0</text>
       <text x="7.4" y="11.4" class="labels"> 1</text>
       <text x="7.4" y="21.4" class="labels"> 2</text>

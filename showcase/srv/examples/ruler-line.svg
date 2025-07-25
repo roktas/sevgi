@@ -35,7 +35,7 @@
     ]]>
   </style>
   <rect id="frame" width="20" height="150" class="frame"/>
-  <g id="minors" inkscape:groupmode="layer" sodipodi:insensitive="true">
+  <g id="minors" inkscape:groupmode="layer">
     <line x1="0" y1="0" x2="2" y2="0" class="minors"/>
     <line x1="20" y1="0" x2="18" y2="0" class="minors"/>
     <line x1="0" y1="1" x2="2" y2="1" class="minors"/>
@@ -339,7 +339,7 @@
     <line x1="0" y1="150" x2="2" y2="150" class="minors"/>
     <line x1="20" y1="150" x2="18" y2="150" class="minors"/>
   </g>
-  <g id="halves" inkscape:groupmode="layer" sodipodi:insensitive="true">
+  <g id="halves" inkscape:groupmode="layer">
     <line x1="0" y1="0" x2="4" y2="0" class="halves"/>
     <line x1="20" y1="0" x2="16" y2="0" class="halves"/>
     <line x1="0" y1="5" x2="4" y2="5" class="halves"/>
@@ -403,7 +403,7 @@
     <line x1="0" y1="150" x2="4" y2="150" class="halves"/>
     <line x1="20" y1="150" x2="16" y2="150" class="halves"/>
   </g>
-  <g id="majors" inkscape:groupmode="layer" sodipodi:insensitive="true">
+  <g id="majors" inkscape:groupmode="layer">
     <line x1="0" y1="10" x2="6" y2="10" class="majors"/>
     <line x1="20" y1="10" x2="14" y2="10" class="majors"/>
     <line x1="0" y1="20" x2="6" y2="20" class="majors"/>
@@ -432,7 +432,7 @@
     <line x1="20" y1="130" x2="14" y2="130" class="majors"/>
     <line x1="0" y1="140" x2="6" y2="140" class="majors"/>
     <line x1="20" y1="140" x2="14" y2="140" class="majors"/>
-    <g id="labels" inkscape:groupmode="layer" sodipodi:insensitive="true">
+    <g id="labels" inkscape:groupmode="layer">
       <text x="7.4" y="3.5" class="labels"> 0</text>
       <text x="7.4" y="11.4" class="labels"> 1</text>
       <text x="7.4" y="21.4" class="labels"> 2</text>
