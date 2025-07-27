@@ -4,26 +4,41 @@ module Sevgi
   module Graphics
     module Callable
       def method_added(method)
-        callables << method if public_method_defined?(method)
+        _callables << method if public_method_defined?(method)
       end
+
+      module DSL
+        def before(&block) = (_befores << block)
+        def after(&block)  = (_afters << block)
+      end
+
+      private_constant :DSL
 
       def self.extended(base)
         base.instance_exec do
-          @callables = []
+          @_callables = []
+          @_befores   = []
+          @_afters    = []
+
           class << self
-            attr_reader :callables
+            attr_reader :_callables, :_befores, :_afters
           end
+
+          extend DSL
         end
       end
 
       def self.call(mod, receiver, ...)
-        callables(mod).map { it.bind(receiver).call(...) }.last # return last callable return value
+        mod._befores.each { Within(self, &it) } if mod.respond_to?(:_befores) && mod._befores
+        callables(mod).map { it.bind(receiver).call(...) }.last.tap do # return last callable return value
+          mod._afters.each { Within(self, &it) } if mod.respond_to?(:_afters) && mod._afters
+        end
       end
 
       def self.callables(mod)
         raise(ArgumentError, "Must be a module: #{mod}") unless mod.instance_of?(::Module)
 
-        (mod.respond_to?(:callables) ? mod.callables : mod.instance_methods).map { mod.instance_method(it) }
+        (mod.respond_to?(:_callables) ? mod._callables : mod.instance_methods).map { mod.instance_method(it) }
       end
     end
 
@@ -41,6 +56,8 @@ module Sevgi
 
             kwargs = kwargs.merge(id: F.demodulize(mod).to_sym) unless kwargs.key?(:id)
 
+            mod._befores.each { Within(self, &it) } if mod.respond_to?(:_befores) && mod._befores
+
             public_send(container, **kwargs) do
               Callable.callables(mod).each do |method|
                 public_send(element) do
@@ -50,6 +67,8 @@ module Sevgi
                 end
               end
             end
+
+            mod._afters.each { Within(self, &it) } if mod.respond_to?(:_afters) && mod._afters
 
             self
           end
