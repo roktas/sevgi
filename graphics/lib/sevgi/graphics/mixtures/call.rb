@@ -28,9 +28,9 @@ module Sevgi
       end
 
       def self.call(mod, receiver, ...)
-        mod._befores.each { Within(self, &it) } if mod.respond_to?(:_befores) && mod._befores
+        mod._befores.each { receiver.Within(receiver, &it) } if mod.respond_to?(:_befores) && mod._befores
         callables(mod).map { it.bind(receiver).call(...) }.last.tap do # return last callable return value
-          mod._afters.each { Within(self, &it) } if mod.respond_to?(:_afters) && mod._afters
+          mod._afters.each { receiver.Within(receiver, &it) } if mod.respond_to?(:_afters) && mod._afters
         end
       end
 
