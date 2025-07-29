@@ -24,8 +24,17 @@ module Sevgi
           layer(**kwargs) { Call(mod, *args, &block) }
         end
 
+        def Layer!(mod, *args, **kwargs, &block)
+          kwargs = kwargs.merge(id: F.demodulize(mod).to_sym) unless kwargs.key?(:id)
+          layer!(**kwargs) { Call(mod, *args, &block) }
+        end
+
         def layer(**, &block)
           g("inkscape:groupmode": "layer", **, &block)
+        end
+
+        def layer!(**, &block)
+          layer("sodipodi:insensitive": "true", **, &block)
         end
 
         def Pages(*pages, id: "namedview", **, &block) # rubocop:disable Metrics/MethodLength
