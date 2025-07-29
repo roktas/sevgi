@@ -35,6 +35,10 @@ module Sevgi
           self.class.send(:new, tag.to_sym, contents: Content.contents(*contents), attributes:, parent: self, &block)
         end
 
+        def Forward(receiver, method, ...)
+          receiver.public_send(method, self, ...)
+        end
+
         def Is?(name)
           self.name == name.to_sym
         end
