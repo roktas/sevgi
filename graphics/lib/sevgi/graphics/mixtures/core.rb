@@ -31,6 +31,22 @@ module Sevgi
           tap { elements.each { it.Adopt(self) } }
         end
 
+        def Classify(*classes)
+          tap do
+            unless self[:class]
+              self[:class] = classes
+              next
+            end
+
+            case self[:class]
+            when ::Array then  self[:class]
+            when ::String then self[:class].split
+            end => klasses
+
+            classes.each { klasses << it unless klasses.include?(it) }
+          end
+        end
+
         def Element(tag, *contents, **attributes, &block)
           self.class.send(:new, tag.to_sym, contents: Content.contents(*contents), attributes:, parent: self, &block)
         end
