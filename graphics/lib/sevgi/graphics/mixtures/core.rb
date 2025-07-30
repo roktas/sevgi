@@ -47,6 +47,16 @@ module Sevgi
           end
         end
 
+        def Defaults(**attributes)
+          tap do
+            attributes.each do |key, value|
+              next if self[key]
+
+              self[key] = value
+            end
+          end
+        end
+
         def Element(tag, *contents, **attributes, &block)
           self.class.send(:new, tag.to_sym, contents: Content.contents(*contents), attributes:, parent: self, &block)
         end
