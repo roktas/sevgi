@@ -13,6 +13,24 @@ module Sevgi
           end
         end
 
+        def Flip
+          tap do
+            attributes[:"transform#{ATTRIBUTE_UPDATE_SUFFIX}"] = "scale(-1, 1) scale(1, 1)"
+          end
+        end
+  
+        def FlipX
+          tap do
+            attributes[:"transform#{ATTRIBUTE_UPDATE_SUFFIX}"] = "scale(-1, 1)"
+          end
+        end
+
+        def FlipY
+          tap do
+            attributes[:"transform#{ATTRIBUTE_UPDATE_SUFFIX}"] = "scale(1, -11)"
+          end
+        end
+
         def Matrix(*values)
           tap do
             ArgumentError.("Incorrect transform matrix (six values required): #{values}") if values.size != 6
@@ -32,6 +50,10 @@ module Sevgi
             attributes[:"transform#{ATTRIBUTE_UPDATE_SUFFIX}"] = "rotate(#{[ a, *origin ].join(", ")})"
           end
         end
+
+        def Rotate90(...) = Rotate(90, ...)
+
+        def Rotate09(...) = Rotate(-90, ...)
 
         def Scale(x, y = nil)
           tap do
