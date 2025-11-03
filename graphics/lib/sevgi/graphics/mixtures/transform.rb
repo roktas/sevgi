@@ -18,7 +18,7 @@ module Sevgi
             attributes[:"transform#{ATTRIBUTE_UPDATE_SUFFIX}"] = "scale(-1, 1) scale(1, 1)"
           end
         end
-  
+
         def FlipX
           tap do
             attributes[:"transform#{ATTRIBUTE_UPDATE_SUFFIX}"] = "scale(-1, 1)"
