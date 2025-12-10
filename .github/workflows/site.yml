@@ -1,0 +1,20 @@
+name: Site
+on:
+  push:              { branches: [ "main" ], paths: ["showcase/srv/**"] }
+  pull_request:      { branches: [ "main" ], paths: ["showcase/srv/**"] }
+  workflow_dispatch:
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+jobs:
+  site:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v4
+      - name: Deploy 🥁
+        uses: shalzz/zola-deploy-action@v0.18.0
+        env:
+          BUILD_DIR: showcase/srv
+          PAGES_BRANCH: site
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

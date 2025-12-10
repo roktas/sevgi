@@ -1,0 +1,14 @@
+<%= "# :root" if ENV['DEBUG'] -%>
+# Render this template by running 'ruby FILE' or 'victor render FILE'
+
+require "victor"
+
+svg = Victor::SVG.new <%= attributes.render %>
+
+svg.build do
+<%- children.each do |child| -%>
+<%= child.render %>
+<%- end -%>
+end
+
+svg.save "result"

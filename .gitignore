@@ -1,0 +1,9 @@
+*.old
+.envrc
+/.VSCodeCounter/
+/.bundle/
+/.local/
+/coverage/
+/pkg/
+/vendor/
+_/

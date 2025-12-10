@@ -1,0 +1,74 @@
+# frozen_string_literal: true
+
+$LOAD_PATH.push(File.expand_path("lib", __dir__))
+
+require "sevgi/showcase"
+
+ENV["PATH"] += ":#{::File.expand_path("bin")}" if ::Dir.exist?("bin")
+
+# test
+
+require "rake/testtask"
+
+desc "Run unit tests"
+Rake::TestTask.new(:test) do |t|
+  t.test_files = FileList["test/**/*_test.rb"].exclude(/(^[._]|integration)/)
+end
+
+if ::File.exist?("test/integration_test.rb")
+  desc "Run integration tests"
+  Rake::TestTask.new(:integration) do |t|
+    t.test_files = [ "test/integration_test.rb" ]
+  end
+
+  desc "Run all tests"
+  Rake::Task[:test].enhance(%i[ integration ])
+end
+
+# lint
+
+require "rubocop/rake_task"
+RuboCop::RakeTask.new(:rubocop) do |t|
+  t.options = [ "--display-cop-names" ]
+end
+
+desc "Lint code"
+task lint: :rubocop
+
+# pack
+
+task :package if ::Dir["*.gemspec"].any?
+
+# site
+
+if ::Dir.exist?("srv")
+  desc "Build site examples"
+  task :"site:examples" do
+    Sevgi::Test::Suite.new("srv/examples").valids.map(&:file).each do |script|
+      sh script
+    end
+  end
+
+  desc "Build site"
+  task :"site:build" do
+    Dir.chdir("srv") { sh "zola build" }
+  end
+
+  desc "Serve site"
+  task :"site:serve" do
+    Dir.chdir("srv") { sh "zola serve" }
+  end
+
+  task serve: [ :"site:serve" ]
+end
+
+# clean
+
+require "rake/clean"
+CLEAN.include("*.gem", "pkg", "coverage")
+
+# default
+
+task default: [ :test ]
+
+task all:     %i[lint test]

@@ -1,0 +1,16 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="100">
+  <rect id="frame" width="200" height="100" rx="5" fill="#666"/>
+  <circle id="head" cx="80" cy="50" r="40" fill="yellow"/>
+  <circle id="eye" cx="90" cy="28" r="6" fill="black"/>
+  <polygon id="mouth" points="80,50 120,20 120,80" fill="#666"/>
+  <g id="dots">
+    <symbol id="dot">
+      <circle cx="120" cy="50" r="6" fill="yellow"/>
+    </symbol>
+    <use href="#dot" id="dot-1"/>
+    <use href="#dot" transform="translate(18 0)" id="dot-2"/>
+    <use href="#dot" transform="translate(36 0)" id="dot-3"/>
+  </g>
+</svg>
