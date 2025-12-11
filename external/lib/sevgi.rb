@@ -7,6 +7,7 @@ require "sevgi/geometry"
 require "sevgi/graphics"
 require "sevgi/standard"
 require "sevgi/sundries"
+
 require "sevgi/version"
 
 require_relative "sevgi/external"
