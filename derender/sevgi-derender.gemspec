@@ -8,10 +8,9 @@ Gem::Specification.new do |s|
   s.email                             = "roktas@gmail.com"
   s.license                           = "GPL-3.0-or-later"
   s.version                           = version
-  s.summary                           = "SVG Validation for the Sevgi toolkit."
-  s.description                       = "Validates elements and attributes according to the SVG specification."
+  s.summary                           = "Convert SVG to Sevgi DSL."
+  s.description                       = "Takes an SVG input and converts it to a Sevgi script."
   s.homepage                          = "https://sevgi.roktas.dev"
-  s.files                             = Dir["README.md", "lib/**/*"]
   s.files                             = Dir["../LICENSE", "README.md", "lib/**/*"]
   s.required_ruby_version             = ">= 3.4.0-preview1"
   s.metadata["changelog_uri"]         = "https://github.com/roktas/sevgi/blob/main/CHANGELOG.md"
@@ -19,7 +18,9 @@ Gem::Specification.new do |s|
   s.metadata["bug_tracker_uri"]       = "https://github.com/roktas/sevgi/issues"
   s.metadata["rubygems_mfa_required"] = "true"
 
-  s.add_runtime_dependency "css_parser", "~> 1.7"
-  s.add_runtime_dependency "nokogiri", "~> 1.10"
-  s.add_runtime_dependency "rufo", "~> 0.12"
+  s.add_dependency "sevgi-function", version
+
+  s.add_runtime_dependency "css_parser", "~> 1.21"
+  s.add_runtime_dependency "nokogiri", "~> 1.18"
+  s.add_runtime_dependency "rufo", "~> 0.18"
 end
