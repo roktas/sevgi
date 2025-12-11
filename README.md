@@ -1,5 +1,4 @@
 [![test status](https://github.com/roktas/sevgi/workflows/Test/badge.svg)](https://github.com/roktas/sevgi/actions?query=workflow%3ATest)
-[![code quality](https://codebeat.co/badges/ca6557d0-972b-4941-9f20-7c3a72a966fe)](https://codebeat.co/projects/github-com-roktas-sevgi-main)
 
 # SEVGI
 
