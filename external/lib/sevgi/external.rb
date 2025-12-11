@@ -57,5 +57,3 @@ module Sevgi
   require_relative "external/graphics"
   require_relative "external/sundries"
 end
-
-include Sevgi::External

@@ -13,8 +13,11 @@ module Sevgi
             "shape-rendering": "crispEdges"
           }
 
+        mixture :Hatch
         mixture :Inkscape
+        mixture :Print
         mixture :RDF
+        mixture :Symbols
       end
     end
   end

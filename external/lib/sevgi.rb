@@ -1,14 +1,15 @@
 # frozen_string_literal: true
 
-require "sevgi/derender"
 require "sevgi/function"
+
+require "sevgi/derender"
 require "sevgi/geometry"
 require "sevgi/graphics"
 require "sevgi/standard"
 require "sevgi/sundries"
 require "sevgi/version"
 
-require "sevgi/external"
+require_relative "sevgi/external"
 
 module Sevgi
   def self.exec(file, *args, **kwargs)

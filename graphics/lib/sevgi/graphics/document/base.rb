@@ -9,17 +9,13 @@ module Sevgi
         mixture :Call
         mixture :Duplicate
         mixture :Identify
+        mixture :Include
         mixture :Lint
         mixture :Save
         mixture :Tile
         mixture :Transform
         mixture :Underscore
         mixture :Validate
-
-        mixture :Hatch
-        mixture :Include
-        mixture :Print
-        mixture :Symbols
 
         def PreRender(**options)
           self.Validate if options[:validate]
