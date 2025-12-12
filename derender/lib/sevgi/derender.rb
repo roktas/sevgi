@@ -7,7 +7,9 @@ require_relative "derender/document"
 
 module Sevgi
   module Derender
-    def call(file, id) = Document.load_file(file).(id)
+    def call(file, id)        = Document.load_file(file).(id)
+
+    def derender(content, id) = Document.new(content).(id)
 
     extend self
   end
