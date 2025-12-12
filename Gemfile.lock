@@ -89,7 +89,7 @@ GEM
     language_server-protocol (3.17.0.5)
     lint_roller (1.1.0)
     logger (1.7.0)
-    minitest (5.26.2)
+    minitest (5.27.0)
     minitest-focus (1.4.0)
       minitest (>= 4, < 6)
     minitest-reporters (1.7.1)
@@ -190,10 +190,10 @@ PLATFORMS
   x86_64-linux-musl
 
 DEPENDENCIES
-  bundler
-  minitest
-  minitest-focus (>= 1.2.1)
-  minitest-reporters (>= 1.4.3)
+  bundler (~> 4.0)
+  minitest (~> 5.27)
+  minitest-focus (~> 1.4)
+  minitest-reporters (~> 1.7)
   rake
   rubocop-md
   rubocop-packaging
@@ -228,7 +228,7 @@ CHECKSUMS
   language_server-protocol (3.17.0.5) sha256=fd1e39a51a28bf3eec959379985a72e296e9f9acfce46f6a79d31ca8760803cc
   lint_roller (1.1.0) sha256=2c0c845b632a7d172cb849cc90c1bce937a28c5c8ccccb50dfd46a485003cc87
   logger (1.7.0) sha256=196edec7cc44b66cfb40f9755ce11b392f21f7967696af15d274dde7edff0203
-  minitest (5.26.2) sha256=f021118a6185b9ba9f5af71f2ba103ad770c75afde9f2ab8da512677c550cde3
+  minitest (5.27.0) sha256=2d3b17f8a36fe7801c1adcffdbc38233b938eb0b4966e97a6739055a45fa77d5
   minitest-focus (1.4.0) sha256=4cf04bd2b5fe0649922db56f9f2ae30af91475a0f51e02c2baa33f5c5a47ff6c
   minitest-reporters (1.7.1) sha256=5060413a0c95b8c32fe73e0606f3631c173a884d7900e50013e15094eb50562c
   nokogiri (1.18.10-aarch64-linux-gnu) sha256=7fb87235d729c74a2be635376d82b1d459230cc17c50300f8e4fcaabc6195344
@@ -279,4 +279,4 @@ RUBY VERSION
   ruby 3.4.2
 
 BUNDLED WITH
-  4.0.0
+  4.0.1

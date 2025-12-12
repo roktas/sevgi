@@ -16,10 +16,10 @@ group :sevgi do
 end
 
 group :test, :development do
-  gem "bundler"
-  gem "minitest"
-  gem "minitest-focus", ">= 1.2.1"
-  gem "minitest-reporters", ">= 1.4.3"
+  gem "bundler", "~> 4.0"
+  gem "minitest", "~> 5.27"
+  gem "minitest-focus", "~> 1.4"
+  gem "minitest-reporters", "~> 1.7"
   gem "rake"
 end
 
