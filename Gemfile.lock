@@ -6,6 +6,7 @@ PATH
       nokogiri (~> 1.18)
       rufo (~> 0.18)
       sevgi-function (= 0.2.0)
+      sevgi-graphics (= 0.2.0)
 
 PATH
   remote: external

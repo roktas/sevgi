@@ -59,7 +59,7 @@ module Sevgi
         @type ||= type!
       end
 
-      # Returns the content (body) of the lement
+      # Returns the content (body) of the element
       def content
         @content ||= content!
       end

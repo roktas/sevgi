@@ -19,6 +19,7 @@ Gem::Specification.new do |s|
   s.metadata["rubygems_mfa_required"] = "true"
 
   s.add_dependency "sevgi-function", version
+  s.add_dependency "sevgi-graphics", version
 
   s.add_runtime_dependency "css_parser", "~> 1.21"
   s.add_runtime_dependency "nokogiri", "~> 1.18"
