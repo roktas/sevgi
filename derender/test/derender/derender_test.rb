@@ -21,27 +21,26 @@ module Sevgi
           </g>
         SVG
 
-
-        actual = Derender.derender(svg, "xxx").render
+        actual = Derender.derender(svg, "xxx").ruby
 
         assert_equal(expected, actual)
       end
 
       def test_derender_render_include_current_true
-        expected = xml = <<~SVG.chomp
+        expected = svg = <<~SVG.chomp
           <g id="xxx">
             <line id="line1" length="10.0"/>
             <line id="line2" length="20.0"/>
           </g>
         SVG
 
-        actual = Derender.derender(xml, "xxx").(SVG(:minimal)).Render
+        actual = Derender.derender(svg, "xxx").(SVG(:minimal)).Render
 
         assert_equal(expected, actual)
       end
 
       def test_derender_render_include_current_false
-        xml = <<~SVG.chomp
+        svg = <<~SVG.chomp
           <g id="xxx">
             <line id="line1" length="10.0"/>
             <line id="line2" length="20.0"/>
@@ -56,7 +55,7 @@ module Sevgi
         SVG
 
         actual = SVG :minimal do
-          Derender.derender(xml, "xxx").(self, false)
+          Derender.derender(svg, "xxx").(self, false)
         end.Render
 
         assert_equal(expected, actual)

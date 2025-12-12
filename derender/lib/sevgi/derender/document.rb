@@ -29,7 +29,6 @@ module Sevgi
 
       def initialize(content, &block)
         instance_exec(&block) if block
-
         @doc ||= self.class.parse(content)
       end
 

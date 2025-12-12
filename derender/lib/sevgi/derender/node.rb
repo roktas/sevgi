@@ -8,152 +8,99 @@ require "rufo"
 module Sevgi
   module Derender
     class Node
-      using Refinements
+      attr_reader :node
 
-      attr_reader :node, :attributes, :meta
+      def initialize(node) = @node = node
 
-      # Initializes with a Nokogiri XML node
-      def initialize(node)
-        @node = node
-        @meta = {}
+      META_NAMESPACE = "_:"
 
-        @attributes = attributes!
+      def _ = @_ ||= attributes.slice(
+        *attributes.keys.select { |it| it.start_with?(META_NAMESPACE) }
+      ).transform_keys! { it.delete_prefix(META_NAMESPACE) }
+
+      alias_method :meta, :_
+
+      def attributes = @attributes ||= node.attribute_nodes.to_h do |attr|
+        name, value = attr.name, attr.value
+
+        if attr.respond_to?(:namespace) && (namespace = attr.namespace) && (prefix = namespace.prefix)
+          "#{prefix}:#{name}"
+        else
+          name
+        end => key
+
+        [ key, value ]
       end
 
-      def call(element, include_current = true)
-        return element.instance_eval(render) if include_current
+      def [](attr) = attributes[attr]
 
-        children.each { element.instance_eval(it.render) }
+      def call(element, include_current = true)
+        if include_current
+          element.instance_eval(ruby)
+        else
+          children.each { element.instance_eval(it.ruby) }
+        end
+      end
+
+      def children = @children ||= node.children.map { self.class.new(it) }.reject do
+        (it.node.text? and it.node.text.strip.empty?) or it.type == :junk
+      end
+
+      def content = @content ||= begin
+        if type == :css
+          CSS.new(node.content).to_h
+        elsif node.content.is_a? String
+          node.content.strip
+        else
+          # :nocov:
+          node.content
+          # :nocov:
+        end
       end
 
       def find(arg, by: "id")
         return self if attributes[by] == arg
 
         children&.each do
-          found = it.find(arg, by:)
-
-          return found if found
+          if (found = it.find(arg, by:))
+            return found
+          end
         end
 
         nil
       end
 
-      # Returns formatted Ruby code
-      def render
-        @render ||= Rufo::Formatter.format(ruby_code)
+      def inspect = "#<#{self.class} name=#{name}, type=#{type}>"
+
+      def name = node.name
+
+      def ruby
+        @ruby ||= Rufo::Formatter.format(ruby_unformatted)
       rescue Rufo::SyntaxError
-        raise ruby_code
+        raise ruby_unformatted
       end
 
-      def inspect
-        "#<#{self.class} name=#{name}, type=#{type}>"
-      end
-
-      # Returns the tag name
-      def name
-        node.name
-      end
-
-      # Returns one of our internal types (symbol)
-      def type
-        @type ||= type!
-      end
-
-      # Returns the content (body) of the element
-      def content
-        @content ||= content!
-      end
-
-      # Returns an array of children elements (Node)
-      def children
-        @children ||= children!
-      end
-
-      # Returns the ruby code, unformatted
-      def ruby_code
-        erb erb_template
+      def type = @type ||= begin
+        if node.text?
+          :text
+        elsif node.comment?
+          :junk
+        elsif node.name == "style"
+          :css
+        elsif node.name == "svg"
+          :root
+        else
+          :element
+        end
       end
 
       private
 
-        # Returns true if the element should be ignored
-        def rejected?
-          (node.text? and node.text.strip.empty?) or type == :junk
-        end
+        def erb(code) = ERB.new(code, trim_mode: "%-").result(binding)
 
-        # Renders ERB code
-        def erb(code)
-          ERB.new(code, trim_mode: "%-").result(binding)
-        end
+        def erb_template = @erb_template ||= Template[type == :root ? "root" : type]
 
-        # Returns the content of the appropriate ERB tempalte, based on type
-        def erb_template
-          @erb_template ||= File.read(erb_template_file)
-        end
-
-        # Returns the path to the appropriate ERB template, based on type
-        def erb_template_file
-          file = type == :root ? "root" : type
-          File.expand_path("templates/#{file}.erb", __dir__)
-        end
-
-        # Returns the internal element type
-        def type!
-          if node.text?
-            :text
-          elsif node.comment?
-            :junk
-          elsif node.name == "style"
-            :css
-          elsif node.name == "svg"
-            :root
-          else
-            :element
-          end
-        end
-
-        # Returns a filtered list of Node children
-        def children!
-          node.children.map { |child| Node.new(child) }.reject(&:rejected?)
-        end
-
-        META_NAMESPACE = "_"
-
-        # Returns a hash of attributes
-        def attributes!
-          node.attribute_nodes.to_h do |attr|
-            name = attr.name
-            value = attr.value
-            namespace= attr.namespace
-
-            # FIXME: .
-            if name.start_with?("#{META_NAMESPACE}:")
-              meta[name.delete_prefix("#{META_NAMESPACE}:")] = value
-            end
-
-            key = if attr.respond_to?(:namespace) && (namespace = attr.namespace) && (prefix = namespace.prefix)
-              meta[name] = value if prefix == META_NAMESPACE
-              "#{prefix}:#{name}"
-            else
-              name
-            end
-
-            [ key, value ]
-          end
-        end
-
-        def content!
-          if type == :css
-            CSS.new(node.content).to_h
-          elsif node.content.is_a? String
-            node.content.strip
-          else
-            # TODO: do we need this?
-            # :nocov:
-            node.content
-            # :nocov:
-          end
-        end
+        def ruby_unformatted = erb(erb_template)
     end
   end
 end
