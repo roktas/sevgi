@@ -21,7 +21,7 @@ module Sevgi
             key = to_key(key) if key.is_a? String
 
             if key == "style"
-              value = "{ #{style_to_hash.render(value)} }"
+              value = "{ #{render(style_to_hash(value))} }"
             elsif value.is_a? String
               value = to_value(value)
             end
