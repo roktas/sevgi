@@ -14,8 +14,7 @@ geometric operations.
 
 ### Roadmap
 
-> [!WARNING]
-> The project is currently in pre-alpha stage. So many things might not work and many things can change.
+> [!WARNING] The project is currently in pre-alpha stage. So many things might not work and many things can change.
 
 Alpha stage
 
@@ -26,10 +25,14 @@ Alpha stage
 
 Beta stage
 
-- [ ] Complete Geometry library.
 - [ ] Complete user documentation.
 - [ ] Start documenting API.
 
-[^1]: Inspired by [Victor](https://github.com/DannyBen/victor), which might be a better choice for those seeking
-      something simpler. Please note that a fair amount of the examples used for demonstration purposes come from this
-      project (thanks to the author).
+Final stage
+
+- [ ] Complete Geometry library.
+
+[^1]:
+    Inspired by [Victor](https://github.com/DannyBen/victor), which might be a better choice for those seeking something
+    simpler. Please note that a fair amount of the examples used for demonstration purposes come from this project
+    (thanks to the author).
