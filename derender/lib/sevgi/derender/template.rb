@@ -18,19 +18,19 @@ module Sevgi
         <%- if children.any? -%>
           <%- if children.count == 1 and children.first.node.text? -%>
             <%- if attributes.any? -%>
-        <%= name %> "<%= content %>", <%= CSS.render(attributes) %>
+        <%= name %> "<%= content %>", <%= CSS.(attributes) %>
             <%- else -%>
         <%= name %> "<%= content %>"
             <%- end -%>
           <%- else -%>
-        <%= name %> <%= CSS.render(attributes) %> do
+        <%= name %> <%= CSS.(attributes) %> do
             <%- children.each do |child| -%>
         <%= child.ruby %>
             <%- end -%>
         end
           <%- end -%>
         <%- else -%>
-        <%= name %> <%= CSS.render(attributes) %>
+        <%= name %> <%= CSS.(attributes) %>
         <%- end -%>
       ERB
 
@@ -41,7 +41,7 @@ module Sevgi
 
         SVG do
         <%- children.each do |child| -%>
-        <%= child.render %>
+        <%= child.Render %>
         <%- end -%>
         end
       ERB

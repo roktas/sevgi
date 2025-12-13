@@ -6,27 +6,28 @@ module Sevgi
   module Derender
     class CSS
       class << self
-        def render(hash)
+        def call(hash)
           pre, post = {}, {}
 
-          %w[ id inkscape:label ].each do |key|
-            pre[key] = hash.delete(key) if hash.key?(key)
-          end
-
-          %w[ style ].each do |key|
-            post[key] = hash.delete(key) if hash.key?(key)
-          end
+          # These keys should come first.
+          %w[ id inkscape:label class ].each { |key| pre[key] = hash.delete(key) if hash.key?(key) }
+          # These keys should come last.
+          %w[ style ].each { |key| post[key] = hash.delete(key) if hash.key?(key) }
 
           { **pre, **hash, **post }.map do |key, value|
-            key = to_key(key) if key.is_a? String
+            key = to_key(key) if key.is_a?(::String)
 
             if key == "style"
-              value = "{ #{render(style_to_hash(value))} }"
-            elsif value.is_a? String
-              value = to_value(value)
-            end
+              "{ #{call(style_to_hash(value))} }"
+            elsif value.is_a?(::String)
+              to_value(value)
+            elsif value.is_a?(::Hash)
+              "{ #{call(value)} }"
+            else
+              value
+            end => value
 
-            key.match?(/[^a-zA-Z0-9_]/) ? "\"#{key}\": #{value}" : "#{key}: #{value}"
+            key.match?(/\W/) ? "\"#{key}\": #{value}" : "#{key}: #{value}"
           end.join(", ")
         end
 
@@ -36,13 +37,13 @@ module Sevgi
           # Example: "color: black; top: 10" => { color: black, top: 10 }
           def style_to_hash(string)
             parser = CssParser::Parser.new
-            parser.load_string! "sevgi { #{string} }"
-            parser.to_h["all"]["sevgi"]
+            parser.load_string! "* { #{string} }"
+            parser.to_h["all"]["*"]
           end
 
-          def to_key(string)   = string
+          def to_key(arg)   = arg
 
-          def to_value(string) = (string.to_f.to_s == string) || (string.to_i.to_s == string) ? string : %( "#{string}" )
+          def to_value(arg) = (arg.to_f.to_s == arg) || (arg.to_i.to_s == arg) ? arg : %("#{arg}")
       end
 
       attr_reader :css_string

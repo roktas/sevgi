@@ -49,7 +49,7 @@ module Sevgi
       def content = @content ||= begin
         if type == :css
           CSS.new(node.content).to_h
-        elsif node.content.is_a? String
+        elsif node.content.is_a?(::String)
           node.content.strip
         else
           # :nocov:
