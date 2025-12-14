@@ -36,7 +36,6 @@ module Sevgi
           <%- end -%>
         ERB
 
-        # Root = Element.gsub("(attributes)", "(attributes, namespaces)")
         Root = <<~'ERB'
           <%- if preambles.any? -%>
           Doc preambles: [
