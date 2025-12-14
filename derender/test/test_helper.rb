@@ -19,6 +19,8 @@ unless defined?(TestHelper)
       File.write(file, actual.gsub(/^/, indent))
       Kernel.exit!(0)
     end
+
+    def lines(string) = string.split("\n").map(&:strip).reject(&:empty?)
   end
 
   Minitest::Test.include TestHelper

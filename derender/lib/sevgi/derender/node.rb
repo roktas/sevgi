@@ -7,9 +7,12 @@ require "rufo"
 module Sevgi
   module Derender
     class Node
-      attr_reader :node
+      attr_reader :node, :preambles
 
-      def initialize(node) = @node = node
+      def initialize(node, preambles = [])
+        @node = node
+        @preambles = preambles
+      end
 
       META_NAMESPACE = "_:"
 

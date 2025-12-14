@@ -8,6 +8,10 @@ module Sevgi
   module External
     def Canvas(...)   = Graphics.Canvas(...)
 
+    def Doc(name = :default, preambles: [], attributes: [])
+      Class.new(Graphics::Document::Base) { document(name, preambles:, attributes:) }
+    end
+
     def Paper(width, height, name = :custom, unit: "mm")
       name.tap { Graphics::Paper.define(name, width:, height:, unit:) unless Graphics::Paper.exist?(name) }
     end

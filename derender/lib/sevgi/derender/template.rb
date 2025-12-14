@@ -6,7 +6,7 @@ module Sevgi
   module Derender
     module Template
       module Data
-        Css = <<~ERB
+        Css = <<~'ERB'
           <%- content.each do |selector, declarations| %>
             css[<%= selector.inspect %>] = {
               <%- declarations.each do |key, value| -%>
@@ -16,7 +16,7 @@ module Sevgi
           <%- end -%>
         ERB
 
-        Element = <<~ERB
+        Element = <<~'ERB'
           <%- if children.any? -%>
             <%- if children.count == 1 and children.first.node.text? -%>
               <%- if attributes.any? -%>
@@ -36,9 +36,36 @@ module Sevgi
           <%- end -%>
         ERB
 
-        Root = Element.gsub("(attributes)", "(attributes, namespaces)")
+        # Root = Element.gsub("(attributes)", "(attributes, namespaces)")
+        Root = <<~'ERB'
+          <%- if preambles.any? -%>
+          Doc preambles: [
+            <%- preambles.each do |preamble| -%>
+            '<%= preamble %>',
+            <%- end -%>
+          ]
+          <%- end -%>
 
-        Text = <<~ERB
+          <%- if children.any? -%>
+            <%- if children.count == 1 and children.first.node.text? -%>
+              <%- if attributes.any? -%>
+                SVG <%= Attribute.render(attributes, namespaces) %>
+              <%- else -%>
+                SVG
+              <%- end -%>
+            <%- else -%>
+              SVG <%= Attribute.render(attributes, namespaces) %> do
+                <%- children.each do |child| -%>
+                  <%= child.ruby %>
+                <%- end -%>
+              end
+            <%- end -%>
+          <%- else -%>
+            SVG <%= Attribute.render(attributes, namespaces) %>
+          <%- end -%>
+        ERB
+
+        Text = <<~'ERB'
           _ "<%= content %>"
         ERB
 
