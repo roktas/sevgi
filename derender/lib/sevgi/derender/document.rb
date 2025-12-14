@@ -48,11 +48,17 @@ module Sevgi
       end
 
       def call(id = nil)
-        if id && (found = doc.xpath("//*[@id='#{id}']") || []).empty?
-          ArgumentError.("No such element with id '#{id}' in document")
-        end
+        if id
+          if (found = doc.xpath("//*[@id='#{id}']") || []).empty?
+            ArgumentError.("No such element with id '#{id}' in document")
+          end
 
-        Node.new(id ? found.first : doc.root, preambles)
+          found.first
+        else
+          doc.root
+        end => element
+
+        Node.new(element, preambles)
       end
     end
   end
