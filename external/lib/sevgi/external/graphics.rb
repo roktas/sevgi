@@ -8,7 +8,7 @@ module Sevgi
   module External
     def Canvas(...)   = Graphics.Canvas(...)
 
-    def Doc(name = :default, preambles: [], attributes: [])
+    def Doc(name = :default, preambles: [], attributes: {})
       Class.new(Graphics::Document::Base) { document(name, preambles:, attributes:) }
     end
 
