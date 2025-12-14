@@ -24,5 +24,9 @@ module Sevgi
     def SVG(...)
       Graphics.SVG(...)
     end
+
+    def svg(...)
+      SVG(:html, ...)
+    end
   end
 end

@@ -2,7 +2,6 @@
 
 # rubocop:disable Metrics/MethodLength
 
-require "erb"
 require "rufo"
 
 module Sevgi
@@ -14,22 +13,32 @@ module Sevgi
 
       META_NAMESPACE = "_:"
 
-      def _ = @_ ||= attributes.slice(
-        *attributes.keys.select { |it| it.start_with?(META_NAMESPACE) }
-      ).transform_keys! { it.delete_prefix(META_NAMESPACE) }
+      def _
+        @_ ||= attributes.slice(
+          *attributes.keys.select { |it| it.start_with?(META_NAMESPACE) }
+        ).transform_keys! { it.delete_prefix(META_NAMESPACE) }
+      end
 
       alias_method :meta, :_
 
-      def attributes = @attributes ||= node.attribute_nodes.to_h do |attr|
-        name, value = attr.name, attr.value
+      def attributes
+        @attributes ||= node.attribute_nodes.to_h do |attr|
+          name, value = attr.name, attr.value
 
-        if attr.respond_to?(:namespace) && (namespace = attr.namespace) && (prefix = namespace.prefix)
-          "#{prefix}:#{name}"
-        else
-          name
-        end => key
+          if attr.respond_to?(:namespace) && (namespace = attr.namespace) && (prefix = namespace.prefix)
+            "#{prefix}:#{name}"
+          else
+            name
+          end => key
 
-        [ key, value ]
+          [ key, value ]
+        end
+      end
+
+      def namespaces
+        @namespaces ||= node.namespaces.to_h do |namespace, uri|
+          [ namespace, uri ]
+        end
       end
 
       def [](attr) = attributes[attr]
@@ -42,19 +51,23 @@ module Sevgi
         end
       end
 
-      def children = @children ||= node.children.map { self.class.new(it) }.reject do
-        (it.node.text? and it.node.text.strip.empty?) or it.type == :junk
+      def children
+        @children ||= node.children.map { self.class.new(it) }.reject do
+          (it.node.text? and it.node.text.strip.empty?) or it.type == :Junk
+        end
       end
 
-      def content = @content ||= begin
-        if type == :css
-          CSS.new(node.content).to_h
-        elsif node.content.is_a?(::String)
-          node.content.strip
-        else
-          # :nocov:
-          node.content
-          # :nocov:
+      def content
+        @content ||= begin
+          if type == :Css
+            CSS.new(node.content).to_h
+          elsif node.content.is_a?(::String)
+            node.content.strip
+          else
+            # :nocov:
+            node.content
+            # :nocov:
+          end
         end
       end
 
@@ -82,25 +95,21 @@ module Sevgi
 
       def type = @type ||= begin
         if node.text?
-          :text
+          :Text
         elsif node.comment?
-          :junk
-        elsif node.name == "style"
-          :css
+          :Junk
         elsif node.name == "svg"
-          :root
+          :Root
+        elsif node.name == "style"
+          :Css
         else
-          :element
+          :Element
         end
       end
 
       private
 
-        def erb(code) = ERB.new(code, trim_mode: "%-").result(binding)
-
-        def erb_template = @erb_template ||= Template[type == :root ? "root" : type]
-
-        def ruby_unformatted = erb(erb_template)
+        def ruby_unformatted = Template.render(type, binding)
     end
   end
 end

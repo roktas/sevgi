@@ -32,7 +32,9 @@ module Sevgi
         @doc ||= self.class.parse(content)
       end
 
-      def call(id) = Node.new(doc.xpath("//*[@id='#{id}']").first)
+      def call(id = nil)
+        Node.new(id ? doc.xpath("//*[@id='#{id}']").first : doc.root)
+      end
     end
   end
 end

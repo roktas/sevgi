@@ -1,59 +1,51 @@
 # frozen_string_literal: true
 
+require "erb"
+
 module Sevgi
   module Derender
     module Template
-      def css = <<~ERB
-        <%= "# :css" if ENV['DEBUG'] -%>
-        <%- content.each do |selector, declarations| %>
-        css[<%= selector.inspect %>] = {
-          <%- declarations.each do |key, value| -%>
-          <%= key.to_key %>: <%= value.to_value %>,
-          <%- end -%>}
-        <%- end -%>
-      ERB
+      module Data
+        Css = <<~ERB
+          <%- content.each do |selector, declarations| %>
+            css[<%= selector.inspect %>] = {
+              <%- declarations.each do |key, value| -%>
+                <%= key.to_key %>: <%= value.to_value %>,
+              <%- end -%>
+            }
+          <%- end -%>
+        ERB
 
-      def element = <<~ERB
-        <%= "# :element" if ENV['DEBUG'] -%>
-        <%- if children.any? -%>
-          <%- if children.count == 1 and children.first.node.text? -%>
-            <%- if attributes.any? -%>
-        <%= name %> "<%= content %>", <%= CSS.(attributes) %>
+        Element = <<~ERB
+          <%- if children.any? -%>
+            <%- if children.count == 1 and children.first.node.text? -%>
+              <%- if attributes.any? -%>
+                <%= name %> "<%= content %>", <%= Attribute.render(attributes) %>
+              <%- else -%>
+                <%= name %> "<%= content %>"
+              <%- end -%>
             <%- else -%>
-        <%= name %> "<%= content %>"
+              <%= name %> <%= Attribute.render(attributes) %> do
+                <%- children.each do |child| -%>
+                  <%= child.ruby %>
+                <%- end -%>
+              end
             <%- end -%>
           <%- else -%>
-        <%= name %> <%= CSS.(attributes) %> do
-            <%- children.each do |child| -%>
-        <%= child.ruby %>
-            <%- end -%>
-        end
+            <%= name %> <%= Attribute.render(attributes) %>
           <%- end -%>
-        <%- else -%>
-        <%= name %> <%= CSS.(attributes) %>
-        <%- end -%>
-      ERB
+        ERB
 
-      def root = <<~ERB
-        <%= "# :root" if ENV['DEBUG'] -%>
+        Root = Element.gsub("(attributes)", "(attributes, namespaces)")
 
-        require "sevgi"
+        Text = <<~ERB
+          _ "<%= content %>"
+        ERB
 
-        SVG do
-        <%- children.each do |child| -%>
-        <%= child.Render %>
-        <%- end -%>
-        end
-      ERB
+        extend self
+      end
 
-      def text = <<~ERB
-        <%= "# :text" if ENV['DEBUG'] -%>
-        _ "<%= content %>"
-      ERB
-
-      def [](type) = public_send(type)
-
-      extend self
+      def self.render(type, binding) = ERB.new(Data.const_get(type), trim_mode: "%-").result(binding)
     end
   end
 end
