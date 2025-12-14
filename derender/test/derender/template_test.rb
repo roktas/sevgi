@@ -33,21 +33,21 @@ module Sevgi
 
       def test_root_fancy
         svg = <<~'SVG'.chomp
-        <svg
-          id="Root"
-          xmlns="http://www.w3.org/2000/svg"
-          xmlns:_="http://sevgi.roktas.dev"
-          shape-rendering="crispEdges"
-          width="60.0mm"
-          height="60.0mm"
-          viewBox="0 0 60 60"
-        >
-          <defs id="Helpers">
-            <clipPath id="Crop" _:width="10.0">
-              <rect width="60.0" height="60.0"/>
-            </clipPath>
-          </defs>
-        </svg>
+          <svg
+            id="Root"
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:_="http://sevgi.roktas.dev"
+            shape-rendering="crispEdges"
+            width="60.0mm"
+            height="60.0mm"
+            viewBox="0 0 60 60"
+          >
+            <defs id="Helpers">
+              <clipPath id="Crop" _:width="10.0">
+                <rect width="60.0" height="60.0"/>
+              </clipPath>
+            </defs>
+          </svg>
         SVG
 
         actual = Derender.derender(svg).ruby

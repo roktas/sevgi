@@ -25,11 +25,26 @@ module Sevgi
 
       def self.parse(content) = Nokogiri::XML(content)
 
-      attr_reader :doc
+      def self.declaration(content)
+        return unless (content = content.lstrip).start_with?('<?xml ')
+
+        content.split("\n").first
+      end
+
+      attr_reader :doc, :decl
 
       def initialize(content, &block)
         instance_exec(&block) if block
-        @doc ||= self.class.parse(content)
+
+        @doc  = self.class.parse(content)
+        @decl = self.class.declaration(content)
+      end
+
+      def preambles
+        @preambles ||= [].tap do |lines|
+          lines.append(*doc.children.take_while { |node| node != doc.root }.map(&:to_xml))
+          lines.unshift(decl) unless lines.first == decl
+        end
       end
 
       def call(id = nil)
