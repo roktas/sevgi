@@ -1,10 +1,10 @@
 # Frozen_string_literal: true
 
-require_relative "derender/attribute"
-require_relative "derender/css"
+require_relative "derender/internal"
+
 require_relative "derender/document"
 require_relative "derender/node"
-require_relative "derender/template"
+require_relative "derender/render"
 
 module Sevgi
   module Derender

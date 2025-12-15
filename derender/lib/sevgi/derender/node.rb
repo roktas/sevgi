@@ -63,7 +63,7 @@ module Sevgi
       def content
         @content ||= begin
           if type == :Css
-            CSS.new(node.content).to_h
+            CSS.css_to_hash(node.content)
           elsif node.content.is_a?(::String)
             node.content.strip
           else
@@ -112,7 +112,7 @@ module Sevgi
 
       private
 
-        def ruby_unformatted = Template.render(type, binding)
+        def ruby_unformatted = Render.template(type, binding)
     end
   end
 end
