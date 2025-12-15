@@ -7,13 +7,7 @@ module Sevgi
     module Template
       module Data
         Css = <<~'ERB'
-          <%- content.each do |selector, declarations| %>
-            css[<%= selector.inspect %>] = {
-              <%- declarations.each do |key, value| -%>
-                <%= key.to_key %>: <%= value.to_value %>,
-              <%- end -%>
-            }
-          <%- end -%>
+          css(<%= CSS.render(content) %>)
         ERB
 
         Element = <<~'ERB'

@@ -5,6 +5,8 @@ module Sevgi
     module Attribute
       def self.render(*hashes) = hashes.map { hash_to_string(it) }.reject(&:empty?).join(", ")
 
+      def self.pair(key, value) = "\"#{to_key(key)}\": #{to_value(value)}"
+
       class << self
         private
 
