@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "css_parser"
+require "rufo"
 
 module Sevgi
   module Derender
@@ -15,6 +16,12 @@ module Sevgi
       # Example: "color: black; top: 10" => { color: black, top: 10 }
       def style_to_hash(style_string)
         css_to_hash("* { #{style_string} }").fetch("*")
+      end
+
+      def ruby(ruby_unformatted)
+        Rufo::Formatter.format(ruby_unformatted)
+      rescue Rufo::SyntaxError
+        raise ruby_unformatted
       end
 
       extend self
