@@ -10,6 +10,11 @@ module Sevgi
           g id: "xxx" do
             line id: "line1", length: 10.0
             line id: "line2", length: 20.0
+            text do
+              _ You are
+              tspan "not", "font-weight": "bold"
+              _ a banana
+            end
           end
         SEVGI
 
@@ -17,6 +22,11 @@ module Sevgi
           <g id="xxx">
             <line id="line1" length="10.0"/>
             <line id="line2" length="20.0"/>
+            <text>
+              You are
+              <tspan font-weight="bold">not</tspan>
+              a banana
+            </text>
           </g>
         SVG
 

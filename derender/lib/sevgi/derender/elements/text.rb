@@ -6,6 +6,7 @@ module Sevgi
     module Elements
       module Text
         def compile(*)
+          [ "_ #{content}" ]
         end
       end
     end
