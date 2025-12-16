@@ -17,7 +17,7 @@ module Sevgi
         style
       ].freeze
 
-      def self.compile(hash)
+      def compile(hash)
         pre, post = {}, {}
 
         ATTRIBUTES_SHOULD_COME_FIRST.each { |key| pre[key]  = hash.delete(key) if hash.key?(key) }
@@ -27,11 +27,11 @@ module Sevgi
           key = to_key(key) if key.is_a?(::String)
 
           if key == "style"
-            "{ #{render(Derender::CSS.style_to_hash(value))} }"
+            "{ #{Attributes.compile(Derender::CSS.style_to_hash(value))} }"
           elsif value.is_a?(::String)
             to_value(value)
           elsif value.is_a?(::Hash)
-            "{ #{render(value)} }"
+            "{ #{Attributes.compile(value)} }"
           else
             value
           end => value
@@ -40,7 +40,7 @@ module Sevgi
         end.join(", ")
       end
 
-      def self.to_key_value(key, value) = "\"#{to_key(key)}\": #{to_value(value)}"
+      def to_key_value(key, value) = "\"#{to_key(key)}\": #{to_value(value)}"
 
       class << self
         private
@@ -49,6 +49,8 @@ module Sevgi
 
           def to_value(arg) = (arg.to_f.to_s == arg) || (arg.to_i.to_s == arg) ? arg : %("#{arg}")
       end
+
+      extend self
     end
   end
 end

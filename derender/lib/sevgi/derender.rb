@@ -3,8 +3,9 @@
 # require_relative "derender/internal"
 
 require_relative "derender/attributes"
-require_relative "derender/elements"
 require_relative "derender/document"
+require_relative "derender/elements"
+require_relative "derender/internal"
 require_relative "derender/node"
 
 module Sevgi

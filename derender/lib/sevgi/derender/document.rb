@@ -54,14 +54,12 @@ module Sevgi
         Node.new(element, pres)
       end
 
-      private
-
-        def pres
-          @pres ||= [].tap do |lines|
-            lines.append(*doc.children.take_while { |node| node != doc.root }.map(&:to_xml))
-            lines.unshift(decl) unless lines.first == decl
-          end
+      def pres
+        @pres ||= [].tap do |lines|
+          lines.append(*doc.children.take_while { |node| node != doc.root }.map(&:to_xml))
+          lines.unshift(decl) unless lines.first == decl
         end
+      end
     end
   end
 end

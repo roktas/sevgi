@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "rufo"
-
 module Sevgi
   module Derender
     class Node
@@ -47,7 +45,7 @@ module Sevgi
 
       def content = @content ||= node.content.strip
 
-      def derender = ruby(compile(pres).join("\n"))
+      def derender = Ruby.(compile(pres).join("\n"))
 
       def element = name
 
@@ -83,12 +81,6 @@ module Sevgi
           else
             :Any
           end.tap { extend Elements.const_get(it) }
-        end
-
-        def ruby(unformatted_ruby)
-          Rufo::Formatter.format(unformatted_ruby)
-        rescue Rufo::SyntaxError
-          raise unformatted_ruby
         end
     end
   end
