@@ -4,6 +4,8 @@ require "sevgi/derender"
 
 module Sevgi
   module External
-    def Derender(...) = Derender.derender_file(...)
+    def Derender(...)  = Derender.derender_file(...)
+
+    def Derender!(...) = Derender.derender_file!(...)
   end
 end
