@@ -1,0 +1,52 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "sevgi/derender"
+
+module Sevgi
+  module Derender
+    module CLI
+      def self.call
+        svg = <<~SVG.chomp
+          <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+          <svg width="630mm" height="250mm" viewBox="0 0 630 250" xmlns:svg="http://www.w3.org/2000/svg" xmlns:_="http://sevgi.roktas.dev">
+            <style type="text/css">
+              <![CDATA[
+                * {
+                  overflow: visible;
+                }
+                .code {
+                  font-weight: 300;
+                  font-size: 2.5px;
+                  font-family: Operator Mono Lig;
+                  letter-spacing: 0;
+                  fill: #1a1a1a;
+                  stroke-width: 0.264583;
+                }
+                #Tile {
+                  stroke: #606060;
+                  stroke-width: 0.32;
+                  stroke-linejoin: round;
+                  fill: darkgray;
+                  fill-opacity: 0.4;
+                }
+              ]]>
+            </style>
+
+            <g id="xxx">
+              <line id="line1" x2="10.0"/>
+              <line id="line2" y2="20.0"/>
+              <g>
+                <rect width="1.0" height="2.0"/>
+              </g>
+            </g>
+          </svg>
+        SVG
+
+        puts Derender.derender(svg)
+      end
+    end
+  end
+end
+
+Sevgi::Derender::CLI.()

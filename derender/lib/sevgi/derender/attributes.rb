@@ -1,0 +1,54 @@
+# frozen_string_literal: true
+
+module Sevgi
+  module Derender
+    module Attributes
+      ATTRIBUTES_SHOULD_COME_FIRST = %w[
+        id
+        inkscape:label
+        class
+        xmlns
+        xmlns:svg
+        xmlns:inkscape
+        xmlns:sodipodi
+        xmlns:_
+      ].freeze
+      ATTRIBUTES_SHOULD_COME_LAST  = %w[
+        style
+      ].freeze
+
+      def self.compile(hash)
+        pre, post = {}, {}
+
+        ATTRIBUTES_SHOULD_COME_FIRST.each { |key| pre[key]  = hash.delete(key) if hash.key?(key) }
+        ATTRIBUTES_SHOULD_COME_LAST.each  { |key| post[key] = hash.delete(key) if hash.key?(key) }
+
+        { **pre, **hash, **post }.map do |key, value|
+          key = to_key(key) if key.is_a?(::String)
+
+          if key == "style"
+            "{ #{render(Derender::CSS.style_to_hash(value))} }"
+          elsif value.is_a?(::String)
+            to_value(value)
+          elsif value.is_a?(::Hash)
+            "{ #{render(value)} }"
+          else
+            value
+          end => value
+
+          key.match?(/\W/) ? "\"#{key}\": #{value}" : "#{key}: #{value}"
+        end.join(", ")
+      end
+
+      def self.to_key_value(key, value) = "\"#{to_key(key)}\": #{to_value(value)}"
+
+      class << self
+        private
+
+          def to_key(arg)   = arg
+
+          def to_value(arg) = (arg.to_f.to_s == arg) || (arg.to_i.to_s == arg) ? arg : %("#{arg}")
+      end
+    end
+  end
+end

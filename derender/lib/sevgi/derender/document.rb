@@ -40,13 +40,6 @@ module Sevgi
         @decl = self.class.declaration(content)
       end
 
-      def preambles
-        @preambles ||= [].tap do |lines|
-          lines.append(*doc.children.take_while { |node| node != doc.root }.map(&:to_xml))
-          lines.unshift(decl) unless lines.first == decl
-        end
-      end
-
       def call(id = nil)
         if id
           if (found = doc.xpath("//*[@id='#{id}']") || []).empty?
@@ -58,8 +51,17 @@ module Sevgi
           doc.root
         end => element
 
-        Node.new(element, preambles)
+        Node.new(element, pres)
       end
+
+      private
+
+        def pres
+          @pres ||= [].tap do |lines|
+            lines.append(*doc.children.take_while { |node| node != doc.root }.map(&:to_xml))
+            lines.unshift(decl) unless lines.first == decl
+          end
+        end
     end
   end
 end

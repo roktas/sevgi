@@ -6,9 +6,9 @@ module Sevgi
   module Graphics
     module Mixtures
       module Include
-        def Include(file, id)
-          Derender.(file, id).(self)
-        end
+        def Include(file, id)  = Derender.evaluate_file(file, self, id:)
+
+        def Include!(file, id) = Derender.evaluate_file!(file, self, id:)
       end
     end
   end

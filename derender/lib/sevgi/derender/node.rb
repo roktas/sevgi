@@ -1,17 +1,16 @@
 # frozen_string_literal: true
 
-# rubocop:disable Metrics/MethodLength
-
 require "rufo"
 
 module Sevgi
   module Derender
     class Node
-      attr_reader :node, :preambles
+      attr_reader :node, :pres, :type
 
-      def initialize(node, preambles = [])
+      def initialize(node, pres = [])
         @node = node
-        @preambles = preambles
+        @pres = pres
+        @type = dispatch
       end
 
       META_NAMESPACE = "_:"
@@ -38,21 +37,7 @@ module Sevgi
         end
       end
 
-      def namespaces
-        @namespaces ||= node.namespaces.to_h do |namespace, uri|
-          [ namespace, uri ]
-        end
-      end
-
-      def [](attr) = attributes[attr]
-
-      def call(element, include_current = true)
-        if include_current
-          element.instance_eval(ruby)
-        else
-          children.each { element.instance_eval(it.ruby) }
-        end
-      end
+      def attributes! = attributes
 
       def children
         @children ||= node.children.map { self.class.new(it) }.reject do
@@ -60,59 +45,51 @@ module Sevgi
         end
       end
 
-      def content
-        @content ||= begin
-          if type == :Css
-            CSS.css_to_hash(node.content)
-          elsif node.content.is_a?(::String)
-            node.content.strip
-          else
-            # :nocov:
-            node.content
-            # :nocov:
-          end
+      def content = @content ||= node.content.strip
+
+      def derender = ruby(compile(pres).join("\n"))
+
+      def element = name
+
+      def evaluate(element, include_current = true)
+        return element.instance_eval(derender) if include_current
+
+        children.each { element.instance_eval(it.derender) }
+      end
+
+      def evaluate!(element) = evaluate(element, false)
+
+      def name = @name ||= node.name
+
+      def namespaces
+        @namespaces ||= node.namespaces.to_h do |namespace, uri|
+          [ namespace, uri ]
         end
       end
 
-      def find(arg, by: "id")
-        return self if attributes[by] == arg
-
-        children&.each do
-          if (found = it.find(arg, by:))
-            return found
-          end
-        end
-
-        nil
-      end
-
-      def inspect = "#<#{self.class} name=#{name}, type=#{type}>"
-
-      def name = node.name
-
-      def ruby
-        @ruby ||= Rufo::Formatter.format(ruby_unformatted)
-      rescue Rufo::SyntaxError
-        raise ruby_unformatted
-      end
-
-      def type = @type ||= begin
-        if node.text?
-          :Text
-        elsif node.comment?
-          :Junk
-        elsif node.name == "svg"
-          :Root
-        elsif node.name == "style"
-          :Css
-        else
-          :Element
-        end
-      end
+      def root? = type == :Root
 
       private
 
-        def ruby_unformatted = Render.template(type, binding)
+        def dispatch
+          if node.text?
+            :Text
+          elsif node.comment?
+            :Junk
+          elsif node.name == "style"
+            :CSS
+          elsif node.name == "svg"
+            :Root
+          else
+            :Any
+          end.tap { extend Elements.const_get(it) }
+        end
+
+        def ruby(unformatted_ruby)
+          Rufo::Formatter.format(unformatted_ruby)
+        rescue Rufo::SyntaxError
+          raise unformatted_ruby
+        end
     end
   end
 end
