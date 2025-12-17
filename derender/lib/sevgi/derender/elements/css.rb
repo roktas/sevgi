@@ -17,9 +17,7 @@ module Sevgi
         private
 
           def css_lines
-            hash = Css.to_h(node.content)
-
-            hash.map do |selector, declarations|
+            Css.to_h(node.content).map do |selector, declarations|
               [
                 "\"#{selector}\": {",
                 *declarations.map { |key, value| "#{Css.to_key_value(key, value)}," },

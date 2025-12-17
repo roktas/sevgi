@@ -5,9 +5,7 @@ module Sevgi
   module Derender
     module Elements
       module Text
-        def compile(*)
-          [ "_ #{content}" ]
-        end
+        def compile(*) = [ "_ #{content}" ]
       end
     end
   end
