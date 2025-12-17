@@ -8,9 +8,6 @@ module Sevgi
 
     CLIError = Class.new(Sevgi::Error)
 
-    PROGNAME = "sevgi"
-    ENVVOMIT = "SEVGI_VOMIT"
-
     Options = Struct.new(:preload, :require, :vomit, :help, :version) do
       # codebeat:disable[ABC,BLOCK_NESTING,LOC]
       def self.parse(argv)

@@ -17,7 +17,7 @@ module Sevgi
         private
 
           def css_lines
-            hash = Derender::CSS.to_hash(node.content)
+            hash = F.css_to_hash(node.content)
 
             hash.map do |selector, declarations|
               [

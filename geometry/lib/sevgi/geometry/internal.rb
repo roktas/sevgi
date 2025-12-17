@@ -16,8 +16,12 @@ module Sevgi
       end
     end
 
+    private_constant :Tuple
+
     module Tuples
       def self.[](klass, *args) = args.map { Tuple[klass, it] }
     end
+
+    private_constant :Tuples
   end
 end

@@ -1,0 +1,9 @@
+# frozen_string_literal: true
+
+require "sevgi/includes"
+
+SVG do
+  rect width: 3, height: 5
+end
+
+# vim: ft=ruby

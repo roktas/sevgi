@@ -27,7 +27,7 @@ module Sevgi
           key = to_key(key) if key.is_a?(::String)
 
           if key == "style"
-            "{ #{Attributes.compile(Derender::CSS.style_to_hash(value))} }"
+            "{ #{Attributes.compile(F.style_to_hash(value))} }"
           elsif value.is_a?(::String)
             to_value(value)
           elsif value.is_a?(::Hash)

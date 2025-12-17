@@ -6,14 +6,27 @@ module Sevgi
   class Sandbox
     include Singleton
 
+    Error = Class.new(Sevgi::Error)
+
     def self.run(file, ...)
-      self.instance.create.load(file, ...)
+      instance.create.load(file, ...)
     ensure
-      self.instance.shutdown
+      instance.shutdown
     end
 
     def self.load(file, ...)
-      self.instance.current.load(file, ...)
+      instance.create unless instance.current
+      instance.current.load(file, ...)
+    end
+
+    def self.load!(file, ...)
+      Error.("Box stack empty; create a Box first") unless instance.current
+
+      instance.current.load(file, ...)
+    end
+
+    def self.shutdown
+      instance.shutdown
     end
 
     def initialize

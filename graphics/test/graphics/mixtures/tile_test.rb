@@ -118,7 +118,6 @@ module Sevgi
           assert_equal(expected, actual)
         end
 
-        focus
         def test_tile_with_proc
           expected = <<~SVG.chomp
             <svg>

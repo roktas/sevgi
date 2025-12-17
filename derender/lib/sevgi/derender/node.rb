@@ -45,7 +45,7 @@ module Sevgi
 
       def content = @content ||= node.content.strip
 
-      def derender = Ruby.(compile(pres).join("\n"))
+      def derender = F.ruby(compile(pres).join("\n"))
 
       def element = name
 

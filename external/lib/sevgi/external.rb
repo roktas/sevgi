@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "internal"
+require_relative "sandbox"
 
 module Sevgi
   # Externals management DSL for consumers
@@ -32,9 +32,9 @@ module Sevgi
       start = ::File.dirname(caller_locations(1..1).first.path)
 
       files.each do |file|
-        location = Sevgi.locate(file, start, exclude: start)
+        location = F.locate(file, start, exclude: start)
 
-        Sandbox.load(location.file)
+        ::Sevgi::Sandbox.load!(location.file)
       end
     end
 
