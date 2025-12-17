@@ -57,6 +57,18 @@ module Sevgi
 
       def evaluate!(element) = evaluate(element, false)
 
+      def find(arg, by: "id")
+        return self if attributes[by] == arg
+
+        children&.each do
+          found = it.find(arg, by:)
+
+          return found if found
+        end
+
+        nil
+      end
+
       def name = @name ||= node.name
 
       def namespaces
