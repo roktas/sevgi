@@ -2,12 +2,11 @@
 
 require "sevgi/function"
 
-require "css_parser"
-require "rufo"
-
 module Sevgi
   module Function
     module CSS
+      require "css_parser"
+
       def css_to_hash(css_string)
         parser = CssParser::Parser.new
         parser.load_string!(css_string)
@@ -22,6 +21,8 @@ module Sevgi
     extend CSS
 
     module Ruby
+      require "rufo"
+
       def ruby(unformatted_ruby)
         Rufo::Formatter.format(unformatted_ruby)
       rescue Rufo::SyntaxError
