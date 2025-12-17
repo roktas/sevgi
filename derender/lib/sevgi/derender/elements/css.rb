@@ -17,12 +17,12 @@ module Sevgi
         private
 
           def css_lines
-            hash = F.css_to_hash(node.content)
+            hash = Css.to_h(node.content)
 
             hash.map do |selector, declarations|
               [
                 "\"#{selector}\": {",
-                *declarations.map { |key, value| "#{Attributes.to_key_value(key, value)}," },
+                *declarations.map { |key, value| "#{Css.to_key_value(key, value)}," },
                 "},"
               ]
             end.flatten

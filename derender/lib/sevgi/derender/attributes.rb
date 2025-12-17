@@ -24,12 +24,12 @@ module Sevgi
         ATTRIBUTES_SHOULD_COME_LAST.each  { |key| post[key] = hash.delete(key) if hash.key?(key) }
 
         { **pre, **hash, **post }.map do |key, value|
-          key = to_key(key) if key.is_a?(::String)
+          key = Css.to_key(key) if key.is_a?(::String)
 
           if key == "style"
-            "{ #{Attributes.compile(F.style_to_hash(value))} }"
+            "{ #{Attributes.compile(Css.to_h!(value))} }"
           elsif value.is_a?(::String)
-            to_value(value)
+            Css.to_value(value)
           elsif value.is_a?(::Hash)
             "{ #{Attributes.compile(value)} }"
           else
@@ -38,16 +38,6 @@ module Sevgi
 
           key.match?(/\W/) ? "\"#{key}\": #{value}" : "#{key}: #{value}"
         end.join(", ")
-      end
-
-      def to_key_value(key, value) = "\"#{to_key(key)}\": #{to_value(value)}"
-
-      class << self
-        private
-
-          def to_key(arg)   = arg
-
-          def to_value(arg) = (arg.to_f.to_s == arg) || (arg.to_i.to_s == arg) ? arg : %("#{arg}")
       end
 
       extend self
