@@ -6,7 +6,7 @@ module Sevgi
   module CLI
     extend self
 
-    CLIError = Class.new(Sevgi::Error)
+    Error = Class.new(Sevgi::Error)
 
     Options = Struct.new(:preload, :require, :vomit, :help, :version) do
       # codebeat:disable[ABC,BLOCK_NESTING,LOC]
@@ -14,7 +14,7 @@ module Sevgi
         new.tap do |options|
           argv.first.start_with?("-") ? option(argv, options) : break until argv.empty?
 
-          CLIError.("No preload file found: #{options.preload}") if options.preload && !::File.exist?(options.preload)
+          Error.("No preload file found: #{options.preload}") if options.preload && !::File.exist?(options.preload)
         end
       end
 
@@ -28,7 +28,7 @@ module Sevgi
             when "-x", "--exception" then options.vomit   = true
             when "-h", "--help"      then options.help    = true
             when "-v", "--version"   then options.version = true
-            else                          CLIError.("Not a valid option: #{arg}")
+            else                          Error.("Not a valid option: #{arg}")
             end
           end
       end
@@ -38,20 +38,26 @@ module Sevgi
     private_constant :Options
 
     def call(argv)
+      argv = Array(argv) # FIXME
+
       return puts(help)           if (options = Options.parse(argv)).help
       return puts(Sevgi::VERSION) if options.version
 
       run(file = argv.shift, options)
-    rescue Exception => e # rubocop:disable Lint/RescueException
-      die(e, file, options)
+    rescue CLI::Error => e
+      abort(e.message)
+    rescue Sandbox::Error => e
+      raise(e) if options.vomit || ENV[ENVVOMIT]
+
+      die(e, file)
     end
 
     private
 
-      def die(e, file, options)
-        abort(e.message) if e.is_a?(CLIError)
-
-        raise(e) if options.vomit || ENV[ENVVOMIT]
+      def die(e, file)
+        warn(e.message)
+        warn("")
+        e.backtrace!.each { warn("  #{it}") }
 
         warn("")
         abort(postmortem(file))
@@ -78,27 +84,17 @@ module Sevgi
         <<~POSTMORTEM
           For more details, run the script again:
 
-          - By using the -x switch
-
-          #{PROGNAME} -x #{file}
-
-          - By setting the #{ENVVOMIT} environment variable
-
-          #{ENVVOMIT}=t #{file}
+          - By using the -x switch: '#{PROGNAME} -x #{file}'
+          - By setting the #{ENVVOMIT} environment variable: '#{ENVVOMIT}=t #{file}'
 
           If you think this is a bug, you can report it by creating an issue.
         POSTMORTEM
       end
 
       def run(file, options)
-        CLIError.("No script file given.") unless file
+        Error.("No script file given.") unless file
 
-        Signal.trap("INT") { Kernel.abort("") }
-
-        ::Kernel.require(options.require) if options.require
-        ::Kernel.load(options.preload)    if options.preload
-
-        Sevgi::Sandbox.run(file) { include(Sevgi::External) }
+        Sevgi::Sandbox.run(file, require: options.require, preload: options.preload)
       end
   end
 end

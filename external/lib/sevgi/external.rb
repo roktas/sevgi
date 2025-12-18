@@ -34,7 +34,7 @@ module Sevgi
       files.each do |file|
         location = F.locate(file, start, exclude: start)
 
-        ::Sevgi::Sandbox.load!(location.file)
+        ::Sevgi::Sandbox.load(location.file)
       end
     end
 

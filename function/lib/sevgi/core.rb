@@ -8,9 +8,10 @@ module Sevgi
 
   # Errors
   class Error < StandardError
-    def self.call(...) = raise(self, ...)
+    def self.call(...)      = raise(self, ...)
   end unless defined?(Error)
 
+  PanicError    = Class.new(Error) unless defined?(self::PanicError) # for incorrect API usage
   ArgumentError = Class.new(Error) unless defined?(self::ArgumentError)
 
   # Helpers

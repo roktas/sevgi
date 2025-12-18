@@ -1,0 +1,7 @@
+# frozen_string_literal: true
+
+def self.to_str = "XXXXX"
+
+şğü
+
+# vim: ft=ruby

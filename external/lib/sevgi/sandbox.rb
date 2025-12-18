@@ -6,21 +6,42 @@ module Sevgi
   class Sandbox
     include Singleton
 
-    Error = Class.new(Sevgi::Error)
+    class Error < Sevgi::Error
+      attr_reader :error, :box
 
-    def self.run(file, ...)
-      instance.create.load(file, ...)
+      def initialize(error, box)
+        @error = error
+        @box   = box
+
+        super(error.message)
+      end
+
+      def backtrace!
+        error.backtrace
+          .select { |line| stack.any? { line.start_with?(::File.expand_path(it)) } }
+          .map    { |line| line.delete_prefix("#{::Dir.pwd}/") }
+      end
+
+      def stack = box.stack
+    end
+
+    DEFAULT_PROC = proc { include ::Sevgi::External }
+
+    def self.run(file, require: nil, preload: nil, &block)
+      Signal.trap("INT") { Kernel.abort("") }
+
+      ::Kernel.require(require) if require
+      ::Kernel.load(preload)    if preload
+
+      error = catch(:error) { instance.create(file).load(file, &block || DEFAULT_PROC) }
+
+      raise(error) if error.is_a?(Error)
     ensure
       instance.shutdown
     end
 
     def self.load(file, ...)
-      instance.create unless instance.current
-      instance.current.load(file, ...)
-    end
-
-    def self.load!(file, ...)
-      Error.("Box stack empty; create a Box first") unless instance.current
+      PanicError.("box stack empty; create a box first") unless instance.current
 
       instance.current.load(file, ...)
     end
@@ -37,8 +58,8 @@ module Sevgi
       @sandboxes.last
     end
 
-    def create
-      Box.new.tap { @sandboxes << it }
+    def create(file)
+      Box.new(file).tap { @sandboxes << it }
     end
 
     def shutdown
@@ -46,47 +67,28 @@ module Sevgi
     end
 
     class Box
-      def initialize
+      attr_reader :file
+
+      def initialize(file)
+        @file   = file
         @module = Module.new
-        @loaded = {}
+        # @loaded = {}
+        @stack  = {}
       end
 
       def load(file, receiver = Undefined, &preblock)
-        return if @loaded[file = F.existing!(file, extensions: [ EXTENSION ])]
+        return if @stack[file = ::File.expand_path(F.existing!(file, extensions: [ EXTENSION ]))]
+
+        @stack[file] = true
 
         Undefined.default(receiver, TOPLEVEL_BINDING.receiver).instance_exec(@module, &preblock) if preblock
 
-        ::Kernel.load(file, @module) and (@loaded[file] = true)
+        ::Kernel.load(file, @module)
       rescue Exception => e # rubocop:disable Lint/RescueException
-        warn(description(e, file))
-        raise(e)
+        throw(:error, Sandbox::Error.new(e, self))
       end
 
-      private
-
-        def description(e, file)
-          case e
-          when ValidationError then "Validation error"
-          else                      "Error"
-          end => error
-
-          <<~DESCRIPTION
-            #{error} #{context(e.backtrace, file)}
-              #{e.message}
-          DESCRIPTION
-        end
-
-        def context(backtrace, file)
-          default = "in file '#{file}'"
-          return default unless backtrace
-
-          path = ::File.expand_path(file)
-          _, line = backtrace.map { it.split(":")[..1] }.find do |spot|
-            ::File.expand_path(spot.first) == path
-          end
-
-          line ? "in file '#{file}', around line #{line}" : default
-        end
+      def stack = @stack.keys
     end
   end
 end
