@@ -37,7 +37,7 @@ module Sevgi
       private_constant :Options
 
       def call(argv)
-        return puts(help)           if (options = Options.parse(argv = Array(argv))).help
+        return puts(help)             if (options = Options.parse(argv = Array(argv))).help
         return puts(::Sevgi::VERSION) if options.version
 
         run(file = argv.shift, options)
