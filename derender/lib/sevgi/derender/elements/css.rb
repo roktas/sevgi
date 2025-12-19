@@ -6,9 +6,11 @@ module Sevgi
     module Elements
       module CSS
         def decompile(*)
+          return [] unless (lines = css_lines)
+
           [
             "css({",
-            *css_lines,
+            *lines,
             "})",
             "",
           ]
@@ -17,7 +19,9 @@ module Sevgi
         private
 
           def css_lines
-            Css.to_h(node.content).map do |selector, declarations|
+            return unless (hash = Css.to_h(node.content))
+
+            hash.map do |selector, declarations|
               [
                 "\"#{selector}\": {",
                 *declarations.map { |key, value| "#{Css.to_key_value(key, value)}," },

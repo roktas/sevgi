@@ -75,6 +75,24 @@ module Sevgi
 
           assert_equal(expected, actual)
         end
+
+        focus
+        def test_css_empty
+          svg = <<~'SVG'.chomp
+            <svg id="Root" shape-rendering="crispEdges" width="60.0mm" height="60.0mm" viewBox="0 0 60 60">
+              <style type="text/css"/>
+            </svg>
+          SVG
+
+          actual = Derender.derender(svg)
+
+          expected = <<~'SEVGI'
+            SVG id: "Root", "shape-rendering": "crispEdges", width: "60.0mm", height: "60.0mm", viewBox: "0 0 60 60" do
+            end
+          SEVGI
+
+          assert_equal(expected, actual)
+        end
       end
     end
   end

@@ -1,16 +1,6 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require "sevgi/derender"
+require "sevgi/derender/runtimes/cli"
 
-module Sevgi
-  module Derender
-    module CLI
-      def self.call
-        # TODO:
-      end
-    end
-  end
-end
-
-Sevgi::Derender::CLI.()
+Sevgi::Derender::CLI.(ARGV)
