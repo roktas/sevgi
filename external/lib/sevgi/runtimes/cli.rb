@@ -36,9 +36,7 @@ module Sevgi
     private_constant :Options
 
     def call(argv)
-      argv = Array(argv) # FIXME
-
-      return puts(help)           if (options = Options.parse(argv)).help
+      return puts(help)           if (options = Options.parse(argv = Array(argv))).help
       return puts(Sevgi::VERSION) if options.version
 
       run(file = argv.shift, options)
@@ -79,12 +77,10 @@ module Sevgi
 
       def postmortem(file)
         <<~POSTMORTEM
-          For more details, run the script again:
+          If you think this is a bug, you can report it by creating an issue. For details, run the script again:
 
-          - By using the -x switch: '#{PROGNAME} -x #{file}'
-          - By setting the #{ENVVOMIT} environment variable: '#{ENVVOMIT}=t #{file}'
-
-          If you think this is a bug, you can report it by creating an issue.
+            - By using the -x switch: '#{PROGNAME} -x #{file}'
+            - By setting the #{ENVVOMIT} environment variable: '#{ENVVOMIT}=t #{file}'
         POSTMORTEM
       end
 

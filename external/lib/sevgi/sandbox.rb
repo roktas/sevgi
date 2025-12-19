@@ -52,21 +52,13 @@ module Sevgi
       instance.shutdown
     end
 
-    def initialize
-      @sandboxes = []
-    end
+    def initialize   = @sandboxes = []
 
-    def current
-      @sandboxes.last
-    end
+    def create(file) = Box.new(file).tap { @sandboxes << it }
 
-    def create(file)
-      Box.new(file).tap { @sandboxes << it }
-    end
+    def current      = @sandboxes.last
 
-    def shutdown
-      @sandboxes.pop
-    end
+    def shutdown     = @sandboxes.pop
 
     class Box
       attr_reader :file
