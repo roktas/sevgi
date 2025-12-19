@@ -76,7 +76,6 @@ module Sevgi
           assert_equal(expected, actual)
         end
 
-        focus
         def test_css_empty
           svg = <<~'SVG'.chomp
             <svg id="Root" shape-rendering="crispEdges" width="60.0mm" height="60.0mm" viewBox="0 0 60 60">
