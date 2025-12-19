@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require "sevgi/derender/runtimes/cli"
+require "sevgi/binaries/igves"
 
-Sevgi::Derender::CLI.(ARGV)
+Sevgi::Binaries::Igves.(ARGV)

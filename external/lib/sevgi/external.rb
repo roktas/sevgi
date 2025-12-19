@@ -16,6 +16,8 @@ module Sevgi
         end
     end
 
+    def Exec(...) = Sevgi.exec(...)
+
     def Extern(*modules, &block)
       ::Sevgi::External.tap do |external|
         external.module_exec(&block)
