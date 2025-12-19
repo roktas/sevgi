@@ -5,7 +5,7 @@ module Sevgi
   module Derender
     module Elements
       module CSS
-        def compile(*)
+        def decompile(*)
           [
             "css({",
             *css_lines,

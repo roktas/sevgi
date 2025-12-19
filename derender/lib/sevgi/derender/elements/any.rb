@@ -4,7 +4,7 @@ module Sevgi
   module Derender
     module Elements
       module Any
-        def compile(*)
+        def decompile(*)
           if children.any?
             children.count == 1 && children.first.node.text? ? Array(leaf(has_attributes: attributes.any?)) : tree
           else
@@ -19,14 +19,14 @@ module Sevgi
             [
               element,
               *("'#{content}', " if has_content),
-              *(Attributes.compile(attributes) if has_attributes)
+              *(Attributes.decompile(attributes) if has_attributes)
             ].join(" ")
           end
 
           def tree
             [
               "#{leaf(has_content: false)} do",
-              *children.map { |child| child.compile }.flatten,
+              *children.map { |child| child.decompile }.flatten,
               "end"
             ]
           end

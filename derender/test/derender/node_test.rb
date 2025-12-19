@@ -13,7 +13,7 @@ module Sevgi
           </g>
         SVG
 
-        actual   = Derender::Document.new(svg).("xxx").attributes
+        actual   = Derender::Document.new(svg).decompile("xxx").attributes
         expected = { "id" => "xxx", "_:foo" => "fff", "_:bar" => "bbb" }
 
         assert_equal(expected, actual)
@@ -27,7 +27,7 @@ module Sevgi
           </g>
         SVG
 
-        actual   = Derender::Document.new(svg).("xxx")._
+        actual   = Derender::Document.new(svg).decompile("xxx")._
         expected = { "foo" => "fff", "bar" => "bbb" }
 
         assert_equal(expected, actual)
@@ -41,7 +41,7 @@ module Sevgi
           </g>
         SVG
 
-        actual   = Derender::Document.new(svg).().find("line1").derender
+        actual   = Derender::Document.new(svg).decompile().find("line1").derender
 
         expected = <<~SEVGI
           line id: "line1", length: 10.0
@@ -55,7 +55,7 @@ module Sevgi
           <g id="xxx" _:foo="fff" _:bar="bbb"/>
         SVG
 
-        assert_nil(Derender::Document.new(svg).().find("line1"))
+        assert_nil(Derender::Document.new(svg).decompile().find("line1"))
       end
 
       def test_find_itself
@@ -66,7 +66,7 @@ module Sevgi
           </g>
         SVG
 
-        actual   = Derender::Document.new(svg).().find("xxx").derender
+        actual   = Derender::Document.new(svg).decompile().find("xxx").derender
 
         expected = <<~SEVGI
           g id: "xxx", "_:foo": "fff", "_:bar": "bbb" do
@@ -86,7 +86,7 @@ module Sevgi
           </g>
         SVG
 
-        actual   = Derender::Document.new(svg).().find("20.0", by: "length").derender
+        actual   = Derender::Document.new(svg).decompile().find("20.0", by: "length").derender
 
         expected = <<~SEVGI
           line id: "line2", length: 20.0

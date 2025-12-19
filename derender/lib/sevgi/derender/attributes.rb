@@ -17,7 +17,7 @@ module Sevgi
         style
       ].freeze
 
-      def compile(hash)
+      def decompile(hash)
         pre, post = {}, {}
 
         ATTRIBUTES_SHOULD_COME_FIRST.each { |key| pre[key]  = hash.delete(key) if hash.key?(key) }
@@ -27,11 +27,11 @@ module Sevgi
           key = Css.to_key(key) if key.is_a?(::String)
 
           if key == "style"
-            "{ #{Attributes.compile(Css.to_h!(value))} }"
+            "{ #{Attributes.decompile(Css.to_h!(value))} }"
           elsif value.is_a?(::String)
             Css.to_value(value)
           elsif value.is_a?(::Hash)
-            "{ #{Attributes.compile(value)} }"
+            "{ #{Attributes.decompile(value)} }"
           else
             value
           end => value

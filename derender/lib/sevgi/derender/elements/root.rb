@@ -6,7 +6,7 @@ module Sevgi
       module Root
         include Any
 
-        def compile(pres = [])
+        def decompile(pres = [])
           lines = super
           return lines unless pres&.any?
 

@@ -40,7 +40,7 @@ module Sevgi
         @decl = self.class.declaration(content)
       end
 
-      def call(id = nil)
+      def decompile(id = nil)
         if id
           if (found = doc.xpath("//*[@id='#{id}']") || []).empty?
             ArgumentError.("No such element with id '#{id}' in document")

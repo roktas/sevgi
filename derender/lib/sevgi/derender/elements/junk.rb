@@ -5,7 +5,7 @@ module Sevgi
   module Derender
     module Elements
       module Junk
-        def compile(*) = []
+        def decompile(*) = []
       end
     end
   end
