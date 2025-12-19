@@ -492,14 +492,12 @@ module Sevgi
         ]
       )
 
-      # codebeat:disable[ABC]
       def ignore?(attribute)
         attribute.start_with?("_")                                                                           ||
         attribute == :xmlns                                                                                  ||
         attribute.start_with?("data-")                                                                       ||
         (attribute.to_s.include?(":") && !attribute.start_with?("xlink:") && !attribute.start_with?("xml:"))
       end
-      # codebeat:enable[ABC]
     end
   end
 end

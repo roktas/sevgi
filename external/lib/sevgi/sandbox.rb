@@ -33,9 +33,11 @@ module Sevgi
       ::Kernel.require(require) if require
       ::Kernel.load(preload)    if preload
 
-      error = catch(:error) { instance.create(file).load(file, &block || DEFAULT_PROC) }
+      if (error = catch(:error) { instance.create(file).load(file, &block || DEFAULT_PROC) }).is_a?(Error)
+        raise(error)
+      end
 
-      raise(error) if error.is_a?(Error)
+      true
     ensure
       instance.shutdown
     end
@@ -72,7 +74,6 @@ module Sevgi
       def initialize(file)
         @file   = file
         @module = Module.new
-        # @loaded = {}
         @stack  = {}
       end
 

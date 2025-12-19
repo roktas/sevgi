@@ -9,7 +9,6 @@ module Sevgi
     Error = Class.new(Sevgi::Error)
 
     Options = Struct.new(:preload, :require, :vomit, :help, :version) do
-      # codebeat:disable[ABC,BLOCK_NESTING,LOC]
       def self.parse(argv)
         new.tap do |options|
           argv.first.start_with?("-") ? option(argv, options) : break until argv.empty?
@@ -32,7 +31,6 @@ module Sevgi
             end
           end
       end
-      # codebeat:enable[ABC,BLOCK_NESTING,LOC]
     end
 
     private_constant :Options
@@ -63,7 +61,6 @@ module Sevgi
         abort(postmortem(file))
       end
 
-      # codebeat:disable[ABC,LOC]
       def help
         <<~HELP
           Usage: #{PROGNAME} [options...] <SCRIPT> [ARGS...]

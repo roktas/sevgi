@@ -8,7 +8,6 @@ module Sevgi
           alignment(element, other, alignment).apply(element)
         end
 
-        # codebeat:disable[ABC,LOC]
         def alignment(element, other, alignment = :center)
           this, that = element.box, other.box
 
@@ -21,7 +20,6 @@ module Sevgi
           else              ArgumentError.("No such type of alignment: #{alignment}")
           end
         end
-        # codebeat:enable[ABC,LOC]
 
         def applicable?(element)
           Translation.applicable?(element)
