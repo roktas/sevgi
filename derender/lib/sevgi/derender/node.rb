@@ -58,24 +58,15 @@ module Sevgi
       def evaluate!(element) = evaluate(element, false)
 
       def find(arg, by: "id")
+        return unless children
         return self if attributes[by] == arg
 
-        children&.each do
-          found = it.find(arg, by:)
-
-          return found if found
-        end
-
-        nil
+        children.find { it.find(arg, by:) }
       end
 
       def name = @name ||= node.name
 
-      def namespaces
-        @namespaces ||= node.namespaces.to_h do |namespace, uri|
-          [ namespace, uri ]
-        end
-      end
+      def namespaces = (@namespaces ||= node.namespaces.to_h { |namespace, uri|  [ namespace, uri ] })
 
       def root? = type == :Root
 
