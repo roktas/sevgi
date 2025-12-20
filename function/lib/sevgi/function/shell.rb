@@ -41,31 +41,31 @@ module Sevgi
 
         private
 
-        def block(stdout, stderr, wait_thread)
-          # Handle `^C`
-          trap("INT") { handle_sigint(wait_thread.pid) }
+          def block(stdout, stderr, wait_thread)
+            # Handle `^C`
+            trap("INT") { handle_sigint(wait_thread.pid) }
 
-          outs = stdout.readlines.map(&:chomp)
-          errs = stderr.readlines.map(&:chomp)
+            outs = stdout.readlines.map(&:chomp)
+            errs = stderr.readlines.map(&:chomp)
 
-          [ outs, errs, wait_thread.value ]
-        end
+            [ outs, errs, wait_thread.value ]
+          end
 
-        def handle_sigint(pid) # rubocop:disable Metrics/MethodLength
-          message, signal =
-            if @coathooks > 1
-              [ "SIGINT received again. Force quitting...", "KILL" ]
-            else
-              [ "SIGINT received.", "TERM" ]
-            end
+          def handle_sigint(pid) # rubocop:disable Metrics/MethodLength
+            message, signal =
+              if @coathooks > 1
+                [ "SIGINT received again. Force quitting...", "KILL" ]
+              else
+                [ "SIGINT received.", "TERM" ]
+              end
 
-          warn
-          warn(message)
-          ::Process.kill(signal, pid)
-          @coathooks += 1
-        rescue Errno::ESRCH
-          warn("No process to kill.")
-        end
+            warn
+            warn(message)
+            ::Process.kill(signal, pid)
+            @coathooks += 1
+          rescue Errno::ESRCH
+            warn("No process to kill.")
+          end
       end
 
       def sh(...) = Runner.new.(...)
