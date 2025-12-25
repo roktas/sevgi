@@ -1,0 +1,453 @@
+<?xml version="1.0" standalone="no"?>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:_="http://sevgi.roktas.dev"
+  xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+  xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+  shape-rendering="crispEdges"
+  width="210.0mm"
+  height="297.0mm"
+  viewBox="0 0 210 297"
+>
+  <style type="text/css">
+    <![CDATA[
+      .labels {
+        font: 3pt monospace;
+      }
+      .majors {
+        stroke: black;
+        stroke-width: 0.2;
+      }
+      .halves {
+        stroke: black;
+        stroke-width: 0.1;
+      }
+      .minors {
+        stroke: black;
+        stroke-width: 0.1;
+      }
+      .frame {
+        stroke: black;
+        stroke-width: 0.05;
+        fill: none;
+      }
+    ]]>
+  </style>
+  <rect id="frame" width="20" height="150" class="frame"/>
+  <g id="minors" inkscape:groupmode="layer">
+    <path d="M 0 0 h 2" class="minors"/>
+    <path d="M 20 0 h -2" class="minors"/>
+    <path d="M 0 1 h 2" class="minors"/>
+    <path d="M 20 1 h -2" class="minors"/>
+    <path d="M 0 2 h 2" class="minors"/>
+    <path d="M 20 2 h -2" class="minors"/>
+    <path d="M 0 3 h 2" class="minors"/>
+    <path d="M 20 3 h -2" class="minors"/>
+    <path d="M 0 4 h 2" class="minors"/>
+    <path d="M 20 4 h -2" class="minors"/>
+    <path d="M 0 5 h 2" class="minors"/>
+    <path d="M 20 5 h -2" class="minors"/>
+    <path d="M 0 6 h 2" class="minors"/>
+    <path d="M 20 6 h -2" class="minors"/>
+    <path d="M 0 7 h 2" class="minors"/>
+    <path d="M 20 7 h -2" class="minors"/>
+    <path d="M 0 8 h 2" class="minors"/>
+    <path d="M 20 8 h -2" class="minors"/>
+    <path d="M 0 9 h 2" class="minors"/>
+    <path d="M 20 9 h -2" class="minors"/>
+    <path d="M 0 10 h 2" class="minors"/>
+    <path d="M 20 10 h -2" class="minors"/>
+    <path d="M 0 11 h 2" class="minors"/>
+    <path d="M 20 11 h -2" class="minors"/>
+    <path d="M 0 12 h 2" class="minors"/>
+    <path d="M 20 12 h -2" class="minors"/>
+    <path d="M 0 13 h 2" class="minors"/>
+    <path d="M 20 13 h -2" class="minors"/>
+    <path d="M 0 14 h 2" class="minors"/>
+    <path d="M 20 14 h -2" class="minors"/>
+    <path d="M 0 15 h 2" class="minors"/>
+    <path d="M 20 15 h -2" class="minors"/>
+    <path d="M 0 16 h 2" class="minors"/>
+    <path d="M 20 16 h -2" class="minors"/>
+    <path d="M 0 17 h 2" class="minors"/>
+    <path d="M 20 17 h -2" class="minors"/>
+    <path d="M 0 18 h 2" class="minors"/>
+    <path d="M 20 18 h -2" class="minors"/>
+    <path d="M 0 19 h 2" class="minors"/>
+    <path d="M 20 19 h -2" class="minors"/>
+    <path d="M 0 20 h 2" class="minors"/>
+    <path d="M 20 20 h -2" class="minors"/>
+    <path d="M 0 21 h 2" class="minors"/>
+    <path d="M 20 21 h -2" class="minors"/>
+    <path d="M 0 22 h 2" class="minors"/>
+    <path d="M 20 22 h -2" class="minors"/>
+    <path d="M 0 23 h 2" class="minors"/>
+    <path d="M 20 23 h -2" class="minors"/>
+    <path d="M 0 24 h 2" class="minors"/>
+    <path d="M 20 24 h -2" class="minors"/>
+    <path d="M 0 25 h 2" class="minors"/>
+    <path d="M 20 25 h -2" class="minors"/>
+    <path d="M 0 26 h 2" class="minors"/>
+    <path d="M 20 26 h -2" class="minors"/>
+    <path d="M 0 27 h 2" class="minors"/>
+    <path d="M 20 27 h -2" class="minors"/>
+    <path d="M 0 28 h 2" class="minors"/>
+    <path d="M 20 28 h -2" class="minors"/>
+    <path d="M 0 29 h 2" class="minors"/>
+    <path d="M 20 29 h -2" class="minors"/>
+    <path d="M 0 30 h 2" class="minors"/>
+    <path d="M 20 30 h -2" class="minors"/>
+    <path d="M 0 31 h 2" class="minors"/>
+    <path d="M 20 31 h -2" class="minors"/>
+    <path d="M 0 32 h 2" class="minors"/>
+    <path d="M 20 32 h -2" class="minors"/>
+    <path d="M 0 33 h 2" class="minors"/>
+    <path d="M 20 33 h -2" class="minors"/>
+    <path d="M 0 34 h 2" class="minors"/>
+    <path d="M 20 34 h -2" class="minors"/>
+    <path d="M 0 35 h 2" class="minors"/>
+    <path d="M 20 35 h -2" class="minors"/>
+    <path d="M 0 36 h 2" class="minors"/>
+    <path d="M 20 36 h -2" class="minors"/>
+    <path d="M 0 37 h 2" class="minors"/>
+    <path d="M 20 37 h -2" class="minors"/>
+    <path d="M 0 38 h 2" class="minors"/>
+    <path d="M 20 38 h -2" class="minors"/>
+    <path d="M 0 39 h 2" class="minors"/>
+    <path d="M 20 39 h -2" class="minors"/>
+    <path d="M 0 40 h 2" class="minors"/>
+    <path d="M 20 40 h -2" class="minors"/>
+    <path d="M 0 41 h 2" class="minors"/>
+    <path d="M 20 41 h -2" class="minors"/>
+    <path d="M 0 42 h 2" class="minors"/>
+    <path d="M 20 42 h -2" class="minors"/>
+    <path d="M 0 43 h 2" class="minors"/>
+    <path d="M 20 43 h -2" class="minors"/>
+    <path d="M 0 44 h 2" class="minors"/>
+    <path d="M 20 44 h -2" class="minors"/>
+    <path d="M 0 45 h 2" class="minors"/>
+    <path d="M 20 45 h -2" class="minors"/>
+    <path d="M 0 46 h 2" class="minors"/>
+    <path d="M 20 46 h -2" class="minors"/>
+    <path d="M 0 47 h 2" class="minors"/>
+    <path d="M 20 47 h -2" class="minors"/>
+    <path d="M 0 48 h 2" class="minors"/>
+    <path d="M 20 48 h -2" class="minors"/>
+    <path d="M 0 49 h 2" class="minors"/>
+    <path d="M 20 49 h -2" class="minors"/>
+    <path d="M 0 50 h 2" class="minors"/>
+    <path d="M 20 50 h -2" class="minors"/>
+    <path d="M 0 51 h 2" class="minors"/>
+    <path d="M 20 51 h -2" class="minors"/>
+    <path d="M 0 52 h 2" class="minors"/>
+    <path d="M 20 52 h -2" class="minors"/>
+    <path d="M 0 53 h 2" class="minors"/>
+    <path d="M 20 53 h -2" class="minors"/>
+    <path d="M 0 54 h 2" class="minors"/>
+    <path d="M 20 54 h -2" class="minors"/>
+    <path d="M 0 55 h 2" class="minors"/>
+    <path d="M 20 55 h -2" class="minors"/>
+    <path d="M 0 56 h 2" class="minors"/>
+    <path d="M 20 56 h -2" class="minors"/>
+    <path d="M 0 57 h 2" class="minors"/>
+    <path d="M 20 57 h -2" class="minors"/>
+    <path d="M 0 58 h 2" class="minors"/>
+    <path d="M 20 58 h -2" class="minors"/>
+    <path d="M 0 59 h 2" class="minors"/>
+    <path d="M 20 59 h -2" class="minors"/>
+    <path d="M 0 60 h 2" class="minors"/>
+    <path d="M 20 60 h -2" class="minors"/>
+    <path d="M 0 61 h 2" class="minors"/>
+    <path d="M 20 61 h -2" class="minors"/>
+    <path d="M 0 62 h 2" class="minors"/>
+    <path d="M 20 62 h -2" class="minors"/>
+    <path d="M 0 63 h 2" class="minors"/>
+    <path d="M 20 63 h -2" class="minors"/>
+    <path d="M 0 64 h 2" class="minors"/>
+    <path d="M 20 64 h -2" class="minors"/>
+    <path d="M 0 65 h 2" class="minors"/>
+    <path d="M 20 65 h -2" class="minors"/>
+    <path d="M 0 66 h 2" class="minors"/>
+    <path d="M 20 66 h -2" class="minors"/>
+    <path d="M 0 67 h 2" class="minors"/>
+    <path d="M 20 67 h -2" class="minors"/>
+    <path d="M 0 68 h 2" class="minors"/>
+    <path d="M 20 68 h -2" class="minors"/>
+    <path d="M 0 69 h 2" class="minors"/>
+    <path d="M 20 69 h -2" class="minors"/>
+    <path d="M 0 70 h 2" class="minors"/>
+    <path d="M 20 70 h -2" class="minors"/>
+    <path d="M 0 71 h 2" class="minors"/>
+    <path d="M 20 71 h -2" class="minors"/>
+    <path d="M 0 72 h 2" class="minors"/>
+    <path d="M 20 72 h -2" class="minors"/>
+    <path d="M 0 73 h 2" class="minors"/>
+    <path d="M 20 73 h -2" class="minors"/>
+    <path d="M 0 74 h 2" class="minors"/>
+    <path d="M 20 74 h -2" class="minors"/>
+    <path d="M 0 75 h 2" class="minors"/>
+    <path d="M 20 75 h -2" class="minors"/>
+    <path d="M 0 76 h 2" class="minors"/>
+    <path d="M 20 76 h -2" class="minors"/>
+    <path d="M 0 77 h 2" class="minors"/>
+    <path d="M 20 77 h -2" class="minors"/>
+    <path d="M 0 78 h 2" class="minors"/>
+    <path d="M 20 78 h -2" class="minors"/>
+    <path d="M 0 79 h 2" class="minors"/>
+    <path d="M 20 79 h -2" class="minors"/>
+    <path d="M 0 80 h 2" class="minors"/>
+    <path d="M 20 80 h -2" class="minors"/>
+    <path d="M 0 81 h 2" class="minors"/>
+    <path d="M 20 81 h -2" class="minors"/>
+    <path d="M 0 82 h 2" class="minors"/>
+    <path d="M 20 82 h -2" class="minors"/>
+    <path d="M 0 83 h 2" class="minors"/>
+    <path d="M 20 83 h -2" class="minors"/>
+    <path d="M 0 84 h 2" class="minors"/>
+    <path d="M 20 84 h -2" class="minors"/>
+    <path d="M 0 85 h 2" class="minors"/>
+    <path d="M 20 85 h -2" class="minors"/>
+    <path d="M 0 86 h 2" class="minors"/>
+    <path d="M 20 86 h -2" class="minors"/>
+    <path d="M 0 87 h 2" class="minors"/>
+    <path d="M 20 87 h -2" class="minors"/>
+    <path d="M 0 88 h 2" class="minors"/>
+    <path d="M 20 88 h -2" class="minors"/>
+    <path d="M 0 89 h 2" class="minors"/>
+    <path d="M 20 89 h -2" class="minors"/>
+    <path d="M 0 90 h 2" class="minors"/>
+    <path d="M 20 90 h -2" class="minors"/>
+    <path d="M 0 91 h 2" class="minors"/>
+    <path d="M 20 91 h -2" class="minors"/>
+    <path d="M 0 92 h 2" class="minors"/>
+    <path d="M 20 92 h -2" class="minors"/>
+    <path d="M 0 93 h 2" class="minors"/>
+    <path d="M 20 93 h -2" class="minors"/>
+    <path d="M 0 94 h 2" class="minors"/>
+    <path d="M 20 94 h -2" class="minors"/>
+    <path d="M 0 95 h 2" class="minors"/>
+    <path d="M 20 95 h -2" class="minors"/>
+    <path d="M 0 96 h 2" class="minors"/>
+    <path d="M 20 96 h -2" class="minors"/>
+    <path d="M 0 97 h 2" class="minors"/>
+    <path d="M 20 97 h -2" class="minors"/>
+    <path d="M 0 98 h 2" class="minors"/>
+    <path d="M 20 98 h -2" class="minors"/>
+    <path d="M 0 99 h 2" class="minors"/>
+    <path d="M 20 99 h -2" class="minors"/>
+    <path d="M 0 100 h 2" class="minors"/>
+    <path d="M 20 100 h -2" class="minors"/>
+    <path d="M 0 101 h 2" class="minors"/>
+    <path d="M 20 101 h -2" class="minors"/>
+    <path d="M 0 102 h 2" class="minors"/>
+    <path d="M 20 102 h -2" class="minors"/>
+    <path d="M 0 103 h 2" class="minors"/>
+    <path d="M 20 103 h -2" class="minors"/>
+    <path d="M 0 104 h 2" class="minors"/>
+    <path d="M 20 104 h -2" class="minors"/>
+    <path d="M 0 105 h 2" class="minors"/>
+    <path d="M 20 105 h -2" class="minors"/>
+    <path d="M 0 106 h 2" class="minors"/>
+    <path d="M 20 106 h -2" class="minors"/>
+    <path d="M 0 107 h 2" class="minors"/>
+    <path d="M 20 107 h -2" class="minors"/>
+    <path d="M 0 108 h 2" class="minors"/>
+    <path d="M 20 108 h -2" class="minors"/>
+    <path d="M 0 109 h 2" class="minors"/>
+    <path d="M 20 109 h -2" class="minors"/>
+    <path d="M 0 110 h 2" class="minors"/>
+    <path d="M 20 110 h -2" class="minors"/>
+    <path d="M 0 111 h 2" class="minors"/>
+    <path d="M 20 111 h -2" class="minors"/>
+    <path d="M 0 112 h 2" class="minors"/>
+    <path d="M 20 112 h -2" class="minors"/>
+    <path d="M 0 113 h 2" class="minors"/>
+    <path d="M 20 113 h -2" class="minors"/>
+    <path d="M 0 114 h 2" class="minors"/>
+    <path d="M 20 114 h -2" class="minors"/>
+    <path d="M 0 115 h 2" class="minors"/>
+    <path d="M 20 115 h -2" class="minors"/>
+    <path d="M 0 116 h 2" class="minors"/>
+    <path d="M 20 116 h -2" class="minors"/>
+    <path d="M 0 117 h 2" class="minors"/>
+    <path d="M 20 117 h -2" class="minors"/>
+    <path d="M 0 118 h 2" class="minors"/>
+    <path d="M 20 118 h -2" class="minors"/>
+    <path d="M 0 119 h 2" class="minors"/>
+    <path d="M 20 119 h -2" class="minors"/>
+    <path d="M 0 120 h 2" class="minors"/>
+    <path d="M 20 120 h -2" class="minors"/>
+    <path d="M 0 121 h 2" class="minors"/>
+    <path d="M 20 121 h -2" class="minors"/>
+    <path d="M 0 122 h 2" class="minors"/>
+    <path d="M 20 122 h -2" class="minors"/>
+    <path d="M 0 123 h 2" class="minors"/>
+    <path d="M 20 123 h -2" class="minors"/>
+    <path d="M 0 124 h 2" class="minors"/>
+    <path d="M 20 124 h -2" class="minors"/>
+    <path d="M 0 125 h 2" class="minors"/>
+    <path d="M 20 125 h -2" class="minors"/>
+    <path d="M 0 126 h 2" class="minors"/>
+    <path d="M 20 126 h -2" class="minors"/>
+    <path d="M 0 127 h 2" class="minors"/>
+    <path d="M 20 127 h -2" class="minors"/>
+    <path d="M 0 128 h 2" class="minors"/>
+    <path d="M 20 128 h -2" class="minors"/>
+    <path d="M 0 129 h 2" class="minors"/>
+    <path d="M 20 129 h -2" class="minors"/>
+    <path d="M 0 130 h 2" class="minors"/>
+    <path d="M 20 130 h -2" class="minors"/>
+    <path d="M 0 131 h 2" class="minors"/>
+    <path d="M 20 131 h -2" class="minors"/>
+    <path d="M 0 132 h 2" class="minors"/>
+    <path d="M 20 132 h -2" class="minors"/>
+    <path d="M 0 133 h 2" class="minors"/>
+    <path d="M 20 133 h -2" class="minors"/>
+    <path d="M 0 134 h 2" class="minors"/>
+    <path d="M 20 134 h -2" class="minors"/>
+    <path d="M 0 135 h 2" class="minors"/>
+    <path d="M 20 135 h -2" class="minors"/>
+    <path d="M 0 136 h 2" class="minors"/>
+    <path d="M 20 136 h -2" class="minors"/>
+    <path d="M 0 137 h 2" class="minors"/>
+    <path d="M 20 137 h -2" class="minors"/>
+    <path d="M 0 138 h 2" class="minors"/>
+    <path d="M 20 138 h -2" class="minors"/>
+    <path d="M 0 139 h 2" class="minors"/>
+    <path d="M 20 139 h -2" class="minors"/>
+    <path d="M 0 140 h 2" class="minors"/>
+    <path d="M 20 140 h -2" class="minors"/>
+    <path d="M 0 141 h 2" class="minors"/>
+    <path d="M 20 141 h -2" class="minors"/>
+    <path d="M 0 142 h 2" class="minors"/>
+    <path d="M 20 142 h -2" class="minors"/>
+    <path d="M 0 143 h 2" class="minors"/>
+    <path d="M 20 143 h -2" class="minors"/>
+    <path d="M 0 144 h 2" class="minors"/>
+    <path d="M 20 144 h -2" class="minors"/>
+    <path d="M 0 145 h 2" class="minors"/>
+    <path d="M 20 145 h -2" class="minors"/>
+    <path d="M 0 146 h 2" class="minors"/>
+    <path d="M 20 146 h -2" class="minors"/>
+    <path d="M 0 147 h 2" class="minors"/>
+    <path d="M 20 147 h -2" class="minors"/>
+    <path d="M 0 148 h 2" class="minors"/>
+    <path d="M 20 148 h -2" class="minors"/>
+    <path d="M 0 149 h 2" class="minors"/>
+    <path d="M 20 149 h -2" class="minors"/>
+    <path d="M 0 150 h 2" class="minors"/>
+    <path d="M 20 150 h -2" class="minors"/>
+  </g>
+  <g id="halves" inkscape:groupmode="layer">
+    <path d="M 0 0 h 4" class="halves"/>
+    <path d="M 20 0 h -4" class="halves"/>
+    <path d="M 0 5 h 4" class="halves"/>
+    <path d="M 20 5 h -4" class="halves"/>
+    <path d="M 0 10 h 4" class="halves"/>
+    <path d="M 20 10 h -4" class="halves"/>
+    <path d="M 0 15 h 4" class="halves"/>
+    <path d="M 20 15 h -4" class="halves"/>
+    <path d="M 0 20 h 4" class="halves"/>
+    <path d="M 20 20 h -4" class="halves"/>
+    <path d="M 0 25 h 4" class="halves"/>
+    <path d="M 20 25 h -4" class="halves"/>
+    <path d="M 0 30 h 4" class="halves"/>
+    <path d="M 20 30 h -4" class="halves"/>
+    <path d="M 0 35 h 4" class="halves"/>
+    <path d="M 20 35 h -4" class="halves"/>
+    <path d="M 0 40 h 4" class="halves"/>
+    <path d="M 20 40 h -4" class="halves"/>
+    <path d="M 0 45 h 4" class="halves"/>
+    <path d="M 20 45 h -4" class="halves"/>
+    <path d="M 0 50 h 4" class="halves"/>
+    <path d="M 20 50 h -4" class="halves"/>
+    <path d="M 0 55 h 4" class="halves"/>
+    <path d="M 20 55 h -4" class="halves"/>
+    <path d="M 0 60 h 4" class="halves"/>
+    <path d="M 20 60 h -4" class="halves"/>
+    <path d="M 0 65 h 4" class="halves"/>
+    <path d="M 20 65 h -4" class="halves"/>
+    <path d="M 0 70 h 4" class="halves"/>
+    <path d="M 20 70 h -4" class="halves"/>
+    <path d="M 0 75 h 4" class="halves"/>
+    <path d="M 20 75 h -4" class="halves"/>
+    <path d="M 0 80 h 4" class="halves"/>
+    <path d="M 20 80 h -4" class="halves"/>
+    <path d="M 0 85 h 4" class="halves"/>
+    <path d="M 20 85 h -4" class="halves"/>
+    <path d="M 0 90 h 4" class="halves"/>
+    <path d="M 20 90 h -4" class="halves"/>
+    <path d="M 0 95 h 4" class="halves"/>
+    <path d="M 20 95 h -4" class="halves"/>
+    <path d="M 0 100 h 4" class="halves"/>
+    <path d="M 20 100 h -4" class="halves"/>
+    <path d="M 0 105 h 4" class="halves"/>
+    <path d="M 20 105 h -4" class="halves"/>
+    <path d="M 0 110 h 4" class="halves"/>
+    <path d="M 20 110 h -4" class="halves"/>
+    <path d="M 0 115 h 4" class="halves"/>
+    <path d="M 20 115 h -4" class="halves"/>
+    <path d="M 0 120 h 4" class="halves"/>
+    <path d="M 20 120 h -4" class="halves"/>
+    <path d="M 0 125 h 4" class="halves"/>
+    <path d="M 20 125 h -4" class="halves"/>
+    <path d="M 0 130 h 4" class="halves"/>
+    <path d="M 20 130 h -4" class="halves"/>
+    <path d="M 0 135 h 4" class="halves"/>
+    <path d="M 20 135 h -4" class="halves"/>
+    <path d="M 0 140 h 4" class="halves"/>
+    <path d="M 20 140 h -4" class="halves"/>
+    <path d="M 0 145 h 4" class="halves"/>
+    <path d="M 20 145 h -4" class="halves"/>
+    <path d="M 0 150 h 4" class="halves"/>
+    <path d="M 20 150 h -4" class="halves"/>
+  </g>
+  <g id="majors" inkscape:groupmode="layer">
+    <path d="M 0 10 h 6" class="majors"/>
+    <path d="M 20 10 h -6" class="majors"/>
+    <path d="M 0 20 h 6" class="majors"/>
+    <path d="M 20 20 h -6" class="majors"/>
+    <path d="M 0 30 h 6" class="majors"/>
+    <path d="M 20 30 h -6" class="majors"/>
+    <path d="M 0 40 h 6" class="majors"/>
+    <path d="M 20 40 h -6" class="majors"/>
+    <path d="M 0 50 h 6" class="majors"/>
+    <path d="M 20 50 h -6" class="majors"/>
+    <path d="M 0 60 h 6" class="majors"/>
+    <path d="M 20 60 h -6" class="majors"/>
+    <path d="M 0 70 h 6" class="majors"/>
+    <path d="M 20 70 h -6" class="majors"/>
+    <path d="M 0 80 h 6" class="majors"/>
+    <path d="M 20 80 h -6" class="majors"/>
+    <path d="M 0 90 h 6" class="majors"/>
+    <path d="M 20 90 h -6" class="majors"/>
+    <path d="M 0 100 h 6" class="majors"/>
+    <path d="M 20 100 h -6" class="majors"/>
+    <path d="M 0 110 h 6" class="majors"/>
+    <path d="M 20 110 h -6" class="majors"/>
+    <path d="M 0 120 h 6" class="majors"/>
+    <path d="M 20 120 h -6" class="majors"/>
+    <path d="M 0 130 h 6" class="majors"/>
+    <path d="M 20 130 h -6" class="majors"/>
+    <path d="M 0 140 h 6" class="majors"/>
+    <path d="M 20 140 h -6" class="majors"/>
+    <g id="labels" inkscape:groupmode="layer">
+      <text x="7.4" y="3.5" class="labels"> 0</text>
+      <text x="7.4" y="11.4" class="labels"> 1</text>
+      <text x="7.4" y="21.4" class="labels"> 2</text>
+      <text x="7.4" y="31.4" class="labels"> 3</text>
+      <text x="7.4" y="41.4" class="labels"> 4</text>
+      <text x="7.4" y="51.4" class="labels"> 5</text>
+      <text x="7.4" y="61.4" class="labels"> 6</text>
+      <text x="7.4" y="71.4" class="labels"> 7</text>
+      <text x="7.4" y="81.4" class="labels"> 8</text>
+      <text x="7.4" y="91.4" class="labels"> 9</text>
+      <text x="7.4" y="101.4" class="labels">10</text>
+      <text x="7.4" y="111.4" class="labels">11</text>
+      <text x="7.4" y="121.4" class="labels">12</text>
+      <text x="7.4" y="131.4" class="labels">13</text>
+      <text x="7.4" y="141.4" class="labels">14</text>
+      <text x="7.4" y="149" class="labels">15</text>
+    </g>
+  </g>
+</svg>

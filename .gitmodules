@@ -1,0 +1,3 @@
+[submodule "adidoks"]
+	path = showcase/srv/themes/adidoks
+	url = https://github.com/aaranxu/adidoks.git

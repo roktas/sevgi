@@ -1,0 +1,13 @@
+name: Lint
+on:   [push, pull_request, workflow_dispatch]
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout 🛎️
+      uses: actions/checkout@v4
+    - name: Ruby 🥁
+      uses: ruby/setup-ruby@v1
+      with: { bundler-cache: true }
+    - name: Lint 🔬
+      run: bundle exec rake lint
