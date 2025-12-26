@@ -89,7 +89,7 @@ module Sevgi
           actual = Derender.derender(svg)
 
           expected = <<~'SEVGI'
-            Doc preambles: [
+            SVG.document preambles: [
               '<?xml version="1.0" encoding="UTF-8" standalone="no"?>',
             ]
 

@@ -11,7 +11,7 @@ module Sevgi
           return lines unless pres&.any?
 
           lines.unshift [
-            "Doc preambles: [",
+            "SVG.document preambles: [",
             *pres.map { "'#{it}'," },
             "]",
             "",
