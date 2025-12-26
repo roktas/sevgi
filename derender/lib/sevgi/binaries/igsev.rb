@@ -24,6 +24,7 @@ module Sevgi
               case (arg = argv.shift)
               when "-r", "--require"   then options.require = argv.shift
               when "-x", "--exception" then options.vomit   = true
+      
               when "-h", "--help"      then options.help    = true
               when "-v", "--version"   then options.version = true
               else                          Error.("Not a valid option: #{arg}")
@@ -47,23 +48,23 @@ module Sevgi
         else
           result.recent.Out
         end
-      rescue Binaries::Igsev::Error => e
-        abort(e.message)
+      rescue Binaries::Igsev::Error => error
+        abort(error.message)
       end
 
       private
 
-        def die(e, file)
-          warn(e.message)
+        def die(error, file)
+          warn(error.message)
           warn("")
-          e.backtrace!.each { warn("  #{it}") }
+          error.backtrace!.each { warn("  #{it}") }
 
-          abort
+          exit(1)
         end
 
         def help
           <<~HELP
-            Usage: #{PROGNAME} [options...] <SCRIPT> [ARGS...]
+            Usage: #{PROGNAME} [options...] <SVG file>
 
             See documentation for detailed help.
 
@@ -71,6 +72,7 @@ module Sevgi
 
             -r, --require LIB     Require Ruby LIB
             -x, --exception       Raise exception instead of abort
+    
             -h, --help            Show this help
             -v, --version         Display version
           HELP

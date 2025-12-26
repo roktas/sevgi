@@ -47,23 +47,23 @@ module Sevgi
 
           die(result.error, file)
         end
-      rescue Binaries::Sevgi::Error => e
-        abort(e.message)
+      rescue Binaries::Sevgi::Error => error
+        abort(error.message)
       end
 
       private
 
-        def die(e, file)
+        def die(error, file)
           warn(e.message)
           warn("")
-          e.backtrace!.each { warn("  #{it}") }
+          error.backtrace!.each { warn("  #{it}") }
 
-          abort
+          exit(1)
         end
 
         def help
           <<~HELP
-            Usage: #{PROGNAME} [options...] <SCRIPT> [ARGS...]
+            Usage: #{PROGNAME} [options...] <Sevgi file>
 
             See documentation for detailed help.
 

@@ -37,23 +37,23 @@ module Sevgi
         return puts(::Sevgi::VERSION) if options.version
 
         puts run(file = argv.shift, options)
-      rescue Binaries::Igves::Error => e
-        abort(e.message)
+      rescue Binaries::Igves::Error => error
+        abort(error.message)
       end
 
       private
 
-        def die(e, file)
-          warn(e.message)
+        def die(error, file)
+          warn(error.message)
           warn("")
-          e.backtrace!.each { warn("  #{it}") }
+          error.backtrace!.each { warn("  #{it}") }
 
-          abort
+          exit(1)
         end
 
         def help
           <<~HELP
-            Usage: #{PROGNAME} [options...] <SCRIPT> [ARGS...]
+            Usage: #{PROGNAME} [options...] <SVG file>
 
             See documentation for detailed help.
 
