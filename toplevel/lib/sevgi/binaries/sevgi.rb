@@ -69,8 +69,8 @@ module Sevgi
 
             Options:
 
-            -r, --require LIB     Require Ruby LIB
             -n, --nomain          Do not modify main object
+            -r, --require LIB     Require Ruby LIB
             -x, --exception       Raise exception instead of abort
 
             -h, --help            Show this help
