@@ -9,8 +9,8 @@ require "sevgi/sundries"
 require "sevgi/version"
 
 # Minimal Toplevel Interface (activated with 'require "sevgi"')
-def SVG(...) = ::Sevgi::Graphics.SVG(...)
 SVG          = ::Sevgi::Graphics
+def SVG(...) = ::Sevgi::Graphics.SVG(...)
 
 # Maximal Toplevel Interface (activated with 'include Sevgi')
 module Sevgi
