@@ -23,4 +23,6 @@ module Sevgi
 
     extend self
   end
+
+  SVG = Graphics
 end

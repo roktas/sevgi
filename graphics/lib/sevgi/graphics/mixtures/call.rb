@@ -2,7 +2,7 @@
 
 module Sevgi
   module Graphics
-    module SVGM
+    module Module
       def method_added(method)
         _callables << method if public_method_defined?(method)
       end
@@ -44,7 +44,7 @@ module Sevgi
     module Mixtures
       module Call
         def Call(mod, ...)
-          SVGM.call(mod, self, ...)
+          Graphics::Module.call(mod, self, ...)
         end
 
         private
@@ -58,7 +58,7 @@ module Sevgi
             mod._befores.each { Within(self, &it) } if mod.respond_to?(:_befores) && mod._befores
 
             public_send(container, **kwargs) do
-              SVGM.callables(mod).each do |method|
+              Graphics::Module.callables(mod).each do |method|
                 public_send(element) do
                   Within(self, method.name, self, &block)
 
