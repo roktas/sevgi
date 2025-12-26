@@ -3,6 +3,6 @@
 require_relative "../test_helper"
 
 module Sevgi
-  class ExternalFunctionTest < Minitest::Test
+  class ToplevelFunctionTest < Minitest::Test
   end
 end
