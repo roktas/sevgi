@@ -8,7 +8,5 @@ module Sevgi
       document.mixture(mod)
       document.mixture(::Module.new(&block)) if block
     end
-
-    promote Graphics, :SVG
   end
 end
