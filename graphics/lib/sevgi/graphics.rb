@@ -22,11 +22,6 @@ module Sevgi
       Class.new(Graphics::Document::Base) { document(name, preambles:, attributes:) }
     end
 
-    def mixin(mod, document = Graphics::Document::Base, &block)
-      document.mixture(mod)
-      document.mixture(::Module.new(&block)) if block
-    end
-
     def paper(width, height, name = :custom, unit: "mm")
       name.tap { Graphics::Paper.define(name, width:, height:, unit:) unless Graphics::Paper.exist?(name) }
     end
