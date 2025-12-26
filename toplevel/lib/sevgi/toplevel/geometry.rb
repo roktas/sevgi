@@ -4,7 +4,7 @@ require "sevgi/geometry"
 
 module Sevgi
   module Toplevel
-    Promote Geometry
-    Promote Geometry::Origin, :Origin
+    promote Geometry
+    promote Geometry::Origin, :Origin
   end
 end

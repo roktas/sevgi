@@ -13,6 +13,6 @@ module Sevgi
       ]
     end
 
-    Promote Sundries::Printer
+    promote Sundries::Printer
   end
 end

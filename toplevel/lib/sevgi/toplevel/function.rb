@@ -12,6 +12,6 @@ module Sevgi
       extend Sevgi::Function::UI
     end
 
-    Promote Function, :F
+    promote Function, :F
   end
 end

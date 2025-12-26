@@ -25,6 +25,6 @@ module Sevgi
       document.mixture(::Module.new(&block)) if block
     end
 
-    Promote Graphics::Callable
+    promote Graphics::Callable
   end
 end

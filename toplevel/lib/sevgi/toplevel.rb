@@ -9,15 +9,15 @@ module Sevgi
 
       private
 
-        def Promote(constant, symbol = Undefined)
-          @constants[Undefined.default(symbol, constant.to_s.split("::").last.to_sym)] = constant
-        end
-
         def inject(base)
           return if base.instance_variable_defined?("@_toplevel_injected_")
 
           @constants.each { |args| (base.is_a?(::Module) ? base : base.class).const_set(*args) }
           base.instance_variable_set("@_toplevel_injected_", true)
+        end
+
+        def promote(constant, symbol = Undefined)
+          @constants[Undefined.default(symbol, constant.to_s.split("::").last.to_sym)] = constant
         end
     end
 
