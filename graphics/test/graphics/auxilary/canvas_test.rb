@@ -6,7 +6,7 @@ module Sevgi
   module Graphics
     class CanvasTest < Minitest::Test
       def test_canvas_with_origin
-        canvas = Canvas(:a4, margins: [ 3, 5 ])
+        canvas = Canvas.(:a4, margins: [ 3, 5 ])
 
         [
           210.0 - 2 * 5.0, canvas.inner.width,
