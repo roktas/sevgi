@@ -1,0 +1,103 @@
+<style>
+    :root {
+        /* Warm Workbench Theme - Light Mode */
+
+        /* Backgrounds */
+        --wt-color-bg: #faf9f7;            /* near-white with warmth */
+        --wt-color-bg-elevated: #ffffff;   /* pure white content cards */
+        --wt-color-bg-soft: #f5f3f0;       /* subtle warm gray for header/sections */
+
+        /* Borders */
+        --wt-color-border-subtle: #e8e6e3;
+
+        /* Text */
+        --wt-color-text: #2d2926;          /* warm charcoal */
+        --wt-color-text-muted: #6b635b;    /* warm gray */
+        --wt-color-text-soft: #78716a;     /* lighter warm gray, WCAG AA compliant */
+
+        /* Accents */
+        --wt-color-accent: #800080;        /* purple */
+        --wt-color-accent-soft: #fef3c7;
+        --wt-color-accent-strong: #600060;
+        --wt-color-link: #600060;
+
+        /* Craft details */
+        --wt-color-craft-brown: #8b7355;   /* h2 underlines */
+
+        /* Code */
+        --wt-color-code-bg: #f8f7f6;
+        --wt-color-code-border: #e5e3e0;
+
+        /* Shadows - using oklch for proper alpha blending */
+        --wt-shadow-soft: oklch(0% 0 0 / 0.03);
+        --wt-shadow-medium: oklch(0% 0 0 / 0.06);
+        --wt-shadow-accent: oklch(from var(--wt-color-accent) l c h / 0.15);
+        --wt-shadow-accent-strong: oklch(from var(--wt-color-accent) l c h / 0.25);
+
+        /* Terminal output colors (used by terminal shortcode) */
+        --cyan: #0a8080;
+        --green: #1b7f4b;
+        --bright-white: #ece9e6;  /* gutter background - subtle on light theme */
+        --red: #dc2626;
+        --yellow: #ca8a04;
+        --blue: #2563eb;
+        --magenta: #9333ea;
+        --bright-black: #6b7280;
+
+        /* Layout */
+        --wt-header-height: 60px;
+        --wt-main-padding-top: 40px;
+
+        /* Typography */
+        --wt-font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        --wt-font-head: "Plus Jakarta Sans", var(--wt-font-sans);
+        --wt-font-mono: "JetBrains Mono", "Fira Code", "SF Mono", Menlo, monospace;
+    }
+
+    /* Dark Mode - follows system preference */
+    @media (prefers-color-scheme: dark) {
+        :root {
+            /* Backgrounds - warm darks */
+            --wt-color-bg: #1c1b1a;
+            --wt-color-bg-elevated: #262524;
+            --wt-color-bg-soft: #222120;
+
+            /* Borders */
+            --wt-color-border-subtle: #3a3836;
+
+            /* Text - warm lights */
+            --wt-color-text: #e8e6e3;
+            --wt-color-text-muted: #a8a29e;
+            --wt-color-text-soft: #8a847e;
+
+            /* Accents - slightly brighter for dark backgrounds */
+            --wt-color-accent: #900090;
+            --wt-color-accent-soft: #422006;
+            --wt-color-accent-strong: #b000b0;
+            --wt-color-link: #c000c0;
+
+            /* Craft details - muted amber ties to brand in dark mode */
+            --wt-color-craft-brown: #92400e;
+
+            /* Code */
+            --wt-color-code-bg: #252321;
+            --wt-color-code-border: #3a3735;
+
+            /* Shadows - lighter in dark mode for visibility */
+            --wt-shadow-soft: oklch(0% 0 0 / 0.15);
+            --wt-shadow-medium: oklch(0% 0 0 / 0.25);
+            --wt-shadow-accent: oklch(from var(--wt-color-accent) l c h / 0.2);
+            --wt-shadow-accent-strong: oklch(from var(--wt-color-accent) l c h / 0.35);
+
+            /* Terminal colors - brighter for dark mode */
+            --cyan: #67d4d4;
+            --green: #4ade80;
+            --bright-white: #3a3836;  /* gutter background - subtle on dark theme */
+            --red: #f87171;
+            --yellow: #fbbf24;
+            --blue: #60a5fa;
+            --magenta: #c084fc;
+            --bright-black: #6b7280;
+        }
+    }
+</style>

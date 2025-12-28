@@ -1,0 +1,189 @@
+{% import "macros.html" as macros %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{{ config.title }}{% endblock title %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <link rel="icon" type="image/png" href="/img/favicon.png">
+
+    {% include "vars.html" %}
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+    <link rel="preload" href="{{ get_url(path='/img/logo@2x.png') }}" as="image" media="(-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi)">
+    <link rel="preload" href="{{ get_url(path='/img/logo.png') }}" as="image" media="not all and (-webkit-min-device-pixel-ratio: 2), not all and (min-resolution: 192dpi)">
+
+    <script>
+    // iOS viewport jank fix: Firefox/Chrome iOS have broken svh/lvh units that
+    // behave like dvh, causing the hero to resize when browser chrome appears.
+    // Root cause: Missing WebKit minimumViewportInset/maximumViewportInset APIs.
+    // https://github.com/mozilla-mobile/firefox-ios/issues/11574
+    //
+    // Solution: Capture height ONCE on load, set --vh-full CSS variable.
+    // CSS uses var(--vh-full, 100lvh) so iOS gets stable pixels, others get lvh.
+    (function() {
+        var isIOS = /iP(hone|ad|od)/.test(navigator.platform) ||
+                    (/Macintosh/.test(navigator.userAgent) && 'ontouchend' in document);
+        if (!isIOS) return;
+
+        var h = window.innerHeight;
+        if (h) {
+            document.documentElement.style.setProperty('--vh-full', h + 'px');
+        }
+
+        window.addEventListener('orientationchange', function() {
+            setTimeout(function() {
+                var newH = window.innerHeight;
+                if (newH) {
+                    document.documentElement.style.setProperty('--vh-full', newH + 'px');
+                }
+            }, 100);
+        });
+    })();
+    </script>
+    <meta name="view-transition" content="same-origin">
+    <meta name="description" content="{{ config.extra.site_description }}">
+
+    <!-- OpenGraph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ current_url | default(value=config.base_url) }}">
+    <meta property="og:title" content="{% if page.title %}{{ page.title }} | {{ config.title }}{% else %}{{ config.title }}{% endif %}">
+    <meta property="og:description" content="{{ config.extra.site_description }}">
+    <meta property="og:image" content="{{ config.base_url }}/img/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% if page.title %}{{ page.title }} | {{ config.title }}{% else %}{{ config.title }}{% endif %}">
+    <meta name="twitter:description" content="{{ config.extra.site_description }}">
+    <meta name="twitter:image" content="{{ config.base_url }}/img/social-card.png">
+
+    <!-- Google tag (gtag.js) -->
+
+    <link rel="stylesheet" href="/css/normalize.css">
+    <link rel="preload" href="/css/main.css" as="style">
+    <link rel="stylesheet" href="/css/main.css">
+    <!-- Syntax highlighting themes - preload and load conditionally by color scheme -->
+    <link rel="preload" href="/css/syntax+.css" as="style" media="(prefers-color-scheme: light)">
+    <link rel="preload" href="/css/syntax-.css" as="style" media="(prefers-color-scheme: dark)">
+    <link rel="stylesheet" href="/css/syntax+.css" media="(prefers-color-scheme: light)">
+    <link rel="stylesheet" href="/css/syntax-.css" media="(prefers-color-scheme: dark)">
+    <script src="/elasticlunr.min.js" defer></script>
+    <script src="/search_index.en.js" defer></script>
+    <script src="/js/search.js" defer></script>
+    <script src="/js/copy.js" defer></script>
+    <script src="/js/menu.js" defer></script>
+    <script src="//instant.page/5.2.0" type="module" integrity="sha384-jnZyxPjiipYXnSU0ygqeac2q7CVYMbh84q0uHVRRxEtvFPiQYbXWUorga2aqZJ0z"></script>
+    <script>
+    // 1Password extension bug workaround: it strips syntax highlighting spans from
+    // code blocks with language-* classes. Adding data-1p-ignore prevents this.
+    // https://1password.community/discussion/165597
+    (function() {
+        var mark = function(el) { el.setAttribute('data-1p-ignore', ''); };
+        new MutationObserver(function(mutations) {
+            mutations.forEach(function(m) {
+                m.addedNodes.forEach(function(n) {
+                    if (n.nodeType === 1) {
+                        if (n.matches && n.matches('code[class*="language-"]')) mark(n);
+                        if (n.querySelectorAll) {
+                            n.querySelectorAll('code[class*="language-"]').forEach(mark);
+                        }
+                    }
+                });
+            });
+        }).observe(document.documentElement, { childList: true, subtree: true });
+    })();
+    </script>
+</head>
+
+<body>
+    <!-- iOS 26 Liquid Glass fix: solid scrim behind translucent browser chrome -->
+    <div class="ios-chrome-scrim" aria-hidden="true"></div>
+    <header>
+        <button class="mobile-menu-toggle" aria-label="Open menu" aria-expanded="false">
+            <svg class="menu-icon" aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+            <svg class="close-icon" aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+        <a href="/">
+            <div class="logo">
+                <img src="{{ get_url(path=config.extra.logo_path) }}" srcset="{{ get_url(path='/img/logo-.png') }} 1x, {{ get_url(path='/img/logo-@2x.png') }} 2x" alt="logo" width="44" height="44" decoding="sync" fetchpriority="high">
+                {{ config.extra.logo_name }}
+            </div>
+        </a>
+        <nav>
+            <div class="search-container">
+                <input id="userinput" type="search" placeholder="Search..." aria-label="Search documentation">
+                <div id="suggestions"></div>
+            </div>
+            {% for menu in config.extra.extra_menu %}
+            <a class="nav-item" href="{{ menu.link | safe }}">{{ menu.title }}</a>
+            {% endfor %}
+        </nav>
+    </header>
+
+    <!-- Mobile menu drawer -->
+    <div class="mobile-menu-overlay" aria-hidden="true"></div>
+    <nav class="mobile-menu" aria-hidden="true">
+        <div class="mobile-menu-content">
+            <div class="mobile-menu-section">
+                {% for menu in config.extra.extra_menu %}
+                <a class="mobile-nav-item" href="{{ menu.link | safe }}">{{ menu.title }}</a>
+                {% endfor %}
+            </div>
+            <div class="mobile-menu-divider"></div>
+            <div class="mobile-menu-section mobile-menu-toc">
+                {% set docs_section = get_section(path="_index.md") %}
+                {% set current_group = "" %}
+                {% for doc_page in docs_section.pages %}
+                {% set page_group = doc_page.extra.group | default(value="") %}
+                {% if page_group != current_group and page_group != "" %}
+                <div class="mobile-toc-group">{{ page_group }}</div>
+                {% set_global current_group = page_group %}
+                {% endif %}
+                <a class="mobile-toc-item" href="{{ doc_page.permalink | safe }}">{{ doc_page.title }}</a>
+                {% endfor %}
+            </div>
+        </div>
+    </nav>
+
+    <div class="hero">
+        {% block hero %}{% endblock hero %}
+    </div>
+
+    <main>
+        {% block toc %}
+        {% set docs_section = get_section(path="_index.md") %}
+        {{ macros::toc_nav(docs_section=docs_section) }}
+        {% endblock toc %}
+
+        <div class="content" id="{% block content_id %}{% endblock content_id %}">
+            {% block content %}
+            {{ section.content | safe }}
+            {% endblock content %}
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-social">
+            <a href="https://github.com/roktas/sevgi" aria-label="GitHub" title="GitHub">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+                </svg>
+            </a>
+        </div>
+    </footer>
+</body>
+
+</html>
