@@ -25,6 +25,8 @@ module Sevgi
         suites.reject { NON_VALIDS.include?(it) }.map { self[it] }.flatten
       end
 
+      alias_method :to_a, :valids
+
       private
 
         def load(rootdir)

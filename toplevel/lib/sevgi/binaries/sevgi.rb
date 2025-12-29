@@ -54,7 +54,7 @@ module Sevgi
       private
 
         def die(error, file)
-          warn(e.message)
+          warn(error.message)
           warn("")
           error.backtrace!.each { warn("  #{it}") }
 

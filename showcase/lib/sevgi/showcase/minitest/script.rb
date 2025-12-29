@@ -5,9 +5,11 @@ module Sevgi
     class Script
       attr_reader :file
 
-      def initialize(file) = @file = sanitize(file)
+      def initialize(file) = @file = ::File.expand_path(sanitize(file))
 
       def dir              = @dir  ||= ::File.dirname(file)
+
+      def file!            = ::File.basename(file)
 
       def name             = @name ||= ::File.basename(file, ".*")
 
@@ -17,13 +19,15 @@ module Sevgi
 
       def svg?             = ::File.exist?(svg)
 
-      def svg              = @svg ||= "#{dir}/#{name}.svg"
+      def svg              = @svg ||= ::File.expand_path("#{dir}/#{name}.svg")
+
+      def svg!             = ::File.basename(svg)
 
       # A gross hack to avoid touching filesystem during testing.  Intercept the Save methods to display output in stdout
       # instead of saving an actual file.
 
       def run_passive(*)
-        warn("  ==> #{file}")
+        warn("...#{name}")
         Shell.run("sevgi", "-r", "sevgi/showcase/kludge", file, *)
       end
 

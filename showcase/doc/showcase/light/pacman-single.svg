@@ -1,10 +1,10 @@
 <svg width="200" height="100">
-  <rect id="frame" width="200" height="100" rx="5" fill="#666"/>
-  <circle id="head" cx="80" cy="50" r="40" fill="yellow"/>
-  <circle id="eye" cx="90" cy="28" r="6" fill="black"/>
-  <polygon id="mouth" points="80,50 120,20 120,80" fill="#666"/>
+  <rect id="frame" width="200" height="100" rx="5" fill="white"/>
+  <circle id="head" cx="80" cy="50" r="40" fill="orange"/>
+  <circle id="eye" cx="90" cy="28" r="6" fill="white"/>
+  <polygon id="mouth" points="80,50 120,20 120,80" fill="white"/>
   <symbol id="dot">
-    <circle cx="120" cy="50" r="6" fill="yellow"/>
+    <circle cx="120" cy="50" r="6" fill="orange"/>
   </symbol>
   <g id="dots">
     <use id="dot-1" href="#dot" class="tile-col-1 tile-col-first"/>

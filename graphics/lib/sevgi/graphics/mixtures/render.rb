@@ -143,6 +143,11 @@ module Sevgi
                 inlines.each_slice(2).each do |start, stop|
                   (start + 1..stop).each do |i|
                     output[i].map! { |line| line.lstrip }
+                    output[i].map! do |line|
+                      line.undump
+                    rescue
+                      line
+                    end
                     output[start][-1] += output[i].join(SEPARATOR)
                     output[i] = nil
                   end

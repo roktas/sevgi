@@ -65,7 +65,7 @@ module Sevgi
       end
 
       class Encoded < Content
-        def to_s                    = content.to_s.encode(xml: :text)
+        def to_s                    = content.to_s.dump.encode(xml: :text)
 
         def render(renderer, depth) = renderer.append(depth + 1, to_s)
       end
