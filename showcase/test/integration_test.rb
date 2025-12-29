@@ -5,7 +5,7 @@ require_relative "test_helper"
 require "sevgi/showcase"
 
 module Sevgi
-  EXAMPLES = Test::Suite.new(File.expand_path("#{__dir__}/../srv/examples"))
+  EXAMPLES = Test::Suite.new(File.expand_path("#{__dir__}/../srv"))
 
   class IntegrationTest < Minitest::Test
     def test_all_valid_outputs_are_identical

@@ -5,11 +5,11 @@ HEIGHT  = 150
 ENSPACE = " "
 
 STYLE = {
-  ".labels": { font:   "3pt monospace"                               },
-  ".majors": { stroke: "black", "stroke-width": 0.2                },
-  ".halves": { stroke: "black", "stroke-width": 0.1                },
-  ".minors": { stroke: "black", "stroke-width": 0.1                },
-  ".frame":  { stroke: "black", "stroke-width": 0.05, fill: "none" }
+  ".labels": { fill:   "white",  font: "3pt monospace"             },
+  ".majors": { stroke: "white", "stroke-width": 0.2                },
+  ".halves": { stroke: "white", "stroke-width": 0.1                },
+  ".minors": { stroke: "white", "stroke-width": 0.1                },
+  ".frame":  { stroke: "white", "stroke-width": 0.05, fill: "none" }
 }
 
 SVG :inkscape, :a4 do

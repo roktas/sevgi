@@ -1,0 +1,14 @@
+<svg width="200" height="100">
+  <rect id="frame" width="200" height="100" rx="5" fill="#666"/>
+  <circle id="head" cx="80" cy="50" r="40" fill="yellow"/>
+  <circle id="eye" cx="90" cy="28" r="6" fill="white"/>
+  <polygon id="mouth" points="80,50 120,20 120,80" fill="#666"/>
+  <symbol id="dot">
+    <circle cx="120" cy="50" r="6" fill="yellow"/>
+  </symbol>
+  <g id="dots">
+    <use id="dot-1" href="#dot" class="tile-col-1 tile-col-first"/>
+    <use id="dot-2" href="#dot" class="tile-col-2" x="18"/>
+    <use id="dot-3" href="#dot" class="tile-col-3 tile-col-last" x="36"/>
+  </g>
+</svg>

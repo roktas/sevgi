@@ -7,7 +7,7 @@ This is the Zola-based documentation site for Sevgi, published at sevgi.roktas.d
 Start the dev server from the docs directory:
 
 ```bash
-cd srv && zola serve -p $((10000 + RANDOM))
+cd doc && zola serve -p $((10000 + RANDOM))
 ```
 
 ### Verifying changes

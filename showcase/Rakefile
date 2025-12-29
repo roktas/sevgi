@@ -41,25 +41,68 @@ task :package if ::Dir["*.gemspec"].any?
 
 # site
 
+COLOR = {
+  "black"   => "white",
+  "#000"    => "#fff",
+  "#000000" => "#ffffff",
+}
+
 if ::Dir.exist?("srv")
-  desc "Build site examples"
-  task :"site:examples" do
-    Sevgi::Test::Suite.new("srv/examples").valids.map(&:file).each do |script|
-      sh script
+  desc "Build site showcase"
+  task :"site:showcase" do
+    warn "...Building masters"
+    (bins = Sevgi::Test::Suite.new("srv").valids.map(&:file)).each do |bin|
+      warn "   #{File.basename(bin, ".*")}"
+      sh bin, verbose: false
+    end
+
+    bins.map! { ::File.expand_path(it) }
+
+    warn "...Building lights"
+    Dir.chdir("doc/showcase/light") do
+      bins.each do |bin|
+        warn "   #{File.basename(bin, ".*")}"
+        [ bin, bin.ext("svg") ].each { cp it, ".", verbose: false }
+      end
+    end
+
+    warn "...Building darks"
+    Dir.chdir("doc/showcase/dark") do
+      bins.each do |bin|
+        warn "   #{File.basename(bin, ".*")}"
+
+        target = File.basename(bin)
+        content = ::File.read(bin)
+        COLOR.each do |key, value|
+          content.gsub!(/(['"])#{Regexp.escape(key)}\1/, "\\1#{value}\\1")
+        end
+        File.write(target, content)
+        File.chmod(0777, target)
+        sh "./#{target}", verbose: false
+      end
     end
   end
 
   desc "Build site"
   task :"site:build" do
-    Dir.chdir("srv") { sh "zola build" }
+    Dir.chdir("doc") { sh "zola build" }
   end
 
   desc "Serve site"
   task :"site:serve" do
-    Dir.chdir("srv") { sh "zola serve" }
+    require 'socket'
+
+    ip = Socket.ip_address_list.reject( &:ipv6? ).reject!(&:ipv4_loopback?).first.ip_address
+
+    Dir.chdir("doc") do
+      sh(*%W[
+        zola serve --interface 0.0.0.0 --base-url http://#{ip}
+      ])
+    end
   end
 
   task serve: [ :"site:serve" ]
+  task s:     [ :"site:serve" ]
 end
 
 # clean

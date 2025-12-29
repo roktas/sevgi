@@ -12,6 +12,7 @@
   <style type="text/css">
     <![CDATA[
       .labels {
+        fill: black;
         font: 3pt monospace;
       }
       .majors {

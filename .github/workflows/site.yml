@@ -1,7 +1,7 @@
 name: Site
 on:
-  push:              { branches: [ "main" ], paths: ["showcase/srv/**"] }
-  pull_request:      { branches: [ "main" ], paths: ["showcase/srv/**"] }
+  push:              { branches: [ "main" ], paths: ["showcase/doc/**"] }
+  pull_request:      { branches: [ "main" ], paths: ["showcase/doc/**"] }
   workflow_dispatch:
 concurrency:
   group: "pages"
@@ -15,6 +15,6 @@ jobs:
       - name: Deploy 🥁
         uses: shalzz/zola-deploy-action@v0.18.0
         env:
-          BUILD_DIR: showcase/srv
+          BUILD_DIR: showcase/doc
           PAGES_BRANCH: site
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
