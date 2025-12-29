@@ -4,7 +4,7 @@
   <circle id="eye" cx="90" cy="28" r="6" fill="black"/>
   <polygon id="mouth" points="80,50 120,20 120,80" fill="#666"/>
   <symbol id="dot">
-    <circle cx="120" cy="50" r="6" fill="yellow"/>
+    <circle cx="120" cy="50" r="6" fill="#e5c39c"/>
   </symbol>
   <g id="dots">
     <use id="dot-1" href="#dot" class="tile-col-1 tile-col-first"/>
