@@ -6,10 +6,10 @@ ENSPACE = " "
 
 STYLE = {
   ".labels": { font:   "3pt monospace"                               },
-  ".majors": { stroke: "#800080", "stroke-width": 0.2                },
-  ".halves": { stroke: "#800080", "stroke-width": 0.1                },
-  ".minors": { stroke: "#800080", "stroke-width": 0.1                },
-  ".frame":  { stroke: "#800080", "stroke-width": 0.05, fill: "none" }
+  ".majors": { stroke: "black", "stroke-width": 0.2                },
+  ".halves": { stroke: "black", "stroke-width": 0.1                },
+  ".minors": { stroke: "black", "stroke-width": 0.1                },
+  ".frame":  { stroke: "black", "stroke-width": 0.05, fill: "none" }
 }
 
 SVG :inkscape, :a4 do

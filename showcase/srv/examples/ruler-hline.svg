@@ -15,19 +15,19 @@
         font: 3pt monospace;
       }
       .majors {
-        stroke: #800080;
+        stroke: black;
         stroke-width: 0.2;
       }
       .halves {
-        stroke: #800080;
+        stroke: black;
         stroke-width: 0.1;
       }
       .minors {
-        stroke: #800080;
+        stroke: black;
         stroke-width: 0.1;
       }
       .frame {
-        stroke: #800080;
+        stroke: black;
         stroke-width: 0.05;
         fill: none;
       }
