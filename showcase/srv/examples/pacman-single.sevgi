@@ -8,7 +8,7 @@ SVG :minimal, width: 200, height: 100 do
   polygon id: "mouth", points: %w[ 80,50 120,20 120,80 ], fill: "#666"
 
   symbol id: "dot" do
-    circle cx: 120, cy: 50, r: 6, fill: "#800080"
+    circle cx: 120, cy: 50, r: 6, fill: "yellow"
   end
   g id: "dots" do
     TileX "dot", n: 3, d: 18
