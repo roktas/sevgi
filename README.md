@@ -10,7 +10,8 @@ geometric operations.
 
 ### Roadmap
 
-> [!WARNING] The project is currently in pre-alpha stage. So many things might not work and many things can change.
+> [!WARNING]
+> The project is currently in pre-alpha stage. So many things might not work and many things can change.
 
 Alpha stage
 
