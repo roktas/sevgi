@@ -43,20 +43,51 @@ module Sevgi
 
           attr_reader :root, :options, :output
 
+          class Inlines
+            Mark = Data.define(:index, :depth)
+
+            attr_reader :marks
+
+            def initialize
+              @marks = []
+            end
+
+            def mark(index, depth)
+              @marks << Mark.new(index, depth)
+            end
+
+            def join(output, indent:, separator:)
+              return if @marks.empty?
+
+              ArgumentError.("inlines array must be even sized") unless @marks.size.even?
+
+              @marks.each_slice(2).each do |start, stop|
+                depth = start.depth
+
+                (start.index + 1..stop.index).each do |i|
+                  output[i].map! { |line| line.delete_prefix(indent * (depth + 1)) }
+                  output[start.index][-1] += output[i].join(separator)
+                  output[i] = nil
+                end
+              end
+
+              output.compact!
+            end
+          end
+
           def initialize(root, **)
             @root    = root
             @options = DEFAULTS.merge(**)
             @output  = []
-            @inlines = []
+            @inlines = Inlines.new
 
             build
           end
 
           def append(depth, *lines)
-            unless lines.empty?
-              indentation = indent(depth)
-              output.append(lines.map { "#{indentation}#{it}" })
-            end
+            return if lines.empty?
+
+            output.append(lines.map { "#{depth ? indent(depth) : ""}#{it}" })
           end
 
           def call(*preambles)
@@ -137,34 +168,28 @@ module Sevgi
             SEPARATOR = "\n"
 
             def join # rubocop:disable Metrics/MethodLength
-              unless inlines.empty?
-                ArgumentError.("inlines array must be even sized") unless inlines.size.even?
-
-                inlines.each_slice(2).each do |start, stop|
-                  (start + 1..stop).each do |i|
-                    output[i].map! { |line| line.lstrip }
-                    output[start][-1] += output[i].join(SEPARATOR)
-                    output[i] = nil
-                  end
-                end
-
-                output.compact!
-              end
+              inlines.join(output, indent: options[:indent], separator: SEPARATOR)
 
               output.join(SEPARATOR)
             end
 
             def render_enter(element, depth)
               attributes(element, depth) unless floating?(element)
-              inlines << output.size - 1 if has_inline_content?(element)
+              inlines.mark(output.size - 1, depth) if has_inline_content?(element)
               contents(element, depth)
             end
 
             def render_leave(element, depth)
-              inlines << output.size if has_inline_content?(element)
+              inlines.mark(output.size, depth) if (inlined = has_inline_content?(element))
               return if closed? || floating?(element)
 
-              append(depth, (childless?(element) ? "/>" : "</#{element.name}>").to_s)
+              if childless?(element)
+                append(depth, "/>")
+              elsif inlined
+                append(nil, "</#{element.name}>")
+              else
+                append(depth, "</#{element.name}>")
+              end
             end
 
             def unclosed = @closed = false
