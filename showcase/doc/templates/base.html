@@ -71,17 +71,15 @@
     <link rel="stylesheet" href="/css/normalize.css">
     <link rel="preload" href="/css/main.css" as="style">
     <link rel="stylesheet" href="/css/main.css">
-    <!-- Syntax highlighting themes - preload and load conditionally by color scheme -->
-    <link rel="preload" href="/css/syntax+.css" as="style" media="(prefers-color-scheme: light)">
-    <link rel="preload" href="/css/syntax-.css" as="style" media="(prefers-color-scheme: dark)">
-    <link rel="stylesheet" href="/css/syntax+.css" media="(prefers-color-scheme: light)">
-    <link rel="stylesheet" href="/css/syntax-.css" media="(prefers-color-scheme: dark)">
+    <!-- Syntax highlighting themes - dynamically loaded by theme toggle -->
+    <link rel="stylesheet" href="/css/syntax+.css" id="syntax-light">
+    <link rel="stylesheet" href="/css/syntax-.css" id="syntax-dark">
     <script src="/elasticlunr.min.js" defer></script>
     <script src="/search_index.en.js" defer></script>
     <script src="/js/search.js" defer></script>
     <script src="/js/copy.js" defer></script>
     <script src="/js/menu.js" defer></script>
-    <script src="/js/toggle.js" defer></script>
+    <script src="/js/theme.js" defer></script>
     <script src="//instant.page/5.2.0" type="module" integrity="sha384-jnZyxPjiipYXnSU0ygqeac2q7CVYMbh84q0uHVRRxEtvFPiQYbXWUorga2aqZJ0z"></script>
     <script>
     // 1Password extension bug workaround: it strips syntax highlighting spans from
@@ -128,7 +126,7 @@
         </a>
         <nav>
             <button class="theme-toggle" aria-label="Toggle theme" title="Toggle dark/light mode">
-                <i class="fas fa-sun light-icon" aria-hidden="true"></i>
+                <i class="fas fa-lightbulb light-icon" aria-hidden="true"></i>
                 <i class="fas fa-moon dark-icon" aria-hidden="true"></i>
             </button>
             <div class="search-container">

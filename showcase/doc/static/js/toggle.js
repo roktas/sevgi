@@ -1,5 +1,4 @@
-// Dark/light theme switch
-
+// theme.js - save to /js/ folder and load with defer in base.html
 (function() {
   var html = document.documentElement;
   
@@ -36,8 +35,6 @@
     var btn = document.querySelector('.theme-toggle');
     if (btn) {
       btn.addEventListener('click', toggle);
-    } else {
-      console.warn('Theme toggle button not found');
     }
   }
 })();
