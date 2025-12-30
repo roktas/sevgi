@@ -1,11 +1,11 @@
 <style>
     :root {
-        /* Yazı Tipleri */
+        /* Fonts */
         --wt-font-sans: 'Inter', system-ui, -apple-system, sans-serif;
         --wt-font-head: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
         --wt-font-mono: 'JetBrains Mono', monospace;
 
-        /* Temel Renkler (Light Mode Varsayılanları) */
+        /* Base Colors */
         --wt-color-bg: #ffffff;
         --wt-color-bg-soft: #fafafa;
         --wt-color-bg-elevated: #ffffff;
@@ -13,28 +13,28 @@
         --wt-color-text-muted: #666666;
         --wt-color-text-soft: #888888;
         --wt-color-border-subtle: #e5e5e5;
-        --wt-color-link: #2563eb;
+        --wt-color-link: #800080; /* Link color aligned with theme */
         
-        /* Accent Renkleri */
-        --wt-color-accent: #d97706; /* Amber-600 */
-        --wt-color-accent-soft: #fef3c7; /* Amber-100 */
-        --wt-color-accent-strong: #b45309; /* Amber-700 */
+        /* Accent Colors - PURPLE THEME */
+        --wt-color-accent: #800080; /* Primary Purple */
+        --wt-color-accent-soft: #f8e6f8; /* Very soft purple (for backgrounds) */
+        --wt-color-accent-strong: #600060; /* Darker purple (for hover states) */
         
-        /* Kod Blokları */
+        /* Code Blocks */
         --wt-color-code-bg: #f5f5f5;
         --wt-color-code-border: #e5e5e5;
         
-        /* Gölgeler */
+        /* Shadows (Purple-based opacity) */
         --wt-shadow-soft: rgba(0, 0, 0, 0.05);
         --wt-shadow-medium: rgba(0, 0, 0, 0.1);
-        --wt-shadow-accent: rgba(217, 119, 6, 0.2);
+        --wt-shadow-accent: rgba(128, 0, 128, 0.2);
         
-        /* Header Yüksekliği */
+        /* Dimensions */
         --wt-header-height: 64px;
         --wt-main-padding-top: 40px;
     }
 
-    /* Dark Mode Değişkenleri */
+    /* Dark Mode Variables */
     @media (prefers-color-scheme: dark) {
         :root {
             --wt-color-bg: #111111;
@@ -44,7 +44,7 @@
             --wt-color-text-muted: #a3a3a3;
             --wt-color-text-soft: #737373;
             --wt-color-border-subtle: #333333;
-            --wt-color-link: #3b82f6;
+            --wt-color-link: #a333a3; /* Lighter purple for dark mode legibility */
             
             --wt-color-code-bg: #1a1a1a;
             --wt-color-code-border: #333333;
@@ -54,7 +54,7 @@
         }
     }
 
-    /* HTML attribute ile manuel tema seçimi için override */
+    /* Manual Theme Overrides */
     html[data-theme="dark"] {
         --wt-color-bg: #111111;
         --wt-color-bg-soft: #1a1a1a;
@@ -63,7 +63,7 @@
         --wt-color-text-muted: #a3a3a3;
         --wt-color-text-soft: #737373;
         --wt-color-border-subtle: #333333;
-        --wt-color-link: #3b82f6;
+        --wt-color-link: #a333a3;
         --wt-color-code-bg: #1a1a1a;
         --wt-color-code-border: #333333;
     }
@@ -76,7 +76,7 @@
         --wt-color-text-muted: #666666;
         --wt-color-text-soft: #888888;
         --wt-color-border-subtle: #e5e5e5;
-        --wt-color-link: #2563eb;
+        --wt-color-link: #800080;
         --wt-color-code-bg: #f5f5f5;
         --wt-color-code-border: #e5e5e5;
     }

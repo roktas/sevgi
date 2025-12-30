@@ -275,6 +275,18 @@ html[data-theme="dark"] .theme-toggle .dark-icon {
 
 /*
  * -----------------------------------------------------------------------------
+ * Mobile Theme Toggle
+ * -----------------------------------------------------------------------------
+ */
+
+/* Hide on desktop by default */
+.mobile-theme-toggle {
+  display: none;
+}
+
+
+/*
+ * -----------------------------------------------------------------------------
  * Search - Dropdown style (elasticlunr)
  * -----------------------------------------------------------------------------
  */
@@ -1222,62 +1234,6 @@ body.mobile-menu-open {
   }
 }
 
-@media screen and (max-width: 768px) {
-  :root {
-    --wt-header-height: 50px;
-    --wt-main-padding-top: 20px;
-  }
-  body {
-    font-size: 16px;
-  }
-  header {
-    height: calc(var(--wt-header-height) + env(safe-area-inset-top, 0px));
-    padding: 10px 20px;
-    padding-top: calc(env(safe-area-inset-top, 0px) + 10px);
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-  }
-  /* Hide desktop nav on mobile */
-  header nav {
-    display: none;
-  }
-  main {
-    padding: var(--wt-main-padding-top);
-    flex-direction: column;
-  }
-  .content {
-    padding: 1rem 16px;
-    border-radius: 12px;
-  }
-  h1,
-  .heading-text {
-    font-size: 1.5rem;
-  }
-  h2 {
-    font-size: 1.25rem;
-  }
-  /* Note: .hero styling for mobile is now handled partly by the max-width: 900px block above */
-  .hero {
-    /* Use min-height to allow content to expand vertically */
-    min-height: calc(
-      var(--vh-full, 100lvh) - var(--wt-header-height) -
-        env(safe-area-inset-top, 0px)
-    );
-    padding: 2rem 20px;
-  }
-  .hero .heading-text {
-    font-size: 2rem;
-  }
-  .toc {
-    display: none;
-  }
-  .mobile-menu-toggle {
-    display: flex;
-  }
-}
-
 /*
  * -----------------------------------------------------------------------------
  * View Transitions (smooth page navigation)
@@ -1695,5 +1651,110 @@ button.explore-more {
   }
   .tabs .input:checked + .label + .panel.svg-panel {
     display: flex;
+  }
+}
+
+/*
+ * -----------------------------------------------------------------------------
+ * MOBILE - MAIN BREAKPOINT (Final Overrides)
+ * -----------------------------------------------------------------------------
+ */
+
+@media screen and (max-width: 768px) {
+  :root {
+    --wt-header-height: 50px;
+    --wt-main-padding-top: 20px;
+  }
+  body {
+    font-size: 16px;
+  }
+  
+  /* Header Layout: Flexbox container */
+  header {
+    height: calc(var(--wt-header-height) + env(safe-area-inset-top, 0px));
+    padding: 10px 20px;
+    padding-top: calc(env(safe-area-inset-top, 0px) + 10px);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    /* Spacing between left (menu) and right (logo/toggle) */
+    justify-content: space-between;
+    gap: 0;
+  }
+
+  /* Hide desktop navigation */
+  header nav {
+    display: none;
+  }
+
+  /* Hamburger Menu (Left) */
+  .mobile-menu-toggle {
+    display: flex;
+    /* Pushes everything else to the right, just in case */
+    margin-right: auto;
+  }
+  
+  /* CRITICAL: Completely hide the text next to the logo on mobile */
+  .logo .logo-text {
+    display: none !important;
+  }
+  
+  /* Logo Link Wrapper - ensure it's flex to remove weird anchor spacing */
+  header > a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+  }
+
+  /* Logo Container */
+  .logo {
+    display: flex;
+    align-items: center;
+    margin: 0;
+  }
+  
+  /* Logo Icon Sizing - slightly smaller on mobile for better proportions */
+  .logo img {
+    height: 32px; 
+    width: auto;
+  }
+
+  /* Theme Toggle Button (Right) */
+  .mobile-theme-toggle {
+    display: flex;
+    /* Reasonable gap between logo and toggle */
+    margin-left: 1.5rem; 
+  }
+
+  /* Main Content Adjustments */
+  main {
+    padding: var(--wt-main-padding-top);
+    flex-direction: column;
+  }
+  .content {
+    padding: 1rem 16px;
+    border-radius: 12px;
+  }
+  
+  /* Typography Adjustments */
+  h1, .heading-text {
+    font-size: 1.5rem;
+  }
+  h2 {
+    font-size: 1.25rem;
+  }
+  
+  /* Hero Section Adjustments */
+  .hero {
+    min-height: calc(var(--vh-full, 100lvh) - var(--wt-header-height) - env(safe-area-inset-top, 0px));
+    padding: 2rem 20px;
+  }
+  .hero .heading-text {
+    font-size: 2rem;
+  }
+  
+  /* Hide Table of Contents */
+  .toc {
+    display: none;
   }
 }
