@@ -99,8 +99,8 @@ if ::Dir.exist?("srv")
     files = []
 
     bins.each do |bin|
-      file (target = ::File.expand_path("#{dir}/#{bin.file!}")) => bin.file do |t|
-        if File.exist?(cfg = bin.file.ext("yml")) && (yaml = YAML.load_file(cfg)) && (color = yaml["dark"])
+      file (target = ::File.expand_path("#{dir}/#{bin.file!}")) => [ bin.file, bin.yml ] do |t|
+        if File.exist?(cfg = bin.yml) && (yaml = YAML.load_file(cfg)) && (color = yaml["dark"])
           say("***", t.name)
 
           content = ::File.read(t.source)

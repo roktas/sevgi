@@ -23,6 +23,10 @@ module Sevgi
 
       def svg!             = ::File.basename(svg)
 
+      def yml              = @yml ||= ::File.expand_path("#{dir}/#{name}.yml")
+
+      def yml!             = ::File.basename(yml)
+
       # A gross hack to avoid touching filesystem during testing.  Intercept the Save methods to display output in stdout
       # instead of saving an actual file.
 

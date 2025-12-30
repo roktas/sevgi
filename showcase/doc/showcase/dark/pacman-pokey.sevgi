@@ -2,15 +2,15 @@
 # frozen_string_literal: true
 
 SVG width: 100, height: 100 do
-  rect x: 0, y: 0, width: 100, height: 100, fill: "#262524"
+  rect x: 0, y: 0, width: 100, height: 100, fill: "#222222"
   circle cx: 50, cy: 50, r: 40, fill: "#e5c39c"
   rect x: 10, y: 50, width: 80, height: 50, fill: "#e5c39c"
 
   [ 25, 50 ].each do |x|
-    circle cx: x, cy: 40, r: 8, fill: "#262524"
+    circle cx: x, cy: 40, r: 8, fill: "#222222"
   end
 
-  path fill: "#262524", d: %w[
+  path fill: "#222222", d: %w[
     M11 100 l13 -15 l13 15 l13 -15
     l13 15 l13 -15 l13 15 Z
   ]
