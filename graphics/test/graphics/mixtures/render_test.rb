@@ -22,6 +22,21 @@ module Sevgi
           assert_equal(expected, actual)
         end
 
+        focus
+        def test_render_text_element_with_spaced_string
+          expected = <<~SVG.chomp
+            <svg>
+              <text>foo  bar </text>
+            </svg>
+          SVG
+
+          actual = SVG DOC do
+            text "  foo  bar "
+          end.Render
+
+          assert_equal(expected, actual)
+        end
+
         def test_render_text_element_with_special_string
           expected = <<~SVG.chomp
             <svg>
