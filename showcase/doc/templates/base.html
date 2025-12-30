@@ -81,6 +81,7 @@
     <script src="/js/search.js" defer></script>
     <script src="/js/copy.js" defer></script>
     <script src="/js/menu.js" defer></script>
+    <script src="/js/toggle.js" defer></script>
     <script src="//instant.page/5.2.0" type="module" integrity="sha384-jnZyxPjiipYXnSU0ygqeac2q7CVYMbh84q0uHVRRxEtvFPiQYbXWUorga2aqZJ0z"></script>
     <script>
     // 1Password extension bug workaround: it strips syntax highlighting spans from
@@ -126,6 +127,10 @@
             </div>
         </a>
         <nav>
+            <button class="theme-toggle" aria-label="Toggle theme" title="Toggle dark/light mode">
+                <i class="fas fa-sun light-icon" aria-hidden="true"></i>
+                <i class="fas fa-moon dark-icon" aria-hidden="true"></i>
+            </button>
             <div class="search-container">
                 <input id="userinput" type="search" placeholder="Search..." aria-label="Search documentation">
                 <div id="suggestions"></div>

@@ -215,6 +215,66 @@ nav {
 
 /*
  * -----------------------------------------------------------------------------
+ * Dark/Light Toggle
+ * -----------------------------------------------------------------------------
+ */
+
+.theme-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.4rem;
+  color: var(--wt-color-text-muted);
+  transition: color 150ms;
+  display: flex;
+  align-items: center;
+  margin-right: 0.5rem;
+}
+
+.theme-toggle:hover {
+  color: var(--wt-color-text);
+}
+
+.theme-toggle i {
+  font-size: 1.1rem;
+}
+
+.theme-toggle .light-icon {
+  display: none;
+}
+
+.theme-toggle .dark-icon {
+  display: block;
+}
+
+@media (prefers-color-scheme: dark) {
+  .theme-toggle .light-icon {
+    display: block;
+  }
+  .theme-toggle .dark-icon {
+    display: none;
+  }
+}
+
+/* User preference overrides */
+html[data-theme="light"] .theme-toggle .light-icon {
+  display: none;
+}
+
+html[data-theme="light"] .theme-toggle .dark-icon {
+  display: block;
+}
+
+html[data-theme="dark"] .theme-toggle .light-icon {
+  display: block;
+}
+
+html[data-theme="dark"] .theme-toggle .dark-icon {
+  display: none;
+}
+
+/*
+ * -----------------------------------------------------------------------------
  * Search - Dropdown style (elasticlunr)
  * -----------------------------------------------------------------------------
  */
@@ -908,23 +968,33 @@ footer {
 @media (prefers-color-scheme: dark) {
   .hero {
     background: radial-gradient(
-        ellipse 80% 60% at 70% 40%,
-        rgba(245, 158, 11, 0.08) 0%,
-        rgba(0, 0, 0, 0) 60%
-      ),
-      radial-gradient(
-        ellipse 50% 40% at 30% 70%,
-        rgba(139, 115, 85, 0.06) 0%,
-        rgba(0, 0, 0, 0) 50%
+        ellipse 60% 50% at 50% 30%,
+        rgba(144, 0, 144, 0.08) 0%,
+        rgba(0, 0, 0, 0) 70%
       ),
       var(--wt-color-bg-soft);
   }
   .hero .hero-image {
-    filter: drop-shadow(0 8px 24px rgba(245, 158, 11, 0.2));
+    filter: drop-shadow(0 8px 24px rgba(144, 0, 144, 0.2));
   }
   .hero .hero-image:hover {
-    filter: drop-shadow(0 12px 32px rgba(245, 158, 11, 0.3));
+    filter: drop-shadow(0 12px 32px rgba(144, 0, 144, 0.3));
   }
+}
+/* Dark mode override for manual theme selection */
+html[data-theme="dark"] .hero {
+  background: radial-gradient(
+      ellipse 60% 50% at 50% 30%,
+      rgba(144, 0, 144, 0.08) 0%,
+      rgba(0, 0, 0, 0) 70%
+    ),
+    var(--wt-color-bg-soft);
+}
+html[data-theme="dark"] .hero .hero-image {
+  filter: drop-shadow(0 8px 24px rgba(144, 0, 144, 0.2));
+}
+html[data-theme="dark"] .hero .hero-image:hover {
+  filter: drop-shadow(0 12px 32px rgba(144, 0, 144, 0.3));
 }
 /* Primary button */
 .button {
