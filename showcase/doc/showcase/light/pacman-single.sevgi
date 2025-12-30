@@ -3,12 +3,12 @@
 SVG :minimal, width: 200, height: 100 do
   rect id: "frame", width: 200, height: 100, rx: 5, fill: "white"
 
-  circle id: "head", cx: 80, cy: 50, r: 40, fill: "orange"
+  circle id: "head", cx: 80, cy: 50, r: 40, fill: "purple"
   circle id: "eye", cx: 90, cy: 28, r: 6, fill: "white"
   polygon id: "mouth", points: %w[ 80,50 120,20 120,80 ], fill: "white"
 
   symbol id: "dot" do
-    circle cx: 120, cy: 50, r: 6, fill: "orange"
+    circle cx: 120, cy: 50, r: 6, fill: "purple"
   end
   g id: "dots" do
     TileX "dot", n: 3, d: 18
