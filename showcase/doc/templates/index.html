@@ -3,7 +3,7 @@
 {% block hero %}
 <div class="hero-header">
   <section class="text-center welcome">
-    <h1 class="heading-text" style="font-size: 50px"><a href="#Sevgi" class="heading-anchor">Sevgi</a></h1>
+    <h1 class="heading-text" style="font-size: 50px"><a href="#showcase" class="heading-anchor">Sevgi</a></h1>
     <h3 class="title-text">
       Toolkit to create SVG content <b style="white-space: nowrap">with Ruby</b>
     </h3>
@@ -41,12 +41,12 @@
 {{ macros::toc_nav(docs_section=docs_section) }}
 {% endblock toc %}
 
-{% block content_id %}sevgi{% endblock content_id %}
+{% block content_id %}showcase{% endblock content_id %}
 
 {% block content %}
-{# Display sevgi content directly on homepage #}
+{# Display showcase content directly on homepage #}
 {% set docs_section = get_section(path="_index.md") %}
-{% set sevgi = docs_section.pages | filter(attribute="slug", value="sevgi") | first %}
-<h1 class="heading-text"><a href="#sevgi" class="heading-anchor">{{ sevgi.title }}</a></h1>
-{{ sevgi.content | safe }}
+{% set showcase = docs_section.pages | filter(attribute="slug", value="showcase") | first %}
+<h1 class="heading-text"><a href="#showcase" class="heading-anchor">{{ showcase.title }}</a></h1>
+{{ showcase.content | safe }}
 {% endblock content %}

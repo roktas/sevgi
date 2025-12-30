@@ -13,4 +13,4 @@ logo_name                  = "Sevgi"
 logo_path                  = "/img/logo-.png"
 github_repo                = "roktas/sevgi"
 site_description           = "Toolkit to create SVG content with Ruby."
-extra_menu                 = [ { title = "Sevgi", link = "/sevgi" } ]
+extra_menu                 = [ { title = "Showcase", link = "/showcase" } ]
