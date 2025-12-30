@@ -44,29 +44,23 @@ module Sevgi
           attr_reader :root, :options, :output
 
           class Inlines
-            Mark = Data.define(:index, :depth)
+            Mark = Struct.new(:start, :stop, :depth)
 
-            attr_reader :marks
+            def initialize          = @marks = []
 
-            def initialize
-              @marks = []
-            end
+            def start(index, depth) = @marks << Mark.new(start: index, depth:)
 
-            def mark(index, depth)
-              @marks << Mark.new(index, depth)
-            end
+            def stop(index)         = @marks.last.stop = index
 
             def join(output, indent:, separator:)
               return if @marks.empty?
 
-              ArgumentError.("inlines array must be even sized") unless @marks.size.even?
+              @marks.each do |mark|
+                depth = mark.depth
 
-              @marks.each_slice(2).each do |start, stop|
-                depth = start.depth
-
-                (start.index + 1..stop.index).each do |i|
+                (mark.start + 1..mark.stop).each do |i|
                   output[i].map! { |line| line.delete_prefix(indent * (depth + 1)) }
-                  output[start.index][-1] += output[i].join(separator)
+                  output[mark.start][-1] += output[i].join(separator)
                   output[i] = nil
                 end
               end
@@ -114,7 +108,12 @@ module Sevgi
             def attributes_inline(element, depth, lines)
               line = "<#{[ element.name, *lines ].join(" ")}"
 
-              append(depth, (childless?(element) ? "#{line}/>".tap { closed } : "#{line}>"))
+              if childless?(element)
+                closed
+                append(depth, "#{line}/>")
+              else
+                append(depth, "#{line}>")
+              end
             end
 
             def build
@@ -167,20 +166,19 @@ module Sevgi
 
             SEPARATOR = "\n"
 
-            def join # rubocop:disable Metrics/MethodLength
+            def join
               inlines.join(output, indent: options[:indent], separator: SEPARATOR)
-
               output.join(SEPARATOR)
             end
 
             def render_enter(element, depth)
               attributes(element, depth) unless floating?(element)
-              inlines.mark(output.size - 1, depth) if has_inline_content?(element)
+              inlines.start(output.size - 1, depth) if has_inline_content?(element)
               contents(element, depth)
             end
 
             def render_leave(element, depth)
-              inlines.mark(output.size, depth) if (inlined = has_inline_content?(element))
+              inlines.stop(output.size) if (inlined = has_inline_content?(element))
               return if closed? || floating?(element)
 
               if childless?(element)
@@ -199,9 +197,9 @@ module Sevgi
 
         private_constant :Renderer
 
-        def Render(**)                  = Renderer.(self, **)
+        def Render(**)                         = Renderer.(self, **)
 
-        def Render!(separator = "\n\n") = children.map { |child| child.Render! }.join(separator)
+        def Render!(separator = SEPARATOR * 2) = children.map { |child| child.Render! }.join(separator)
       end
     end
   end
