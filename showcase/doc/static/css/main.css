@@ -228,7 +228,7 @@ nav {
   transition: color 150ms;
   display: flex;
   align-items: center;
-  margin-right: 0.5rem;
+  margin-left: 0.5rem;
 }
 
 .theme-toggle:hover {

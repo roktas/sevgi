@@ -115,10 +115,6 @@
         </a>
 
         <nav>
-            <button class="theme-toggle" aria-label="Toggle theme" title="Toggle dark/light mode">
-                <i class="fas fa-sun light-icon" aria-hidden="true"></i>
-                <i class="fas fa-moon dark-icon" aria-hidden="true"></i>
-            </button>
             <div class="search-container">
                 <input id="userinput" type="search" placeholder="Search..." aria-label="Search documentation">
                 <div id="suggestions"></div>
@@ -126,6 +122,10 @@
             {% for menu in config.extra.extra_menu %}
             <a class="nav-item" href="{{ menu.link | safe }}">{{ menu.title }}</a>
             {% endfor %}
+            <button class="theme-toggle" aria-label="Toggle theme" title="Toggle dark/light mode">
+                <i class="fas fa-sun light-icon" aria-hidden="true"></i>
+                <i class="fas fa-moon dark-icon" aria-hidden="true"></i>
+            </button>
         </nav>
 
         <button class="theme-toggle mobile-theme-toggle" aria-label="Toggle theme" title="Toggle dark/light mode">
