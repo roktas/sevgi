@@ -8,11 +8,6 @@ create pixel-perfect graphics without using a vector graphics editor in certain 
 design, you can easily add custom features and use a rich set of methods, especially for tiling, hatching and various
 geometric operations.
 
-<p align="center"><img src="showcase/srv/static/assets/light/logo.svg#gh-light-mode-only"/></p>
-<p align="center"><img src="showcase/srv/static/assets/dark/logo.svg#gh-dark-mode-only"/></p>
-
-<p align="center"><img src="showcase/srv/static/assets/light/pacman-animation.png"/></p>
-
 ### Roadmap
 
 > [!WARNING] The project is currently in pre-alpha stage. So many things might not work and many things can change.
