@@ -147,7 +147,8 @@ mode.
 
 ## Roadmap
 
-> [!WARNING] The project is currently in the pre-alpha stage, so many things might not work and many things can change.
+> [!WARNING]
+> The project is currently in the alpha stage, so many things might not work and many things can change.
 
 Alpha stage
 
