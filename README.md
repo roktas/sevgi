@@ -148,6 +148,7 @@ mode.
 ## Roadmap
 
 > [!WARNING]
+>
 > The project is currently in the alpha stage, so many things might not work and many things can change.
 
 Alpha stage
@@ -169,8 +170,9 @@ Final stage
 ## AI Usage Policy
 
 > [!NOTE]
-> Project code before version 0.42.0 was written manually, without AI assistance.
-> Starting with version 0.42.0, AI assistance is used actively, especially for tests and documentation.
+>
+> Project code before version 0.42.0 was written manually, without AI assistance. Starting with version 0.42.0, AI
+> assistance is used actively, especially for tests and documentation.
 
 AI is now an active part of the development workflow. However, every AI-generated code change is reviewed line by line
 by a human maintainer before it is added to the codebase.
