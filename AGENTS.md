@@ -148,6 +148,11 @@ bundle exec rake lint
 ## Development Notes
 
 - Native export code in `sundries` depends on Cairo/RSVG-related system libraries. CI installs these before Bundler.
+- Releases are published from GitHub Releases, not from plain tag pushes. Publishing a GitHub Release triggers
+  `.github/workflows/release.yml`, which uses `rubygems/release-gem`.
+- The root `rake release` task publishes all component gems in dependency order. Make sure every published gem has a
+  matching RubyGems Trusted Publisher entry for `.github/workflows/release.yml`.
+- Keep `rubygems/release-gem` attestations disabled unless the OpenSSL/Bundler default-gem conflict has been resolved.
 - When changing export behavior, run at least `bundle exec rake sundries:test`.
 - When changing DSL rendering behavior, run the owning component tests and consider `bundle exec rake showcase:test`
   because showcase examples catch rendered-output regressions.
