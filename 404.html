@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Sevgi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <link rel="icon" type="image/png" href="/img/favicon.png">
+    <link rel="icon" type="image/svg+xml" href="/img/favicon.svg">
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+
+    <style>
+    :root {
+        /* Fonts */
+        --wt-font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+        --wt-font-head: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+        --wt-font-mono: 'JetBrains Mono', monospace;
+
+        /* Base Colors */
+        --wt-color-bg: #ffffff;
+        --wt-color-bg-soft: #fafafa;
+        --wt-color-bg-elevated: #ffffff;
+        --wt-color-text: #1a1a1a;
+        --wt-color-text-muted: #666666;
+        --wt-color-text-soft: #888888;
+        --wt-color-border-subtle: #e5e5e5;
+        --wt-color-link: #800080; /* Link color aligned with theme */
+        
+        /* Accent Colors - PURPLE THEME */
+        --wt-color-accent: #800080; /* Primary Purple */
+        --wt-color-accent-soft: #f8e6f8; /* Very soft purple (for backgrounds) */
+        --wt-color-accent-strong: #600060; /* Darker purple (for hover states) */
+        
+        /* Code Blocks */
+        --wt-color-code-bg: #f5f5f5;
+        --wt-color-code-border: #e5e5e5;
+        
+        /* Shadows (Purple-based opacity) */
+        --wt-shadow-soft: rgba(0, 0, 0, 0.05);
+        --wt-shadow-medium: rgba(0, 0, 0, 0.1);
+        --wt-shadow-accent: rgba(128, 0, 128, 0.2);
+        
+        /* Dimensions */
+        --wt-header-height: 64px;
+        --wt-main-padding-top: 40px;
+    }
+
+    /* Dark Mode Variables */
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --wt-color-bg: #111111;
+            --wt-color-bg-soft: #1a1a1a;
+            --wt-color-bg-elevated: #222222;
+            --wt-color-text: #e5e5e5;
+            --wt-color-text-muted: #a3a3a3;
+            --wt-color-text-soft: #737373;
+            --wt-color-border-subtle: #333333;
+            --wt-color-link: #a333a3; /* Lighter purple for dark mode legibility */
+            
+            --wt-color-code-bg: #1a1a1a;
+            --wt-color-code-border: #333333;
+            
+            --wt-shadow-soft: rgba(0, 0, 0, 0.3);
+            --wt-shadow-medium: rgba(0, 0, 0, 0.5);
+        }
+    }
+
+    /* Manual Theme Overrides */
+    html[data-theme="dark"] {
+        --wt-color-bg: #111111;
+        --wt-color-bg-soft: #1a1a1a;
+        --wt-color-bg-elevated: #222222;
+        --wt-color-text: #e5e5e5;
+        --wt-color-text-muted: #a3a3a3;
+        --wt-color-text-soft: #737373;
+        --wt-color-border-subtle: #333333;
+        --wt-color-link: #a333a3;
+        --wt-color-code-bg: #1a1a1a;
+        --wt-color-code-border: #333333;
+    }
+
+    html[data-theme="light"] {
+        --wt-color-bg: #ffffff;
+        --wt-color-bg-soft: #fafafa;
+        --wt-color-bg-elevated: #ffffff;
+        --wt-color-text: #1a1a1a;
+        --wt-color-text-muted: #666666;
+        --wt-color-text-soft: #888888;
+        --wt-color-border-subtle: #e5e5e5;
+        --wt-color-link: #800080;
+        --wt-color-code-bg: #f5f5f5;
+        --wt-color-code-border: #e5e5e5;
+    }
+</style>
+
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+    <link rel="preload" href="https://sevgi.roktas.dev/img/logo@2x.png" as="image" media="(-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi)">
+    <link rel="preload" href="https://sevgi.roktas.dev/img/logo.png" as="image" media="not all and (-webkit-min-device-pixel-ratio: 2), not all and (min-resolution: 192dpi)">
+
+    <script>
+    // iOS viewport jank fix
+    (function() {
+        var isIOS = /iP(hone|ad|od)/.test(navigator.platform) ||
+                    (/Macintosh/.test(navigator.userAgent) && 'ontouchend' in document);
+        if (!isIOS) return;
+
+        var h = window.innerHeight;
+        if (h) {
+            document.documentElement.style.setProperty('--vh-full', h + 'px');
+        }
+
+        window.addEventListener('orientationchange', function() {
+            setTimeout(function() {
+                var newH = window.innerHeight;
+                if (newH) {
+                    document.documentElement.style.setProperty('--vh-full', newH + 'px');
+                }
+            }, 100);
+        });
+    })();
+    </script>
+    <meta name="view-transition" content="same-origin">
+    <meta name="description" content="Toolkit to create SVG content with Ruby.">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https:&amp;#x2F;&amp;#x2F;sevgi.roktas.dev&amp;#x2F;">
+    <meta property="og:title" content="Sevgi">
+    <meta property="og:description" content="Toolkit to create SVG content with Ruby.">
+    <meta property="og:image" content="https:&#x2F;&#x2F;sevgi.roktas.dev&#x2F;/img/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Sevgi">
+    <meta name="twitter:description" content="Toolkit to create SVG content with Ruby.">
+    <meta name="twitter:image" content="https:&#x2F;&#x2F;sevgi.roktas.dev&#x2F;/img/social-card.png">
+
+    <link rel="stylesheet" href="/css/normalize.css">
+    <link rel="preload" href="/css/main.css" as="style">
+    <link rel="stylesheet" href="/css/main.css">
+    
+    <link rel="stylesheet" href="/css/syntax+.css" id="syntax-light">
+    <link rel="stylesheet" href="/css/syntax-.css" id="syntax-dark">
+    
+    <script src="/js/toggle.js"></script>
+    <script src="/elasticlunr.min.js" defer></script>
+    <script src="/search_index.en.js" defer></script>
+    <script src="/js/search.js" defer></script>
+    <script src="/js/copy.js" defer></script>
+    <script src="/js/menu.js" defer></script>
+    <script src="//instant.page/5.2.0" type="module" integrity="sha384-jnZyxPjiipYXnSU0ygqeac2q7CVYMbh84q0uHVRRxEtvFPiQYbXWUorga2aqZJ0z"></script>
+    <script>
+    // 1Password extension bug workaround
+    (function() {
+        var mark = function(el) { el.setAttribute('data-1p-ignore', ''); };
+        new MutationObserver(function(mutations) {
+            mutations.forEach(function(m) {
+                m.addedNodes.forEach(function(n) {
+                    if (n.nodeType === 1) {
+                        if (n.matches && n.matches('code[class*="language-"]')) mark(n);
+                        if (n.querySelectorAll) {
+                            n.querySelectorAll('code[class*="language-"]').forEach(mark);
+                        }
+                    }
+                });
+            });
+        }).observe(document.documentElement, { childList: true, subtree: true });
+    })();
+    </script>
+</head>
+
+<body>
+    <div class="ios-chrome-scrim" aria-hidden="true"></div>
+    <header>
+        <button class="mobile-menu-toggle" aria-label="Open menu" aria-expanded="false">
+            <svg class="menu-icon" aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+            <svg class="close-icon" aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+
+        <a href="/" class="logo-link">
+            <div class="logo">
+                <img src="https://sevgi.roktas.dev/img/logo-.png" srcset="https://sevgi.roktas.dev/img/logo-.png 1x, https://sevgi.roktas.dev/img/logo-@2x.png 2x" alt="logo" width="44" height="44" decoding="sync" fetchpriority="high">
+                <span class="logo-text">Sevgi</span>
+            </div>
+        </a>
+
+        <nav>
+            <div class="search-container">
+                <input id="userinput" type="search" placeholder="Search..." aria-label="Search documentation">
+                <div id="suggestions"></div>
+            </div>
+            
+            <a class="nav-item" href="/showcase">Showcase</a>
+            
+            <button class="theme-toggle" aria-label="Toggle theme" title="Toggle dark/light mode">
+                <i class="fas fa-sun light-icon" aria-hidden="true"></i>
+                <i class="fas fa-moon dark-icon" aria-hidden="true"></i>
+            </button>
+        </nav>
+
+        <button class="theme-toggle mobile-theme-toggle" aria-label="Toggle theme" title="Toggle dark/light mode">
+            <i class="fas fa-sun light-icon" aria-hidden="true"></i>
+            <i class="fas fa-moon dark-icon" aria-hidden="true"></i>
+        </button>
+    </header>
+
+    <div class="mobile-menu-overlay" aria-hidden="true"></div>
+    <nav class="mobile-menu" aria-hidden="true">
+        <div class="mobile-menu-content">
+            <div class="mobile-menu-section">
+                
+                <a class="mobile-nav-item" href="/showcase">Showcase</a>
+                
+            </div>
+            <div class="mobile-menu-divider"></div>
+            <div class="mobile-menu-section mobile-menu-toc">
+                
+                
+                
+                
+                
+                <a class="mobile-toc-item" href="https://sevgi.roktas.dev/showcase/">Showcase</a>
+                
+            </div>
+        </div>
+    </nav>
+
+    <div class="hero">
+        
+<style>
+  .error-404 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 0 2rem;
+    min-height: calc(50vh - var(--wt-header-height));
+  }
+
+  .error-code {
+    font-family: var(--wt-font-mono);
+    font-size: clamp(4rem, 15vw, 8rem);
+    font-weight: 700;
+    color: var(--wt-color-accent);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.02em;
+  }
+
+  .error-title {
+    font-family: var(--wt-font-head);
+    font-size: clamp(1.25rem, 4vw, 1.75rem);
+    font-weight: 600;
+    color: var(--wt-color-text);
+    margin-bottom: 1rem;
+  }
+
+  .error-message {
+    color: var(--wt-color-text-muted);
+    font-size: 1rem;
+    max-width: 28rem;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+  }
+
+  .error-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .error-actions a {
+    padding: 0.625rem 1.25rem;
+    border-radius: 6px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .error-actions .primary {
+    background: var(--wt-color-accent);
+    color: white;
+  }
+
+  .error-actions .primary:hover {
+    background: var(--wt-color-accent-strong);
+  }
+
+  .error-actions .secondary {
+    background: transparent;
+    color: var(--wt-color-text);
+    border: 1px solid var(--wt-color-border-subtle);
+  }
+
+  .error-actions .secondary:hover {
+    border-color: var(--wt-color-text-muted);
+  }
+</style>
+<section class="error-404">
+  <div class="error-code">404</div>
+  <h1 class="error-title">Sevgi not found</h1>
+  <p class="error-message">
+    Sevgi not found.
+  </p>
+  <div class="error-actions">
+    <a href="/" class="primary">Back to Docs</a>
+    <a href="https://github.com/roktas/sevgi" class="secondary">View on GitHub</a>
+  </div>
+</section>
+
+    </div>
+
+    <main>
+        
+
+
+        <div class="content" id="">
+            
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-social">
+            <a href="https://github.com/roktas/sevgi" aria-label="GitHub" title="GitHub">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.399 1.02 0 2.047.133 3.006.4 2.29-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                            </svg>            </a>
+        </div>
+    </footer>
+</body>
+</html>
