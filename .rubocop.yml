@@ -1,0 +1,82 @@
+inherit_from: .rubocop_todo.yml
+inherit_gem:  { rubocop-rails-omakase: rubocop.yml }
+
+plugins:
+  - "rubocop-md"
+  - "rubocop-packaging"
+  - "rubocop-rake"
+
+Layout/ExtraSpacing:
+  Exclude: 
+    - "**/standard/**/*.rb"
+    - "**/test/**/*.rb"
+Layout/HashAlignment:
+  Enabled: true
+  EnforcedHashRocketStyle: table
+  EnforcedColonStyle: table
+Layout/LineLength:
+  Max: 140
+  Exclude: 
+    - "**/test/**/*.rb"
+Layout/MultilineArrayLineBreaks:
+  Exclude: 
+    - "**/test/**/*.rb"
+Layout/MultilineMethodArgumentLineBreaks:
+  Exclude: 
+    - "**/test/**/*.rb"
+    - "**/standard/**/color.rb"
+Layout/MultilineOperationIndentation:
+  Enabled: false
+Layout/SpaceBeforeComma:
+  Exclude:
+    - "**/standard/**/color.rb"
+
+Metrics/BlockLength:
+  Exclude: 
+    - "**/test/**/*.rb"
+    - "**/*.gemspec"
+    - "**/*.sevgi"
+Metrics/ClassLength:
+  Exclude: 
+    - "**/test/**/*.rb"
+    - "**/*.sevgi"
+Metrics/MethodLength:
+  Exclude: 
+    - "**/test/**/*.rb"
+    - "**/*.sevgi"
+
+Naming/MethodName:
+  Enabled: false
+
+Rails/RefuteMethods:
+  Enabled: false
+      
+Style/AsciiComments:
+  Enabled: false
+Style/ClassMethodsDefinitions:
+  EnforcedStyle: def_self
+  Enabled: true
+Style/Documentation:
+  Enabled: false
+Layout/IndentationConsistency:
+  EnforcedStyle: indented_internal_methods
+  Enabled: true
+Style/LambdaCall:
+  Enabled: false
+Style/ParallelAssignment:
+  Enabled: false
+Style/TrailingCommaInArguments:
+  Exclude: 
+    - "**/test/**/*.rb"
+Style/TrailingCommaInArrayLiteral:
+  Enabled: false
+
+AllCops:
+  NewCops: enable
+  Include:
+    - "**/*.rb"
+    - "**/*.sevgi"
+  Exclude:
+    - "vendor/**/*"
+    - "_/**/*"
+    - "**/_/**/*"

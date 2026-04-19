@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block hero %}
+<div class="hero-header">
+  <section class="text-center welcome">
+    <h1 class="heading-text" style="font-size: 50px"><a href="#showcase" class="heading-anchor">Sevgi</a></h1>
+    <h3 class="title-text">
+      Toolkit to create SVG content <b style="white-space: nowrap">with Ruby</b>
+    </h3>
+    <div style="display: flex; gap: 1rem; justify-content: center; align-items: center; margin-top: 1.5rem;">
+      <button class="button" onclick="window.scrollTo({top: document.querySelector('main').offsetTop - document.querySelector('header').offsetHeight, behavior: 'smooth'})">Learn More</button>
+      <a href="https://github.com/roktas/sevgi" aria-label="Star on GitHub">
+        <img src="https://img.shields.io/badge/Star-GitHub-black?style=social&logo=github" alt="Star on GitHub">
+      </a>
+    </div>
+  </section>
+  
+  <img class="hero-image" src="{{ get_url(path='img/logo.png') }}" srcset="{{ get_url(path='img/logo.png') }} 1x, {{ get_url(path='img/logo@2x.png') }} 2x" alt="Sevgi logo" decoding="sync" fetchpriority="high">
+</div>
+
+<div class="hero-features">
+  <div class="feature-item">
+    <h3>The power of Ruby <i class="fa-solid fa-bolt"></i></h3>
+    <p>Take advantage of Ruby’s elegant programming and computational power to create pixel-perfect graphics without using a vector graphics editor in certain scenarios.</p>
+  </div>
+
+  <div class="feature-item">
+    <h3>Rich helpers <i class="fa-solid fa-screwdriver-wrench"></i></h3>
+    <p>Thanks to a mixin based design, you can easily add custom features and use a rich set of methods, especially for tiling, hatching and various geometric operations.</p>
+  </div>
+
+  <div class="feature-item">
+    <h3>Neat output <i class="fa-solid fa-wand-magic-sparkles"></i></h3>
+    <p>Properly indented and informally validated SVG output to satisfy your possible aesthetic obsessions. The code produced is visually comprehensible without artificial bloats.</p>
+  </div>
+</div>
+{% endblock hero %}
+
+{% block toc %}
+{% set docs_section = get_section(path="_index.md") %}
+{{ macros::toc_nav(docs_section=docs_section) }}
+{% endblock toc %}
+
+{% block content_id %}showcase{% endblock content_id %}
+
+{% block content %}
+{# Display showcase content directly on homepage #}
+{% set docs_section = get_section(path="_index.md") %}
+{% set showcase = docs_section.pages | filter(attribute="slug", value="showcase") | first %}
+<h1 class="heading-text"><a href="#showcase" class="heading-anchor">{{ showcase.title }}</a></h1>
+{{ showcase.content | safe }}
+{% endblock content %}

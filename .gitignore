@@ -1,0 +1,11 @@
+*.old
+.codex
+.envrc
+/.VSCodeCounter/
+/.bundle/
+/.cache/
+/.local/
+/coverage/
+/pkg/
+/vendor/
+_/

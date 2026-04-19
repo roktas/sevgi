@@ -1,0 +1,16 @@
+# Zola configuration for Sevgi documentation
+base_url                   = "https://sevgi.roktas.dev/"
+title                      = "Sevgi"
+build_search_index         = true
+[markdown]
+highlight_code             = true
+highlight_theme            = "css"
+highlight_themes_css       = [ { theme = "inspired-github",   filename = "css/syntax+.css" }, { theme = "base16-ocean-dark", filename = "css/syntax-.css" } ]
+error_on_missing_highlight = true
+insert_anchor_links        = "heading"
+[extra]
+logo_name                  = "Sevgi"
+logo_path                  = "/img/logo-.png"
+github_repo                = "roktas/sevgi"
+site_description           = "Toolkit to create SVG content with Ruby."
+extra_menu                 = [ { title = "Showcase", link = "/showcase" } ]

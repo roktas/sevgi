@@ -1,0 +1,16 @@
+#!/usr/bin/env -S ruby -S sevgi
+# Example taken from: https://svg-tutorial.com/svg/use
+
+SVG :minimal, width: 200, height: 200, viewBox: "-100 -100 200 200" do
+  path id: "branch", stroke: "#e5c39c", "stroke-width": 5, d: <<~'PATH'
+    M 0 0 L 0 -90
+    M 0 -20 L 20 -34
+    M 0 -20 L -20 -34
+    M 0 -40 L 20 -54
+    M 0 -40 L -20 -54
+    M 0 -60 L 20 -74
+    M 0 -60 L -20 -74
+  PATH
+
+  60.step(300, 60) { use(href: "#branch").Rotate(it) }
+end.Save
