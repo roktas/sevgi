@@ -27,3 +27,5 @@ jobs:
       with: { bundler-cache: true }
     - name: Push 💎
       uses: rubygems/release-gem@v1
+      with:
+        attestations: false
