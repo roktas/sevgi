@@ -114,8 +114,7 @@ structure. In the example at the beginning of this document, the root tree creat
 
 ### `showcase`
 
-This component contains Sevgi examples under `srv` and the website under `doc`. The component helps prevent arbitrary
-elements or attributes from being invented through `method_missing`.
+This component contains Sevgi examples under `srv` and the website under `doc`.
 
 ### `standard` - `Sevgi::Standard`
 
