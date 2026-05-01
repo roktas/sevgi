@@ -1,0 +1,9 @@
+# frozen_string_literal: true
+
+Load "test_load_nested_1"
+
+SVG do
+  rect width: 3, height: 5
+end
+
+# vim: ft=ruby

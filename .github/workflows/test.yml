@@ -1,0 +1,23 @@
+name: Test
+on:   [push, pull_request, workflow_dispatch]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout 🛎️
+      uses: actions/checkout@v4
+    - name: Native dependencies 🧱
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          libcairo2-dev \
+          libgdk-pixbuf-2.0-dev \
+          libgirepository1.0-dev \
+          libglib2.0-dev \
+          librsvg2-dev \
+          pkg-config
+    - name: Ruby 🥁
+      uses: ruby/setup-ruby@v1
+      with: { bundler-cache: true }
+    - name: Unit 🔬
+      run: bundle exec rake test
