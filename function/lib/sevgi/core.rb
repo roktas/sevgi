@@ -6,9 +6,11 @@ module Sevgi
   EXTENSION = "sevgi"
 
   # Errors
-  class Error < StandardError
-    def self.call(...)      = raise(self, ...)
-  end unless defined?(Error)
+  unless defined?(Error)
+    class Error < StandardError
+      def self.call(*, **, &) = raise(self, *, **, &)
+    end
+  end
 
   PanicError    = Class.new(Error) unless defined?(self::PanicError) # for incorrect API usage
   ArgumentError = Class.new(Error) unless defined?(self::ArgumentError)
