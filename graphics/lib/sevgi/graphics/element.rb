@@ -54,13 +54,15 @@ module Sevgi
       module Dispatch
         extend self
 
-        def call(element, name, *, &block)
+        def call(element, name, *, &)
           # Low-hanging fruit optimization: define missing method to avoid dispatching cost
-          Element.class_exec do
-            define_method(name) { |*args, &block| self.class.element(name, *args, parent: self, &block) }
-          end unless Element.method_defined?(name)
+          unless Element.method_defined?(name)
+            Element.class_exec do
+              define_method(name) { |*args, &block| self.class.element(name, *args, parent: self, &block) }
+            end
+          end
 
-          element.public_send(name, *, &block)
+          element.public_send(name, *, &)
         end
 
         def parse(name, *args)
