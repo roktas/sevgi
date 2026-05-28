@@ -131,7 +131,7 @@ module Sevgi
       salmon: "#FA8072",
       sandybrown: "#F4A460",
       seagreen: "#2E8B57",
-      seashell: "#2E8B57",
+      seashell: "#FFF5EE",
       sienna: "#A0522D",
       silver: "#C0C0C0",
       skyblue: "#87CEEB",
