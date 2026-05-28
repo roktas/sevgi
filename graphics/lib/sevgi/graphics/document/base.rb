@@ -19,8 +19,8 @@ module Sevgi
         mixture :Validate
 
         def PreRender(**options)
-          self.Validate if options[:validate]
-          self.Lint     if options[:lint]
+          self.Validate() if options[:validate]
+          self.Lint() if options[:lint]
         end
       end
     end

@@ -8,20 +8,24 @@ module Sevgi
       class DuplicateTest < Minitest::Test
         def test_duplicate_doesnt_create_a_shallow_copy_of_attributes
           doc = SVG do
-            line(id: "original", "data-var": "main var").Duplicate[:"data-var"] = "duplicated var"
+            line(id: "original", "data-var": "main var").Duplicate()[:"data-var"] = "duplicated var"
           end
 
           [
-            2,                doc.children.size,
-            "original",       doc.children[0][:id],
-            "main var",       doc.children[0][:"data-var"],
-            "duplicated var", doc.children[1][:"data-var"]
+            2,
+            doc.children.size,
+            "original",
+            doc.children[0][:id],
+            "main var",
+            doc.children[0][:"data-var"],
+            "duplicated var",
+            doc.children[1][:"data-var"]
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
         end
 
         def test_duplicate_deletes_id_attribute_by_default
           doc = SVG do
-            line(id: "original", "data-var": "main var").Duplicate
+            line(id: "original", "data-var": "main var").Duplicate()
           end
 
           assert_nil(doc.children[1][:id])
@@ -29,8 +33,10 @@ module Sevgi
 
         def test_duplicate_can_produce_new_id_attribute
           doc = SVG do
-            line(id: "original", "data-var": "main var").Duplicate do |element|
-              element[:id] = "#{element[:"#{ATTRIBUTE_INTERNAL_PREFIX}id"]}-copy" if element[:"#{ATTRIBUTE_INTERNAL_PREFIX}id"]
+            line(id: "original", "data-var": "main var").Duplicate() do |element|
+              if element[:"#{ATTRIBUTE_INTERNAL_PREFIX}id"]
+                element[:id] = "#{element[:"#{ATTRIBUTE_INTERNAL_PREFIX}id"]}-copy"
+              end
             end
           end
 
@@ -45,23 +51,28 @@ module Sevgi
               line("data-var": "element1 of group1")
             end
 
-            group2 = group1.Duplicate
+            group2 = group1.Duplicate()
             group2.children << nil
 
             group2.children.first[:"data-var"] = "element1 of group2"
           end
 
           [
-            2, doc.children.size,
-            1, doc.children[0].children.size,
-            2, doc.children[1].children.size
+            2,
+            doc.children.size,
+            1,
+            doc.children[0].children.size,
+            2,
+            doc.children[1].children.size
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
 
           assert_nil(doc.children[1].children.last)
 
           [
-            "element1 of group1", group1.children.first[:"data-var"],
-            "element1 of group2", group2.children.first[:"data-var"]
+            "element1 of group1",
+            group1.children.first[:"data-var"],
+            "element1 of group2",
+            group2.children.first[:"data-var"]
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
         end
 
@@ -73,9 +84,10 @@ module Sevgi
               ids[:element1] = line.object_id
               ids[:element2] = line.object_id
             end
+
             ids[:group1] = group1.object_id
 
-            group2 = group1.Duplicate
+            group2 = group1.Duplicate()
             ids[:group2] = group2.object_id
 
             Within(group2) do
@@ -84,15 +96,21 @@ module Sevgi
           end
 
           [
-            2, doc.children.size,
-            2, doc.children[0].children.size,
-            3, doc.children[1].children.size
+            2,
+            doc.children.size,
+            2,
+            doc.children[0].children.size,
+            3,
+            doc.children[1].children.size
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
 
           [
-            ids.values_at(:group1, :group2),     doc.children.map(&:object_id),
-            ids.values_at(:element1, :element2), doc.children[0].children.map(&:object_id),
-            ids[:element3],                      doc.children[1].children.last.object_id
+            ids.values_at(:group1, :group2),
+            doc.children.map(&:object_id),
+            ids.values_at(:element1, :element2),
+            doc.children[0].children.map(&:object_id),
+            ids[:element3],
+            doc.children[1].children.last.object_id
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
 
           refute_equal(ids.values_at(:element1, :element2), doc.children[1].children.map(&:object_id).first(2))
@@ -110,9 +128,12 @@ module Sevgi
           assert_nil(element1[:transform])
 
           [
-            3,                doc.children.size,
-            "translate(1 0)", element2[:transform],
-            "translate(0 1)", element3[:transform]
+            3,
+            doc.children.size,
+            "translate(1 0)",
+            element2[:transform],
+            "translate(0 1)",
+            element3[:transform]
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
         end
       end

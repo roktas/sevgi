@@ -30,7 +30,7 @@ module Sevgi
               :y2
             ],
 
-            elements:   [
+            elements: [
               *Element[:Descriptive],
 
               :animate,
@@ -39,9 +39,9 @@ module Sevgi
               :stop
             ],
 
-            model:      :SomeElements
+            model: :SomeElements
           },
-          Specification[:linearGradient],
+          Specification[:linearGradient]
         )
       end
 
@@ -53,7 +53,7 @@ module Sevgi
               *Attribute[:Presentation],
               *Attribute[:Style],
 
-              :"externalResourcesRequired",
+              :externalResourcesRequired,
               :"horiz-adv-x",
               :"horiz-origin-x",
               :"horiz-origin-y",
@@ -62,25 +62,25 @@ module Sevgi
               :"vert-origin-y"
             ],
 
-            elements:   [
+            elements: [
               *Element[:Descriptive],
 
               :"font-face",
-              :"glyph",
-              :"hkern",
+              :glyph,
+              :hkern,
               :"missing-glyph",
-              :"vkern"
+              :vkern
             ],
 
-            model:      :SomeElements
+            model: :SomeElements
           },
-          Specification[:font],
+          Specification[:font]
         )
       end
     end
 
     class SpecificationConsistencyTest < Minitest::Test
-      def setup    = Specification.send(:charge)
+      def setup = Specification.send(:charge)
 
       def teardown = Specification.send(:flush)
 
@@ -88,7 +88,7 @@ module Sevgi
         Specification.data.each do |name, spec|
           next unless (elements = spec[:elements])
 
-          groups     = elements.select { |name| Specification.group?(name) }
+          groups = elements.select { |name| Specification.group?(name) }
           themselves = elements - groups
 
           duplicates = {}
@@ -109,7 +109,7 @@ module Sevgi
         Specification.data.each do |name, spec|
           next unless (attributes = spec[:attributes])
 
-          groups     = attributes.select { |name| Specification.group?(name) }
+          groups = attributes.select { |name| Specification.group?(name) }
           themselves = attributes - groups
 
           duplicates = {}

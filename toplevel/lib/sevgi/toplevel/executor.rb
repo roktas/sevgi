@@ -7,7 +7,7 @@ module Sevgi
 
   private_constant :BootBlock
 
-  def self.execute(*args, **kwargs)      = Executor.execute(*args, **kwargs, &BootBlock)
+  def self.execute(*args, **kwargs) = Executor.execute(*args, **kwargs, &BootBlock)
 
   def self.execute_file(*args, **kwargs) = Executor.execute_file(*args, **kwargs, &BootBlock)
 

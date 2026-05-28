@@ -26,6 +26,7 @@ module Sevgi
       catch(:result) do
         instance.create.call(Source.new(string:, file:, line:), receiver, &block)
       end
+
     ensure
       instance.shutdown
     end
@@ -38,12 +39,12 @@ module Sevgi
       instance.shutdown
     end
 
-    def initialize          = @scopes = []
+    def initialize = @scopes = []
 
     def create(scope = nil) = Scope.new(scope).tap { @scopes << it }
 
-    def current             = @scopes.last
+    def current = @scopes.last
 
-    def shutdown            = @scopes.pop
+    def shutdown = @scopes.pop
   end
 end

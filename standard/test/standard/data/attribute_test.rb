@@ -10,7 +10,7 @@ module Sevgi
       end
 
       def test_expand_attribute_group
-        assert_equal(%i[ onactivate onfocusin onfocusout ], Attribute[:EventGraphical])
+        assert_equal(%i[onactivate onfocusin onfocusout], Attribute[:EventGraphical])
       end
 
       def test_attribute_predicates
@@ -19,8 +19,14 @@ module Sevgi
       end
 
       def test_attribute_pick_unpick
-        assert_equal(%i[ class stroke-width style color ], Attribute.pick(%i[ class stroke-width width accelerate style color ], :Presentation, :Style))
-        assert_equal(%i[ width accelerate ], Attribute.unpick(%i[ class stroke-width width accelerate style color ], :Presentation, :Style))
+        assert_equal(
+          %i[class stroke-width style color],
+          Attribute.pick(%i[class stroke-width width accelerate style color], :Presentation, :Style)
+        )
+        assert_equal(
+          %i[width accelerate],
+          Attribute.unpick(%i[class stroke-width width accelerate style color], :Presentation, :Style)
+        )
       end
     end
   end

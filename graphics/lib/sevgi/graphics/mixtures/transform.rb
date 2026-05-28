@@ -8,8 +8,10 @@ module Sevgi
           return self unless position && inner && outer
 
           case position.to_sym
-          when :center then Translate((outer.width - inner.width) / 2.0, (outer.height - inner.height) / 2.0)
-          else              ArgumentError.("Unsupported alignment: #{position}")
+          when :center
+            Translate((outer.width - inner.width) / 2.0, (outer.height - inner.height) / 2.0)
+          else
+            ArgumentError.("Unsupported alignment: #{position}")
           end
         end
 
@@ -43,11 +45,13 @@ module Sevgi
 
         def Rotate(a, *origin)
           tap do
-            ArgumentError.("Incorrect origin (two coordinates required): #{origin}") if !origin.empty? && origin.size != 2
+            if !origin.empty? && origin.size != 2
+              ArgumentError.("Incorrect origin (two coordinates required): #{origin}")
+            end
 
             next if a.to_f == 0.0
 
-            attributes[:"transform#{ATTRIBUTE_UPDATE_SUFFIX}"] = "rotate(#{[ a, *origin ].join(", ")})"
+            attributes[:"transform#{ATTRIBUTE_UPDATE_SUFFIX}"] = "rotate(#{[a, *origin].join(", ")})"
           end
         end
 
@@ -59,7 +63,7 @@ module Sevgi
           tap do
             next if x.to_f == 0.0 && (y.nil? || y.to_f == 0.0)
 
-            attributes[:"transform#{ATTRIBUTE_UPDATE_SUFFIX}"] = "scale(#{(y ? [ x, y ] : [ x ]).join(", ")})"
+            attributes[:"transform#{ATTRIBUTE_UPDATE_SUFFIX}"] = "scale(#{(y ? [x, y] : [x]).join(", ")})"
           end
         end
 
@@ -93,7 +97,7 @@ module Sevgi
           tap do
             next if x.to_f == 0.0 && (y.nil? || y.to_f == 0.0)
 
-            attributes[:"transform#{ATTRIBUTE_UPDATE_SUFFIX}"] = "translate(#{(y ? [ x, y ] : [ x ]).join(" ")})"
+            attributes[:"transform#{ATTRIBUTE_UPDATE_SUFFIX}"] = "translate(#{(y ? [x, y] : [x]).join(" ")})"
           end
         end
       end

@@ -13,9 +13,10 @@ module Sevgi
       end
 
       def backtrace!
-        error.backtrace
+        error
+          .backtrace
           .select { |line| stack.any? { line.start_with?(::File.expand_path(it)) } }
-          .map    { |line| line.delete_prefix("#{::Dir.pwd}/") }
+          .map { |line| line.delete_prefix("#{::Dir.pwd}/") }
       end
 
       def stack = scope.stack

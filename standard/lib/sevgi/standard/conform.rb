@@ -10,12 +10,12 @@ module Sevgi
       def initialize(element)
         InvalidElementsError.(element) unless (@spec = Specification[@element = element])
 
-        raise(ModelError, "No model specified: #{element}") unless spec[:model]
-        raise(ModelError, "Model unimplemented: #{spec[:model]}") unless Model.const_defined?(spec[:model])
+        raise ModelError, "No model specified: #{element}" unless spec[:model]
+        raise ModelError, "Model unimplemented: #{spec[:model]}" unless Model.const_defined?(spec[:model])
 
         extend(Model.const_get(spec[:model]))
 
-        raise(NoMethodError, "#{self.class}#apply must be implemented") unless respond_to?(:apply)
+        raise NoMethodError, "#{self.class}#apply must be implemented" unless respond_to?(:apply)
       end
 
       def call(attributes: nil, cdata: nil, elements: nil)
@@ -33,11 +33,12 @@ module Sevgi
       @cache = {}
 
       def self.call(element, attributes: nil, cdata: nil, elements: nil)
-        Element.ignore?(element) or (@cache[element] ||= new(element)).call(
-          attributes: Attribute.concerns(attributes),
-          elements:   Element.concerns(elements),
-          cdata:
-        )
+        Element.ignore?(element) or
+          (@cache[element] ||= new(element)).call(
+            attributes: Attribute.concerns(attributes),
+            elements: Element.concerns(elements),
+            cdata:
+          )
       end
     end
 

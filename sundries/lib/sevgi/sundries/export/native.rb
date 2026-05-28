@@ -21,7 +21,7 @@ module Sevgi
         svg = block.call(svg) if block
 
         renderer = Renderer.method(format_for!(format, output))
-        handle   = Rsvg::Handle.new_from_data(svg)
+        handle = Rsvg::Handle.new_from_data(svg)
 
         iw, ih = intrinsic_size(handle)
         ExportError.("Invalid SVG dimensions") if iw <= 0 || ih <= 0
@@ -37,11 +37,11 @@ module Sevgi
           renderer.call(
             handle: handle,
             output: output.to_s,
-            iw:     iw,
-            ih:     ih,
-            tw:     tw,
-            th:     th,
-            dpi:    dpi
+            iw: iw,
+            ih: ih,
+            tw: tw,
+            th: th,
+            dpi: dpi
           )
         rescue Rsvg::Error, Cairo::Error => e
           ExportError.("Render error: #{e.message}")
@@ -53,7 +53,9 @@ module Sevgi
       AVAILABLE = (EXTENSIONS = {
         ".pdf" => :pdf,
         ".png" => :png
-      }.freeze).invert.freeze
+      }.freeze)
+        .invert
+        .freeze
 
       def format_for!(format, output)
         if format
@@ -72,7 +74,7 @@ module Sevgi
       def inject(svg, css) = svg.sub("</svg>", "<style>#{css}</style></svg>")
 
       def stamp(infile, outfile, stamp:, placeholder:)
-        doc     = HexaPDF::Document.open(infile)
+        doc = HexaPDF::Document.open(infile)
         stamped = false
 
         doc.pages.each do |page|
@@ -84,7 +86,7 @@ module Sevgi
             next unless data.include?("(#{placeholder})")
 
             data = data.gsub(
-              /1 1 1 rg (BT\s+.*?\/\S+ \d+ Tf\s+)\(#{Regexp.escape(placeholder)}\)Tj/m,
+              %r{1 1 1 rg (BT\s+.*?/\S+ \d+ Tf\s+)\(#{Regexp.escape(placeholder)}\)Tj}m,
               "0.101961 0.101961 0.101961 rg \\1(#{stamp})Tj"
             )
 
@@ -99,15 +101,16 @@ module Sevgi
       end
 
       def stamp!(infile, stamp:, placeholder:)
-        temp    = Tempfile.new(%w[stamp .pdf], File.dirname(infile))
+        temp = Tempfile.new(%w[stamp .pdf], File.dirname(infile))
         stamped = stamp(infile, temp.path, stamp:, placeholder:)
         if stamped
-          if File.exist?(temp.path) && File.zero?(temp.path)
+          if File.exist?(temp.path) && File.empty?(temp.path)
             warn("Skipping 0 byte file which was produced during stamping")
           else
             FileUtils.mv(temp.path, infile)
           end
         end
+
         stamped
       ensure
         temp&.close!
@@ -121,51 +124,58 @@ module Sevgi
             has_width, width, has_height, height, has_viewbox, viewbox = handle.intrinsic_dimensions
 
             if has_width && has_height
-              width  = to_px(width)
+              width = to_px(width)
               height = to_px(height)
-              return [ width, height ] if width > 0 && height > 0
+              return [width, height] if width.positive? && height.positive?
             end
 
             if handle.respond_to?(:intrinsic_size_in_pixels)
               has_size, width, height = handle.intrinsic_size_in_pixels
-              return [ width.to_f, height.to_f ] if has_size && width.to_f > 0 && height.to_f > 0
+              return [width.to_f, height.to_f] if has_size && width.to_f.positive? && height.to_f.positive?
             end
 
-            if has_viewbox && viewbox.width.to_f > 0 && viewbox.height.to_f > 0
-              return [ viewbox.width.to_f, viewbox.height.to_f ]
+            if has_viewbox && viewbox.width.to_f.positive? && viewbox.height.to_f.positive?
+              return [viewbox.width.to_f, viewbox.height.to_f]
             end
           end
 
           d = handle.dimensions
-          [ d.width.to_f, d.height.to_f ]
+          [d.width.to_f, d.height.to_f]
         end
 
         def to_px(dimension)
           value = dimension.length.to_f
 
           case dimension.unit
-          when Rsvg::Unit::PX then value
-          when Rsvg::Unit::IN then value * DEFAULT_DPI
-          when Rsvg::Unit::CM then value * DEFAULT_DPI / 2.54
-          when Rsvg::Unit::MM then value * DEFAULT_DPI / 25.4
-          when Rsvg::Unit::PT then value * DEFAULT_DPI / 72.0
-          when Rsvg::Unit::PC then value * DEFAULT_DPI / 6.0
-          else 0.0
+          when Rsvg::Unit::PX
+            value
+          when Rsvg::Unit::IN
+            value * DEFAULT_DPI
+          when Rsvg::Unit::CM
+            value * DEFAULT_DPI / 2.54
+          when Rsvg::Unit::MM
+            value * DEFAULT_DPI / 25.4
+          when Rsvg::Unit::PT
+            value * DEFAULT_DPI / 72.0
+          when Rsvg::Unit::PC
+            value * DEFAULT_DPI / 6.0
+          else
+            0.0
           end
         end
 
         def target_size(iw, ih, width, height)
           if width && height
-            s = [ width.to_f / iw, height.to_f / ih ].min
-            [ (iw * s), (ih * s) ]
+            s = [width.to_f / iw, height.to_f / ih].min
+            [(iw * s), (ih * s)]
           elsif width
             s = width.to_f / iw
-            [ (iw * s), (ih * s) ]
+            [(iw * s), (ih * s)]
           elsif height
             s = height.to_f / ih
-            [ (iw * s), (ih * s) ]
+            [(iw * s), (ih * s)]
           else
-            [ iw, ih ]
+            [iw, ih]
           end
         end
       end
@@ -175,14 +185,15 @@ module Sevgi
 
         def [](format)
           case format&.to_sym
-          when :png then method(:png)
-          when :pdf then method(:pdf)
-          else nil
+          when :png
+            method(:png)
+          when :pdf
+            method(:pdf)
           end
         end
 
         def pdf(handle:, output:, tw:, th:, dpi:, **)
-          pw, ph  = tw * (72.0 / dpi), th * (72.0 / dpi)
+          pw, ph = tw * (72.0 / dpi), th * (72.0 / dpi)
           surface = Cairo::PDFSurface.new(output, pw, ph)
           context = Cairo::Context.new(surface)
           context.scale(pw / tw, ph / th)
@@ -200,14 +211,14 @@ module Sevgi
 
         private
 
-          def viewport(width, height)
-            Rsvg::Rectangle.new.tap do |rectangle|
-              rectangle.x      = 0
-              rectangle.y      = 0
-              rectangle.width  = width
-              rectangle.height = height
-            end
+        def viewport(width, height)
+          Rsvg::Rectangle.new.tap do |rectangle|
+            rectangle.x = 0
+            rectangle.y = 0
+            rectangle.width = width
+            rectangle.height = height
           end
+        end
       end
     end
   end

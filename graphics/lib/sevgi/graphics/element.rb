@@ -7,16 +7,16 @@ module Sevgi
     class Element
       def self.element(name, *, parent:, &block) = new(name, **Dispatch.parse(name, *), parent:, &block)
 
-      def self.root(*, &block)                   = element(:svg, *, parent: RootParent, &block)
+      def self.root(*, &block) = element(:svg, *, parent: RootParent, &block)
 
-      def self.root?(element)                    = element.parent == RootParent
+      def self.root?(element) = element.parent == RootParent
 
       class << self
         require "sevgi/standard"
 
-        def valid?(name)                      = Standard.element?(name)
+        def valid?(name) = Standard.element?(name)
       rescue ::LoadError
-        def valid?(...)                       = true
+        def valid?(...) = true
       end
 
       private_class_method :new
@@ -31,12 +31,12 @@ module Sevgi
 
       attr_reader :name, :attributes, :children, :contents, :parent
 
-      def initialize(name, attributes: {}, contents: [], parent:, &block)
-        @name       = name
+      def initialize(name, parent:, attributes: {}, contents: [], &block)
+        @name = name
         @attributes = Attributes.new(attributes)
-        @children   = []
-        @contents   = contents
-        @parent     = parent
+        @children = []
+        @contents = contents
+        @parent = parent
 
         parent.children << self unless self.class.root?(self)
 
@@ -70,14 +70,18 @@ module Sevgi
 
           args.each do |arg|
             case arg
-            when ::Hash   then attributes = arg
-            when ::String then contents << Content.encoded(arg)
-            when Content  then contents << arg
-            else               ArgumentError.("Argument of element '#{name}' must be a Hash or String: #{arg}")
+            when ::Hash
+              attributes = arg
+            when ::String
+              contents << Content.encoded(arg)
+            when Content
+              contents << arg
+            else
+              ArgumentError.("Argument of element '#{name}' must be a Hash or String: #{arg}")
             end
           end
 
-          { attributes:, contents: }
+          {attributes:, contents:}
         end
       end
 
@@ -85,7 +89,7 @@ module Sevgi
 
       protected
 
-        attr_writer :children, :attributes
+      attr_writer :children, :attributes
     end
   end
 end

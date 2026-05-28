@@ -6,8 +6,8 @@ module Sevgi
       def self.[](segment_a, segment_b, position: Origin)
         a, b = Tuples[Segment, segment_a, segment_b]
 
-        length = ::Math.sqrt(a.length ** 2 + b.length ** 2 - 2 * a.length * b.length * F.cos(b.sup - a.angle))
-        angle  = b.sup + F.asin(a.length * F.sin(b.sup - a.angle) / length)
+        length = ::Math.sqrt((a.length ** 2) + (b.length ** 2) - (2 * a.length * b.length * F.cos(b.sup - a.angle)))
+        angle = b.sup + F.asin(a.length * F.sin(b.sup - a.angle) / length)
 
         c = Segment[length, angle]
 

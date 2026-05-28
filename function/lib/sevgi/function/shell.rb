@@ -19,12 +19,12 @@ module Sevgi
       end
 
       Result = Struct.new(:args, :outs, :errs, :exit_code) do
-        def all     = [ *outs, "\n\n", *errs ].join("\n").strip
-        def cmd     = args.join(" ")
-        def err     = errs.join("\n")
-        def notok?  = !ok?
-        def ok?     = exit_code&.zero?
-        def out     = outs.join("\n")
+        def all = [*outs, "\n\n", *errs].join("\n").strip
+        def cmd = args.join(" ")
+        def err = errs.join("\n")
+        def notok? = !ok?
+        def ok? = exit_code&.zero?
+        def out = outs.join("\n")
         def outline = outs.first
 
         def self.dummy = new([], [], [], 0)
@@ -36,49 +36,48 @@ module Sevgi
           @coathooks = 0
         end
 
-        def call(*args, &block) # rubocop:disable Metrics/MethodLength
+        def call(*args, &block)
           return Result.dummy if args.empty?
 
-          outs, errs, status =
-            Open3.popen3(*args) do |stdin, stdout, stderr, wait_thread|
-              if block
-                input = block.call
-                stdin.write(block.call) if input
-                stdin.close
-              end
-
-              block(stdout, stderr, wait_thread)
+          outs, errs, status = Open3.popen3(*args) do |stdin, stdout, stderr, wait_thread|
+            if block
+              input = block.call
+              stdin.write(block.call) if input
+              stdin.close
             end
+
+            block(stdout, stderr, wait_thread)
+          end
+
           Result.new(args, outs, errs, status.exitstatus)
         end
 
         private
 
-          def block(stdout, stderr, wait_thread)
-            # Handle `^C`
-            trap("INT") { handle_sigint(wait_thread.pid) }
+        def block(stdout, stderr, wait_thread)
+          # Handle `^C`
+          trap("INT") { handle_sigint(wait_thread.pid) }
 
-            outs = stdout.readlines.map(&:chomp)
-            errs = stderr.readlines.map(&:chomp)
+          outs = stdout.readlines.map(&:chomp)
+          errs = stderr.readlines.map(&:chomp)
 
-            [ outs, errs, wait_thread.value ]
+          [outs, errs, wait_thread.value]
+        end
+
+        def handle_sigint(pid)
+          message, signal = if @coathooks > 1
+            ["SIGINT received again. Force quitting...", "KILL"]
+          else
+            ["SIGINT received.", "TERM"]
           end
 
-          def handle_sigint(pid) # rubocop:disable Metrics/MethodLength
-            message, signal =
-              if @coathooks > 1
-                [ "SIGINT received again. Force quitting...", "KILL" ]
-              else
-                [ "SIGINT received.", "TERM" ]
-              end
-
-            warn
-            warn(message)
-            ::Process.kill(signal, pid)
-            @coathooks += 1
-          rescue Errno::ESRCH
-            warn("No process to kill.")
-          end
+          warn
+          warn(message)
+          ::Process.kill(signal, pid)
+          @coathooks += 1
+        rescue Errno::ESRCH
+          warn("No process to kill.")
+        end
       end
 
       def sh(...) = Runner.new.(...)
@@ -88,17 +87,17 @@ module Sevgi
 
         sh(*args, &block).tap do |result|
           unless result.ok?
-            warn result.err
-            warn ""
+            warn(result.err)
+            warn("")
 
-            fail "Command failed: #{result.cmd}"
+            raise "Command failed: #{result.cmd}"
           end
         end
       end
 
       private
 
-        def executable_cache = @executable_cache ||= {}
+      def executable_cache = @executable_cache ||= {}
     end
 
     extend Shell

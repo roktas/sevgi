@@ -15,13 +15,14 @@ module Sevgi
             end
           SEVGI
 
-          svg = <<~SVG.chomp
+          svg = <<~SVG
             <text>
               You are
               <tspan font-weight="bold">not</tspan>
               a banana
             </text>
           SVG
+            .chomp
 
           actual = Derender.derender(svg)
 

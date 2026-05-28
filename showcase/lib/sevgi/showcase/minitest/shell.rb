@@ -6,15 +6,15 @@ module Sevgi
   module Test
     module Shell
       Result = Data.define(:args, :out, :err, :exit_code) do
-        def cmd     = args.join(" ")
+        def cmd = args.join(" ")
 
-        def notok?  = !ok?
+        def notok? = !ok?
 
-        def ok?     = exit_code&.zero?
+        def ok? = exit_code&.zero?
 
         def outline = out.first
 
-        def to_s    = out.join("\n")
+        def to_s = out.join("\n")
       end
 
       # Adapted to popen3 from github.com/mina-deploy/mina
@@ -34,33 +34,34 @@ module Sevgi
 
         private
 
-          def inputs(stdin, thread, &block)
-            stdin.instance_exec(thread, &block)
-            stdin.close unless stdin.closed?
+        def inputs(stdin, thread, &block)
+          stdin.instance_exec(thread, &block)
+          stdin.close unless stdin.closed?
+        end
+
+        def outputs(stdout, stderr, thread)
+          # handle `^C`
+          trap("INT") { handle_sigint(thread.pid) }
+
+          out = stdout.readlines.map(&:chomp)
+          err = stderr.readlines.map(&:chomp)
+
+          [out, err, thread.value]
+        end
+
+        def handle_sigint(pid)
+          message, signal = if @coathooks > 1
+            ["SIGINT received again. Force quitting...", "KILL"]
+          else
+            ["SIGINT received.", "TERM"]
           end
 
-          def outputs(stdout, stderr, thread)
-            trap("INT") { handle_sigint(thread.pid) } # handle `^C`
-
-            out = stdout.readlines.map(&:chomp)
-            err = stderr.readlines.map(&:chomp)
-
-            [ out, err, thread.value ]
-          end
-
-          def handle_sigint(pid)
-            message, signal = if @coathooks > 1
-              [ "SIGINT received again. Force quitting...", "KILL" ]
-            else
-              [ "SIGINT received.", "TERM" ]
-            end
-
-            warn("\n#{message}")
-            ::Process.kill(signal, pid)
-            @coathooks += 1
-          rescue Errno::ESRCH
-            warn("No process to kill.")
-          end
+          warn("\n#{message}")
+          ::Process.kill(signal, pid)
+          @coathooks += 1
+        rescue Errno::ESRCH
+          warn("No process to kill.")
+        end
       end
 
       extend self

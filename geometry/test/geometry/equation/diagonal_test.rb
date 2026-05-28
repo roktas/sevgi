@@ -11,8 +11,10 @@ module Sevgi
 
           def test_fixtures_construction
             [
-              0.0, line345.equation.y(0),
-              4.0, line543.equation.y(0)
+              0.0,
+              line345.equation.y(0),
+              4.0,
+              line543.equation.y(0)
             ].each_slice(2) { |expected, actual| assert_in_delta(expected, actual) }
           end
 
@@ -20,20 +22,24 @@ module Sevgi
             equ = Equation.diagonal(slope: 2.0, intercept: -10.0)
 
             [
-              -10.0, equ.y(0),
-                5.0, equ.x(0),
+              -10.0,
+              equ.y(0),
+              5.0,
+              equ.x(0)
             ].each_slice(2) { |expected, actual| assert_in_delta(expected, actual) }
           end
 
           def test_diagonal_line_construction_from_lines
             [
-               10.0, Geometry::Line[1.0,  F.atan(2)].equation.y(5),
-              -10.0, Geometry::Line[1.0, -F.atan(2)].equation.y(5)
+              10.0,
+              Geometry::Line[1.0, F.atan(2)].equation.y(5),
+              -10.0,
+              Geometry::Line[1.0, -F.atan(2)].equation.y(5)
             ].each_slice(2) { |expected, actual| assert_in_delta(expected, actual) }
           end
 
           def test_different_construction_methods_give_same_results
-            equ1 = Geometry::Line[1.0, F.atan(2), position: [ 5.0, 0.0 ]].equation
+            equ1 = Geometry::Line[1.0, F.atan(2), position: [5.0, 0.0]].equation
             equ2 = Equation.diagonal(slope: 2.0, intercept: -10.0)
 
             assert_equal(equ1.approx, equ2.approx)
@@ -43,14 +49,14 @@ module Sevgi
             equ = line345.equation.shift(3.0 * F.sin(line345.angle))
 
             assert_in_delta(4.0 / 3.0, equ.slope)
-            assert_in_delta(-4.0,      equ.intercept)
+            assert_in_delta(-4.0, equ.intercept)
           end
 
           def test_line_shifting_with_lines_constructed_from_lines
             angle = F.atan(2)
 
             equ1 = Geometry::Line[1.0, angle].equation
-            equ2 = Geometry::Line[1.0, angle, position: [ 5.0, 0.0 ]].equation
+            equ2 = Geometry::Line[1.0, angle, position: [5.0, 0.0]].equation
 
             shifted = equ1.shift(10.0 * F.sin(90.0 - angle))
 
@@ -58,8 +64,8 @@ module Sevgi
           end
 
           def test_diagonal_diagonal_solution
-            equ    = Equation.diagonal(slope: 4.0 / 3.0, intercept: -4)
-            line   = Geometry::Line.([ -2, -1 ], [ 0, 1 ])
+            equ = Equation.diagonal(slope: 4.0 / 3.0, intercept: -4)
+            line = Geometry::Line.([-2, -1], [0, 1])
             points = equ.intersect(line.equation)
 
             # assert_equal(Point[15, 16], *points)

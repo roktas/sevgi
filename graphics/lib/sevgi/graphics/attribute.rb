@@ -5,7 +5,7 @@
 module Sevgi
   module Graphics
     ATTRIBUTE_INTERNAL_PREFIX = "-"
-    ATTRIBUTE_UPDATE_SUFFIX   = "+"
+    ATTRIBUTE_UPDATE_SUFFIX = "+"
 
     module Attribute
       module Ident
@@ -14,7 +14,8 @@ module Sevgi
         end
 
         def id(given)
-          (@id ||= {})[given] ||= (updateable?(given) ? given.to_s.delete_suffix(ATTRIBUTE_UPDATE_SUFFIX) : given).to_sym
+          (@id ||= {})[given] ||= (updateable?(given) ? given.to_s.delete_suffix(ATTRIBUTE_UPDATE_SUFFIX) : given)
+            .to_sym
         end
 
         def updateable?(given)
@@ -32,9 +33,12 @@ module Sevgi
         end
 
         def import(attributes)
-          hash = attributes.compact.to_a.map do |key, value|
-            [ key.to_sym, value.is_a?(::Hash) ? value.transform_keys!(&:to_sym) : value ]
-          end.to_h
+          hash = attributes
+            .compact
+            .to_a
+            .to_h do |key, value|
+              [key.to_sym, value.is_a?(::Hash) ? value.transform_keys!(&:to_sym) : value]
+            end
 
           @store.merge!(hash)
         end
@@ -58,7 +62,7 @@ module Sevgi
           return hash unless hash.key?(:id)
 
           # A small aesthetic touch: always keep the id attribute first
-          { id: hash.delete(:id), **hash }
+          {id: hash.delete(:id), **hash}
         end
 
         def has?(key)
@@ -86,37 +90,40 @@ module Sevgi
 
         protected
 
-          attr_reader :store
+        attr_reader :store
 
         private
 
-          UPDATER = {
-            ::String => proc { |old_value, new_value| [ old_value, new_value ].reject(&:empty?).join(" ") },
-            ::Symbol => proc { |old_value, new_value| [ old_value, new_value ].reject(&:empty?).join(" ").to_sym },
-            ::Array  => proc { |old_value, new_value| [ old_value, new_value ] },
-            ::Hash   => proc { |old_value, new_value| merge(old_value, new_value.transform_keys(&:to_sym)) }
-          }.freeze
+        UPDATER = {
+          ::String => proc { |old_value, new_value| [old_value, new_value].reject(&:empty?).join(" ") },
+          ::Symbol => proc { |old_value, new_value| [old_value, new_value].reject(&:empty?).join(" ").to_sym },
+          ::Array => proc { |old_value, new_value| [old_value, new_value] },
+          ::Hash => proc { |old_value, new_value| merge(old_value, new_value.transform_keys(&:to_sym)) }
+        }.freeze
 
-          def update(id, new_value)
-            (old_value = @store[id]).nil? ? new_value : UPDATER[new_value.class].call(*sanitized(old_value, new_value))
+        def update(id, new_value)
+          (old_value = @store[id]).nil? ? new_value : UPDATER[new_value.class].call(*sanitized(old_value, new_value))
+        end
+
+        def sanitized(old_value, new_value)
+          ArgumentError.("Incompatible values: #{new_value} vs #{old_value}") unless new_value.is_a?(old_value.class)
+          ArgumentError.("Unsupported value for update: #{new_value}") unless UPDATER.key?(new_value.class)
+
+          [old_value, new_value]
+        end
+
+        private_constant :UPDATER
+
+        def to_xml(id, value)
+          case value
+          when ::Hash
+            "#{id}=\"#{value.map { |key, attr_value| "#{key}:#{attr_value}" }.join("; ")}\""
+          when ::Array
+            "#{id}=\"#{value.join(" ")}\""
+          else
+            "#{id}=#{value.to_s.encode(xml: :attr)}"
           end
-
-          def sanitized(old_value, new_value)
-            ArgumentError.("Incompatible values: #{new_value} vs #{old_value}") unless new_value.is_a?(old_value.class)
-            ArgumentError.("Unsupported value for update: #{new_value}")        unless UPDATER.key?(new_value.class)
-
-            [ old_value, new_value ]
-          end
-
-          private_constant :UPDATER
-
-          def to_xml(id, value)
-            case value
-            when ::Hash  then %(#{id}="#{value.map { "#{_1}:#{_2}" }.join("; ")}")
-            when ::Array then %(#{id}="#{value.join(" ")}")
-            else              %(#{id}=#{value.to_s.encode(xml: :attr)})
-            end
-          end
+        end
       end
     end
 

@@ -7,7 +7,7 @@ module Sevgi
         def Duplicate(dx: nil, dy: nil, parent: nil, &block)
           duplicated = dup
 
-          duplicated.Traverse do |element|
+          duplicated.Traverse() do |element|
             element.children = element.children.map(&:dup)
             id = (element.attributes = element.attributes.dup).delete(:id)
             element[:"#{ATTRIBUTE_INTERNAL_PREFIX}id"] = id if id

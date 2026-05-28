@@ -8,7 +8,8 @@ module Sevgi
       extend self
 
       PROGNAME = "igsev"
-      Error    = Class.new(::Sevgi::Error)
+
+      Error = Class.new(::Sevgi::Error)
 
       Options = Struct.new(:require, :vomit, :help, :version) do
         def self.parse(argv)
@@ -20,71 +21,77 @@ module Sevgi
         class << self
           private
 
-            def option(argv, options)
-              case (arg = argv.shift)
-              when "-r", "--require"   then options.require = argv.shift
-              when "-x", "--exception" then options.vomit   = true
+          def option(argv, options)
+            case (arg = argv.shift)
+            when "-r", "--require"
+              options.require = argv.shift
+            when "-x", "--exception"
+              options.vomit = true
 
-              when "-h", "--help"      then options.help    = true
-              when "-v", "--version"   then options.version = true
-              else                          Error.("Not a valid option: #{arg}")
-              end
+            when "-h", "--help"
+              options.help = true
+            when "-v", "--version"
+              options.version = true
+            else
+              Error.("Not a valid option: #{arg}")
             end
+          end
         end
       end
 
       private_constant :Options
 
       def call(argv)
-        return puts(help)             if (options = Options.parse(argv = Array(argv))).help
+        return puts(help) if (options = Options.parse(argv = Array(argv))).help
         return puts(::Sevgi::VERSION) if options.version
 
         result = run(file = argv.shift, options)
 
         if result.error?
-          raise(result.error) if options.vomit || ENV[ENVVOMIT]
+          raise result.error if options.vomit || ENV[ENVVOMIT]
 
           die(result.error, file)
         else
-          result.recent.Out
+          result.recent.Out()
         end
-      rescue Binaries::Igsev::Error => error
-        abort(error.message)
+
+      rescue Binaries::Igsev::Error => e
+        abort(e.message)
       end
 
       private
 
-        def die(error, file)
-          warn(error.message)
-          warn("")
-          error.backtrace!.each { warn("  #{it}") }
+      def die(error, _file)
+        warn(error.message)
+        warn("")
+        error.backtrace!.each { warn("  #{it}") }
 
-          exit(1)
-        end
+        exit(1)
+      end
 
-        def help
-          <<~HELP
-            Usage: #{PROGNAME} [options...] <SVG file>
+      def help
+        <<~HELP
+          Usage: #{PROGNAME} [options...] <SVG file>
 
-            See documentation for detailed help.
+          See documentation for detailed help.
 
-            Options:
+          Options:
 
-            -r, --require LIB     Require Ruby LIB
-            -x, --exception       Raise exception instead of abort
+          -r, --require LIB     Require Ruby LIB
+          -x, --exception       Raise exception instead of abort
 
-            -h, --help            Show this help
-            -v, --version         Display version
-          HELP
-        end
+          -h, --help            Show this help
+          -v, --version         Display version
+        HELP
+      end
 
-        def run(file, options)
-          Error.("No SVG file given.") unless file
+      def run(file, options)
+        Error.("No SVG file given.") unless file
 
-          sevgi = Derender.derender_file(file)
+        sevgi = Derender.derender_file(file)
 
-          ::Sevgi.execute(sevgi, require: options.require)
-        end
+        ::Sevgi.execute(sevgi, require: options.require)
+      end
     end
   end
 end

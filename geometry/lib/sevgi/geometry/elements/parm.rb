@@ -13,10 +13,10 @@ module Sevgi
 
       def self.new_by_height(horizontal:, tallness:, position: Origin)
         horizontal = Tuple[Segment, horizontal]
-        tallness   = Tuple[LengthAngle, tallness]
+        tallness = Tuple[LengthAngle, tallness]
 
         height = tallness.length - horizontal.ly
-        angle  = tallness.angle
+        angle = tallness.angle
         length = height / F.sin(angle)
 
         self[horizontal, Segment[length, angle], position:]
@@ -26,8 +26,8 @@ module Sevgi
         vertical = Tuple[Segment, vertical]
         wideness = Tuple[LengthAngle, wideness]
 
-        width  = wideness.length - vertical.lx
-        angle  = wideness.angle
+        width = wideness.length - vertical.lx
+        angle = wideness.angle
         length = width / F.cos(angle)
 
         self[Segment[length, angle], vertical, position:]

@@ -5,12 +5,16 @@ module Sevgi
     module Model
       module CDataOnly
         def apply(cdata:, elements:)
+          _cdata = cdata
+
           UnallowedElementsError.(element, elements) unless elements.empty?
         end
       end
 
       module CDataOrSomeElements
         def apply(cdata:, elements:)
+          _cdata = cdata
+
           unallowed = elements - spec[:elements]
           UnallowedElementsError.(element, unallowed) unless unallowed.empty?
         end
@@ -57,8 +61,8 @@ module Sevgi
             UnmetConditionError.(element, "Exactly one FilterLightSource element as first required")
           end
 
-          unless (unallowed = Element.unpick(elements[1..], :Descriptive)).empty?
-            UnallowedElementsError.(element, unallowed) unless unallowed.empty?
+          if !(unallowed = Element.unpick(elements[1..], :Descriptive)).empty? && !unallowed.empty?
+            UnallowedElementsError.(element, unallowed)
           end
         end
       end

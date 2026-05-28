@@ -18,11 +18,22 @@ module Sevgi
       end
 
       # inkscape - https://inkscape.org/ (inkscape package)
-      def inkscape(infile, outfile = nil,
-                   format: nil, background: "#ffffff", opacity: 1, width: nil, height: nil, id: nil, page: nil, css: nil)
-        infile  = File.expand_path(infile)
-        outfile = File.expand_path(outfile ||= F.subext(".pdf", infile))
-        format  = format_for!(format, outfile)
+      def inkscape(
+        infile,
+        outfile = nil,
+        format: nil,
+        background: "#ffffff",
+        opacity: 1,
+        width: nil,
+        height: nil,
+        id: nil,
+        page: nil,
+        css: nil
+      )
+        infile = File.expand_path(infile)
+        outfile ||= F.subext(".pdf", infile)
+        outfile = File.expand_path(outfile)
+        format = format_for!(format, outfile)
 
         if css
           temp = Tempfile.new(%w[input .svg], File.dirname(infile))
@@ -30,8 +41,9 @@ module Sevgi
           infile = temp.path
         end
 
-        F.sh!(*[
-          "inkscape",
+        F.sh!(
+          *[
+            "inkscape",
             "--batch-process",
             "--actions=select-by-class:text,object-to-path",
             "--export-type=#{format}",
@@ -43,18 +55,28 @@ module Sevgi
             ("--export-id-only" if id),
             ("--export-page=#{page}" if page),
             "--export-filename=#{outfile}",
-            infile,
-        ].compact)
+            infile
+          ].compact
+        )
       ensure
         temp&.close!
       end
 
       # rsvg-convert - https://gitlab.gnome.org/GNOME/librsvg (librsvg2-bin package)
-      def rsvg(infile, outfile = nil,
-               format: nil, background: "#ffffff", width: nil, height: nil, id: nil, css: nil)
-        infile  = File.expand_path(infile)
-        outfile = File.expand_path(outfile ||= F.subext(".pdf", infile))
-        format  = format_for!(format, outfile)
+      def rsvg(
+        infile,
+        outfile = nil,
+        format: nil,
+        background: "#ffffff",
+        width: nil,
+        height: nil,
+        id: nil,
+        css: nil
+      )
+        infile = File.expand_path(infile)
+        outfile ||= F.subext(".pdf", infile)
+        outfile = File.expand_path(outfile)
+        format = format_for!(format, outfile)
 
         if css
           temp = Tempfile.new(%w[input .svg], File.dirname(infile))
@@ -62,16 +84,18 @@ module Sevgi
           infile = temp.path
         end
 
-        F.sh!(*[
-          "rsvg-convert",
+        F.sh!(
+          *[
+            "rsvg-convert",
             "--format=#{format}",
             ("--background-color=#{background}" if background),
             ("--width=#{width}" if width),
             ("--height=#{height}" if height),
             ("--export-id=#{id}" if id),
             "--output=#{outfile}",
-            infile,
-        ].compact)
+            infile
+          ].compact
+        )
       ensure
         temp&.close!
       end

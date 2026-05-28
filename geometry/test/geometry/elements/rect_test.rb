@@ -8,14 +8,18 @@ module Sevgi
       include Fixtures
 
       def test_rect_construction_usual
-        rect = Rect[3, 4, position: [ 1, 2 ]]
+        rect = Rect[3, 4, position: [1, 2]]
 
         [
-          1.0,            rect.position.x,
-          2.0,            rect.position.y,
+          1.0,
+          rect.position.x,
+          2.0,
+          rect.position.y,
 
-          rect345.width,  rect.width,
-          rect345.height, rect.height
+          rect345.width,
+          rect.width,
+          rect345.height,
+          rect.height
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
@@ -30,11 +34,15 @@ module Sevgi
         )
 
         [
-          2.0,            rect.position.x,
-          3.0,            rect.position.y,
+          2.0,
+          rect.position.x,
+          3.0,
+          rect.position.y,
 
-          rect345.width,  rect.width,
-          rect345.height, rect.height
+          rect345.width,
+          rect.width,
+          rect345.height,
+          rect.height
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 

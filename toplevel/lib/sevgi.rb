@@ -10,7 +10,7 @@ require "sevgi/sundries"
 require "sevgi/version"
 
 # Minimal Toplevel Interface (activated with 'require "sevgi"')
-SVG          = Sevgi::Graphics
+SVG = Sevgi::Graphics
 def SVG(...) = Sevgi::Graphics.SVG(...)
 
 # Maximal Toplevel Interface (activated with 'include Sevgi')
@@ -18,7 +18,13 @@ module Sevgi
   # See sevgi/toplevel/*.rb files for details
   require_relative "sevgi/toplevel"
 
-  def self.included(base) = (super; base.include(Toplevel))
+  def self.included(base)
+    super
+    base.include(Toplevel)
+  end
 
-  def self.extended(base) = (super; base.extend(Toplevel))
+  def self.extended(base)
+    super
+    base.extend(Toplevel)
+  end
 end

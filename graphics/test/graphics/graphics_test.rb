@@ -17,8 +17,8 @@ module Sevgi
           document
           paper
           paper!
-        ].each do
-          assert_respond_to(Graphics, it)
+        ].each do |method|
+          assert_respond_to(Graphics, method)
         end
       end
 

@@ -21,7 +21,9 @@ module Sevgi
 
         def sweep!(element, initial:, direction:, step:, limit: LIMIT, &block)
           sweep(element, initial:, direction:, step:, limit:) do |lines|
-            OperationError.("No lines found [initial: #{initial}, direction: #{direction} step: #{step}]") if lines.empty?
+            if lines.empty?
+              OperationError.("No lines found [initial: #{initial}, direction: #{direction} step: #{step}]")
+            end
 
             yield(lines) if block
           end

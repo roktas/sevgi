@@ -40,15 +40,15 @@ module Sevgi
           end
 
           def test_vertical_vertical_solution
-            equ    = Equation.vertical(5.0)
+            equ = Equation.vertical(5.0)
             points = equ.intersect(Equation.vertical(1.0))
 
             assert_equal(Point[Float::INFINITY, Float::INFINITY], *points)
           end
 
           def test_vertical_diagonal_solution
-            equ    = Equation.vertical(5.0)
-            line   = Geometry::Line.([ -2, -1 ], [ 0, 1 ])
+            equ = Equation.vertical(5.0)
+            line = Geometry::Line.([-2, -1], [0, 1])
             points = equ.intersect(line.equation)
 
             assert(Point[5, 6].eq?(*points))

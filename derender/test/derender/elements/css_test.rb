@@ -7,7 +7,7 @@ module Sevgi
     module Elements
       class CSSTest < Minitest::Test
         def test_css
-          svg = <<~'SVG'.chomp
+          svg = <<~SVG
             <svg id="Root" shape-rendering="crispEdges" width="60.0mm" height="60.0mm" viewBox="0 0 60 60">
               <style type="text/css">
                 <![CDATA[
@@ -39,10 +39,11 @@ module Sevgi
               </defs>
             </svg>
           SVG
+            .chomp
 
           actual = Derender.derender(svg)
 
-          expected = <<~'SEVGI'
+          expected = <<~SEVGI
             SVG id: "Root", "shape-rendering": "crispEdges", width: "60.0mm", height: "60.0mm", viewBox: "0 0 60 60" do
               css({
                 "*": {
@@ -77,15 +78,16 @@ module Sevgi
         end
 
         def test_css_empty
-          svg = <<~'SVG'.chomp
+          svg = <<~SVG
             <svg id="Root" shape-rendering="crispEdges" width="60.0mm" height="60.0mm" viewBox="0 0 60 60">
               <style type="text/css"/>
             </svg>
           SVG
+            .chomp
 
           actual = Derender.derender(svg)
 
-          expected = <<~'SEVGI'
+          expected = <<~SEVGI
             SVG id: "Root", "shape-rendering": "crispEdges", width: "60.0mm", height: "60.0mm", viewBox: "0 0 60 60" do
             end
           SEVGI

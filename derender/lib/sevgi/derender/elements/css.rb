@@ -12,23 +12,25 @@ module Sevgi
             "css({",
             *lines,
             "})",
-            "",
+            ""
           ]
         end
 
         private
 
-          def css_lines
-            return unless (hash = Css.to_h(node.content))
+        def css_lines
+          return unless (hash = Css.to_h(node.content))
 
-            hash.map do |selector, declarations|
+          hash
+            .map do |selector, declarations|
               [
                 "\"#{selector}\": {",
                 *declarations.map { |key, value| "#{Css.to_key_value(key, value)}," },
                 "},"
               ]
-            end.flatten
-          end
+            end
+            .flatten
+        end
       end
     end
   end

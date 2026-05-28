@@ -17,16 +17,17 @@ module Sevgi
         ArgumentError.("File not found: #{path}") unless ::File.exist?(entry)
 
         new(::File.read(entry)) do
-          @doc = self.class.cache[entry] || begin
-            self.class.cache[entry] = self.class.parse(::File.read(entry))
-          end
+          @doc = self.class.cache[entry] ||
+            begin
+              self.class.cache[entry] = self.class.parse(::File.read(entry))
+            end
         end
       end
 
       def self.parse(content) = Nokogiri::XML(content)
 
       def self.declaration(content)
-        return unless (content = content.lstrip).start_with?('<?xml ')
+        return unless (content = content.lstrip).start_with?("<?xml ")
 
         content.split("\n").first
       end
@@ -36,7 +37,7 @@ module Sevgi
       def initialize(content, &block)
         instance_exec(&block) if block
 
-        @doc  = self.class.parse(content)
+        @doc = self.class.parse(content)
         @decl = self.class.declaration(content)
       end
 

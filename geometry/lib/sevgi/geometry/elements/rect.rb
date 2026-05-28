@@ -27,9 +27,9 @@ module Sevgi
 
       def draw!(node, **) = node.rect(x: position.x, y: position.y, width: width, height: height, **)
 
-      def height          = @height ||= segments[1].length
+      def height = @height ||= segments[1].length
 
-      def width           = @width  ||= segments[0].length
+      def width = @width ||= segments[0].length
 
       %i[top_left top_right bottom_right bottom_left].each_with_index do |corner, i|
         define_method(corner) { points[i] }
@@ -41,7 +41,7 @@ module Sevgi
     end
 
     class Square < Rect
-      alias_method :length, :width
+      alias length width
 
       def self.[](length, position: Origin) = super(length, length, position:)
     end

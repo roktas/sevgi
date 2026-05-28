@@ -5,7 +5,7 @@ module Sevgi
     module Mixtures
       module Render
         class Renderer
-          DEFAULTS = { indent: "  ", linelength: 140, style: :hybrid }.freeze
+          DEFAULTS = {indent: "  ", linelength: 140, style: :hybrid}.freeze
 
           module Attributes
             module Block
@@ -41,16 +41,22 @@ module Sevgi
 
           private_constant :Attributes
 
+          ELEMENTS_WITH_INLINE_CONTENT = %i[title].freeze
+          ELEMENTS_WITH_BLOCK_CONTENT = %i[style].freeze
+          SEPARATOR = "\n"
+
+          private_constant :ELEMENTS_WITH_INLINE_CONTENT, :ELEMENTS_WITH_BLOCK_CONTENT, :SEPARATOR
+
           attr_reader :root, :options, :output
 
           class Inlines
             Mark = Struct.new(:start, :stop, :depth)
 
-            def initialize          = @marks = []
+            def initialize = @marks = []
 
             def start(index, depth) = @marks << Mark.new(start: index, depth:)
 
-            def stop(index)         = @marks.last.stop = index
+            def stop(index) = @marks.last.stop = index
 
             def join(output, indent:, separator:)
               return if @marks.empty?
@@ -58,7 +64,7 @@ module Sevgi
               @marks.each do |mark|
                 depth = mark.depth
 
-                (mark.start + 1..mark.stop).each do |i|
+                ((mark.start + 1)..mark.stop).each do |i|
                   output[i].map! { |line| line.delete_prefix(indent * (depth + 1)) }
                   output[mark.start][-1] += output[i].join(separator)
                   output[i] = nil
@@ -70,18 +76,20 @@ module Sevgi
           end
 
           def initialize(root, **)
-            @root    = root
+            @root = root
             @options = DEFAULTS.merge(**)
-            @output  = []
+            @output = []
             @inlines = Inlines.new
 
             build
           end
 
+          def self.call(root, **) = new(root, **).call(*root.class.preambles)
+
           def append(depth, *lines)
             return if lines.empty?
 
-            output.append(lines.map { "#{depth ? indent(depth) : ""}#{it}" })
+            output.append(lines.map { "#{indent(depth) if depth}#{it}" })
           end
 
           def call(*preambles)
@@ -90,116 +98,113 @@ module Sevgi
             root.Traverse(
               0,
               proc { |element, depth| render_leave(element, depth) }
-            )      { |element, depth| render_enter(element, depth) }
+            ) { |element, depth| render_enter(element, depth) }
 
             join
           end
 
           private
 
-            attr_reader :inlines
+          attr_reader :inlines
 
-            def attributes_block(element, depth, lines)
-              append(depth, "<#{element.name}")
-              append(depth + 1, *lines)
-              append(depth, ">") unless childless?(element)
+          def attributes_block(element, depth, lines)
+            append(depth, "<#{element.name}")
+            append(depth + 1, *lines)
+            append(depth, ">") unless childless?(element)
+          end
+
+          def attributes_inline(element, depth, lines)
+            line = "<#{[element.name, *lines].join(" ")}"
+
+            if childless?(element)
+              closed
+              append(depth, "#{line}/>")
+            else
+              append(depth, "#{line}>")
+            end
+          end
+
+          def build
+            ArgumentError.("Missing style") unless options[:style]
+
+            case options[:style]
+            when :hybrid
+              extend(Attributes::Hybrid)
+            when :inline
+              extend(Attributes::Inline)
+            when :block
+              extend(Attributes::Block)
+            else
+              ArgumentError.("Unrecognized style: #{options[:style]}")
             end
 
-            def attributes_inline(element, depth, lines)
-              line = "<#{[ element.name, *lines ].join(" ")}"
+            unclosed
+          end
 
-              if childless?(element)
-                closed
-                append(depth, "#{line}/>")
-              else
-                append(depth, "#{line}>")
-              end
+          def childless?(element)
+            element.children.empty? && element.contents.empty?
+          end
+
+          def closed = @closed = true
+
+          def closed? = @closed.tap { unclosed }
+
+          def contents(element, depth)
+            return if element.contents.empty?
+
+            if floating?(element)
+              append(depth, *element.contents.map(&:to_s))
+              closed
+            else
+              element.contents.each { |content| content.render(self, depth) }
             end
+          end
 
-            def build
-              ArgumentError.("Missing style") unless options[:style]
+          def floating?(element) = element.Is?(:_)
 
-              case options[:style]
-              when :hybrid then extend(Attributes::Hybrid)
-              when :inline then extend(Attributes::Inline)
-              when :block  then extend(Attributes::Block)
-              else              ArgumentError.("Unrecognized style: #{options[:style]}")
-              end
+          def inline_content?(element)
+            return false if ELEMENTS_WITH_BLOCK_CONTENT.include?(element.name)
+            return false if floating?(element)
 
-              unclosed
+            element.contents.size == 1 || ELEMENTS_WITH_INLINE_CONTENT.include?(element.name)
+          end
+
+          def indent(depth)
+            options[:indent] * depth
+          end
+
+          def join
+            inlines.join(output, indent: options[:indent], separator: SEPARATOR)
+            output.join(SEPARATOR)
+          end
+
+          def render_enter(element, depth)
+            attributes(element, depth) unless floating?(element)
+            inlines.start(output.size - 1, depth) if inline_content?(element)
+            contents(element, depth)
+          end
+
+          def render_leave(element, depth)
+            inlines.stop(output.size) if (inlined = inline_content?(element))
+            return if closed? || floating?(element)
+
+            if childless?(element)
+              append(depth, "/>")
+            elsif inlined
+              append(nil, "</#{element.name}>")
+            else
+              append(depth, "</#{element.name}>")
             end
+          end
 
-            def childless?(element)
-              element.children.empty? && element.contents.empty?
-            end
-
-            def closed  = @closed = true
-
-            def closed? = @closed.tap { unclosed }
-
-            def contents(element, depth)
-              return if element.contents.empty?
-
-              if floating?(element)
-                append(depth, *element.contents.map(&:to_s))
-                closed
-              else
-                element.contents.each { |content| content.render(self, depth) }
-              end
-            end
-
-            def floating?(element) = element.Is?(:_)
-
-            ELEMENTS_WITH_INLINE_CONTENT = %i[ title ].freeze
-            ELEMENTS_WITH_BLOCK_CONTENT  = %i[ style ].freeze
-
-            def has_inline_content?(element)
-              return false if ELEMENTS_WITH_BLOCK_CONTENT.include?(element.name)
-              return false if floating?(element)
-
-              element.contents.size == 1 || ELEMENTS_WITH_INLINE_CONTENT.include?(element.name)
-            end
-
-            def indent(depth)
-              options[:indent] * depth
-            end
-
-            SEPARATOR = "\n"
-
-            def join
-              inlines.join(output, indent: options[:indent], separator: SEPARATOR)
-              output.join(SEPARATOR)
-            end
-
-            def render_enter(element, depth)
-              attributes(element, depth) unless floating?(element)
-              inlines.start(output.size - 1, depth) if has_inline_content?(element)
-              contents(element, depth)
-            end
-
-            def render_leave(element, depth)
-              inlines.stop(output.size) if (inlined = has_inline_content?(element))
-              return if closed? || floating?(element)
-
-              if childless?(element)
-                append(depth, "/>")
-              elsif inlined
-                append(nil, "</#{element.name}>")
-              else
-                append(depth, "</#{element.name}>")
-              end
-            end
-
-            def unclosed = @closed = false
-
-            def self.call(root, **) = new(root, **).call(*root.class.preambles)
+          def unclosed = @closed = false
         end
 
         private_constant :Renderer
 
-        def Render(**)                         = Renderer.(self, **)
+        def Render(**) = Renderer.(self, **)
 
-        def Render!(separator = SEPARATOR * 2) = children.map { |child| child.Render! }.join(separator)
+        def Render!(separator = SEPARATOR * 2) = children.map(&:Render!).join(separator)
       end
     end
   end

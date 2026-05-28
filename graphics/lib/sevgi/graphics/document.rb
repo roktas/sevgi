@@ -5,9 +5,12 @@ module Sevgi
     module Document
       def self.call(document, canvas = Undefined, **, &block)
         case canvas
-        when Undefined, ::NilClass then {}
-        when Canvas                then canvas.attributes
-        else                            Canvas.(canvas).attributes
+        when Undefined, ::NilClass
+          {}
+        when Canvas
+          canvas.attributes
+        else
+          Canvas.(canvas).attributes
         end => attributes
 
         (klass = Profile[document]).root(**klass.attributes, **attributes, **, &block)
@@ -20,16 +23,16 @@ module Sevgi
           attr_reader :available
         end
 
-        def self.[](name)              = available[name]
+        def self.[](name) = available[name]
 
         def self.register(name, klass) = (available[name] = klass)
 
         attr_reader :name, :attributes, :preambles
 
         def initialize(name, attributes: nil, preambles: nil)
-          @name       = name
+          @name = name
           @attributes = attributes || {}
-          @preambles  = preambles
+          @preambles = preambles
         end
       end
 
@@ -52,7 +55,7 @@ module Sevgi
 
       private_constant :DSL
 
-      DEFAULTS = { lint: true, validate: true }.freeze
+      DEFAULTS = {lint: true, validate: true}.freeze
 
       class Proto < Element
         public_class_method :new
@@ -71,9 +74,9 @@ module Sevgi
           self.Render(*, **options)
         end
 
-        def self.attributes = self == Proto ? {} : { **superclass.attributes, **profile.attributes }
+        def self.attributes = self == Proto ? {} : {**superclass.attributes, **profile.attributes}
 
-        def self.preambles  = self == Proto ? nil : profile.preambles || superclass.preambles
+        def self.preambles = self == Proto ? nil : profile.preambles || superclass.preambles
       end
 
       require_relative "document/base"

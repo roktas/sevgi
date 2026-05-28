@@ -11,7 +11,7 @@ module Sevgi
 
     def test_toplevel_mixin
       klass = Class.new do
-        include ::Sevgi
+        include(::Sevgi)
       end
 
       obj = klass.new

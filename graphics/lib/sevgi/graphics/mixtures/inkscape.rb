@@ -10,7 +10,7 @@ module Sevgi
             Element(:"inkscape:_shortdesc", desc) if desc
             Element(:"inkscape:date", date) if date
             Element(:"inkscape:author", author) if author
-            Element(:"inkscape:_keywords", [ *keywords ].join(" ")) if keywords
+            Element(:"inkscape:_keywords", [*keywords].join(" ")) if keywords
           end
         end
 
@@ -37,18 +37,18 @@ module Sevgi
           layer("sodipodi:insensitive": "true", **, &block)
         end
 
-        def Pages(*pages, id: "namedview", **, &block) # rubocop:disable Metrics/MethodLength
+        def Pages(*pages, id: "namedview", **, &block)
           Element(:"sodipodi:namedview", id:, **) do
             pages.each_with_index do |page, i|
               id = page[:id] || "page-#{i + 1}"
-              x, y, width, height = page.values_at(*%i[ x y width height ])
+              x, y, width, height = page.values_at(*%i[x y width height])
               element = Element(:"inkscape:page", id:, x:, y:, width:, height:)
               yield(element) if block
             end
           end
         end
 
-        def PagesTabular(rows:, cols:, width:, height:, gap:, id: "namedview", **) # rubocop:disable Metrics/MethodLength
+        def PagesTabular(rows:, cols:, width:, height:, gap:, id: "namedview", **)
           [].tap do |matrix|
             Element(:"sodipodi:namedview", id:) do
               rows.times do |row|

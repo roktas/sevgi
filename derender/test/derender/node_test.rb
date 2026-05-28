@@ -6,42 +6,45 @@ module Sevgi
   module Derender
     class NodeTest < Minitest::Test
       def test_usual_attributes
-        svg = <<~SVG.chomp
+        svg = <<~SVG
           <g id="xxx" _:foo="fff" _:bar="bbb">
             <line id="line1" length="10.0"/>
             <line id="line2" length="20.0"/>
           </g>
         SVG
+          .chomp
 
-        actual   = Derender::Document.new(svg).decompile("xxx").attributes
-        expected = { "id" => "xxx", "_:foo" => "fff", "_:bar" => "bbb" }
+        actual = Derender::Document.new(svg).decompile("xxx").attributes
+        expected = {"id" => "xxx", "_:foo" => "fff", "_:bar" => "bbb"}
 
         assert_equal(expected, actual)
       end
 
       def test_custom_attributes
-        svg = <<~SVG.chomp
+        svg = <<~SVG
           <g id="xxx" _:foo="fff" _:bar="bbb">
             <line id="line1" length="10.0"/>
             <line id="line2" length="20.0"/>
           </g>
         SVG
+          .chomp
 
-        actual   = Derender::Document.new(svg).decompile("xxx")._
-        expected = { "foo" => "fff", "bar" => "bbb" }
+        actual = Derender::Document.new(svg).decompile("xxx")._
+        expected = {"foo" => "fff", "bar" => "bbb"}
 
         assert_equal(expected, actual)
       end
 
       def test_find_default
-        svg = <<~SVG.chomp
+        svg = <<~SVG
           <g id="xxx" _:foo="fff" _:bar="bbb">
             <line id="line1" length="10.0"/>
             <line id="line2" length="20.0"/>
           </g>
         SVG
+          .chomp
 
-        actual   = Derender::Document.new(svg).decompile().find("line1").derender
+        actual = Derender::Document.new(svg).decompile.find("line1").derender
 
         expected = <<~SEVGI
           line id: "line1", length: 10.0
@@ -51,22 +54,24 @@ module Sevgi
       end
 
       def test_find_not_found
-        svg = <<~SVG.chomp
+        svg = <<~SVG
           <g id="xxx" _:foo="fff" _:bar="bbb"/>
         SVG
+          .chomp
 
-        assert_nil(Derender::Document.new(svg).decompile().find("line1"))
+        assert_nil(Derender::Document.new(svg).decompile.find("line1"))
       end
 
       def test_find_itself
-        svg = <<~SVG.chomp
+        svg = <<~SVG
           <g id="xxx" _:foo="fff" _:bar="bbb">
             <line id="line1" length="10.0"/>
             <line id="line2" length="20.0"/>
           </g>
         SVG
+          .chomp
 
-        actual   = Derender::Document.new(svg).decompile().find("xxx").derender
+        actual = Derender::Document.new(svg).decompile.find("xxx").derender
 
         expected = <<~SEVGI
           g id: "xxx", "_:foo": "fff", "_:bar": "bbb" do
@@ -79,14 +84,15 @@ module Sevgi
       end
 
       def test_find_by
-        svg = <<~SVG.chomp
+        svg = <<~SVG
           <g id="xxx" _:foo="fff" _:bar="bbb">
             <line id="line1" length="10.0"/>
             <line id="line2" length="20.0"/>
           </g>
         SVG
+          .chomp
 
-        actual   = Derender::Document.new(svg).decompile().find("20.0", by: "length").derender
+        actual = Derender::Document.new(svg).decompile.find("20.0", by: "length").derender
 
         expected = <<~SEVGI
           line id: "line2", length: 20.0

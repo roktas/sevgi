@@ -9,12 +9,12 @@ module Sevgi
         end
 
         def Comment(comment)
-          _ Content.verbatim("<!-- #{comment} -->")
+          _(Content.verbatim("<!-- #{comment} -->"))
         end
 
         def Ancestral
           {}.tap do |result|
-            Root.Traverse { |element| result.merge!(element[:_]) if element.has?(:_) }
+            Root.Traverse() { |element| result.merge!(element[:_]) if element.has?(:_) }
           end
         end
       end

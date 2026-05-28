@@ -12,12 +12,18 @@ module Sevgi
           this, that = element.box, other.box
 
           case alignment
-          when :center then Translation[(this.width - that.width) / 2.0, (this.height - that.height) / 2.0]
-          when :left   then Translation[this.ne.x - that.ne.x, 0]
-          when :right  then Translation[this.sw.x - that.sw.x, 0]
-          when :top    then Translation[0, this.ne.y - that.ne.y]
-          when :bottom then Translation[0, this.sw.y - that.sw.y]
-          else              ArgumentError.("No such type of alignment: #{alignment}")
+          when :center
+            Translation[(this.width - that.width) / 2.0, (this.height - that.height) / 2.0]
+          when :left
+            Translation[this.ne.x - that.ne.x, 0]
+          when :right
+            Translation[this.sw.x - that.sw.x, 0]
+          when :top
+            Translation[0, this.ne.y - that.ne.y]
+          when :bottom
+            Translation[0, this.sw.y - that.sw.y]
+          else
+            ArgumentError.("No such type of alignment: #{alignment}")
           end
         end
 

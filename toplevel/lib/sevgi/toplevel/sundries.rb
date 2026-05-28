@@ -8,7 +8,7 @@ module Sevgi
       ArgumentError.("Must be a Canvas: #{canvas}") unless canvas.is_a?(Graphics::Canvas)
 
       Sundries::Grid[
-        Sundries::Ruler.new(brut: canvas.width,  unit:, multiple:, margin: canvas.left),
+        Sundries::Ruler.new(brut: canvas.width, unit:, multiple:, margin: canvas.left),
         Sundries::Ruler.new(brut: canvas.height, unit:, multiple:, margin: canvas.top)
       ]
     end

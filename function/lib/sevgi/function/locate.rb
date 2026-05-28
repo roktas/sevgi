@@ -12,9 +12,9 @@ module Sevgi
       attr_reader :paths, :start, :exclude
 
       def initialize(paths, start = ::Dir.pwd, exclude: nil)
-        @paths   = Array(paths)
-        @start   = start
-        @exclude = [ *exclude ].map { ::File.expand_path(it) } unless exclude.nil?
+        @paths = Array(paths)
+        @start = start
+        @exclude = [*exclude].map { ::File.expand_path(it) } unless exclude.nil?
       end
 
       def call(&block)
@@ -34,21 +34,21 @@ module Sevgi
 
       private
 
-        def match(&block)
-          finder = block ||
-            if exclude.nil?
-              proc { |path| ::File.exist?(path) }
-            else
-              proc { |path| !exclude.include?(::File.expand_path(path)) && ::File.exist?(path) }
-            end
+      def match(&block)
+        finder = block ||
+          if exclude.nil?
+            proc { |path| ::File.exist?(path) }
+          else
+            proc { |path| !exclude.include?(::File.expand_path(path)) && ::File.exist?(path) }
+          end
 
-          paths.find { finder.call(it) }
-        end
+        paths.find { finder.call(it) }
+      end
     end
 
     def self.locate(filename, start, exclude: nil, extension: EXTENSION)
-      Locate.(F.qualify(filename, extension), start, exclude:).tap do
-        raise(Error, "Cannot load a file matching: #{filename}") unless it
+      Locate.(F.qualify(filename, extension), start, exclude:).tap do |path|
+        raise Error, "Cannot load a file matching: #{filename}" unless path
       end
     end
   end

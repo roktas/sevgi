@@ -7,34 +7,44 @@ module Sevgi
     class LineTest < Minitest::Test
       include Fixtures
 
-      def test_line_345
+      def test_line_three_four_five
         [
-          53.13, line345.angle,
-          5.0,   line345.length
+          53.13,
+          line345.angle,
+          5.0,
+          line345.length
         ].each_slice(2) { |expected, actual| assert_in_delta(expected, actual) }
 
         [
-          Point[0, 0], line345.position,
-          Point[3, 4], line345.ending
+          Point[0, 0],
+          line345.position,
+          Point[3, 4],
+          line345.ending
         ].each_slice(2) { |expected, actual| assert(Point.eq?(expected, actual)) }
       end
 
-      def test_line_543
+      def test_line_five_four_three
         [
-          -53.13, line543.angle,
-          5.0,    line543.length
+          -53.13,
+          line543.angle,
+          5.0,
+          line543.length
         ].each_slice(2) { |expected, actual| assert_in_delta(expected, actual) }
 
         [
-          Point[0, 4], line543.position,
-          Point[3, 0], line543.ending
+          Point[0, 4],
+          line543.position,
+          Point[3, 0],
+          line543.ending
         ].each_slice(2) { |expected, actual| assert(Point.eq?(expected, actual)) }
       end
 
       def test_line_from_points
         [
-          Line.(Origin, [ 1, 3 ]).position, Origin,
-          Line.(Origin, [ 1, 3 ]).ending,   Point[1, 3],
+          Line.(Origin, [1, 3]).position,
+          Origin,
+          Line.(Origin, [1, 3]).ending,
+          Point[1, 3]
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
@@ -42,9 +52,12 @@ module Sevgi
         line = Line[5, angle345]
 
         [
-          line345.length,   line.length,
-          line345.position, line.position,
-          line345.ending,   line.ending
+          line345.length,
+          line.length,
+          line345.position,
+          line.position,
+          line345.ending,
+          line.ending
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
     end

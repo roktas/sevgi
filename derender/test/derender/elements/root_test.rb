@@ -7,7 +7,7 @@ module Sevgi
     module Elements
       class RootTest < Minitest::Test
         def test_root_simple
-          svg = <<~'SVG'.chomp
+          svg = <<~SVG
             <svg id="Root" shape-rendering="crispEdges" width="60.0mm" height="60.0mm" viewBox="0 0 60 60">
               <defs id="Helpers">
                 <clipPath id="Crop">
@@ -16,10 +16,11 @@ module Sevgi
               </defs>
             </svg>
           SVG
+            .chomp
 
           actual = Derender.derender(svg)
 
-          expected = <<~'SEVGI'
+          expected = <<~SEVGI
             SVG id: "Root", "shape-rendering": "crispEdges", width: "60.0mm", height: "60.0mm", viewBox: "0 0 60 60" do
               defs id: "Helpers" do
                 clipPath id: "Crop" do
@@ -33,7 +34,7 @@ module Sevgi
         end
 
         def test_root_with_namespaces
-          svg = <<~'SVG'.chomp
+          svg = <<~SVG
             <svg
               id="Root"
               xmlns="http://www.w3.org/2000/svg"
@@ -50,10 +51,11 @@ module Sevgi
               </defs>
             </svg>
           SVG
+            .chomp
 
           actual = Derender.derender(svg)
 
-          expected = <<~'SEVGI'
+          expected = <<~SEVGI
             SVG id: "Root", xmlns: "http://www.w3.org/2000/svg", "xmlns:_": "http://sevgi.roktas.dev", "shape-rendering": "crispEdges", width: "60.0mm", height: "60.0mm", viewBox: "0 0 60 60" do
               defs id: "Helpers" do
                 clipPath id: "Crop", "_:width": 10.0 do
@@ -67,7 +69,7 @@ module Sevgi
         end
 
         def test_root_with_pres
-          svg = <<~'SVG'.chomp
+          svg = <<~SVG
             <?xml version="1.0" encoding="UTF-8" standalone="no"?>
             <svg
               id="Root"
@@ -85,10 +87,11 @@ module Sevgi
               </defs>
             </svg>
           SVG
+            .chomp
 
           actual = Derender.derender(svg)
 
-          expected = <<~'SEVGI'
+          expected = <<~SEVGI
             SVG.document preambles: [
               '<?xml version="1.0" encoding="UTF-8" standalone="no"?>',
             ]

@@ -11,22 +11,23 @@ module Sevgi
 
         private
 
-          def Export(path = nil, default: nil, **kwargs, &block) # rubocop:disable Layout/IndentationConsistency
-            default ||= F.subext(kwargs[:format] ? ".#{kwargs[:format]}" : ".pdf", caller_locations(2..2).first.path)
+        def Export(path = nil, default: nil, **kwargs, &block)
+          default ||= F.subext(kwargs[:format] ? ".#{kwargs[:format]}" : ".pdf", caller_locations(2..2).first.path)
 
-            if path
-              ::File.directory?(path) ? ::File.join(path, ::File.basename(default)) : path
-            else
-              default
-            end => path
+          if path
+            ::File.directory?(path) ? ::File.join(path, ::File.basename(default)) : path
+          else
+            default
+          end => path
 
-            ::FileUtils.mkdir_p(::File.dirname(path))
+          ::FileUtils.mkdir_p(::File.dirname(path))
 
-            Sundries::Export.(self.call, path, **kwargs, &block)
-          end
+          Sundries::Export.(call, path, **kwargs, &block)
+        end
+
       rescue ::LoadError
-        def PDF(...) = raise(NoMethodError, '"sevgi/sundries" required')
-        def PNG(...) = raise(NoMethodError, '"sevgi/sundries" required')
+        def PDF(...) = raise NoMethodError, "\"sevgi/sundries\" required"
+        def PNG(...) = raise NoMethodError, "\"sevgi/sundries\" required"
       end
     end
   end

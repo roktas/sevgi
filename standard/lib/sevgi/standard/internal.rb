@@ -3,11 +3,11 @@
 module Sevgi
   module Standard
     module List
-      def [](name)         = data[name]
+      def [](name) = data[name]
 
       def import(**kwargs) = data.merge!(kwargs.reject { |key, _| data.key?(key) })
 
-      def valid?(name)     = data.key?(name)
+      def valid?(name) = data.key?(name)
 
       def self.extended(base)
         super

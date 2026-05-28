@@ -5,23 +5,23 @@ module Sevgi
     class Content
       attr_reader :content
 
-      def initialize(content)     = @content = content
+      def initialize(content) = @content = content
 
-      def render(renderer, depth) = raise(NoMethodError, "#{self.class}#render must be implemented")
+      def render(_renderer, _depth) = raise NoMethodError, "#{self.class}#render must be implemented"
 
-      def to_s                    = content.to_s
+      def to_s = content.to_s
 
-      def self.cdata(...)         = CData.new(...)
+      def self.cdata(...) = CData.new(...)
 
-      def self.contents(*args)    = args.map { it.is_a?(Content) ? it : encoded(it) }
+      def self.contents(*args) = args.map { it.is_a?(Content) ? it : encoded(it) }
 
-      def self.css(...)           = CSS.new(...)
+      def self.css(...) = CSS.new(...)
 
-      def self.encoded(...)       = Encoded.new(...)
+      def self.encoded(...) = Encoded.new(...)
 
-      def self.text(contents)     = Array(contents).map(&:to_s).join("\n")
+      def self.text(contents) = Array(contents).join("\n")
 
-      def self.verbatim(...)      = Verbatim.new(...)
+      def self.verbatim(...) = Verbatim.new(...)
 
       class CData < Content
         def render(renderer, depth)
@@ -40,7 +40,8 @@ module Sevgi
           super
         end
 
-        def render(renderer, depth) # rubocop:disable Metrics/MethodLength
+        # rubocop:disable Metrics/MethodLength
+        def render(renderer, depth)
           depth += 1
 
           renderer.append(depth, "<![CDATA[")
@@ -58,14 +59,16 @@ module Sevgi
               ArgumentError.("Malformed style: #{styles}")
             end
           end
+
           depth -= 1
 
           renderer.append(depth, "]]>")
         end
+        # rubocop:enable Metrics/MethodLength
       end
 
       class Encoded < Content
-        def to_s                    = content.encode(xml: :text)
+        def to_s = content.encode(xml: :text)
 
         def render(renderer, depth) = renderer.append(depth + 1, to_s)
       end

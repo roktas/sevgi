@@ -27,7 +27,7 @@ end
 group :development do
   gem "rubocop-md"
   gem "rubocop-packaging"
-  gem "rubocop-rails-omakase"
   gem "rubocop-rake"
+  gem "rubocop-rubyfmt", "0.1.1"
   gem "ruby-lsp"
 end

@@ -10,7 +10,7 @@ module Sevgi
       attr_reader :x, :y
 
       def initialize(x:, y:)
-        ArgumentError.("Arguments must be Ruler objects") unless [ x, y ].all? { it.is_a?(Ruler) }
+        ArgumentError.("Arguments must be Ruler objects") unless [x, y].all?(Ruler)
 
         @x = X.new(x, y)
         @y = Y.new(x, y)
@@ -18,11 +18,16 @@ module Sevgi
         super(Geometry::Rect[@x.u, @y.u], nx: @x.n, ny: @y.n)
       end
 
-      def canvas = Graphics::Canvas.new(**Graphics::Paper[x.brut, y.brut].to_h, margins: Graphics::Margin[y.margin, x.margin].to_a)
+      def canvas
+        Graphics::Canvas.new(
+          **Graphics::Paper[x.brut, y.brut].to_h,
+          margins: Graphics::Margin[y.margin, x.margin].to_a
+        )
+      end
 
       def height = y.d
 
-      def width  = x.d
+      def width = x.d
 
       class Axis < DelegateClass(Ruler)
         attr_reader :major, :halve, :minor
@@ -38,15 +43,15 @@ module Sevgi
         class Query
           def initialize(this, other) = (@this, @other = this, other)
 
-          def xys    = @xys    ||= lines.map { it.points(true).map(&:deconstruct) }
+          def xys = @xys ||= lines.map { it.points(true).map(&:deconstruct) }
 
           def points = @points ||= lines.map { it.points(true) }
 
-          def lines  = @lines  ||= lines!
+          def lines = @lines ||= lines!
 
           private
 
-            attr_reader :this, :other
+          attr_reader :this, :other
         end
 
         class Major < Query
@@ -69,7 +74,7 @@ module Sevgi
       class Y < Axis
         def initialize(this, other) = super(other, this)
 
-        def line                    = @line || Geometry::Line[d, 90.0]
+        def line = @line || Geometry::Line[d, 90.0]
       end
     end
   end

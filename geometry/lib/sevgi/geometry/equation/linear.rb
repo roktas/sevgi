@@ -8,21 +8,25 @@ module Sevgi
           attr_reader :slope, :intercept
 
           def initialize(slope:, intercept:)
-            @slope     = slope.to_f
+            super()
+
+            @slope = slope.to_f
             @intercept = intercept.to_f
           end
 
-          def approx(precision = nil) = self.class.new(slope: F.approx(slope, precision), intercept: F.approx(intercept, precision))
+          def approx(precision = nil)
+            self.class.new(slope: F.approx(slope, precision), intercept: F.approx(intercept, precision))
+          end
 
-          def eql?(other)             = self.class == other.class && [ slope, intercept ] == [ other.slope, other.intercept ]
+          def eql?(other) = self.class == other.class && [slope, intercept] == [other.slope, other.intercept]
 
-          def hash                    = [ self.class, slope, intercept ].hash
+          def hash = [self.class, slope, intercept].hash
 
-          def left?(point)            = F.gt?(point.y, y(point.x))
+          def left?(point) = F.gt?(point.y, y(point.x))
 
-          def on?(point)              = F.eq?(point.y, y(point.x))
+          def on?(point) = F.eq?(point.y, y(point.x))
 
-          def right?(point)           = F.lt?(point.y, y(point.x))
+          def right?(point) = F.lt?(point.y, y(point.x))
 
           def shift(distance = nil, dx: nil, dy: nil)
             dx ||= 0.0
@@ -33,13 +37,13 @@ module Sevgi
               dy -= distance * F.cos(angle)
             end
 
-            Diagonal.new(slope:, intercept: intercept - slope * dx + dy)
+            Diagonal.new(slope:, intercept: intercept - (slope * dx) + dy)
           end
 
           def to_s
             strings = []
 
-            strings << "#{F.approx(slope)} * x"     unless F.zero?(slope)
+            strings << "#{F.approx(slope)} * x" unless F.zero?(slope)
             strings << F.approx(intercept).abs.to_s unless F.zero?(intercept)
 
             "Linear<y = #{strings.join(intercept.positive? ? " + " : " - ")}>"
@@ -49,7 +53,7 @@ module Sevgi
 
           def y(x) = (slope * x) + intercept
 
-          alias_method :==, :eql?
+          alias == eql?
         end
 
         class Horizontal < Diagonal
@@ -57,21 +61,29 @@ module Sevgi
         end
 
         class Vertical < Linear
-          def initialize(c)                           = @x = c
+          def initialize(c)
+            super()
 
-          def left?(point)                            = F.lt?(point.x, x(point.y))
+            @x = c
+          end
 
-          def on?(point)                              = F.eq?(point.x, x(point.y))
+          def left?(point) = F.lt?(point.x, x(point.y))
 
-          def right?(point)                           = F.gt?(point.x, x(point.y))
+          def on?(point) = F.eq?(point.x, x(point.y))
 
-          def shift(distance = nil, dx: nil, dy: nil) = self.class.new(x + (distance || 0.0) + (dx || 0.0))
+          def right?(point) = F.gt?(point.x, x(point.y))
 
-          def to_s                                    = "Linear<x = #{F.approx(x)}>"
+          def shift(distance = nil, dx: nil, dy: nil)
+            _dy = dy
 
-          def x(_ = nil)                              = @x
+            self.class.new(x + (distance || 0.0) + (dx || 0.0))
+          end
 
-          def y(_ = nil)                              = ::Float::INFINITY
+          def to_s = "Linear<x = #{F.approx(x)}>"
+
+          def x(_ = nil) = @x
+
+          def y(_ = nil) = ::Float::INFINITY
         end
       end
     end

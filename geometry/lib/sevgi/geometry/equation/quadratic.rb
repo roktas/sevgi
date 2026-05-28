@@ -9,7 +9,7 @@ module Sevgi
 
     class Circle
       def equation
-        raise(NotImplementedError)
+        raise NotImplementedError
       end
     end
   end

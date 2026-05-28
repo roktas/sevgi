@@ -5,7 +5,7 @@ module Sevgi
     module Document
       class Base
         def Save(*, **) = Out(**)
-        def Save!(...)  = Save(...)
+        def Save!(...) = Save(...)
       end
     end
   end

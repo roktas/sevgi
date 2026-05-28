@@ -9,21 +9,27 @@ module Sevgi
 
       private
 
-        def inject(base)
-          return if base.instance_variable_defined?("@_toplevel_injected_")
+      def inject(base)
+        return if base.instance_variable_defined?("@_toplevel_injected_")
 
-          @constants.each { |args| (base.is_a?(::Module) ? base : base.class).const_set(*args) }
-          base.instance_variable_set("@_toplevel_injected_", true)
-        end
+        @constants.each { |args| (base.is_a?(::Module) ? base : base.class).const_set(*args) }
+        base.instance_variable_set("@_toplevel_injected_", true)
+      end
 
-        def promote(constant, symbol = Undefined)
-          @constants[Undefined.default(symbol, constant.to_s.split("::").last.to_sym)] = constant
-        end
+      def promote(constant, symbol = Undefined)
+        @constants[Undefined.default(symbol, constant.to_s.split("::").last.to_sym)] = constant
+      end
     end
 
-    def self.included(base) = (super; inject(base))
+    def self.included(base)
+      super
+      inject(base)
+    end
 
-    def self.extended(base) = (super; inject(base))
+    def self.extended(base)
+      super
+      inject(base)
+    end
   end
 
   extend Toplevel

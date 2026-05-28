@@ -14,12 +14,14 @@ module Sevgi
       META_NAMESPACE = "_:"
 
       def _
-        @_ ||= attributes.slice(
-          *attributes.keys.select { |it| it.start_with?(META_NAMESPACE) }
-        ).transform_keys! { it.delete_prefix(META_NAMESPACE) }
+        @_ ||= attributes
+          .slice(
+            *attributes.keys.select { |key| key.start_with?(META_NAMESPACE) }
+          )
+          .transform_keys! { |key| key.delete_prefix(META_NAMESPACE) }
       end
 
-      alias_method :meta, :_
+      alias meta _
 
       def attributes
         @attributes ||= node.attribute_nodes.to_h do |attr|
@@ -31,15 +33,15 @@ module Sevgi
             name
           end => key
 
-          [ key, value ]
+          [key, value]
         end
       end
 
       def attributes! = attributes
 
       def children
-        @children ||= node.children.map { self.class.new(it) }.reject do
-          (it.node.text? and it.node.text.strip.empty?) or it.type == :Junk
+        @children ||= node.children.map { |child| self.class.new(child) }.reject do |child|
+          (child.node.text? and child.node.text.strip.empty?) or child.type == :Junk
         end
       end
 
@@ -60,8 +62,8 @@ module Sevgi
       def find(arg, by: "id")
         return self if attributes[by] == arg
 
-        children&.each do
-          found = it.find(arg, by:)
+        children&.each do |child|
+          found = child.find(arg, by:)
 
           return found if found
         end
@@ -71,25 +73,26 @@ module Sevgi
 
       def name = @name ||= node.name
 
-      def namespaces = (@namespaces ||= node.namespaces.to_h { |namespace, uri|  [ namespace, uri ] })
+      def namespaces = (@namespaces ||= node.namespaces.to_h { |namespace, uri| [namespace, uri] })
 
       def root? = type == :Root
 
       private
 
-        def dispatch
-          if node.text?
-            :Text
-          elsif node.comment?
-            :Junk
-          elsif node.name == "style"
-            :CSS
-          elsif node.name == "svg"
-            :Root
-          else
-            :Any
-          end.tap { extend Elements.const_get(it) }
+      def dispatch
+        if node.text?
+          :Text
+        elsif node.comment?
+          :Junk
+        elsif node.name == "style"
+          :CSS
+        elsif node.name == "svg"
+          :Root
+        else
+          :Any
         end
+          .tap { extend(Elements.const_get(it)) }
+      end
     end
   end
 end

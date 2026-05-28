@@ -6,7 +6,7 @@ module Sevgi
   module Graphics
     module Document
       class Test < Base
-        document :test, attributes: { "data-var": "xxx" }
+        document :test, attributes: {"data-var": "xxx"}
       end
     end
 
@@ -14,44 +14,48 @@ module Sevgi
       DOC = :test
 
       def test_subclass_root_attributes_doesnt_leak
-        expected = <<~SVG.chomp
+        expected = <<~SVG
           <svg data-var="xxx">
             <line data-var="main var"/>
             <line data-var="duplicated var"/>
           </svg>
         SVG
+          .chomp
 
-        actual = SVG DOC do
-          line("data-var": "main var").Duplicate[:"data-var"] = "duplicated var"
-        end.Render
+        actual = SVG(DOC) do
+          line("data-var": "main var").Duplicate()[:"data-var"] = "duplicated var"
+        end
+          .Render()
 
         assert_equal(expected, actual)
       end
 
       def test_subclass_works_with_default_canvas
-        expected = <<~SVG.chomp
+        expected = <<~SVG
           <svg data-var="xxx" width="210.0mm" height="297.0mm" viewBox="0 0 210 297"/>
         SVG
+          .chomp
 
-        actual = SVG(DOC, Canvas.(:a4)).Render
+        actual = SVG(DOC, Canvas.(:a4)).Render()
 
         assert_equal(expected, actual)
       end
 
       def test_subclass_works_with_custom_canvas
-        expected = <<~SVG.chomp
+        expected = <<~SVG
           <svg data-var="xxx" width="210.0mm" height="297.0mm" viewBox="-5 -3 210 297"/>
         SVG
+          .chomp
 
-        actual = SVG(DOC, Canvas.(:a4, margins: [ 3, 5 ])).Render
+        actual = SVG(DOC, Canvas.(:a4, margins: [3, 5])).Render()
 
         assert_equal(expected, actual)
       end
     end
 
     class DocumentMethodMissingTest < Minitest::Test
-      UNRELATED = [ Element, Document::Base, Document::Minimal ].freeze
-      RELATED   = [ Document::Default, *ObjectSpace.each_object(Class).select { |klass| klass < Document::Default } ]
+      UNRELATED = [Element, Document::Base, Document::Minimal].freeze
+      RELATED = [Document::Default, *ObjectSpace.each_object(Class).select { |klass| klass < Document::Default }].freeze
 
       def setup
         [
@@ -64,13 +68,13 @@ module Sevgi
 
       def test_class_relations
         UNRELATED.each { |klass| refute_operator(klass, :<=, Document::Default) }
-        RELATED.each   { |klass| assert_operator(klass, :<=, Document::Default) }
+        RELATED.each { |klass| assert_operator(klass, :<=, Document::Default) }
       end
 
       def test_method_missing_caching_with_block
         test = self
 
-        SVG :default do
+        SVG(:default) do
           [
             self.class,
             *UNRELATED,
@@ -88,7 +92,7 @@ module Sevgi
       end
 
       def test_method_missing_caching_with_using_within
-        doc = SVG :default
+        doc = SVG(:default)
 
         [
           doc.class,
@@ -96,7 +100,7 @@ module Sevgi
           *RELATED
         ].each { |klass| refute(klass.method_defined?(:marker)) }
 
-        doc.Within { marker }
+        doc.Within() { marker }
 
         [
           doc.class,

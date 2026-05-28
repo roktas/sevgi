@@ -19,12 +19,17 @@ module Sevgi
         def Validate
           Traverse do |element|
             Standard.conform(
-              element.name, attributes: element.attributes.list, cdata: element.CData, elements: element.children.map(&:name)
+              element.name,
+              attributes: element.attributes.list,
+              cdata: element.CData(),
+              elements: element.children.map(&:name)
             )
           end
         end
+
       rescue ::LoadError
-        def Validate(...) = true
+        def Validate(...)
+        end
       end
     end
   end

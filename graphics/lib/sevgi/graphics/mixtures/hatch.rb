@@ -8,7 +8,8 @@ module Sevgi
           Array(lines).map { it.draw(self, **kwargs) }
         end
 
-        def Hatch(element, initial: nil, direction:, step:, **kwargs) # TODO: angle vs direction
+        # TODO: angle vs direction
+        def Hatch(element, direction:, step:, initial: nil, **kwargs)
           Draw(Geometry::Operation.sweep!(element, initial: initial || element.position, direction:, step:), **kwargs)
         end
       end

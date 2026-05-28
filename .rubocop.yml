@@ -1,36 +1,21 @@
 inherit_from: .rubocop_todo.yml
-inherit_gem:  { rubocop-rails-omakase: rubocop.yml }
+inherit_gem:
+  rubocop-rubyfmt:
+    - config/full.yml
+inherit_mode:
+  merge:
+    - Exclude
 
 plugins:
+  - "rubocop-rubyfmt"
   - "rubocop-md"
   - "rubocop-packaging"
   - "rubocop-rake"
 
-Layout/ExtraSpacing:
-  Exclude: 
-    - "**/standard/**/*.rb"
-    - "**/test/**/*.rb"
-Layout/HashAlignment:
-  Enabled: true
-  EnforcedHashRocketStyle: table
-  EnforcedColonStyle: table
-Layout/LineLength:
-  Max: 140
-  Exclude: 
-    - "**/test/**/*.rb"
-Layout/MultilineArrayLineBreaks:
-  Exclude: 
-    - "**/test/**/*.rb"
-Layout/MultilineMethodArgumentLineBreaks:
-  Exclude: 
-    - "**/test/**/*.rb"
-    - "**/standard/**/color.rb"
-Layout/MultilineOperationIndentation:
-  Enabled: false
-Layout/SpaceBeforeComma:
+Metrics/AbcSize:
   Exclude:
-    - "**/standard/**/color.rb"
-
+    - "**/test/**/*.rb"
+    - "**/*.sevgi"
 Metrics/BlockLength:
   Exclude: 
     - "**/test/**/*.rb"
@@ -47,32 +32,35 @@ Metrics/MethodLength:
 
 Naming/MethodName:
   Enabled: false
-
-Rails/RefuteMethods:
+Naming/MethodParameterName:
   Enabled: false
-      
+Naming/BlockForwarding:
+  Enabled: false
 Style/AsciiComments:
   Enabled: false
 Style/ClassMethodsDefinitions:
   EnforcedStyle: def_self
   Enabled: true
-Style/Documentation:
+Style/ArgumentsForwarding:
   Enabled: false
-Layout/IndentationConsistency:
-  EnforcedStyle: indented_internal_methods
-  Enabled: true
+Style/EmptyClassDefinition:
+  Enabled: false
+Style/IfUnlessModifier:
+  Enabled: false
 Style/LambdaCall:
   Enabled: false
-Style/ParallelAssignment:
+Style/MethodCallWithoutArgsParentheses:
   Enabled: false
-Style/TrailingCommaInArguments:
-  Exclude: 
-    - "**/test/**/*.rb"
-Style/TrailingCommaInArrayLiteral:
+Style/ModuleFunction:
+  Enabled: false
+Style/OptionalBooleanParameter:
+  Enabled: false
+Style/ParallelAssignment:
   Enabled: false
 
 AllCops:
   NewCops: enable
+  SuggestExtensions: false
   Include:
     - "**/*.rb"
     - "**/*.sevgi"
@@ -80,3 +68,4 @@ AllCops:
     - "vendor/**/*"
     - "_/**/*"
     - "**/_/**/*"
+    - "RUBYFMT_NOTES.md"

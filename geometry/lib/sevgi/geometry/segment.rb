@@ -16,43 +16,43 @@ module Sevgi
       end
 
       def self.horizontal!(length) = self[length, 180.0]
-      def self.horizontal(length)  = self[length,   0.0]
-      def self.vertical!(length)   = self[length, -90.0]
-      def self.vertical(length)    = self[length,  90.0]
+      def self.horizontal(length) = self[length, 0.0]
+      def self.vertical!(length) = self[length, -90.0]
+      def self.vertical(length) = self[length, 90.0]
 
       def initialize(length:, angle:) = super(length: length.to_f, angle: angle.to_f)
 
-      def <=>(other)                  = ((other = Tuple[Segment, other]).nan? || nan?) ? nil : length <=> other.length
+      def <=>(other) = (other = Tuple[Segment, other]).nan? || nan? ? nil : length <=> other.length
 
-      def approx(precision = nil)     = with(length: F.approx(length, precision), angle: F.approx(angle, precision))
+      def approx(precision = nil) = with(length: F.approx(length, precision), angle: F.approx(angle, precision))
 
-      def com                         = angle - 90.0
+      def com = angle - 90.0
 
-      def ending(starting)            = Tuple[Point, starting].translate(x, y)
+      def ending(starting) = Tuple[Point, starting].translate(x, y)
 
-      def eq?(other, precision: nil)  = self.class.eq?(self, other, precision:)
+      def eq?(other, precision: nil) = self.class.eq?(self, other, precision:)
 
-      def eql?(other)                 = self.class == other.class && deconstruct == other.deconstruct
+      def eql?(other) = self.class == other.class && deconstruct == other.deconstruct
 
-      def hash                        = [ self.class, *deconstruct ].hash
+      def hash = [self.class, *deconstruct].hash
 
-      def infinite?                   = deconstruct.any?(&:infinite?)
+      def infinite? = deconstruct.any?(&:infinite?)
 
-      def line(point = Origin)        = Line[length, angle, position: Tuple[Point, point]]
+      def line(point = Origin) = Line[length, angle, position: Tuple[Point, point]]
 
-      def lx                          = x.abs
+      def lx = x.abs
 
-      def ly                          = y.abs
+      def ly = y.abs
 
-      def nan?                        = deconstruct.any?(&:nan?)
+      def nan? = deconstruct.any?(&:nan?)
 
-      def reverse                     = with(angle: angle + 180.0)
+      def reverse = with(angle: angle + 180.0)
 
-      def sup                         = angle - 180.0
+      def sup = angle - 180.0
 
-      def x                           = length * F.cos(angle)
+      def x = length * F.cos(angle)
 
-      def y                           = length * F.sin(angle)
+      def y = length * F.sin(angle)
     end
 
     LengthAngle = Data.define(:length, :angle)

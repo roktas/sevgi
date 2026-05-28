@@ -14,18 +14,18 @@ module Sevgi
   module Standard
     extend self
 
-    def attributes(...)  = Attribute.set(...)
+    def attributes(...) = Attribute.set(...)
 
     def attribute?(name) = Attribute.all.include?(name.to_sym)
 
-    def conform(...)     = Conform.(...)
+    def conform(...) = Conform.(...)
 
-    def elements(...)    = Element.set(...)
+    def elements(...) = Element.set(...)
 
-    def element?(name)   = Element.all.include?(name.to_sym)
+    def element?(name) = Element.all.include?(name.to_sym)
 
-    def model?(...)      = Specification.model?(...)
+    def model?(...) = Specification.model?(...)
 
-    def [](name)         = Specification[name.to_sym]
+    def [](name) = Specification[name.to_sym]
   end
 end

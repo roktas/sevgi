@@ -13,12 +13,14 @@ module Sevgi
         def Adopt(new_parent = nil, index: -1)
           tap do
             if new_parent
-              ArgumentError.("Element type does not match the new parent type: #{self.class}") unless instance_of?(new_parent.class)
+              unless instance_of?(new_parent.class)
+                ArgumentError.("Element type does not match the new parent type: #{self.class}")
+              end
             else
               new_parent = parent
             end
 
-            self.Orphan
+            self.Orphan()
             (@parent = new_parent).children.insert(index, self)
           end
         end
@@ -39,8 +41,10 @@ module Sevgi
             end
 
             case self[:class]
-            when ::Array then  self[:class]
-            when ::String then self[:class].split
+            when ::Array
+              self[:class]
+            when ::String
+              self[:class].split
             end => klasses
 
             classes.each { klasses << it unless klasses.include?(it) }
@@ -66,11 +70,11 @@ module Sevgi
         end
 
         def Is?(name)
-          self.name == name.to_sym
+          self.name() == name.to_sym
         end
 
         def Orphan
-          parent.children&.delete(self) unless Root?
+          parent.children&.delete(self) unless Root?()
         end
 
         def Prepend(*elements)
@@ -79,9 +83,8 @@ module Sevgi
 
         def Root
           element = self
-          while element.Root?
-            element = element.parent
-          end
+          element = element.parent while element.Root?()
+
           element
         end
 
@@ -113,7 +116,7 @@ module Sevgi
           loop do
             yield(element, height).tap { return it.value if it.is_a?(Traversal) }
 
-            break if element.Root?
+            break if element.Root?()
 
             element = element.parent
             height += 1

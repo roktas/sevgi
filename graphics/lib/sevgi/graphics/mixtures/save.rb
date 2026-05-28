@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'fileutils'
+require "fileutils"
 
 module Sevgi
   module Graphics
@@ -22,7 +22,9 @@ module Sevgi
           end => path
 
           ::FileUtils.mkdir_p(::File.dirname(path))
-          ::FileUtils.cp(path, "#{path}#{backup_suffix}") if backup_suffix && !backup_suffix.empty? && ::File.exist?(path)
+          if backup_suffix && !backup_suffix.empty? && ::File.exist?(path)
+            ::FileUtils.cp(path, "#{path}#{backup_suffix}")
+          end
 
           Out(path, &filter)
         end

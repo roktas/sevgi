@@ -2,7 +2,6 @@
 
 require "digest"
 require "fileutils"
-require "pathname"
 
 module Sevgi
   module Function
@@ -11,7 +10,7 @@ module Sevgi
         return true unless ::File.exist?(file)
 
         old_content = ::File.read(file)
-        old_content, content = [ old_content, content ].map(&filter) if filter
+        old_content, content = [old_content, content].map(&filter) if filter
 
         Digest::SHA1.digest(old_content) != Digest::SHA1.digest(content)
       end
@@ -26,7 +25,7 @@ module Sevgi
 
       def existing!(file, extensions)
         existing(file, extensions).tap do |found|
-          raise(ArgumentError, "No matching file(s) found: #{file}") unless found
+          raise ArgumentError, "No matching file(s) found: #{file}" unless found
         end
       end
 
@@ -40,7 +39,7 @@ module Sevgi
         existings = F.existings(...)
         missings = existings.select { |_, match| match.nil? }.keys
 
-        raise(ArgumentError, "No matching file(s) found: #{missings.join(", ")}") unless missings.empty?
+        raise ArgumentError, "No matching file(s) found: #{missings.join(", ")}" unless missings.empty?
 
         existings
       end
@@ -49,7 +48,7 @@ module Sevgi
         if paths.empty?
           ::Kernel.puts(content)
         else
-          file   = ::File.expand_path(::File.join(*paths))
+          file = ::File.expand_path(::File.join(*paths))
           output = "#{content.chomp}\n"
 
           return unless changed?(file, output, &filter)
@@ -68,10 +67,10 @@ module Sevgi
       def subext(ext, *paths)
         path = ::File.join(*paths)
 
-        return path if %w[ . .. ].include?(path)
+        return path if %w[. ..].include?(path)
         return path unless ext
 
-        ext = "." + ext unless ext.empty? || ext.start_with?(".")
+        ext = ".#{ext}" unless ext.empty? || ext.start_with?(".")
 
         Pathname.new(path).sub_ext(ext).to_s
       end

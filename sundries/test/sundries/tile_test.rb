@@ -9,25 +9,44 @@ module Sevgi
         ti = Tile.new(Geometry::Rect[3, 5], nx: 2, ny: 3, position: Geometry::Point[1, 2])
 
         [
-          Geometry::Point[1, 2],                    ti.position,
-          3,                              ti.rows.size,
-          2,                              ti.cols.size,
-          Geometry::Rect[3, 5, position: [ 1, 2 ]], ti.cell,
-          Geometry::Rect[3, 5, position: [ 4, 7 ]], ti[1][1],
+          Geometry::Point[1, 2],
+          ti.position,
+          3,
+          ti.rows.size,
+          2,
+          ti.cols.size,
+          Geometry::Rect[3, 5, position: [1, 2]],
+          ti.cell,
+          Geometry::Rect[3, 5, position: [4, 7]],
+          ti[1][1],
           [
-            [ Geometry::Rect[3, 5, position: [ 1,  2 ]], Geometry::Rect[3, 5, position: [ 4,  2 ]] ],
-            [ Geometry::Rect[3, 5, position: [ 1,  7 ]], Geometry::Rect[3, 5, position: [ 4,  7 ]] ],
-            [ Geometry::Rect[3, 5, position: [ 1, 12 ]], Geometry::Rect[3, 5, position: [ 4, 12 ]] ],
-          ],                              ti.rows,
+            [Geometry::Rect[3, 5, position: [1, 2]], Geometry::Rect[3, 5, position: [4, 2]]],
+            [Geometry::Rect[3, 5, position: [1, 7]], Geometry::Rect[3, 5, position: [4, 7]]],
+            [Geometry::Rect[3, 5, position: [1, 12]], Geometry::Rect[3, 5, position: [4, 12]]]
+          ],
+          ti.rows,
           [
-            [ Geometry::Rect[3, 5, position: [ 1, 2 ]], Geometry::Rect[3, 5, position: [ 1, 7 ]], Geometry::Rect[3, 5, position: [ 1, 12 ]] ],
-            [ Geometry::Rect[3, 5, position: [ 4, 2 ]], Geometry::Rect[3, 5, position: [ 4, 7 ]], Geometry::Rect[3, 5, position: [ 4, 12 ]] ],
-          ],                              ti.cols,
+            [
+              Geometry::Rect[3, 5, position: [1, 2]],
+              Geometry::Rect[3, 5, position: [1, 7]],
+              Geometry::Rect[3, 5, position: [1, 12]]
+            ],
+            [
+              Geometry::Rect[3, 5, position: [4, 2]],
+              Geometry::Rect[3, 5, position: [4, 7]],
+              Geometry::Rect[3, 5, position: [4, 12]]
+            ]
+          ],
+          ti.cols,
           [
-            Geometry::Rect[3, 5, position: [ 1, 2 ]], Geometry::Rect[3, 5, position: [ 4, 2 ]]
-          ],                              ti.row,
-          6.0,                            F.approx(ti.box.width),
-          15.0,                           F.approx(ti.box.height),
+            Geometry::Rect[3, 5, position: [1, 2]],
+            Geometry::Rect[3, 5, position: [4, 2]]
+          ],
+          ti.row,
+          6.0,
+          F.approx(ti.box.width),
+          15.0,
+          F.approx(ti.box.height)
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
@@ -35,9 +54,9 @@ module Sevgi
         ti = Tile.new(Geometry::Rect[3, 5], nx: 2, ny: 3, position: Geometry::Point[1, 2])
 
         expected = [
-          [ Geometry::Rect[3, 5, position: [ 1,  2 ]], Geometry::Rect[3, 5, position: [ 4,  2 ]] ],
-          [ Geometry::Rect[3, 5, position: [ 1,  7 ]], Geometry::Rect[3, 5, position: [ 4,  7 ]] ],
-          [ Geometry::Rect[3, 5, position: [ 1, 12 ]], Geometry::Rect[3, 5, position: [ 4, 12 ]] ],
+          [Geometry::Rect[3, 5, position: [1, 2]], Geometry::Rect[3, 5, position: [4, 2]]],
+          [Geometry::Rect[3, 5, position: [1, 7]], Geometry::Rect[3, 5, position: [4, 7]]],
+          [Geometry::Rect[3, 5, position: [1, 12]], Geometry::Rect[3, 5, position: [4, 12]]]
         ]
 
         assert_equal(expected, ti.each.to_a)
@@ -49,8 +68,16 @@ module Sevgi
         ti = Tile.new(Geometry::Rect[3, 5], nx: 2, ny: 3, position: Geometry::Point[1, 2])
 
         expected = [
-          [ Geometry::Rect[3, 5, position: [ 1, 2 ]],  Geometry::Rect[3, 5, position: [ 1, 7 ]], Geometry::Rect[3, 5, position: [ 1, 12 ]] ],
-          [ Geometry::Rect[3, 5, position: [ 4, 2 ]], Geometry::Rect[3, 5,  position: [ 4, 7 ]], Geometry::Rect[3, 5, position: [ 4, 12 ]] ],
+          [
+            Geometry::Rect[3, 5, position: [1, 2]],
+            Geometry::Rect[3, 5, position: [1, 7]],
+            Geometry::Rect[3, 5, position: [1, 12]]
+          ],
+          [
+            Geometry::Rect[3, 5, position: [4, 2]],
+            Geometry::Rect[3, 5, position: [4, 7]],
+            Geometry::Rect[3, 5, position: [4, 12]]
+          ]
         ]
 
         assert_equal(expected, ti.each_col.to_a)

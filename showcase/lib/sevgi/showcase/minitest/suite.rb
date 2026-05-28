@@ -15,7 +15,7 @@ module Sevgi
         @suites ||= @scripts.map(&:suite).uniq
       end
 
-      NON_VALIDS = [ "gotcha" ]
+      NON_VALIDS = ["gotcha"].freeze
 
       def non_valids
         NON_VALIDS.map { self[it] }.flatten
@@ -25,13 +25,13 @@ module Sevgi
         suites.reject { NON_VALIDS.include?(it) }.map { self[it] }.flatten
       end
 
-      alias_method :to_a, :valids
+      alias to_a valids
 
       private
 
-        def load(rootdir)
-          ::Dir["#{rootdir}/**/*.sevgi"].grep_v(%r{(/_|/lib/|/library/)}).map { Script.new(it) }
-        end
+      def load(rootdir)
+        ::Dir["#{rootdir}/**/*.sevgi"].grep_v(%r{(/_|/lib/|/library/)}).map { Script.new(it) }
+      end
     end
   end
 end

@@ -18,33 +18,33 @@ module Sevgi
 
       def initialize(e, n) = (@u, @n = measure(e), n)
 
-      def [](i)            = ds[i]
+      def [](i) = ds[i]
 
-      def count(length)    = (d / length.to_f).to_i
+      def count(length) = (d / length.to_f).to_i
 
-      def d                = @d  ||= n * u
+      def d = @d ||= n * u
 
-      def ds               = @ds ||= Array.new(n + 1) { |i| i * u }
+      def ds = @ds ||= Array.new(n + 1) { |i| i * u }
 
-      def h                = @h ||= d / 2.0
+      def h = @h ||= d / 2.0
 
-      def hs               = @hs ||= Array.new(n) { |i| u * (0.5 + i) }
+      def hs = @hs ||= Array.new(n) { |i| u * (0.5 + i) }
 
-      def nds              = @nds ||= ds.size - 1
+      def nds = @nds ||= ds.size - 1
 
-      def nhs              = @nhs ||= hs.size - 1
+      def nhs = @nhs ||= hs.size - 1
 
-      alias_method :length, :d
+      alias length d
 
       private
 
-        def measure(e)
-          return e.to_f if e.is_a?(::Numeric)
+      def measure(e)
+        return e.to_f if e.is_a?(::Numeric)
 
-          raise(NoMethodError, "#{e.class}#length must be implemented") unless e.respond_to?(:length)
+        raise NoMethodError, "#{e.class}#length must be implemented" unless e.respond_to?(:length)
 
-          e.length
-        end
+        e.length
+      end
     end
 
     #
@@ -67,25 +67,25 @@ module Sevgi
 
       def margin = @margin ||= waste / 2.0
 
-      def ms     = @ms ||= expand.ds
+      def ms = @ms ||= expand.ds
 
-      def waste  = @waste ||= brut - d
+      def waste = @waste ||= brut - d
 
-      def sn     = @sub.n
+      def sn = @sub.n
 
-      def sd     = @sub.d
+      def sd = @sub.d
 
-      def su     = @sub.u
+      def su = @sub.u
 
       protected
 
-        def divide(unit:, multiple:, brut:, margin:) = F.count((brut - 2 * margin), unit * multiple)
+      def divide(unit:, multiple:, brut:, margin:) = F.count(brut - (2 * margin), unit * multiple)
     end
 
     class RulerEven < Ruler
       protected
 
-        def divide(...) = (n = super).even? ? n : (n - 1)
+      def divide(...) = (n = super).even? ? n : (n - 1)
     end
   end
 end

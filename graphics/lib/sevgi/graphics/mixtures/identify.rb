@@ -8,7 +8,7 @@ module Sevgi
           attr_reader :element, :namespace, :collision
 
           def initialize(element)
-            @element   = element
+            @element = element
             @namespace = {}
             @collision = {}
 
@@ -25,17 +25,17 @@ module Sevgi
 
           private
 
-            def build
-              element.Traverse do |element|
-                next unless (id = element[:id])
+          def build
+            element.Traverse() do |element|
+              next unless (id = element[:id])
 
-                if @namespace.key?(id)
-                  (@collision[id] ||= [ @namespace[id] ]) << element
-                else
-                  @namespace[id] = element
-                end
+              if @namespace.key?(id)
+                (@collision[id] ||= [@namespace[id]]) << element
+              else
+                @namespace[id] = element
               end
             end
+          end
         end
 
         def Disidentify

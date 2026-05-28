@@ -10,17 +10,19 @@ module Sevgi
           lines = super
           return lines unless pres&.any?
 
-          lines.unshift [
-            "SVG.document preambles: [",
-            *pres.map { "'#{it}'," },
-            "]",
-            "",
-          ]
+          lines.unshift(
+            [
+              "SVG.document preambles: [",
+              *pres.map { "'#{it}'," },
+              "]",
+              ""
+            ]
+          )
         end
 
         def element = "SVG"
 
-        def attributes! = { **attributes, **namespaces }
+        def attributes! = {**attributes, **namespaces}
       end
     end
   end

@@ -3,21 +3,21 @@
 module Sevgi
   module Geometry
     module Affinity
-      def reflect(x: true, y: true)     = with(x: (y ? -1 : 1) * self.x, y: (x ? -1 : 1) * self.y)
+      def reflect(x: true, y: true) = with(x: (y ? -1 : 1) * self.x(), y: (x ? -1 : 1) * self.y())
 
-      def reflect_x                     = with(y: -y)
+      def reflect_x = with(y: -y)
 
-      def reflect_y                     = with(x: -x)
+      def reflect_y = with(x: -x)
 
-      def rotate(a)                     = with(x: x * F.cos(a) - y * F.sin(a), y: x * F.sin(a) + y * F.cos(a))
+      def rotate(a) = with(x: (x * F.cos(a)) - (y * F.sin(a)), y: (x * F.sin(a)) + (y * F.cos(a)))
 
-      def scale(sx, sy = Undefined)     = with(x: sx * x, y: Undefined.default(sy, sx) * y)
+      def scale(sx, sy = Undefined) = with(x: sx * x, y: Undefined.default(sy, sx) * y)
 
-      def skew(ax, ay = Undefined)      = with(x: x + y * F.tan(ax), y: y + x * F.tan(Undefined(ay, ax)))
+      def skew(ax, ay = Undefined) = with(x: x + (y * F.tan(ax)), y: y + (x * F.tan(Undefined(ay, ax))))
 
-      def skew_x(a)                     = with(x: x + y * f.tan(a))
+      def skew_x(a) = with(x: x + (y * f.tan(a)))
 
-      def skew_y(a)                     = with(y: y + x * F.tan(a))
+      def skew_y(a) = with(y: y + (x * F.tan(a)))
 
       def translate(dx, dy = Undefined) = with(x: x + dx, y: y + Undefined.default(dy, dx))
     end
@@ -38,40 +38,40 @@ module Sevgi
 
       def self.length(starting, ending)
         starting, ending = Tuples[Point, starting, ending]
-        ::Math.sqrt((starting.y - ending.y) ** 2 + (starting.x - ending.x) ** 2)
+        ::Math.sqrt(((starting.y - ending.y) ** 2) + ((starting.x - ending.x) ** 2))
       end
 
       def self.origin
         new(x: 0.0, y: 0.0)
       end
 
-      def initialize(x:, y:)         = super(x: x.to_f, y: y.to_f)
+      def initialize(x:, y:) = super(x: x.to_f, y: y.to_f)
 
-      def <=>(other)                 = ((other = Tuple[Point, other]).nan? || self.nan?) ? nil : deconstruct <=> other.deconstruct
+      def <=>(other) = (other = Tuple[Point, other]).nan? || nan? ? nil : deconstruct <=> other.deconstruct
 
-      def above?(other)              = y <= (other = Tuple[Point, other]).y
+      def above?(other) = y <= Tuple[Point, other].y
 
-      def approx(precision = nil)    = with(x: F.approx(x, precision), y: F.approx(y, precision))
+      def approx(precision = nil) = with(x: F.approx(x, precision), y: F.approx(y, precision))
 
-      def below?(other)              = y >= (other = Tuple[Point, other]).y
+      def below?(other) = y >= Tuple[Point, other].y
 
       def eq?(other, precision: nil) = self.class.eq?(self, other, precision:)
 
-      def eql?(other)                = self.class == other.class && deconstruct == other.deconstruct
+      def eql?(other) = self.class == other.class && deconstruct == other.deconstruct
 
-      def hash                       = [ self.class, *deconstruct ].hash
+      def hash = [self.class, *deconstruct].hash
 
-      def infinite?                  = deconstruct.any?(&:infinite?)
+      def infinite? = deconstruct.any?(&:infinite?)
 
-      def left?(other)               = x <= (other = Tuple[Point, other]).x
+      def left?(other) = x <= Tuple[Point, other].x
 
-      def nan?                       = deconstruct.any?(&:nan?)
+      def nan? = deconstruct.any?(&:nan?)
 
-      def right?(other)              = x >= (other = Tuple[Point, other]).x
+      def right?(other) = x >= Tuple[Point, other].x
 
-      def to_cs                      = "#{F.approx(x)},#{F.approx(y)}"
+      def to_cs = "#{F.approx(x)},#{F.approx(y)}"
 
-      def to_s                       = "(#{to_cs})"
+      def to_s = "(#{to_cs})"
 
       alias_method :==, :eql?
     end

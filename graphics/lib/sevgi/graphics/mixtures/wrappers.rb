@@ -4,16 +4,16 @@ module Sevgi
   module Graphics
     module Mixtures
       module Wrappers
-        def Cline(x1: 0, y1: 0, x2:, y2:, **)
+        def Cline(x2:, y2:, x1: 0, y1: 0, **)
           path(d: "M #{x1} #{y1} L #{x2} #{y2}", **)
         end
 
-        def Hline(x1: 0, y1: 0, x2:, **)
+        def Hline(x2:, x1: 0, y1: 0, **)
           path(d: "M #{x1} #{y1} H #{x2}", **)
         end
 
         def Symbol(name, **kwargs, &block)
-          id    = (words = name.split).map(&:downcase).join("-")
+          id = (words = name.split).map(&:downcase).join("-")
           title = words.map(&:capitalize).join(" ")
 
           symbol(id:, **kwargs) do
@@ -22,11 +22,11 @@ module Sevgi
           end
         end
 
-        def Vline(x1: 0, y1: 0, y2:, **)
+        def Vline(y2:, x1: 0, y1: 0, **)
           path(d: "M #{x1} #{y1} V #{y2}", **)
         end
 
-        def cline(x: 0, y: 0, angle:, length:, **)
+        def cline(angle:, length:, x: 0, y: 0, **)
           dx = length * ::Math.cos(angle.to_f / 180 * ::Math::PI)
           dy = length * ::Math.sin(angle.to_f / 180 * ::Math::PI)
           path(d: "M #{x} #{y} l #{dx} #{dy}", **)
@@ -36,17 +36,17 @@ module Sevgi
           style(Content.css(hash), type: "text/css", **)
         end
 
-        def cxline(x: 0, y: 0, angle:, dx:, **)
+        def cxline(angle:, dx:, x: 0, y: 0, **)
           dy = dx * ::Math.tan(angle.to_f / 180 * ::Math::PI)
           path(d: "M #{x} #{y} l #{dx} #{dy}", **)
         end
 
-        def cyline(x: 0, y: 0, angle:, dy:, **)
+        def cyline(angle:, dy:, x: 0, y: 0, **)
           dx = dy / ::Math.tan(angle.to_f / 180 * ::Math::PI)
           path(d: "M #{x} #{y} l #{dx} #{dy}", **)
         end
 
-        def hline(x: 0, y: 0, length:, **)
+        def hline(length:, x: 0, y: 0, **)
           path(d: "M #{x} #{y} h #{length}", **)
         end
 
@@ -54,7 +54,7 @@ module Sevgi
           rect(width: length, height: length, **)
         end
 
-        def vline(x: 0, y: 0, length:, **)
+        def vline(length:, x: 0, y: 0, **)
           path(d: "M #{x} #{y} v #{length}", **)
         end
       end
