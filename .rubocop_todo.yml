@@ -60,6 +60,24 @@ Metrics/MethodLength:
     - 'sundries/lib/sevgi/sundries/export/system.rb'
     - 'toplevel/lib/sevgi/binaries/sevgi.rb'
 
+# Offense count: 6
+# Configuration parameters: Max, CountKeywordArgs.
+Metrics/ParameterLists:
+  Exclude:
+    - 'graphics/lib/sevgi/graphics/mixtures/inkscape.rb'
+    - 'graphics/lib/sevgi/graphics/mixtures/tile.rb'
+    - 'sundries/lib/sevgi/sundries/export/native.rb'
+    - 'sundries/lib/sevgi/sundries/export/system.rb'
+
+# Offense count: 6
+# Configuration parameters: Max.
+Metrics/PerceivedComplexity:
+  Exclude:
+    - 'derender/lib/sevgi/derender/attributes.rb'
+    - 'graphics/lib/sevgi/graphics/mixtures/rdf.rb'
+    - 'sundries/lib/sevgi/sundries/export/native.rb'
+    - 'sundries/lib/sevgi/sundries/export/system.rb'
+
 # Offense count: 5
 # Configuration parameters: CountComments, Max, CountAsOne.
 Metrics/ModuleLength:

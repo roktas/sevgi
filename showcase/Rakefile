@@ -13,34 +13,38 @@ ENV["PATH"] += ":#{::File.expand_path("bin")}" if ::Dir.exist?("bin")
 
 require "rake/testtask"
 
-desc "Run unit tests"
+desc("Run unit tests")
 Rake::TestTask.new(:test) do |t|
   t.test_files = FileList["test/**/*_test.rb"].exclude(/(^[._]|integration)/)
 end
 
 if ::File.exist?("test/integration_test.rb")
-  desc "Run integration tests"
+  desc("Run integration tests")
   Rake::TestTask.new(:integration) do |t|
-    t.test_files = [ "test/integration_test.rb" ]
+    t.test_files = ["test/integration_test.rb"]
   end
 
-  desc "Run all tests"
-  Rake::Task[:test].enhance(%i[ integration ])
+  desc("Run all tests")
+  Rake::Task[:test].enhance(%i[integration])
 end
 
 # Lint
 
-require "rubocop/rake_task"
-RuboCop::RakeTask.new(:rubocop) do |t|
-  t.options = [ "--display-cop-names" ]
+rubocop_root = File.expand_path("..", Dir.pwd)
+rubocop_target = File.basename(Dir.pwd)
+
+task(:rubocop) do
+  Dir.chdir(rubocop_root) do
+    sh("bundle", "exec", "rubocop", rubocop_target, "--display-cop-names")
+  end
 end
 
-desc "Lint code"
-task lint: :rubocop
+desc("Lint code")
+task(lint: :rubocop)
 
 # Pack
 
-task :package if ::Dir["*.gemspec"].any?
+task(:package) if ::Dir["*.gemspec"].any?
 
 # Site
 
@@ -50,48 +54,48 @@ if ::Dir.exist?("srv")
   bins = Sevgi::Test::Suite.new("srv").valids
 
   bins.map do |bin|
-    file bin.svg => bin.file do |t|
+    file(bin.svg => bin.file) do |t|
       say(">>>", t.name)
 
-      sh t.source, verbose: false
+      sh(t.source, verbose: false)
     end
 
     bin.svg
   end => masters
 
-  desc "Build showcase"
-  task "site:showcase:masters": masters do
-    warn ""
-    warn "=== Showcase masters done."
-    warn ""
+  desc("Build showcase")
+  task("site:showcase:masters": masters) do
+    warn("")
+    warn("=== Showcase masters done.")
+    warn("")
   end
 
   "doc/showcase/light".tap do |dir|
     files = []
 
     bins.each do |bin|
-      file (target = ::File.expand_path("#{dir}/#{bin.file!}")) => bin.file do |t|
+      file((target = ::File.expand_path("#{dir}/#{bin.file!}")) => bin.file) do |t|
         say(">>>", t.name)
 
-        cp t.source, t.name, verbose: false
+        cp(t.source, t.name, verbose: false)
       end
 
       files << target
 
-      file (target = ::File.expand_path("#{dir}/#{bin.svg!}")) => bin.svg do |t|
+      file((target = ::File.expand_path("#{dir}/#{bin.svg!}")) => bin.svg) do |t|
         say(">>>", t.name)
 
-        cp t.source, t.name, verbose: false
+        cp(t.source, t.name, verbose: false)
       end
 
       files << target
     end
 
-    desc "Build light showcase"
-    task "site:showcase:light": files do
-      warn ""
-      warn "=== Showcase lights done."
-      warn ""
+    desc("Build light showcase")
+    task("site:showcase:light": files) do
+      warn("")
+      warn("=== Showcase lights done.")
+      warn("")
     end
   end
 
@@ -99,7 +103,7 @@ if ::Dir.exist?("srv")
     files = []
 
     bins.each do |bin|
-      file (target = ::File.expand_path("#{dir}/#{bin.file!}")) => [ bin.file, bin.yml ] do |t|
+      file((target = ::File.expand_path("#{dir}/#{bin.file!}")) => [bin.file, bin.yml]) do |t|
         if File.exist?(cfg = bin.yml) && (yaml = YAML.load_file(cfg)) && (color = yaml["dark"])
           say("***", t.name)
 
@@ -107,12 +111,13 @@ if ::Dir.exist?("srv")
           color.each do |key, value|
             content.gsub!(/(['"])#{Regexp.escape(key)}\1/, "\\1#{value}\\1")
           end
+
           File.write(t.name, content)
           File.chmod(0777, t.name)
         else
           say(">>>", t.name)
 
-          cp t.source, t.name, verbose: false
+          cp(t.source, t.name, verbose: false)
         end
       end
 
@@ -120,54 +125,62 @@ if ::Dir.exist?("srv")
 
       source = target
 
-      file (target = ::File.expand_path("#{dir}/#{bin.svg!}")) => source do |t|
+      file((target = ::File.expand_path("#{dir}/#{bin.svg!}")) => source) do |t|
         say("...", t.name)
 
-        sh "#{t.source}", verbose: false
+        sh("#{t.source}", verbose: false)
       end
 
       files << target
     end
 
-    desc "Build dark showcase"
-    task "site:showcase:dark": files do
-      warn ""
-      warn "=== Showcase darks done."
-      warn ""
+    desc("Build dark showcase")
+    task("site:showcase:dark": files) do
+      warn("")
+      warn("=== Showcase darks done.")
+      warn("")
     end
   end
 
-  desc "Build showcase"
-  task "site:showcase": [ :"site:showcase:masters", :"site:showcase:light", :"site:showcase:dark" ]
+  desc("Build showcase")
+  task("site:showcase": [:"site:showcase:masters", :"site:showcase:light", :"site:showcase:dark"])
 
-  desc "Build site"
-  task :"site:build" do
-    Dir.chdir("doc") { sh "zola build" }
+  desc("Build site")
+  task(:"site:build") do
+    Dir.chdir("doc") { sh("zola build") }
   end
 
-  desc "Serve site"
-  task :"site:serve" do
+  desc("Serve site")
+  task(:"site:serve") do
     ip = Socket.ip_address_list.reject(&:ipv6?).reject!(&:ipv4_loopback?).first.ip_address
 
     Dir.chdir("doc") do
-      sh(*%W[
-        zola serve --interface 0.0.0.0 --base-url http://#{ip}
-      ])
+      sh(
+        *%W[
+          zola
+          serve
+          --interface
+          0.0.0.0
+          --base-url
+          http://#{ip}
+        ]
+      )
     end
   end
 
-  task serve: [ :"site:serve"    ]
-  task s:     [ :"site:serve"    ]
-  task ss:    [ :"site:showcase" ]
+  task(serve: [:"site:serve"])
+  task(s: [:"site:serve"])
+  task(ss: [:"site:showcase"])
 end
 
 # Clean
 
 require "rake/clean"
+
 CLEAN.include("*.gem", "pkg", "coverage")
 
 # Default
 
-task default: [ :test ]
+task(default: [:test])
 
-task all:     %i[lint test]
+task(all: %i[lint test])
