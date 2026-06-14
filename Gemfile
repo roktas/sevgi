@@ -4,6 +4,11 @@ source "https://rubygems.org"
 
 ruby File.read(File.expand_path(".ruby-version", __dir__)).strip
 
+gem "strscan"
+gem "prism"
+gem "openssl"
+gem "json"
+
 group :sevgi do
   gem "sevgi-derender", path: "derender"
   gem "sevgi-function", path: "function"
