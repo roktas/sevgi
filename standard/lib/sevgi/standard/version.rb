@@ -2,6 +2,6 @@
 
 module Sevgi
   module Standard
-    VERSION = "0.73.1"
+    VERSION = "0.73.2"
   end
 end

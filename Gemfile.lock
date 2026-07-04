@@ -1,61 +1,61 @@
 PATH
   remote: derender
   specs:
-    sevgi-derender (0.73.1)
+    sevgi-derender (0.73.2)
       css_parser (~> 1.21)
       nokogiri (~> 1.18)
       rufo (~> 0.18)
-      sevgi-function (= 0.73.1)
-      sevgi-graphics (= 0.73.1)
+      sevgi-function (= 0.73.2)
+      sevgi-graphics (= 0.73.2)
 
 PATH
   remote: function
   specs:
-    sevgi-function (0.73.1)
+    sevgi-function (0.73.2)
 
 PATH
   remote: geometry
   specs:
-    sevgi-geometry (0.73.1)
-      sevgi-function (= 0.73.1)
+    sevgi-geometry (0.73.2)
+      sevgi-function (= 0.73.2)
 
 PATH
   remote: graphics
   specs:
-    sevgi-graphics (0.73.1)
-      sevgi-function (= 0.73.1)
+    sevgi-graphics (0.73.2)
+      sevgi-function (= 0.73.2)
 
 PATH
   remote: showcase
   specs:
-    sevgi-showcase (0.73.1)
-      sevgi (= 0.73.1)
+    sevgi-showcase (0.73.2)
+      sevgi (= 0.73.2)
 
 PATH
   remote: standard
   specs:
-    sevgi-standard (0.73.1)
-      sevgi-function (= 0.73.1)
+    sevgi-standard (0.73.2)
+      sevgi-function (= 0.73.2)
 
 PATH
   remote: sundries
   specs:
-    sevgi-sundries (0.73.1)
+    sevgi-sundries (0.73.2)
       cairo
       hexapdf (~> 1.5)
       rsvg2 (>= 4.3.6)
-      sevgi-function (= 0.73.1)
+      sevgi-function (= 0.73.2)
 
 PATH
   remote: toplevel
   specs:
-    sevgi (0.73.1)
-      sevgi-derender (= 0.73.1)
-      sevgi-function (= 0.73.1)
-      sevgi-geometry (= 0.73.1)
-      sevgi-graphics (= 0.73.1)
-      sevgi-standard (= 0.73.1)
-      sevgi-sundries (= 0.73.1)
+    sevgi (0.73.2)
+      sevgi-derender (= 0.73.2)
+      sevgi-function (= 0.73.2)
+      sevgi-geometry (= 0.73.2)
+      sevgi-graphics (= 0.73.2)
+      sevgi-standard (= 0.73.2)
+      sevgi-sundries (= 0.73.2)
 
 GEM
   remote: https://rubygems.org/
@@ -269,14 +269,14 @@ CHECKSUMS
   ruby-lsp (0.26.9) sha256=33a01c001c00a76b4e821efc04ed7572983430f31ca5d6f3e343d0b6ccab4129
   ruby-progressbar (1.13.0) sha256=80fc9c47a9b640d6834e0dc7b3c94c9df37f08cb072b7761e4a71e22cff29b33
   rufo (0.18.2) sha256=f279bea838aae7cd51149413a2dfa3383044b1c93f1469ceaddd1ca3824fc46f
-  sevgi (0.73.1)
-  sevgi-derender (0.73.1)
-  sevgi-function (0.73.1)
-  sevgi-geometry (0.73.1)
-  sevgi-graphics (0.73.1)
-  sevgi-showcase (0.73.1)
-  sevgi-standard (0.73.1)
-  sevgi-sundries (0.73.1)
+  sevgi (0.73.2)
+  sevgi-derender (0.73.2)
+  sevgi-function (0.73.2)
+  sevgi-geometry (0.73.2)
+  sevgi-graphics (0.73.2)
+  sevgi-showcase (0.73.2)
+  sevgi-standard (0.73.2)
+  sevgi-sundries (0.73.2)
   strscan (3.1.8) sha256=aae2db611a225559f21ffbb71765c9a4e60fd262534a9ea84f4f11c7f32f679e
   tsort (0.2.0) sha256=9650a793f6859a43b6641671278f79cfead60ac714148aabe4e3f0060480089f
   unicode-display_width (3.2.0) sha256=0cdd96b5681a5949cdbc2c55e7b420facae74c4aaf9a9815eee1087cb1853c42

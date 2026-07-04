@@ -5,6 +5,12 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## Unreleased
 
+## 0.73.2 - 2026-07-04
+
+### Fixed
+
+- Removed parent-directory license paths from gem packages so published gems install cleanly.
+
 ## 0.73.1 - 2026-07-04
 
 ### Fixed
