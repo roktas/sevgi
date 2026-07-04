@@ -4,10 +4,21 @@ module Sevgi
   module Graphics
     module Mixtures
       module Export
-        require "sevgi/sundries"
+        def PDF(path = nil, **kwargs, &block)
+          require "sevgi/sundries"
 
-        def PDF(path = nil, **kwargs, &block) = Export(path, **kwargs, format: :pdf, &block)
-        def PNG(path = nil, **kwargs, &block) = Export(path, **kwargs, format: :png, &block)
+          Export(path, **kwargs, format: :pdf, &block)
+        rescue ::LoadError
+          raise NoMethodError, "\"sevgi/sundries\" required"
+        end
+
+        def PNG(path = nil, **kwargs, &block)
+          require "sevgi/sundries"
+
+          Export(path, **kwargs, format: :png, &block)
+        rescue ::LoadError
+          raise NoMethodError, "\"sevgi/sundries\" required"
+        end
 
         private
 
@@ -24,10 +35,6 @@ module Sevgi
 
           Sundries::Export.(call, path, **kwargs, &block)
         end
-
-      rescue ::LoadError
-        def PDF(...) = raise NoMethodError, "\"sevgi/sundries\" required"
-        def PNG(...) = raise NoMethodError, "\"sevgi/sundries\" required"
       end
     end
   end

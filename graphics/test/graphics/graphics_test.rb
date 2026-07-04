@@ -22,6 +22,15 @@ module Sevgi
         end
       end
 
+      def test_graphics_loads_nokogiri_before_native_export_libraries
+        skip("Nokogiri is not loaded") unless defined?(::Nokogiri)
+
+        libxml = ::Nokogiri::VERSION_INFO.fetch("libxml")
+
+        assert_empty(::Nokogiri::VERSION_INFO.fetch("warnings"))
+        assert_equal(libxml.fetch("compiled"), libxml.fetch("loaded"))
+      end
+
       def test_graphics_graphics_canvas
         canvas = Graphics.canvas(width: 3, height: 5)
         assert_instance_of(Graphics::Canvas, canvas)
