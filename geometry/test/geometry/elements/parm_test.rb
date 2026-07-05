@@ -5,7 +5,7 @@ require_relative "../../test_helper"
 module Sevgi
   module Geometry
     class ParmTest < Minitest::Test
-      def test_parm_construction
+      def test_parm_exposes_side_lengths
         parm = Parm[
           [2.0, -15.0],
           [5.0, -F.atan2(4.0, 3.0)]

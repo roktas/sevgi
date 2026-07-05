@@ -6,7 +6,7 @@ module Sevgi
   module Graphics
     module Mixtures
       class CoreTreeTest < Minitest::Test
-        def test_tree_construction_basics
+        def test_tree_construction_appends_children
           doc = SVG(id: "main") do
             g = g(id: "group1") { line(id: "line1") }
             line2 = line(id: "line2")

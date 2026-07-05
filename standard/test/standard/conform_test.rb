@@ -5,11 +5,11 @@ require_relative "../test_helper"
 module Sevgi
   module Standard
     class ConformTest < Minitest::Test
-      def test_svg_element_basics
+      def test_svg_allows_viewbox_and_group
         assert(Conform.(:svg, attributes: %i[viewBox], elements: %i[g]))
       end
 
-      def test_svg_element_gotcha_with_all_lowercase_viewbox
+      def test_svg_rejects_lowercase_viewbox
         assert_raises(InvalidAttributesError) do
           Conform.(:svg, attributes: %i[viewbox], elements: %i[g])
         end

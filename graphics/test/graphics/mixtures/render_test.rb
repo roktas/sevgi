@@ -8,7 +8,7 @@ module Sevgi
       class RenderTest < Minitest::Test
         DOC = :minimal
 
-        def test_render_text_element_with_simple_string
+        def test_render_text_element_encodes_plain_string
           expected = <<~SVG
             <svg>
               <text>foo bar</text>
@@ -24,7 +24,7 @@ module Sevgi
           assert_equal(expected, actual)
         end
 
-        def test_render_text_element_with_spaced_string
+        def test_render_text_element_preserves_spacing
           expected = <<~SVG
             <svg>
               <text>   foo  bar </text>
@@ -40,7 +40,7 @@ module Sevgi
           assert_equal(expected, actual)
         end
 
-        def test_render_text_element_with_special_string
+        def test_render_text_element_escapes_special_characters
           expected = <<~SVG
             <svg>
               <text>foo &amp; bar</text>
@@ -56,7 +56,7 @@ module Sevgi
           assert_equal(expected, actual)
         end
 
-        def test_render_text_element_with_raw_string
+        def test_render_text_element_preserves_verbatim_content
           expected = <<~SVG
             <svg>
               <text>foo & bar</text>
@@ -72,7 +72,7 @@ module Sevgi
           assert_equal(expected, actual)
         end
 
-        def test_render_inline_content_element_with_simple_string
+        def test_render_inline_content_element_encodes_plain_string
           expected = <<~SVG
             <svg>
               <title>foo bar</title>
@@ -88,7 +88,7 @@ module Sevgi
           assert_equal(expected, actual)
         end
 
-        def test_render_inline_content_element_with_long_attribute
+        def test_render_inline_content_element_wraps_long_attribute
           attribute = "x" * 140
 
           expected = <<~SVG

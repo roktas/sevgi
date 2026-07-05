@@ -8,7 +8,7 @@ module Sevgi
       class SweepTest < Minitest::Test
         include Fixtures
 
-        def test_sweep_unisweep_success
+        def test_sweep_unisweep_returns_parallel_lines
           rect = Rect[2, 4]
           equ = Equation.diagonal(slope: 1.0, intercept: 4.0)
 
@@ -33,7 +33,7 @@ module Sevgi
           assert(lines.empty?)
         end
 
-        def test_sweep_unisweep_failure_because_of_step
+        def test_sweep_unisweep_returns_empty_for_negative_step
           rect = Rect[2, 4]
           equ = Equation.diagonal(slope: 1.0, intercept: 4.0)
 
@@ -56,7 +56,7 @@ module Sevgi
           end
         end
 
-        def test_sweep_diagonal
+        def test_sweep_diagonal_counts_lines_until_limit
           initials = rect345.points
           directions = [direction = 90.0 - angle345, -direction]
           steps = [step = 0.1, -step]
@@ -84,11 +84,11 @@ module Sevgi
           assert_raises(OperationError) { sweeper.(limit - 1) }
         end
 
-        def test_sweep_vertical
+        def test_sweep_vertical_returns_parallel_lines
           assert_equal(4, Operation.sweep!(rect345, initial: rect345.position, direction: 90.0, step: 1.0).size)
         end
 
-        def test_sweep_horizontal
+        def test_sweep_horizontal_returns_parallel_lines
           assert_equal(5, Operation.sweep!(rect345, initial: rect345.position, direction: 0.0, step: 1.0).size)
         end
       end

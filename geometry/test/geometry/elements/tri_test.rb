@@ -5,7 +5,7 @@ require_relative "../../test_helper"
 module Sevgi
   module Geometry
     class TriTest < Minitest::Test
-      def test_tri_construction
+      def test_tri_exposes_side_lengths
         tri = Tri[
           [5.0, F.atan2(4.0, 3.0)],
           [4.0, 270.0]

@@ -30,7 +30,7 @@ module Sevgi
         assert_equal(expected, actual)
       end
 
-      def test_subclass_works_with_default_canvas
+      def test_subclass_renders_default_canvas
         expected = <<~SVG
           <svg data-var="xxx" width="210.0mm" height="297.0mm" viewBox="0 0 210 297"/>
         SVG
@@ -41,7 +41,7 @@ module Sevgi
         assert_equal(expected, actual)
       end
 
-      def test_subclass_works_with_custom_canvas
+      def test_subclass_renders_custom_canvas
         expected = <<~SVG
           <svg data-var="xxx" width="210.0mm" height="297.0mm" viewBox="-5 -3 210 297"/>
         SVG
@@ -66,12 +66,12 @@ module Sevgi
 
       def teardown = setup
 
-      def test_class_relations
+      def test_method_missing_cache_class_relations
         UNRELATED.each { |klass| refute_operator(klass, :<=, Document::Default) }
         RELATED.each { |klass| assert_operator(klass, :<=, Document::Default) }
       end
 
-      def test_method_missing_caching_with_block
+      def test_method_missing_caches_block_elements
         test = self
 
         SVG(:default) do
@@ -91,7 +91,7 @@ module Sevgi
         end
       end
 
-      def test_method_missing_caching_with_using_within
+      def test_method_missing_caches_within_elements
         doc = SVG(:default)
 
         [

@@ -9,11 +9,11 @@ module Sevgi
         class HorizontalTest < Minitest::Test
           include Fixtures
 
-          def test_fixtures_construction
+          def test_fixtures_build_horizontal_equation
             hequ4
           end
 
-          def test_horizontal
+          def test_horizontal_maps_y_to_constant
             assert_in_delta(1.0, Equation.horizontal(1.0).y(1))
           end
         end

@@ -8,7 +8,7 @@ module Sevgi
       class UnderscoreTest < Minitest::Test
         DOC = :minimal
 
-        def test_underscore_text
+        def test_underscore_appends_text_content
           expected = <<~SVG
             <svg>
               <text>
@@ -32,7 +32,7 @@ module Sevgi
           assert_equal(expected, actual)
         end
 
-        def test_underscore_comment
+        def test_comment_appends_xml_comment
           expected = <<~SVG
             <svg>
               <text>

@@ -5,7 +5,7 @@ require_relative "../test_helper"
 module Sevgi
   module Derender
     class CssTest < Minitest::Test
-      def test_css_to_h
+      def test_css_to_h_parses_rule_blocks
         string = <<~STRING
           * {
           overflow: visible;
@@ -54,7 +54,7 @@ module Sevgi
         assert_equal(expected, actual)
       end
 
-      def test_css_to_h!
+      def test_css_to_h_bang_parses_declarations
         string = <<~STRING
           stroke: #606060; stroke-width: 0.32; stroke-linejoin: round; fill: darkgray; fill-opacity: 0.4;
         STRING
@@ -73,7 +73,7 @@ module Sevgi
         assert_equal(expected, actual)
       end
 
-      def test_to_key
+      def test_to_key_keeps_plain_key
         %w[
           foo
           foo
@@ -84,7 +84,7 @@ module Sevgi
         end
       end
 
-      def test_to_value
+      def test_to_value_quotes_non_numeric_values
         [
           "10",
           "10",
@@ -99,7 +99,7 @@ module Sevgi
         end
       end
 
-      def test_to_key_value
+      def test_to_key_value_formats_pair
         [
           "foo",
           "bar baz",
@@ -113,7 +113,7 @@ module Sevgi
     end
 
     class RubyTest < Minitest::Test
-      def test_ruby_format
+      def test_ruby_format_formats_code
         string = <<~STRING
           if i==0
           nil

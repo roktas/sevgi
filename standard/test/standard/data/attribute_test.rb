@@ -5,20 +5,20 @@ require_relative "../../test_helper"
 module Sevgi
   module Standard
     class AttributeTest < Minitest::Test
-      def test_total_number_of_attributes
+      def test_attribute_all_has_expected_size
         assert_equal(385, Attribute.all.size)
       end
 
-      def test_expand_attribute_group
+      def test_attribute_group_expands_members
         assert_equal(%i[onactivate onfocusin onfocusout], Attribute[:EventGraphical])
       end
 
-      def test_attribute_predicates
+      def test_attribute_predicates_check_group_membership
         assert(Attribute.is?(:id, :Core))
         refute(Attribute.is?(:style, :Core))
       end
 
-      def test_attribute_pick_unpick
+      def test_attribute_pick_unpick_partition_groups
         assert_equal(
           %i[class stroke-width style color],
           Attribute.pick(%i[class stroke-width width accelerate style color], :Presentation, :Style)

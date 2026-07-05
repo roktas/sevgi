@@ -5,7 +5,7 @@ require_relative "../test_helper"
 module Sevgi
   module Derender
     class DerenderTest < Minitest::Test
-      def test_derender_only
+      def test_derender_converts_selected_node_to_dsl
         expected = <<~SEVGI
           g id: "xxx" do
             line id: "line1", length: 10.0
@@ -36,7 +36,7 @@ module Sevgi
         assert_equal(expected, actual)
       end
 
-      def test_evaluate
+      def test_evaluate_renders_selected_node_in_document
         expected = svg = <<~SVG
           <g id="xxx">
             <line id="line1" length="10.0"/>
@@ -50,7 +50,7 @@ module Sevgi
         assert_equal(expected, actual)
       end
 
-      def test_evaluate_bang
+      def test_evaluate_bang_appends_selected_node_to_document
         svg = <<~SVG
           <g id="xxx">
             <line id="line1" length="10.0"/>

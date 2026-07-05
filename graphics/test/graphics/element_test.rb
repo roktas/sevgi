@@ -6,7 +6,7 @@ module Sevgi
   module Graphics
     class Element
       class ElementInstanceTest < Minitest::Test
-        def test_element_contruction_basics_without_using_blocks
+        def test_element_construction_without_block
           root = Element.send(:new, :g, parent: Element::RootParent, attributes: {"data-var": 42}, contents: ["foo"])
 
           [
@@ -42,7 +42,7 @@ module Sevgi
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
         end
 
-        def test_element_contruction_basics_with_using_blocks
+        def test_element_construction_with_block
           child = nil
           root = Element.send(:new, :g, parent: Element::RootParent, attributes: {"data-var": 42}) do
             child = missing_glyph(id: "glyph")
@@ -74,7 +74,7 @@ module Sevgi
       end
 
       class ElementClassTest < Minitest::Test
-        def test_arguments_parsing_without_any_arguments
+        def test_arguments_parse_accepts_empty_input
           parsed = Dispatch.parse(:svg)
 
           [
@@ -87,7 +87,7 @@ module Sevgi
           assert_raises(ArgumentError) { Dispatch.parse(:svg, ["foo"]) }
         end
 
-        def test_arguments_parsing_with_various_arguments
+        def test_arguments_parse_splits_text_and_attributes
           parsed = Dispatch.parse(:svg, "foo", "bar & baz", x: 19, y: 42)
 
           [
@@ -100,7 +100,7 @@ module Sevgi
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
         end
 
-        def test_arguments_parsing_with_explicit_content_object_arguments
+        def test_arguments_parse_preserves_content_objects
           parsed = Dispatch.parse(:svg, Content::Verbatim.new("bar & baz"))
 
           [
@@ -111,7 +111,7 @@ module Sevgi
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
         end
 
-        def test_root_element_construction
+        def test_root_builds_svg_parent_and_children
           child = nil
           root = Element.root("data-var": 42) do
             child = missing_glyph(id: "glyph")
@@ -147,7 +147,7 @@ module Sevgi
 
         def teardown = setup
 
-        def test_respond_to_returns_true
+        def test_respond_to_accepts_svg_element_names
           assert_respond_to(Element.root, :marker)
         end
 
@@ -155,7 +155,7 @@ module Sevgi
           assert_raises(NameError) { Element.root { foobar } }
         end
 
-        def test_method_missing_caching_with_block
+        def test_method_missing_caches_nested_element_methods
           refute(Element.method_defined?(:svg))
           refute(Element.method_defined?(:marker))
 

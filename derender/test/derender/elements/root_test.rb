@@ -6,7 +6,7 @@ module Sevgi
   module Derender
     module Elements
       class RootTest < Minitest::Test
-        def test_root_simple
+        def test_root_decompiles_svg_tree
           svg = <<~SVG
             <svg id="Root" shape-rendering="crispEdges" width="60.0mm" height="60.0mm" viewBox="0 0 60 60">
               <defs id="Helpers">
@@ -33,7 +33,7 @@ module Sevgi
           assert_equal(expected, actual)
         end
 
-        def test_root_with_namespaces
+        def test_root_preserves_namespace_attributes
           svg = <<~SVG
             <svg
               id="Root"
@@ -68,7 +68,7 @@ module Sevgi
           assert_equal(expected, actual)
         end
 
-        def test_root_with_pres
+        def test_root_emits_document_preambles
           svg = <<~SVG
             <?xml version="1.0" encoding="UTF-8" standalone="no"?>
             <svg

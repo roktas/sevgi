@@ -6,7 +6,7 @@ module Sevgi
   module Derender
     module Elements
       class TextTest < Minitest::Test
-        def test_text
+        def test_text_element_preserves_inline_text_and_tspan
           expected = <<~SEVGI
             text do
               _ You are

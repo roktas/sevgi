@@ -5,7 +5,7 @@ require_relative "../test_helper"
 module Sevgi
   module Derender
     class DocumentTest < Minitest::Test
-      def test_declaration
+      def test_declaration_extracts_xml_declaration
         svg = <<~SVG
           <?xml version="1.0" encoding="UTF-8" standalone="no"?>
           <?my-app config="true"?>
@@ -22,7 +22,7 @@ module Sevgi
         assert_equal(expected, actual)
       end
 
-      def test_pres
+      def test_pres_extracts_preambles
         svg = <<~SVG
 
           <?xml version="1.0" encoding="UTF-8" standalone="no"?>

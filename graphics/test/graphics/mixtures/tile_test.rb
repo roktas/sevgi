@@ -41,7 +41,7 @@ module Sevgi
           assert_match(/\bny\b.*\bpositive/, error.message)
         end
 
-        def test_tile_single
+        def test_tile_renders_single_use
           expected = <<~SVG
             <svg>
               <rect id="rect" width="5" height="8"/>
@@ -59,7 +59,7 @@ module Sevgi
           assert_equal(expected, actual)
         end
 
-        def test_tile_offset
+        def test_tile_applies_x_and_y_offsets
           expected = <<~SVG
             <svg>
               <rect id="rect" width="5" height="8"/>
@@ -77,7 +77,7 @@ module Sevgi
           assert_equal(expected, actual)
         end
 
-        def test_tile_without_block
+        def test_tile_reuses_existing_element
           expected = <<~SVG
             <svg>
               <rect id="rect" width="5" height="8"/>
@@ -100,7 +100,7 @@ module Sevgi
           assert_equal(expected, actual)
         end
 
-        def test_tile_with_block
+        def test_tile_defines_template_from_block
           expected = <<~SVG
             <svg>
               <defs>
@@ -126,7 +126,7 @@ module Sevgi
           assert_equal(expected, actual)
         end
 
-        def test_tile_with_proc
+        def test_tile_allows_proc_to_customize_uses
           expected = <<~SVG
             <svg>
               <defs>
@@ -161,7 +161,7 @@ module Sevgi
           assert_equal(expected, actual)
         end
 
-        def test_tile_bang
+        def test_tile_bang_wraps_generated_uses
           expected = <<~SVG
             <svg>
               <rect id="rect" width="5" height="8"/>
@@ -212,7 +212,7 @@ module Sevgi
           assert_match(/\bn\b.*\bpositive/, error.message)
         end
 
-        def test_tile_x_single
+        def test_tile_x_renders_single_use
           expected = <<~SVG
             <svg>
               <rect id="rect" width="5" height="8"/>
@@ -230,7 +230,7 @@ module Sevgi
           assert_equal(expected, actual)
         end
 
-        def test_tile_x_offset
+        def test_tile_x_applies_offset
           expected = <<~SVG
             <svg>
               <rect id="rect" width="5" height="8"/>
@@ -248,7 +248,7 @@ module Sevgi
           assert_equal(expected, actual)
         end
 
-        def test_tile_x_without_block
+        def test_tile_x_reuses_existing_element
           expected = <<~SVG
             <svg>
               <rect id="rect" width="5" height="8"/>
@@ -267,7 +267,7 @@ module Sevgi
           assert_equal(expected, actual)
         end
 
-        def test_tile_x_with_block
+        def test_tile_x_defines_template_from_block
           expected = <<~SVG
             <svg>
               <defs>
@@ -315,7 +315,7 @@ module Sevgi
           assert_match(/\bn\b.*\bpositive/, error.message)
         end
 
-        def test_tile_y_single
+        def test_tile_y_renders_single_use
           expected = <<~SVG
             <svg>
               <rect id="rect" width="5" height="8"/>
@@ -333,7 +333,7 @@ module Sevgi
           assert_equal(expected, actual)
         end
 
-        def test_tile_y_offset
+        def test_tile_y_applies_offset
           expected = <<~SVG
             <svg>
               <rect id="rect" width="5" height="8"/>
@@ -351,7 +351,7 @@ module Sevgi
           assert_equal(expected, actual)
         end
 
-        def test_tile_y_multiple
+        def test_tile_y_renders_multiple_uses
           expected = <<~SVG
             <svg>
               <rect id="rect" width="5" height="8"/>
@@ -370,7 +370,7 @@ module Sevgi
           assert_equal(expected, actual)
         end
 
-        def test_tile_y_with_block
+        def test_tile_y_defines_template_from_block
           expected = <<~SVG
             <svg>
               <defs>

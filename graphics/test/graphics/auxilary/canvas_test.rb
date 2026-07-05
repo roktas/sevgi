@@ -5,7 +5,7 @@ require_relative "../../test_helper"
 module Sevgi
   module Graphics
     class CanvasTest < Minitest::Test
-      def test_canvas_with_origin
+      def test_canvas_inner_size_excludes_margins
         canvas = Canvas.(:a4, margins: [3, 5])
 
         [

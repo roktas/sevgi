@@ -5,7 +5,7 @@ require_relative "../test_helper"
 module Sevgi
   module Geometry
     class EquationTest < Minitest::Test
-      def test_equation_rect_intersection
+      def test_rect_intersection_returns_boundary_points
         rect = Rect[2, 7]
 
         [
@@ -18,7 +18,7 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
-      def test_equation_rect_intersection_single
+      def test_equation_rect_intersection_returns_single_point
         rect = Rect[2, 4]
         equ = Equation.diagonal(slope: 1.0, intercept: 4.0)
 

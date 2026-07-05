@@ -9,7 +9,7 @@ module Sevgi
         class DiagonalTest < Minitest::Test
           include Fixtures
 
-          def test_fixtures_construction
+          def test_fixtures_build_diagonal_equations
             [
               0.0,
               line345.equation.y(0),
@@ -18,7 +18,7 @@ module Sevgi
             ].each_slice(2) { |expected, actual| assert_in_delta(expected, actual) }
           end
 
-          def test_diagonal_line_construction_basics
+          def test_diagonal_equation_maps_x_and_y
             equ = Equation.diagonal(slope: 2.0, intercept: -10.0)
 
             [
@@ -29,7 +29,7 @@ module Sevgi
             ].each_slice(2) { |expected, actual| assert_in_delta(expected, actual) }
           end
 
-          def test_diagonal_line_construction_from_lines
+          def test_diagonal_equation_from_line_maps_y
             [
               10.0,
               Geometry::Line[1.0, F.atan(2)].equation.y(5),
@@ -38,21 +38,21 @@ module Sevgi
             ].each_slice(2) { |expected, actual| assert_in_delta(expected, actual) }
           end
 
-          def test_different_construction_methods_give_same_results
+          def test_diagonal_equation_matches_shifted_line
             equ1 = Geometry::Line[1.0, F.atan(2), position: [5.0, 0.0]].equation
             equ2 = Equation.diagonal(slope: 2.0, intercept: -10.0)
 
             assert_equal(equ1.approx, equ2.approx)
           end
 
-          def test_line_shifting_basics
+          def test_shift_offsets_diagonal_equation
             equ = line345.equation.shift(3.0 * F.sin(line345.angle))
 
             assert_in_delta(4.0 / 3.0, equ.slope)
             assert_in_delta(-4.0, equ.intercept)
           end
 
-          def test_line_shifting_with_lines_constructed_from_lines
+          def test_shift_matches_offset_line
             angle = F.atan(2)
 
             equ1 = Geometry::Line[1.0, angle].equation
@@ -68,19 +68,18 @@ module Sevgi
             line = Geometry::Line.([-2, -1], [0, 1])
             points = equ.intersect(line.equation)
 
-            # assert_equal(Point[15, 16], *points)
             assert(Point[15, 16].eq?(*points))
           end
 
-          def test_point_left?
+          def test_diagonal_left_predicate_accepts_left_point
             assert(line345.left?(Point[-5, 0]))
           end
 
-          def test_point_on?
+          def test_diagonal_on_predicate_accepts_origin
             assert(line345.on?(Point[0, 0]))
           end
 
-          def test_point_right?
+          def test_diagonal_right_predicate_accepts_right_point
             assert(line345.right?(Point[5, 0]))
           end
         end

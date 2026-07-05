@@ -5,7 +5,7 @@ require_relative "../test_helper"
 module Sevgi
   module Sundries
     class RulerTest < Minitest::Test
-      def test_interval_construction_success
+      def test_interval_computes_distance_midpoint_and_ticks
         il = Interval.new(3, 4)
 
         [
@@ -29,11 +29,11 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
-      def test_interval_construction_failure
+      def test_interval_rejects_invalid_unit
         assert_raises(NoMethodError) { Interval.new(Object.new, 4) }
       end
 
-      def test_ruler_without_waste
+      def test_ruler_fits_without_waste
         r = Ruler.new(unit: 1.0, multiple: 10, brut: 150.0)
 
         assert(r.sub.is_a?(Interval))
@@ -56,7 +56,7 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
-      def test_ruler_sub
+      def test_ruler_exposes_subinterval
         r = Ruler.new(unit: 1.0, multiple: 10, brut: 150.0)
 
         assert(r.sub.is_a?(Interval))
@@ -96,7 +96,7 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
-      def test_ruler_with_waste
+      def test_ruler_distributes_waste_to_margins
         r = Ruler.new(unit: 1.0, multiple: 10, brut: 195.0, margin: 15)
 
         [
@@ -117,7 +117,7 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
-      def test_ruler_even_with_waste
+      def test_ruler_even_balances_waste
         r = RulerEven.new(unit: 1.0, multiple: 10, brut: 195.0, margin: 18)
 
         [
@@ -138,7 +138,7 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
-      def test_ruler_expand
+      def test_ruler_expand_flattens_subinterval
         r = Ruler.new(unit: 1.0, multiple: 10, brut: 195.0, margin: 15).expand
 
         assert(r.is_a?(Ruler))

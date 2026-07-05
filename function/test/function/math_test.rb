@@ -6,11 +6,11 @@ module Sevgi
   module Function
     module Math
       class MathTest < Minitest::Test
-        def test_precision_default
+        def test_precision_defaults_to_constant
           assert_equal(Function::Math::PRECISION, Function::Math.precision)
         end
 
-        def test_precision_attribute
+        def test_precision_can_be_overridden_and_restored
           Function::Math.precision = 100
 
           assert_equal(100, Function::Math.precision)
@@ -19,7 +19,7 @@ module Sevgi
           assert_equal(Function::Math::PRECISION, Function::Math.precision)
         end
 
-        def test_almost_equal
+        def test_eq_respects_precision
           Function::Math.precision = 8
 
           assert(Function.eq?(1.999_999_999, 2.0))

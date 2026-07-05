@@ -5,7 +5,7 @@ require_relative "../test_helper"
 module Sevgi
   module Sundries
     class TileTest < Minitest::Test
-      def test_tile_construction
+      def test_tile_exposes_rows_cols_cells_and_box
         ti = Tile.new(Geometry::Rect[3, 5], nx: 2, ny: 3, position: Geometry::Point[1, 2])
 
         [
@@ -50,7 +50,7 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
-      def test_tile_enumerable_rows
+      def test_tile_each_enumerates_rows
         ti = Tile.new(Geometry::Rect[3, 5], nx: 2, ny: 3, position: Geometry::Point[1, 2])
 
         expected = [
@@ -64,7 +64,7 @@ module Sevgi
         ti.each_with_index { |row, i| assert_equal(expected[i], row) }
       end
 
-      def test_tile_enumerable_cols
+      def test_tile_each_col_enumerates_columns
         ti = Tile.new(Geometry::Rect[3, 5], nx: 2, ny: 3, position: Geometry::Point[1, 2])
 
         expected = [

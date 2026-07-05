@@ -5,7 +5,7 @@ require_relative "../test_helper"
 module Sevgi
   module Sundries
     class GridTest < Minitest::Test
-      def test_grid_construction
+      def test_grid_builds_axes_from_rulers
         [
           # Ordinary construction
           Grid.new(
@@ -44,7 +44,7 @@ module Sevgi
         end
       end
 
-      def test_grid_x_major
+      def test_grid_x_major_returns_horizontal_lines
         grid = Grid.new(
           x: Ruler.new(unit: 6, multiple: 5, brut: 210, margin: 15),
           y: Ruler.new(unit: 6, multiple: 5, brut: 297, margin: 15)
@@ -68,7 +68,7 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
-      def test_grid_x_halve
+      def test_grid_x_halve_returns_horizontal_midlines
         grid = Grid.new(
           x: Ruler.new(unit: 6, multiple: 5, brut: 210, margin: 15),
           y: Ruler.new(unit: 6, multiple: 5, brut: 297, margin: 15)
@@ -91,7 +91,7 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
-      def test_grid_x_minor
+      def test_grid_x_minor_returns_horizontal_minor_lines
         grid = Grid.new(
           x: Ruler.new(unit: 6, multiple: 5, brut: 210, margin: 15),
           y: Ruler.new(unit: 6, multiple: 5, brut: 297, margin: 15)
@@ -147,7 +147,7 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
-      def test_grid_y_major
+      def test_grid_y_major_returns_vertical_lines
         grid = Grid.new(
           x: Ruler.new(unit: 6, multiple: 5, brut: 210, margin: 15),
           y: Ruler.new(unit: 6, multiple: 5, brut: 297, margin: 15)
@@ -169,7 +169,7 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
-      def test_grid_y_halve
+      def test_grid_y_halve_returns_vertical_midlines
         grid = Grid.new(
           x: Ruler.new(unit: 6, multiple: 5, brut: 210, margin: 15),
           y: Ruler.new(unit: 6, multiple: 5, brut: 297, margin: 15)
@@ -190,7 +190,7 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
-      def test_grid_y_minor
+      def test_grid_y_minor_returns_vertical_minor_lines
         grid = Grid.new(
           x: Ruler.new(unit: 6, multiple: 5, brut: 210, margin: 15),
           y: Ruler.new(unit: 6, multiple: 5, brut: 297, margin: 15)
@@ -236,7 +236,7 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
-      def test_grid_tiled
+      def test_grid_exposes_rows_cols_cells_and_box
         gr = Grid.new(
           x: Ruler.new(unit: 2, multiple: 2, brut: 8),
           y: Ruler.new(unit: 1, multiple: 2, brut: 6)
@@ -284,7 +284,7 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
-      def test_grid_boxes
+      def test_grid_returns_row_and_column_boxes
         gr = Grid.new(
           x: Ruler.new(unit: 2, multiple: 2, brut: 8),
           y: Ruler.new(unit: 1, multiple: 2, brut: 6)

@@ -7,7 +7,7 @@ module Sevgi
     class RectTest < Minitest::Test
       include Fixtures
 
-      def test_rect_construction_usual
+      def test_rect_construction_preserves_position_and_size
         rect = Rect[3, 4, position: [1, 2]]
 
         [
@@ -23,11 +23,11 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
-      def test_rect_construction_brackets
+      def test_rect_brackets_build_origin_rect
         assert_equal(rect345, Rect[3, 4])
       end
 
-      def test_rect_construction_points
+      def test_rect_from_points_preserves_position_and_size
         rect = Rect.(
           rect345.top_left.translate(2.0, 3.0),
           rect345.bottom_right.translate(2.0, 3.0)
@@ -46,15 +46,15 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
-      def test_rect_inside?
+      def test_rect_inside_predicate_accepts_inner_point
         assert(line345.box.inside?(Point[1, 1]))
       end
 
-      def test_rect_on?
+      def test_rect_on_predicate_accepts_boundary_point
         assert(line345.box.on?(Point[3, 0]))
       end
 
-      def test_rect_outside?
+      def test_rect_outside_predicate_accepts_outer_point
         assert(line345.box.outside?(Point[5, 0]))
       end
     end

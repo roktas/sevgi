@@ -116,7 +116,7 @@ module Sevgi
           refute_equal(ids.values_at(:element1, :element2), doc.children[1].children.map(&:object_id).first(2))
         end
 
-        def test_duplicate_conveniency_methods
+        def test_duplicate_convenience_methods
           element1, element2, element3 = Array.new(3)
 
           doc = SVG do

@@ -5,7 +5,7 @@ require_relative "../test_helper"
 module Sevgi
   module Geometry
     class SegmentTest < Minitest::Test
-      def test_segment_construction
+      def test_segment_exposes_length_angle_and_endpoint
         segment = Segment[4, 30]
         [
           4.0,
@@ -17,7 +17,7 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
-      def test_segment_ending
+      def test_segment_ending_uses_start_point
         segment = Segment[3, 180]
         [
           Point[0.0, 4.0],

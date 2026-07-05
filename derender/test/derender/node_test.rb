@@ -5,7 +5,7 @@ require_relative "../test_helper"
 module Sevgi
   module Derender
     class NodeTest < Minitest::Test
-      def test_usual_attributes
+      def test_attributes_keep_regular_and_custom_keys
         svg = <<~SVG
           <g id="xxx" _:foo="fff" _:bar="bbb">
             <line id="line1" length="10.0"/>
@@ -20,7 +20,7 @@ module Sevgi
         assert_equal(expected, actual)
       end
 
-      def test_custom_attributes
+      def test_custom_attributes_drop_namespace_prefix
         svg = <<~SVG
           <g id="xxx" _:foo="fff" _:bar="bbb">
             <line id="line1" length="10.0"/>
@@ -35,7 +35,7 @@ module Sevgi
         assert_equal(expected, actual)
       end
 
-      def test_find_default
+      def test_find_locates_node_by_id
         svg = <<~SVG
           <g id="xxx" _:foo="fff" _:bar="bbb">
             <line id="line1" length="10.0"/>
@@ -53,7 +53,7 @@ module Sevgi
         assert_equal(expected, actual)
       end
 
-      def test_find_not_found
+      def test_find_returns_nil_for_missing_node
         svg = <<~SVG
           <g id="xxx" _:foo="fff" _:bar="bbb"/>
         SVG
@@ -62,7 +62,7 @@ module Sevgi
         assert_nil(Derender::Document.new(svg).decompile.find("line1"))
       end
 
-      def test_find_itself
+      def test_find_returns_root_node
         svg = <<~SVG
           <g id="xxx" _:foo="fff" _:bar="bbb">
             <line id="line1" length="10.0"/>
@@ -83,7 +83,7 @@ module Sevgi
         assert_equal(expected, actual)
       end
 
-      def test_find_by
+      def test_find_locates_node_by_attribute
         svg = <<~SVG
           <g id="xxx" _:foo="fff" _:bar="bbb">
             <line id="line1" length="10.0"/>

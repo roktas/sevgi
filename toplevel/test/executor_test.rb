@@ -6,14 +6,14 @@ module Sevgi
   class ExecutorTest < Minitest::Test
     FIXTURES_DIR = ::File.expand_path("#{__dir__}/fixtures/executor")
 
-    def test_load_panics
+    def test_load_raises_panic_error
       fixture = "#{FIXTURES_DIR}/test_load_shutdown.sevgi"
 
       assert_raises(PanicError) { Executor.load(fixture) }
     end
 
-    def test_execute_file
-      skip
+    def test_execute_file_reports_nested_load_stack
+      skip("nested load stack reporting is pending")
       fixture = "#{FIXTURES_DIR}/test_load_nested.sevgi"
 
       result = Sevgi.execute_file(fixture)
@@ -45,7 +45,7 @@ module Sevgi
         end
     end
 
-    def test_execute_boot_default
+    def test_execute_boots_isolated_receiver
       pp(foobar) if respond_to?(:foobar)
       refute_respond_to(self, :foobar)
       result = Executor.execute("foobar") do
@@ -56,7 +56,7 @@ module Sevgi
       refute_respond_to(self, :foobar)
     end
 
-    def test_execute_boot_toplevel
+    def test_execute_boots_toplevel_receiver
       refute_respond_to(self, :foobar)
       result = Executor.execute("module A; foobar; end", receiver: TOPLEVEL_BINDING.receiver) do
         include(Module.new { def foobar = "toplevel" })
@@ -87,7 +87,7 @@ module Sevgi
       refute(respond_to?(:isolated_method), "Method should not leak to global scope")
     end
 
-    def test_execute_empty_string
+    def test_execute_returns_nil_for_empty_string
       assert_nil(Executor.execute(""))
     end
 
@@ -95,7 +95,7 @@ module Sevgi
       assert_equal(15, Executor.execute("x = 5\ny = 10\nx + y").recent)
     end
 
-    def test_execute_error_reports_correct_file_and_line_without_arguments
+    def test_execute_error_reports_default_source_location
       syntax_error = "de foo\n  invalid syntax here\nend"
 
       result = Executor.execute(syntax_error)
@@ -104,7 +104,7 @@ module Sevgi
       assert(result.error.message.start_with?("sevgi:3:"))
     end
 
-    def test_execute_error_reports_correct_file_and_line_with_arguments
+    def test_execute_error_reports_custom_source_location
       syntax_error = "de foo\n  invalid syntax here\nend"
 
       result = Executor.execute(syntax_error, file: "test.rb", line: 10)

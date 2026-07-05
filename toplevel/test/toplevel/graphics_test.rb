@@ -4,12 +4,12 @@ require_relative "../test_helper"
 
 module Sevgi
   class ToplevelGraphicsTest < Minitest::Test
-    def test_toplevel_graphics_canvas
+    def test_toplevel_exports_graphics_module
       assert(SVG.is_a?(::Module))
       assert_equal(SVG, Graphics)
     end
 
-    def test_toplevel_mixin
+    def test_toplevel_mixin_stays_instance_scoped
       klass = Class.new do
         include(::Sevgi)
       end

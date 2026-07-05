@@ -48,7 +48,7 @@ module Sevgi
           end
         end
 
-        def test_rsvg_builds_options
+        def test_rsvg_builds_command_options
           Dir.mktmpdir do |dir|
             infile = svg_file(dir)
             outfile = File.join(dir, "out.png")
@@ -192,7 +192,7 @@ module Sevgi
           end
         end
 
-        def test_unite_runs_pdfunite
+        def test_unite_runs_pdfunite_command
           result = capture_sh do
             Export.unite(%w[a.pdf b.pdf], "out.pdf")
           end

@@ -7,7 +7,7 @@ module Sevgi
     class LineTest < Minitest::Test
       include Fixtures
 
-      def test_line_three_four_five
+      def test_line_345_exposes_angle_length_and_endpoints
         [
           53.13,
           line345.angle,
@@ -23,7 +23,7 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert(Point.eq?(expected, actual)) }
       end
 
-      def test_line_five_four_three
+      def test_line_543_exposes_negative_angle_and_endpoints
         [
           -53.13,
           line543.angle,
@@ -39,7 +39,7 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert(Point.eq?(expected, actual)) }
       end
 
-      def test_line_from_points
+      def test_line_from_points_preserves_endpoints
         [
           Line.(Origin, [1, 3]).position,
           Origin,
@@ -48,7 +48,7 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
-      def test_line_from_segment
+      def test_line_from_segment_matches_fixture_line
         line = Line[5, angle345]
 
         [

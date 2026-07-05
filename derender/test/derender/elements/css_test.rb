@@ -6,7 +6,7 @@ module Sevgi
   module Derender
     module Elements
       class CSSTest < Minitest::Test
-        def test_css
+        def test_style_element_decompiles_to_css_call
           svg = <<~SVG
             <svg id="Root" shape-rendering="crispEdges" width="60.0mm" height="60.0mm" viewBox="0 0 60 60">
               <style type="text/css">
@@ -77,7 +77,7 @@ module Sevgi
           assert_equal(expected, actual)
         end
 
-        def test_css_empty
+        def test_css_ignores_empty_style_element
           svg = <<~SVG
             <svg id="Root" shape-rendering="crispEdges" width="60.0mm" height="60.0mm" viewBox="0 0 60 60">
               <style type="text/css"/>
