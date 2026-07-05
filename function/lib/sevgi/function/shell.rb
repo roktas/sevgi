@@ -7,7 +7,7 @@ module Sevgi
     module Shell
       def executable?(program)
         executable_cache.fetch(program) do
-          executable_cache[program] = ENV["PATH"].split(::File::PATH_SEPARATOR).any? do |dir|
+          executable_cache[program] = ENV.fetch("PATH", "").split(::File::PATH_SEPARATOR).any? do |dir|
             ::File.executable?(::File.join(dir, program))
           end
         end
@@ -36,17 +36,15 @@ module Sevgi
           @coathooks = 0
         end
 
-        def call(*args, &block)
+        def call(*args, &input)
           return Result.dummy if args.empty?
 
           outs, errs, status = Open3.popen3(*args) do |stdin, stdout, stderr, wait_thread|
-            if block
-              input = block.call
-              stdin.write(block.call) if input
-              stdin.close
-            end
+            content = input.call if input
+            stdin.write(content) if content
+            stdin.close
 
-            block(stdout, stderr, wait_thread)
+            capture(stdout, stderr, wait_thread)
           end
 
           Result.new(args, outs, errs, status.exitstatus)
@@ -54,14 +52,16 @@ module Sevgi
 
         private
 
-        def block(stdout, stderr, wait_thread)
+        def capture(stdout, stderr, wait_thread)
           # Handle `^C`
-          trap("INT") { handle_sigint(wait_thread.pid) }
+          previous = trap("INT") { handle_sigint(wait_thread.pid) }
 
           outs = stdout.readlines.map(&:chomp)
           errs = stderr.readlines.map(&:chomp)
 
           [outs, errs, wait_thread.value]
+        ensure
+          trap("INT", previous) if previous
         end
 
         def handle_sigint(pid)

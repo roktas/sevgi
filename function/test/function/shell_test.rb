@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require "fileutils"
+require "rbconfig"
+require "timeout"
 require "tmpdir"
 
 require_relative "../test_helper"
@@ -21,6 +23,16 @@ module Sevgi
 
             assert(Function.executable?("cached-tool"))
           end
+        end
+
+        def test_executable_returns_false_without_path
+          path = ENV.fetch("PATH", nil)
+          ENV.delete("PATH")
+          clear_executable_cache
+
+          refute(Function.executable?("missing-tool"))
+        ensure
+          ENV["PATH"] = path
         end
 
         def test_executable_caches_negative_result
@@ -66,6 +78,39 @@ module Sevgi
 
           assert_equal(["tool", "--version"], checked)
           assert_equal(["tool", "--version"], ran)
+        end
+
+        def test_sh_closes_stdin_without_input
+          result = Timeout.timeout(2) do
+            Function.sh(RbConfig.ruby, "-e", "puts STDIN.read.empty?")
+          end
+
+          assert_equal("true", result.out)
+        end
+
+        def test_sh_restores_sigint_handler
+          previous = Signal.trap("INT", "DEFAULT")
+          handler = proc { }
+          Signal.trap("INT", handler)
+
+          Function.sh(RbConfig.ruby, "-e", "exit")
+          current = Signal.trap("INT", previous)
+
+          assert_same(handler, current)
+        ensure
+          Signal.trap("INT", previous) if previous
+        end
+
+        def test_sh_writes_block_input_once
+          calls = 0
+
+          result = Function.sh(RbConfig.ruby, "-e", "puts STDIN.read") do
+            calls += 1
+            "input#{calls}"
+          end
+
+          assert_equal(1, calls)
+          assert_equal("input1", result.out)
         end
 
         private
