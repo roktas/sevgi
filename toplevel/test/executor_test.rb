@@ -44,6 +44,28 @@ module Sevgi
         end
     end
 
+    def test_execute_file_drops_successful_load_frame
+      fixture = "#{FIXTURES_DIR}/test_load_after.sevgi"
+
+      result = Sevgi.execute_file(fixture)
+
+      assert(result.error?)
+      assert_equal([fixture], result.stack)
+      refute_includes(result.error.backtrace!.join("\n"), "test_load_value.sevgi")
+    end
+
+    def test_execute_empty_string_preserves_active_scope
+      result = Executor.execute(
+        <<~RUBY
+          before = Sevgi::Executor.instance.current
+          Sevgi::Executor.execute("")
+          before.equal?(Sevgi::Executor.instance.current)
+        RUBY
+      )
+
+      assert_equal(true, result.recent)
+    end
+
     def test_execute_installs_dsl_in_isolated_scope
       result = Sevgi.execute(
         <<~RUBY
@@ -71,6 +93,21 @@ module Sevgi
         Sundries::Export,
         result.recent[3]
       ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+    end
+
+    def test_execute_require_error_preserves_active_scope
+      result = Executor.execute(
+        <<~RUBY
+          before = Sevgi::Executor.instance.current
+          begin
+            Sevgi::Executor.execute("1", require: "sevgi_missing_test_library")
+          rescue LoadError
+            before.equal?(Sevgi::Executor.instance.current)
+          end
+        RUBY
+      )
+
+      assert_equal(true, result.recent)
     end
 
     def test_execute_restores_sigint_handler

@@ -17,20 +17,18 @@ module Sevgi
     end
 
     def self.execute(string, file: nil, line: nil, require: nil, receiver: nil, &block)
-      interrupt = nil
       return if string.empty?
 
       interrupt = Signal.trap("INT") { Kernel.abort("") }
 
       ::Kernel.require(require) if require
 
-      catch(:result) do
-        instance.create.call(Source.new(string:, file:, line:), receiver, &block)
-      end
+      scope = instance.create
+      catch(:result) { scope.call(Source.new(string:, file:, line:), receiver, &block) }
 
     ensure
       Signal.trap("INT", interrupt) if interrupt
-      instance.shutdown
+      instance.shutdown if scope
     end
 
     def self.execute_file(file, require: nil, receiver: nil, &block)
