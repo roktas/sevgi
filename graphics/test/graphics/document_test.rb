@@ -51,6 +51,12 @@ module Sevgi
 
         assert_equal(expected, actual)
       end
+
+      def test_unknown_profile_raises_argument_error
+        error = assert_raises(ArgumentError) { SVG(:missing) }
+
+        assert_match(/\bmissing\b/, error.message)
+      end
     end
 
     class DocumentMethodMissingTest < Minitest::Test

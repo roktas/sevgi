@@ -6,6 +6,26 @@ module Sevgi
   module Graphics
     module Mixtures
       class CoreTreeTest < Minitest::Test
+        def test_classify_appends_to_string_attribute
+          element = SVG do
+            rect(class: "primary").Classify("selected", "primary")
+          end
+            .children
+            .first
+
+          assert_equal(%w[primary selected], element[:class])
+        end
+
+        def test_defaults_preserves_false_attribute
+          element = SVG do
+            rect(hidden: false).Defaults(hidden: true)
+          end
+            .children
+            .first
+
+          assert_equal(false, element[:hidden])
+        end
+
         def test_tree_construction_appends_children
           doc = SVG(id: "main") do
             g = g(id: "group1") { line(id: "line1") }
@@ -60,6 +80,16 @@ module Sevgi
             "line1",
             doc.children[0].children[1][:id]
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+        end
+
+        def test_root_returns_document_root_from_descendant
+          descendant = nil
+
+          doc = SVG(id: "main") do
+            g { descendant = line(id: "line1") }
+          end
+
+          assert_same(doc, descendant.Root())
         end
       end
     end

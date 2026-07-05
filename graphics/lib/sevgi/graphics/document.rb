@@ -4,6 +4,13 @@ module Sevgi
   module Graphics
     module Document
       def self.call(document, canvas = Undefined, **, &block)
+        klass = Profile[document]
+        ArgumentError.("Unknown document profile: #{document}") unless klass
+
+        klass.root(**klass.attributes, **canvas_attributes(canvas), **, &block)
+      end
+
+      def self.canvas_attributes(canvas)
         case canvas
         when Undefined, ::NilClass
           {}
@@ -11,10 +18,10 @@ module Sevgi
           canvas.attributes
         else
           Canvas.(canvas).attributes
-        end => attributes
-
-        (klass = Profile[document]).root(**klass.attributes, **attributes, **, &block)
+        end
       end
+
+      private_class_method :canvas_attributes
 
       class Profile
         @available = {}

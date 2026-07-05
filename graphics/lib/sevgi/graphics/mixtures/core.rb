@@ -35,26 +35,26 @@ module Sevgi
 
         def Classify(*classes)
           tap do
-            unless self[:class]
-              self[:class] = classes
-              next
-            end
-
-            case self[:class]
+            klasses = case self[:class]
             when ::Array
               self[:class]
             when ::String
               self[:class].split
-            end => klasses
+            when nil
+              []
+            else
+              [self[:class]]
+            end
 
             classes.each { klasses << it unless klasses.include?(it) }
+            self[:class] = klasses
           end
         end
 
         def Defaults(**attributes)
           tap do
             attributes.each do |key, value|
-              next if self[key]
+              next if has?(key)
 
               self[key] = value
             end
@@ -83,7 +83,7 @@ module Sevgi
 
         def Root
           element = self
-          element = element.parent while element.Root?()
+          element = element.parent until element.Root?()
 
           element
         end

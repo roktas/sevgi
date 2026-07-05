@@ -37,7 +37,7 @@ module Sevgi
             .compact
             .to_a
             .to_h do |key, value|
-              [key.to_sym, value.is_a?(::Hash) ? value.transform_keys!(&:to_sym) : value]
+              [key.to_sym, value.is_a?(::Hash) ? value.transform_keys(&:to_sym) : value]
             end
 
           @store.merge!(hash)
@@ -98,7 +98,7 @@ module Sevgi
           ::String => proc { |old_value, new_value| [old_value, new_value].reject(&:empty?).join(" ") },
           ::Symbol => proc { |old_value, new_value| [old_value, new_value].reject(&:empty?).join(" ").to_sym },
           ::Array => proc { |old_value, new_value| [old_value, new_value] },
-          ::Hash => proc { |old_value, new_value| merge(old_value, new_value.transform_keys(&:to_sym)) }
+          ::Hash => proc { |old_value, new_value| old_value.merge(new_value.transform_keys(&:to_sym)) }
         }.freeze
 
         def update(id, new_value)
@@ -115,14 +115,16 @@ module Sevgi
         private_constant :UPDATER
 
         def to_xml(id, value)
-          case value
+          text = case value
           when ::Hash
-            "#{id}=\"#{value.map { |key, attr_value| "#{key}:#{attr_value}" }.join("; ")}\""
+            value.map { |key, attr_value| "#{key}:#{attr_value}" }.join("; ")
           when ::Array
-            "#{id}=\"#{value.join(" ")}\""
+            value.join(" ")
           else
-            "#{id}=#{value.to_s.encode(xml: :attr)}"
+            value.to_s
           end
+
+          "#{id}=#{text.encode(xml: :attr)}"
         end
       end
     end

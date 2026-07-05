@@ -29,7 +29,7 @@ module Sevgi
 
         def FlipY
           tap do
-            attributes[:"transform#{ATTRIBUTE_UPDATE_SUFFIX}"] = "scale(1, -11)"
+            attributes[:"transform#{ATTRIBUTE_UPDATE_SUFFIX}"] = "scale(1, -1)"
           end
         end
 

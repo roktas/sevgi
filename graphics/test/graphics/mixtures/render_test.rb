@@ -40,6 +40,22 @@ module Sevgi
           assert_equal(expected, actual)
         end
 
+        def test_render_text_element_preserves_xml_space
+          expected = <<~SVG
+            <svg>
+              <text xml:space="preserve"> foo </text>
+            </svg>
+          SVG
+            .chomp
+
+          actual = SVG(DOC) do
+            text(" foo ", "xml:space": "preserve")
+          end
+            .Render()
+
+          assert_equal(expected, actual)
+        end
+
         def test_render_text_element_escapes_special_characters
           expected = <<~SVG
             <svg>
