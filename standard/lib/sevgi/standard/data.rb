@@ -50,7 +50,7 @@ module Sevgi
 
       def group?(name) = /[[:upper:]]/.match?(name[0])
 
-      def model?(name, *models) = models.any? { (self[name] || {})[:model] == name }
+      def model?(name, *models) = models.any? { (self[name] || {})[:model] == it }
 
       private
 
@@ -58,7 +58,7 @@ module Sevgi
 
       def expand(name)
         @spec[name] ||= if data[name]
-          data[name].dup.tap do |spec|
+          data[name].transform_values { |value| value.is_a?(::Array) ? value.dup : value }.tap do |spec|
             expand_names(spec[:elements], Element.data)
             expand_names(spec[:attributes], Attribute.data)
           end

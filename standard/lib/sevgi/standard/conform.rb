@@ -36,7 +36,7 @@ module Sevgi
         Element.ignore?(element) or
           (@cache[element] ||= new(element)).call(
             attributes: Attribute.concerns(attributes),
-            elements: Element.concerns(elements),
+            elements: Element.concerns(elements || []),
             cdata:
           )
       end

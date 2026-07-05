@@ -77,6 +77,34 @@ module Sevgi
           Specification[:font]
         )
       end
+
+      def test_model_predicate_matches_requested_models
+        assert(Standard.model?(:svg, :SomeElements))
+        assert(Standard.model?(:text, :NoneElements, :CDataOrSomeElements))
+        refute(Standard.model?(:text, :SomeElements))
+        refute(Standard.model?(:missing, :SomeElements))
+      end
+
+      def test_expand_preserves_raw_specification_data
+        Specification.import(
+          agentSpec: {
+            attributes: %i[Core id],
+            elements: %i[Descriptive title],
+            model: :SomeElements
+          }
+        )
+        spec = Specification.data[:agentSpec]
+        attributes = spec[:attributes].dup
+        elements = spec[:elements].dup
+
+        Specification[:agentSpec]
+
+        assert_equal(attributes, spec[:attributes])
+        assert_equal(elements, spec[:elements])
+      ensure
+        Specification.data.delete(:agentSpec)
+        Specification.send(:flush)
+      end
     end
 
     class SpecificationConsistencyTest < Minitest::Test

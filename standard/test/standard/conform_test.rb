@@ -22,6 +22,56 @@ module Sevgi
           Conform.(:feDiffuseLighting, attributes: %i[surfaceScale], elements: %i[desc g fePointLight])
         end
       end
+
+      def test_conform_defaults_elements_to_empty_list
+        assert(Conform.(:rect, attributes: []))
+      end
+
+      def test_conform_ignores_foreign_namespace_members
+        assert(
+          Conform.(
+            :svg,
+            attributes: %i[xmlns data-role _internal inkscape:label],
+            elements: %i[_internal sodipodi:namedview]
+          )
+        )
+      end
+
+      def test_conform_validates_reserved_namespace_members
+        assert(Conform.(:text, attributes: [:"xml:space"], cdata: "hello", elements: []))
+
+        error = assert_raises(InvalidAttributesError) do
+          Conform.(:svg, attributes: [:"xlink:missing"], elements: [])
+        end
+
+        assert_equal("svg: Invalid attribute(s): 'xlink:missing'", error.message)
+      end
+
+      def test_special_fe_specular_lighting_checks_order
+        assert(Conform.(:feSpecularLighting, elements: %i[fePointLight desc]))
+
+        error = assert_raises(UnmetConditionError) do
+          Conform.(:feSpecularLighting, elements: %i[desc fePointLight])
+        end
+
+        assert_equal(
+          "feSpecularLighting: Condition unmet for the element: 'Exactly one FilterLightSource element as first required'",
+          error.message
+        )
+      end
+
+      def test_special_font_face_rejects_duplicate_font_face
+        assert(Conform.(:"font-face", elements: %i[desc font-face title]))
+
+        error = assert_raises(UnmetConditionError) do
+          Conform.(:"font-face", elements: %i[font-face font-face])
+        end
+
+        assert_equal(
+          "font-face: Condition unmet for the element: 'At most one font-face element allowed'",
+          error.message
+        )
+      end
     end
   end
 end
