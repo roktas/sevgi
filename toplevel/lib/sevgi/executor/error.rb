@@ -13,9 +13,11 @@ module Sevgi
       end
 
       def backtrace!
+        sources = stack.map { ::File.expand_path(it) }
+
         error
           .backtrace
-          .select { |line| stack.any? { line.start_with?(::File.expand_path(it)) } }
+          .select { sources.include?(::File.expand_path(it.split(":", 2).first)) }
           .map { |line| line.delete_prefix("#{::Dir.pwd}/") }
       end
 

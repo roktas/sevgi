@@ -75,6 +75,28 @@ module Sevgi
         assert_equal([["script.sevgi", "json", TOPLEVEL_BINDING.receiver]], calls)
       end
 
+      def test_call_reports_load_stack_for_script_error
+        fixture = "test/fixtures/executor/test_load_nested.sevgi"
+
+        out, err = capture_io do
+          error = assert_raises(SystemExit) { Sevgi.(["-n", fixture]) }
+
+          assert_equal(1, error.status)
+        end
+
+        assert_empty(out)
+        assert_equal(
+          <<~ERR,
+            undefined method 'de' for module Sevgi::Main
+
+              test/fixtures/executor/test_load_nested_2.sevgi:3:in 'Sevgi::Executor::Scope#evaluate'
+              test/fixtures/executor/test_load_nested_1.sevgi:3:in 'Sevgi::Executor::Scope#evaluate'
+              test/fixtures/executor/test_load_nested.sevgi:3:in 'Sevgi::Executor::Scope#evaluate'
+          ERR
+          err
+        )
+      end
+
       def test_help_reports_nomain_short_option
         out, _err = capture_io { Sevgi.(["--help"]) }
 
