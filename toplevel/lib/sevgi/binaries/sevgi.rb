@@ -25,7 +25,7 @@ module Sevgi
             case (arg = argv.shift)
             when "-r", "--require"
               options.require = argv.shift
-            when "-m", "--nomain"
+            when "-n", "--nomain"
               options.nomain = true
             when "-x", "--exception"
               options.vomit = true

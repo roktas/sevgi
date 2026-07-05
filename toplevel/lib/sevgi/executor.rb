@@ -17,9 +17,10 @@ module Sevgi
     end
 
     def self.execute(string, file: nil, line: nil, require: nil, receiver: nil, &block)
+      interrupt = nil
       return if string.empty?
 
-      Signal.trap("INT") { Kernel.abort("") }
+      interrupt = Signal.trap("INT") { Kernel.abort("") }
 
       ::Kernel.require(require) if require
 
@@ -28,6 +29,7 @@ module Sevgi
       end
 
     ensure
+      Signal.trap("INT", interrupt) if interrupt
       instance.shutdown
     end
 

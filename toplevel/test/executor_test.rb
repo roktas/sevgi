@@ -13,7 +13,6 @@ module Sevgi
     end
 
     def test_execute_file_reports_nested_load_stack
-      skip("nested load stack reporting is pending")
       fixture = "#{FIXTURES_DIR}/test_load_nested.sevgi"
 
       result = Sevgi.execute_file(fixture)
@@ -31,7 +30,7 @@ module Sevgi
       [
         "#{FIXTURES_DIR}/test_load_nested_2.sevgi:3",
         "#{FIXTURES_DIR}/test_load_nested_1.sevgi:3",
-        "#{FIXTURES_DIR}/test_load_nested.sevgi:5"
+        "#{FIXTURES_DIR}/test_load_nested.sevgi:3"
       ]
         .map { it.delete_prefix("#{Dir.pwd}/") }
         .zip(
@@ -43,6 +42,48 @@ module Sevgi
         ) do |expected, actual|
           assert_equal(expected, actual)
         end
+    end
+
+    def test_execute_installs_dsl_in_isolated_scope
+      result = Sevgi.execute(
+        <<~RUBY
+          Paper(3, 5, :executor_test_card)
+          [
+            SVG(:minimal, :executor_test_card).Render(validate: false),
+            F.pluralize("cat"),
+            Origin,
+            Export
+          ]
+        RUBY
+      )
+
+      [
+        false,
+        respond_to?(:Paper, true),
+        false,
+        Object.const_defined?(:F, false),
+        "<svg width=\"3.0mm\" height=\"5.0mm\" viewBox=\"0 0 3 5\"/>",
+        result.recent[0],
+        "cats",
+        result.recent[1],
+        Geometry::Origin,
+        result.recent[2],
+        Sundries::Export,
+        result.recent[3]
+      ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+    end
+
+    def test_execute_restores_sigint_handler
+      original = Signal.trap("INT", "DEFAULT")
+      handler = proc { }
+
+      Signal.trap("INT", handler)
+
+      Executor.execute("1")
+
+      assert_same(handler, Signal.trap("INT", "IGNORE"))
+    ensure
+      Signal.trap("INT", original)
     end
 
     def test_execute_boots_isolated_receiver
