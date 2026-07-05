@@ -42,13 +42,28 @@ module Sevgi
       end
 
       def test_paper_returns_profile_name
-        paper = Graphics.paper(3, 5, :xyz)
-        assert_equal(:xyz, paper)
+        paper = Graphics.paper(3, 5, :graphics_test_paper)
+        assert_equal(:graphics_test_paper, paper)
       end
 
       def test_paper_bang_returns_profile_name
-        paper = Graphics.paper!(3, 5, :abc)
-        assert_equal(:abc, paper)
+        paper = Graphics.paper!(3, 5, :graphics_test_paper_bang)
+        assert_equal(:graphics_test_paper_bang, paper)
+      end
+
+      def test_paper_preserves_existing_profile
+        original = Paper.a4
+
+        Graphics.paper(3, 5, :a4)
+
+        assert_equal(original, Paper.a4)
+      end
+
+      def test_paper_bang_overwrites_existing_profile
+        Graphics.paper!(3, 5, :graphics_test_overwrite)
+        Graphics.paper!(7, 11, :graphics_test_overwrite)
+
+        assert_equal([7.0, 11.0, :mm, :graphics_test_overwrite], Paper.graphics_test_overwrite.deconstruct)
       end
     end
   end

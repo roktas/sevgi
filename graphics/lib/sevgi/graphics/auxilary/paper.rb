@@ -21,18 +21,33 @@ module Sevgi
 
       alias_method :==, :eql?
 
+      @profiles = {}
+
       def self.define!(name, ...)
         raise ArgumentError, "Paper already defined: #{name}" if exist?(name)
 
         define(name, ...)
       end
 
-      def self.exist?(name) = respond_to?(name)
+      def self.exist?(name) = profiles.key?(name.to_sym)
 
       def self.define(name, **spec)
+        name = name.to_sym
+
+        ArgumentError.("Paper name is reserved: #{name}") if reserved?(name) && !exist?(name)
+
+        singleton_class.remove_method(name) if singleton_class.method_defined?(name, false)
         singleton_class.attr_reader(name)
-        instance_variable_set("@#{name}", new(name:, **spec))
+        profiles[name] = instance_variable_set("@#{name}", new(name:, **spec))
       end
+
+      def self.reserved?(name) = @reserved.include?(name.to_sym)
+
+      def self.profiles = @profiles
+
+      @reserved = methods.map(&:to_sym).freeze
+
+      private_class_method :profiles, :reserved?
 
       {
         a0: [841, 1189, "mm"],
@@ -90,6 +105,8 @@ module Sevgi
       class << self
         alias_method :default, :a4
       end
+
+      profiles[:default] = profiles.fetch(:a4)
     end
   end
 end

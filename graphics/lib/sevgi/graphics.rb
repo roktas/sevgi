@@ -17,8 +17,8 @@ module Sevgi
       Graphics::Canvas.(...)
     end
 
-    def document(name = :default, preambles: [], attributes: {})
-      Class.new(Graphics::Document::Base) { document(name, preambles:, attributes:) }
+    def document(name = Undefined, preambles: [], attributes: {})
+      Class.new(Graphics::Document::Base) { document(name, preambles:, attributes:, register: name != Undefined) }
     end
 
     def paper(width, height, name = :custom, unit: "mm")

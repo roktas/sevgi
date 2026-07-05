@@ -32,6 +32,29 @@ module Sevgi
         assert_equal(expected, SVG(:html).Render())
       end
 
+      def test_anonymous_document_doesnt_replace_default
+        before = SVG(:default).Render()
+        doc = Graphics.document(attributes: {"data-var": "anonymous"})
+
+        [
+          before,
+          SVG(:default).Render(),
+          "<svg data-var=\"anonymous\"/>",
+          SVG(doc).Render()
+        ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+      end
+
+      def test_named_document_registers_profile_and_class
+        doc = Graphics.document(:registered, attributes: {"data-var": "registered"})
+
+        [
+          "<svg data-var=\"registered\"/>",
+          SVG(:registered).Render(),
+          "<svg data-var=\"registered\"/>",
+          SVG(doc).Render()
+        ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+      end
+
       def test_subclass_root_attributes_doesnt_leak
         expected = <<~SVG
           <svg data-var="xxx">

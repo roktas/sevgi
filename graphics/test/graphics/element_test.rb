@@ -143,7 +143,11 @@ module Sevgi
       end
 
       class ElementMethodMissingTest < Minitest::Test
-        def setup = %i[svg marker].each { Element.remove_method(it) if Element.method_defined?(it) }
+        CACHED = %i[svg marker missing_glyph missing-glyph].freeze
+
+        def setup
+          CACHED.each { |method| Element.remove_method(method) if Element.method_defined?(method) }
+        end
 
         def teardown = setup
 
@@ -175,6 +179,28 @@ module Sevgi
 
           assert(Element.method_defined?(:svg))
           assert(Element.method_defined?(:marker))
+        end
+
+        def test_method_missing_caches_underscore_aliases
+          refute(Element.method_defined?(:missing_glyph))
+          refute(Element.method_defined?(:"missing-glyph"))
+
+          root = Element.root do
+            missing_glyph(id: "glyph")
+          end
+
+          assert(Element.method_defined?(:missing_glyph))
+          refute(Element.method_defined?(:"missing-glyph"))
+          assert_equal(:"missing-glyph", root.children.first.name)
+        end
+
+        def test_cached_methods_use_receiver_class
+          subclass = Class.new(Element)
+
+          Element.root { marker }
+          child = subclass.root { marker }.children.first
+
+          assert_instance_of(subclass, child)
         end
 
         def test_subclass_method_missing_caching_affects_parent

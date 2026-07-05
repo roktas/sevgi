@@ -5,6 +5,32 @@ require_relative "../../test_helper"
 module Sevgi
   module Graphics
     class PaperTest < Minitest::Test
+      def test_define_allows_profile_overwrite
+        Paper.define(:paper_test_card, width: 3, height: 5)
+        Paper.define(:paper_test_card, width: 7, height: 11)
+
+        assert_equal([7.0, 11.0, :mm, :paper_test_card], Paper.paper_test_card.deconstruct)
+      end
+
+      def test_define_bang_rejects_existing_profiles
+        Paper.define(:paper_test_once, width: 3, height: 5)
+
+        error = assert_raises(ArgumentError) do
+          Paper.define!(:paper_test_once, width: 7, height: 11)
+        end
+
+        assert_match(/\bpaper_test_once\b/, error.message)
+      end
+
+      def test_define_rejects_reserved_methods
+        error = assert_raises(ArgumentError) do
+          Paper.define(:define, width: 3, height: 5)
+        end
+
+        assert_match(/\breserved\b/, error.message)
+        assert_instance_of(::Method, Paper.method(:define))
+      end
+
       def test_iso_a_profiles_use_standard_small_sizes
         [
           [74.0, 105.0, :mm, :a7],

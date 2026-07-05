@@ -44,7 +44,7 @@ module Sevgi
       end
 
       def method_missing(name, *, &block)
-        Element.valid?(id = Element.id(name)) ? Dispatch.(self, id, *, &block) : super
+        Element.valid?(tag = Element.id(name)) ? Dispatch.(self, name, tag, *, &block) : super
       end
 
       def respond_to_missing?(name, include_private = false)
@@ -54,15 +54,15 @@ module Sevgi
       module Dispatch
         extend self
 
-        def call(element, name, *, &)
+        def call(element, method, tag, *, &)
           # Low-hanging fruit optimization: define missing method to avoid dispatching cost
-          unless Element.method_defined?(name)
+          unless Element.method_defined?(method)
             Element.class_exec do
-              define_method(name) { |*args, &block| self.class.element(name, *args, parent: self, &block) }
+              define_method(method) { |*args, &block| self.class.element(tag, *args, parent: self, &block) }
             end
           end
 
-          element.public_send(name, *, &)
+          element.public_send(method, *, &)
         end
 
         def parse(name, *args)

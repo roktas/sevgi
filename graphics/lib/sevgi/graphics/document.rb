@@ -4,7 +4,13 @@ module Sevgi
   module Graphics
     module Document
       def self.call(document, canvas = Undefined, **, &block)
-        klass = Profile[document]
+        klass = case document
+        when ::Class
+          document if document <= Proto
+        else
+          Profile[document]
+        end
+
         ArgumentError.("Unknown document profile: #{document}") unless klass
 
         klass.root(**klass.attributes, **canvas_attributes(canvas), **, &block)
@@ -48,9 +54,9 @@ module Sevgi
       module DSL
         attr_reader :profile
 
-        def document(name, attributes: {}, preambles: nil)
-          @profile = Profile.new(name, attributes:, preambles:).tap do
-            Profile.register(name, self)
+        def document(name, attributes: {}, preambles: nil, register: true)
+          @profile = Profile.new(register ? name : nil, attributes:, preambles:).tap do
+            Profile.register(name, self) if register
           end
         end
 
