@@ -1,0 +1,7 @@
+# frozen_string_literal: true
+
+Load "test_load_counter"
+Load "test_load_counter"
+@load_count
+
+# vim: ft=ruby

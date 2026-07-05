@@ -11,7 +11,7 @@ module Sevgi
         @scope = scope || main
         @recent = nil
         @error = nil
-        @stack = []
+        @stack = {}
       end
 
       def error? = !error.nil?
@@ -21,7 +21,6 @@ module Sevgi
 
         tap do
           @recent = run(source, receiver, &boot)
-          pop(source)
 
           # rubocop:disable Lint/RescueException
         rescue Exception => e
@@ -34,9 +33,9 @@ module Sevgi
 
       def load(file, &block) = call(Source.load(file), &block)
 
-      def stack = @stack.map(&:key)
+      def stack = @stack.keys
 
-      def peek = @stack.last
+      def peek = @stack[@stack.keys.last]
 
       MAIN_MODULE = :Main
 
@@ -61,16 +60,12 @@ module Sevgi
       end
 
       def push(source)
-        tap { @stack << source }
+        tap { @stack[source.key] = source }
       end
 
       def run(source, receiver, &boot)
         boot(receiver, &boot)
         evaluate(source)
-      end
-
-      def pop(source)
-        @stack.pop if @stack.last.equal?(source)
       end
     end
   end

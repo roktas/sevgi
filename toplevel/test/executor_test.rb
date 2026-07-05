@@ -44,14 +44,62 @@ module Sevgi
         end
     end
 
-    def test_execute_file_drops_successful_load_frame
+    def test_execute_file_keeps_successful_load_source
       fixture = "#{FIXTURES_DIR}/test_load_after.sevgi"
 
       result = Sevgi.execute_file(fixture)
 
       assert(result.error?)
-      assert_equal([fixture], result.stack)
-      refute_includes(result.error.backtrace!.join("\n"), "test_load_value.sevgi")
+      assert_equal(
+        [
+          fixture,
+          "#{FIXTURES_DIR}/test_load_value.sevgi"
+        ],
+        result.stack
+      )
+      assert_equal(
+        ["#{FIXTURES_DIR}/test_load_after.sevgi:4"].map { it.delete_prefix("#{Dir.pwd}/") },
+        result.error.backtrace!.map { it.split(":")[0..1].join(":") }
+      )
+    end
+
+    def test_execute_file_deduplicates_recursive_load_stack
+      fixture = "#{FIXTURES_DIR}/test_load_recursive_outer.sevgi"
+
+      result = Sevgi.execute_file(fixture)
+
+      assert(result.error?)
+      assert_equal(
+        [
+          fixture,
+          "#{FIXTURES_DIR}/test_load_recursive_inner.sevgi"
+        ],
+        result.stack
+      )
+      assert_equal("recursive load", result.error.message)
+      assert_equal(
+        [
+          "#{FIXTURES_DIR}/test_load_recursive_outer.sevgi:3",
+          "#{FIXTURES_DIR}/test_load_recursive_inner.sevgi:3",
+          "#{FIXTURES_DIR}/test_load_recursive_outer.sevgi:6"
+        ].map { it.delete_prefix("#{Dir.pwd}/") },
+        result.error.backtrace!.map { it.split(":")[0..1].join(":") }
+      )
+    end
+
+    def test_execute_file_reloads_duplicate_load_source
+      fixture = "#{FIXTURES_DIR}/test_load_repeated.sevgi"
+
+      result = Sevgi.execute_file(fixture)
+
+      assert_equal(2, result.recent)
+      assert_equal(
+        [
+          fixture,
+          "#{FIXTURES_DIR}/test_load_counter.sevgi"
+        ],
+        result.stack
+      )
     end
 
     def test_execute_empty_string_preserves_active_scope

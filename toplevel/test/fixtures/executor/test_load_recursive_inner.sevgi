@@ -1,0 +1,5 @@
+# frozen_string_literal: true
+
+Load "test_load_recursive_outer"
+
+# vim: ft=ruby

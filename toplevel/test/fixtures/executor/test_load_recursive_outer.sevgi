@@ -1,0 +1,8 @@
+# frozen_string_literal: true
+
+raise "recursive load" if const_defined?(:TEST_LOAD_RECURSIVE)
+
+TEST_LOAD_RECURSIVE = true
+Load "test_load_recursive_inner"
+
+# vim: ft=ruby
