@@ -13,6 +13,25 @@ module Sevgi
     class DocumentProfileTest < Minitest::Test
       DOC = :test
 
+      def test_default_profile_renders_preamble_and_namespace
+        expected = <<~SVG
+          <?xml version="1.0" standalone="no"?>
+          <svg xmlns="http://www.w3.org/2000/svg"/>
+        SVG
+          .chomp
+
+        assert_equal(expected, SVG(:default).Render())
+      end
+
+      def test_html_profile_suppresses_preambles
+        expected = <<~SVG
+          <svg xmlns="http://www.w3.org/2000/svg"/>
+        SVG
+          .chomp
+
+        assert_equal(expected, SVG(:html).Render())
+      end
+
       def test_subclass_root_attributes_doesnt_leak
         expected = <<~SVG
           <svg data-var="xxx">

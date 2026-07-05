@@ -108,6 +108,8 @@ module Sevgi
           attr_reader :inlines
 
           def attributes_block(element, depth, lines)
+            return attributes_inline(element, depth, lines) if lines.empty?
+
             append(depth, "<#{element.name}")
             append(depth + 1, *lines)
             append(depth, ">") unless childless?(element)
@@ -204,7 +206,7 @@ module Sevgi
 
         def Render(**) = Renderer.(self, **)
 
-        def Render!(separator = SEPARATOR * 2) = children.map(&:Render!).join(separator)
+        def Render!(separator = "\n\n") = children.map(&:Render).join(separator)
       end
     end
   end

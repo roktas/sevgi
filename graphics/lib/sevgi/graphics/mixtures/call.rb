@@ -10,7 +10,7 @@ module Sevgi
       end
 
       module DSL
-        def call(after = false, &block) = ((after ? _after : _befores) << block)
+        def call(after = false, &block) = ((after ? _afters : _befores) << block)
       end
 
       private_constant :DSL

@@ -53,7 +53,7 @@ module Sevgi
             Element(:"sodipodi:namedview", id:) do
               rows.times do |row|
                 cols.times do |col|
-                  matrix << (x, y, label = col * (height + gap), row * (width + gap), "#{row + 1}x#{col + 1}")
+                  matrix << (x, y, label = col * (width + gap), row * (height + gap), "#{row + 1}x#{col + 1}")
                   Element(:"inkscape:page", id: "pageview-#{label}", x:, y:, width:, height:, **)
                 end
               end

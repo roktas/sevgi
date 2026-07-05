@@ -5,6 +5,29 @@ require "forwardable"
 module Sevgi
   module Graphics
     module Mixtures
+      Traversal = Data.define(:value) do
+        def self.call(element, depth, leave, &block)
+          catch(:traversal) do
+            visit(element, depth, leave, &block)
+            element
+          end
+        end
+
+        def self.stop(value)
+          throw(:traversal, value.value) if value.is_a?(self)
+        end
+
+        def self.visit(element, depth, leave, &block)
+          stop(block.call(element, depth))
+          element.children.each { |child| visit(child, depth + 1, leave, &block) }
+          stop(leave.call(element, depth)) if leave
+        end
+
+        private_class_method :stop, :visit
+      end
+
+      private_constant :Traversal
+
       module Core
         extend Forwardable
         def_delegators :@attributes, :[], :[]=, :has?
@@ -92,20 +115,12 @@ module Sevgi
           self.class.root?(self)
         end
 
-        Traversal = Data.define(:value)
-
         def Stay(...) = Traversal.new(...)
 
         def Traverse(depth = 0, leave = nil, &block)
           ArgumentError.("Block required") unless block
 
-          tap do
-            yield(self, depth).tap { return it.value if it.is_a?(Traversal) }
-
-            children.each { |child| child.Traverse(depth + 1, leave, &block) }
-
-            leave&.call(self, depth).tap { return it.value if it.is_a?(Traversal) }
-          end
+          Traversal.call(self, depth, leave, &block)
         end
 
         def TraverseUp(height = 0, &block)

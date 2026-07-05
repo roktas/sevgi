@@ -32,8 +32,10 @@ module Sevgi
           path(d: "M #{x} #{y} l #{dx} #{dy}", **)
         end
 
-        def css(hash, **)
-          style(Content.css(hash), type: "text/css", **)
+        def css(hash = nil, **attributes)
+          hash, attributes = attributes, {} unless hash
+
+          style(Content.css(hash), type: "text/css", **attributes)
         end
 
         def cxline(angle:, dx:, x: 0, y: 0, **)
