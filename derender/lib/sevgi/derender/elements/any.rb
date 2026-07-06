@@ -16,11 +16,11 @@ module Sevgi
 
         def leaf(has_content: true, has_attributes: true)
           attributes = attributes!
-          [
-            element,
-            *("'#{content}', " if has_content),
-            *(Attributes.decompile(attributes) if has_attributes)
-          ].join(" ")
+          args = []
+          args << Ruby.literal(content) if has_content
+          args << Attributes.decompile(attributes) if has_attributes && attributes.any?
+
+          args.empty? ? element : "#{element} #{args.join(", ")}"
         end
 
         def tree

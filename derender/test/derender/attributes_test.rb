@@ -32,6 +32,23 @@ module Sevgi
         assert_equal(expected, actual)
       end
 
+      def test_decompile_doesnt_mutate_input_hash
+        hash = {"style" => "color: red", "id" => "root", "class" => "main"}
+
+        Attributes.decompile(hash)
+
+        assert_equal({"style" => "color: red", "id" => "root", "class" => "main"}, hash)
+      end
+
+      def test_string_attributes_escape_quotes
+        hash = {"label" => "A \"quoted\" value"}
+
+        actual = Attributes.decompile(hash)
+        expected = "label: \"A \\\"quoted\\\" value\""
+
+        assert_equal(expected, actual)
+      end
+
       def test_key_order_prioritizes_id_class_and_style
         hash = {
           "foo" => "fff",

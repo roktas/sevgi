@@ -19,7 +19,7 @@ module Sevgi
 
       def to_key_value(key, value) = "\"#{to_key(key)}\": #{to_value(value)}"
 
-      def to_value(arg) = (arg.to_f.to_s == arg) || (arg.to_i.to_s == arg) ? arg : "\"#{arg}\""
+      def to_value(arg) = (arg.to_f.to_s == arg) || (arg.to_i.to_s == arg) ? arg : arg.inspect
 
       extend self
     end
@@ -34,6 +34,8 @@ module Sevgi
       rescue Rufo::SyntaxError
         raise unformatted_ruby
       end
+
+      def literal(value) = value.to_s.inspect
 
       extend self
     end

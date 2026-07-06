@@ -19,6 +19,7 @@ module Sevgi
       ].freeze
 
       def decompile(hash)
+        hash = hash.dup
         pre, post = {}, {}
 
         ATTRIBUTES_SHOULD_COME_FIRST.each { |key| pre[key] = hash.delete(key) if hash.key?(key) }

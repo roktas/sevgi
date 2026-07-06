@@ -16,10 +16,11 @@ module Sevgi
 
         ArgumentError.("File not found: #{path}") unless ::File.exist?(entry)
 
-        new(::File.read(entry)) do
+        content = ::File.read(entry)
+        new(content) do
           @doc = self.class.cache[entry] ||
             begin
-              self.class.cache[entry] = self.class.parse(::File.read(entry))
+              self.class.cache[entry] = self.class.parse(content)
             end
         end
       end
@@ -37,13 +38,13 @@ module Sevgi
       def initialize(content, &block)
         instance_exec(&block) if block
 
-        @doc = self.class.parse(content)
+        @doc ||= self.class.parse(content)
         @decl = self.class.declaration(content)
       end
 
       def decompile(id = nil)
         if id
-          if (found = doc.xpath("//*[@id='#{id}']") || []).empty?
+          if (found = doc.xpath("//*[@id=#{xpath_literal(id)}]") || []).empty?
             ArgumentError.("No such element with id '#{id}' in document")
           end
 
@@ -60,6 +61,21 @@ module Sevgi
           lines.append(*doc.children.take_while { |node| node != doc.root }.map(&:to_xml))
           lines.unshift(decl) unless lines.first == decl
         end
+      end
+
+      private
+
+      def xpath_literal(value)
+        value = value.to_s
+
+        return "'#{value}'" unless value.include?("'")
+        return "\"#{value}\"" unless value.include?("\"")
+
+        parts = value.split("'", -1).flat_map.with_index do |part, index|
+          index.zero? ? [part] : ["'", part]
+        end
+
+        "concat(#{parts.map { |part| part == "'" ? "\"'\"" : "'#{part}'" }.join(", ")})"
       end
     end
   end

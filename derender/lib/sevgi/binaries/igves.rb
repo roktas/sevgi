@@ -23,6 +23,8 @@ module Sevgi
 
           def option(argv, options)
             case (arg = argv.shift)
+            when "-x", "--exception"
+              options.vomit = true
             when "-h", "--help"
               options.help = true
             when "-v", "--version"

@@ -5,7 +5,7 @@ module Sevgi
   module Derender
     module Elements
       module Text
-        def decompile(*) = ["_ #{content}"]
+        def decompile(*) = ["_ #{Ruby.literal(content)}"]
       end
     end
   end
