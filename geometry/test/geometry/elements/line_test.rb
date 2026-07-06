@@ -73,16 +73,28 @@ module Sevgi
         refute(line345.over?(Point[1.0, 3.0]))
       end
 
-      def test_line_shift_returns_parallel_line
-        shifted = Line[5, 0].shift(3)
-
+      def test_line_shift_matches_equation_offset
         [
-          Point[0, 3],
-          shifted.starting.approx,
-          Point[5, 3],
-          shifted.ending.approx,
-          0.0,
-          shifted.angle
+          Line[5, 0],
+          Line[5, 30],
+          Line[5, 45],
+          Line[5, 90],
+          Line[5, -45]
+        ].each do |line|
+          assert_equal(line.equation.shift(3).approx, line.shift(3).equation.approx)
+        end
+      end
+
+      def test_line_shift_uses_signed_offset
+        [
+          Point[0, -3],
+          Line[5, 0].shift(3).starting.approx,
+          Point[5, -3],
+          Line[5, 0].shift(3).ending.approx,
+          Point[3, 0],
+          Line[5, 90].shift(3).starting.approx,
+          Point[3, 5],
+          Line[5, 90].shift(3).ending.approx
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 

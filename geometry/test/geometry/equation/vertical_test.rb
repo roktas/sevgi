@@ -27,6 +27,17 @@ module Sevgi
             assert(equ.on?([5, 0]))
           end
 
+          def test_vertical_approx_preserves_equation
+            equ = Equation.vertical(5.0004)
+
+            assert_equal(Equation.vertical(5.0), equ.approx(3))
+          end
+
+          def test_vertical_equality_compares_constant
+            assert_equal(Equation.vertical(5.0), Equation.vertical(5.0))
+            refute_equal(Equation.vertical(5.0), Equation.vertical(6.0))
+          end
+
           def test_vertical_left_predicate_accepts_points_before_line
             equ = Equation.vertical(5.0)
 
@@ -54,6 +65,17 @@ module Sevgi
 
             assert_empty(equ.intersect(Equation.vertical(1.0)))
             assert_empty(equ.intersect(Equation.vertical(5.0)))
+          end
+
+          def test_vertical_shift_returns_vertical_equation
+            [
+              Equation.vertical(3.0),
+              Equation.vertical(0.0).shift(3.0),
+              Equation.vertical(-3.0),
+              Equation.vertical(0.0).shift(-3.0),
+              Equation.vertical(5.0),
+              Equation.vertical(3.0).shift(dx: 2.0)
+            ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
           end
 
           def test_vertical_diagonal_solution

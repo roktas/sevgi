@@ -70,6 +70,16 @@ module Sevgi
 
         class Horizontal < Diagonal
           def initialize(c) = super(slope: 0.0, intercept: c)
+
+          def approx(precision = nil) = self.class.new(F.approx(intercept, precision))
+
+          def shift(distance = nil, dx: nil, dy: nil)
+            _dx = dx
+
+            self.class.new(intercept + (dy || 0.0) - (distance || 0.0))
+          end
+
+          def to_s = "Linear<y = #{F.approx(intercept)}>"
         end
 
         class Vertical < Linear
@@ -78,6 +88,12 @@ module Sevgi
 
             @x = c.to_f
           end
+
+          def approx(precision = nil) = self.class.new(F.approx(x, precision))
+
+          def eql?(other) = self.class == other.class && x == other.x
+
+          def hash = [self.class, x].hash
 
           def left?(point)
             point = Tuple[Point, point]
@@ -108,6 +124,8 @@ module Sevgi
           def x(_ = nil) = @x
 
           def y(_ = nil) = ::Float::INFINITY
+
+          alias == eql?
         end
       end
     end

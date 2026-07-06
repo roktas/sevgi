@@ -31,6 +31,19 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
+      def test_shift_uses_signed_perpendicular_offset
+        [
+          Equation.horizontal(-3.0),
+          Line[5, 0].shift(3).equation.approx,
+          Equation.vertical(3.0),
+          Line[5, 90].shift(3).equation.approx,
+          Line[5, 30].equation.shift(3).approx,
+          Line[5, 30].shift(3).equation.approx,
+          Line[5, -45].equation.shift(3).approx,
+          Line[5, -45].shift(3).equation.approx
+        ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+      end
+
       def test_point_relations_use_screen_edges
         point = Point[1, 1]
 

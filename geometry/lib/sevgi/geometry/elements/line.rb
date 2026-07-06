@@ -27,7 +27,7 @@ module Sevgi
         within_range?(point) && equation.on?(point)
       end
 
-      def shift(distance) = translate(distance * F.sin(angle), distance * F.cos(angle))
+      def shift(distance) = translate(distance * F.sin(angle), -distance * F.cos(angle))
 
       private
 

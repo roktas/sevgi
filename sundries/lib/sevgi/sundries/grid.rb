@@ -55,26 +55,30 @@ module Sevgi
         end
 
         class Major < Query
-          def lines! = other.ds.map { this.line.shift(it) }
+          def lines! = other.ds.map { this.line_at(it) }
         end
 
         class Halve < Query
-          def lines! = other.hs.map { this.line.shift(it) }
+          def lines! = other.hs.map { this.line_at(it) }
         end
 
         class Minor < Query
-          def lines! = other.ms.map { this.line.shift(it) }
+          def lines! = other.ms.map { this.line_at(it) }
         end
       end
 
       class X < Axis
         def line = @line ||= Geometry::Line[d, 0.0]
+
+        def line_at(y) = line.at([0.0, y])
       end
 
       class Y < Axis
         def initialize(this, other) = super(other, this)
 
         def line = @line ||= Geometry::Line[d, 90.0]
+
+        def line_at(x) = line.at([x, 0.0])
       end
     end
   end
