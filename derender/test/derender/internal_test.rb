@@ -103,7 +103,10 @@ module Sevgi
         [
           "foo",
           "bar baz",
-          "\"foo\": \"bar baz\""
+          "\"foo\": \"bar baz\"",
+          "a\"b",
+          "quoted",
+          "\"a\\\"b\": \"quoted\""
         ].each_slice(3) do |key, value, expected|
           actual = Css.to_key_value(key, value)
 

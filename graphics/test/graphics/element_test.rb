@@ -143,7 +143,7 @@ module Sevgi
       end
 
       class ElementMethodMissingTest < Minitest::Test
-        CACHED = %i[svg marker missing_glyph missing-glyph].freeze
+        CACHED = %i[svg marker missing_glyph missing-glyph foreignObject].freeze
 
         def setup
           CACHED.each { |method| Element.remove_method(method) if Element.method_defined?(method) }
@@ -155,8 +155,23 @@ module Sevgi
           assert_respond_to(Element.root, :marker)
         end
 
+        def test_respond_to_rejects_invalid_svg_names
+          refute_respond_to(Element.root, :foobar)
+        end
+
         def test_invalid_element_name_raises_exception
           assert_raises(NameError) { Element.root { foobar } }
+        end
+
+        def test_method_missing_caches_camelcase_elements
+          refute(Element.method_defined?(:foreignObject))
+
+          root = Element.root do
+            foreignObject(id: "foreign")
+          end
+
+          assert(Element.method_defined?(:foreignObject))
+          assert_equal(:foreignObject, root.children.first.name)
         end
 
         def test_method_missing_caches_nested_element_methods

@@ -39,7 +39,7 @@ module Sevgi
               value
             end => value
 
-            key.match?(/\W/) ? "\"#{key}\": #{value}" : "#{key}: #{value}"
+            key.match?(/\W/) ? "#{Ruby.literal(key)}: #{value}" : "#{key}: #{value}"
           end
           .join(", ")
       end

@@ -22,6 +22,38 @@ module Sevgi
         end
       end
 
+      def test_mixtures_keep_private_surface_small
+        expected = [
+          [:Call, [:CallWithin], []],
+          [:Core, [], []],
+          [:Duplicate, [], []],
+          [:Export, [:Export], []],
+          [:Hatch, [], []],
+          [:Identify, [], []],
+          [:Include, [], []],
+          [:Inkscape, [], []],
+          [:Lint, [], []],
+          [:Polyfills, [], []],
+          [:RDF, [], []],
+          [:Render, [], []],
+          [:Save, [], []],
+          [:Symbols, [], []],
+          [:Tile, [], []],
+          [:Transform, [], []],
+          [:Underscore, [], []],
+          [:Validate, [], []],
+          [:Wrappers, [], []]
+        ]
+
+        actual = expected.map do |name, _private_methods, _protected_methods|
+          mod = Graphics::Mixtures.const_get(name)
+
+          [name, mod.private_instance_methods(false).sort, mod.protected_instance_methods(false).sort]
+        end
+
+        assert_equal(expected, actual)
+      end
+
       def test_graphics_loads_nokogiri_before_native_export_libraries
         skip("Nokogiri is not loaded") unless defined?(::Nokogiri)
 

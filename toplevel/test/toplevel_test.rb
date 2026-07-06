@@ -4,6 +4,23 @@ require_relative "test_helper"
 
 module Sevgi
   class ToplevelTest < Minitest::Test
+    def test_toplevel_exposes_expected_methods
+      assert_equal(
+        %i[
+          Decompile
+          Derender
+          Grid
+          Load
+          Mixin
+          Paper
+          Paper!
+        ],
+        Toplevel.public_instance_methods(false).sort
+      )
+      assert_empty(Toplevel.private_instance_methods(false))
+      assert_empty(Toplevel.protected_instance_methods(false))
+    end
+
     def test_include_installs_methods_and_constants
       klass = Class.new do
         include(::Sevgi)

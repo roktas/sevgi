@@ -49,6 +49,15 @@ module Sevgi
         assert_equal(expected, actual)
       end
 
+      def test_attribute_keys_escape_quotes
+        hash = {"a\"b" => "quoted", "c\\d" => "backslash"}
+
+        actual = Attributes.decompile(hash)
+        expected = "\"a\\\"b\": \"quoted\", \"c\\\\d\": \"backslash\""
+
+        assert_equal(expected, actual)
+      end
+
       def test_key_order_prioritizes_id_class_and_style
         hash = {
           "foo" => "fff",
