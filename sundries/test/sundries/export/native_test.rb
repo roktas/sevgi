@@ -9,6 +9,14 @@ module Sevgi
   module Sundries
     module Export
       class NativeTest < Minitest::Test
+        def test_call_returns_output_argument
+          Dir.mktmpdir do |dir|
+            output = File.join(dir, "out.png")
+
+            assert_equal(output, Export.call(svg(width: 10, height: 10), output))
+          end
+        end
+
         def test_call_applies_css_before_rendering
           Dir.mktmpdir do |dir|
             output = File.join(dir, "out.png")
@@ -17,6 +25,19 @@ module Sevgi
 
             surface = Cairo::ImageSurface.from_png(output)
             assert_equal([10, 10], [surface.width, surface.height])
+          end
+        end
+
+        def test_call_applies_block_before_rendering
+          Dir.mktmpdir do |dir|
+            output = File.join(dir, "out.png")
+
+            Export.call(svg(width: 100, height: 50), output) do |source|
+              source.sub("height=\"50\"", "height=\"25\"")
+            end
+
+            surface = Cairo::ImageSurface.from_png(output)
+            assert_equal([100, 25], [surface.width, surface.height])
           end
         end
 
@@ -123,6 +144,15 @@ module Sevgi
             error = assert_raises(ExportError) { Export.call(zero_sized_svg, output) }
 
             assert_equal("Invalid SVG dimensions", error.message)
+          end
+        end
+
+        def test_call_rejects_invalid_target_width
+          Dir.mktmpdir do |dir|
+            output = File.join(dir, "out.png")
+            error = assert_raises(ExportError) { Export.call(svg(width: 10, height: 10), output, width: 0) }
+
+            assert_equal("Invalid export dimensions", error.message)
           end
         end
 

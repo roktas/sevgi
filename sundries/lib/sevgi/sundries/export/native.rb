@@ -32,6 +32,7 @@ module Sevgi
         ih *= scale
 
         tw, th = target_size(iw, ih, width, height)
+        ExportError.("Invalid export dimensions") if tw <= 0 || th <= 0
 
         begin
           renderer.call(

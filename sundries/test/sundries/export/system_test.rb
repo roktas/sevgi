@@ -27,6 +27,19 @@ module Sevgi
           )
         end
 
+        def test_a5ona4_bang_replaces_input
+          Dir.mktmpdir do |dir|
+            infile = File.join(dir, "in.pdf")
+            File.write(infile, "old")
+
+            Export.stub(:a5ona4, -> (_infile, outfile) { File.write(outfile, "new") }) do
+              Export.a5ona4!(infile)
+            end
+
+            assert_equal("new", File.read(infile))
+          end
+        end
+
         def test_rsvg_defaults_to_pdf_output
           Dir.mktmpdir do |dir|
             infile = svg_file(dir)
@@ -168,6 +181,20 @@ module Sevgi
               ],
               result[:sh].first
             )
+          end
+        end
+
+        def test_inkscape_omits_nil_options
+          Dir.mktmpdir do |dir|
+            infile = svg_file(dir)
+            outfile = File.join(dir, "out.pdf")
+
+            result = capture_system_commands do
+              Export.inkscape(infile, outfile, background: nil, opacity: nil)
+            end
+
+            refute_includes(result[:sh].first, "--export-background=")
+            refute_includes(result[:sh].first, "--export-background-opacity=")
           end
         end
 

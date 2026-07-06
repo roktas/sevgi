@@ -29,6 +29,31 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
+      def test_interval_exposes_half_ticks_and_counts
+        il = Interval.new(3, 4)
+
+        [
+          [1.5, 4.5, 7.5, 10.5],
+          il.hs,
+          4,
+          il.nds,
+          3,
+          il.nhs
+        ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+      end
+
+      def test_interval_measures_objects_by_length
+        object = Data.define(:length).new(2.5)
+        il = Interval[object, 4]
+
+        [
+          2.5,
+          il.u,
+          10.0,
+          il.d
+        ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+      end
+
       def test_interval_rejects_invalid_unit
         assert_raises(NoMethodError) { Interval.new(Object.new, 4) }
       end
@@ -53,6 +78,25 @@ module Sevgi
           r.h,
           r.d,
           r.length
+        ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+      end
+
+      def test_ruler_handles_zero_fitting_span
+        r = Ruler.new(unit: 10, multiple: 10, brut: 20)
+
+        [
+          0,
+          r.n,
+          0.0,
+          r.d,
+          20.0,
+          r.waste,
+          10.0,
+          r.margin,
+          [0.0],
+          r.ds,
+          [],
+          r.hs
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 

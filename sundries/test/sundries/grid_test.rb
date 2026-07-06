@@ -5,6 +5,14 @@ require_relative "../test_helper"
 module Sevgi
   module Sundries
     class GridTest < Minitest::Test
+      def test_grid_rejects_non_ruler_axes
+        error = assert_raises(ArgumentError) do
+          Grid.new(x: Object.new, y: Ruler.new(unit: 1, multiple: 1, brut: 1))
+        end
+
+        assert_equal("Arguments must be Ruler objects", error.message)
+      end
+
       def test_grid_builds_axes_from_rulers
         [
           # Ordinary construction
@@ -42,6 +50,61 @@ module Sevgi
             grid.x.d
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
         end
+      end
+
+      def test_grid_canvas_matches_brut_size_and_margins
+        grid = Grid.new(
+          x: Ruler.new(unit: 6, multiple: 5, brut: 210, margin: 15),
+          y: Ruler.new(unit: 6, multiple: 5, brut: 297, margin: 15)
+        )
+        canvas = grid.canvas
+
+        [
+          210.0,
+          canvas.width,
+          297.0,
+          canvas.height,
+          :mm,
+          canvas.unit,
+          28.5,
+          canvas.top,
+          15.0,
+          canvas.right,
+          28.5,
+          canvas.bottom,
+          15.0,
+          canvas.left,
+          180.0,
+          canvas.inner.width,
+          240.0,
+          canvas.inner.height,
+          {width: "210.0mm", height: "297.0mm"},
+          canvas.viewport,
+          "-15 -28.5 210 297",
+          canvas.viewbox
+        ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+      end
+
+      def test_grid_axes_memoize_base_lines
+        grid = Grid.new(
+          x: Ruler.new(unit: 2, multiple: 2, brut: 8),
+          y: Ruler.new(unit: 1, multiple: 2, brut: 6)
+        )
+
+        assert_same(grid.x.line, grid.x.line)
+        assert_same(grid.y.line, grid.y.line)
+      end
+
+      def test_grid_queries_memoize_lines_points_and_xys
+        grid = Grid.new(
+          x: Ruler.new(unit: 2, multiple: 2, brut: 8),
+          y: Ruler.new(unit: 1, multiple: 2, brut: 6)
+        )
+        query = grid.x.major
+
+        assert_same(query.lines, query.lines)
+        assert_same(query.points, query.points)
+        assert_same(query.xys, query.xys)
       end
 
       def test_grid_x_major_returns_horizontal_lines

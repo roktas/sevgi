@@ -74,7 +74,7 @@ module Sevgi
       class Y < Axis
         def initialize(this, other) = super(other, this)
 
-        def line = @line || Geometry::Line[d, 90.0]
+        def line = @line ||= Geometry::Line[d, 90.0]
       end
     end
   end
