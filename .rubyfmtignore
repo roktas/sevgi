@@ -1,0 +1,4 @@
+# Keep Sevgi DSL scripts hand-formatted for now.
+*.sevgi
+**/*.sevgi
+showcase/srv/*.sevgi
