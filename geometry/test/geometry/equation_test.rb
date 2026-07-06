@@ -27,6 +27,12 @@ module Sevgi
           rect.intersection(equ).map(&:deconstruct)
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
+
+      def test_intersect_rejects_non_equation
+        error = assert_raises(Error) { Equation.horizontal(1).intersect(Object.new) }
+
+        assert_match(/Must be an equation/, error.message)
+      end
     end
   end
 end

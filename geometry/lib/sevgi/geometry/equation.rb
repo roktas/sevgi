@@ -33,16 +33,28 @@ module Sevgi
       def linear_vs_linear(other)
         case [self, other]
         in [Linear::Diagonal, Linear::Diagonal]
-          y = self.y(x = (other.intercept - intercept) / (slope - other.slope))
+          diagonal_vs_diagonal(self, other)
         in [Linear::Diagonal, Linear::Vertical]
-          y = self.y(x = other.x)
+          diagonal_vs_vertical(self, other)
         in [Linear::Vertical, Linear::Diagonal]
-          y = other.y(x = self.x())
+          diagonal_vs_vertical(other, self)
         in [Linear::Vertical, Linear::Vertical]
-          x, y = ::Float::INFINITY, ::Float::INFINITY
+          nil
         end
+      end
 
-        Point[x, y]
+      def diagonal_vs_diagonal(left, right)
+        return nil if F.eq?(left.slope, right.slope)
+
+        x = (right.intercept - left.intercept) / (left.slope - right.slope)
+
+        Point[x, left.y(x)]
+      end
+
+      def diagonal_vs_vertical(diagonal, vertical)
+        x = vertical.x
+
+        Point[x, diagonal.y(x)]
       end
 
       def linear_vs_quadratic(...)

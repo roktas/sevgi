@@ -4,32 +4,39 @@ module Sevgi
   module Geometry
     module Operation
       module Align
+        extend self
+
         def align(element, other, alignment = :center)
-          alignment(element, other, alignment).apply(element)
+          offset = alignment(element, other, alignment)
+
+          element.translate(offset.x, offset.y)
         end
 
         def alignment(element, other, alignment = :center)
+          OperationInapplicableError.("Not a Geometric Element: #{other}") unless other.is_a?(Element)
+
           this, that = element.box, other.box
 
           case alignment
           when :center
-            Translation[(this.width - that.width) / 2.0, (this.height - that.height) / 2.0]
+            Point[
+              that.position.x + ((that.width - this.width) / 2.0) - this.position.x,
+              that.position.y + ((that.height - this.height) / 2.0) - this.position.y
+            ]
           when :left
-            Translation[this.ne.x - that.ne.x, 0]
+            Point[that.position.x - this.position.x, 0]
           when :right
-            Translation[this.sw.x - that.sw.x, 0]
+            Point[(that.position.x + that.width) - (this.position.x + this.width), 0]
           when :top
-            Translation[0, this.ne.y - that.ne.y]
+            Point[0, that.position.y - this.position.y]
           when :bottom
-            Translation[0, this.sw.y - that.sw.y]
+            Point[0, (that.position.y + that.height) - (this.position.y + this.height)]
           else
             ArgumentError.("No such type of alignment: #{alignment}")
           end
         end
 
-        def applicable?(element)
-          Translation.applicable?(element)
-        end
+        def applicable?(element) = element.respond_to?(:translate)
       end
 
       register(Align, :align, :alignment)

@@ -10,8 +10,10 @@ module Sevgi
       # Core API
 
       def at(point = nil, dx: 0, dy: 0)
+        point = point ? Tuple[Point, point] : position
+
         translate(
-          ((point ||= position).x - position.x) + dx,
+          (point.x - position.x) + dx,
           (point.y - position.y) + dy
         )
       end
@@ -178,9 +180,17 @@ module Sevgi
 
         # Relation methods
 
-        def inside?(point) = on?(point) || pnpoly(points, point)
+        def inside?(point)
+          point = Tuple[Point, point]
 
-        def on?(point) = lines.any? { it.over?(point) }
+          on?(point) || pnpoly(points, point)
+        end
+
+        def on?(point)
+          point = Tuple[Point, point]
+
+          lines.any? { it.over?(point) }
+        end
 
         def outside?(point) = !inside?(point)
 

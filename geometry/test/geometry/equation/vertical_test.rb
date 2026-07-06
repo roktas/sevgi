@@ -24,12 +24,14 @@ module Sevgi
             equ = Equation.vertical(5.0)
 
             assert(equ.left?(Point[-5, 0]))
+            assert(equ.left?([-5, 0]))
           end
 
           def test_vertical_on_predicate_accepts_points_on_line
             equ = Equation.vertical(5.0)
 
             assert(equ.on?(Point[5, 0]))
+            assert(equ.on?([5, 0]))
             assert(equ.on?(Point[5, -1]))
           end
 
@@ -37,13 +39,14 @@ module Sevgi
             equ = Equation.vertical(5.0)
 
             assert(equ.right?(Point[10, 0]))
+            assert(equ.right?([10, 0]))
           end
 
-          def test_vertical_vertical_solution
+          def test_vertical_parallel_returns_no_solution
             equ = Equation.vertical(5.0)
-            points = equ.intersect(Equation.vertical(1.0))
 
-            assert_equal(Point[Float::INFINITY, Float::INFINITY], *points)
+            assert_empty(equ.intersect(Equation.vertical(1.0)))
+            assert_empty(equ.intersect(Equation.vertical(5.0)))
           end
 
           def test_vertical_diagonal_solution

@@ -21,8 +21,11 @@ module Sevgi
 
       def draw!(node, **) = node.Cline(x1: position.x, y1: position.y, x2: ending.x, y2: ending.y, **)
 
-      # TODO: xxx
-      def over?(point) = within_range?(point) && equation.on?(point)
+      def over?(point)
+        point = Tuple[Point, point]
+
+        within_range?(point) && equation.on?(point)
+      end
 
       def shift(distance) = translate(distance * F.sin(angle), distance * F.cos(angle))
 

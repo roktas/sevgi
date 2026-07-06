@@ -37,6 +37,44 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_in_delta(expected, actual) }
       end
 
+      def test_point_affinity_transforms_coordinates
+        point = Point[3, 4]
+
+        [
+          Point[4, 6],
+          point.translate(1, 2),
+          Point[4, 5],
+          point.translate(1),
+          Point[3, -4],
+          point.reflect_x,
+          Point[-3, 4],
+          point.reflect_y,
+          Point[-3, -4],
+          point.reflect,
+          Point[-4, 3],
+          point.rotate(90).approx,
+          Point[6, 8],
+          point.scale(2),
+          Point[6, 12],
+          point.scale(2, 3)
+        ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+      end
+
+      def test_point_skew_transforms_coordinates
+        point = Point[3, 4]
+
+        [
+          Point[7, 4],
+          point.skew_x(45).approx,
+          Point[3, 7],
+          point.skew_y(45).approx,
+          Point[7, 7],
+          point.skew(45).approx,
+          Point[7, 4],
+          point.skew(45, 0).approx
+        ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+      end
+
       def test_point_sort_orders_by_x_then_y
         [
           [Point[9, 5], Point[6, 7]].sort,

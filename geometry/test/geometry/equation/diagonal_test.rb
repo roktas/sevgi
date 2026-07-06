@@ -71,16 +71,26 @@ module Sevgi
             assert(Point[15, 16].eq?(*points))
           end
 
+          def test_diagonal_parallel_returns_no_solution
+            equ = Equation.diagonal(slope: 2.0, intercept: 1.0)
+
+            assert_empty(equ.intersect(Equation.diagonal(slope: 2.0, intercept: 3.0)))
+            assert_empty(equ.intersect(Equation.diagonal(slope: 2.0, intercept: 1.0)))
+          end
+
           def test_diagonal_left_predicate_accepts_left_point
             assert(line345.left?(Point[-5, 0]))
+            assert(line345.left?([-5, 0]))
           end
 
           def test_diagonal_on_predicate_accepts_origin
             assert(line345.on?(Point[0, 0]))
+            assert(line345.on?([0, 0]))
           end
 
           def test_diagonal_right_predicate_accepts_right_point
             assert(line345.right?(Point[5, 0]))
+            assert(line345.right?([5, 0]))
           end
         end
       end

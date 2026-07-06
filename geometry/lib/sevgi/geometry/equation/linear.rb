@@ -22,11 +22,23 @@ module Sevgi
 
           def hash = [self.class, slope, intercept].hash
 
-          def left?(point) = F.gt?(point.y, y(point.x))
+          def left?(point)
+            point = Tuple[Point, point]
 
-          def on?(point) = F.eq?(point.y, y(point.x))
+            F.gt?(point.y, y(point.x))
+          end
 
-          def right?(point) = F.lt?(point.y, y(point.x))
+          def on?(point)
+            point = Tuple[Point, point]
+
+            F.eq?(point.y, y(point.x))
+          end
+
+          def right?(point)
+            point = Tuple[Point, point]
+
+            F.lt?(point.y, y(point.x))
+          end
 
           def shift(distance = nil, dx: nil, dy: nil)
             dx ||= 0.0
@@ -67,11 +79,23 @@ module Sevgi
             @x = c
           end
 
-          def left?(point) = F.lt?(point.x, x(point.y))
+          def left?(point)
+            point = Tuple[Point, point]
 
-          def on?(point) = F.eq?(point.x, x(point.y))
+            F.lt?(point.x, x(point.y))
+          end
 
-          def right?(point) = F.gt?(point.x, x(point.y))
+          def on?(point)
+            point = Tuple[Point, point]
+
+            F.eq?(point.x, x(point.y))
+          end
+
+          def right?(point)
+            point = Tuple[Point, point]
+
+            F.gt?(point.x, x(point.y))
+          end
 
           def shift(distance = nil, dx: nil, dy: nil)
             _dy = dy

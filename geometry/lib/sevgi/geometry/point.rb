@@ -13,9 +13,9 @@ module Sevgi
 
       def scale(sx, sy = Undefined) = with(x: sx * x, y: Undefined.default(sy, sx) * y)
 
-      def skew(ax, ay = Undefined) = with(x: x + (y * F.tan(ax)), y: y + (x * F.tan(Undefined(ay, ax))))
+      def skew(ax, ay = Undefined) = with(x: x + (y * F.tan(ax)), y: y + (x * F.tan(Undefined.default(ay, ax))))
 
-      def skew_x(a) = with(x: x + (y * f.tan(a)))
+      def skew_x(a) = with(x: x + (y * F.tan(a)))
 
       def skew_y(a) = with(y: y + (x * F.tan(a)))
 

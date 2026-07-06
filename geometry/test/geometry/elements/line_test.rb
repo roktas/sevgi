@@ -60,6 +60,36 @@ module Sevgi
           line.ending
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
+
+      def test_line_over_accepts_points_on_segment
+        assert(line345.over?(Point[1.5, 2.0]))
+        assert(line345.over?([1.5, 2.0]))
+        assert(line345.over?(line345.starting))
+        assert(line345.over?(line345.ending))
+      end
+
+      def test_line_over_rejects_points_outside_segment
+        refute(line345.over?(Point[6.0, 8.0]))
+        refute(line345.over?(Point[1.0, 3.0]))
+      end
+
+      def test_line_shift_returns_parallel_line
+        shifted = Line[5, 0].shift(3)
+
+        [
+          Point[0, 3],
+          shifted.starting.approx,
+          Point[5, 3],
+          shifted.ending.approx,
+          0.0,
+          shifted.angle
+        ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+      end
+
+      def test_line_ignorable_detects_zero_box
+        assert(Line[0, 0].ignorable?)
+        refute(line345.ignorable?)
+      end
     end
   end
 end
