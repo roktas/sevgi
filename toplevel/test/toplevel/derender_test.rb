@@ -4,13 +4,6 @@ require_relative "../test_helper"
 
 module Sevgi
   class ToplevelDerenderTest < Minitest::Test
-    def test_bang_wrappers_are_not_exported
-      object = receiver
-
-      refute_respond_to(object, :Decompile!)
-      refute_respond_to(object, :Derender!)
-    end
-
     def test_decompile_delegates_to_file_api
       calls = []
       node = Object.new

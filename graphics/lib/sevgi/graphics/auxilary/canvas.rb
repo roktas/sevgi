@@ -33,8 +33,6 @@ module Sevgi
 
       def attributes(...) = {**viewport, viewBox: viewbox(...)}
 
-      def conforming(...) = self.class.conforming(self, ...)
-
       def viewport = {width: "#{width}#{unit}", height: "#{height}#{unit}"}
 
       def viewbox(origin = Undefined) = prettify(*originate(origin), width, height).join(" ")
