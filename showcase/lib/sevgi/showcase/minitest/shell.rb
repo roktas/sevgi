@@ -41,12 +41,14 @@ module Sevgi
 
         def outputs(stdout, stderr, thread)
           # handle `^C`
-          trap("INT") { handle_sigint(thread.pid) }
+          trap = trap("INT") { handle_sigint(thread.pid) }
 
           out = stdout.readlines.map(&:chomp)
           err = stderr.readlines.map(&:chomp)
 
           [out, err, thread.value]
+        ensure
+          trap("INT", trap) if trap
         end
 
         def handle_sigint(pid)

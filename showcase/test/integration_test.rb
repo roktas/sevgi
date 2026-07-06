@@ -12,8 +12,8 @@ module Sevgi
       EXAMPLES.valids.each do |script|
         result = script.run_passive
 
-        assert_empty(result.err)
-        assert_equal(::File.read(script.svg).chomp, result.to_s)
+        assert_empty(result.err, script.name)
+        assert_equal(::File.read(script.svg).chomp, result.to_s, script.name)
       end
     end
   end
