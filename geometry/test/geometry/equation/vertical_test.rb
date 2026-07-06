@@ -20,6 +20,13 @@ module Sevgi
             assert_equal(Float::INFINITY, equ.y(1))
           end
 
+          def test_vertical_coerces_constant
+            equ = Equation.vertical("5")
+
+            assert_equal(5.0, equ.x)
+            assert(equ.on?([5, 0]))
+          end
+
           def test_vertical_left_predicate_accepts_points_before_line
             equ = Equation.vertical(5.0)
 

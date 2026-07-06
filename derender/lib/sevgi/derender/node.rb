@@ -40,12 +40,13 @@ module Sevgi
       def attributes! = attributes
 
       def children
-        @children ||= node.children.map { |child| self.class.new(child) }.reject do |child|
-          (child.node.text? and child.node.text.strip.empty?) or child.type == :Junk
-        end
+        @children ||= node
+          .children
+          .map { |child| self.class.new(child) }
+          .reject { |child| ignorable_child?(child) }
       end
 
-      def content = @content ||= node.content.strip
+      def content = @content ||= preserve_space? ? node.content : node.content.strip
 
       def derender = Ruby.format(decompile(pres).join("\n"))
 
@@ -93,6 +94,44 @@ module Sevgi
         end
           .tap { extend(Elements.const_get(it)) }
       end
+
+      def ignorable_child?(child)
+        child.type == :Junk || (child.node.text? && child.node.text.strip.empty? && !child.preserve_space?)
+      end
+
+      protected
+
+      def preserve_space?
+        each_node do |current|
+          case xml_space(current)
+          when "preserve"
+            return true
+          when "default"
+            return false
+          end
+        end
+
+        false
+      end
+
+      private
+
+      def each_node
+        current = node
+
+        while current
+          yield current
+          current = current.respond_to?(:parent) ? current.parent : nil
+        end
+      end
+
+      def xml_space(current)
+        return unless current.respond_to?(:attribute_nodes)
+
+        current.attribute_nodes.find { xml_space_attribute?(it) }&.value
+      end
+
+      def xml_space_attribute?(attribute) = attribute.name == "space" && attribute.namespace&.prefix == "xml"
     end
   end
 end

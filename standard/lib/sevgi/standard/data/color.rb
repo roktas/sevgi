@@ -154,7 +154,7 @@ module Sevgi
       yellowgreen: "#9ACD32"
     }
       .tap do |color|
-        def color.valid?(name) = key?(name.to_sym)
+        def color.valid?(name) = name.respond_to?(:to_sym) && key?(name.to_sym)
 
         color.each { |name, hex| color.define_singleton_method(name) { hex } }
       end

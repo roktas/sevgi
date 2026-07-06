@@ -35,6 +35,11 @@ module Sevgi
           ENV["PATH"] = path
         end
 
+        def test_executable_rejects_blank_program
+          refute(Function.executable?(nil))
+          refute(Function.executable?(""))
+        end
+
         def test_executable_caches_negative_result
           Dir.mktmpdir do |dir|
             with_path(dir) do
@@ -57,6 +62,12 @@ module Sevgi
           error = assert_raises(RuntimeError) { Function.executable!("missing-tool --version") }
 
           assert_equal("Missing executable: missing-tool", error.message)
+        end
+
+        def test_executable_bang_rejects_blank_program
+          error = assert_raises(RuntimeError) { Function.executable!("") }
+
+          assert_equal("Missing executable: ", error.message)
         end
 
         def test_sh_bang_checks_executable_from_first_argument
@@ -86,6 +97,17 @@ module Sevgi
           end
 
           assert_equal("true", result.out)
+        end
+
+        def test_sh_captures_large_stderr_without_blocking
+          script = "$stderr.write('x' * 200_000); $stdout.puts 'done'"
+
+          result = Timeout.timeout(3) do
+            Function.sh(RbConfig.ruby, "-e", script)
+          end
+
+          assert_equal("done", result.outline)
+          assert_equal(200_000, result.err.size)
         end
 
         def test_sh_restores_sigint_handler

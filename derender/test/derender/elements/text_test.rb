@@ -54,6 +54,59 @@ module Sevgi
 
           assert_equal("<text>You are</text>", actual)
         end
+
+        def test_text_element_preserves_xml_space_content
+          svg = <<~SVG
+            <text xml:space="preserve">  a   b  </text>
+          SVG
+            .chomp
+
+          actual = Derender.derender(svg)
+
+          expected = <<~SEVGI
+            text "  a   b  ", "xml:space": "preserve"
+          SEVGI
+
+          assert_equal(expected, actual)
+        end
+
+        def test_text_child_preserves_xml_space_content
+          svg = <<~SVG
+            <text xml:space="preserve">  You <tspan>are</tspan> here  </text>
+          SVG
+            .chomp
+
+          actual = Derender.derender(svg)
+
+          expected = <<~SEVGI
+            text "xml:space": "preserve" do
+              _ "  You "
+              tspan "are"
+              _ " here  "
+            end
+          SEVGI
+
+          assert_equal(expected, actual)
+        end
+
+        def test_text_child_preserves_blank_nodes
+          svg = <<~SVG
+            <text xml:space="preserve">  <tspan>x</tspan>  </text>
+          SVG
+            .chomp
+
+          actual = Derender.derender(svg)
+
+          expected = <<~SEVGI
+            text "xml:space": "preserve" do
+              _ "  "
+              tspan "x"
+              _ "  "
+            end
+          SEVGI
+
+          assert_equal(expected, actual)
+        end
       end
     end
   end

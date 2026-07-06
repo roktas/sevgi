@@ -16,13 +16,13 @@ module Sevgi
 
     def attributes(...) = Attribute.set(...)
 
-    def attribute?(name) = Attribute.all.include?(name.to_sym)
+    def attribute?(name) = name.respond_to?(:to_sym) && Attribute.all.include?(name.to_sym)
 
     def conform(...) = Conform.(...)
 
     def elements(...) = Element.set(...)
 
-    def element?(name) = Element.all.include?(name.to_sym)
+    def element?(name) = name.respond_to?(:to_sym) && Element.all.include?(name.to_sym)
 
     def model?(...) = Specification.model?(...)
 

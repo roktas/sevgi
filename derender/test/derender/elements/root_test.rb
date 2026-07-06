@@ -93,7 +93,7 @@ module Sevgi
 
           expected = <<~SEVGI
             SVG.document preambles: [
-              '<?xml version="1.0" encoding="UTF-8" standalone="no"?>',
+              "<?xml version=\\"1.0\\" encoding=\\"UTF-8\\" standalone=\\"no\\"?>",
             ]
 
             SVG id: "Root", xmlns: "http://www.w3.org/2000/svg", "xmlns:_": "http://sevgi.roktas.dev", "shape-rendering": "crispEdges", width: "60.0mm", height: "60.0mm", viewBox: "0 0 60 60" do
@@ -103,6 +103,28 @@ module Sevgi
                 end
               end
             end
+          SEVGI
+
+          assert_equal(expected, actual)
+        end
+
+        def test_root_escapes_document_preambles
+          svg = <<~SVG
+            <?xml version="1.0"?>
+            <?app value="a'b"?>
+            <svg/>
+          SVG
+            .chomp
+
+          actual = Derender.derender(svg)
+
+          expected = <<~SEVGI
+            SVG.document preambles: [
+              "<?xml version=\\"1.0\\"?>",
+              "<?app value=\\"a'b\\"?>",
+            ]
+
+            SVG
           SEVGI
 
           assert_equal(expected, actual)

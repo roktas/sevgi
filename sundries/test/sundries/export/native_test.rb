@@ -41,6 +41,18 @@ module Sevgi
           end
         end
 
+        def test_call_rejects_non_string_block_result
+          Dir.mktmpdir do |dir|
+            output = File.join(dir, "out.png")
+
+            error = assert_raises(ArgumentError) do
+              Export.call(svg(width: 10, height: 10), output) { nil }
+            end
+
+            assert_equal("SVG content must be a String", error.message)
+          end
+        end
+
         def test_call_exports_pdf_from_intrinsic_dimensions
           Dir.mktmpdir do |dir|
             output = File.join(dir, "out.pdf")
@@ -147,10 +159,40 @@ module Sevgi
           end
         end
 
+        def test_call_rejects_malformed_svg
+          Dir.mktmpdir do |dir|
+            output = File.join(dir, "out.png")
+            error = assert_raises(ExportError) { Export.call("<svg>", output) }
+
+            assert_match(/Render error: XML parse error/, error.message)
+          end
+        end
+
         def test_call_rejects_invalid_target_width
           Dir.mktmpdir do |dir|
             output = File.join(dir, "out.png")
             error = assert_raises(ExportError) { Export.call(svg(width: 10, height: 10), output, width: 0) }
+
+            assert_equal("Invalid export dimensions", error.message)
+          end
+        end
+
+        def test_call_rejects_non_finite_dimensions
+          Dir.mktmpdir do |dir|
+            output = File.join(dir, "out.png")
+
+            [Float::NAN, Float::INFINITY].each do |width|
+              error = assert_raises(ExportError) { Export.call(svg(width: 10, height: 10), output, width:) }
+
+              assert_equal("Invalid export dimensions", error.message)
+            end
+          end
+        end
+
+        def test_call_rejects_subpixel_png_dimensions
+          Dir.mktmpdir do |dir|
+            output = File.join(dir, "out.png")
+            error = assert_raises(ExportError) { Export.call(svg(width: 10, height: 10), output, width: 0.4) }
 
             assert_equal("Invalid export dimensions", error.message)
           end

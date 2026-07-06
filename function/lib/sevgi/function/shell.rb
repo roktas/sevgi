@@ -6,6 +6,9 @@ module Sevgi
   module Function
     module Shell
       def executable?(program)
+        program = program.to_s
+        return false if program.empty?
+
         executable_cache.fetch(program) do
           executable_cache[program] = ENV.fetch("PATH", "").split(::File::PATH_SEPARATOR).any? do |dir|
             ::File.executable?(::File.join(dir, program))
@@ -14,7 +17,7 @@ module Sevgi
       end
 
       def executable!(*args)
-        program = args.first.split.first
+        program = args.first.to_s.split.first
         raise "Missing executable: #{program}" unless executable?(program)
       end
 
@@ -56,10 +59,10 @@ module Sevgi
           # Handle `^C`
           previous = trap("INT") { handle_sigint(wait_thread.pid) }
 
-          outs = stdout.readlines.map(&:chomp)
-          errs = stderr.readlines.map(&:chomp)
+          outs = Thread.new { stdout.readlines.map(&:chomp) }
+          errs = Thread.new { stderr.readlines.map(&:chomp) }
 
-          [outs, errs, wait_thread.value]
+          [outs.value, errs.value, wait_thread.value]
         ensure
           trap("INT", previous) if previous
         end

@@ -19,22 +19,25 @@ module Sevgi
 
         svg = inject(svg, css) if css && !css.strip.empty?
         svg = block.call(svg) if block
+        ArgumentError.("SVG content must be a String") unless svg.is_a?(String)
 
-        renderer = Renderer.method(format_for!(format, output))
-        handle = Rsvg::Handle.new_from_data(svg)
-
-        iw, ih = intrinsic_size(handle)
-        ExportError.("Invalid SVG dimensions") if iw <= 0 || ih <= 0
-
-        scale = dpi / DEFAULT_DPI
-
-        iw *= scale
-        ih *= scale
-
-        tw, th = target_size(iw, ih, width, height)
-        ExportError.("Invalid export dimensions") if tw <= 0 || th <= 0
+        format = format_for!(format, output)
+        renderer = Renderer.method(format)
 
         begin
+          handle = Rsvg::Handle.new_from_data(svg)
+
+          iw, ih = intrinsic_size(handle)
+          ExportError.("Invalid SVG dimensions") if iw <= 0 || ih <= 0
+
+          scale = dpi / DEFAULT_DPI
+
+          iw *= scale
+          ih *= scale
+
+          tw, th = target_size(iw, ih, width, height)
+          ExportError.("Invalid export dimensions") unless target_size?(format, tw, th)
+
           renderer.call(
             handle: handle,
             output: output.to_s,
@@ -178,6 +181,14 @@ module Sevgi
           else
             [iw, ih]
           end
+        end
+
+        def target_size?(format, width, height)
+          return false if width <= 0 || height <= 0
+          return false unless width.finite? && height.finite?
+          return true unless format == :png
+
+          width.round.positive? && height.round.positive?
         end
       end
 

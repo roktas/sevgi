@@ -43,10 +43,10 @@ module Sevgi
           # handle `^C`
           trap = trap("INT") { handle_sigint(thread.pid) }
 
-          out = stdout.readlines.map(&:chomp)
-          err = stderr.readlines.map(&:chomp)
+          out = Thread.new { stdout.readlines.map(&:chomp) }
+          err = Thread.new { stderr.readlines.map(&:chomp) }
 
-          [out, err, thread.value]
+          [out.value, err.value, thread.value]
         ensure
           trap("INT", trap) if trap
         end

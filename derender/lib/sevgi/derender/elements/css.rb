@@ -24,7 +24,7 @@ module Sevgi
           hash
             .map do |selector, declarations|
               [
-                "\"#{selector}\": {",
+                "#{Ruby.literal(selector)}: {",
                 *declarations.map { |key, value| "#{Css.to_key_value(key, value)}," },
                 "},"
               ]

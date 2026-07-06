@@ -11,6 +11,21 @@ module Sevgi
         assert_match(/Must be an Element object/, error.message)
       end
 
+      def test_tile_rejects_invalid_counts
+        element = Geometry::Rect[3, 5]
+
+        [
+          [/nx must be positive/, {nx: 0, ny: 1}],
+          [/nx must be positive/, {nx: -1, ny: 1}],
+          [/ny must be positive/, {nx: 1, ny: 0}],
+          [/ny must be positive/, {nx: 1, ny: -1}]
+        ].each do |message, kwargs|
+          error = assert_raises(ArgumentError) { Tile.new(element, **kwargs) }
+
+          assert_match(message, error.message)
+        end
+      end
+
       def test_tile_exposes_rows_cols_cells_and_box
         ti = Tile.new(Geometry::Rect[3, 5], nx: 2, ny: 3, position: Geometry::Point[1, 2])
 

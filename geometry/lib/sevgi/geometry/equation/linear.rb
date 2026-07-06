@@ -76,7 +76,7 @@ module Sevgi
           def initialize(c)
             super()
 
-            @x = c
+            @x = c.to_f
           end
 
           def left?(point)

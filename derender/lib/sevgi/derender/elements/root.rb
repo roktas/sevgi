@@ -13,7 +13,7 @@ module Sevgi
           lines.unshift(
             [
               "SVG.document preambles: [",
-              *pres.map { "'#{it}'," },
+              *pres.map { "#{Ruby.literal(it)}," },
               "]",
               ""
             ]

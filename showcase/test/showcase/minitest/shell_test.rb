@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "rbconfig"
+require "timeout"
 
 require_relative "../../test_helper"
 
@@ -43,6 +44,17 @@ module Sevgi
         assert_same(handler, restored)
       ensure
         Signal.trap("INT", previous) if previous
+      end
+
+      def test_run_captures_large_stderr_without_blocking
+        script = "$stderr.write('x' * 200_000); $stdout.puts 'done'"
+
+        result = Timeout.timeout(3) do
+          Shell.run(ruby, "-e", script)
+        end
+
+        assert_equal("done", result.outline)
+        assert_equal(200_000, result.err.join.size)
       end
 
       private

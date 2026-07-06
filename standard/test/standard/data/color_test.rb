@@ -8,6 +8,8 @@ module Sevgi
       def test_color_valid_accepts_named_color_and_rejects_unknown
         assert(Color.valid?("limegreen"))
         refute(Color.valid?("frobnicate"))
+        refute(Color.valid?(nil))
+        refute(Color.valid?(Object.new))
       end
 
       def test_color_hex_resolves_named_color

@@ -16,7 +16,12 @@ module Sevgi
 
       attr_reader :n, :u
 
-      def initialize(e, n) = (@u, @n = measure(e), n)
+      def initialize(e, n)
+        ArgumentError.("Interval count must be a non-negative Integer") unless n.is_a?(::Integer) && !n.negative?
+
+        @u = measure(e)
+        @n = n
+      end
 
       def [](i) = ds[i]
 
@@ -60,7 +65,19 @@ module Sevgi
       attr_reader :brut, :sub
 
       def initialize(brut:, unit:, multiple:, margin: 0.0)
-        super(@sub = Interval.new(unit, multiple), divide(unit:, multiple:, brut: (@brut = brut.to_f), margin:))
+        ArgumentError.("Ruler unit must be positive") unless unit.to_f.positive?
+        ArgumentError.("Ruler multiple must be positive") unless multiple.to_f.positive?
+        ArgumentError.("Ruler margin must be non-negative") if margin.to_f.negative?
+
+        @brut = brut.to_f
+        margin = margin.to_f
+        @sub = Interval.new(unit, multiple)
+
+        n = divide(unit:, multiple:, brut: @brut, margin:)
+
+        ArgumentError.("Ruler fitting span must not be negative") if n.negative?
+
+        super(@sub, n)
       end
 
       def expand = self.class.new(unit: sub.u, multiple: 1, brut: d + waste, margin:)

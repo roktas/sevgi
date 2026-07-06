@@ -58,6 +58,18 @@ module Sevgi
         assert_raises(NoMethodError) { Interval.new(Object.new, 4) }
       end
 
+      def test_interval_rejects_invalid_count
+        [
+          -1,
+          1.5,
+          Float::NAN
+        ].each do |count|
+          error = assert_raises(ArgumentError) { Interval.new(1, count) }
+
+          assert_match(/count must be a non-negative Integer/, error.message)
+        end
+      end
+
       def test_ruler_fits_without_waste
         r = Ruler.new(unit: 1.0, multiple: 10, brut: 150.0)
 
@@ -98,6 +110,19 @@ module Sevgi
           [],
           r.hs
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+      end
+
+      def test_ruler_rejects_invalid_dimensions
+        [
+          [/unit must be positive/, {brut: 10, unit: 0, multiple: 1}],
+          [/multiple must be positive/, {brut: 10, unit: 1, multiple: 0}],
+          [/margin must be non-negative/, {brut: 10, unit: 1, multiple: 1, margin: -1}],
+          [/fitting span must not be negative/, {brut: 10, unit: 1, multiple: 1, margin: 6}]
+        ].each do |message, kwargs|
+          error = assert_raises(ArgumentError) { Ruler.new(**kwargs) }
+
+          assert_match(message, error.message)
+        end
       end
 
       def test_ruler_exposes_subinterval

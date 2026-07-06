@@ -94,6 +94,29 @@ module Sevgi
 
           assert_equal(expected, actual)
         end
+
+        def test_css_escapes_quoted_selectors
+          svg = <<~SVG
+            <svg>
+              <style>a[href="x"] { fill: red; }</style>
+            </svg>
+          SVG
+            .chomp
+
+          actual = Derender.derender(svg)
+
+          expected = <<~SEVGI
+            SVG do
+              css({
+                "a[href=\\"x\\"]": {
+                  "fill": "red",
+                },
+              })
+            end
+          SEVGI
+
+          assert_equal(expected, actual)
+        end
       end
     end
   end
