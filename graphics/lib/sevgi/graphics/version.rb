@@ -2,6 +2,7 @@
 
 module Sevgi
   module Graphics
+    # Current graphics component version.
     VERSION = "0.73.2"
   end
 end

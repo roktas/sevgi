@@ -3,6 +3,7 @@
 module Sevgi
   module Graphics
     module Document
+      # SVG document profile with Inkscape-oriented namespaces and mixtures.
       class Inkscape < Default
         document(
           :inkscape,

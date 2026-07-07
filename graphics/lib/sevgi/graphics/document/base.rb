@@ -3,6 +3,7 @@
 module Sevgi
   module Graphics
     module Document
+      # Standard document profile with the full common DSL mixture set.
       class Base < Proto
         document :base
 
@@ -18,6 +19,11 @@ module Sevgi
         mixture :Underscore
         mixture :Validate
 
+        # Runs pre-render validation and lint checks.
+        # @param options [Hash] pre-render options
+        # @return [void]
+        # @raise [Sevgi::ValidationError] when validation fails
+        # @raise [Sevgi::Graphics::LintError] when linting fails
         def PreRender(**options)
           self.Validate() if options[:validate]
           self.Lint() if options[:lint]

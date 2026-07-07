@@ -2,29 +2,68 @@
 
 module Sevgi
   module Graphics
+    # Paper size and unit profile.
     Paper = Data.define(:width, :height, :unit, :name) do
       include Comparable
 
+      # @!attribute [r] width
+      #   @return [Float] paper width
+      # @!attribute [r] height
+      #   @return [Float] paper height
+      # @!attribute [r] unit
+      #   @return [Symbol] SVG unit
+      # @!attribute [r] name
+      #   @return [Symbol] profile name
+
+      # Creates a paper profile.
+      # @param width [Numeric] paper width
+      # @param height [Numeric] paper height
+      # @param unit [Symbol, String] SVG unit
+      # @param name [Symbol, String] profile name
+      # @return [void]
       def initialize(width:, height:, unit: "mm", name: :custom)
         super(width: Float(width), height: Float(height), unit: unit.to_sym, name: name.to_sym)
       end
 
+      # Compares papers by width, height, unit, then name.
+      # @param other [Sevgi::Graphics::Paper] paper to compare
+      # @return [Integer, nil]
       def <=>(other) = deconstruct <=> other.deconstruct
 
+      # Reports strict paper equality.
+      # @param other [Object] object to compare
+      # @return [Boolean]
       def eql?(other) = self.class == other.class && deconstruct == other.deconstruct
 
+      # Returns a hash compatible with strict equality.
+      # @return [Integer]
       def hash = [self.class, *deconstruct].hash
 
+      # Returns the longer side.
+      # @return [Float]
       def longest = [width, height].max
 
+      # Returns the shorter side.
+      # @return [Float]
       def shortest = [width, height].min
 
       alias_method :==, :eql?
 
       @profiles = {}
 
+      # Reports whether a named paper profile exists.
+      # @param name [Object] profile name
+      # @return [Boolean]
       def self.exist?(name) = name.respond_to?(:to_sym) && profiles.key?(name.to_sym)
 
+      # Defines or replaces a named paper profile.
+      # @param name [Symbol, String] profile name
+      # @param spec [Hash] paper dimensions and unit
+      # @option spec [Numeric] :width paper width
+      # @option spec [Numeric] :height paper height
+      # @option spec [Symbol, String] :unit SVG unit
+      # @return [Sevgi::Graphics::Paper]
+      # @raise [Sevgi::ArgumentError] when the profile name is reserved
       def self.define(name, **spec)
         name = name.to_sym
 

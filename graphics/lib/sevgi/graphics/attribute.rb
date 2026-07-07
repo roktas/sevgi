@@ -6,19 +6,34 @@ module Sevgi
   module Graphics
     # Internal store syntax; not part of the SVG DSL command surface.
     ATTRIBUTE_INTERNAL_PREFIX = "-"
+
+    # Attribute suffix that merges new values into an existing attribute.
     ATTRIBUTE_UPDATE_SUFFIX = "+"
 
+    # Attribute name normalization helpers.
+    # @api private
     module Attribute
+      # Attribute identifier helpers.
+      # @api private
       module Ident
+        # Reports whether an attribute is internal to Sevgi rendering.
+        # @param given [String, Symbol] attribute name
+        # @return [Boolean]
         def internal?(given)
           (@internal ||= {})[given] ||= given.start_with?(ATTRIBUTE_INTERNAL_PREFIX)
         end
 
+        # Returns the normalized attribute id.
+        # @param given [String, Symbol] attribute name
+        # @return [Symbol]
         def id(given)
           (@id ||= {})[given] ||= (updateable?(given) ? given.to_s.delete_suffix(ATTRIBUTE_UPDATE_SUFFIX) : given)
             .to_sym
         end
 
+        # Reports whether an attribute uses merge/update syntax.
+        # @param given [String, Symbol] attribute name
+        # @return [Boolean]
         def updateable?(given)
           (@updateable ||= {})[given] ||= given.end_with?(ATTRIBUTE_UPDATE_SUFFIX)
         end
@@ -26,13 +41,20 @@ module Sevgi
 
       extend Ident
 
+      # Mutable SVG attribute store with Sevgi update syntax.
       class Store
+        # Creates an attribute store.
+        # @param attributes [Hash] initial attributes
+        # @return [void]
         def initialize(attributes = {})
           @store = {}
 
           import(attributes)
         end
 
+        # Imports attributes into the store.
+        # @param attributes [Hash] attributes to merge
+        # @return [Hash] internal store
         def import(attributes)
           hash = attributes
             .compact
@@ -44,20 +66,34 @@ module Sevgi
           @store.merge!(hash)
         end
 
+        # Returns an attribute by normalized key.
+        # @param key [String, Symbol] attribute key
+        # @return [Object, nil]
         def [](key)
           @store[Attribute.id(key)]
         end
 
+        # Assigns an attribute value.
+        # @param key [String, Symbol] attribute key
+        # @param value [Object, nil] attribute value; nil is ignored
+        # @return [Object, nil] assigned value or nil
+        # @raise [Sevgi::ArgumentError] when update syntax receives incompatible values
+        # @raise [Sevgi::ArgumentError] when update syntax receives an unsupported value type
         def []=(key, value)
           return if value.nil?
 
           @store[id = Attribute.id(key)] = @store.key?(id) && Attribute.updateable?(key) ? update(id, value) : value
         end
 
+        # Deletes an attribute by normalized key.
+        # @param key [String, Symbol] attribute key
+        # @return [Object, nil] deleted value
         def delete(key)
           @store.delete(Attribute.id(key))
         end
 
+        # Returns public attributes ready for rendering.
+        # @return [Hash]
         def export
           hash = @store.reject { |id, _| Attribute.internal?(id) }
           return hash unless hash.key?(:id)
@@ -66,10 +102,16 @@ module Sevgi
           {id: hash.delete(:id), **hash}
         end
 
+        # Reports whether an attribute exists.
+        # @param key [String, Symbol] attribute key
+        # @return [Boolean]
         def has?(key)
           @store.key?(Attribute.id(key))
         end
 
+        # Copies the attribute store.
+        # @param original [Sevgi::Graphics::Attribute::Store] store to copy
+        # @return [void]
         def initialize_copy(original)
           @store = {}
           original.store.each { |key, value| @store[key] = value.dup }
@@ -77,14 +119,20 @@ module Sevgi
           super
         end
 
+        # Returns public attribute names.
+        # @return [Array<Symbol>]
         def list
           export.keys
         end
 
+        # Returns the internal attribute hash.
+        # @return [Hash]
         def to_h
           @store
         end
 
+        # Returns rendered XML attribute lines.
+        # @return [Array<String>]
         def to_xml_lines
           export.map { |id, value| to_xml(id, value) }
         end
@@ -130,6 +178,7 @@ module Sevgi
       end
     end
 
+    # Public alias for the SVG attribute store.
     Attributes = Attribute::Store
   end
 end

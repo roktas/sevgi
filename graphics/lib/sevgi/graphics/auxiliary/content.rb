@@ -2,28 +2,70 @@
 
 module Sevgi
   module Graphics
+    # Renderable text-like content inside an SVG element.
     class Content
+      # @!attribute [r] content
+      #   @return [Object] wrapped content
       attr_reader :content
 
+      # Creates content.
+      # @param content [Object] wrapped content
+      # @return [void]
       def initialize(content) = @content = content
 
+      # Renders content with a renderer.
+      # @abstract Subclasses implement content rendering.
+      # @param _renderer [Object] renderer receiving output
+      # @param _depth [Integer] current render depth
+      # @return [void]
+      # @raise [Sevgi::PanicError] when a subclass does not implement render
       def render(_renderer, _depth) = PanicError.("#{self.class}#render must be implemented")
 
+      # Returns content as a string.
+      # @return [String]
       def to_s = content.to_s
 
+      # @overload cdata(content)
+      #   Builds CDATA content.
+      #   @param content [Object] wrapped content
+      #   @return [Sevgi::Graphics::Content::CData]
       def self.cdata(...) = CData.new(...)
 
+      # Wraps content arguments, encoding non-content values.
+      # @param args [Array<Object>] content arguments
+      # @return [Array<Sevgi::Graphics::Content>]
       def self.contents(*args) = args.map { it.is_a?(Content) ? it : encoded(it) }
 
+      # @overload css(content)
+      #   Builds CSS content.
+      #   @param content [Hash] CSS rules
+      #   @return [Sevgi::Graphics::Content::CSS]
+      #   @raise [Sevgi::ArgumentError] when content is not a hash
       def self.css(...) = CSS.new(...)
 
+      # @overload encoded(content)
+      #   Builds XML text-encoded content.
+      #   @param content [Object] wrapped content
+      #   @return [Sevgi::Graphics::Content::Encoded]
       def self.encoded(...) = Encoded.new(...)
 
+      # Joins content lines with newlines.
+      # @param contents [Object, Array<Object>] content lines
+      # @return [String]
       def self.text(contents) = Array(contents).join("\n")
 
+      # @overload verbatim(content)
+      #   Builds verbatim content.
+      #   @param content [Object] wrapped content
+      #   @return [Sevgi::Graphics::Content::Verbatim]
       def self.verbatim(...) = Verbatim.new(...)
 
+      # CDATA section content.
       class CData < Content
+        # Renders CDATA content.
+        # @param renderer [Object] renderer receiving output
+        # @param depth [Integer] current render depth
+        # @return [void]
         def render(renderer, depth)
           depth += 1
 
@@ -33,7 +75,12 @@ module Sevgi
         end
       end
 
+      # CSS content rendered inside a CDATA section.
       class CSS < Content
+        # Creates CSS content.
+        # @param content [Hash] CSS rules
+        # @return [void]
+        # @raise [Sevgi::ArgumentError] when content is not a hash
         def initialize(content)
           ArgumentError.("CSS content must be a hash: #{content}") unless content.is_a?(::Hash)
 
@@ -41,6 +88,11 @@ module Sevgi
         end
 
         # rubocop:disable Metrics/MethodLength
+        # Renders CSS content.
+        # @param renderer [Object] renderer receiving output
+        # @param depth [Integer] current render depth
+        # @return [void]
+        # @raise [Sevgi::ArgumentError] when a style value cannot be rendered
         def render(renderer, depth)
           depth += 1
 
@@ -67,13 +119,25 @@ module Sevgi
         # rubocop:enable Metrics/MethodLength
       end
 
+      # XML text-encoded content.
       class Encoded < Content
+        # Returns XML text-encoded content.
+        # @return [String]
         def to_s = content.encode(xml: :text)
 
+        # Renders encoded text content.
+        # @param renderer [Object] renderer receiving output
+        # @param depth [Integer] current render depth
+        # @return [void]
         def render(renderer, depth) = renderer.append(depth + 1, to_s)
       end
 
+      # Verbatim content rendered without XML text encoding.
       class Verbatim < Content
+        # Renders verbatim content.
+        # @param renderer [Object] renderer receiving output
+        # @param depth [Integer] current render depth
+        # @return [void]
         def render(renderer, depth) = renderer.append(depth + 1, to_s)
       end
     end

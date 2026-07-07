@@ -4,9 +4,21 @@ require "forwardable"
 
 module Sevgi
   module Graphics
+    # SVG canvas size, margins, viewport, and viewBox.
     class Canvas
+      # @overload call(arg = Undefined, **kwargs)
+      #   Builds a canvas from a paper profile or explicit size.
+      #   @param arg [Sevgi::Graphics::Paper, Symbol, String, Sevgi::Undefined] paper profile or paper object
+      #   @param kwargs [Hash] canvas keyword arguments
+      #   @return [Sevgi::Graphics::Canvas]
+      #   @raise [Sevgi::ArgumentError] when the paper profile is unknown
       def self.call(...) = from_paper(...)
 
+      # Builds a canvas from a paper profile or explicit size.
+      # @param arg [Sevgi::Graphics::Paper, Symbol, String, Sevgi::Undefined] paper profile or paper object
+      # @param kwargs [Hash] canvas keyword arguments
+      # @return [Sevgi::Graphics::Canvas]
+      # @raise [Sevgi::ArgumentError] when the paper profile is unknown
       def self.from_paper(arg = Undefined, **kwargs)
         case arg
         when Undefined
@@ -36,8 +48,22 @@ module Sevgi
       def_delegators :@margin, *Margin.members
       def_delegators :@size, *Paper.members
 
+      # @!attribute [r] size
+      #   @return [Sevgi::Graphics::Paper] paper size object
+      # @!attribute [r] margin
+      #   @return [Sevgi::Graphics::Margin] canvas margins
+      # @!attribute [r] inner
+      #   @return [Sevgi::Graphics::Paper] inner paper after margins
       attr_reader :size, :margin, :inner
 
+      # Creates a canvas.
+      # @param width [Numeric] canvas width
+      # @param height [Numeric] canvas height
+      # @param unit [Symbol, String] SVG unit
+      # @param name [Symbol, String] paper name
+      # @param margins [Array<Numeric>] margin shorthand values
+      # @return [void]
+      # @raise [Sevgi::ArgumentError] when margins or numeric dimensions are invalid
       def initialize(width:, height:, unit: "mm", name: :custom, margins: [])
         @size = Paper[width, height, unit, name]
         @margin = Margin[*margins]
@@ -46,12 +72,26 @@ module Sevgi
         freeze
       end
 
+      # @overload attributes(origin = Undefined)
+      #   Returns SVG root viewport attributes.
+      #   @param origin [Numeric, Array<Numeric>, nil, Sevgi::Undefined] viewBox origin
+      #   @return [Hash]
+      #   @raise [Sevgi::ArgumentError] when origin is invalid
       def attributes(...) = {**viewport, viewBox: viewbox(...)}
 
+      # Returns SVG width and height attributes.
+      # @return [Hash]
       def viewport = {width: "#{width}#{unit}", height: "#{height}#{unit}"}
 
+      # Returns the SVG viewBox string.
+      # @param origin [Numeric, Array<Numeric>, nil, Sevgi::Undefined] viewBox origin
+      # @return [String]
+      # @raise [Sevgi::ArgumentError] when origin is invalid
       def viewbox(origin = Undefined) = prettify(*originate(origin), width, height).join(" ")
 
+      # Returns a canvas with selected fields replaced.
+      # @param kwargs [Hash] replacement options
+      # @return [Sevgi::Graphics::Canvas]
       def with(**kwargs) = self.class.new(**size.to_h, margins: kwargs.fetch(:margins, margin.to_a))
 
       private
