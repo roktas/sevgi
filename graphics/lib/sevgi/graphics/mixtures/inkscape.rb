@@ -3,7 +3,15 @@
 module Sevgi
   module Graphics
     module Mixtures
+      # Inkscape-specific SVG DSL helpers.
       module Inkscape
+        # Adds Inkscape template metadata.
+        # @param name [String] template name
+        # @param desc [String, nil] short description
+        # @param author [String, nil] author
+        # @param date [String, nil] date
+        # @param keywords [Array<String>, String, nil] keywords
+        # @return [Sevgi::Graphics::Element] template metadata element
         def InkscapeTemplateInfo(name:, desc: nil, author: nil, date: nil, keywords: nil)
           Element(:"inkscape:_templateinfo") do
             Element(:"inkscape:_name", name)
@@ -14,29 +22,59 @@ module Sevgi
           end
         end
 
+        # Renders a callable module inside a group.
+        # @param mod [Module] callable drawing module
+        # @param args [Array<Object>] callable arguments
+        # @param kwargs [Hash] group attributes
+        # @return [Sevgi::Graphics::Element] group element
+        # @raise [Sevgi::ArgumentError] when mod is not a plain module
         def Group(mod, *args, **kwargs, &block)
           kwargs = kwargs.merge(id: F.demodulize(mod).to_sym) unless kwargs.key?(:id)
           g(**kwargs) { Call(mod, *args, &block) }
         end
 
+        # Renders a callable module inside an Inkscape layer.
+        # @param mod [Module] callable drawing module
+        # @param args [Array<Object>] callable arguments
+        # @param kwargs [Hash] layer attributes
+        # @return [Sevgi::Graphics::Element] layer element
+        # @raise [Sevgi::ArgumentError] when mod is not a plain module
         def Layer(mod, *args, **kwargs, &block)
           kwargs = kwargs.merge(id: F.demodulize(mod).to_sym) unless kwargs.key?(:id)
           layer(**kwargs) { Call(mod, *args, &block) }
         end
 
+        # Renders a callable module inside an insensitive Inkscape layer.
+        # @param mod [Module] callable drawing module
+        # @param args [Array<Object>] callable arguments
+        # @param kwargs [Hash] layer attributes
+        # @return [Sevgi::Graphics::Element] layer element
+        # @raise [Sevgi::ArgumentError] when mod is not a plain module
         def Layer!(mod, *args, **kwargs, &block)
           kwargs = kwargs.merge(id: F.demodulize(mod).to_sym) unless kwargs.key?(:id)
           layer!(**kwargs) { Call(mod, *args, &block) }
         end
 
+        # @overload layer(**attributes)
+        #   Builds an Inkscape layer group.
+        #   @param attributes [Hash] layer attributes
+        #   @return [Sevgi::Graphics::Element] layer group
         def layer(**, &block)
           g("inkscape:groupmode": "layer", **, &block)
         end
 
+        # @overload layer!(**attributes)
+        #   Builds an insensitive Inkscape layer group.
+        #   @param attributes [Hash] layer attributes
+        #   @return [Sevgi::Graphics::Element] layer group
         def layer!(**, &block)
           layer("sodipodi:insensitive": "true", **, &block)
         end
 
+        # Builds an Inkscape namedview containing page elements.
+        # @param pages [Array<Hash>] page attribute hashes
+        # @param id [String] namedview id
+        # @return [Sevgi::Graphics::Element] namedview element
         def Pages(*pages, id: "namedview", **, &block)
           Element(:"sodipodi:namedview", id:, **) do
             pages.each_with_index do |page, i|
@@ -48,6 +86,14 @@ module Sevgi
           end
         end
 
+        # Builds a tabular set of Inkscape pages.
+        # @param rows [Integer] number of rows
+        # @param cols [Integer] number of columns
+        # @param width [Numeric] page width
+        # @param height [Numeric] page height
+        # @param gap [Numeric] gap between pages
+        # @param id [String] namedview id
+        # @return [Array<Array>] matrix entries as x, y, and label tuples
         def PagesTabular(rows:, cols:, width:, height:, gap:, id: "namedview", **)
           [].tap do |matrix|
             Element(:"sodipodi:namedview", id:) do
@@ -62,6 +108,10 @@ module Sevgi
         end
 
         # Internal symbol which does not show up Symbols Menu
+        # @overload symbol!(**attributes)
+        #   Builds an Inkscape symbol group hidden from the symbols menu.
+        #   @param attributes [Hash] symbol attributes
+        #   @return [Sevgi::Graphics::Element] symbol group
         def symbol!(**, &block)
           if Is?(:defs)
             g(role: "inkscape:symbol", **, &block)

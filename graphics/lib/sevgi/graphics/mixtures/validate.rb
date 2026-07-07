@@ -3,19 +3,28 @@
 module Sevgi
   module Graphics
     module Mixtures
+      # DSL helpers for SVG standard validation.
       module Validate
+        # Returns text content used as SVG character data.
+        # @return [String, nil] joined text content or nil
         def CData
           return if !contents || contents.empty?
 
           Content.text(contents)
         end
 
+        # Reports whether a namespace is available on this element or an ancestor.
+        # @param name [Symbol, String] namespace suffix without xmlns:
+        # @return [Boolean]
         def NS?(name)
           self.class.attributes.key?(key = :"xmlns:#{name}") || TraverseUp { Stay(true) if it.has?(key) } || false
         end
 
         require "sevgi/standard"
 
+        # Validates this subtree against the SVG standard metadata.
+        # @return [Sevgi::Graphics::Element] self
+        # @raise [Sevgi::ValidationError] when SVG validation fails
         def Validate
           Traverse do |element|
             Standard.conform(
@@ -30,6 +39,9 @@ module Sevgi
       rescue ::LoadError => e
         raise unless e.path == "sevgi/standard"
 
+        # @overload Validate
+        #   No-op validation fallback when sevgi/standard is unavailable.
+        #   @return [nil]
         def Validate(...)
         end
       end

@@ -3,7 +3,14 @@
 module Sevgi
   module Graphics
     module Mixtures
+      # DSL helpers for native SVG export formats.
       module Export
+        # Exports the document as PDF.
+        # @param path [String, nil] output path or directory
+        # @param kwargs [Hash] export options
+        # @return [String] output path
+        # @raise [Sevgi::MissingComponentError] when sevgi/sundries is unavailable
+        # @raise [Sevgi::Sundries::ExportError] when native export fails
         def PDF(path = nil, **kwargs, &block)
           begin
             require "sevgi/sundries"
@@ -17,6 +24,12 @@ module Sevgi
           Export(path, **kwargs, format: :pdf, &block)
         end
 
+        # Exports the document as PNG.
+        # @param path [String, nil] output path or directory
+        # @param kwargs [Hash] export options
+        # @return [String] output path
+        # @raise [Sevgi::MissingComponentError] when sevgi/sundries is unavailable
+        # @raise [Sevgi::Sundries::ExportError] when native export fails
         def PNG(path = nil, **kwargs, &block)
           begin
             require "sevgi/sundries"

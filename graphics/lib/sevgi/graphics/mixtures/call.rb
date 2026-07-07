@@ -2,19 +2,32 @@
 
 module Sevgi
   module Graphics
+    # Callable drawing module support.
+    # @api private
     module Module
+      # Tracks newly defined public methods as callable drawing steps.
+      # @param method [Symbol] method name Ruby reports as added
+      # @return [Array<Symbol>, nil]
       def method_added(method)
         super
 
         _callables << method if public_method_defined?(method)
       end
 
+      # Class-level DSL for callable drawing modules.
+      # @api private
       module DSL
+        # Registers a before or after hook.
+        # @param after [Boolean] true to register an after hook
+        # @return [Array<Proc>] hook list
         def call(after = false, &block) = ((after ? _afters : _befores) << block)
       end
 
       private_constant :DSL
 
+      # Initializes callable module state.
+      # @param base [Module] extended module
+      # @return [void]
       def self.extended(base)
         base.instance_exec do
           @_callables = []
@@ -29,6 +42,13 @@ module Sevgi
         end
       end
 
+      # @overload call(mod, receiver, *args, **kwargs)
+      #   Runs module hooks and callables against a receiver.
+      #   @param mod [Module] callable module
+      #   @param receiver [Sevgi::Graphics::Element] receiver element
+      #   @param args [Array<Object>] callable arguments
+      #   @param kwargs [Hash] callable keyword arguments
+      #   @return [Object, nil] last callable return value
       def self.call(mod, receiver, ...)
         mod._befores.each { receiver.Within(receiver, &it) } if mod.respond_to?(:_befores) && mod._befores
         # return last callable return value
@@ -37,6 +57,10 @@ module Sevgi
         end
       end
 
+      # Returns the methods that should be executed for a callable module.
+      # @param mod [Module] callable module
+      # @return [Array<UnboundMethod>]
+      # @raise [Sevgi::ArgumentError] when mod is not a plain module
       def self.callables(mod)
         ArgumentError.("Must be a module: #{mod}") unless mod.instance_of?(::Module)
 
@@ -45,7 +69,15 @@ module Sevgi
     end
 
     module Mixtures
+      # DSL helpers for invoking callable drawing modules.
       module Call
+        # @overload Call(mod, *args, **kwargs)
+        #   Runs a callable drawing module in the current element context.
+        #   @param mod [Module] callable module
+        #   @param args [Array<Object>] callable arguments
+        #   @param kwargs [Hash] callable keyword arguments
+        #   @return [Object, nil] last callable return value
+        #   @raise [Sevgi::ArgumentError] when mod is not a plain module
         def Call(mod, ...)
           Graphics::Module.call(mod, self, ...)
         end

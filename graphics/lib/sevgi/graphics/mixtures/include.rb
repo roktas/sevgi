@@ -3,15 +3,40 @@
 module Sevgi
   module Graphics
     module Mixtures
+      # DSL helpers for including derendered SVG/XML fragments.
       module Include
         require "sevgi/derender"
 
+        # Includes a derendered node matching an id.
+        # @param file [String] source SVG/XML file
+        # @param id [String, Symbol] source node id
+        # @return [Sevgi::Graphics::Element] included element
+        # @raise [Sevgi::MissingComponentError] when sevgi/derender is unavailable
         def Include(file, id) = Derender.evaluate_file(file, self, id:)
+
+        # Includes the children of a derendered node matching an id.
+        # @param file [String] source SVG/XML file
+        # @param id [String, Symbol] source node id
+        # @return [Array<Sevgi::Graphics::Element>] included children
+        # @raise [Sevgi::MissingComponentError] when sevgi/derender is unavailable
         def IncludeChildren(file, id) = Derender.evaluate_file!(file, self, id:)
       rescue ::LoadError => e
         raise unless e.path == "sevgi/derender"
 
+        # @overload IncludeChildren(file, id)
+        #   Raises because sevgi/derender is unavailable.
+        #   @param file [String] source SVG/XML file
+        #   @param id [String, Symbol] source node id
+        #   @return [void]
+        #   @raise [Sevgi::MissingComponentError] always
         def IncludeChildren(...) = MissingComponentError.("sevgi/derender")
+
+        # @overload Include(file, id)
+        #   Raises because sevgi/derender is unavailable.
+        #   @param file [String] source SVG/XML file
+        #   @param id [String, Symbol] source node id
+        #   @return [void]
+        #   @raise [Sevgi::MissingComponentError] always
         def Include(...) = MissingComponentError.("sevgi/derender")
       end
     end

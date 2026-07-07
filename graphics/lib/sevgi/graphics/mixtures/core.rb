@@ -5,7 +5,14 @@ require "forwardable"
 module Sevgi
   module Graphics
     module Mixtures
+      # Internal traversal stop token.
+      # @api private
       Traversal = Data.define(:value) do
+        # Runs a depth-first traversal.
+        # @param element [Sevgi::Graphics::Element] starting element
+        # @param depth [Integer] starting depth
+        # @param leave [Proc, nil] optional leave callback
+        # @return [Sevgi::Graphics::Element, Object]
         def self.call(element, depth, leave, &block)
           catch(:traversal) do
             visit(element, depth, leave, &block)
@@ -28,11 +35,17 @@ module Sevgi
 
       private_constant :Traversal
 
+      # Core SVG tree and attribute DSL helpers.
       module Core
         extend Forwardable
         def_delegators :@attributes, :[], :[]=, :has?
         def_delegators :@children, :first, :last, :at
 
+        # Moves this element under a new parent.
+        # @param new_parent [Sevgi::Graphics::Element, nil] target parent or current parent
+        # @param index [Integer] insertion index
+        # @return [Sevgi::Graphics::Element] self
+        # @raise [Sevgi::ArgumentError] when the target parent has a different element class
         def Adopt(new_parent = nil, index: -1)
           tap do
             if new_parent
@@ -48,14 +61,24 @@ module Sevgi
           end
         end
 
+        # @overload AdoptFirst(new_parent = nil)
+        #   Moves this element to the beginning of a parent.
+        #   @param new_parent [Sevgi::Graphics::Element, nil] target parent or current parent
+        #   @return [Sevgi::Graphics::Element] self
         def AdoptFirst(*)
           Adopt(*, index: 0)
         end
 
+        # Appends existing elements as children.
+        # @param elements [Array<Sevgi::Graphics::Element>] elements to append
+        # @return [Sevgi::Graphics::Element] self
         def Append(*elements)
           tap { elements.each { it.Adopt(self) } }
         end
 
+        # Adds CSS classes without duplicating existing values.
+        # @param classes [Array<String, Symbol>] class names
+        # @return [Sevgi::Graphics::Element] self
         def Classify(*classes)
           tap do
             klasses = case self[:class]
@@ -74,6 +97,9 @@ module Sevgi
           end
         end
 
+        # Assigns default attributes only when they are absent.
+        # @param attributes [Hash] default attributes
+        # @return [Sevgi::Graphics::Element] self
         def Defaults(**attributes)
           tap do
             attributes.each do |key, value|
@@ -84,26 +110,48 @@ module Sevgi
           end
         end
 
+        # Builds a child element with an explicit tag name.
+        # @param tag [Symbol, String] SVG tag name
+        # @param contents [Array<Object>] text or content objects
+        # @param attributes [Hash] SVG attributes
+        # @return [Sevgi::Graphics::Element] new child element
         def Element(tag, *contents, **attributes, &block)
           self.class.send(:new, tag.to_sym, contents: Content.contents(*contents), attributes:, parent: self, &block)
         end
 
+        # Forwards this element as the first argument to another receiver.
+        # @overload Forward(receiver, method, *args, **kwargs)
+        #   @param receiver [Object] target receiver
+        #   @param method [Symbol, String] method name
+        #   @param args [Array<Object>] additional arguments
+        #   @param kwargs [Hash] additional keyword arguments
+        #   @return [Object] forwarded call result
         def Forward(receiver, method, ...)
           receiver.public_send(method, self, ...)
         end
 
+        # Reports whether this element has the given SVG name.
+        # @param name [Symbol, String] SVG name
+        # @return [Boolean]
         def Is?(name)
           self.name() == name.to_sym
         end
 
+        # Removes this element from its parent.
+        # @return [Array<Sevgi::Graphics::Element>, nil] parent children after deletion, or nil for root elements
         def Orphan
           parent.children&.delete(self) unless Root?()
         end
 
+        # Prepends existing elements as children.
+        # @param elements [Array<Sevgi::Graphics::Element>] elements to prepend
+        # @return [Sevgi::Graphics::Element] self
         def Prepend(*elements)
           tap { elements.each { it.AdoptFirst(self) } }
         end
 
+        # Returns the root document element.
+        # @return [Sevgi::Graphics::Element]
         def Root
           element = self
           element = element.parent until element.Root?()
@@ -111,18 +159,33 @@ module Sevgi
           element
         end
 
+        # Reports whether this element is the root document element.
+        # @return [Boolean]
         def Root?
           self.class.root?(self)
         end
 
+        # @overload Stay(value)
+        #   Wraps a traversal return value as a stop token.
+        #   @param value [Object] value returned from traversal
+        #   @return [Sevgi::Graphics::Mixtures::Traversal]
         def Stay(...) = Traversal.new(...)
 
+        # Traverses the subtree depth-first.
+        # @param depth [Integer] starting depth
+        # @param leave [Proc, nil] optional leave callback
+        # @return [Sevgi::Graphics::Element, Object] self or the value passed through Stay
+        # @raise [Sevgi::ArgumentError] when no block is given
         def Traverse(depth = 0, leave = nil, &block)
           ArgumentError.("Block required") unless block
 
           Traversal.call(self, depth, leave, &block)
         end
 
+        # Traverses ancestors from this element to the root.
+        # @param height [Integer] starting height
+        # @return [Object, nil] value passed through Stay, or nil
+        # @raise [Sevgi::ArgumentError] when no block is given
         def TraverseUp(height = 0, &block)
           ArgumentError.("Block required") unless block
 
@@ -138,14 +201,25 @@ module Sevgi
           end
         end
 
+        # Evaluates a block in the parent element context.
+        # @param args [Array<Object>] optional receiver override followed by block arguments
+        # @param kwargs [Hash] keyword arguments passed to the block
+        # @return [Sevgi::Graphics::Element] self
         def With(*args, **kwargs, &block)
           tap { (args.shift || self).parent.instance_exec(*args, **kwargs, &block) }
         end
 
+        # Evaluates a block in this element context.
+        # @param args [Array<Object>] optional receiver override followed by block arguments
+        # @param kwargs [Hash] keyword arguments passed to the block
+        # @return [Sevgi::Graphics::Element] self
         def Within(*args, **kwargs, &block)
           tap { (args.shift || self).instance_exec(*args, **kwargs, &block) }
         end
 
+        # Appends an element as a child.
+        # @param element [Sevgi::Graphics::Element] element to append
+        # @return [Sevgi::Graphics::Element] self
         def <<(element)
           Append(element)
         end

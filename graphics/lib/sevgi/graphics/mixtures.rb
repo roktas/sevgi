@@ -2,7 +2,13 @@
 
 module Sevgi
   module Graphics
+    # Mixins that extend document classes with DSL helper methods.
     module Mixtures
+      # Includes a named mixture and optional anonymous extension into a document class.
+      # @param mod [Symbol, String] mixture constant name
+      # @param document [Class] document class receiving the mixture
+      # @return [Module, nil] optional anonymous mixture when a block is given
+      # @raise [NameError] when the mixture does not exist
       def self.mixin(mod, document = Graphics::Document::Base, &block)
         document.mixture(mod)
         document.mixture(::Module.new(&block)) if block
