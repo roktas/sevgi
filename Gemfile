@@ -13,7 +13,7 @@ group :sevgi do
   gem "sevgi-standard", path: "standard"
   gem "sevgi-sundries", path: "sundries"
 
-  gem "sevgi",          path: "toplevel"
+  gem "sevgi", path: "toplevel"
 end
 
 group :test, :development do
@@ -22,6 +22,7 @@ group :test, :development do
   gem "minitest-focus", "~> 1.4"
   gem "minitest-reporters", "~> 1.7"
   gem "rake"
+  gem "simplecov", "~> 0.22"
 end
 
 group :development do

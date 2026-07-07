@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "../../test/coverage"
+
 require "minitest/autorun"
 require "minitest/reporters"
 require "minitest/focus"
