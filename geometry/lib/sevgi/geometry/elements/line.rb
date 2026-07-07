@@ -4,8 +4,13 @@ require "forwardable"
 
 module Sevgi
   module Geometry
+    # Generated superclass for Line.
+    # @api private
+    LineBase = Element.lined(1, open: true)
+    private_constant :LineBase
+
     # Open lined element with one segment.
-    class Line < Element.lined(1, open: true)
+    class Line < LineBase
       # @overload [](length, angle, position: Origin)
       #   Builds a line from length and angle.
       #   @param length [Numeric] line length

@@ -246,6 +246,43 @@ module Sevgi
           )
         end
 
+        def test_stamp_wraps_pdf_errors
+          Dir.mktmpdir do |dir|
+            infile = File.join(dir, "bad.pdf")
+            outfile = File.join(dir, "out.pdf")
+            File.write(infile, "not a pdf")
+
+            error = assert_raises(ExportError) do
+              Export.stamp(infile, outfile, stamp: "new", placeholder: "old")
+            end
+
+            assert_match(/\APDF stamp error:/, error.message)
+          end
+        end
+
+        def test_stamp_bang_wraps_file_errors
+          Dir.mktmpdir do |dir|
+            infile = File.join(dir, "in.pdf")
+            File.write(infile, "pdf")
+
+            FileUtils.stub(:mv, -> (*) { raise Errno::EACCES, infile }) do
+              Export.stub(
+                :stamp,
+                -> (_infile, outfile, **) {
+                  File.write(outfile, "new")
+                  true
+                }
+              ) do
+                error = assert_raises(ExportError) do
+                  Export.stamp!(infile, stamp: "new", placeholder: "old")
+                end
+
+                assert_match(/\APDF stamp error:/, error.message)
+              end
+            end
+          end
+        end
+
         Box = Data.define(:x, :y, :width, :height)
 
         private

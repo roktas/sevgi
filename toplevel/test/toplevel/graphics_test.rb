@@ -25,5 +25,20 @@ module Sevgi
         Sevgi::Graphics::Mixtures.send(:remove_const, :Foo)
       end
     end
+
+    def test_toplevel_mixin_accepts_anonymous_block
+      klass = Class.new do
+        include(::Sevgi)
+      end
+
+      doc = Graphics.document(:anonymous_mixin)
+      klass.new.Mixin(doc) do
+        define_method(:Badge) do
+          rect(id: "badge")
+        end
+      end
+
+      assert_equal("badge", doc.root.Badge()[:id])
+    end
   end
 end

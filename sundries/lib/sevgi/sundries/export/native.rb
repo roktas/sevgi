@@ -110,8 +110,7 @@ module Sevgi
       # @param stamp [String] replacement text
       # @param placeholder [String] placeholder text to replace
       # @return [Boolean] true when a matching placeholder was replaced
-      # @raise [HexaPDF::Error] when HexaPDF cannot read or write the PDF
-      # @raise [SystemCallError] when the PDF files cannot be accessed
+      # @raise [Sevgi::Sundries::Export::ExportError] when the PDF files cannot be read, written, or stamped
       def stamp(infile, outfile, stamp:, placeholder:)
         doc = HexaPDF::Document.open(infile)
         stamped = false
@@ -137,6 +136,8 @@ module Sevgi
 
         doc.write(outfile, optimize: true) if stamped
         stamped
+      rescue HexaPDF::Error, ::SystemCallError => e
+        ExportError.("PDF stamp error: #{e.message}")
       end
 
       # Replaces a placeholder text object inside a PDF file in place.
@@ -144,8 +145,7 @@ module Sevgi
       # @param stamp [String] replacement text
       # @param placeholder [String] placeholder text to replace
       # @return [Boolean] true when a matching placeholder was replaced
-      # @raise [HexaPDF::Error] when HexaPDF cannot read or write the PDF
-      # @raise [SystemCallError] when the PDF file cannot be accessed or replaced
+      # @raise [Sevgi::Sundries::Export::ExportError] when the PDF file cannot be read, written, stamped, or replaced
       def stamp!(infile, stamp:, placeholder:)
         temp = Tempfile.new(%w[stamp .pdf], File.dirname(infile))
         stamped = stamp(infile, temp.path, stamp:, placeholder:)
@@ -158,6 +158,8 @@ module Sevgi
         end
 
         stamped
+      rescue ::SystemCallError => e
+        ExportError.("PDF stamp error: #{e.message}")
       ensure
         temp&.close!
       end

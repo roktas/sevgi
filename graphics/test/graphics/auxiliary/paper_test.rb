@@ -21,6 +21,25 @@ module Sevgi
         assert_instance_of(::Method, Paper.method(:define))
       end
 
+      def test_invalid_inputs_raise_sevgi_argument_error
+        [
+          -> { Paper["wide", 5] },
+          /\bwidth\b/,
+          -> { Paper[3, "tall"] },
+          /\bheight\b/,
+          -> { Paper[3, 5, Object.new] },
+          /\bunit\b/,
+          -> { Paper[3, 5, :mm, Object.new] },
+          /\bname\b/,
+          -> { Paper.define(Object.new, width: 3, height: 5) },
+          /\bname\b/
+        ].each_slice(2) do |operation, message|
+          error = assert_raises(Sevgi::ArgumentError, &operation)
+
+          assert_match(message, error.message)
+        end
+      end
+
       def test_iso_a_profiles_use_standard_small_sizes
         [
           [74.0, 105.0, :mm, :a7],

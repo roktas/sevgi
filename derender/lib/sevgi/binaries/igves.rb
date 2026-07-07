@@ -52,24 +52,42 @@ module Sevgi
       # @return [nil]
       # @raise [Sevgi::ArgumentError] when the SVG file cannot be found
       # @raise [Sevgi::PanicError] when generated Ruby source cannot be formatted
+      # @raise [StandardError] when `--exception` or `SEVGI_VOMIT` requests raw errors
       # @raise [SystemExit] when command-line usage aborts
       def call(argv)
-        return puts(help) if (options = Options.parse(argv = Array(argv))).help
-        return puts(::Sevgi::VERSION) if options.version
-
-        puts(run(argv.shift, options))
+        dispatch(Array(argv))
       rescue Binaries::Igves::Error => e
         abort(e.message)
       end
 
       private
 
+      def dispatch(argv)
+        options = Options.parse(argv)
+        return puts(help) if options.help
+        return puts(::Sevgi::VERSION) if options.version
+
+        print_file(argv.shift, options)
+      rescue Binaries::Igves::Error
+        raise
+      rescue ::StandardError => e
+        raise if raw_error?(options)
+
+        die(e, nil)
+      end
+
       def die(error, _file)
         warn(error.message)
         warn("")
-        error.backtrace!.each { warn("  #{it}") }
+        backtrace(error).each { warn("  #{it}") }
 
         exit(1)
+      end
+
+      def backtrace(error)
+        return error.backtrace! if error.respond_to?(:backtrace!)
+
+        error.backtrace || []
       end
 
       def help
@@ -90,6 +108,20 @@ module Sevgi
         Error.("No SVG file given.") unless file
 
         Derender.derender_file(file)
+      end
+
+      def print_file(file, options)
+        puts(run(file, options))
+      rescue Binaries::Igves::Error
+        raise
+      rescue ::StandardError => e
+        raise if raw_error?(options)
+
+        die(e, file)
+      end
+
+      def raw_error?(options)
+        options&.vomit || ENV.fetch(ENVVOMIT, nil)
       end
     end
   end

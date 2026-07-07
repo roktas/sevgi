@@ -50,7 +50,7 @@ module Sevgi
     # @param name [Symbol, String] profile name
     # @param unit [Symbol, String] SVG unit
     # @return [Symbol, String] original profile name
-    # @raise [Sevgi::ArgumentError] when an existing profile has different dimensions
+    # @raise [Sevgi::ArgumentError] when the profile is invalid or an existing profile has different dimensions
     def paper(width, height, name = :custom, unit: "mm")
       profile = Graphics::Paper[width, height, unit, name]
 
@@ -69,7 +69,7 @@ module Sevgi
     # @param name [Symbol, String] profile name
     # @param unit [Symbol, String] SVG unit
     # @return [Symbol, String] original profile name
-    # @raise [Sevgi::ArgumentError] when the profile name is reserved
+    # @raise [Sevgi::ArgumentError] when the profile is invalid or the profile name is reserved
     def paper!(width, height, name = :custom, unit: "mm")
       name.tap { Graphics::Paper.define(name, width:, height:, unit:) }
     end

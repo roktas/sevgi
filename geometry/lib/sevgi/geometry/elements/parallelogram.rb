@@ -2,8 +2,13 @@
 
 module Sevgi
   module Geometry
+    # Generated superclass for Parallelogram.
+    # @api private
+    ParallelogramBase = Element.lined(4)
+    private_constant :ParallelogramBase
+
     # Closed four-sided element built from horizontal and vertical segments.
-    class Parallelogram < Element.lined(4)
+    class Parallelogram < ParallelogramBase
       # Builds a parallelogram from adjacent horizontal and vertical segments.
       # @param horizontal [Sevgi::Geometry::Segment, Array<Numeric>] horizontal segment
       # @param vertical [Sevgi::Geometry::Segment, Array<Numeric>] vertical segment

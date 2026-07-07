@@ -2,8 +2,13 @@
 
 module Sevgi
   module Geometry
+    # Generated superclass for Rect.
+    # @api private
+    RectBase = Element.lined(4)
+    private_constant :RectBase
+
     # Closed four-sided rectangle aligned to the screen axes.
-    class Rect < Element.lined(4)
+    class Rect < RectBase
       # @overload [](width, height, position: Origin)
       #   Builds a rectangle from size and top-left position.
       #   @param width [Numeric] rectangle width

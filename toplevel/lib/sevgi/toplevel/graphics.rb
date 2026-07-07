@@ -13,6 +13,14 @@ module Sevgi
     #   @return [void]
     #   @raise [NameError] when a named mixture cannot be resolved
     #   @see Sevgi::Graphics::Mixtures.mixin
+    # @overload Mixin(document = Sevgi::Graphics::Document::Base, &block)
+    #   Adds an anonymous graphics mixture to a document class.
+    #   @param document [Class] document class receiving the mixture
+    #   @yield anonymous mixture module body
+    #   @yieldreturn [void]
+    #   @return [Module] anonymous mixture
+    #   @raise [Sevgi::ArgumentError] when no named mixture or block is given
+    #   @see Sevgi::Graphics::Mixtures.mixin
     def Mixin(...) = Graphics::Mixtures.mixin(...)
 
     # @overload Paper(width, height, name = :custom, unit: "mm")
@@ -22,9 +30,7 @@ module Sevgi
     #   @param name [Symbol] paper profile name
     #   @param unit [String, Symbol] size unit
     #   @return [Symbol] the paper profile name
-    #   @raise [Sevgi::ArgumentError] when an existing profile differs
-    #   @raise [::ArgumentError] when paper dimensions cannot be coerced
-    #   @raise [::TypeError] when paper dimensions cannot be coerced
+    #   @raise [Sevgi::ArgumentError] when the profile is invalid or an existing profile differs
     #   @see Sevgi::Graphics#paper
     def Paper(...) = Graphics.paper(...)
 
@@ -35,9 +41,7 @@ module Sevgi
     #   @param name [Symbol] paper profile name
     #   @param unit [String, Symbol] size unit
     #   @return [Symbol] the paper profile name
-    #   @raise [Sevgi::ArgumentError] when the paper name is reserved
-    #   @raise [::ArgumentError] when paper dimensions cannot be coerced
-    #   @raise [::TypeError] when paper dimensions cannot be coerced
+    #   @raise [Sevgi::ArgumentError] when the profile is invalid or the paper name is reserved
     #   @see Sevgi::Graphics#paper!
     def Paper!(...) = Graphics.paper!(...)
   end

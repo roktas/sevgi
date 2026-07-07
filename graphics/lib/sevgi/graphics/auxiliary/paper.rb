@@ -21,8 +21,14 @@ module Sevgi
       # @param unit [Symbol, String] SVG unit
       # @param name [Symbol, String] profile name
       # @return [void]
+      # @raise [Sevgi::ArgumentError] when dimensions, unit, or profile name are invalid
       def initialize(width:, height:, unit: "mm", name: :custom)
-        super(width: Float(width), height: Float(height), unit: unit.to_sym, name: name.to_sym)
+        super(
+          width: self.class.send(:dimension!, :width, width),
+          height: self.class.send(:dimension!, :height, height),
+          unit: self.class.send(:symbol!, :unit, unit),
+          name: self.class.send(:symbol!, :name, name)
+        )
       end
 
       # Compares papers by width, height, unit, then name.
@@ -63,9 +69,9 @@ module Sevgi
       # @option spec [Numeric] :height paper height
       # @option spec [Symbol, String] :unit SVG unit
       # @return [Sevgi::Graphics::Paper]
-      # @raise [Sevgi::ArgumentError] when the profile name is reserved
+      # @raise [Sevgi::ArgumentError] when the profile name is reserved or invalid
       def self.define(name, **spec)
-        name = name.to_sym
+        name = symbol!(:name, name)
 
         ArgumentError.("Paper name is reserved: #{name}") if reserved?(name) && !exist?(name)
 
@@ -78,9 +84,21 @@ module Sevgi
 
       def self.profiles = @profiles
 
+      def self.dimension!(field, value)
+        Float(value)
+      rescue ::ArgumentError, ::TypeError
+        ArgumentError.("Invalid paper #{field}: #{value.inspect}")
+      end
+
+      def self.symbol!(field, value)
+        value.to_sym
+      rescue ::NoMethodError, ::TypeError
+        ArgumentError.("Invalid paper #{field}: #{value.inspect}")
+      end
+
       @reserved = methods.map(&:to_sym).freeze
 
-      private_class_method :profiles, :reserved?
+      private_class_method :dimension!, :profiles, :reserved?, :symbol!
 
       {
         a0: [841, 1189, "mm"],

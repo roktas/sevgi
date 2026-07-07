@@ -20,6 +20,19 @@ module Sevgi
           assert_empty(err)
         end
       end
+
+      def test_call_aborts_on_derender_error
+        out, err = capture_io do
+          assert_raises(SystemExit) { Igves.(["missing.svg"]) }
+        end
+
+        assert_empty(out)
+        assert_match(/\bFile not found\b/, err)
+      end
+
+      def test_call_exception_option_raises_derender_error
+        assert_raises(Sevgi::ArgumentError) { Igves.(["-x", "missing.svg"]) }
+      end
     end
   end
 end

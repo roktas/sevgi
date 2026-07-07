@@ -2,8 +2,13 @@
 
 module Sevgi
   module Geometry
+    # Generated superclass for Triangle.
+    # @api private
+    TriangleBase = Element.lined(3)
+    private_constant :TriangleBase
+
     # Closed three-sided element built from two adjacent segments.
-    class Triangle < Element.lined(3)
+    class Triangle < TriangleBase
       # Builds a triangle from two adjacent segments.
       # @param segment_a [Sevgi::Geometry::Segment, Array<Numeric>] first segment
       # @param segment_b [Sevgi::Geometry::Segment, Array<Numeric>] second segment
