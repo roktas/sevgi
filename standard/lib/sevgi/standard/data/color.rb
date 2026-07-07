@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
-# Recognized color keyword names: https://www.w3.org/TR/2003/REC-SVG11-20030114/types.html#ColorKeywords
-
 module Sevgi
   module Standard
+    # Recognized SVG color keyword names mapped to hexadecimal RGB values.
     Color = {
       aliceblue: "#F0F8FF",
       antiquewhite: "#FAEBD7",

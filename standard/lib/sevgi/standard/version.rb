@@ -2,6 +2,7 @@
 
 module Sevgi
   module Standard
+    # Current version of the Sevgi standard gem.
     VERSION = "0.73.2"
   end
 end

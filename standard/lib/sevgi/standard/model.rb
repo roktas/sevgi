@@ -2,8 +2,16 @@
 
 module Sevgi
   module Standard
+    # SVG content model validators used by {Conform}.
+    # @api private
     module Model
+      # Validates elements that allow only character data.
       module CDataOnly
+        # Applies this content model.
+        # @param cdata [String, nil] character data content
+        # @param elements [Array<Symbol>] child element names
+        # @return [nil]
+        # @raise [Sevgi::UnallowedElementsError] when child elements are present
         def apply(cdata:, elements:)
           _cdata = cdata
 
@@ -11,7 +19,13 @@ module Sevgi
         end
       end
 
+      # Validates elements that allow character data or selected child elements.
       module CDataOrSomeElements
+        # Applies this content model.
+        # @param cdata [String, nil] character data content
+        # @param elements [Array<Symbol>] child element names
+        # @return [nil]
+        # @raise [Sevgi::UnallowedElementsError] when unallowed child elements are present
         def apply(cdata:, elements:)
           _cdata = cdata
 
@@ -20,7 +34,14 @@ module Sevgi
         end
       end
 
+      # Validates empty elements.
       module NoneElements
+        # Applies this content model.
+        # @param cdata [String, nil] character data content
+        # @param elements [Array<Symbol>] child element names
+        # @return [nil]
+        # @raise [Sevgi::UnallowedCDataError] when character data is present
+        # @raise [Sevgi::UnallowedElementsError] when child elements are present
         def apply(cdata:, elements:)
           UnallowedCDataError.(element, cdata) if cdata
 
@@ -28,7 +49,14 @@ module Sevgi
         end
       end
 
+      # Validates elements that allow selected child elements but no character data.
       module SomeElements
+        # Applies this content model.
+        # @param cdata [String, nil] character data content
+        # @param elements [Array<Symbol>] child element names
+        # @return [nil]
+        # @raise [Sevgi::UnallowedCDataError] when character data is present
+        # @raise [Sevgi::UnallowedElementsError] when unallowed child elements are present
         def apply(cdata:, elements:)
           UnallowedCDataError.(element, cdata) if cdata
 
@@ -37,8 +65,15 @@ module Sevgi
         end
       end
 
+      # Validates the special `feDiffuseLighting` content model.
       module SpecialFeDiffuseLighting
-        # Any number of Descriptive elements and exactly one FilterLightSource element, in any order.
+        # Applies this content model.
+        # @param cdata [String, nil] character data content
+        # @param elements [Array<Symbol>] child element names
+        # @return [nil]
+        # @raise [Sevgi::UnallowedCDataError] when character data is present
+        # @raise [Sevgi::UnallowedElementsError] when unallowed child elements are present
+        # @raise [Sevgi::UnmetConditionError] when required light source elements are absent
         def apply(cdata:, elements:)
           UnallowedCDataError.(element, cdata) if cdata
 
@@ -52,8 +87,15 @@ module Sevgi
         end
       end
 
+      # Validates the special `feSpecularLighting` content model.
       module SpecialFeSpecularLighting
-        # Exactly one FilterLightSource element first and any number of Descriptive elements in any order.
+        # Applies this content model.
+        # @param cdata [String, nil] character data content
+        # @param elements [Array<Symbol>] child element names
+        # @return [nil]
+        # @raise [Sevgi::UnallowedCDataError] when character data is present
+        # @raise [Sevgi::UnallowedElementsError] when unallowed child elements are present
+        # @raise [Sevgi::UnmetConditionError] when the first child is not a light source
         def apply(cdata:, elements:)
           UnallowedCDataError.(element, cdata) if cdata
 
@@ -67,8 +109,15 @@ module Sevgi
         end
       end
 
+      # Validates the special `font-face` content model.
       module SpecialFontFace
-        # Any number of Descriptive elements and at most one font-face element in any order.
+        # Applies this content model.
+        # @param cdata [String, nil] character data content
+        # @param elements [Array<Symbol>] child element names
+        # @return [nil]
+        # @raise [Sevgi::UnallowedCDataError] when character data is present
+        # @raise [Sevgi::UnallowedElementsError] when unallowed child elements are present
+        # @raise [Sevgi::UnmetConditionError] when more than one `font-face` child is present
         def apply(cdata:, elements:)
           UnallowedCDataError.(element, cdata) if cdata
 
