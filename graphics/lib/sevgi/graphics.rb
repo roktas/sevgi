@@ -3,7 +3,7 @@
 require "sevgi/function"
 
 require_relative "graphics/attribute"
-require_relative "graphics/auxilary"
+require_relative "graphics/auxiliary"
 require_relative "graphics/element"
 require_relative "graphics/mixtures"
 
@@ -14,7 +14,7 @@ require_relative "graphics/version"
 module Sevgi
   module Graphics
     def canvas(...)
-      Graphics::Canvas.(...)
+      Graphics::Canvas.from_paper(...)
     end
 
     def document(name = Undefined, preambles: [], attributes: {})

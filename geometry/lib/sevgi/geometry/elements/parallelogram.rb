@@ -1,10 +1,8 @@
 # frozen_string_literal: true
 
-# Parallelogram
-
 module Sevgi
   module Geometry
-    class Parm < Element.lined(4)
+    class Parallelogram < Element.lined(4)
       def self.[](horizontal, vertical, position: Origin)
         horizontal, vertical = Tuples[Segment, horizontal, vertical]
 
@@ -13,9 +11,9 @@ module Sevgi
 
       def self.new_by_height(horizontal:, tallness:, position: Origin)
         horizontal = Tuple[Segment, horizontal]
-        tallness = Tuple[LengthAngle, tallness]
+        tallness = Tuple[Polar, tallness]
 
-        height = tallness.length - horizontal.ly
+        height = tallness.length - horizontal.y.abs
         angle = tallness.angle
         length = height / F.sin(angle)
 
@@ -24,9 +22,9 @@ module Sevgi
 
       def self.new_by_width(vertical:, wideness:, position: Origin)
         vertical = Tuple[Segment, vertical]
-        wideness = Tuple[LengthAngle, wideness]
+        wideness = Tuple[Polar, wideness]
 
-        width = wideness.length - vertical.lx
+        width = wideness.length - vertical.x.abs
         angle = wideness.angle
         length = width / F.cos(angle)
 

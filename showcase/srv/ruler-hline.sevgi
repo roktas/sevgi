@@ -21,8 +21,8 @@ SVG width: "210mm", height: "50mm", viewBox: "0 0 210 50" do
     length = 2
 
     (0..WIDTH).step(1) do |x|
-      vline x:, y: 0, length: length, class: "minors"
-      vline x:, y: HEIGHT, length: -length, class: "minors"
+      VLineBy x:, y: 0, length: length, class: "minors"
+      VLineBy x:, y: HEIGHT, length: -length, class: "minors"
     end
   end
 
@@ -30,8 +30,8 @@ SVG width: "210mm", height: "50mm", viewBox: "0 0 210 50" do
     length = 4
 
     (0..WIDTH).step(5) do |x|
-      vline x:, y: 0, length: length, class: "minors"
-      vline x:, y: HEIGHT, length: -length, class: "minors"
+      VLineBy x:, y: 0, length: length, class: "minors"
+      VLineBy x:, y: HEIGHT, length: -length, class: "minors"
     end
   end
 
@@ -39,8 +39,8 @@ SVG width: "210mm", height: "50mm", viewBox: "0 0 210 50" do
     length = 6
 
     (10..(WIDTH - 10)).step(10) do |x|
-      vline x:, y: 0, length: length, class: "minors"
-      vline x:, y: HEIGHT, length: -length, class: "minors"
+      VLineBy x:, y: 0, length: length, class: "minors"
+      VLineBy x:, y: HEIGHT, length: -length, class: "minors"
     end
 
     layer id: "labels" do

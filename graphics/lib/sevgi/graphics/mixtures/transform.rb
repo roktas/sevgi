@@ -55,21 +55,15 @@ module Sevgi
           end
         end
 
-        def Rotate90(...) = Rotate(90, ...)
+        def RotateRight(...) = Rotate(90, ...)
 
-        def Rotate09(...) = Rotate(-90, ...)
+        def RotateLeft(...) = Rotate(-90, ...)
 
         def Scale(x, y = nil)
           tap do
             next if x.to_f == 0.0 && (y.nil? || y.to_f == 0.0)
 
             attributes[:"transform#{ATTRIBUTE_UPDATE_SUFFIX}"] = "scale(#{(y ? [x, y] : [x]).join(", ")})"
-          end
-        end
-
-        def Scale!(...)
-          Scale(...).tap do
-            attributes[:"vector-effect"] = "non-scaling-stroke" unless attributes[:"vector-effect"]
           end
         end
 

@@ -4,20 +4,20 @@ require_relative "../../test_helper"
 
 module Sevgi
   module Geometry
-    class TriTest < Minitest::Test
-      def test_tri_exposes_side_lengths
-        tri = Tri[
+    class TriangleTest < Minitest::Test
+      def test_triangle_exposes_side_lengths
+        triangle = Triangle[
           [5.0, F.atan2(4.0, 3.0)],
           [4.0, 270.0]
         ]
 
         [
           5.0,
-          tri.AB.l,
+          triangle.AB.length,
           4.0,
-          tri.BC.l,
+          triangle.BC.length,
           3.0,
-          tri.CA.l
+          triangle.CA.length
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
     end

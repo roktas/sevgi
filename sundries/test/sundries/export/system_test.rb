@@ -8,9 +8,9 @@ module Sevgi
   module Sundries
     module Export
       class SystemTest < Minitest::Test
-        def test_a5ona4_runs_pdfcpu_nup
+        def test_a5_on_a4_runs_pdfcpu_nup
           result = capture_sh do
-            Export.a5ona4("in.pdf", "out.pdf")
+            Export.a5_on_a4("in.pdf", "out.pdf")
           end
 
           assert_equal(
@@ -27,13 +27,13 @@ module Sevgi
           )
         end
 
-        def test_a5ona4_bang_replaces_input
+        def test_a5_on_a4_bang_replaces_input
           Dir.mktmpdir do |dir|
             infile = File.join(dir, "in.pdf")
             File.write(infile, "old")
 
-            Export.stub(:a5ona4, -> (_infile, outfile) { File.write(outfile, "new") }) do
-              Export.a5ona4!(infile)
+            Export.stub(:a5_on_a4, -> (_infile, outfile) { File.write(outfile, "new") }) do
+              Export.a5_on_a4!(infile)
             end
 
             assert_equal("new", File.read(infile))

@@ -41,15 +41,15 @@ module Sevgi
 
       def test_line_from_points_preserves_endpoints
         [
-          Line.(Origin, [1, 3]).position,
+          Line.from_points(Origin, [1, 3]).position,
           Origin,
-          Line.(Origin, [1, 3]).ending,
+          Line.from_points(Origin, [1, 3]).ending,
           Point[1, 3]
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
       def test_line_from_segment_matches_fixture_line
-        line = Line[5, angle345]
+        line = Line.from_length_angle(5, angle345)
 
         [
           line345.length,

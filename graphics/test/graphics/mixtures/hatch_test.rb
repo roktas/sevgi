@@ -13,13 +13,13 @@ module Sevgi
 
           attr_reader :lines
 
-          def Cline(**attributes) = (@lines ||= []) << attributes
+          def LineTo(**attributes) = (@lines ||= []) << attributes
         end
 
         def test_hatch_draws_swept_lines
           node = Node.new
 
-          node.Hatch(Geometry::Rect[2, 4], direction: 45.0, step: ::Math.sqrt(2.0), class: %w[smoke hatch])
+          node.Hatch(Geometry::Rect[2, 4], angle: 45.0, step: ::Math.sqrt(2.0), class: %w[smoke hatch])
 
           assert_equal(
             [

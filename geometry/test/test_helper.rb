@@ -44,7 +44,7 @@ module Sevgi::Geometry
     #         |
     #         y
     #
-    def line345 = @line345 ||= Line.(Origin, [3.0, 4.0])
+    def line345 = @line345 ||= Line.from_points(Origin, [3.0, 4.0])
 
     def angle345 = @angle345 ||= line345.angle
     def length345 = @length345 ||= line345.length
@@ -67,7 +67,7 @@ module Sevgi::Geometry
     #         |
     #         y
     #
-    def line543 = @line543 ||= Line.([0.0, 4.0], [3.0, 0.0])
+    def line543 = @line543 ||= Line.from_points([0.0, 4.0], [3.0, 0.0])
 
     def angle543 = @angle543 ||= line543.angle
     def length543 = @length543 ||= line543.length

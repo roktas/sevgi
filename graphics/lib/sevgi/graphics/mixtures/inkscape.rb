@@ -70,10 +70,6 @@ module Sevgi
           end
         end
 
-        def Symbol!(mod, *args, **kwargs, &block)
-          kwargs = kwargs.merge(id: F.demodulize(mod).to_sym) unless kwargs.key?(:id)
-          symbol!(**kwargs) { Call(mod, *args, &block) }
-        end
       end
     end
   end

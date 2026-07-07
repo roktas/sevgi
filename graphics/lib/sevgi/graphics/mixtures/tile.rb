@@ -48,8 +48,6 @@ module Sevgi
           end
         end
 
-        def Tile!(id, klass = PREFIX, ...) = g(id:, class: klass) { Tile(id, ...) }
-
         def TileX(id = Undefined, n: Undefined, d: Undefined, o: 0, proc: nil, &block)
           Helper.assert(id:, n:, d:, o:, proc:)
 
@@ -75,8 +73,6 @@ module Sevgi
           end
         end
 
-        def TileX!(id, klass = PREFIX, ...) = g(id:, class: klass) { TileX(id, ...) }
-
         def TileY(id = Undefined, n: Undefined, d: Undefined, o: 0, proc: nil, &block)
           Helper.assert(id:, n:, d:, o:, proc:)
 
@@ -101,8 +97,6 @@ module Sevgi
             end
           end
         end
-
-        def TileY!(id, klass = PREFIX, ...) = g(id:, class: klass) { TileY(id, ...) }
 
         module Helper
           extend self

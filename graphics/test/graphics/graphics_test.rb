@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require "fileutils"
+require "rbconfig"
+require "tmpdir"
+
 require_relative "../test_helper"
 
 module Sevgi
@@ -61,6 +65,58 @@ module Sevgi
 
         assert_empty(::Nokogiri::VERSION_INFO.fetch("warnings"))
         assert_equal(libxml.fetch("compiled"), libxml.fetch("loaded"))
+      end
+
+      def test_graphics_loads_without_standard_component
+        Dir.mktmpdir do |dir|
+          FileUtils.mkdir_p(File.join(dir, "sevgi"))
+          File.write(File.join(dir, "sevgi", "standard.rb"), "raise LoadError, 'blocked standard'\n")
+
+          function = ::File.expand_path("../../../function/lib", __dir__)
+          graphics = ::File.expand_path("../../lib", __dir__)
+          result = Function.sh(
+            {"BUNDLE_GEMFILE" => nil, "RUBYLIB" => nil, "RUBYOPT" => nil},
+            RbConfig.ruby,
+            "-I#{dir}",
+            "-I#{function}",
+            "-I#{graphics}",
+            "-e",
+            "require 'sevgi/graphics'; puts Sevgi::Graphics::Element.valid?(:custom_tag)"
+          )
+
+          assert(result.ok?, result.err)
+          assert_equal("true", result.outline)
+        end
+      end
+
+      def test_hatch_reports_missing_geometry_component
+        Dir.mktmpdir do |dir|
+          FileUtils.mkdir_p(File.join(dir, "sevgi"))
+          File.write(File.join(dir, "sevgi", "geometry.rb"), "raise LoadError, 'blocked geometry'\n")
+
+          function = ::File.expand_path("../../../function/lib", __dir__)
+          graphics = ::File.expand_path("../../lib", __dir__)
+          result = Function.sh(
+            {"BUNDLE_GEMFILE" => nil, "RUBYLIB" => nil, "RUBYOPT" => nil},
+            RbConfig.ruby,
+            "-I#{dir}",
+            "-I#{function}",
+            "-I#{graphics}",
+            "-e",
+            <<~RUBY
+              require 'sevgi/graphics'
+              include Sevgi::Graphics
+              begin
+                SVG(:inkscape).Hatch(nil, angle: 0, step: 1)
+              rescue NoMethodError => error
+                puts error.message
+              end
+            RUBY
+          )
+
+          assert(result.ok?, result.err)
+          assert_match(%r{sevgi/geometry}, result.out)
+        end
       end
 
       def test_canvas_returns_canvas_instance

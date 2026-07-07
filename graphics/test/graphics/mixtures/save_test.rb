@@ -8,6 +8,13 @@ module Sevgi
   module Graphics
     module Mixtures
       class SaveTest < Minitest::Test
+        def test_out_writes_rendered_svg_to_stdout
+          out, err = capture_io { SVG(:minimal) { rect(id: "one") }.Out() }
+
+          assert_equal("<svg>\n  <rect id=\"one\"/>\n</svg>\n", out)
+          assert_empty(err)
+        end
+
         def test_save_writes_rendered_svg
           Dir.mktmpdir do |dir|
             path = File.join(dir, "nested", "out.svg")
@@ -34,6 +41,21 @@ module Sevgi
               "old\n",
               File.read("#{path}.bak"),
               "<svg>\n  <rect id=\"new\"/>\n</svg>\n",
+              File.read(path)
+            ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+          end
+        end
+
+        def test_write_writes_rendered_svg_to_path
+          Dir.mktmpdir do |dir|
+            path = File.join(dir, "out.svg")
+
+            result = SVG(:minimal) { rect(id: "one") }.Write(path)
+
+            [
+              path,
+              result,
+              "<svg>\n  <rect id=\"one\"/>\n</svg>\n",
               File.read(path)
             ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
           end

@@ -26,6 +26,8 @@ module Sevgi
 
     def model?(...) = Specification.model?(...)
 
-    def [](name) = Specification[name.to_sym]
+    def specification(name) = Specification[name.to_sym]
+
+    alias [] specification
   end
 end

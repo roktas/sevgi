@@ -66,8 +66,8 @@ module Sevgi
         [
           Polyline[Segment[2, 0], Segment[1, 90]],
           Polyline[[2, 0], [1, 90]],
-          Parm[Segment[3, 0], Segment[4, -90]],
-          Parm[[3, 0], [4, -90]]
+          Parallelogram[Segment[3, 0], Segment[4, -90]],
+          Parallelogram[[3, 0], [4, -90]]
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
@@ -78,7 +78,7 @@ module Sevgi
           Rect.(Origin, [3, 4]),
           Rect[3, 4],
           Polyline.(Origin, [2, 0], [2, 1]),
-          Polyline[Segment.horizontal(2), Segment.vertical(1)]
+          Polyline[Segment.rightward(2), Segment.downward(1)]
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 

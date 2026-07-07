@@ -161,30 +161,6 @@ module Sevgi
           assert_equal(expected, actual)
         end
 
-        def test_tile_bang_wraps_generated_uses
-          expected = <<~SVG
-            <svg>
-              <rect id="rect" width="5" height="8"/>
-              <g id="myrect" class="mytile">
-                <use id="myrect-1-1" href="#myrect" class="tile-row-1 tile-row-first tile-col-1 tile-col-first"/>
-                <use id="myrect-1-2" href="#myrect" class="tile-row-1 tile-row-first tile-col-2 tile-col-last" x="1"/>
-                <use id="myrect-2-1" href="#myrect" class="tile-row-2 tile-col-1 tile-col-first" y="4"/>
-                <use id="myrect-2-2" href="#myrect" class="tile-row-2 tile-col-2 tile-col-last" x="1" y="4"/>
-                <use id="myrect-3-1" href="#myrect" class="tile-row-3 tile-row-last tile-col-1 tile-col-first" y="8"/>
-                <use id="myrect-3-2" href="#myrect" class="tile-row-3 tile-row-last tile-col-2 tile-col-last" x="1" y="8"/>
-              </g>
-            </svg>
-          SVG
-            .chomp
-
-          actual = SVG(DOC) do
-            rect(id: "rect", width: 5, height: 8)
-            Tile!("myrect", "mytile", nx: 2, dx: 1, ny: 3, dy: 4)
-          end
-            .Render()
-
-          assert_equal(expected, actual)
-        end
       end
 
       class TileXTest < Minitest::Test

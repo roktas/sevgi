@@ -15,18 +15,21 @@ module Sevgi
         F.eq?(this.length, that.length, precision:) && F.eq?(this.angle, that.angle, precision:)
       end
 
-      def self.horizontal!(length) = self[length, 180.0]
-      def self.horizontal(length) = self[length, 0.0]
-      def self.vertical!(length) = self[length, -90.0]
-      def self.vertical(length) = self[length, 90.0]
+      def self.downward(length) = self[length, 90.0]
+      def self.leftward(length) = self[length, 180.0]
+      def self.rightward(length) = self[length, 0.0]
+      def self.upward(length) = self[length, -90.0]
+
+      class << self
+        alias_method :horizontal, :rightward
+        alias_method :vertical, :downward
+      end
 
       def initialize(length:, angle:) = super(length: length.to_f, angle: angle.to_f)
 
       def <=>(other) = (other = Tuple[Segment, other]).nan? || nan? ? nil : length <=> other.length
 
       def approx(precision = nil) = with(length: F.approx(length, precision), angle: F.approx(angle, precision))
-
-      def com = angle - 90.0
 
       def ending(starting) = Tuple[Point, starting].translate(x, y)
 
@@ -40,21 +43,15 @@ module Sevgi
 
       def line(point = Origin) = Line[length, angle, position: Tuple[Point, point]]
 
-      def lx = x.abs
-
-      def ly = y.abs
-
       def nan? = deconstruct.any?(&:nan?)
 
       def reverse = with(angle: angle + 180.0)
-
-      def sup = angle - 180.0
 
       def x = length * F.cos(angle)
 
       def y = length * F.sin(angle)
     end
 
-    LengthAngle = Data.define(:length, :angle)
+    Polar = Data.define(:length, :angle)
   end
 end

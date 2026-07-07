@@ -23,7 +23,7 @@ module Sevgi
         when Canvas
           canvas.attributes
         else
-          Canvas.(canvas).attributes
+          Canvas.from_paper(canvas).attributes
         end
       end
 

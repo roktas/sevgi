@@ -7,10 +7,10 @@ module Sevgi
         require "sevgi/derender"
 
         def Include(file, id) = Derender.evaluate_file(file, self, id:)
-        def Include!(file, id) = Derender.evaluate_file!(file, self, id:)
+        def IncludeChildren(file, id) = Derender.evaluate_file!(file, self, id:)
       rescue ::LoadError
+        def IncludeChildren(...) = raise NoMethodError, "\"sevgi/derender\" required"
         def Include(...) = raise NoMethodError, "\"sevgi/derender\" required"
-        def Include!(...) = raise NoMethodError, "\"sevgi/derender\" required"
       end
     end
   end

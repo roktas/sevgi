@@ -206,7 +206,7 @@ module Sevgi
 
         def Render(**) = Renderer.(self, **)
 
-        def Render!(separator = "\n\n") = children.map(&:Render).join(separator)
+        def RenderChildren(separator = "\n\n") = children.map(&:Render).join(separator)
       end
     end
   end

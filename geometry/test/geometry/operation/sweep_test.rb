@@ -58,7 +58,7 @@ module Sevgi
 
         def test_sweep_diagonal_counts_lines_until_limit
           initials = rect345.points
-          directions = [direction = 90.0 - angle345, -direction]
+          angles = [angle = 90.0 - angle345, -angle]
           steps = [step = 0.1, -step]
           nsteps = (length345 / step).to_i
           # +1 for each unisweep, +2 in total
@@ -68,9 +68,9 @@ module Sevgi
           sweeper = proc do |limit|
             initials
               .map do |initial|
-                directions.map do |direction|
+                angles.map do |angle|
                   steps.map do |step|
-                    Operation.sweep!(rect345, initial:, direction:, step:, limit:).size
+                    Operation.sweep!(rect345, initial:, angle:, step:, limit:).size
                   end
                 end
               end
@@ -85,11 +85,11 @@ module Sevgi
         end
 
         def test_sweep_vertical_returns_parallel_lines
-          assert_equal(4, Operation.sweep!(rect345, initial: rect345.position, direction: 90.0, step: 1.0).size)
+          assert_equal(4, Operation.sweep!(rect345, initial: rect345.position, angle: 90.0, step: 1.0).size)
         end
 
         def test_sweep_horizontal_returns_parallel_lines
-          assert_equal(5, Operation.sweep!(rect345, initial: rect345.position, direction: 0.0, step: 1.0).size)
+          assert_equal(5, Operation.sweep!(rect345, initial: rect345.position, angle: 0.0, step: 1.0).size)
         end
       end
     end

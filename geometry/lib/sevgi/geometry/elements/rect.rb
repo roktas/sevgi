@@ -3,7 +3,11 @@
 module Sevgi
   module Geometry
     class Rect < Element.lined(4)
-      def self.call(top_left, bottom_right)
+      def self.[](...) = from_size(...)
+
+      def self.call(...) = from_corners(...)
+
+      def self.from_corners(top_left, bottom_right)
         top_left, bottom_right = Tuples[Point, top_left, bottom_right]
         width = (bottom_right.x - top_left.x).abs
 
@@ -15,12 +19,12 @@ module Sevgi
         )
       end
 
-      def self.[](width, height, position: Origin)
+      def self.from_size(width, height, position: Origin)
         new_by_segments(
-          Segment.horizontal(width),
-          Segment.vertical(height),
-          Segment.horizontal!(width),
-          Segment.vertical!(height),
+          Segment.rightward(width),
+          Segment.downward(height),
+          Segment.leftward(width),
+          Segment.upward(height),
           position:
         )
       end
@@ -43,7 +47,7 @@ module Sevgi
     class Square < Rect
       alias length width
 
-      def self.[](length, position: Origin) = super(length, length, position:)
+      def self.[](length, position: Origin) = from_size(length, length, position:)
     end
   end
 end

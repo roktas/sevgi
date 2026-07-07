@@ -8,8 +8,8 @@ module Sevgi
 
         LIMIT = 1_000
 
-        def sweep(element, initial:, direction:, step:, limit: LIMIT, &block)
-          equation = Tuple[Point, initial].equation(direction)
+        def sweep(element, initial:, angle:, step:, limit: LIMIT, &block)
+          equation = Tuple[Point, initial].equation(angle)
 
           [
             *unisweep(element, equation.shift(-step), -step, limit:).reverse,
@@ -19,10 +19,10 @@ module Sevgi
           end
         end
 
-        def sweep!(element, initial:, direction:, step:, limit: LIMIT, &block)
-          sweep(element, initial:, direction:, step:, limit:) do |lines|
+        def sweep!(element, initial:, angle:, step:, limit: LIMIT, &block)
+          sweep(element, initial:, angle:, step:, limit:) do |lines|
             if lines.empty?
-              OperationError.("No lines found [initial: #{initial}, direction: #{direction} step: #{step}]")
+              OperationError.("No lines found [initial: #{initial}, angle: #{angle} step: #{step}]")
             end
 
             yield(lines) if block

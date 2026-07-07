@@ -166,13 +166,13 @@ module Sevgi
           assert_match(/\bunknown\b/, error.message)
         end
 
-        def test_render_bang_joins_top_level_children
+        def test_render_children_joins_top_level_children
           doc = SVG(DOC) do
             rect(id: "one")
             circle(id: "two")
           end
 
-          assert_equal("<rect id=\"one\"/>\n\n<circle id=\"two\"/>", doc.Render!())
+          assert_equal("<rect id=\"one\"/>\n\n<circle id=\"two\"/>", doc.RenderChildren())
         end
       end
     end

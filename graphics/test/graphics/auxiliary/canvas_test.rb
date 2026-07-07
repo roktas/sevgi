@@ -6,7 +6,7 @@ module Sevgi
   module Graphics
     class CanvasTest < Minitest::Test
       def test_canvas_attributes_include_viewport_and_viewbox
-        canvas = Canvas.(:a4, margins: [3, 5])
+        canvas = Canvas.from_paper(:a4, margins: [3, 5])
 
         [
           {width: "210.0mm", height: "297.0mm"},
@@ -21,7 +21,7 @@ module Sevgi
       end
 
       def test_canvas_inner_size_excludes_margins
-        canvas = Canvas.(:a4, margins: [3, 5])
+        canvas = Canvas.from_paper(:a4, margins: [3, 5])
 
         [
           210.0 - (2 * 5.0),
@@ -32,7 +32,7 @@ module Sevgi
       end
 
       def test_canvas_with_preserves_size_and_updates_margins
-        canvas = Canvas.(:a4)
+        canvas = Canvas.from_paper(:a4)
         updated = canvas.with(margins: [1, 2, 3, 4])
 
         [
@@ -44,7 +44,7 @@ module Sevgi
       end
 
       def test_canvas_rejects_invalid_origin
-        canvas = Canvas.(:a4)
+        canvas = Canvas.from_paper(:a4)
 
         assert_raises(ArgumentError) { canvas.viewbox([1]) }
         assert_raises(ArgumentError) { canvas.viewbox(:origin) }
@@ -67,16 +67,16 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
-      def test_margin_totals_and_change
+      def test_margin_axis_totals_and_adjust
         margin = Margin[1, 2, 3, 4]
 
         [
           6.0,
-          margin.htotal,
+          margin.horizontal,
           4.0,
-          margin.vtotal,
+          margin.vertical,
           [6.0, 5.0, 8.0, 7.0],
-          margin.change(3, 5).to_a
+          margin.adjust(3, 5).to_a
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
     end

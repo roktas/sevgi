@@ -4,6 +4,7 @@
 
 module Sevgi
   module Graphics
+    # Internal store syntax; not part of the SVG DSL command surface.
     ATTRIBUTE_INTERNAL_PREFIX = "-"
     ATTRIBUTE_UPDATE_SUFFIX = "+"
 

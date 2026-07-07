@@ -11,7 +11,7 @@ module Sevgi
             rect
               .Rotate(45, 1, 2)
               .Scale(2, 3)
-              .Scale!(4)
+              .Scale(4)
               .SkewX(10)
               .SkewY(20)
               .Translate(5, 6)
@@ -22,9 +22,7 @@ module Sevgi
 
           [
             "rotate(45, 1, 2) scale(2, 3) scale(4) skewX(10) skewY(20) translate(5 6) matrix(1 0 0 1 7 8)",
-            element[:transform],
-            "non-scaling-stroke",
-            element[:"vector-effect"]
+            element[:transform]
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
         end
 

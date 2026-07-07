@@ -70,9 +70,13 @@ module Sevgi
           # rubocop:enable Metrics/MethodLength
         end
 
-        def self.[](...) = new_by_segments(...)
+        def self.[](...) = from_segments(...)
 
-        def self.call(...) = new_by_points(...)
+        def self.call(...) = from_points(...)
+
+        def self.from_points(...) = new_by_points(...)
+
+        def self.from_segments(...) = new_by_segments(...)
 
         def self.new_by_points(...) = new_by_points!(...)
 
@@ -162,7 +166,7 @@ module Sevgi
 
         def [](i) = lines[i].tap { |line| Error.("No line exist for index: #{i}") unless line }
 
-        def box = Rect.([(xs = points.map(&:x)).min, (ys = points.map(&:y)).min], [xs.max, ys.max])
+        def box = Rect.from_corners([(xs = points.map(&:x)).min, (ys = points.map(&:y)).min], [xs.max, ys.max])
 
         def call(i) = points[i].tap { Error.("No point exist for index: #{i}") unless it }
 
@@ -252,11 +256,11 @@ module Sevgi
     end
 
     require_relative "elements/line"
-    require_relative "elements/parm"
+    require_relative "elements/parallelogram"
     require_relative "elements/polygon"
     require_relative "elements/polyline"
     require_relative "elements/rect"
-    require_relative "elements/tri"
+    require_relative "elements/triangle"
 
     require_relative "elements/circle"
     require_relative "elements/curve"

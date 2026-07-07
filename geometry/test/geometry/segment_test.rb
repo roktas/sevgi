@@ -25,7 +25,7 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
-      def test_segment_exposes_components_and_angles
+      def test_segment_exposes_components_and_reverse_angle
         segment = Segment[5, F.atan2(4, 3)]
 
         [
@@ -33,16 +33,21 @@ module Sevgi
           F.approx(segment.x),
           4.0,
           F.approx(segment.y),
-          3.0,
-          F.approx(segment.lx),
-          4.0,
-          F.approx(segment.ly),
-          segment.angle - 90.0,
-          segment.com,
-          segment.angle - 180.0,
-          segment.sup,
           segment.angle + 180.0,
           segment.reverse.angle
+        ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+      end
+
+      def test_segment_direction_helpers_return_cardinal_segments
+        [
+          Segment[2, 0],
+          Segment.rightward(2),
+          Segment[2, 90],
+          Segment.downward(2),
+          Segment[2, 180],
+          Segment.leftward(2),
+          Segment[2, -90],
+          Segment.upward(2)
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 

@@ -7,11 +7,11 @@ module Sevgi
   module Sundries
     module Export
       # pdfcpu - https://pdfcpu.io/ (pdfcpu package)
-      def a5ona4(infile, outfile) = F.sh!("pdfcpu", "nup", "--", "form:A4L, border:off", outfile, "2", infile)
+      def a5_on_a4(infile, outfile) = F.sh!("pdfcpu", "nup", "--", "form:A4L, border:off", outfile, "2", infile)
 
-      def a5ona4!(infile)
+      def a5_on_a4!(infile)
         temp = Tempfile.new(%w[output .pdf], File.dirname(infile))
-        a5ona4(infile, temp.path)
+        a5_on_a4(infile, temp.path)
         FileUtils.mv(temp.path, infile)
       ensure
         temp&.close!

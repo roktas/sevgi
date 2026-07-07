@@ -8,8 +8,8 @@ module Sevgi
       module Save
         EXT = ".svg"
 
-        def Out(*, **, &filter)
-          F.out(self.(**), *, &filter)
+        def Out(**kwargs, &filter)
+          F.out(self.(**kwargs), &filter)
         end
 
         def Save(path = nil, default: nil, backup_suffix: nil, &filter)
@@ -26,7 +26,11 @@ module Sevgi
             ::FileUtils.cp(path, "#{path}#{backup_suffix}")
           end
 
-          Out(path, &filter)
+          Write(path, &filter)
+        end
+
+        def Write(path, **kwargs, &filter)
+          F.out(self.(**kwargs), path, &filter)
         end
       end
     end

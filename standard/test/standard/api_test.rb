@@ -20,6 +20,11 @@ module Sevgi
         refute(Standard.attribute?(nil))
         refute(Standard.attribute?(Object.new))
       end
+
+      def test_specification_returns_element_contract
+        assert_equal(Standard.specification(:svg), Standard[:svg])
+        assert_includes(Standard.specification(:svg).keys, :attributes)
+      end
     end
   end
 end

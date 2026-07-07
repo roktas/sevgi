@@ -5,10 +5,6 @@ module Sevgi
     module Affinity
       def reflect(x: true, y: true) = with(x: (y ? -1 : 1) * self.x(), y: (x ? -1 : 1) * self.y())
 
-      def reflect_x = with(y: -y)
-
-      def reflect_y = with(x: -x)
-
       def rotate(a) = with(x: (x * F.cos(a)) - (y * F.sin(a)), y: (x * F.sin(a)) + (y * F.cos(a)))
 
       def scale(sx, sy = Undefined) = with(x: sx * x, y: Undefined.default(sy, sx) * y)

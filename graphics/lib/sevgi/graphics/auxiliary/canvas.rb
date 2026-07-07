@@ -5,7 +5,9 @@ require "forwardable"
 module Sevgi
   module Graphics
     class Canvas
-      def self.call(arg = Undefined, **kwargs)
+      def self.call(...) = from_paper(...)
+
+      def self.from_paper(arg = Undefined, **kwargs)
         case arg
         when Undefined
           new(**kwargs)

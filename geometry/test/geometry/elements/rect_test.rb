@@ -8,7 +8,7 @@ module Sevgi
       include Fixtures
 
       def test_rect_construction_preserves_position_and_size
-        rect = Rect[3, 4, position: [1, 2]]
+        rect = Rect.from_size(3, 4, position: [1, 2])
 
         [
           1.0,
@@ -46,12 +46,12 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
-      def test_rect_brackets_build_origin_rect
-        assert_equal(rect345, Rect[3, 4])
+      def test_rect_from_size_builds_origin_rect
+        assert_equal(rect345, Rect.from_size(3, 4))
       end
 
-      def test_rect_from_points_preserves_position_and_size
-        rect = Rect.(
+      def test_rect_from_corners_preserves_position_and_size
+        rect = Rect.from_corners(
           rect345.top_left.translate(2.0, 3.0),
           rect345.bottom_right.translate(2.0, 3.0)
         )

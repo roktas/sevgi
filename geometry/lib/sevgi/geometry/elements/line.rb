@@ -5,7 +5,11 @@ require "forwardable"
 module Sevgi
   module Geometry
     class Line < Element.lined(1, open: true)
-      def self.[](length, angle, position: Origin) = new_by_segments(Segment[length, angle], position:)
+      def self.[](...) = from_length_angle(...)
+
+      def self.from_length_angle(length, angle, position: Origin) = new_by_segments(Segment[length, angle], position:)
+
+      def self.from_points(...) = new_by_points(...)
 
       extend Forwardable
 
@@ -16,10 +20,7 @@ module Sevgi
 
       def_delegators :equation, :left?, :right?
 
-      alias a angle
-      alias l length
-
-      def draw!(node, **) = node.Cline(x1: position.x, y1: position.y, x2: ending.x, y2: ending.y, **)
+      def draw!(node, **) = node.LineTo(x1: position.x, y1: position.y, x2: ending.x, y2: ending.y, **)
 
       def over?(point)
         point = Tuple[Point, point]

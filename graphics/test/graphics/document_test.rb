@@ -78,7 +78,7 @@ module Sevgi
         SVG
           .chomp
 
-        actual = SVG(DOC, Canvas.(:a4)).Render()
+        actual = SVG(DOC, Canvas.from_paper(:a4)).Render()
 
         assert_equal(expected, actual)
       end
@@ -89,7 +89,7 @@ module Sevgi
         SVG
           .chomp
 
-        actual = SVG(DOC, Canvas.(:a4, margins: [3, 5])).Render()
+        actual = SVG(DOC, Canvas.from_paper(:a4, margins: [3, 5])).Render()
 
         assert_equal(expected, actual)
       end

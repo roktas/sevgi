@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "sevgi/standard"
-
 module Sevgi
   module Graphics
     class Element

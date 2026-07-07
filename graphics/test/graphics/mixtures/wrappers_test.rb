@@ -11,9 +11,10 @@ module Sevgi
         def test_line_wrappers_build_path_commands
           expected = <<~SVG
             <svg>
-              <path id="cline" d="M 0 0 L 1 2"/>
-              <path id="hline" d="M 0 0 H 3"/>
-              <path id="vline" d="M 0 0 V 4"/>
+              <path id="line-to" d="M 0 0 L 1 2"/>
+              <path id="hline-to" d="M 0 0 H 3"/>
+              <path id="vline-to" d="M 0 0 V 4"/>
+              <path id="line-by" d="M 0 0 l 5.0 0.0"/>
               <path id="relh" d="M 0 0 h 5"/>
               <path id="relv" d="M 0 0 v 6"/>
             </svg>
@@ -21,11 +22,12 @@ module Sevgi
             .chomp
 
           actual = SVG(DOC) do
-            Cline(id: "cline", x2: 1, y2: 2)
-            Hline(id: "hline", x2: 3)
-            Vline(id: "vline", y2: 4)
-            hline(id: "relh", length: 5)
-            vline(id: "relv", length: 6)
+            LineTo(id: "line-to", x2: 1, y2: 2)
+            HLineTo(id: "hline-to", x2: 3)
+            VLineTo(id: "vline-to", y2: 4)
+            LineBy(id: "line-by", angle: 0, length: 5)
+            HLineBy(id: "relh", length: 5)
+            VLineBy(id: "relv", length: 6)
           end
             .Render()
 
