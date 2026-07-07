@@ -2,21 +2,48 @@
 
 module Sevgi
   module Function
+    # Locates one of several candidate files by walking upward from a start directory.
     class Locate
+      # @overload call(paths, start = Dir.pwd, exclude: nil, &block)
+      #   Builds a locator and runs it.
+      #   @param paths [Array<String>, String] candidate file paths
+      #   @param start [String] directory where lookup starts
+      #   @param exclude [Array<String>, String, nil] paths ignored during lookup
+      #   @yield optional matcher used instead of file existence checks
+      #   @yieldparam path [String] candidate path
+      #   @yieldreturn [Boolean]
+      #   @return [Sevgi::Function::Locate::Location, nil] found location, or nil
       def self.call(*, **, &block) = new(*, **).call(&block)
 
       Location = Data.define(:file, :slug, :dir)
 
       private_constant :Location
 
+      # @!attribute [r] paths
+      #   @return [Array<String>] candidate paths
+      # @!attribute [r] start
+      #   @return [String] start directory
+      # @!attribute [r] exclude
+      #   @return [Array<String>, nil] expanded paths ignored during lookup
       attr_reader :paths, :start, :exclude
 
+      # Builds an upward file locator.
+      # @param paths [Array<String>, String] candidate file paths
+      # @param start [String] directory where lookup starts
+      # @param exclude [Array<String>, String, nil] paths ignored during lookup
+      # @return [void]
       def initialize(paths, start = ::Dir.pwd, exclude: nil)
         @paths = Array(paths)
         @start = start
         @exclude = [*exclude].map { ::File.expand_path(it) } unless exclude.nil?
       end
 
+      # Runs the upward lookup.
+      # @yield optional matcher used instead of file existence checks
+      # @yieldparam path [String] candidate path
+      # @yieldreturn [Boolean]
+      # @return [Sevgi::Function::Locate::Location, nil] found location, or nil
+      # @raise [Errno::ENOENT] when the start directory cannot be entered
       def call(&block)
         origin = ::Dir.pwd
         ::Dir.chdir(start)
@@ -46,6 +73,13 @@ module Sevgi
       end
     end
 
+    # Locates a Sevgi-related file by walking upward from a start directory.
+    # @param filename [String] file name or extensionless basename
+    # @param start [String] directory where lookup starts
+    # @param exclude [Array<String>, String, nil] paths ignored during lookup
+    # @param extension [String] default extension added before lookup
+    # @return [Sevgi::Function::Locate::Location] found location
+    # @raise [Sevgi::Error] when no matching file exists
     def self.locate(filename, start, exclude: nil, extension: EXTENSION)
       Locate.(F.qualify(filename, extension), start, exclude:).tap do |path|
         Error.("Cannot load a file matching: #{filename}") unless path

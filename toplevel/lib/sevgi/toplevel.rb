@@ -1,6 +1,12 @@
 # frozen_string_literal: true
 
 module Sevgi
+  # Shared implementation for the full Sevgi top-level DSL.
+  #
+  # This module is installed by `include Sevgi` or `extend Sevgi`; it should not
+  # normally be included directly.
+  #
+  # @see Sevgi
   module Toplevel
     @constants = {}
 
@@ -25,11 +31,19 @@ module Sevgi
       end
     end
 
+    # Injects promoted constants when the DSL is included.
+    # @param base [Module] the class or module receiving promoted constants
+    # @return [void]
+    # @api private
     def self.included(base)
       super
       inject(base)
     end
 
+    # Injects promoted constants when the DSL is extended.
+    # @param base [Object] the object or module receiving promoted constants
+    # @return [void]
+    # @api private
     def self.extended(base)
       super
       inject(base)

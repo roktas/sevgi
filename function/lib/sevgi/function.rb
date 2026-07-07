@@ -13,5 +13,13 @@ require_relative "function/ui"
 require_relative "function/version"
 
 module Sevgi
+  # Shared helper namespace used directly as `Sevgi::Function` and through {Sevgi::F}.
+  #
+  # @example Use helper methods through the public alias
+  #   F.pluralize("axis")
+  module Function
+  end
+
+  # Public alias for the shared function helper namespace.
   F = Function unless defined?(F)
 end

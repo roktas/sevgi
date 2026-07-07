@@ -3,15 +3,25 @@
 require "sevgi"
 
 module Sevgi
+  # Command-line entrypoint implementations shipped with Sevgi.
   module Binaries
+    # Implements the `sevgi` executable.
     module Sevgi
       extend self
 
+      # Executable name used in help output.
       PROGNAME = "sevgi"
 
+      # Error raised for invalid command-line usage.
       Error = Class.new(::Sevgi::Error)
 
+      # Parsed command-line options for the `sevgi` executable.
+      # @api private
       Options = Struct.new(:require, :nomain, :vomit, :help, :version) do
+        # Parses command-line options and removes them from the argv array.
+        # @param argv [Array<String>] mutable command-line argument array
+        # @return [Sevgi::Binaries::Sevgi::Options] parsed options
+        # @raise [Sevgi::Binaries::Sevgi::Error] when an option is not recognized
         def self.parse(argv)
           new.tap do |options|
             argv.first.start_with?("-") ? option(argv, options) : break until argv.empty?
@@ -43,6 +53,12 @@ module Sevgi
 
       private_constant :Options
 
+      # Runs the `sevgi` command-line interface.
+      # @param argv [Array<String>, String, nil] command-line arguments
+      # @return [nil]
+      # @raise [LoadError] when a required Ruby library cannot be loaded
+      # @raise [Sevgi::Executor::Error] when `--exception` or `SEVGI_VOMIT` requests raw errors
+      # @raise [SystemExit] when command-line usage or script execution aborts
       def call(argv)
         return puts(help) if (options = Options.parse(argv = Array(argv))).help
         return puts(::Sevgi::VERSION) if options.version

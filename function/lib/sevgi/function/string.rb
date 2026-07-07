@@ -2,7 +2,11 @@
 
 module Sevgi
   module Function
+    # String helpers used by generated names and user-facing text.
     module String
+      # Returns the final constant name segment from a module path.
+      # @param path [Object] module, class, or string-like path
+      # @return [String]
       def demodulize(path)
         path = path.to_s
         if (i = path.rindex("::"))
@@ -15,8 +19,9 @@ module Sevgi
 
     extend String
 
-    # Simplified from https://github.com/rails/rails/blob/main/activesupport/lib/active_support/inflector/inflections.rb
+    # Lightweight English pluralization helper.
     module Pluralize
+      # Words that should not be pluralized.
       UNCOUNTABLES = Hash[
         *%w[
           sheep
@@ -32,6 +37,7 @@ module Sevgi
       ]
         .freeze
 
+      # Singular-to-plural forms that do not follow suffix rules.
       IRREGULARS = Hash[
         *%w[
           child
@@ -54,8 +60,10 @@ module Sevgi
       ]
         .freeze
 
+      # Plural forms already accepted as plural.
       PLURALS = IRREGULARS.invert.freeze
 
+      # Ordered suffix replacement rules.
       RULES = [
         [/(quiz)$/i, "\\1zes"],
         [/^(oxen)$/i, "\\1"],
@@ -80,11 +88,14 @@ module Sevgi
         [/$/, "s"]
       ].freeze
 
-      # Pluralize.('post')             # => "posts"
-      # Pluralize.('octopus')          # => "octopi"
-      # Pluralize.('sheep')            # => "sheep"
-      # Pluralize.('words')            # => "words"
-      # Pluralize.('CamelOctopus')     # => "CamelOctopi"
+      # Pluralizes an English word using a small built-in rule set.
+      # @param word [Object] word to pluralize
+      # @return [String]
+      # @example
+      #   F.pluralize("post")         # => "posts"
+      #   F.pluralize("octopus")      # => "octopi"
+      #   F.pluralize("sheep")        # => "sheep"
+      #   F.pluralize("CamelOctopus") # => "CamelOctopi"
       def pluralize(word)
         result = word.to_s.dup
 
