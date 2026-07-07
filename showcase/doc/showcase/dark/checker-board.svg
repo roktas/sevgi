@@ -1,0 +1,117 @@
+<svg viewBox="0 0 900 900">
+  <style type="text/css">
+    <![CDATA[
+      .board-frame {
+        fill: #705f4b;
+        stroke: #d3a778;
+      }
+      .inner-frame {
+        fill: #d3a778;
+        stroke: #d3a778;
+        stroke-width: 35;
+      }
+      .cell {
+        stroke: white;
+        stroke-width: 1;
+      }
+      .light.cell {
+        fill: #b88a55;
+      }
+      .dark.cell {
+        fill: #d3a778;
+      }
+      .piece {
+        filter: drop-shadow(8px 8px 8px rgba(0, 0, 0, 0.5));
+        stroke: none;
+      }
+      .light.piece {
+        fill: #e8e2dc;
+      }
+      .dark.piece {
+        fill: #161616;
+      }
+    ]]>
+  </style>
+  <rect class="board-frame" x="0" y="0" width="900" height="900"/>
+  <rect class="inner-frame" x="50" y="50" width="800" height="800"/>
+  <rect class="dark cell" x="50" y="50" width="100" height="100"/>
+  <rect class="light cell" x="150" y="50" width="100" height="100"/>
+  <rect class="dark cell" x="250" y="50" width="100" height="100"/>
+  <rect class="light cell" x="350" y="50" width="100" height="100"/>
+  <rect class="dark cell" x="450" y="50" width="100" height="100"/>
+  <rect class="light cell" x="550" y="50" width="100" height="100"/>
+  <rect class="dark cell" x="650" y="50" width="100" height="100"/>
+  <rect class="light cell" x="750" y="50" width="100" height="100"/>
+  <rect class="light cell" x="50" y="150" width="100" height="100"/>
+  <rect class="dark cell" x="150" y="150" width="100" height="100"/>
+  <rect class="light cell" x="250" y="150" width="100" height="100"/>
+  <rect class="dark cell" x="350" y="150" width="100" height="100"/>
+  <rect class="light cell" x="450" y="150" width="100" height="100"/>
+  <rect class="dark cell" x="550" y="150" width="100" height="100"/>
+  <rect class="light cell" x="650" y="150" width="100" height="100"/>
+  <rect class="dark cell" x="750" y="150" width="100" height="100"/>
+  <rect class="dark cell" x="50" y="250" width="100" height="100"/>
+  <rect class="light cell" x="150" y="250" width="100" height="100"/>
+  <rect class="dark cell" x="250" y="250" width="100" height="100"/>
+  <rect class="light cell" x="350" y="250" width="100" height="100"/>
+  <rect class="dark cell" x="450" y="250" width="100" height="100"/>
+  <rect class="light cell" x="550" y="250" width="100" height="100"/>
+  <rect class="dark cell" x="650" y="250" width="100" height="100"/>
+  <rect class="light cell" x="750" y="250" width="100" height="100"/>
+  <rect class="light cell" x="50" y="350" width="100" height="100"/>
+  <rect class="dark cell" x="150" y="350" width="100" height="100"/>
+  <rect class="light cell" x="250" y="350" width="100" height="100"/>
+  <rect class="dark cell" x="350" y="350" width="100" height="100"/>
+  <rect class="light cell" x="450" y="350" width="100" height="100"/>
+  <rect class="dark cell" x="550" y="350" width="100" height="100"/>
+  <rect class="light cell" x="650" y="350" width="100" height="100"/>
+  <rect class="dark cell" x="750" y="350" width="100" height="100"/>
+  <rect class="dark cell" x="50" y="450" width="100" height="100"/>
+  <rect class="light cell" x="150" y="450" width="100" height="100"/>
+  <rect class="dark cell" x="250" y="450" width="100" height="100"/>
+  <rect class="light cell" x="350" y="450" width="100" height="100"/>
+  <rect class="dark cell" x="450" y="450" width="100" height="100"/>
+  <rect class="light cell" x="550" y="450" width="100" height="100"/>
+  <rect class="dark cell" x="650" y="450" width="100" height="100"/>
+  <rect class="light cell" x="750" y="450" width="100" height="100"/>
+  <rect class="light cell" x="50" y="550" width="100" height="100"/>
+  <rect class="dark cell" x="150" y="550" width="100" height="100"/>
+  <rect class="light cell" x="250" y="550" width="100" height="100"/>
+  <rect class="dark cell" x="350" y="550" width="100" height="100"/>
+  <rect class="light cell" x="450" y="550" width="100" height="100"/>
+  <rect class="dark cell" x="550" y="550" width="100" height="100"/>
+  <rect class="light cell" x="650" y="550" width="100" height="100"/>
+  <rect class="dark cell" x="750" y="550" width="100" height="100"/>
+  <rect class="dark cell" x="50" y="650" width="100" height="100"/>
+  <rect class="light cell" x="150" y="650" width="100" height="100"/>
+  <rect class="dark cell" x="250" y="650" width="100" height="100"/>
+  <rect class="light cell" x="350" y="650" width="100" height="100"/>
+  <rect class="dark cell" x="450" y="650" width="100" height="100"/>
+  <rect class="light cell" x="550" y="650" width="100" height="100"/>
+  <rect class="dark cell" x="650" y="650" width="100" height="100"/>
+  <rect class="light cell" x="750" y="650" width="100" height="100"/>
+  <rect class="light cell" x="50" y="750" width="100" height="100"/>
+  <rect class="dark cell" x="150" y="750" width="100" height="100"/>
+  <rect class="light cell" x="250" y="750" width="100" height="100"/>
+  <rect class="dark cell" x="350" y="750" width="100" height="100"/>
+  <rect class="light cell" x="450" y="750" width="100" height="100"/>
+  <rect class="dark cell" x="550" y="750" width="100" height="100"/>
+  <rect class="light cell" x="650" y="750" width="100" height="100"/>
+  <rect class="dark cell" x="750" y="750" width="100" height="100"/>
+  <circle class="dark piece" cx="200" cy="100" r="40"/>
+  <circle class="light piece" cx="200" cy="700" r="40"/>
+  <circle class="dark piece" cx="400" cy="100" r="40"/>
+  <circle class="light piece" cx="400" cy="700" r="40"/>
+  <circle class="dark piece" cx="600" cy="100" r="40"/>
+  <circle class="light piece" cx="600" cy="700" r="40"/>
+  <circle class="dark piece" cx="800" cy="100" r="40"/>
+  <circle class="light piece" cx="800" cy="700" r="40"/>
+  <circle class="dark piece" cx="100" cy="200" r="40"/>
+  <circle class="light piece" cx="100" cy="800" r="40"/>
+  <circle class="dark piece" cx="300" cy="200" r="40"/>
+  <circle class="light piece" cx="300" cy="800" r="40"/>
+  <circle class="dark piece" cx="500" cy="200" r="40"/>
+  <circle class="light piece" cx="500" cy="800" r="40"/>
+  <circle class="dark piece" cx="700" cy="200" r="40"/>
+  <circle class="light piece" cx="700" cy="800" r="40"/>
+</svg>

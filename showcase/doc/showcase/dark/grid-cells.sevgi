@@ -1,0 +1,21 @@
+#!/usr/bin/env -S ruby -S sevgi
+# frozen_string_literal: true
+# Example adapted from: ~/.local/src/victor-book/src/examples/grid/grid.rb
+
+CELL_SIZE = 20
+COLORS = %w[#FF6961 #77DD77 #FFD700].freeze
+COLS = 8
+ROWS = 3
+
+SVG :minimal, viewBox: "0 0 #{COLS * CELL_SIZE} #{ROWS * CELL_SIZE}" do
+  css ".cell" => { stroke: "white", rx: (CELL_SIZE * 0.1).round }
+
+  COLS.times do |col|
+    ROWS.times do |row|
+      rect class: "cell",
+           x: col * CELL_SIZE, y: row * CELL_SIZE,
+           width: CELL_SIZE, height: CELL_SIZE,
+           fill: COLORS[(col + row) % COLORS.length]
+    end
+  end
+end.Save

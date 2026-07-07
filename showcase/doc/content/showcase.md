@@ -1,15 +1,30 @@
 +++
-title = "Showcase"
-weight = 1
+title = "Showcase Examples"
+weight = 3
 +++
 
-{{ tabs(base="snow-flake",    dir="../showcase") }}
-{{ tabs(base="pacman-single", dir="../showcase") }}
-{{ tabs(base="pacman-pokey",  dir="../showcase") }}
-{{ tabs(base="ruler-hline",   dir="../showcase") }}
-{{ tabs(base="ruler-line",    dir="../showcase") }}
+Sevgi examples are executable `.sevgi` scripts. Each example in this page is generated from the tested source files in
+`showcase/srv`; the SVG panel shows the rendered output, and the Ruby panel shows the script that produced it.
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna
-aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis
-aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
-occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+## Programmatic Shapes
+
+These examples are small enough to read end to end, but they already show the main workflow: keep drawing data in Ruby,
+then emit SVG elements through the DSL.
+
+{{ tabs(base="meter-face", dir="../showcase") }}
+{{ tabs(base="grid-cells", dir="../showcase") }}
+
+## Composition
+
+Sevgi is most useful when the drawing is a composition of repeated parts, masks, symbols, or calculated positions.
+
+{{ tabs(base="gear-wheel",  dir="../showcase") }}
+{{ tabs(base="heart-mask",  dir="../showcase") }}
+{{ tabs(base="snow-flake",  dir="../showcase") }}
+
+## DSL Helpers
+
+The core DSL can emit raw SVG elements directly, but helper methods are available for common drawing patterns.
+
+{{ tabs(base="pacman-single", dir="../showcase") }}
+{{ tabs(base="ruler-hline",   dir="../showcase") }}

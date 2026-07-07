@@ -1,0 +1,21 @@
+#!/usr/bin/env -S ruby -S sevgi
+# frozen_string_literal: true
+# Example adapted from: ~/.local/src/victor-book/src/examples/meter/meter.rb
+
+LED_COUNT = 10
+LED_GAP = 2
+LED_WIDTH = 10
+TOTAL_WIDTH = (LED_COUNT * (LED_WIDTH + LED_GAP)) + 8
+
+SVG :minimal, viewBox: "0 0 #{TOTAL_WIDTH} 30" do
+  rect x: 2, y: 2, width: TOTAL_WIDTH - 4, height: 26,
+       rx: 4, fill: "none", stroke: "#d8d8d8"
+
+  x = 5
+  LED_COUNT.times do |i|
+    rect x:, y: 5, width: LED_WIDTH, height: 20,
+         rx: 3, fill: "#7bd88f", "fill-opacity": (i < 7 ? 1 : 0.3)
+
+    x += LED_WIDTH + LED_GAP
+  end
+end.Save

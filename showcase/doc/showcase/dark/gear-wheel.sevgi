@@ -1,0 +1,23 @@
+#!/usr/bin/env -S ruby -S sevgi
+# frozen_string_literal: true
+# Example adapted from: ~/.local/src/victor-book/src/examples/gear/gear.rb
+
+GEAR_STYLE = {
+  fill: "#e5c39c",
+  stroke: "none"
+}.freeze
+
+SVG :minimal, viewBox: "0 0 100 100", style: { background: "#1f3522" } do
+  mask id: "hole" do
+    rect x: 0, y: 0, width: 100, height: 100, fill: "white"
+    circle cx: 50, cy: 50, r: 15, fill: "black"
+  end
+
+  circle cx: 50, cy: 50, r: 30, mask: "url(#hole)", **GEAR_STYLE
+
+  [0, 45, 90, 135].each do |angle|
+    rect x: 45, y: 10, width: 10, height: 80,
+         mask: "url(#hole)", transform: "rotate(#{angle} 50 50)",
+         **GEAR_STYLE
+  end
+end.Save
