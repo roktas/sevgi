@@ -151,17 +151,9 @@ mode.
 >
 > The project is currently in the alpha stage, so many things might not work and many things can change.
 
-Alpha stage
-
-- [ ] Stabilize API.
-- [ ] Complete unit tests for all critical code paths.
-- [ ] Populate examples while adding integration tests.
-- [ ] Write entry-level user documentation.
-
 Beta stage
 
 - [ ] Complete user documentation.
-- [ ] Start documenting API.
 
 Final stage
 
