@@ -1,0 +1,11 @@
+--title Sevgi API
+--readme README.md
+--output-dir doc/api
+function/lib/**/*.rb
+geometry/lib/**/*.rb
+graphics/lib/**/*.rb
+standard/lib/**/*.rb
+derender/lib/**/*.rb
+sundries/lib/**/*.rb
+toplevel/lib/**/*.rb
+showcase/lib/**/*.rb
