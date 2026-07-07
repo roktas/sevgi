@@ -6,27 +6,47 @@ module Sevgi
   module Function
     module Math
       class MathTest < Minitest::Test
+        def teardown
+          Function::Math.precision = nil
+        end
+
         def test_precision_defaults_to_constant
           assert_equal(Function::Math::PRECISION, Function::Math.precision)
         end
 
-        def test_precision_can_be_overridden_and_restored
+        def test_precision_can_be_overridden_and_cleared
           Function::Math.precision = 100
 
           assert_equal(100, Function::Math.precision)
-          Function::Math.precision = Function::Math::PRECISION
+          Function::Math.precision = nil
 
           assert_equal(Function::Math::PRECISION, Function::Math.precision)
         end
 
-        def test_eq_respects_precision
-          Function::Math.precision = 8
+        def test_precision_is_thread_local
+          Function::Math.precision = 7
 
-          assert(Function.eq?(1.999_999_999, 2.0))
+          actual = Thread
+            .new do
+              [
+                Function::Math.precision,
+                Function.with_precision(9) { Function::Math.precision },
+                Function::Math.precision
+              ]
+            end
+            .value
+
+          assert_equal([Function::Math::PRECISION, 9, Function::Math::PRECISION], actual)
+          assert_equal(7, Function::Math.precision)
+        end
+
+        def test_eq_respects_precision
+          Function.with_precision(8) do
+            assert(Function.eq?(1.999_999_999, 2.0))
+          end
+
           refute(Function.eq?(1.999_999_999, 2.0, precision: 9))
           refute(Function.eq?(1.999, 2.0, precision: nil))
-
-          Function::Math.precision = Function::Math::PRECISION
         end
 
         def test_comparison_helpers_apply_precision
@@ -59,6 +79,48 @@ module Sevgi
             0.0,
             Function.acos(1)
           ].each_slice(2) { |expected, actual| assert_equal(expected, Function.approx(actual)) }
+        end
+
+        def test_with_precision_requires_block
+          error = assert_raises(ArgumentError) { Function.with_precision(8) }
+
+          assert_equal("Block required", error.message)
+        end
+
+        def test_with_precision_restores_after_error
+          original = Function::Math.precision
+
+          assert_raises(RuntimeError) do
+            Function.with_precision(8) { raise "boom" }
+          end
+
+          assert_equal(original, Function::Math.precision)
+        end
+
+        def test_with_precision_nil_uses_default
+          Function.with_precision(8) do
+            assert_equal(8, Function::Math.precision)
+
+            Function.with_precision(nil) do
+              assert_equal(Function::Math::PRECISION, Function::Math.precision)
+            end
+
+            assert_equal(8, Function::Math.precision)
+          end
+        end
+
+        def test_with_precision_scopes_current_thread
+          original = Function::Math.precision
+
+          result = Function.with_precision(8) do
+            [
+              Function::Math.precision,
+              Function.eq?(1.999_999_999, 2.0)
+            ]
+          end
+
+          assert_equal([8, true], result)
+          assert_equal(original, Function::Math.precision)
         end
       end
     end

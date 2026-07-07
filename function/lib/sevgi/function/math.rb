@@ -3,17 +3,28 @@
 module Sevgi
   module Function
     module Math
-      @precision = PRECISION = 6
+      PRECISION = 6
+      PRECISION_KEY = :sevgi_function_math_precision
 
-      class << self
-        attr_accessor :precision
+      private_constant :PRECISION_KEY
+
+      def self.precision
+        precision = Thread.current.thread_variable_get(PRECISION_KEY)
+
+        precision.nil? ? PRECISION : precision
+      end
+
+      def self.precision=(precision)
+        Thread.current.thread_variable_set(PRECISION_KEY, precision)
       end
 
       def acos(value) = to_degrees(::Math.acos(value))
 
       def acot(value) = 90.0 - to_degrees(::Math.atan(value))
 
-      def approx(float, precision = nil) = float.round(precision || Function::Math.precision)
+      def approx(float, precision = nil)
+        float.round(precision.nil? ? Function::Math.precision : precision)
+      end
 
       def asin(value) = to_degrees(::Math.asin(value))
 
@@ -46,6 +57,16 @@ module Sevgi
       def to_degrees(radians) = radians.to_f * 180 / ::Math::PI
 
       def to_radians(degrees) = degrees.to_f / 180 * ::Math::PI
+
+      def with_precision(precision, &block)
+        ArgumentError.("Block required") unless block
+
+        previous = Thread.current.thread_variable_get(PRECISION_KEY)
+        Function::Math.precision = precision
+        block.call
+      ensure
+        Function::Math.precision = previous if block
+      end
 
       def zero?(value, precision: nil) = eq?(value, 0.0, precision:)
     end
