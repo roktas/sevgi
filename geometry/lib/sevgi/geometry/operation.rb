@@ -2,12 +2,21 @@
 
 module Sevgi
   module Geometry
+    # Dispatches geometry operations to operation handler modules.
     module Operation
       extend self
 
+      # Raised when an operation starts but cannot complete.
       OperationError = Class.new(Error)
+
+      # Raised when an operation does not apply to the target element.
       OperationInapplicableError = Class.new(Error)
 
+      # Registers one or more public operation methods.
+      # @api private
+      # @param handler [Module] operation handler module
+      # @param operations [Array<Symbol>] operation method names
+      # @return [Array<Symbol>] registered operation names
       def register(handler, *operations) = operations.each { |operation| def_operation(operation, handler) }
 
       private

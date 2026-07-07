@@ -2,13 +2,29 @@
 
 module Sevgi
   module Geometry
+    # Base class for geometric equations that can intersect with each other.
     class Equation
+      # Builds a non-axis-aligned linear equation.
+      # @param slope [Numeric] line slope
+      # @param intercept [Numeric] y-intercept
+      # @return [Sevgi::Geometry::Equation::Linear::Diagonal]
       def self.diagonal(slope:, intercept:) = Linear::Diagonal.new(slope:, intercept:)
 
+      # Builds a horizontal linear equation.
+      # @param const [Numeric] y coordinate
+      # @return [Sevgi::Geometry::Equation::Linear::Horizontal]
       def self.horizontal(const) = Linear::Horizontal.new(const)
 
+      # Builds a vertical linear equation.
+      # @param const [Numeric] x coordinate
+      # @return [Sevgi::Geometry::Equation::Linear::Vertical]
       def self.vertical(const) = Linear::Vertical.new(const)
 
+      # Intersects this equation with another equation.
+      # @param other [Sevgi::Geometry::Equation] equation to intersect with
+      # @return [Array<Sevgi::Geometry::Point>] intersection points
+      # @raise [Sevgi::Geometry::Error] when other is not an equation
+      # @raise [Sevgi::PanicError] when the equation combination is not implemented
       def intersect(other)
         Error.("Must be an equation: #{other}") unless other.is_a?(Equation)
 
@@ -26,6 +42,11 @@ module Sevgi
         Array(points)
       end
 
+      # Evaluates y for an x coordinate.
+      # @abstract Subclasses implement equation-specific mapping.
+      # @param _x [Numeric] x coordinate
+      # @return [Float]
+      # @raise [Sevgi::PanicError] when a subclass does not implement y
       def y(_x, ...) = PanicError.("#{self.class}#y must be implemented")
 
       private
@@ -67,6 +88,9 @@ module Sevgi
     end
 
     class Point
+      # Returns the linear equation passing through this point at an angle.
+      # @param angle [Numeric] clockwise angle in degrees
+      # @return [Sevgi::Geometry::Equation::Linear]
       def equation(angle)
         return Equation.horizontal(y) if F.zero?(angle % 180.0)
         return Equation.vertical(x) if F.zero?(angle % 90.0)
@@ -76,6 +100,8 @@ module Sevgi
     end
 
     class Line
+      # Returns the linear equation containing this line.
+      # @return [Sevgi::Geometry::Equation::Linear]
       def equation = position.equation(angle)
     end
 

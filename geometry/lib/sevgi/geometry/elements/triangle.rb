@@ -2,7 +2,14 @@
 
 module Sevgi
   module Geometry
+    # Closed three-sided element built from two adjacent segments.
     class Triangle < Element.lined(3)
+      # Builds a triangle from two adjacent segments.
+      # @param segment_a [Sevgi::Geometry::Segment, Array<Numeric>] first segment
+      # @param segment_b [Sevgi::Geometry::Segment, Array<Numeric>] second segment
+      # @param position [Sevgi::Geometry::Point, Array<Numeric>] starting point
+      # @return [Sevgi::Geometry::Triangle]
+      # @raise [Sevgi::Geometry::Error] when segments or position cannot be coerced
       def self.[](segment_a, segment_b, position: Origin)
         a, b = Tuples[Segment, segment_a, segment_b]
 

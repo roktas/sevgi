@@ -2,6 +2,7 @@
 
 module Sevgi
   module Geometry
+    # Variable-size open lined element.
     class Polyline < Element.lined(open: true)
     end
   end

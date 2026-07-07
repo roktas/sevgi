@@ -2,7 +2,14 @@
 
 module Sevgi
   module Geometry
+    # Coerces array-like geometry inputs into typed tuple objects.
+    # @api private
     module Tuple
+      # Coerces an argument into the requested tuple class.
+      # @param klass [Class] tuple class such as {Point} or {Segment}
+      # @param arg [Array<Numeric>, Object] tuple instance or two-element numeric array
+      # @return [Object] tuple instance
+      # @raise [Sevgi::Geometry::Error] when arg cannot be coerced
       def self.[](klass, arg)
         case arg
         when ::Array
@@ -20,7 +27,14 @@ module Sevgi
 
     private_constant :Tuple
 
+    # Coerces multiple array-like geometry inputs into typed tuple objects.
+    # @api private
     module Tuples
+      # Coerces arguments into the requested tuple class.
+      # @param klass [Class] tuple class such as {Point} or {Segment}
+      # @param args [Array<Array<Numeric>, Object>] tuple instances or two-element numeric arrays
+      # @return [Array<Object>] tuple instances
+      # @raise [Sevgi::Geometry::Error] when any argument cannot be coerced
       def self.[](klass, *args) = args.map { Tuple[klass, it] }
     end
 

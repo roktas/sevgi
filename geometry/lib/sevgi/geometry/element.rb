@@ -2,13 +2,31 @@
 
 module Sevgi
   module Geometry
+    # Base class for geometric elements.
     class Element
+      # @overload lined(size = Undefined, open: false)
+      #   Builds a lined element subclass.
+      #   @param size [Integer, Sevgi::Undefined] segment count for fixed-size elements, or Undefined for variable size
+      #   @param open [Boolean] true for an open path, false for a closed path
+      #   @return [Class] subclass of {Sevgi::Geometry::Element::Lined}
       def self.lined(...) = Lined.build(...)
 
+      # @overload arced(*args)
+      #   Builds an arced element subclass.
+      #   @api private
+      #   @param args [Array<Object>] arced factory arguments
+      #   @return [Class]
+      #   @raise [NoMethodError] until arced elements are implemented
       def self.arced(...) = Arced.build(...)
 
       # Core API
 
+      # Returns a copy moved to a point and optional offset.
+      # @param point [Sevgi::Geometry::Point, Array<Numeric>, nil] target position, or nil to keep current position
+      # @param dx [Numeric] additional x offset
+      # @param dy [Numeric] additional y offset
+      # @return [Sevgi::Geometry::Element] translated element
+      # @raise [Sevgi::Geometry::Error] when point cannot be coerced
       def at(point = nil, dx: 0, dy: 0)
         point = point ? Tuple[Point, point] : position
 
@@ -18,32 +36,71 @@ module Sevgi
         )
       end
 
+      # Returns the bounding rectangle.
+      # @abstract Subclasses implement element-specific bounds.
+      # @return [Sevgi::Geometry::Rect]
+      # @raise [Sevgi::PanicError] when a subclass does not implement box
       def box = PanicError.("#{self.class}#box must be implemented")
 
+      # Returns equations that define the element boundary.
+      # @abstract Subclasses implement element-specific equations.
+      # @return [Array<Sevgi::Geometry::Equation>]
+      # @raise [Sevgi::PanicError] when a subclass does not implement equations
       def equations = PanicError.("#{self.class}#equations must be implemented")
 
+      # Reports whether the element has zero bounding width and height.
+      # @param precision [Integer, nil] decimal precision, or nil for the current function default
+      # @return [Boolean]
       def ignorable?(precision: nil) = F.zero?(box.width, precision:) && F.zero?(box.height, precision:)
 
+      # Returns the element position.
+      # @abstract Subclasses implement element-specific positioning.
+      # @return [Sevgi::Geometry::Point]
+      # @raise [Sevgi::PanicError] when a subclass does not implement position
       def position = PanicError.("#{self.class}#position must be implemented")
 
+      # Returns a translated copy.
+      # @abstract Subclasses implement element-specific translation.
+      # @param _x [Numeric] x offset
+      # @param _y [Numeric] y offset
+      # @return [Sevgi::Geometry::Element]
+      # @raise [Sevgi::PanicError] when a subclass does not implement translate
       def translate(_x, _y) = PanicError.("#{self.class}#translate must be implemented")
 
       # rubocop:disable Metrics/ClassLength
+      # Element whose boundary is represented by straight segments.
       class Lined < self
+        # Open lined element base class.
         Open = Class.new(self) do
+          # Draws the element as an SVG polyline.
+          # @param node [Object] graphics node receiving the drawing command
+          # @return [Object] graphics node command result
           def draw!(node, **) = node.polyline(points: points.map { it.deconstruct.join(",") }, **)
         end
 
+        # Closed lined element base class.
         Close = Class.new(self) do
+          # Creates a closed element from points, appending the first point.
+          # @param points [Array<Sevgi::Geometry::Point, Array<Numeric>>] boundary points
+          # @return [Sevgi::Geometry::Element::Lined]
+          # @raise [Sevgi::Geometry::Error] when any point cannot be coerced
           def self.new_by_points(*points) = super(*points, points.first)
 
+          # Draws the element as an SVG polygon.
+          # @param node [Object] graphics node receiving the drawing command
+          # @return [Object] graphics node command result
           def draw!(node, **) = node.polygon(points: points.map { it.deconstruct.join(",") }, **)
         end
 
         # Class methods
 
+        # Point shortcut names generated for fixed-size lined elements.
         SHORTCUTS = ("A".."Z").to_a.freeze
 
+        # Builds a concrete lined element class.
+        # @param size [Integer, Sevgi::Undefined] segment count for fixed-size elements, or Undefined for variable size
+        # @param open [Boolean] true for an open path, false for a closed path
+        # @return [Class] lined element subclass
         def self.build(size = Undefined, open: false)
           Class.new(open ? Open : Close) do
             define_singleton_method(:close?) { !open }
@@ -58,22 +115,60 @@ module Sevgi
           end
         end
 
+        # @overload [](*segments, position: Origin)
+        #   Builds an element from segments.
+        #   @param segments [Array<Sevgi::Geometry::Segment, Array<Numeric>>] boundary segments
+        #   @param position [Sevgi::Geometry::Point, Array<Numeric>] starting point
+        #   @return [Sevgi::Geometry::Element::Lined]
+        #   @raise [Sevgi::Geometry::Error] when segments or position cannot be coerced
         def self.[](...) = from_segments(...)
 
+        # @overload call(*points)
+        #   Builds an element from points.
+        #   @param points [Array<Sevgi::Geometry::Point, Array<Numeric>>] boundary points
+        #   @return [Sevgi::Geometry::Element::Lined]
+        #   @raise [Sevgi::Geometry::Error] when points cannot be coerced
         def self.call(...) = from_points(...)
 
+        # @overload from_points(*points)
+        #   Builds an element from points.
+        #   @param points [Array<Sevgi::Geometry::Point, Array<Numeric>>] boundary points
+        #   @return [Sevgi::Geometry::Element::Lined]
+        #   @raise [Sevgi::Geometry::Error] when points cannot be coerced
         def self.from_points(...) = new_by_points(...)
 
+        # @overload from_segments(*segments, position: Origin)
+        #   Builds an element from segments.
+        #   @param segments [Array<Sevgi::Geometry::Segment, Array<Numeric>>] boundary segments
+        #   @param position [Sevgi::Geometry::Point, Array<Numeric>] starting point
+        #   @return [Sevgi::Geometry::Element::Lined]
+        #   @raise [Sevgi::Geometry::Error] when segments or position cannot be coerced
         def self.from_segments(...) = new_by_segments(...)
 
+        # @overload new_by_points(*points)
+        #   Builds an element from points, applying closed-path behavior where appropriate.
+        #   @param points [Array<Sevgi::Geometry::Point, Array<Numeric>>] boundary points
+        #   @return [Sevgi::Geometry::Element::Lined]
+        #   @raise [Sevgi::Geometry::Error] when points cannot be coerced
         def self.new_by_points(...) = new_by_points!(...)
 
+        # Builds an element from an exact point path.
+        #
+        # Closed classes require the closing point to be supplied by the caller.
+        # @param points [Array<Sevgi::Geometry::Point, Array<Numeric>>] exact boundary points
+        # @return [Sevgi::Geometry::Element::Lined]
+        # @raise [Sevgi::Geometry::Error] when points cannot be coerced or do not satisfy the class path contract
         def self.new_by_points!(*points)
           new do
             @points = Tuples[Point, *points]
           end
         end
 
+        # Builds an element from segments and a start position.
+        # @param segments [Array<Sevgi::Geometry::Segment, Array<Numeric>>] boundary segments
+        # @param position [Sevgi::Geometry::Point, Array<Numeric>] starting point
+        # @return [Sevgi::Geometry::Element::Lined]
+        # @raise [Sevgi::Geometry::Error] when segments or position cannot be coerced
         def self.new_by_segments(*segments, position: Origin)
           new do
             @position = Tuple[Point, position]
@@ -121,6 +216,8 @@ module Sevgi
 
         # Core methods
 
+        # Returns an element with approximate points and segments.
+        # @return [Sevgi::Geometry::Element::Lined]
         def approx
           points, segments = points(true), segments(true)
           self.class.send(:new) do
@@ -128,18 +225,31 @@ module Sevgi
           end
         end
 
+        # @overload draw(node, **attributes)
+        #   Draws an approximate element into a graphics node.
+        #   @param node [Object] graphics node receiving the drawing command
+        #   @param attributes [Hash] drawing attributes
+        #   @return [Object] graphics node command result
         def draw(...)
           approx.draw!(...)
         end
 
+        # Returns element points.
+        # @param approximate [Boolean] true to round points with the current function precision
+        # @return [Array<Sevgi::Geometry::Point>]
         def points(approximate = false)
           approximate ? @points.map(&:approx) : @points
         end
 
+        # Returns the first point.
+        # @return [Sevgi::Geometry::Point]
         def position
           @position ||= points.first
         end
 
+        # Returns element segments.
+        # @param approximate [Boolean] true to round segments with the current function precision
+        # @return [Array<Sevgi::Geometry::Segment>]
         def segments(approximate = false)
           approximate ? @segments.map(&:approx) : @segments
         end
@@ -154,16 +264,29 @@ module Sevgi
 
         # Equality methods
 
+        # Reports strict element equality by class and approximate points.
+        # @param other [Object] object to compare
+        # @return [Boolean]
         def eql?(other) = self.class == other.class && points(true) == other.points(true)
 
+        # Returns a hash compatible with strict equality.
+        # @return [Integer]
         def hash = [self.class, *points(true)].hash
 
         alias == eql?
 
         # Interaction methods
 
+        # Returns boundary equations for all lines.
+        # @return [Array<Sevgi::Geometry::Equation::Linear>]
         def equations = @equations ||= lines.map(&:equation)
 
+        # Intersects the element boundary with an equation.
+        # @param equation [Sevgi::Geometry::Equation] equation to intersect with
+        # @param precision [Integer, nil] decimal precision, or nil for the current function default
+        # @return [Array<Sevgi::Geometry::Point>] unique boundary intersection points
+        # @raise [Sevgi::Geometry::Error] when equation is not an equation
+        # @raise [Sevgi::PanicError] when the equation combination is not implemented
         def intersection(equation, precision: nil)
           equations
             .map do |candidate|
@@ -175,38 +298,68 @@ module Sevgi
 
         # Properties
 
+        # Returns a line by index.
+        # @param i [Integer] line index
+        # @return [Sevgi::Geometry::Line]
+        # @raise [Sevgi::Geometry::Error] when no line exists for index
         def [](i) = lines[i].tap { |line| Error.("No line exist for index: #{i}") unless line }
 
+        # Returns the bounding rectangle.
+        # @return [Sevgi::Geometry::Rect]
         def box = Rect.from_corners([(xs = points.map(&:x)).min, (ys = points.map(&:y)).min], [xs.max, ys.max])
 
+        # Returns a point by index.
+        # @param i [Integer] point index
+        # @return [Sevgi::Geometry::Point]
+        # @raise [Sevgi::Geometry::Error] when no point exists for index
         def call(i) = points[i].tap { Error.("No point exist for index: #{i}") unless it }
 
+        # Returns the first segment.
+        # @return [Sevgi::Geometry::Segment]
         def head = @head ||= segments.first
 
+        # Returns boundary lines derived from segments and points.
+        # @return [Array<Sevgi::Geometry::Line>]
         def lines
           @lines ||= segments.zip(points[...segments.size]).map { |segment, position|
             segment.line(position)
           }
         end
 
+        # Returns the sum of segment lengths.
+        # @return [Float]
         def perimeter = @perimeter ||= segments.sum(&:length)
 
+        # Returns the last segment.
+        # @return [Sevgi::Geometry::Segment]
         def tail = @tail ||= segments.last
 
         # Relation methods
 
+        # Reports whether a point is inside or on the boundary.
+        # @param point [Sevgi::Geometry::Point, Array<Numeric>] point to test
+        # @return [Boolean]
+        # @raise [Sevgi::Geometry::Error] when point cannot be coerced
         def inside?(point)
           point = Tuple[Point, point]
 
           on?(point) || pnpoly(points, point)
         end
 
+        # Reports whether a point is on the boundary.
+        # @param point [Sevgi::Geometry::Point, Array<Numeric>] point to test
+        # @return [Boolean]
+        # @raise [Sevgi::Geometry::Error] when point cannot be coerced
         def on?(point)
           point = Tuple[Point, point]
 
           lines.any? { it.over?(point) }
         end
 
+        # Reports whether a point is outside the element boundary.
+        # @param point [Sevgi::Geometry::Point, Array<Numeric>] point to test
+        # @return [Boolean]
+        # @raise [Sevgi::Geometry::Error] when point cannot be coerced
         def outside?(point) = !inside?(point)
 
         private
@@ -261,6 +414,8 @@ module Sevgi
         end
       end
 
+      # Reserved base for future arced elements.
+      # @api private
       class Arced < self
       end
       # rubocop:enable Metrics/ClassLength

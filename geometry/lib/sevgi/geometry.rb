@@ -12,3 +12,12 @@ require_relative "geometry/equation"
 require_relative "geometry/operation"
 
 require_relative "geometry/version"
+
+module Sevgi
+  # Screen-space geometry primitives used by Sevgi layout and drawing helpers.
+  #
+  # Coordinates follow SVG screen conventions: +x points right, +y points down,
+  # and positive angles turn clockwise.
+  module Geometry
+  end
+end

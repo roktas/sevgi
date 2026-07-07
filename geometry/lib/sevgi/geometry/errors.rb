@@ -8,6 +8,7 @@ module Sevgi
   end
 
   module Geometry
+    # Base error for geometry input and operation failures.
     Error = Class.new(Error)
   end
 end
