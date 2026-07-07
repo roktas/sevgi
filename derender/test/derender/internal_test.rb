@@ -134,6 +134,14 @@ module Sevgi
 
         assert_equal(expected, actual)
       end
+
+      def test_ruby_format_raises_panic_error
+        string = "if"
+
+        error = assert_raises(PanicError) { Ruby.format(string) }
+
+        assert_equal(string, error.message)
+      end
     end
   end
 end

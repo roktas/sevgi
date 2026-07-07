@@ -33,6 +33,12 @@ module Sevgi
 
         assert_match(/Must be an equation/, error.message)
       end
+
+      def test_unimplemented_intersection_raises_panic_error
+        assert_raises(PanicError) do
+          Equation.horizontal(3).send(:linear_vs_quadratic, Object.new)
+        end
+      end
     end
   end
 end

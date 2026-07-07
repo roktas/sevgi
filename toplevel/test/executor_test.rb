@@ -19,6 +19,7 @@ module Sevgi
 
       assert(result.error?)
       assert_instance_of(Executor::Error, result.error)
+      assert_kind_of(::Sevgi::Error, result.error)
       assert_equal(
         [
           "#{FIXTURES_DIR}/test_load_nested.sevgi",

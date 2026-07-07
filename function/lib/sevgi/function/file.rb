@@ -25,7 +25,7 @@ module Sevgi
 
       def existing!(file, extensions)
         existing(file, extensions).tap do |found|
-          raise ArgumentError, "No matching file(s) found: #{file}" unless found
+          ArgumentError.("No matching file(s) found: #{file}") unless found
         end
       end
 
@@ -39,7 +39,7 @@ module Sevgi
         existings = F.existings(...)
         missings = existings.select { |_, match| match.nil? }.keys
 
-        raise ArgumentError, "No matching file(s) found: #{missings.join(", ")}" unless missings.empty?
+        ArgumentError.("No matching file(s) found: #{missings.join(", ")}") unless missings.empty?
 
         existings
       end

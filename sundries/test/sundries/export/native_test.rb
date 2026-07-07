@@ -9,6 +9,10 @@ module Sevgi
   module Sundries
     module Export
       class NativeTest < Minitest::Test
+        def test_export_error_inherits_sevgi_error
+          assert_operator(ExportError, :<, ::Sevgi::Error)
+        end
+
         def test_call_returns_output_argument
           Dir.mktmpdir do |dir|
             output = File.join(dir, "out.png")

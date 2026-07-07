@@ -27,7 +27,9 @@ module Sevgi
           end
         end
 
-      rescue ::LoadError
+      rescue ::LoadError => e
+        raise unless e.path == "sevgi/standard"
+
         def Validate(...)
         end
       end

@@ -38,7 +38,7 @@ module Sevgi
       end
 
       def self.callables(mod)
-        raise ArgumentError, "Must be a module: #{mod}" unless mod.instance_of?(::Module)
+        ArgumentError.("Must be a module: #{mod}") unless mod.instance_of?(::Module)
 
         (mod.respond_to?(:_callables) ? mod._callables : mod.instance_methods).map { mod.instance_method(it) }
       end
@@ -54,7 +54,7 @@ module Sevgi
 
         # rubocop:disable Metrics/MethodLength
         def CallWithin(mod, container, element, *args, **kwargs, &block)
-          raise ArgumentError, "Must be a module: #{mod}" unless mod.instance_of?(::Module)
+          ArgumentError.("Must be a module: #{mod}") unless mod.instance_of?(::Module)
 
           kwargs = kwargs.merge(id: F.demodulize(mod).to_sym) unless kwargs.key?(:id)
 

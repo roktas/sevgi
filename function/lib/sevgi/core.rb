@@ -12,8 +12,23 @@ module Sevgi
     end
   end
 
-  # for incorrect API usage
+  # for missing optional components
+  unless defined?(self::MissingComponentError)
+    class MissingComponentError < Error
+      attr_reader :component
+
+      def initialize(component)
+        @component = component.to_s
+
+        super("\"#{component}\" required")
+      end
+    end
+  end
+
+  # for internal invariants and implementation bugs
   PanicError = Class.new(Error) unless defined?(self::PanicError)
+
+  # for incorrect API usage
   ArgumentError = Class.new(Error) unless defined?(self::ArgumentError)
 
   # Helpers

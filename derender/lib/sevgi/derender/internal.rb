@@ -32,7 +32,7 @@ module Sevgi
       def format(unformatted_ruby)
         Rufo::Formatter.format(unformatted_ruby)
       rescue Rufo::SyntaxError
-        raise unformatted_ruby
+        PanicError.(unformatted_ruby)
       end
 
       def literal(value) = value.to_s.inspect

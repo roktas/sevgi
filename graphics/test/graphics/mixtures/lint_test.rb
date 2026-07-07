@@ -6,6 +6,10 @@ module Sevgi
   module Graphics
     module Mixtures
       class LintTest < Minitest::Test
+        def test_lint_error_inherits_sevgi_error
+          assert_operator(LintError, :<, ::Sevgi::Error)
+        end
+
         def test_lint_rejects_duplicate_ids
           error = assert_raises(LintError) do
             SVG(:minimal) do

@@ -7,7 +7,7 @@ module Sevgi
 
       def initialize(content) = @content = content
 
-      def render(_renderer, _depth) = raise NoMethodError, "#{self.class}#render must be implemented"
+      def render(_renderer, _depth) = PanicError.("#{self.class}#render must be implemented")
 
       def to_s = content.to_s
 

@@ -9,7 +9,7 @@ module Sevgi
 
     class Circle
       def equation
-        raise NotImplementedError
+        PanicError.("#{self.class}#equation must be implemented")
       end
     end
   end

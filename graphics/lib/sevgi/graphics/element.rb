@@ -13,7 +13,9 @@ module Sevgi
         require "sevgi/standard"
 
         def valid?(name) = Standard.element?(name)
-      rescue ::LoadError
+      rescue ::LoadError => e
+        raise unless e.path == "sevgi/standard"
+
         def valid?(...) = true
       end
 

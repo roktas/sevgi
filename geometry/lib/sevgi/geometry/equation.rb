@@ -26,7 +26,7 @@ module Sevgi
         Array(points)
       end
 
-      def y(_x, ...) = raise NoMethodError, "#{self.class}#y must be implemented"
+      def y(_x, ...) = PanicError.("#{self.class}#y must be implemented")
 
       private
 
@@ -58,11 +58,11 @@ module Sevgi
       end
 
       def linear_vs_quadratic(...)
-        raise NotImplementedError
+        PanicError.("Linear/quadratic intersection must be implemented")
       end
 
       def quadratic_vs_quadratic(...)
-        raise NotImplementedError
+        PanicError.("Quadratic/quadratic intersection must be implemented")
       end
     end
 

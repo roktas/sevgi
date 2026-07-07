@@ -68,55 +68,117 @@ module Sevgi
       end
 
       def test_graphics_loads_without_standard_component
-        Dir.mktmpdir do |dir|
-          FileUtils.mkdir_p(File.join(dir, "sevgi"))
-          File.write(File.join(dir, "sevgi", "standard.rb"), "raise LoadError, 'blocked standard'\n")
+        result = run_without("standard", "require 'sevgi/graphics'; puts Sevgi::Graphics::Element.valid?(:custom_tag)")
 
-          function = ::File.expand_path("../../../function/lib", __dir__)
-          graphics = ::File.expand_path("../../lib", __dir__)
-          result = Function.sh(
-            {"BUNDLE_GEMFILE" => nil, "RUBYLIB" => nil, "RUBYOPT" => nil},
-            RbConfig.ruby,
-            "-I#{dir}",
-            "-I#{function}",
-            "-I#{graphics}",
-            "-e",
-            "require 'sevgi/graphics'; puts Sevgi::Graphics::Element.valid?(:custom_tag)"
-          )
+        assert(result.ok?, result.err)
+        assert_equal("true", result.outline)
+      end
 
-          assert(result.ok?, result.err)
-          assert_equal("true", result.outline)
-        end
+      def test_graphics_propagates_standard_dependency_load_error
+        result = run_with_load_error("standard", "nested/dependency", "require 'sevgi/graphics'")
+
+        refute(result.ok?)
+        assert_match(%r{nested/dependency}, result.err)
       end
 
       def test_hatch_reports_missing_geometry_component
-        Dir.mktmpdir do |dir|
-          FileUtils.mkdir_p(File.join(dir, "sevgi"))
-          File.write(File.join(dir, "sevgi", "geometry.rb"), "raise LoadError, 'blocked geometry'\n")
+        result = run_without(
+          "geometry",
+          <<~RUBY
+            require 'sevgi/graphics'
+            include Sevgi::Graphics
+            begin
+              SVG(:inkscape).Hatch(nil, angle: 0, step: 1)
+            rescue Sevgi::MissingComponentError => error
+              puts [error.class, error.message].join(": ")
+            end
+          RUBY
+        )
 
-          function = ::File.expand_path("../../../function/lib", __dir__)
-          graphics = ::File.expand_path("../../lib", __dir__)
-          result = Function.sh(
-            {"BUNDLE_GEMFILE" => nil, "RUBYLIB" => nil, "RUBYOPT" => nil},
-            RbConfig.ruby,
-            "-I#{dir}",
-            "-I#{function}",
-            "-I#{graphics}",
-            "-e",
-            <<~RUBY
-              require 'sevgi/graphics'
-              include Sevgi::Graphics
-              begin
-                SVG(:inkscape).Hatch(nil, angle: 0, step: 1)
-              rescue NoMethodError => error
-                puts error.message
-              end
-            RUBY
-          )
+        assert(result.ok?, result.err)
+        assert_match(/Sevgi::MissingComponentError/, result.out)
+        assert_match(%r{sevgi/geometry}, result.out)
+      end
 
-          assert(result.ok?, result.err)
-          assert_match(%r{sevgi/geometry}, result.out)
-        end
+      def test_hatch_propagates_geometry_dependency_load_error
+        result = run_with_load_error(
+          "geometry",
+          "nested/dependency",
+          <<~RUBY
+            require 'sevgi/graphics'
+            include Sevgi::Graphics
+            SVG(:inkscape).Hatch(nil, angle: 0, step: 1)
+          RUBY
+        )
+
+        refute(result.ok?)
+        assert_match(%r{nested/dependency}, result.err)
+      end
+
+      def test_export_reports_missing_sundries_component
+        result = run_without(
+          "sundries",
+          <<~RUBY
+            require 'sevgi/graphics'
+            include Sevgi::Graphics
+            begin
+              SVG(:minimal).PDF('/tmp/out.pdf')
+            rescue Sevgi::MissingComponentError => error
+              puts [error.class, error.message].join(": ")
+            end
+          RUBY
+        )
+
+        assert(result.ok?, result.err)
+        assert_match(/Sevgi::MissingComponentError/, result.out)
+        assert_match(%r{sevgi/sundries}, result.out)
+      end
+
+      def test_export_propagates_sundries_dependency_load_error
+        result = run_with_load_error(
+          "sundries",
+          "nested/dependency",
+          <<~RUBY
+            require 'sevgi/graphics'
+            include Sevgi::Graphics
+            SVG(:minimal).PDF('/tmp/out.pdf')
+          RUBY
+        )
+
+        refute(result.ok?)
+        assert_match(%r{nested/dependency}, result.err)
+      end
+
+      def test_include_reports_missing_derender_component
+        result = run_without(
+          "derender",
+          <<~RUBY
+            require 'sevgi/graphics'
+            include Sevgi::Graphics
+            begin
+              SVG(:minimal).Include('source.svg', 'id')
+            rescue Sevgi::MissingComponentError => error
+              puts [error.class, error.message].join(": ")
+            end
+          RUBY
+        )
+
+        assert(result.ok?, result.err)
+        assert_match(/Sevgi::MissingComponentError/, result.out)
+        assert_match(%r{sevgi/derender}, result.out)
+      end
+
+      def test_include_propagates_derender_dependency_load_error
+        result = run_with_load_error(
+          "derender",
+          "nested/dependency",
+          <<~RUBY
+            require 'sevgi/graphics'
+          RUBY
+        )
+
+        refute(result.ok?)
+        assert_match(%r{nested/dependency}, result.err)
       end
 
       def test_canvas_returns_canvas_instance
@@ -153,6 +215,37 @@ module Sevgi
 
         assert_equal([7.0, 11.0, :mm, :graphics_test_overwrite], Paper.graphics_test_overwrite.deconstruct)
       end
+
+      private
+
+      def run_with_load_error(component, path, script)
+        Dir.mktmpdir do |dir|
+          FileUtils.mkdir_p(File.join(dir, "sevgi"))
+          File.write(
+            File.join(dir, "sevgi", "#{component}.rb"),
+            <<~RUBY
+              error = LoadError.new(#{path.inspect})
+              error.instance_variable_set(:@path, #{path.inspect})
+              raise error
+            RUBY
+          )
+
+          function = ::File.expand_path("../../../function/lib", __dir__)
+          graphics = ::File.expand_path("../../lib", __dir__)
+
+          Function.sh(
+            {"BUNDLE_GEMFILE" => nil, "RUBYLIB" => nil, "RUBYOPT" => nil},
+            RbConfig.ruby,
+            "-I#{dir}",
+            "-I#{function}",
+            "-I#{graphics}",
+            "-e",
+            script
+          )
+        end
+      end
+
+      def run_without(component, script) = run_with_load_error(component, "sevgi/#{component}", script)
     end
   end
 end

@@ -35,7 +35,7 @@ module Sevgi
         def License_LAL(**kwargs, &block) = License(**kwargs, license: "https://artlibre.org/licence/lal/en/", &block)
 
         def RDF(**_kwargs, &block)
-          raise ArgumentError, "Block required" unless block
+          ArgumentError.("Block required") unless block
 
           Element(
             :"rdf:RDF",

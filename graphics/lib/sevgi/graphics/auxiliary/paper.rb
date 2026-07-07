@@ -24,7 +24,7 @@ module Sevgi
       @profiles = {}
 
       def self.define!(name, ...)
-        raise ArgumentError, "Paper already defined: #{name}" if exist?(name)
+        ArgumentError.("Paper already defined: #{name}") if exist?(name)
 
         define(name, ...)
       end

@@ -10,6 +10,22 @@ module Sevgi
       assert_equal("boom", error.message)
     end
 
+    def test_error_classes_inherit_error
+      [
+        ArgumentError,
+        MissingComponentError,
+        PanicError
+      ].each { assert_operator(it, :<, Error) }
+    end
+
+    def test_missing_component_error_reports_required_component
+      error = assert_raises(MissingComponentError) { MissingComponentError.("sevgi/geometry") }
+
+      assert_equal("sevgi/geometry", error.component)
+      assert_equal("\"sevgi/geometry\" required", error.message)
+      assert_kind_of(Error, error)
+    end
+
     def test_undefined_coalesce_preserves_nil
       assert_nil(Undefined.coalesce(Undefined, nil, :value))
       assert_equal(:value, Undefined.coalesce(Undefined, Undefined, :value))

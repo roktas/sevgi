@@ -18,7 +18,7 @@ module Sevgi
 
       def executable!(*args)
         program = args.first.to_s.split.first
-        raise "Missing executable: #{program}" unless executable?(program)
+        Error.("Missing executable: #{program}") unless executable?(program)
       end
 
       Result = Struct.new(:args, :outs, :errs, :exit_code) do
@@ -93,7 +93,7 @@ module Sevgi
             warn(result.err)
             warn("")
 
-            raise "Command failed: #{result.cmd}"
+            Error.("Command failed: #{result.cmd}")
           end
         end
       end

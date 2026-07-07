@@ -9,11 +9,16 @@ module Sevgi
         end
 
         def Hatch(element, angle:, step:, initial: nil, **kwargs)
-          require "sevgi/geometry"
+          begin
+            require "sevgi/geometry"
+
+          rescue ::LoadError => e
+            raise unless e.path == "sevgi/geometry"
+
+            MissingComponentError.("sevgi/geometry")
+          end
 
           Draw(Geometry::Operation.sweep!(element, initial: initial || element.position, angle:, step:), **kwargs)
-        rescue ::LoadError
-          raise NoMethodError, "\"sevgi/geometry\" required"
         end
       end
     end

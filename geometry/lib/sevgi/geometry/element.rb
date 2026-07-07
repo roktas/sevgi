@@ -18,15 +18,15 @@ module Sevgi
         )
       end
 
-      def box = raise NoMethodError, "#{self.class}#box must be implemented"
+      def box = PanicError.("#{self.class}#box must be implemented")
 
-      def equations = raise NoMethodError, "#{self.class}#equations must be implemented"
+      def equations = PanicError.("#{self.class}#equations must be implemented")
 
       def ignorable?(precision: nil) = F.zero?(box.width, precision:) && F.zero?(box.height, precision:)
 
-      def position = raise NoMethodError, "#{self.class}#position must be implemented"
+      def position = PanicError.("#{self.class}#position must be implemented")
 
-      def translate(_x, _y) = raise NoMethodError, "#{self.class}#translate must be implemented"
+      def translate(_x, _y) = PanicError.("#{self.class}#translate must be implemented")
 
       # rubocop:disable Metrics/ClassLength
       class Lined < self

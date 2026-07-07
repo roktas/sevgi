@@ -5,19 +5,29 @@ module Sevgi
     module Mixtures
       module Export
         def PDF(path = nil, **kwargs, &block)
-          require "sevgi/sundries"
+          begin
+            require "sevgi/sundries"
+
+          rescue ::LoadError => e
+            raise unless e.path == "sevgi/sundries"
+
+            MissingComponentError.("sevgi/sundries")
+          end
 
           Export(path, **kwargs, format: :pdf, &block)
-        rescue ::LoadError
-          raise NoMethodError, "\"sevgi/sundries\" required"
         end
 
         def PNG(path = nil, **kwargs, &block)
-          require "sevgi/sundries"
+          begin
+            require "sevgi/sundries"
+
+          rescue ::LoadError => e
+            raise unless e.path == "sevgi/sundries"
+
+            MissingComponentError.("sevgi/sundries")
+          end
 
           Export(path, **kwargs, format: :png, &block)
-        rescue ::LoadError
-          raise NoMethodError, "\"sevgi/sundries\" required"
         end
 
         private

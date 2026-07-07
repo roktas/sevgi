@@ -10,12 +10,12 @@ module Sevgi
       def initialize(element)
         InvalidElementsError.(element) unless (@spec = Specification[@element = element])
 
-        raise ModelError, "No model specified: #{element}" unless spec[:model]
-        raise ModelError, "Model unimplemented: #{spec[:model]}" unless Model.const_defined?(spec[:model])
+        PanicError.("No model specified: #{element}") unless spec[:model]
+        PanicError.("Model unimplemented: #{spec[:model]}") unless Model.const_defined?(spec[:model])
 
         extend(Model.const_get(spec[:model]))
 
-        raise NoMethodError, "#{self.class}#apply must be implemented" unless respond_to?(:apply)
+        PanicError.("#{self.class}#apply must be implemented") unless respond_to?(:apply)
       end
 
       def call(attributes: nil, cdata: nil, elements: nil)

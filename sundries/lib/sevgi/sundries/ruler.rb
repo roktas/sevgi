@@ -46,7 +46,7 @@ module Sevgi
       def measure(e)
         return e.to_f if e.is_a?(::Numeric)
 
-        raise NoMethodError, "#{e.class}#length must be implemented" unless e.respond_to?(:length)
+        ArgumentError.("#{e.class}#length must be implemented") unless e.respond_to?(:length)
 
         e.length
       end

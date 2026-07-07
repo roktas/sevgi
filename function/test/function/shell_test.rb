@@ -59,13 +59,13 @@ module Sevgi
         def test_executable_bang_raises_for_missing_program
           clear_executable_cache
 
-          error = assert_raises(RuntimeError) { Function.executable!("missing-tool --version") }
+          error = assert_raises(Error) { Function.executable!("missing-tool --version") }
 
           assert_equal("Missing executable: missing-tool", error.message)
         end
 
         def test_executable_bang_rejects_blank_program
-          error = assert_raises(RuntimeError) { Function.executable!("") }
+          error = assert_raises(Error) { Function.executable!("") }
 
           assert_equal("Missing executable: ", error.message)
         end

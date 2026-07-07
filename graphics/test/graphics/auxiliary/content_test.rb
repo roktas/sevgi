@@ -26,6 +26,10 @@ module Sevgi
         assert_equal(expected, actual)
       end
 
+      def test_base_content_render_raises_panic_error
+        assert_raises(PanicError) { Content.new("text").render(Object.new, 0) }
+      end
+
       def test_encoded_and_verbatim_content_differ
         [
           "a &amp; b",

@@ -8,7 +8,7 @@ module Sevgi
       attr_reader :element, :position, :nx, :ny
 
       def initialize(element, position: Geometry::Origin, nx: 1, ny: 1)
-        raise ArgumentError, "Must be an Element object: #{element}" unless element.is_a?(Geometry::Element)
+        ArgumentError.("Must be an Element object: #{element}") unless element.is_a?(Geometry::Element)
         ArgumentError.("Tile nx must be positive") unless nx.is_a?(::Integer) && nx.positive?
         ArgumentError.("Tile ny must be positive") unless ny.is_a?(::Integer) && ny.positive?
 

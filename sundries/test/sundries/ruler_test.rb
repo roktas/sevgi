@@ -55,7 +55,7 @@ module Sevgi
       end
 
       def test_interval_rejects_invalid_unit
-        assert_raises(NoMethodError) { Interval.new(Object.new, 4) }
+        assert_raises(ArgumentError) { Interval.new(Object.new, 4) }
       end
 
       def test_interval_rejects_invalid_count
