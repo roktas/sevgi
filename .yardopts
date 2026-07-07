@@ -1,6 +1,7 @@
 --title Sevgi API
 --readme README.md
---output-dir doc/api
+--db .cache/ruby/yardoc
+--output-dir .cache/ruby/doc/api
 function/lib/**/*.rb
 geometry/lib/**/*.rb
 graphics/lib/**/*.rb

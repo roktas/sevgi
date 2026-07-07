@@ -9,7 +9,7 @@ project = File.basename(Dir.pwd)
 suite = ARGV.any? { |arg| arg.end_with?("integration_test.rb") } ? "integration" : "test"
 
 SimpleCov.root(root)
-SimpleCov.coverage_dir(File.join(root, "coverage"))
+SimpleCov.coverage_dir(File.join(root, ".cache/ruby/coverage"))
 SimpleCov.command_name("#{project}:#{suite}")
 
 SimpleCov.start do
