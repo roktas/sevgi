@@ -8,11 +8,28 @@ require "tempfile"
 
 module Sevgi
   module Sundries
+    # Exports SVG content and post-processes PDF output.
     module Export
+      # Raised when SVG export or PDF post-processing cannot be completed.
       ExportError = Class.new(Error)
 
+      # Default SVG CSS pixel density.
       DEFAULT_DPI = 96.0
 
+      # Exports SVG source to a PDF or PNG file using librsvg and Cairo.
+      # @param svg [String] SVG source content
+      # @param output [String, #to_s] output file path
+      # @param format [Symbol, String, nil] explicit output format, or nil to infer from output extension
+      # @param width [Numeric, nil] target width in output pixels for PNG, or CSS pixels before PDF point conversion
+      # @param height [Numeric, nil] target height in output pixels for PNG, or CSS pixels before PDF point conversion
+      # @param dpi [Numeric] CSS pixel density used for absolute SVG units and PDF point conversion
+      # @param css [String, nil] CSS inserted before the closing svg tag before rendering
+      # @yield [svg] optional source transformation applied before rendering
+      # @yieldparam svg [String] SVG source after optional CSS injection
+      # @yieldreturn [String] SVG source to render
+      # @return [Object] the original output argument
+      # @raise [Sevgi::ArgumentError] when SVG content is not a string or output is blank
+      # @raise [Sevgi::Sundries::Export::ExportError] when format, SVG parsing, SVG dimensions, or render dimensions are invalid
       def self.call(svg, output, format: nil, width: nil, height: nil, dpi: DEFAULT_DPI, css: nil, &block)
         ArgumentError.("SVG content must be a String") unless svg.is_a?(String)
         ArgumentError.("Export output must be provided") if output.nil? || output.to_s.strip.empty?
@@ -54,6 +71,7 @@ module Sevgi
         output
       end
 
+      # Supported export format names mapped to file extensions.
       AVAILABLE = (EXTENSIONS = {
         ".pdf" => :pdf,
         ".png" => :png
@@ -61,6 +79,11 @@ module Sevgi
         .invert
         .freeze
 
+      # Resolves the export format from an explicit value or output extension.
+      # @param format [Symbol, String, nil] explicit format
+      # @param output [String, #to_s] output path
+      # @return [Symbol] resolved format
+      # @raise [Sevgi::Sundries::Export::ExportError] when the explicit format or output extension is unsupported
       def format_for!(format, output)
         if format
           format = format.to_sym
@@ -75,8 +98,20 @@ module Sevgi
         end
       end
 
+      # Inserts CSS before the closing svg tag.
+      # @param svg [String] SVG source content
+      # @param css [String] CSS source content
+      # @return [String] SVG source with an added style element when a closing svg tag is present
       def inject(svg, css) = svg.sub("</svg>", "<style>#{css}</style></svg>")
 
+      # Replaces a placeholder text object in a PDF stream.
+      # @param infile [String] source PDF file path
+      # @param outfile [String] destination PDF file path
+      # @param stamp [String] replacement text
+      # @param placeholder [String] placeholder text to replace
+      # @return [Boolean] true when a matching placeholder was replaced
+      # @raise [HexaPDF::Error] when HexaPDF cannot read or write the PDF
+      # @raise [SystemCallError] when the PDF files cannot be accessed
       def stamp(infile, outfile, stamp:, placeholder:)
         doc = HexaPDF::Document.open(infile)
         stamped = false
@@ -104,6 +139,13 @@ module Sevgi
         stamped
       end
 
+      # Replaces a placeholder text object inside a PDF file in place.
+      # @param infile [String] PDF file path to modify
+      # @param stamp [String] replacement text
+      # @param placeholder [String] placeholder text to replace
+      # @return [Boolean] true when a matching placeholder was replaced
+      # @raise [HexaPDF::Error] when HexaPDF cannot read or write the PDF
+      # @raise [SystemCallError] when the PDF file cannot be accessed or replaced
       def stamp!(infile, stamp:, placeholder:)
         temp = Tempfile.new(%w[stamp .pdf], File.dirname(infile))
         stamped = stamp(infile, temp.path, stamp:, placeholder:)
@@ -192,9 +234,14 @@ module Sevgi
         end
       end
 
+      # Low-level format renderers used by {Export.call}.
+      # @api private
       module Renderer
         extend self
 
+        # Returns a renderer method for a format.
+        # @param format [Symbol, String, nil] format name
+        # @return [Method, nil]
         def [](format)
           case format&.to_sym
           when :png
@@ -204,6 +251,15 @@ module Sevgi
           end
         end
 
+        # Renders SVG data to a PDF surface.
+        # @param handle [Rsvg::Handle] parsed SVG handle
+        # @param output [String] output file path
+        # @param tw [Numeric] target width in CSS pixels
+        # @param th [Numeric] target height in CSS pixels
+        # @param dpi [Numeric] CSS pixel density
+        # @return [void]
+        # @raise [Cairo::Error] when Cairo cannot write the PDF surface
+        # @raise [Rsvg::Error] when librsvg cannot render the document
         def pdf(handle:, output:, tw:, th:, dpi:, **)
           pw, ph = tw * (72.0 / dpi), th * (72.0 / dpi)
           surface = Cairo::PDFSurface.new(output, pw, ph)
@@ -214,6 +270,14 @@ module Sevgi
           surface.finish
         end
 
+        # Renders SVG data to a PNG image.
+        # @param handle [Rsvg::Handle] parsed SVG handle
+        # @param output [String] output file path
+        # @param tw [Numeric] target width in CSS pixels
+        # @param th [Numeric] target height in CSS pixels
+        # @return [void]
+        # @raise [Cairo::Error] when Cairo cannot write the PNG surface
+        # @raise [Rsvg::Error] when librsvg cannot render the document
         def png(handle:, output:, tw:, th:, **)
           surface = Cairo::ImageSurface.new(Cairo::FORMAT_ARGB32, tw.round, th.round)
           context = Cairo::Context.new(surface)
