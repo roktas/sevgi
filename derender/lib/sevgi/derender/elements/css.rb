@@ -3,7 +3,11 @@
 module Sevgi
   module Derender
     module Elements
+      # Element strategy for SVG style elements.
+      # @api private
       module CSS
+        # Converts a style node into unformatted Sevgi DSL lines.
+        # @return [Array<String>] unformatted Ruby source lines
         def decompile(*)
           return [] unless (lines = css_lines)
 

@@ -2,7 +2,10 @@
 
 module Sevgi
   module Derender
+    # Converts SVG/XML attribute hashes into Sevgi DSL keyword source.
+    # @api private
     module Attributes
+      # Attribute keys rendered before ordinary attributes.
       ATTRIBUTES_SHOULD_COME_FIRST = %w[
         id
         inkscape:label
@@ -14,10 +17,15 @@ module Sevgi
         xmlns:_
       ]
         .freeze
+
+      # Attribute keys rendered after ordinary attributes.
       ATTRIBUTES_SHOULD_COME_LAST = %w[
         style
       ].freeze
 
+      # Converts an attribute hash into Sevgi DSL keyword source.
+      # @param hash [Hash{String, Symbol => Object}] attributes to render
+      # @return [String] Ruby keyword or hash source
       def decompile(hash)
         hash = hash.dup
         pre, post = {}, {}

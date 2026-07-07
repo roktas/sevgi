@@ -4,14 +4,23 @@ require "sevgi"
 
 module Sevgi
   module Binaries
+    # Implements the `igsev` executable that derenders SVG and executes the generated Sevgi DSL.
     module Igsev
       extend self
 
+      # Executable name used in help output.
       PROGNAME = "igsev"
 
+      # Error raised for invalid command-line usage.
       Error = Class.new(::Sevgi::Error)
 
+      # Parsed command-line options for the `igsev` executable.
+      # @api private
       Options = Struct.new(:require, :vomit, :help, :version) do
+        # Parses command-line options and removes them from the argv array.
+        # @param argv [Array<String>] mutable command-line argument array
+        # @return [Sevgi::Binaries::Igsev::Options] parsed options
+        # @raise [Sevgi::Binaries::Igsev::Error] when an option is not recognized
         def self.parse(argv)
           new.tap do |options|
             argv.first.start_with?("-") ? option(argv, options) : break until argv.empty?
@@ -41,6 +50,14 @@ module Sevgi
 
       private_constant :Options
 
+      # Runs the `igsev` command-line interface.
+      # @param argv [Array<String>, String, nil] command-line arguments
+      # @return [nil]
+      # @raise [LoadError] when a required Ruby library cannot be loaded
+      # @raise [Sevgi::ArgumentError] when the SVG file cannot be found
+      # @raise [Sevgi::Executor::Error] when `--exception` or `SEVGI_VOMIT` requests raw errors
+      # @raise [Sevgi::PanicError] when generated Ruby source cannot be formatted
+      # @raise [SystemExit] when command-line usage or script execution aborts
       def call(argv)
         return puts(help) if (options = Options.parse(argv = Array(argv))).help
         return puts(::Sevgi::VERSION) if options.version

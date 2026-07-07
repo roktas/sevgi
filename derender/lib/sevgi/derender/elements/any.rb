@@ -3,7 +3,11 @@
 module Sevgi
   module Derender
     module Elements
+      # Default element strategy for ordinary SVG/XML elements.
+      # @api private
       module Any
+        # Converts this node into unformatted Sevgi DSL lines.
+        # @return [Array<String>] unformatted Ruby source lines
         def decompile(*)
           if children.any?
             children.one? && children.first.node.text? ? Array(leaf(has_attributes: attributes.any?)) : tree

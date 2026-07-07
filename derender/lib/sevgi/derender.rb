@@ -10,21 +10,72 @@ require_relative "derender/node"
 require_relative "derender/version"
 
 module Sevgi
+  # Converts SVG/XML content into Sevgi DSL source or evaluates it into graphics elements.
   module Derender
-    # Takes SVG (XML content) and returns a Derender::Node object.
+    # Converts SVG/XML content into a derender node.
+    # @param content [String] SVG/XML source content
+    # @param id [String, nil] optional SVG id selecting a node inside the source
+    # @return [Sevgi::Derender::Node] selected node in the derender tree
+    # @raise [Sevgi::ArgumentError] when the id is absent
     def decompile(content, id: nil) = Document.new(content).decompile(id)
+
+    # Converts an SVG/XML file into a derender node.
+    # @param file [String] path to the source SVG/XML file
+    # @param id [String, nil] optional SVG id selecting a node inside the source
+    # @return [Sevgi::Derender::Node] selected node in the derender tree
+    # @raise [Sevgi::ArgumentError] when the file cannot be found or the id is absent
     def decompile_file(file, id: nil) = Document.load_file(file).decompile(id)
 
-    # Takes SVG (XML content) and returns Sevgi DSL string (formatted Ruby content).
+    # Converts SVG/XML content into Sevgi DSL Ruby source.
+    # @param content [String] SVG/XML source content
+    # @param id [String, nil] optional SVG id selecting a node inside the source
+    # @return [String] formatted Sevgi DSL source
+    # @raise [Sevgi::ArgumentError] when the id is absent
+    # @raise [Sevgi::PanicError] when generated Ruby source cannot be formatted
     def derender(content, id: nil) = Document.new(content).decompile(id).derender
+
+    # Converts an SVG/XML file into Sevgi DSL Ruby source.
+    # @param file [String] path to the source SVG/XML file
+    # @param id [String, nil] optional SVG id selecting a node inside the source
+    # @return [String] formatted Sevgi DSL source
+    # @raise [Sevgi::ArgumentError] when the file cannot be found or the id is absent
+    # @raise [Sevgi::PanicError] when generated Ruby source cannot be formatted
     def derender_file(file, id: nil) = Document.load_file(file).decompile(id).derender
 
-    # Takes SVG (XML content), evaluates it under the given Graphics element and returns the element.
+    # Evaluates SVG/XML content under a graphics element, including the selected node.
+    # @param content [String] SVG/XML source content
+    # @param element [Sevgi::Graphics::Element] target graphics element
+    # @param id [String, nil] optional SVG id selecting a node inside the source
+    # @return [Sevgi::Graphics::Element] target graphics element
+    # @raise [Sevgi::ArgumentError] when the id is absent
+    # @raise [Sevgi::PanicError] when generated Ruby source cannot be formatted
     def evaluate(content, element, id: nil) = Document.new(content).decompile(id).evaluate(element)
+
+    # Evaluates an SVG/XML file under a graphics element, including the selected node.
+    # @param file [String] path to the source SVG/XML file
+    # @param element [Sevgi::Graphics::Element] target graphics element
+    # @param id [String, nil] optional SVG id selecting a node inside the source
+    # @return [Sevgi::Graphics::Element] target graphics element
+    # @raise [Sevgi::ArgumentError] when the file cannot be found or the id is absent
+    # @raise [Sevgi::PanicError] when generated Ruby source cannot be formatted
     def evaluate_file(file, element, id: nil) = Document.load_file(file).decompile(id).evaluate(element)
 
-    # Takes SVG (XML content), evaluates the inner node under the given Graphics element and returns the element.
+    # Evaluates SVG/XML content under a graphics element, excluding the selected node itself.
+    # @param content [String] SVG/XML source content
+    # @param element [Sevgi::Graphics::Element] target graphics element
+    # @param id [String, nil] optional SVG id selecting a node inside the source
+    # @return [Sevgi::Graphics::Element] target graphics element
+    # @raise [Sevgi::ArgumentError] when the id is absent
+    # @raise [Sevgi::PanicError] when generated Ruby source cannot be formatted
     def evaluate!(content, element, id: nil) = Document.new(content).decompile(id).evaluate!(element)
+
+    # Evaluates an SVG/XML file under a graphics element, excluding the selected node itself.
+    # @param file [String] path to the source SVG/XML file
+    # @param element [Sevgi::Graphics::Element] target graphics element
+    # @param id [String, nil] optional SVG id selecting a node inside the source
+    # @return [Sevgi::Graphics::Element] target graphics element
+    # @raise [Sevgi::ArgumentError] when the file cannot be found or the id is absent
+    # @raise [Sevgi::PanicError] when generated Ruby source cannot be formatted
     def evaluate_file!(file, element, id: nil) = Document.load_file(file).decompile(id).evaluate!(element)
 
     extend self
