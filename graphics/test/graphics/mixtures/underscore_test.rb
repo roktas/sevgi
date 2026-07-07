@@ -57,6 +57,18 @@ module Sevgi
 
           assert_equal(expected, actual)
         end
+
+        def test_ancestral_merges_internal_attributes
+          descendant = nil
+
+          SVG(DOC, _: {page: "one"}) do
+            g(_: {group: "main"}) do
+              descendant = rect(_: {shape: "box"})
+            end
+          end
+
+          assert_equal({page: "one", group: "main", shape: "box"}, descendant.Ancestral())
+        end
       end
     end
   end

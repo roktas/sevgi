@@ -27,6 +27,22 @@ module Sevgi
         assert(Conform.(:rect, attributes: []))
       end
 
+      def test_cdata_only_rejects_child_elements
+        error = assert_raises(UnallowedElementsError) do
+          Conform.(:title, cdata: "Name", elements: %i[g])
+        end
+
+        assert_equal("title: Element(s) not allowed: 'g'", error.message)
+      end
+
+      def test_cdata_or_some_rejects_unallowed_elements
+        error = assert_raises(UnallowedElementsError) do
+          Conform.(:text, cdata: "Name", elements: %i[rect])
+        end
+
+        assert_equal("text: Element(s) not allowed: 'rect'", error.message)
+      end
+
       def test_conform_ignores_foreign_namespace_members
         assert(
           Conform.(
@@ -60,6 +76,14 @@ module Sevgi
         )
       end
 
+      def test_special_fe_specular_lighting_rejects_extra_shapes
+        error = assert_raises(UnallowedElementsError) do
+          Conform.(:feSpecularLighting, elements: %i[fePointLight rect])
+        end
+
+        assert_equal("feSpecularLighting: Element(s) not allowed: 'rect'", error.message)
+      end
+
       def test_special_font_face_rejects_duplicate_font_face
         assert(Conform.(:"font-face", elements: %i[desc font-face title]))
 
@@ -71,6 +95,14 @@ module Sevgi
           "font-face: Condition unmet for the element: 'At most one font-face element allowed'",
           error.message
         )
+      end
+
+      def test_special_font_face_rejects_unallowed_elements
+        error = assert_raises(UnallowedElementsError) do
+          Conform.(:"font-face", elements: %i[desc rect])
+        end
+
+        assert_equal("font-face: Element(s) not allowed: 'rect'", error.message)
       end
     end
   end

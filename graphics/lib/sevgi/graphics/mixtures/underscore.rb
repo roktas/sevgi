@@ -14,7 +14,7 @@ module Sevgi
 
         def Ancestral
           {}.tap do |result|
-            Root.Traverse() { |element| result.merge!(element[:_]) if element.has?(:_) }
+            Root().Traverse() { |element| result.merge!(element[:_]) if element.has?(:_) }
           end
         end
       end

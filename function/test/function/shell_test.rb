@@ -91,6 +91,27 @@ module Sevgi
           assert_equal(["tool", "--version"], ran)
         end
 
+        def test_sh_bang_raises_for_failed_command
+          error = nil
+          ruby = ::File.basename(RbConfig.ruby)
+          capture_io do
+            error = assert_raises(Error) do
+              Function.sh!(ruby, "-e", "$stderr.puts \"bad\"; exit 7")
+            end
+          end
+
+          assert_equal("Command failed: #{ruby} -e $stderr.puts \"bad\"; exit 7", error.message)
+        end
+
+        def test_sh_returns_dummy_result_without_arguments
+          result = Function.sh
+
+          assert(result.ok?)
+          assert_empty(result.args)
+          assert_empty(result.out)
+          assert_empty(result.err)
+        end
+
         def test_sh_closes_stdin_without_input
           result = Timeout.timeout(2) do
             Function.sh(RbConfig.ruby, "-e", "puts STDIN.read.empty?")

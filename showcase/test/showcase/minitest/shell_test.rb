@@ -57,6 +57,14 @@ module Sevgi
         assert_equal(200_000, result.err.join.size)
       end
 
+      def test_run_accepts_block_input
+        result = Shell.run(ruby, "-e", "puts STDIN.read") do
+          write("showcase")
+        end
+
+        assert_equal(["showcase"], result.out)
+      end
+
       private
 
       def ruby = RbConfig.ruby

@@ -57,6 +57,31 @@ module Sevgi
             ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
           end
         end
+
+        def test_png_uses_default_name_inside_directory
+          require "sevgi/sundries"
+
+          Dir.mktmpdir do |dir|
+            calls = []
+
+            exporter = proc do |_svg, output, **kwargs|
+              calls << [output, kwargs]
+              output
+            end
+
+            result = Sundries::Export.stub(:call, exporter) do
+              SVG(:minimal).PNG(dir)
+            end
+
+            expected = File.join(dir, "export_test.png")
+            [
+              expected,
+              result,
+              [expected, {format: :png}],
+              calls.first
+            ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+          end
+        end
       end
     end
   end
