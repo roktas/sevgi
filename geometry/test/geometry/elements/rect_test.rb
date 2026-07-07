@@ -46,6 +46,26 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
+      def test_rect_exposes_vertex_shortcuts
+        rect = Rect[3, 4, position: [1, 2]]
+
+        [
+          rect.top_left,
+          rect.A(),
+          rect.top_right,
+          rect.B(),
+          rect.bottom_right,
+          rect.C(),
+          rect.bottom_left,
+          rect.D(),
+          rect.left,
+          rect.DA()
+        ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+
+        refute_respond_to(rect, :E)
+        refute_respond_to(rect, :DE)
+      end
+
       def test_rect_from_size_builds_origin_rect
         assert_equal(rect345, Rect.from_size(3, 4))
       end

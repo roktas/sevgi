@@ -44,9 +44,9 @@ module Sevgi
           end
         end
 
-        def test_existings_bang_raises_for_missing_files
+        def test_existing_map_bang_raises_for_missing_files
           error = assert_raises(ArgumentError) do
-            Function.existings!("missing", "other", extensions: %w[svg])
+            Function.existing_map!("missing", "other", extensions: %w[svg])
           end
 
           assert_equal("No matching file(s) found: missing, other", error.message)

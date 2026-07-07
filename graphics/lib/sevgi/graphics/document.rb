@@ -52,9 +52,11 @@ module Sevgi
           attr_reader :available
         end
 
-        def self.[](name) = available[name]
+        def self.[](name) = (name = normalize(name)) && available[name]
 
         def self.register(name, klass, overwrite: false)
+          name = normalize!(name)
+
           if (current = available[name])
             unless overwrite || current.profile == klass.profile
               ArgumentError.("Document profile already defined differently: #{name}")
@@ -66,10 +68,14 @@ module Sevgi
           available[name] = klass
         end
 
+        def self.normalize(name) = name.respond_to?(:to_sym) ? name.to_sym : nil
+
+        def self.normalize!(name) = normalize(name) || ArgumentError.("Invalid document profile: #{name}")
+
         attr_reader :name, :attributes, :preambles
 
         def initialize(name, attributes: nil, preambles: nil)
-          @name = name
+          @name = name.nil? ? nil : self.class.normalize!(name)
           @attributes = attributes || {}
           @preambles = preambles
         end

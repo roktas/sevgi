@@ -33,6 +33,19 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
+      def test_polyline_approx_respects_scoped_precision
+        polyline = Polyline.from_points([0, 0], [1.234_567_89, 0])
+
+        [
+          [Point[0, 0], Point[1.234_568, 0]],
+          polyline.points(true),
+          [Point[0, 0], Point[1.23, 0]],
+          F.with_precision(2) { polyline.points(true) },
+          [Point[0, 0], Point[1.234_568, 0]],
+          polyline.points(true)
+        ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+      end
+
       def test_polyline_draw_emits_polyline_points
         attrs = nil
         node = Object.new

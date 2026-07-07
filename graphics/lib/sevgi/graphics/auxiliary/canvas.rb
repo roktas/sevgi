@@ -11,12 +11,25 @@ module Sevgi
         case arg
         when Undefined
           new(**kwargs)
+        else
+          new(**paper(arg).to_h, **kwargs)
+        end
+      end
+
+      def self.paper(arg)
+        case arg
+        when Paper
+          arg
         when ::Symbol, ::String
-          new(**Paper.public_send(arg).to_h, **kwargs)
+          ArgumentError.("Unknown paper profile: #{arg}") unless Paper.exist?(arg)
+
+          Paper.public_send(arg)
         else
           ArgumentError.("Argument must be a Paper symbol: #{arg}")
         end
       end
+
+      private_class_method :paper
 
       extend Forwardable
 

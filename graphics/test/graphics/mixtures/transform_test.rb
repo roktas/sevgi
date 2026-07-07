@@ -26,9 +26,19 @@ module Sevgi
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
         end
 
-        def test_transform_methods_skip_zero_operations
+        def test_transform_methods_keep_semantic_zero_values
           element = SVG do
-            rect.Rotate(0).Scale(0).SkewX(0).SkewY(0).Translate(0).Matrix(0, 0, 0, 0, 0, 0)
+            rect.Scale(0).Matrix(0, 0, 0, 0, 0, 0)
+          end
+            .children
+            .first
+
+          assert_equal("scale(0) matrix(0 0 0 0 0 0)", element[:transform])
+        end
+
+        def test_transform_methods_skip_identity_operations
+          element = SVG do
+            rect.Rotate(0).SkewX(0).SkewY(0).Translate(0)
           end
             .children
             .first
@@ -61,6 +71,16 @@ module Sevgi
             .first
 
           assert_equal("scale(1, -1)", element[:transform])
+        end
+
+        def test_flip_scales_both_axes_by_negative_one
+          element = SVG do
+            rect.Flip()
+          end
+            .children
+            .first
+
+          assert_equal("scale(-1, -1)", element[:transform])
         end
 
         def test_transform_update_appends_operations

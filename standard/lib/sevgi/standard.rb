@@ -26,7 +26,7 @@ module Sevgi
 
     def model?(...) = Specification.model?(...)
 
-    def specification(name) = Specification[name.to_sym]
+    def specification(name) = name.respond_to?(:to_sym) ? Specification[name.to_sym] : nil
 
     alias [] specification
   end

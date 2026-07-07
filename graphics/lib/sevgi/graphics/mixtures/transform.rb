@@ -17,7 +17,7 @@ module Sevgi
 
         def Flip
           tap do
-            attributes[:"transform#{ATTRIBUTE_UPDATE_SUFFIX}"] = "scale(-1, 1) scale(1, 1)"
+            attributes[:"transform#{ATTRIBUTE_UPDATE_SUFFIX}"] = "scale(-1, -1)"
           end
         end
 
@@ -36,8 +36,6 @@ module Sevgi
         def Matrix(*values)
           tap do
             ArgumentError.("Incorrect transform matrix (six values required): #{values}") if values.size != 6
-
-            next if values.map(&:to_f).all? { it == 0.0 }
 
             attributes[:"transform#{ATTRIBUTE_UPDATE_SUFFIX}"] = "matrix(#{values.join(" ")})"
           end
@@ -61,8 +59,6 @@ module Sevgi
 
         def Scale(x, y = nil)
           tap do
-            next if x.to_f == 0.0 && (y.nil? || y.to_f == 0.0)
-
             attributes[:"transform#{ATTRIBUTE_UPDATE_SUFFIX}"] = "scale(#{(y ? [x, y] : [x]).join(", ")})"
           end
         end

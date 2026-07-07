@@ -62,6 +62,17 @@ module Sevgi
         assert_same(doc, again)
       end
 
+      def test_named_document_normalizes_profile_names
+        Graphics.document("registered_string", attributes: {"data-var": "string"})
+
+        [
+          "<svg data-var=\"string\"/>",
+          SVG(:registered_string).Render(),
+          "<svg data-var=\"string\"/>",
+          SVG("registered_string").Render()
+        ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+      end
+
       def test_named_document_rejects_conflicting_profile
         Graphics.document(:registered_conflict, attributes: {"data-var": "first"})
 

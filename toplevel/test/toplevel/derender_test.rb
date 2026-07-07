@@ -21,6 +21,23 @@ module Sevgi
       assert_equal([%w[drawing Root]], calls)
     end
 
+    def test_decompile_accepts_missing_id
+      calls = []
+      node = Object.new
+
+      ::Sevgi::Derender.stub(
+        :decompile_file,
+        -> (file, id:) {
+          calls << [file, id]
+          node
+        }
+      ) do
+        assert_same(node, receiver.Decompile("drawing"))
+      end
+
+      assert_equal([["drawing", nil]], calls)
+    end
+
     def test_derender_delegates_to_file_api
       calls = []
 
@@ -35,6 +52,22 @@ module Sevgi
       end
 
       assert_equal([%w[drawing Root]], calls)
+    end
+
+    def test_derender_accepts_missing_id
+      calls = []
+
+      ::Sevgi::Derender.stub(
+        :derender_file,
+        -> (file, id:) {
+          calls << [file, id]
+          "SVG"
+        }
+      ) do
+        assert_equal("SVG", receiver.Derender("drawing"))
+      end
+
+      assert_equal([["drawing", nil]], calls)
     end
 
     private

@@ -12,7 +12,11 @@ module Sevgi
       def inject(base)
         return if base.instance_variable_defined?("@_toplevel_injected_")
 
-        @constants.each { |args| (base.is_a?(::Module) ? base : base.class).const_set(*args) }
+        target = base.is_a?(::Module) ? base : base.class
+        @constants.each do |name, constant|
+          target.const_set(name, constant) unless target.const_defined?(name, false)
+        end
+
         base.instance_variable_set("@_toplevel_injected_", true)
       end
 

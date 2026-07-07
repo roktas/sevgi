@@ -25,6 +25,11 @@ module Sevgi
         assert_equal(Standard.specification(:svg), Standard[:svg])
         assert_includes(Standard.specification(:svg).keys, :attributes)
       end
+
+      def test_specification_rejects_non_symbolic_names
+        assert_nil(Standard[nil])
+        assert_nil(Standard.specification(Object.new))
+      end
     end
   end
 end

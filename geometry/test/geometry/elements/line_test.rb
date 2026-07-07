@@ -48,6 +48,21 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
+      def test_line_exposes_endpoint_shortcuts
+        line = Line[3, 0]
+
+        [
+          Point[0, 0],
+          line.A(),
+          Point[3, 0],
+          line.B(),
+          3.0,
+          line.AB.length
+        ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+
+        refute_respond_to(line, :AA)
+      end
+
       def test_line_from_segment_matches_fixture_line
         line = Line.from_length_angle(5, angle345)
 

@@ -29,19 +29,19 @@ module Sevgi
         end
       end
 
-      def existings(*files, extensions: [])
-        {}.tap do |existings|
-          files.compact.each { |file| existings[file] = existing(file, extensions) }
+      def existing_map(*files, extensions: [])
+        {}.tap do |found|
+          files.compact.each { |file| found[file] = existing(file, extensions) }
         end
       end
 
-      def existings!(...)
-        existings = F.existings(...)
-        missings = existings.select { |_, match| match.nil? }.keys
+      def existing_map!(...)
+        found = F.existing_map(...)
+        missings = found.select { |_, match| match.nil? }.keys
 
         ArgumentError.("No matching file(s) found: #{missings.join(", ")}") unless missings.empty?
 
-        existings
+        found
       end
 
       def out(content, *paths, &filter)

@@ -31,6 +31,23 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
+      def test_canvas_accepts_paper_profile_object
+        canvas = Canvas.from_paper(Paper.a4, margins: [3, 5])
+
+        [
+          Paper.a4,
+          canvas.size,
+          [3.0, 5.0, 3.0, 5.0],
+          canvas.margin.to_a
+        ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+      end
+
+      def test_canvas_rejects_unknown_paper_profile
+        error = assert_raises(ArgumentError) { Canvas.from_paper(:missing_paper) }
+
+        assert_match(/\bmissing_paper\b/, error.message)
+      end
+
       def test_canvas_with_preserves_size_and_updates_margins
         canvas = Canvas.from_paper(:a4)
         updated = canvas.with(margins: [1, 2, 3, 4])

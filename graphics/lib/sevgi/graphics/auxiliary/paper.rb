@@ -23,7 +23,7 @@ module Sevgi
 
       @profiles = {}
 
-      def self.exist?(name) = profiles.key?(name.to_sym)
+      def self.exist?(name) = name.respond_to?(:to_sym) && profiles.key?(name.to_sym)
 
       def self.define(name, **spec)
         name = name.to_sym

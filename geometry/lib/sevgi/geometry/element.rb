@@ -44,7 +44,6 @@ module Sevgi
 
         SHORTCUTS = ("A".."Z").to_a.freeze
 
-        # rubocop:disable Metrics/MethodLength
         def self.build(size = Undefined, open: false)
           Class.new(open ? Open : Close) do
             define_singleton_method(:close?) { !open }
@@ -55,19 +54,8 @@ module Sevgi
 
             define_singleton_method(:size) { size }
 
-            unless size == Undefined
-              SHORTCUTS[..size.clamp(..SHORTCUTS.size)].each_with_index do |name, i|
-                define_method(name) { points[i] or Error.("No such point: #{name}") }
-              end
-
-              methods = SHORTCUTS[..size.clamp(..SHORTCUTS.size)].each_cons(2).with_index.map do |names, i|
-                define_method(name = names.join) { lines[i] or Error.("No such line: #{name}") }
-              end
-
-              alias_method("#{SHORTCUTS[size - 1]}#{SHORTCUTS.first}", methods.last)
-            end
+            Lined.send(:define_shortcuts, self, size, open:) unless size == Undefined
           end
-          # rubocop:enable Metrics/MethodLength
         end
 
         def self.[](...) = from_segments(...)
@@ -94,6 +82,29 @@ module Sevgi
         end
 
         private_class_method(:new)
+
+        def self.define_line_shortcuts(klass, point_names, open:)
+          line_names = point_names.each_cons(2).map(&:join)
+          line_names << "#{point_names.last}#{point_names.first}" if !open && point_names.any?
+
+          line_names.each_with_index do |name, i|
+            klass.define_method(name) { lines[i] or Error.("No such line: #{name}") }
+          end
+        end
+
+        def self.define_point_shortcuts(klass, point_names)
+          point_names.each_with_index do |name, i|
+            klass.define_method(name) { points[i] or Error.("No such point: #{name}") }
+          end
+        end
+
+        def self.define_shortcuts(klass, size, open:)
+          point_names = SHORTCUTS.first([open ? size + 1 : size, SHORTCUTS.size].min)
+          define_point_shortcuts(klass, point_names)
+          define_line_shortcuts(klass, point_names, open:)
+        end
+
+        private_class_method :define_line_shortcuts, :define_point_shortcuts, :define_shortcuts
 
         def initialize(&block)
           super()
@@ -122,7 +133,7 @@ module Sevgi
         end
 
         def points(approximate = false)
-          approximate ? (@points_approx ||= @points.map(&:approx)) : @points
+          approximate ? @points.map(&:approx) : @points
         end
 
         def position
@@ -130,7 +141,7 @@ module Sevgi
         end
 
         def segments(approximate = false)
-          approximate ? (@segments_approx ||= @segments.map(&:approx)) : @segments
+          approximate ? @segments.map(&:approx) : @segments
         end
 
         # Affinity methods

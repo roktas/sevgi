@@ -73,5 +73,22 @@ module Sevgi
 
       assert_empty(err)
     end
+
+    def test_include_preserves_existing_constants
+      klass = Class.new
+      klass.const_set(:F, :existing)
+
+      _out, err = capture_io do
+        klass.send(:include, ::Sevgi)
+      end
+
+      [
+        :existing,
+        klass.const_get(:F),
+        Geometry,
+        klass.const_get(:Geometry)
+      ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+      assert_empty(err)
+    end
   end
 end
