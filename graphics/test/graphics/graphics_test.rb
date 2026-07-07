@@ -19,6 +19,7 @@ module Sevgi
           SVG
           canvas
           document
+          document!
           paper
           paper!
         ].each do |method|

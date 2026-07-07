@@ -55,6 +55,64 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
+      def test_named_document_preserves_existing_profile
+        doc = Graphics.document(:registered_safe, attributes: {"data-var": "safe"})
+        again = Graphics.document(:registered_safe, attributes: {"data-var": "safe"})
+
+        assert_same(doc, again)
+      end
+
+      def test_named_document_rejects_conflicting_profile
+        Graphics.document(:registered_conflict, attributes: {"data-var": "first"})
+
+        error = assert_raises(ArgumentError) do
+          Graphics.document(:registered_conflict, attributes: {"data-var": "second"})
+        end
+
+        assert_match(/\bregistered_conflict\b/, error.message)
+      end
+
+      def test_named_document_rejects_preamble_conflict
+        Graphics.document(:registered_pres, preambles: ["one"])
+
+        error = assert_raises(ArgumentError) do
+          Graphics.document(:registered_pres, preambles: ["two"])
+        end
+
+        assert_match(/\bregistered_pres\b/, error.message)
+      end
+
+      def test_document_bang_overwrites_profile
+        first = Graphics.document!(:registered_force, attributes: {"data-var": "first"})
+        second = Graphics.document!(:registered_force, attributes: {"data-var": "second"})
+
+        [
+          false,
+          first.equal?(second),
+          "<svg data-var=\"second\"/>",
+          SVG(:registered_force).Render()
+        ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+      end
+
+      def test_class_document_preserves_existing_profile
+        klass = Class.new(Document::Base) { document(:test, attributes: {"data-var": "xxx"}) }
+
+        [
+          Document::Test,
+          SVG(:test).class,
+          "<svg data-var=\"xxx\"/>",
+          SVG(klass).Render()
+        ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+      end
+
+      def test_class_document_rejects_conflicting_profile
+        error = assert_raises(ArgumentError) do
+          Class.new(Document::Base) { document(:test, attributes: {"data-var": "conflict"}) }
+        end
+
+        assert_match(/\btest\b/, error.message)
+      end
+
       def test_subclass_root_attributes_doesnt_leak
         expected = <<~SVG
           <svg data-var="xxx">

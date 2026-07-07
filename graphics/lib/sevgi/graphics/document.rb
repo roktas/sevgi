@@ -29,6 +29,22 @@ module Sevgi
 
       private_class_method :canvas_attributes
 
+      def self.define(name = Undefined, preambles: [], attributes: {}, overwrite: false)
+        return Class.new(Base) { document(name, preambles:, attributes:, register: false) } if name == Undefined
+
+        profile = Profile.new(name, attributes:, preambles:)
+
+        if (current = Profile[name])
+          unless overwrite || current.profile == profile
+            ArgumentError.("Document profile already defined differently: #{name}")
+          end
+
+          return current unless overwrite
+        end
+
+        Class.new(Base) { document(name, preambles:, attributes:, overwrite:) }
+      end
+
       class Profile
         @available = {}
 
@@ -38,7 +54,17 @@ module Sevgi
 
         def self.[](name) = available[name]
 
-        def self.register(name, klass) = (available[name] = klass)
+        def self.register(name, klass, overwrite: false)
+          if (current = available[name])
+            unless overwrite || current.profile == klass.profile
+              ArgumentError.("Document profile already defined differently: #{name}")
+            end
+
+            return current unless overwrite
+          end
+
+          available[name] = klass
+        end
 
         attr_reader :name, :attributes, :preambles
 
@@ -47,6 +73,10 @@ module Sevgi
           @attributes = attributes || {}
           @preambles = preambles
         end
+
+        def ==(other) = self.class == other.class && deconstruct == other.deconstruct
+
+        def deconstruct = [name, attributes, preambles]
       end
 
       private_constant :Profile
@@ -54,10 +84,10 @@ module Sevgi
       module DSL
         attr_reader :profile
 
-        def document(name, attributes: {}, preambles: nil, register: true)
-          @profile = Profile.new(register ? name : nil, attributes:, preambles:).tap do
-            Profile.register(name, self) if register
-          end
+        def document(name, attributes: {}, preambles: nil, register: true, overwrite: false)
+          @profile = Profile.new(register ? name : nil, attributes:, preambles:)
+          Profile.register(name, self, overwrite:) if register
+          @profile
         end
 
         def mixture(mixture, ns: Graphics::Mixtures)

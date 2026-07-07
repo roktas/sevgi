@@ -18,7 +18,11 @@ module Sevgi
     end
 
     def document(name = Undefined, preambles: [], attributes: {})
-      Class.new(Graphics::Document::Base) { document(name, preambles:, attributes:, register: name != Undefined) }
+      Graphics::Document.define(name, preambles:, attributes:)
+    end
+
+    def document!(name, preambles: [], attributes: {})
+      Graphics::Document.define(name, preambles:, attributes:, overwrite: true)
     end
 
     def paper(width, height, name = :custom, unit: "mm")
