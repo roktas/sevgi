@@ -204,9 +204,15 @@ module Sevgi
       def test_paper_preserves_existing_profile
         original = Paper.a4
 
-        Graphics.paper(3, 5, :a4)
+        Graphics.paper(original.width, original.height, :a4, unit: original.unit)
 
         assert_equal(original, Paper.a4)
+      end
+
+      def test_paper_rejects_conflicting_profile
+        error = assert_raises(ArgumentError) { Graphics.paper(3, 5, :a4) }
+
+        assert_match(/\ba4\b/, error.message)
       end
 
       def test_paper_bang_overwrites_existing_profile

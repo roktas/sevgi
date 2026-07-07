@@ -159,6 +159,19 @@ module Sevgi
       assert_equal(true, result.recent)
     end
 
+    def test_execute_paper_rejects_conflicting_profile
+      result = Sevgi.execute(
+        <<~RUBY
+          Paper(3, 5, :executor_test_conflict)
+          Paper(7, 11, :executor_test_conflict)
+        RUBY
+      )
+
+      assert(result.error?)
+      assert_instance_of(ArgumentError, result.error.error)
+      assert_match(/\bexecutor_test_conflict\b/, result.error.message)
+    end
+
     def test_execute_restores_sigint_handler
       original = Signal.trap("INT", "DEFAULT")
       handler = proc { }

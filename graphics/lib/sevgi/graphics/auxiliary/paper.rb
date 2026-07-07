@@ -23,12 +23,6 @@ module Sevgi
 
       @profiles = {}
 
-      def self.define!(name, ...)
-        ArgumentError.("Paper already defined: #{name}") if exist?(name)
-
-        define(name, ...)
-      end
-
       def self.exist?(name) = profiles.key?(name.to_sym)
 
       def self.define(name, **spec)

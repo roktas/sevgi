@@ -12,16 +12,6 @@ module Sevgi
         assert_equal([7.0, 11.0, :mm, :paper_test_card], Paper.paper_test_card.deconstruct)
       end
 
-      def test_define_bang_rejects_existing_profiles
-        Paper.define(:paper_test_once, width: 3, height: 5)
-
-        error = assert_raises(ArgumentError) do
-          Paper.define!(:paper_test_once, width: 7, height: 11)
-        end
-
-        assert_match(/\bpaper_test_once\b/, error.message)
-      end
-
       def test_define_rejects_reserved_methods
         error = assert_raises(ArgumentError) do
           Paper.define(:define, width: 3, height: 5)
