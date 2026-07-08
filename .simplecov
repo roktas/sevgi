@@ -1,10 +1,6 @@
 # frozen_string_literal: true
 
-return unless ENV["COVERAGE"] == "1"
-
-require "simplecov"
-
-root = File.expand_path("..", __dir__)
+root = File.expand_path(__dir__)
 project = File.basename(Dir.pwd)
 suite = ARGV.any? { |arg| arg.end_with?("integration_test.rb") } ? "integration" : "test"
 

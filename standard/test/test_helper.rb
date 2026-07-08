@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../../support/coverage"
+require "simplecov" if ENV["COVERAGE"] == "1"
 
 require "minitest/autorun"
 require "minitest/reporters"
