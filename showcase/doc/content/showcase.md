@@ -14,6 +14,7 @@ useful, then emit SVG elements through the DSL.[^victor-book]
 {{ tabs(base="meter-face", dir="../showcase") }}
 {{ tabs(base="grid-cells", dir="../showcase") }}
 {{ tabs(base="gear-wheel",  dir="../showcase") }}
+{{ tabs(base="checker-board", dir="../showcase") }}
 {{ tabs(base="heart-mask",  dir="../showcase") }}
 {{ tabs(base="snow-flake",  dir="../showcase") }}
 {{ tabs(base="pacman-single", dir="../showcase") }}
