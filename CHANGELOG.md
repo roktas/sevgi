@@ -5,6 +5,37 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## Unreleased
 
+## 0.93.0 - 2026-07-08
+
+### Added
+
+- Added scoped numeric precision control with thread-local defaults and `F.with_precision`.
+- Added opt-in SimpleCov coverage reporting with generated output under `.cache/ruby/coverage`.
+- Added YARD API documentation setup and initial public API documentation across the main components.
+- Added initial user documentation pages and expanded showcase examples.
+
+### Changed
+
+- Breaking: cleaned up public API names and DSL ergonomics across geometry, graphics, derender, and sundries.
+- Reworked graphics document and paper profile registration semantics around explicit DSL words.
+- Stabilized executor load-stack handling and CLI error reporting for script-mode DSL failures.
+- Moved generated Ruby tooling output under `.cache/ruby`.
+- Separated GitHub Release verification from manual RubyGems publishing.
+
+### Fixed
+
+- Hardened graphics DSL dispatch, namespace isolation, document rendering, paper sizes, and validation handoff.
+- Fixed derender escaping, executable text DSL output, evaluation, and load edge cases.
+- Stabilized SVG standard validation, namespace handling, color data, and error contracts.
+- Aligned geometry line shifting with equation offsets and tightened primitive edge cases.
+- Stabilized sundries grid, ruler, tile, and native export edge cases.
+- Fixed showcase rendering, SVG tab display, syntax highlighting, layout, and stale artifact handling.
+
+### Removed
+
+- Removed dead graphics canvas conforming API.
+- Removed unsupported bang derender/decompile wrappers.
+
 ## 0.73.2 - 2026-07-04
 
 ### Fixed
