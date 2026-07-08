@@ -1,6 +1,6 @@
 #!/usr/bin/env -S ruby -S sevgi
 # frozen_string_literal: true
-# Example adapted from: ~/.local/src/victor-book/src/examples/heart/heart.rb
+# Example adapted from: https://github.com/DannyBen/victor-book/blob/master/src/examples/heart/heart.rb
 
 HEART_PATH = "M10,35 A20,20,0,0,1,50,35 A20,20,0,0,1,90,35 Q90,65,50,95 Q10,65,10,35 Z"
 

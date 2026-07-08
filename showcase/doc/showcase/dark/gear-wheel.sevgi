@@ -1,6 +1,6 @@
 #!/usr/bin/env -S ruby -S sevgi
 # frozen_string_literal: true
-# Example adapted from: ~/.local/src/victor-book/src/examples/gear/gear.rb
+# Example adapted from: https://github.com/DannyBen/victor-book/blob/master/src/examples/gear/gear.rb
 
 GEAR_STYLE = {
   fill: "#e5c39c",
