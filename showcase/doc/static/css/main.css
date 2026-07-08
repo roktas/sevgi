@@ -58,14 +58,14 @@ h6 {
 h1 {
   font-size: 1.75rem;
   font-weight: 650;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
   margin-top: 0;
   margin-bottom: 0.5rem;
 }
 h2 {
   font-size: 1.4rem;
   font-weight: 600;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
   margin-top: 1.5rem;
   margin-bottom: 0.4rem;
   position: relative;
@@ -128,7 +128,7 @@ h4 > a.zola-anchor:hover {
   font-family: var(--wt-font-head);
   font-size: 1.75rem;
   font-weight: 650;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
   margin-top: 0;
   margin-bottom: 0.5rem;
   color: var(--wt-color-text);
@@ -378,6 +378,7 @@ main {
   background-color: var(--wt-color-bg);
   padding: var(--wt-main-padding-top) 80px;
   gap: 2.5rem;
+  justify-content: center;
 }
 .content {
   display: block;
@@ -394,8 +395,47 @@ main {
   /* Account for sticky header when scrolling to page anchor (e.g., /#sevgi) */
   scroll-margin-top: calc(var(--wt-header-height) + var(--wt-main-padding-top));
 }
+.content.home-content {
+  max-width: 1180px;
+  overflow-x: visible;
+}
+.home-content > p {
+  font-size: 1.025rem;
+  line-height: 1.7;
+  max-width: none;
+}
+.home-content .showcase-flow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(360px, 1fr));
+  align-items: start;
+  gap: 2rem 1.5rem;
+  margin-top: 1.5rem;
+}
+.home-content .showcase-flow > .tabs {
+  --tabs-header-height: 53px;
+
+  align-self: start;
+  height: 360px;
+  margin: 0;
+}
+.home-content .showcase-flow .tabs .panel {
+  height: calc(100% - var(--tabs-header-height));
+  min-height: 0;
+  overflow: auto;
+}
+.home-content .showcase-flow .tabs .panel.svg-panel {
+  padding: 1.5rem;
+}
+.home-content .showcase-flow .tabs .svg-output {
+  width: 86%;
+  height: 86%;
+}
 .content p {
+  margin-top: 0;
   margin-bottom: 0.75rem;
+}
+.content p:empty {
+  display: none;
 }
 /* Images - horizontally scrollable, never shrink */
 .content p:has(> img) {
@@ -435,6 +475,9 @@ main {
 .content a:hover {
   text-decoration: underline;
   text-decoration-thickness: 1.5px;
+}
+.text-nowrap {
+  white-space: nowrap;
 }
 
 /*
@@ -672,7 +715,7 @@ main {
   overscroll-behavior: contain;
 }
 .toc-group-label {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -691,7 +734,7 @@ main {
   display: block;
   padding: 0.55rem 0.5rem;
   border-radius: 0.25rem;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   color: var(--wt-color-text-muted);
   transition: color 150ms, background 150ms;
 }
@@ -710,7 +753,7 @@ main {
   margin: 0 0.4rem;
 }
 .toc-item-child a {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   color: var(--wt-color-text-soft);
   padding: 0.1rem 0.35rem;
   border-radius: 0.2rem;
@@ -725,7 +768,7 @@ main {
   padding-left: 1.6rem;
 }
 .toc-item-child.nested a {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
 }
 
 /*
@@ -906,14 +949,29 @@ footer {
 .hero .heading-text {
   font-size: 2.5rem;
   font-weight: 650;
-  letter-spacing: -0.02em;
   color: var(--wt-color-text);
+}
+.hero .hero-title {
+  font-size: 3.25rem;
 }
 .hero .title-text {
   font-size: 1.25rem;
   font-weight: 400;
   color: var(--wt-color-text-muted);
   max-width: 35ch;
+}
+.hero-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+.hero-actions .button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 .hero .explore-more {
   position: absolute;
@@ -945,10 +1003,9 @@ footer {
 .hero-features {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 2.5rem;
+  gap: 2rem 2.5rem;
   width: 100%;
   max-width: 1200px;
-  text-align: center;
   padding: 0 1rem;
   box-sizing: border-box;
 }
@@ -956,11 +1013,11 @@ footer {
 .feature-item h3 {
   font-size: 1.25rem;
   font-weight: 700;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.65rem;
   color: var(--wt-color-text);
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 0.6rem;
 }
 
@@ -1024,6 +1081,15 @@ html[data-theme="dark"] .hero .hero-image:hover {
 .button:hover {
   background: var(--wt-color-accent-strong);
 }
+.button-secondary {
+  color: var(--wt-color-text);
+  background: var(--wt-color-bg-elevated);
+  border: 1px solid var(--wt-color-border-subtle);
+}
+.button-secondary:hover {
+  background: var(--wt-color-bg);
+  border-color: var(--wt-color-accent);
+}
 /* Reset button styles for non-button buttons */
 button.explore-more {
   background: none;
@@ -1084,6 +1150,12 @@ figcaption {
   .content {
     max-width: 100%;
     padding: 1.5rem 24px;
+  }
+}
+
+@media screen and (max-width: 1100px) {
+  .home-content .showcase-flow {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -1225,12 +1297,27 @@ body.mobile-menu-open {
     display: none;
   }
   .hero-features {
-    grid-template-columns: 1fr;
-    gap: 2.5rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.75rem 1.5rem;
   }
   .hero {
     padding-top: 2rem;
     gap: 2rem;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .hero-features {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+  }
+  .feature-item h3 {
+    justify-content: center;
+  }
+  .feature-item p {
+    max-width: 34ch;
+    margin: 0 auto;
+    text-align: center;
   }
 }
 
@@ -1550,6 +1637,7 @@ button.explore-more {
 }
 .tabs .panel {
   display: none;
+  box-sizing: border-box;
   padding: 0;
   background: var(--wt-color-bg-elevated);
   width: 100%;
@@ -1649,6 +1737,11 @@ html[data-theme="dark"] .tabs .theme-dark {
     text-align: center;
     margin: 0.5rem 0.25rem;
     border-radius: 0.5rem 0.5rem 0 0;
+  }
+  .home-content .showcase-flow > .tabs {
+    --tabs-header-height: 94px;
+
+    height: 403px;
   }
   .tabs .label:hover {
     transform: none;

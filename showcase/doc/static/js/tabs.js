@@ -20,8 +20,8 @@
     if (shadow) {
       var style = document.createElement('style');
       style.textContent = [
-        ':host{display:block;width:100%;}',
-        'svg{display:block;max-width:100%;height:auto;margin:0 auto;}'
+        ':host{display:flex;align-items:center;justify-content:center;width:100%;height:100%;}',
+        'svg{display:block;max-width:100%;max-height:100%;width:auto;height:auto;margin:auto;}'
       ].join('');
       shadow.replaceChildren(style, content);
     } else {
