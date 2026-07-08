@@ -10,7 +10,7 @@ light_theme                = "github-light"
 dark_theme                 = "github-dark"
 [extra]
 logo_name                  = "Sevgi"
-logo_path                  = "/img/logo-.png"
+logo_path                  = "/img/logo-mark.png"
 github_repo                = "roktas/sevgi"
 site_description           = "Toolkit to create SVG content with Ruby."
 extra_menu                 = [ { title = "Showcase", link = "/showcase" } ]

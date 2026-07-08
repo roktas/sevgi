@@ -6,14 +6,13 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 20
+# Offense count: 19
 # Configuration parameters: AllowedMethods, AllowedPatterns, CountRepeatedAttributes, Max.
 Metrics/AbcSize:
   Exclude:
     - 'derender/lib/sevgi/binaries/igsev.rb'
     - 'derender/lib/sevgi/derender/attributes.rb'
     - 'geometry/lib/sevgi/geometry/element.rb'
-    - 'geometry/lib/sevgi/geometry/elements/tri.rb'
     - 'geometry/lib/sevgi/geometry/operation/align.rb'
     - 'graphics/lib/sevgi/graphics/mixtures/call.rb'
     - 'graphics/lib/sevgi/graphics/mixtures/rdf.rb'
@@ -41,7 +40,7 @@ Metrics/CyclomaticComplexity:
     - 'sundries/lib/sevgi/sundries/export/native.rb'
     - 'sundries/lib/sevgi/sundries/export/system.rb'
 
-# Offense count: 23
+# Offense count: 22
 # Configuration parameters: CountComments, Max, CountAsOne, AllowedMethods, AllowedPatterns.
 Metrics/MethodLength:
   Exclude:
@@ -51,7 +50,6 @@ Metrics/MethodLength:
     - 'function/lib/sevgi/function/shell.rb'
     - 'geometry/lib/sevgi/geometry/equation.rb'
     - 'geometry/lib/sevgi/geometry/operation/align.rb'
-    - 'graphics/lib/sevgi/graphics/auxilary/margin.rb'
     - 'graphics/lib/sevgi/graphics/element.rb'
     - 'graphics/lib/sevgi/graphics/mixtures/core.rb'
     - 'graphics/lib/sevgi/graphics/mixtures/render.rb'

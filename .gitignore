@@ -1,4 +1,6 @@
 .cache/
+/.codex
+.playwright-cli/
 coverage/
 .yardoc/
 doc/api/

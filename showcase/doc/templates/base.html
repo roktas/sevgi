@@ -17,8 +17,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
-    <link rel="preload" href="{{ get_url(path='/img/logo@2x.png') }}" as="image" media="(-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi)">
-    <link rel="preload" href="{{ get_url(path='/img/logo.png') }}" as="image" media="not all and (-webkit-min-device-pixel-ratio: 2), not all and (min-resolution: 192dpi)">
+    <link rel="preload" href="{{ get_url(path='/img/logo-mark@2x.png') }}" as="image" media="(-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi)">
+    <link rel="preload" href="{{ get_url(path='/img/logo-mark.png') }}" as="image" media="not all and (-webkit-min-device-pixel-ratio: 2), not all and (min-resolution: 192dpi)">
 
     <script>
     // iOS viewport jank fix
@@ -110,7 +110,7 @@
 
         <a href="/" class="logo-link">
             <div class="logo">
-                <img src="{{ get_url(path=config.extra.logo_path) }}" srcset="{{ get_url(path='/img/logo-.png') }} 1x, {{ get_url(path='/img/logo-@2x.png') }} 2x" alt="logo" width="44" height="44" decoding="sync" fetchpriority="high">
+                <img src="{{ get_url(path=config.extra.logo_path) }}" srcset="{{ get_url(path='/img/logo-mark.png') }} 1x, {{ get_url(path='/img/logo-mark@2x.png') }} 2x" alt="logo" width="44" height="44" decoding="sync" fetchpriority="high">
                 <span class="logo-text">{{ config.extra.logo_name }}</span>
             </div>
         </a>

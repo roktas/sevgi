@@ -39,6 +39,13 @@ module Sevgi
           Equation.horizontal(3).send(:linear_vs_quadratic, Object.new)
         end
       end
+
+      def test_unknown_equation_intersection_raises_panic_error
+        custom = Class.new(Equation).new
+        error = assert_raises(PanicError) { Equation.horizontal(1).intersect(custom) }
+
+        assert_match(/Intersection not implemented/, error.message)
+      end
     end
   end
 end

@@ -36,7 +36,7 @@ module Sevgi
         in [Quadratic, Quadratic]
           quadratic_vs_quadratic(other)
         else
-          Error.("TODO")
+          PanicError.("Intersection not implemented: #{self.class} / #{other.class}")
         end
 
         Array(points)

@@ -8,7 +8,7 @@ module Sevgi
       end
     end
 
-    # Circle placeholder for future quadratic equation support.
+    # Circle equation support is not implemented yet.
     class Circle
       # Returns the circle equation.
       # @abstract Circle equation support is not implemented yet.

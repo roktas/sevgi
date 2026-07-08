@@ -58,16 +58,13 @@ module Sevgi
       # @return [String]
       def yml! = ::File.basename(yml)
 
-      # A gross hack to avoid touching filesystem during testing.  Intercept the Save methods to display output in stdout
-      # instead of saving an actual file.
-
       # @overload run_passive(*args)
-      #   Runs the script with passive Save overrides.
+      #   Runs the script without writing Save output to files.
       #   @param args [Array<String>] extra command arguments
       #   @return [Sevgi::Test::Shell::Result]
       def run_passive(*)
         warn("...#{name}")
-        Shell.run("sevgi", "-r", "sevgi/showcase/kludge", file, *)
+        Shell.run("sevgi", "-r", "sevgi/showcase/passive", file, *)
       end
 
       private
