@@ -31,104 +31,39 @@
       {{ svg_content_dark | safe }}
     </template>
     <div class="svg-output" data-light-template="svg-light-{{ base }}" data-dark-template="svg-dark-{{ base }}">
+      <noscript>
+        {{ svg_content_light | safe }}
+      </noscript>
     </div>
   </div>
 
   <input class="input" name="tabs-{{ base }}" type="radio" id="tab-{{ base }}-2"/>
-  <label class="label light-only" for="tab-{{ base }}-2" title="Ruby Code"><i class="fa-solid fa-gem"></i></label>
+  <label class="label" for="tab-{{ base }}-2" title="Ruby Code"><i class="fa-solid fa-gem"></i></label>
   <div class="panel code-panel ruby-panel">
+    <div class="theme-light">
 {{ "```ruby
 " ~ ruby_content_light ~ "
 ```" | markdown | safe }}
-  </div>
-  
-  <input class="input" name="tabs-{{ base }}" type="radio" id="tab-{{ base }}-3"/>
-  <label class="label dark-only" for="tab-{{ base }}-3" title="Ruby Code"><i class="fa-solid fa-gem"></i></label>
-  <div class="panel code-panel ruby-panel">
+    </div>
+    <div class="theme-dark">
 {{ "```ruby
 " ~ ruby_content_dark ~ "
 ```" | markdown | safe }}
+    </div>
   </div>
   
-  <input class="input" name="tabs-{{ base }}" type="radio" id="tab-{{ base }}-4"/>
-  <label class="label light-only" for="tab-{{ base }}-4" title="SVG Code"><i class="fa-solid fa-code"></i></label>
+  <input class="input" name="tabs-{{ base }}" type="radio" id="tab-{{ base }}-3"/>
+  <label class="label" for="tab-{{ base }}-3" title="XML Code"><i class="fa-solid fa-code"></i></label>
   <div class="panel code-panel svg-code-panel">
-{{ "```svg
+    <div class="theme-light">
+{{ "```xml
 " ~ svg_content_light ~ "
 ```" | markdown | safe }}
-  </div>
-  
-  <input class="input" name="tabs-{{ base }}" type="radio" id="tab-{{ base }}-5"/>
-  <label class="label dark-only" for="tab-{{ base }}-5" title="SVG Code"><i class="fa-solid fa-code"></i></label>
-  <div class="panel code-panel svg-code-panel">
-{{ "```svg
+    </div>
+    <div class="theme-dark">
+{{ "```xml
 " ~ svg_content_dark ~ "
 ```" | markdown | safe }}
+    </div>
   </div>
 </div>
-
-<style>
-  /* Hide dark-only tabs in light mode */
-  [data-theme="light"] .dark-only,
-  .dark-only {
-    display: none;
-  }
-  
-  /* Hide light-only tabs in dark mode */
-  [data-theme="dark"] .light-only {
-    display: none;
-  }
-  
-  /* Fallback for systems without explicit theme attribute */
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) .light-only {
-      display: none;
-    }
-  }
-  
-  @media (prefers-color-scheme: light) {
-    :root:not([data-theme="dark"]) .dark-only {
-      display: none;
-    }
-  }
-</style>
-
-<script>
-(function() {
-  function getCurrentTheme() {
-    const root = document.documentElement;
-    const dataTheme = root.getAttribute('data-theme');
-    if (dataTheme) return dataTheme;
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  }
-  
-  function updateSVG(container) {
-    const theme = getCurrentTheme();
-    const templateId = theme === 'dark' ? container.dataset.darkTemplate : container.dataset.lightTemplate;
-    const template = document.getElementById(templateId);
-    if (template) {
-      container.innerHTML = '';
-      const clone = template.content.cloneNode(true);
-      container.appendChild(clone);
-    }
-  }
-  
-  // Initialize all SVG containers
-  document.querySelectorAll('.svg-output').forEach(updateSVG);
-  
-  // Watch for theme changes
-  const observer = new MutationObserver(() => {
-    document.querySelectorAll('.svg-output').forEach(updateSVG);
-  });
-  
-  observer.observe(document.documentElement, {
-    attributes: true,
-    attributeFilter: ['data-theme']
-  });
-  
-  // Watch for system theme changes
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-    document.querySelectorAll('.svg-output').forEach(updateSVG);
-  });
-})();
-</script>

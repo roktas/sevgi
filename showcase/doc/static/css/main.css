@@ -1569,9 +1569,37 @@ button.explore-more {
   justify-content: center;
   padding: 2rem;
 }
+.tabs .theme-dark {
+  display: none;
+}
+html[data-theme="light"] .tabs .theme-light {
+  display: block;
+}
+html[data-theme="light"] .tabs .theme-dark {
+  display: none;
+}
+html[data-theme="dark"] .tabs .theme-light {
+  display: none;
+}
+html[data-theme="dark"] .tabs .theme-dark {
+  display: block;
+}
+.tabs .svg-output {
+  width: 100%;
+}
 .tabs .panel.svg-panel svg {
+  display: block;
   max-width: 100%;
   height: auto;
+  margin: 0 auto;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .tabs .theme-light {
+    display: none;
+  }
+  :root:not([data-theme="light"]) .tabs .theme-dark {
+    display: block;
+  }
 }
 @media (min-width: 600px) {
   .tabs .panel {
