@@ -6,7 +6,9 @@ weight = 3
 Sevgi examples are executable `.sevgi` scripts generated from the tested source files in `showcase/srv`; the SVG panel
 shows the rendered output, the Ruby panel shows the script that produced it, and the examples are small enough to read
 end to end while still showing the main workflow: keep drawing data in Ruby, compose the drawing with helpers when
-useful, then emit SVG elements through the DSL.
+useful, then emit SVG elements through the DSL.[^victor-book]
+
+[^victor-book]: Some examples are adapted from the [Victor Book examples](https://github.com/DannyBen/victor-book/tree/master/src/examples).
 
 <div class="showcase-flow">
 {{ tabs(base="meter-face", dir="../showcase") }}

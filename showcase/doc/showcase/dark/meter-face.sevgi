@@ -1,6 +1,5 @@
 #!/usr/bin/env -S ruby -S sevgi
 # frozen_string_literal: true
-# Example adapted from: https://github.com/DannyBen/victor-book/blob/master/src/examples/meter/meter.rb
 
 LED_COUNT = 10
 LED_GAP = 2
