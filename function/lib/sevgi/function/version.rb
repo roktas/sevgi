@@ -3,6 +3,6 @@
 module Sevgi
   module Function
     # Current version of the Sevgi function gem.
-    VERSION = "0.93.0"
+    VERSION = "0.93.1"
   end
 end

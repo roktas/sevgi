@@ -5,6 +5,18 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## Unreleased
 
+## 0.93.1 - 2026-07-08
+
+### Changed
+
+- Added the checker board example to the documentation showcase flow.
+- Consolidated Victor Book attribution for adapted showcase examples into a single documentation note.
+
+### Fixed
+
+- Fixed documentation site deployment to build with Zola 0.22.1 so showcase code syntax highlighting is rendered in
+  production.
+
 ## 0.93.0 - 2026-07-08
 
 ### Added
