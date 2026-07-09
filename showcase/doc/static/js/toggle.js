@@ -1,4 +1,3 @@
-// theme.js - save to /js/ folder
 (function() {
   var html = document.documentElement;
   var syntaxLight = document.getElementById('syntax-light');
@@ -47,8 +46,6 @@
   }
   
   function init() {
-    // BURASI DEĞİŞTİ: querySelector yerine querySelectorAll
-    // Sayfadaki tüm tema butonlarını (hem mobil hem masaüstü) bulup olay ekliyoruz.
     var btns = document.querySelectorAll('.theme-toggle');
     btns.forEach(function(btn) {
       btn.removeEventListener('click', toggle);

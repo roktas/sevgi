@@ -71,7 +71,7 @@ h2 {
   position: relative;
   display: inline-block;
 }
-/* Hand-drawn underline - turns gold on hover (Anchor inside h2 gets the underline) */
+/* Accent underline for h2 links */
 h2 > a::after {
   content: "";
   position: absolute;
@@ -79,8 +79,8 @@ h2 > a::after {
   bottom: -0.3rem;
   width: 45%;
   height: 2px;
-  background: var(--wt-color-craft-brown);
-  opacity: 0.5;
+  background: var(--wt-color-accent);
+  opacity: 0.35;
   border-radius: 1px;
   transition: background 150ms ease-out, opacity 150ms ease-out;
 }
@@ -596,7 +596,7 @@ main {
 .terminal .prompt {
   color: var(--wt-color-text-soft);
 }
-/* Command text after prompt - bold amber for visibility */
+/* Command text after prompt */
 .terminal .cmd {
   color: var(--wt-color-accent);
   font-weight: 600;
@@ -1049,6 +1049,14 @@ footer {
 .feature-item i {
   color: var(--wt-color-accent-strong);
 }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .feature-item i {
+    color: #c55bc5;
+  }
+}
+html[data-theme="dark"] .feature-item i {
+  color: #c55bc5;
+}
 
 .feature-item p {
   font-size: 0.95rem;
@@ -1112,7 +1120,6 @@ html[data-theme="dark"] .hero .hero-image:hover {
 }
 .button-secondary:hover {
   background: var(--wt-color-bg);
-  border-color: var(--wt-color-accent);
 }
 /* Reset button styles for non-button buttons */
 button.explore-more {
@@ -1487,6 +1494,22 @@ header .logo:hover img {
   filter: drop-shadow(0 0 8px var(--wt-shadow-accent-strong));
   transition: filter 200ms ease;
 }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) header .logo img {
+    filter: brightness(0.88) contrast(0.92) saturate(0.95);
+  }
+  :root:not([data-theme="light"]) header .logo:hover img {
+    filter: brightness(0.9) contrast(0.95) saturate(0.95)
+      drop-shadow(0 0 6px var(--wt-shadow-accent-strong));
+  }
+}
+html[data-theme="dark"] header .logo img {
+  filter: brightness(0.88) contrast(0.92) saturate(0.95);
+}
+html[data-theme="dark"] header .logo:hover img {
+  filter: brightness(0.9) contrast(0.95) saturate(0.95)
+    drop-shadow(0 0 6px var(--wt-shadow-accent-strong));
+}
 /* Explore more bounce animation */
 @keyframes gentle-bounce {
   0%,
@@ -1839,7 +1862,7 @@ html[data-theme="dark"] .tabs .theme-dark {
     margin-right: auto;
   }
   
-  /* CRITICAL: Completely hide the text next to the logo on mobile */
+  /* Hide the text next to the logo on mobile */
   .logo .logo-text {
     display: none !important;
   }
