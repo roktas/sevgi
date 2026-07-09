@@ -882,13 +882,13 @@ footer {
     var(--vh-full, 100lvh) - var(--wt-header-height) -
       env(safe-area-inset-top, 0px)
   );
-  padding: 4rem 40px 4rem;
+  padding: 2rem 40px 3.5rem;
   position: relative;
   display: flex;
   flex-direction: column !important; /* Forces vertical stacking */
   align-items: center;
   justify-content: center;
-  gap: 3rem;
+  gap: 4rem;
   overflow: visible;
   box-sizing: border-box;
 }
@@ -899,8 +899,17 @@ footer {
 .hero-header {
   display: flex;
   align-items: center;
-  justify-content: space-evenly;
+  justify-content: space-between;
   width: 100%;
+  max-width: 1200px;
+  padding: 0 1rem;
+  gap: clamp(2rem, 7vw, 7rem);
+  box-sizing: border-box;
+}
+.hero-header .welcome {
+  flex: 0 1 42ch;
+  max-width: 42ch;
+  text-align: left;
 }
 
 /* Ensure flex children respect container bounds */
@@ -912,10 +921,9 @@ footer {
 .hero .hero-image {
   /* iOS jank fix: --vh-full set by JS, fallback to lvh. See base.html. */
   max-height: calc(var(--vh-full, 100lvh) * 0.55);
-  max-width: 45%;
+  height: min(55vh, 450px);
   width: auto;
-  aspect-ratio: 1;
-  object-fit: contain;
+  aspect-ratio: 28 / 45;
   flex-shrink: 1;
   /* Subtle glow behind the logo */
   filter: drop-shadow(0 8px 24px rgba(217, 119, 6, 0.15));
@@ -982,12 +990,12 @@ footer {
   font-size: 1.25rem;
   font-weight: 400;
   color: var(--wt-color-text-muted);
-  max-width: 35ch;
+  max-width: 42ch;
 }
 .hero-actions {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   flex-wrap: wrap;
   gap: 0.75rem;
   margin-top: 1.5rem;
@@ -1323,6 +1331,14 @@ body.mobile-menu-open {
     flex-direction: column;
     text-align: center;
     gap: 2rem;
+  }
+  .hero-header .welcome {
+    flex: none;
+    max-width: none;
+    text-align: center;
+  }
+  .hero-actions {
+    justify-content: center;
   }
   .hero .hero-image {
     display: none;
