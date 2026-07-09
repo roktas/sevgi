@@ -437,6 +437,30 @@ main {
 .content p:empty {
   display: none;
 }
+.content .footnote-definition {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  margin-top: 2.25rem;
+  font-size: 0.85rem;
+  color: var(--wt-color-text-soft);
+}
+.content .footnote-definition + .footnote-definition {
+  margin-top: 0.65rem;
+}
+.content .footnote-definition-label {
+  flex: 0 0 auto;
+  color: var(--wt-color-text-soft);
+  font-size: 0.7rem;
+  line-height: 1;
+}
+.content .footnote-definition p {
+  margin: 0;
+  line-height: 1.5;
+}
+.content .footnote-definition a {
+  color: var(--wt-color-text-muted);
+}
 /* Images - horizontally scrollable, never shrink */
 .content p:has(> img) {
   overflow-x: auto;
