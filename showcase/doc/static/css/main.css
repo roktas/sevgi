@@ -1740,8 +1740,10 @@ html[data-theme="dark"] .tabs .theme-dark {
 }
 .tabs .panel.svg-panel svg {
   display: block;
+  width: 100%;
+  height: 100%;
   max-width: 100%;
-  height: auto;
+  max-height: 100%;
   margin: 0 auto;
 }
 @media (prefers-color-scheme: dark) {
