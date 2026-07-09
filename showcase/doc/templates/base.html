@@ -138,12 +138,14 @@
     <div class="mobile-menu-overlay" aria-hidden="true"></div>
     <nav class="mobile-menu" aria-hidden="true">
         <div class="mobile-menu-content">
+            {% if config.extra.extra_menu | length > 0 %}
             <div class="mobile-menu-section">
                 {% for menu in config.extra.extra_menu %}
                 <a class="mobile-nav-item" href="{{ menu.link | safe }}">{{ menu.title }}</a>
                 {% endfor %}
             </div>
             <div class="mobile-menu-divider"></div>
+            {% endif %}
             <div class="mobile-menu-section mobile-menu-toc">
                 {% set docs_section = get_section(path="_index.md") %}
                 {% set current_group = "" %}
