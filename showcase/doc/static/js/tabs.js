@@ -23,18 +23,25 @@
         ':host{display:flex;align-items:center;justify-content:center;width:100%;height:100%;}',
         'svg{display:block;max-width:100%;max-height:100%;width:auto;height:auto;margin:auto;}'
       ].join('');
-      shadow.replaceChildren(style, content);
+      replace(shadow, style, content);
     } else {
-      container.replaceChildren(content);
+      replace(container, content);
     }
 
     container.dataset.currentTemplate = templateId;
   }
 
+  function replace(node) {
+    while (node.firstChild) node.removeChild(node.firstChild);
+
+    for (var i = 1; i < arguments.length; i++) {
+      node.appendChild(arguments[i]);
+    }
+  }
+
   function renderAll() {
-    document
-      .querySelectorAll('.svg-output[data-light-template][data-dark-template]')
-      .forEach(render);
+    var outputs = document.querySelectorAll('.svg-output[data-light-template][data-dark-template]');
+    Array.prototype.forEach.call(outputs, render);
   }
 
   function init() {

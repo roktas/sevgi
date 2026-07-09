@@ -3,8 +3,11 @@
 
 HEART_PATH = "M10,35 A20,20,0,0,1,50,35 A20,20,0,0,1,90,35 Q90,65,50,95 Q10,65,10,35 Z"
 
-SVG :minimal, viewBox: "-10 -10 120 120" do
-  mask id: "heart" do
+SVG :minimal, width: 120, height: 120, viewBox: "-10 -10 120 120" do
+  mask id: "heart",
+       maskUnits: "userSpaceOnUse",
+       maskContentUnits: "userSpaceOnUse",
+       x: 0, y: 0, width: 100, height: 100 do
     rect x: 0, y: 0, width: 100, height: 100, fill: "white"
     path d: HEART_PATH, fill: "black"
   end

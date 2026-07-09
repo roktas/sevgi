@@ -16,6 +16,7 @@ helpers when useful, then emit SVG elements through the DSL.
 {{ tabs(base="heart-mask",  dir="../showcase") }}
 {{ tabs(base="snow-flake",  dir="../showcase") }}
 {{ tabs(base="pacman-single", dir="../showcase") }}
+{{ tabs(base="pacman-pokey",  dir="../showcase") }}
 {{ tabs(base="ruler-hline",   dir="../showcase") }}
 </div>
 

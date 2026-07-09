@@ -6,7 +6,7 @@ LED_GAP = 2
 LED_WIDTH = 10
 TOTAL_WIDTH = (LED_COUNT * (LED_WIDTH + LED_GAP)) + 8
 
-SVG :minimal, viewBox: "0 0 #{TOTAL_WIDTH} 30" do
+SVG :minimal, width: TOTAL_WIDTH, height: 30, viewBox: "0 0 #{TOTAL_WIDTH} 30" do
   rect x: 2, y: 2, width: TOTAL_WIDTH - 4, height: 26,
        rx: 4, fill: "none", stroke: "#d8d8d8"
 

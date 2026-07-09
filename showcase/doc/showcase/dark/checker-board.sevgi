@@ -91,6 +91,6 @@ end
   board.add_piece 7, col, dark: false
 end
 
-SVG :minimal, viewBox: board.view_box do
+SVG :minimal, width: board.width, height: board.height, viewBox: board.view_box do
   board.render_on(self)
 end.Save
