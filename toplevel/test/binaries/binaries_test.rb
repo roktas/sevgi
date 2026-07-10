@@ -163,6 +163,27 @@ module Sevgi
         end
       end
 
+      def test_executable_accepts_empty_script
+        with_script("") do |file|
+          out, err, status = run_sevgi(file)
+
+          assert_equal(0, status.exitstatus)
+          assert_empty(out)
+          assert_empty(err)
+        end
+      end
+
+      def test_executable_reports_missing_require_for_empty_script
+        with_script("") do |file|
+          out, err, status = run_sevgi("-r", "sevgi_missing_test_library", file)
+
+          assert_equal(1, status.exitstatus)
+          assert_empty(out)
+          assert_match(/sevgi_missing_test_library/, err)
+          refute_raw_error(err)
+        end
+      end
+
       def test_executable_vomits_missing_require
         with_script("1\n") do |file|
           out, err, status = run_sevgi("-x", "-r", "sevgi_missing_test_library", file)

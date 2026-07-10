@@ -189,6 +189,14 @@ module Sevgi
       end
     end
 
+    def test_execute_empty_string_processes_required_library
+      result = Executor.execute("", require: "json")
+
+      assert_instance_of(Executor::Scope, result)
+      assert_nil(result.recent)
+      refute(result.error?)
+    end
+
     def test_execute_installs_dsl_in_isolated_scope
       result = Sevgi.execute(
         <<~RUBY

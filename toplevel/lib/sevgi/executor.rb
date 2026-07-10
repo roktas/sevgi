@@ -145,7 +145,7 @@ module Sevgi
 
     def self.execute_source(source, require:, receiver:, &block)
       acquired = false
-      return if source.string.empty?
+      return if source.string.empty? && require.nil?
 
       acquired = instance.trap
       scope = instance.create

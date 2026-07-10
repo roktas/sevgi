@@ -64,7 +64,7 @@ module Sevgi
 
         result = run(file = argv.shift, options)
 
-        if result.error?
+        if result&.error?
           raise result.error if options.vomit || ENV[ENVVOMIT]
 
           die(result.error, file)
