@@ -142,12 +142,12 @@ module Sevgi
       def expand_names(names, list)
         return unless names
 
-        names.replace(names.map { |name| group?(name) ? list[name] : name }.flatten)
+        names.replace(names.flat_map { |name| group?(name) ? list[name] : name }.uniq)
       end
 
       # For testing purposes
 
-      def charge = data.keys { expand(it) }
+      def charge = data.each_key { expand(it) }
 
       def flush = (@spec = {})
     end

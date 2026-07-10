@@ -105,12 +105,58 @@ module Sevgi
         Specification.data.delete(:agentSpec)
         Specification.send(:flush)
       end
+
+      def test_expanded_snapshot_is_mutation_isolated
+        Specification.import(
+          agentSpec: {
+            attributes: %i[Core id],
+            elements: %i[Descriptive title],
+            model: :SomeElements
+          }
+        )
+
+        spec = Specification[:agentSpec]
+        spec[:attributes] << :agentAttribute
+        spec[:elements] << :agentElement
+
+        assert_equal(Attribute[:Core], Specification[:agentSpec][:attributes])
+        assert_equal(Element[:Descriptive], Specification[:agentSpec][:elements])
+      ensure
+        Specification.data.delete(:agentSpec)
+        Specification.send(:flush)
+      end
     end
 
     class SpecificationConsistencyTest < Minitest::Test
       def setup = Specification.send(:charge)
 
       def teardown = Specification.send(:flush)
+
+      def test_charge_expands_each_specification
+        cache = Specification.instance_variable_get(:@spec)
+
+        assert_equal(Specification.data.keys.sort, cache.keys.sort)
+      end
+
+      def test_expanded_names_are_not_duplicated
+        Specification.data.each_key do |name|
+          spec = Specification.send(:expand, name)
+
+          assert_equal(spec[:attributes].uniq, spec[:attributes], "#{name}: Duplicate attributes")
+          assert_equal(spec[:elements].uniq, spec[:elements], "#{name}: Duplicate elements") if spec[:elements]
+        end
+      end
+
+      def test_expanded_names_belong_to_their_registry
+        Specification.data.each_key do |name|
+          spec = Specification.send(:expand, name)
+          unknown_attributes = spec[:attributes].reject { Attribute.all.include?(it) }
+          unknown_elements = (spec[:elements] || []).reject { Element.all.include?(it) }
+
+          assert_empty(unknown_attributes, "#{name}: Unknown attributes")
+          assert_empty(unknown_elements, "#{name}: Unknown elements")
+        end
+      end
 
       def test_listed_elements_are_not_duplicated_in_any_group
         Specification.data.each do |name, spec|
