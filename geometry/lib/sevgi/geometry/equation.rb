@@ -8,16 +8,19 @@ module Sevgi
       # @param slope [Numeric] line slope
       # @param intercept [Numeric] y-intercept
       # @return [Sevgi::Geometry::Equation::Linear::Diagonal]
+      # @raise [Sevgi::Geometry::Error] when a coefficient is not a finite Numeric
       def self.diagonal(slope:, intercept:) = Linear::Diagonal.new(slope:, intercept:)
 
       # Builds a horizontal linear equation.
       # @param const [Numeric] y coordinate
       # @return [Sevgi::Geometry::Equation::Linear::Horizontal]
+      # @raise [Sevgi::Geometry::Error] when const is not a finite Numeric
       def self.horizontal(const) = Linear::Horizontal.new(const)
 
       # Builds a vertical linear equation.
       # @param const [Numeric] x coordinate
       # @return [Sevgi::Geometry::Equation::Linear::Vertical]
+      # @raise [Sevgi::Geometry::Error] when const is not a finite Numeric
       def self.vertical(const) = Linear::Vertical.new(const)
 
       # Intersects this equation with another equation.

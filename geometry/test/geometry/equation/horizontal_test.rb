@@ -17,6 +17,12 @@ module Sevgi
             assert_in_delta(1.0, Equation.horizontal(1.0).y(1))
           end
 
+          def test_horizontal_rejects_invalid_constant
+            ["5", Object.new, Float::INFINITY, Float::NAN].each do |value|
+              assert_raises(Error) { Equation.horizontal(value) }
+            end
+          end
+
           def test_horizontal_approx_preserves_equation
             equ = Equation.horizontal(1.0004)
 

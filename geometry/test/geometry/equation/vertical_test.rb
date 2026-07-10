@@ -20,11 +20,10 @@ module Sevgi
             assert_equal(Float::INFINITY, equ.y(1))
           end
 
-          def test_vertical_coerces_constant
-            equ = Equation.vertical("5")
-
-            assert_equal(5.0, equ.x)
-            assert(equ.on?([5, 0]))
+          def test_vertical_rejects_invalid_constant
+            ["5", Object.new, Float::INFINITY, Float::NAN].each do |value|
+              assert_raises(Error) { Equation.vertical(value) }
+            end
           end
 
           def test_vertical_approx_preserves_equation

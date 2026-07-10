@@ -28,6 +28,25 @@ module Sevgi
         assert_equal(Point[3, 5], Point[3.0, 5.0])
       end
 
+      def test_point_rejects_invalid_direct_coordinates
+        [
+          ["x", 0],
+          [Object.new, 0],
+          [Float::INFINITY, 0],
+          [Float::NAN, 0]
+        ].each do |x, y|
+          assert_raises(Error) { Point[x, y] }
+        end
+      end
+
+      def test_point_rejects_malformed_tuples
+        point = Point[0, 0]
+
+        [[], [1], [1, 2, 3], ["x", 2], [Object.new, 2]].each do |tuple|
+          assert_raises(Error) { point.eq?(tuple) }
+        end
+      end
+
       def test_point_angle_returns_degrees_between_points
         [
           45.0,

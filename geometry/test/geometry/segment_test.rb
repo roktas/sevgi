@@ -17,6 +17,25 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
+      def test_segment_rejects_invalid_direct_components
+        [
+          ["x", 0],
+          [Object.new, 0],
+          [Float::INFINITY, 0],
+          [Float::NAN, 0]
+        ].each do |length, angle|
+          assert_raises(Error) { Segment[length, angle] }
+        end
+      end
+
+      def test_segment_rejects_malformed_tuples
+        segment = Segment[1, 0]
+
+        [[], [1], [1, 2, 3], ["x", 2], [Object.new, 2]].each do |tuple|
+          assert_raises(Error) { segment.eq?(tuple) }
+        end
+      end
+
       def test_segment_ending_uses_start_point
         segment = Segment[3, 180]
         [

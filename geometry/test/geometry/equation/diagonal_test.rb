@@ -29,6 +29,13 @@ module Sevgi
             ].each_slice(2) { |expected, actual| assert_in_delta(expected, actual) }
           end
 
+          def test_diagonal_rejects_invalid_coefficients
+            ["2", Object.new, Float::INFINITY, Float::NAN].each do |value|
+              assert_raises(Error) { Equation.diagonal(slope: value, intercept: 0) }
+              assert_raises(Error) { Equation.diagonal(slope: 1, intercept: value) }
+            end
+          end
+
           def test_diagonal_equation_from_line_maps_y
             [
               10.0,

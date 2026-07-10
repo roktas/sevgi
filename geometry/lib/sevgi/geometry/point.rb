@@ -100,7 +100,8 @@ module Sevgi
       # @param x [Numeric] x coordinate
       # @param y [Numeric] y coordinate
       # @return [void]
-      def initialize(x:, y:) = super(x: x.to_f, y: y.to_f)
+      # @raise [Sevgi::Geometry::Error] when a coordinate is not a finite Numeric
+      def initialize(x:, y:) = super(x: Real[:x, x], y: Real[:y, y])
 
       # Compares points by x, then y.
       # @param other [Sevgi::Geometry::Point, Array<Numeric>] point to compare

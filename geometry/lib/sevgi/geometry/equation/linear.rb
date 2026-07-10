@@ -17,11 +17,12 @@ module Sevgi
           # @param slope [Numeric] line slope
           # @param intercept [Numeric] y-intercept
           # @return [void]
+          # @raise [Sevgi::Geometry::Error] when a coefficient is not a finite Numeric
           def initialize(slope:, intercept:)
             super()
 
-            @slope = slope.to_f
-            @intercept = intercept.to_f
+            @slope = Real[:slope, slope]
+            @intercept = Real[:intercept, intercept]
           end
 
           # Returns an equation rounded to precision.
@@ -116,6 +117,7 @@ module Sevgi
           # Creates a horizontal equation.
           # @param c [Numeric] y coordinate
           # @return [void]
+          # @raise [Sevgi::Geometry::Error] when c is not a finite Numeric
           def initialize(c) = super(slope: 0.0, intercept: c)
 
           # Returns an equation rounded to precision.
@@ -146,10 +148,11 @@ module Sevgi
           # Creates a vertical equation.
           # @param c [Numeric] x coordinate
           # @return [void]
+          # @raise [Sevgi::Geometry::Error] when c is not a finite Numeric
           def initialize(c)
             super()
 
-            @x = c.to_f
+            @x = Real[:x, c]
           end
 
           # Returns an equation rounded to precision.
