@@ -104,48 +104,49 @@ module Sevgi
       # @return [String] SVG source with an added style element when a closing svg tag is present
       def inject(svg, css) = svg.sub("</svg>", "<style>#{css}</style></svg>")
 
-      # Replaces a placeholder text object in a PDF stream.
+      # Replaces exact placeholder text objects in PDF streams.
+      # The placeholder must appear as a PDF literal string in a white text object matching the export stamp pattern.
+      # Replacement text is escaped as a PDF literal string. When no exact match is replaced, the output file is not
+      # written.
       # @param infile [String] source PDF file path
       # @param outfile [String] destination PDF file path
       # @param stamp [String] replacement text
       # @param placeholder [String] placeholder text to replace
-      # @return [Boolean] true when a matching placeholder was replaced
-      # @raise [Sevgi::Sundries::Export::ExportError] when the PDF files cannot be read, written, or stamped
+      # @return [Boolean] true when at least one matching placeholder was replaced
+      # @raise [Sevgi::Sundries::Export::ExportError] when the PDF cannot be read, rewritten, or stamped
       def stamp(infile, outfile, stamp:, placeholder:)
         doc = HexaPDF::Document.open(infile)
-        stamped = false
+        replacements = 0
 
         doc.pages.each do |page|
           Array(page[:Contents]).each do |ref|
             obj = doc.object(ref)
             next unless obj.respond_to?(:stream)
 
-            data = obj.stream
-            next unless data.include?("(#{placeholder})")
+            data, count = stamp_stream(obj.stream, stamp:, placeholder:)
+            next if count.zero?
 
-            data = data.gsub(
-              %r{1 1 1 rg (BT\s+.*?/\S+ \d+ Tf\s+)\(#{Regexp.escape(placeholder)}\)Tj}m,
-              "0.101961 0.101961 0.101961 rg \\1(#{stamp})Tj"
-            )
+            replacements += count
 
             obj.stream = data
             obj.set_filter(:FlateDecode)
-            stamped = true
           end
         end
 
-        doc.write(outfile, optimize: true) if stamped
-        stamped
+        doc.write(outfile, optimize: true) if replacements.positive?
+        replacements.positive?
       rescue HexaPDF::Error, ::SystemCallError => e
         ExportError.("PDF stamp error: #{e.message}")
       end
 
-      # Replaces a placeholder text object inside a PDF file in place.
+      # Replaces exact placeholder text objects inside a PDF file in place.
+      # The input file is replaced only after at least one exact placeholder match is rewritten into a non-empty output
+      # file.
       # @param infile [String] PDF file path to modify
       # @param stamp [String] replacement text
       # @param placeholder [String] placeholder text to replace
-      # @return [Boolean] true when a matching placeholder was replaced
-      # @raise [Sevgi::Sundries::Export::ExportError] when the PDF file cannot be read, written, stamped, or replaced
+      # @return [Boolean] true when at least one matching placeholder was replaced
+      # @raise [Sevgi::Sundries::Export::ExportError] when the PDF cannot be read, rewritten, stamped, or replaced
       def stamp!(infile, stamp:, placeholder:)
         temp = Tempfile.new(%w[stamp .pdf], File.dirname(infile))
         stamped = stamp(infile, temp.path, stamp:, placeholder:)
@@ -233,6 +234,34 @@ module Sevgi
           return true unless format == :png
 
           width.round.positive? && height.round.positive?
+        end
+
+        PDF_LITERAL_ESCAPE = {
+          "\\" => "\\\\",
+          "(" => "\\(",
+          ")" => "\\)",
+          "\b" => "\\b",
+          "\f" => "\\f",
+          "\n" => "\\n",
+          "\r" => "\\r",
+          "\t" => "\\t"
+        }.freeze
+
+        private_constant :PDF_LITERAL_ESCAPE
+
+        def pdf_literal(text)
+          "(#{text.to_s.each_char.map { PDF_LITERAL_ESCAPE.fetch(it, it) }.join})"
+        end
+
+        def stamp_stream(data, stamp:, placeholder:)
+          count = 0
+          pattern = %r{1 1 1 rg (BT\s+.*?/\S+ \d+ Tf\s+)#{Regexp.escape(pdf_literal(placeholder))}Tj}m
+          stamped = data.gsub(pattern) do
+            count += 1
+            "0.101961 0.101961 0.101961 rg #{Regexp.last_match(1)}#{pdf_literal(stamp)}Tj"
+          end
+
+          [stamped, count]
         end
       end
 

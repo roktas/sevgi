@@ -246,6 +246,96 @@ module Sevgi
           )
         end
 
+        def test_stamp_returns_false_when_placeholder_is_absent
+          Dir.mktmpdir do |dir|
+            infile = File.join(dir, "in.pdf")
+            outfile = File.join(dir, "out.pdf")
+            write_pdf(infile, "1 1 1 rg BT /F1 12 Tf (other)Tj ET")
+
+            refute(Export.stamp(infile, outfile, stamp: "new", placeholder: "old"))
+            refute_path_exists(outfile)
+          end
+        end
+
+        def test_stamp_returns_false_when_placeholder_pattern_mismatches
+          Dir.mktmpdir do |dir|
+            infile = File.join(dir, "in.pdf")
+            outfile = File.join(dir, "out.pdf")
+            write_pdf(infile, "0 0 0 rg BT /F1 12 Tf (old)Tj ET")
+
+            refute(Export.stamp(infile, outfile, stamp: "new", placeholder: "old"))
+            refute_path_exists(outfile)
+          end
+        end
+
+        def test_stamp_replaces_multiple_matching_placeholders
+          Dir.mktmpdir do |dir|
+            infile = File.join(dir, "in.pdf")
+            outfile = File.join(dir, "out.pdf")
+            write_pdf(
+              infile,
+              "1 1 1 rg BT /F1 12 Tf (old)Tj ET\n1 1 1 rg BT /F1 12 Tf (old)Tj ET"
+            )
+
+            assert(Export.stamp(infile, outfile, stamp: "new", placeholder: "old"))
+            assert_equal(
+              [
+                "0.101961 0.101961 0.101961 rg BT /F1 12 Tf (new)Tj ET\n" \
+                  "0.101961 0.101961 0.101961 rg BT /F1 12 Tf (new)Tj ET"
+              ],
+              pdf_streams(outfile)
+            )
+          end
+        end
+
+        def test_stamp_escapes_pdf_literal_replacement_text
+          Dir.mktmpdir do |dir|
+            infile = File.join(dir, "in.pdf")
+            outfile = File.join(dir, "out.pdf")
+            write_pdf(infile, "1 1 1 rg BT /F1 12 Tf (old)Tj ET")
+
+            assert(Export.stamp(infile, outfile, stamp: "a (b) \\ c", placeholder: "old"))
+            assert_equal(["0.101961 0.101961 0.101961 rg BT /F1 12 Tf (a \\(b\\) \\\\ c)Tj ET"], pdf_streams(outfile))
+          end
+        end
+
+        def test_stamp_treats_ruby_replacement_backrefs_as_text
+          Dir.mktmpdir do |dir|
+            infile = File.join(dir, "in.pdf")
+            outfile = File.join(dir, "out.pdf")
+            write_pdf(infile, "1 1 1 rg BT /F1 12 Tf (old)Tj ET")
+
+            assert(Export.stamp(infile, outfile, stamp: "\\1 $&", placeholder: "old"))
+            assert_equal(["0.101961 0.101961 0.101961 rg BT /F1 12 Tf (\\\\1 $&)Tj ET"], pdf_streams(outfile))
+          end
+        end
+
+        def test_stamp_bang_leaves_input_unchanged_on_noop
+          Dir.mktmpdir do |dir|
+            infile = File.join(dir, "in.pdf")
+            write_pdf(infile, "0 0 0 rg BT /F1 12 Tf (old)Tj ET")
+            before = File.binread(infile)
+
+            refute(Export.stamp!(infile, stamp: "new", placeholder: "old"))
+
+            assert_equal(before, File.binread(infile))
+          end
+        end
+
+        def test_stamp_bang_leaves_input_unchanged_on_failure
+          Dir.mktmpdir do |dir|
+            infile = File.join(dir, "in.pdf")
+            write_pdf(infile, "1 1 1 rg BT /F1 12 Tf (old)Tj ET")
+            before = File.binread(infile)
+
+            Export.stub(:stamp, -> (*) { raise ExportError, "PDF stamp error: failed" }) do
+              assert_raises(ExportError) { Export.stamp!(infile, stamp: "new", placeholder: "old") }
+            end
+
+            assert_equal(before, File.binread(infile))
+          end
+        end
+
         def test_stamp_wraps_pdf_errors
           Dir.mktmpdir do |dir|
             infile = File.join(dir, "bad.pdf")
@@ -309,6 +399,14 @@ module Sevgi
           Box.new(nil, nil, right - left, top - bottom)
         end
 
+        def pdf_streams(path)
+          doc = HexaPDF::Document.open(path)
+
+          doc.pages.flat_map do |page|
+            Array(page[:Contents]).map { |ref| doc.object(ref).stream }
+          end
+        end
+
         def raster_bbox(surface)
           min_x = surface.width
           min_y = surface.height
@@ -328,6 +426,13 @@ module Sevgi
           end
 
           Box.new(min_x, min_y, max_x - min_x + 1, max_y - min_y + 1)
+        end
+
+        def write_pdf(path, *streams)
+          doc = HexaPDF::Document.new
+          page = doc.pages.add
+          page[:Contents] = streams.map { |stream| doc.add({}, stream:) }
+          doc.write(path)
         end
 
         def zero_sized_svg
