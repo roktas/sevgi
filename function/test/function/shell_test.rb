@@ -131,6 +131,23 @@ module Sevgi
           assert_equal(200_000, result.err.size)
         end
 
+        def test_sh_handles_full_duplex_large_io
+          size = 2 * 1024 * 1024
+          script = <<~RUBY
+            STDOUT.write("x" * #{size})
+            STDOUT.flush
+            input = STDIN.read
+            STDERR.write(input.bytesize.to_s)
+          RUBY
+
+          result = Timeout.timeout(5) do
+            Function.sh(RbConfig.ruby, "-e", script) { "y" * size }
+          end
+
+          assert_equal(size, result.out.bytesize)
+          assert_equal(size.to_s, result.err)
+        end
+
         def test_sh_restores_sigint_handler
           previous = Signal.trap("INT", "DEFAULT")
           handler = proc { }
@@ -142,6 +159,49 @@ module Sevgi
           assert_same(handler, current)
         ensure
           Signal.trap("INT", previous) if previous
+        end
+
+        def test_sh_cleans_up_when_input_block_raises
+          Dir.mktmpdir do |dir|
+            pidfile = ::File.join(dir, "pid")
+            script = <<~RUBY
+              File.write(#{pidfile.inspect}, Process.pid)
+              STDIN.read
+            RUBY
+            previous = Signal.trap("INT", "DEFAULT")
+            handler = proc { }
+            Signal.trap("INT", handler)
+
+            Timeout.timeout(5) do
+              assert_raises(RuntimeError) do
+                Function.sh(RbConfig.ruby, "-e", script) do
+                  wait_for_file(pidfile)
+                  raise "input failed"
+                end
+              end
+            end
+
+            current = Signal.trap("INT", previous)
+
+            assert_same(handler, current)
+            assert_process_exited(Integer(::File.read(pidfile)))
+          ensure
+            Signal.trap("INT", previous) if previous
+          end
+        end
+
+        def test_sh_sigint_second_interrupt_kills
+          signals = []
+          runner = Runner.new
+
+          Process.stub(:kill, -> (signal, pid) { signals << [signal, pid] }) do
+            capture_io do
+              runner.send(:handle_sigint, 12_345)
+              runner.send(:handle_sigint, 12_345)
+            end
+          end
+
+          assert_equal([["TERM", 12_345], ["KILL", 12_345]], signals)
         end
 
         def test_sh_writes_block_input_once
@@ -157,6 +217,23 @@ module Sevgi
         end
 
         private
+
+        def assert_process_exited(pid)
+          Timeout.timeout(2) do
+            loop do
+              ::Process.kill(0, pid)
+              sleep(0.05)
+            rescue Errno::ESRCH
+              break
+            end
+          end
+        end
+
+        def wait_for_file(path)
+          Timeout.timeout(2) do
+            sleep(0.01) until ::File.exist?(path)
+          end
+        end
 
         def clear_executable_cache
           return unless Function.instance_variable_defined?(:@executable_cache)

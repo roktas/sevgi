@@ -91,12 +91,9 @@ module Sevgi
         def call(*args, &input)
           return Result.dummy if args.empty?
 
+          @coathooks = 0
           outs, errs, status = Open3.popen3(*args) do |stdin, stdout, stderr, wait_thread|
-            content = input.call if input
-            stdin.write(content) if content
-            stdin.close
-
-            capture(stdout, stderr, wait_thread)
+            capture(stdin, stdout, stderr, wait_thread, &input)
           end
 
           Result.new(args, outs, errs, status.exitstatus)
@@ -104,19 +101,47 @@ module Sevgi
 
         private
 
-        def capture(stdout, stderr, wait_thread)
+        # rubocop:disable Lint/RescueException
+        def capture(stdin, stdout, stderr, wait_thread, &input)
           # Handle `^C`
           previous = trap("INT") { handle_sigint(wait_thread.pid) }
+          readers = start_readers(stdout, stderr)
 
-          outs = Thread.new { stdout.readlines.map(&:chomp) }
-          errs = Thread.new { stderr.readlines.map(&:chomp) }
-
-          [outs.value, errs.value, wait_thread.value]
+          read_process(stdin, wait_thread, readers, &input)
+        rescue Exception
+          cleanup_failed_capture(stdin, wait_thread, readers)
+          raise
         ensure
+          close_input(stdin)
           trap("INT", previous) if previous
+        end
+        # rubocop:enable Lint/RescueException
+
+        def start_readers(stdout, stderr)
+          [
+            Thread.new { stdout.readlines.map(&:chomp) },
+            Thread.new { stderr.readlines.map(&:chomp) }
+          ]
+        end
+
+        def read_process(stdin, wait_thread, readers, &input)
+          write_input(stdin, &input)
+          close_input(stdin)
+
+          status = wait_thread.value
+
+          [readers[0].value, readers[1].value, status]
+        end
+
+        def cleanup_failed_capture(stdin, wait_thread, readers)
+          close_input(stdin)
+          stop_process(wait_thread)
+          join_readers(readers)
         end
 
         def handle_sigint(pid)
+          @coathooks += 1
+
           message, signal = if @coathooks > 1
             ["SIGINT received again. Force quitting...", "KILL"]
           else
@@ -126,28 +151,66 @@ module Sevgi
           warn
           warn(message)
           ::Process.kill(signal, pid)
-          @coathooks += 1
         rescue Errno::ESRCH
           warn("No process to kill.")
+        end
+
+        def write_input(stdin)
+          return unless block_given?
+
+          content = yield
+          stdin.write(content) if content
+        end
+
+        def close_input(stdin)
+          stdin.close unless stdin.closed?
+        rescue IOError
+          nil
+        end
+
+        def stop_process(wait_thread)
+          return unless wait_thread&.alive?
+
+          kill_process("TERM", wait_thread.pid)
+          return if wait_thread.join(1)
+
+          kill_process("KILL", wait_thread.pid)
+          wait_thread.join
+        end
+
+        def kill_process(signal, pid)
+          ::Process.kill(signal, pid)
+        rescue Errno::ESRCH
+          nil
+        end
+
+        def join_readers(readers)
+          Array(readers).each(&:join)
         end
       end
 
       # @overload sh(*args, &block)
       #   Runs a command and captures stdout, stderr, and exit status.
       #   @param args [Array<String>] command and arguments
-      #   @yield optional content writer for stdin
-      #   @yieldreturn [String, nil]
+      #   @yield optional stdin producer, evaluated once after output readers start
+      #   @yieldreturn [String, nil] content to write to stdin; nil writes nothing
       #   @return [Sevgi::Function::Shell::Result]
-      #   @raise [Errno::ENOENT] when the executable cannot be spawned
+      #   @raise [SystemCallError] when the executable cannot be spawned or process pipes cannot be opened
+      #   @raise [StandardError] when the input block raises; the child is terminated and reaped before propagation
+      #   @note The child's stdin is closed after the input block. During execution, the first SIGINT sends TERM to the
+      #     child process and the second SIGINT sends KILL; the previous SIGINT handler is restored before return.
       def sh(...) = Runner.new.(...)
 
       # Runs a command, requiring both executable lookup and successful exit status.
       # @param args [Array<String>] command and arguments
-      # @yield optional content writer for stdin
-      # @yieldreturn [String, nil]
+      # @yield optional stdin producer, evaluated once after output readers start
+      # @yieldreturn [String, nil] content to write to stdin; nil writes nothing
       # @return [Sevgi::Function::Shell::Result]
       # @raise [Sevgi::Error] when the executable is missing or the command fails
-      # @raise [Errno::ENOENT] when the executable cannot be spawned
+      # @raise [SystemCallError] when the executable cannot be spawned or process pipes cannot be opened
+      # @raise [StandardError] when the input block raises; the child is terminated and reaped before propagation
+      # @note The child's stdin is closed after the input block. During execution, the first SIGINT sends TERM to the
+      #   child process and the second SIGINT sends KILL; the previous SIGINT handler is restored before return.
       def sh!(*args, &block)
         executable!(*args) unless args.empty?
 
