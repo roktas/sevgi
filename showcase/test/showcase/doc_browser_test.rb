@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "json"
+require "English"
 require "open3"
 require "socket"
 require "timeout"
@@ -17,7 +18,7 @@ module Sevgi
         skip("set BROWSER=1 to run browser checks") unless ENV["BROWSER"] == "1"
 
         @port = free_port
-        @session = "sevgi-browser-#{$$}"
+        @session = "sevgi-browser-#{$PROCESS_ID}"
         @server = Process.spawn(
           "zola",
           "serve",
@@ -44,25 +45,25 @@ module Sevgi
       end
 
       def test_tabs_support_keyboard_navigation_and_reload
-        run_cli("resize", *VIEWPORT.map(&:to_s))
-        assert_tab_state("meter-face", ["true", "false", "false"], [false, true, true], nil)
+        cli("resize", *VIEWPORT.map(&:to_s))
+        assert_tab_state("meter-face", %w[true false false], [false, true, true], nil)
 
         cli("eval", "() => document.querySelector(\".tabs [role=tab]\").focus()")
-        run_cli("press", "ArrowRight")
-        assert_tab_state("meter-face", ["false", "true", "false"], [true, false, true], "tab-meter-face-ruby")
+        cli("press", "ArrowRight")
+        assert_tab_state("meter-face", %w[false true false], [true, false, true], "tab-meter-face-ruby")
 
-        run_cli("press", "End")
-        assert_tab_state("meter-face", ["false", "false", "true"], [true, true, false], "tab-meter-face-xml")
+        cli("press", "End")
+        assert_tab_state("meter-face", %w[false false true], [true, true, false], "tab-meter-face-xml")
 
-        run_cli("press", "Home")
-        assert_tab_state("meter-face", ["true", "false", "false"], [false, true, true], "tab-meter-face-svg")
+        cli("press", "Home")
+        assert_tab_state("meter-face", %w[true false false], [false, true, true], "tab-meter-face-svg")
 
-        run_cli("reload")
-        assert_tab_state("meter-face", ["true", "false", "false"], [false, true, true], nil)
+        cli("reload")
+        assert_tab_state("meter-face", %w[true false false], [false, true, true], nil)
       end
 
       def test_mobile_svg_bounds_cover_units_and_artwork_sizes
-        run_cli("resize", *VIEWPORT.map(&:to_s))
+        cli("resize", *VIEWPORT.map(&:to_s))
         fixtures = eval_json(
           <<~JS
             () => ["meter-face", "checker-board", "snow-flake", "ruler-hline"].map((base) => {
@@ -156,8 +157,6 @@ module Sevgi
       ensure
         server&.close
       end
-
-      def run_cli(*args) = cli(*args)
 
       def wait_for_server
         Timeout.timeout(15) do

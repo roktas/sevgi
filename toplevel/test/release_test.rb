@@ -88,7 +88,7 @@ module Sevgi
 
         assert_empty(pushes)
 
-        File.write(File.join(package_dir, "SHA256SUMS"), "0" * 64 + "  demo-1.2.3.gem\n")
+        File.write(File.join(package_dir, "SHA256SUMS"), "#{"0" * 64}  demo-1.2.3.gem\n")
         assert_raises(Preflight::Error) do
           Preflight.publish!(
             root:,

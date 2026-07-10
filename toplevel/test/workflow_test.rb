@@ -7,7 +7,7 @@ require_relative "test_helper"
 module Sevgi
   class WorkflowTest < Minitest::Test
     ROOT = File.expand_path("../..", __dir__)
-    WORKFLOWS = Dir[File.join(ROOT, ".github/workflows/*.yml")].sort.freeze
+    WORKFLOWS = Dir[File.join(ROOT, ".github/workflows/*.yml")].freeze
     ACTION = /@[0-9a-f]{40}\z/
 
     def test_workflows_parse_and_pin_external_actions

@@ -62,13 +62,8 @@ module Sevgi
         return puts(help) if (options = Options.parse(argv = Array(argv))).help
         return puts(::Sevgi::VERSION) if options.version
 
-        result = run(file = argv.shift, options)
-
-        if result&.error?
-          raise result.error if options.vomit || ENV[ENVVOMIT]
-
-          die(result.error, file)
-        end
+        file = argv.shift
+        handle(run(file, options), file, options)
 
       rescue Binaries::Sevgi::Error => e
         abort(e.message)
@@ -82,6 +77,14 @@ module Sevgi
         error.backtrace!.each { warn("  #{it}") }
 
         exit(1)
+      end
+
+      def handle(result, file, options)
+        return unless result&.error?
+
+        raise result.error if options.vomit || ENV[ENVVOMIT]
+
+        die(result.error, file)
       end
 
       def help
