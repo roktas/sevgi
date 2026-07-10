@@ -9,6 +9,50 @@ module Sevgi
     # Shell runner helpers for showcase tests.
     # @api private
     module Shell
+      # Coordinates the process-global SIGINT handler for overlapping showcase runners.
+      # @api private
+      module SignalCoordinator
+        Entry = Data.define(:runner, :pid)
+
+        class << self
+          def register(runner, pid)
+            mutex.synchronize do
+              install unless entries.any?
+              entries[runner] = Entry.new(runner, pid)
+            end
+          end
+
+          def unregister(runner)
+            mutex.synchronize do
+              entries.delete(runner)
+              restore unless entries.any?
+            end
+          end
+
+          private
+
+          def dispatch
+            active = mutex.synchronize { entries.values.dup }
+            active.each { |entry| entry.runner.send(:handle_sigint, entry.pid) }
+          end
+
+          def entries = @entries ||= {}
+
+          def install
+            @previous = Signal.trap("INT") { dispatch }
+          end
+
+          def mutex = @mutex ||= Mutex.new
+
+          def restore
+            Signal.trap("INT", @previous)
+            @previous = nil
+          end
+        end
+      end
+
+      private_constant :SignalCoordinator
+
       # Shell command result.
       # @api private
       Result = Data.define(:args, :out, :err, :exit_code) do
@@ -49,7 +93,9 @@ module Sevgi
         # @yieldreturn [Object]
         # @return [Sevgi::Test::Shell::Result]
         # @raise [StandardError] when the input block raises; the child is terminated and reaped before propagation
+        # @note The first SIGINT sends TERM and the second sends KILL. The handler is restored after the last active run.
         def run(*args, &block)
+          @coathooks = 0
           out, err, status = Open3.popen3(*args) do |stdin, stdout, stderr, thread|
             capture(stdin, stdout, stderr, thread, &block)
           end
@@ -61,7 +107,8 @@ module Sevgi
 
         # rubocop:disable Lint/RescueException
         def capture(stdin, stdout, stderr, thread, &block)
-          trap = trap("INT") { handle_sigint(thread.pid) }
+          register_capture(thread)
+          registered = true
           readers = outputs(stdout, stderr)
 
           collect_capture(stdin, thread, readers, &block)
@@ -69,10 +116,18 @@ module Sevgi
           cleanup_failed_capture(stdin, thread, readers)
           raise
         ensure
-          close_input(stdin)
-          trap("INT", trap) if trap
+          finish_capture(stdin, registered)
         end
         # rubocop:enable Lint/RescueException
+
+        def finish_capture(stdin, registered)
+          close_input(stdin)
+          SignalCoordinator.unregister(self) if registered
+        end
+
+        def register_capture(thread)
+          SignalCoordinator.register(self, thread.pid)
+        end
 
         def cleanup_failed_capture(stdin, thread, readers)
           close_input(stdin)
@@ -94,6 +149,7 @@ module Sevgi
         end
 
         def handle_sigint(pid)
+          @coathooks += 1
           message, signal = if @coathooks > 1
             ["SIGINT received again. Force quitting...", "KILL"]
           else
@@ -102,7 +158,6 @@ module Sevgi
 
           warn("\n#{message}")
           ::Process.kill(signal, pid)
-          @coathooks += 1
         rescue Errno::ESRCH
           warn("No process to kill.")
         end

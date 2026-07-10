@@ -47,6 +47,54 @@ module Sevgi
         Signal.trap("INT", previous) if previous
       end
 
+      def test_run_sigint_second_interrupt_kills
+        signals = []
+        runner = Shell::Runner.new
+
+        Process.stub(:kill, -> (signal, pid) { signals << [signal, pid] }) do
+          capture_io do
+            runner.send(:handle_sigint, 12_345)
+            runner.send(:handle_sigint, 12_345)
+          end
+        end
+
+        assert_equal([["TERM", 12_345], ["KILL", 12_345]], signals)
+      end
+
+      def test_run_coordinates_overlapping_signal_handlers
+        coordinator = Shell.const_get(:SignalCoordinator, false)
+        baseline = proc { }
+        previous = Signal.trap("INT", baseline)
+        first = Shell::Runner.new
+        second = Shell::Runner.new
+        signals = []
+
+        Process.stub(:kill, -> (signal, pid) { signals << [signal, pid] }) do
+          coordinator.register(first, 1)
+          coordinator.register(second, 2)
+          coordinator.send(:dispatch)
+          coordinator.send(:dispatch)
+          coordinator.unregister(first)
+
+          current = Signal.trap("INT", "DEFAULT")
+          refute_same(baseline, current)
+          Signal.trap("INT", current)
+
+          coordinator.unregister(second)
+          restored = Signal.trap("INT", "DEFAULT")
+          assert_same(baseline, restored)
+        end
+
+        assert_equal(
+          [["TERM", 1], ["TERM", 2], ["KILL", 1], ["KILL", 2]],
+          signals
+        )
+      ensure
+        coordinator&.unregister(first) if first
+        coordinator&.unregister(second) if second
+        Signal.trap("INT", previous) if previous
+      end
+
       def test_run_captures_large_stderr_without_blocking
         script = "$stderr.write('x' * 200_000); $stdout.puts 'done'"
 
