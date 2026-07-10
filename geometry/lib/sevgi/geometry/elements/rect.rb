@@ -72,10 +72,42 @@ module Sevgi
       # @return [Float]
       def width = @width ||= segments[0].length
 
+      # @!parse
+      #   # Returns the top-left corner.
+      #   # @return [Sevgi::Geometry::Point]
+      #   def top_left; end
+      #
+      #   # Returns the top-right corner.
+      #   # @return [Sevgi::Geometry::Point]
+      #   def top_right; end
+      #
+      #   # Returns the bottom-right corner.
+      #   # @return [Sevgi::Geometry::Point]
+      #   def bottom_right; end
+      #
+      #   # Returns the bottom-left corner.
+      #   # @return [Sevgi::Geometry::Point]
+      #   def bottom_left; end
       %i[top_left top_right bottom_right bottom_left].each_with_index do |corner, i|
         define_method(corner) { points[i] }
       end
 
+      # @!parse
+      #   # Returns the top side line.
+      #   # @return [Sevgi::Geometry::Line]
+      #   def top; end
+      #
+      #   # Returns the right side line.
+      #   # @return [Sevgi::Geometry::Line]
+      #   def right; end
+      #
+      #   # Returns the bottom side line.
+      #   # @return [Sevgi::Geometry::Line]
+      #   def bottom; end
+      #
+      #   # Returns the left side line.
+      #   # @return [Sevgi::Geometry::Line]
+      #   def left; end
       %i[top right bottom left].each_with_index do |side, i|
         define_method(side) { lines[i] }
       end

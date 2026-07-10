@@ -92,6 +92,19 @@ end
   task(tn => names.map { |project| "#{project}:#{tn}" })
 end
 
+desc("Build API documentation")
+task(:doc) do
+  sh("yard", "doc", "--fail-on-warning")
+end
+
+namespace(:doc) do
+  desc("Check API documentation")
+  task(:check) do
+    sh("yard", "doc", "--fail-on-warning")
+    sh("yard", "stats", "--list-undoc")
+  end
+end
+
 desc("Bump versions")
 task(:bump) do
   if ENV["version"]

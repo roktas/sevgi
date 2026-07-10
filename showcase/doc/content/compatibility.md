@@ -14,6 +14,9 @@ Those examples are the best starting point because they are executable and teste
 Prefer documented DSL words in scripts: `SVG`, SVG element names, and helper methods such as `TileX`. Regular Ruby code
 belongs around the DSL when the drawing needs loops, data structures, calculations, or small helper objects.
 
+The generated API reference is published on [RubyDoc](https://www.rubydoc.info/gems/sevgi). Use it for component-level
+Ruby APIs; use this site and the showcase examples for script-style workflows.
+
 ## What Is Not A Contract
 
 Implementation details are not public API. Avoid depending on private constants, registry internals, generated helper

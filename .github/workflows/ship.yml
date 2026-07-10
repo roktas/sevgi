@@ -69,6 +69,8 @@ jobs:
       run: bundle exec rake lint
     - name: Unit 🔬
       run: bundle exec rake test
+    - name: API docs 📚
+      run: bundle exec rake doc:check
     - name: Build 📦
       run: bundle exec rake build
     - name: Package preflight 📦

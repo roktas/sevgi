@@ -494,6 +494,9 @@ module Sevgi
       RESERVED_NAMESPACE_PREFIXES = %w[xlink: xml:].freeze
       private_constant :RESERVED_NAMESPACE_PREFIXES
 
+      # Reports whether an attribute name should be ignored by standard validation.
+      # @param attribute [String, Symbol, Object] candidate attribute name
+      # @return [Boolean] true for valid private, data, xmlns, or foreign namespaced attributes
       def ignore?(attribute)
         return false unless attribute.is_a?(::String) || attribute.is_a?(::Symbol)
 

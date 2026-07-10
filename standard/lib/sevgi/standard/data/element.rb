@@ -265,6 +265,9 @@ module Sevgi
         ]
       )
 
+      # Reports whether an element name should be ignored by standard validation.
+      # @param element [String, Symbol, Object] candidate element name
+      # @return [Boolean] true for valid private or namespaced element names that Sevgi should not validate
       def ignore?(element)
         return false unless element.is_a?(::String) || element.is_a?(::Symbol)
 

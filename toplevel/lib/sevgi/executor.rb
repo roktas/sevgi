@@ -22,6 +22,7 @@ module Sevgi
     # Thread-current key used for the fiber-local executor scope stack.
     # @api private
     SCOPE_KEY = :sevgi_executor_scopes
+    private_constant :SCOPE_KEY, :Source
 
     # Loads a script file inside the current executor scope.
     # @param file [String] path to a Sevgi script file

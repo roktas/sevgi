@@ -27,5 +27,13 @@ jobs:
         bundler-cache: true
     - name: Unit 🔬
       run: bundle exec rake test
+    - name: API docs 📚
+      run: bundle exec rake doc:check
+    - name: Upload API docs 📚
+      if: matrix.ruby == '4.0.5'
+      uses: actions/upload-artifact@v4
+      with:
+        name: api-docs
+        path: .cache/ruby/doc/api
     - name: Build 📦
       run: bundle exec rake build

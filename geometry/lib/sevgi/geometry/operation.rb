@@ -12,6 +12,66 @@ module Sevgi
       # Raised when an operation does not apply to the target element.
       OperationInapplicableError = Class.new(Error)
 
+      # @!parse
+      #   class << self
+      #     # Returns an element translated to align with another element.
+      #     # @param element [Sevgi::Geometry::Element] element to move
+      #     # @param other [Sevgi::Geometry::Element] reference element
+      #     # @param alignment [Symbol] one of :center, :left, :right, :top, or :bottom
+      #     # @return [Sevgi::Geometry::Element] translated element
+      #     # @raise [Sevgi::Geometry::Operation::OperationInapplicableError] when an argument is not a geometry element
+      #     # @raise [Sevgi::ArgumentError] when alignment is unknown
+      #     def align(element, other, alignment = :center); end
+      #
+      #     # Returns the offset needed to align one element with another.
+      #     # @param element [Sevgi::Geometry::Element] element to move
+      #     # @param other [Sevgi::Geometry::Element] reference element
+      #     # @param alignment [Symbol] one of :center, :left, :right, :top, or :bottom
+      #     # @return [Sevgi::Geometry::Point] translation offset
+      #     # @raise [Sevgi::Geometry::Operation::OperationInapplicableError] when an argument is not a geometry element
+      #     # @raise [Sevgi::ArgumentError] when alignment is unknown
+      #     def alignment(element, other, alignment = :center); end
+      #
+      #     # Sweeps parallel lines across a lined element in both directions.
+      #     # @param element [Sevgi::Geometry::Element::Lined] element to intersect
+      #     # @param initial [Sevgi::Geometry::Point, Array<Numeric>] point on the initial sweep line
+      #     # @param angle [Numeric] clockwise sweep line angle in degrees
+      #     # @param step [Numeric] signed distance between sweep lines
+      #     # @param limit [Integer] maximum iterations per direction
+      #     # @yield [lines] optional hook receiving the generated lines
+      #     # @yieldparam lines [Array<Sevgi::Geometry::Line>] generated sweep lines
+      #     # @yieldreturn [void]
+      #     # @return [Array<Sevgi::Geometry::Line>] generated sweep lines
+      #     # @raise [Sevgi::Geometry::Operation::OperationInapplicableError] when element is not sweepable
+      #     # @raise [Sevgi::Geometry::Error] when initial cannot be coerced
+      #     # @raise [Sevgi::Geometry::Operation::OperationError] when iteration reaches the limit
+      #     def sweep(element, initial:, angle:, step:, limit: Sweep::LIMIT); end
+      #
+      #     # Sweeps parallel lines across a lined element and requires at least one result.
+      #     # @param element [Sevgi::Geometry::Element::Lined] element to intersect
+      #     # @param initial [Sevgi::Geometry::Point, Array<Numeric>] point on the initial sweep line
+      #     # @param angle [Numeric] clockwise sweep line angle in degrees
+      #     # @param step [Numeric] signed distance between sweep lines
+      #     # @param limit [Integer] maximum iterations per direction
+      #     # @yield [lines] optional hook receiving the generated lines
+      #     # @yieldparam lines [Array<Sevgi::Geometry::Line>] generated sweep lines
+      #     # @yieldreturn [void]
+      #     # @return [Array<Sevgi::Geometry::Line>] generated sweep lines
+      #     # @raise [Sevgi::Geometry::Operation::OperationInapplicableError] when element is not sweepable
+      #     # @raise [Sevgi::Geometry::Error] when initial cannot be coerced
+      #     # @raise [Sevgi::Geometry::Operation::OperationError] when no lines are found or iteration reaches the limit
+      #     def sweep!(element, initial:, angle:, step:, limit: Sweep::LIMIT); end
+      #
+      #     # Sweeps parallel lines in one signed direction from an equation.
+      #     # @param element [Sevgi::Geometry::Element::Lined] element to intersect
+      #     # @param equation [Sevgi::Geometry::Equation] initial sweep equation
+      #     # @param step [Numeric] signed distance between sweep lines
+      #     # @param limit [Integer] maximum iterations
+      #     # @return [Array<Sevgi::Geometry::Line>] generated sweep lines
+      #     # @raise [Sevgi::Geometry::Operation::OperationInapplicableError] when element is not sweepable
+      #     # @raise [Sevgi::Geometry::Operation::OperationError] when iteration reaches the limit
+      #     def unisweep(element, equation, step, limit: Sweep::LIMIT); end
+      #   end
       # Registers one or more public operation methods.
       # @api private
       # @param handler [Module] operation handler module

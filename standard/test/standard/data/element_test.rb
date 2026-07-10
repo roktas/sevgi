@@ -13,6 +13,14 @@ module Sevgi
         assert_equal(%i[desc metadata title], Element[:Descriptive])
       end
 
+      def test_element_ignore_accepts_unvalidated_names
+        assert(Element.ignore?(:_private))
+        assert(Element.ignore?("app:custom"))
+
+        refute(Element.ignore?(:rect))
+        refute(Element.ignore?(Object.new))
+      end
+
       def test_element_predicates_check_group_membership
         assert(Element.is?(:hatch, :PaintServer))
         refute(Element.is?(:hatch, :Descriptive))

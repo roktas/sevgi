@@ -51,7 +51,6 @@ module Sevgi
       def width = x.d
 
       # Axis wrapper exposing grid line queries for one ruler direction.
-      # @api private
       class Axis < DelegateClass(Ruler)
         # Returns the major line query.
         # @return [Sevgi::Sundries::Grid::Axis::Major]
@@ -78,7 +77,6 @@ module Sevgi
         end
 
         # Memoized grid line query for an axis.
-        # @api private
         class Query
           # Creates a query.
           # @param this [Sevgi::Sundries::Grid::Axis] axis receiving generated lines
@@ -104,7 +102,6 @@ module Sevgi
         end
 
         # Major grid line query.
-        # @api private
         class Major < Query
           # Returns lines at major tick distances.
           # @return [Array<Sevgi::Geometry::Line>]
@@ -112,7 +109,6 @@ module Sevgi
         end
 
         # Midpoint grid line query.
-        # @api private
         class Halve < Query
           # Returns lines at midpoint tick distances.
           # @return [Array<Sevgi::Geometry::Line>]
@@ -120,7 +116,6 @@ module Sevgi
         end
 
         # Minor grid line query.
-        # @api private
         class Minor < Query
           # Returns lines at minor tick distances.
           # @return [Array<Sevgi::Geometry::Line>]
@@ -129,7 +124,6 @@ module Sevgi
       end
 
       # Horizontal grid axis.
-      # @api private
       class X < Axis
         # Returns the base horizontal line for this axis.
         # @return [Sevgi::Geometry::Line]
@@ -142,7 +136,6 @@ module Sevgi
       end
 
       # Vertical grid axis.
-      # @api private
       class Y < Axis
         # Creates a vertical axis wrapper.
         # @param this [Sevgi::Sundries::Ruler] horizontal ruler

@@ -259,6 +259,45 @@ module Sevgi
 
         # Affinity methods
 
+        # @!parse
+        #   # Returns an element reflected across the selected axes.
+        #   # @param x [Boolean] reflect across the x-axis
+        #   # @param y [Boolean] reflect across the y-axis
+        #   # @return [Sevgi::Geometry::Element::Lined]
+        #   def reflect(x: true, y: true); end
+        #
+        #   # Returns an element rotated around the origin.
+        #   # @param a [Numeric] clockwise angle in degrees
+        #   # @return [Sevgi::Geometry::Element::Lined]
+        #   def rotate(a); end
+        #
+        #   # Returns an element scaled from the origin.
+        #   # @param sx [Numeric] x scale factor
+        #   # @param sy [Numeric, Sevgi::Undefined] y scale factor, defaulting to sx
+        #   # @return [Sevgi::Geometry::Element::Lined]
+        #   def scale(sx, sy = Undefined); end
+        #
+        #   # Returns an element skewed from the origin.
+        #   # @param ax [Numeric] x-axis skew angle in degrees
+        #   # @param ay [Numeric, Sevgi::Undefined] y-axis skew angle in degrees, defaulting to ax
+        #   # @return [Sevgi::Geometry::Element::Lined]
+        #   def skew(ax, ay = Undefined); end
+        #
+        #   # Returns an element skewed along x.
+        #   # @param a [Numeric] skew angle in degrees
+        #   # @return [Sevgi::Geometry::Element::Lined]
+        #   def skew_x(a); end
+        #
+        #   # Returns an element skewed along y.
+        #   # @param a [Numeric] skew angle in degrees
+        #   # @return [Sevgi::Geometry::Element::Lined]
+        #   def skew_y(a); end
+        #
+        #   # Returns an element translated by offset.
+        #   # @param dx [Numeric] x offset
+        #   # @param dy [Numeric, Sevgi::Undefined] y offset, defaulting to dx
+        #   # @return [Sevgi::Geometry::Element::Lined]
+        #   def translate(dx, dy = Undefined); end
         Geometry::Affinity.instance_methods.each do |transform|
           define_method(transform) do |*args, **kwargs, &block|
             self.class.new_by_points!(*points.map { it.public_send(transform, *args, **kwargs, &block) })

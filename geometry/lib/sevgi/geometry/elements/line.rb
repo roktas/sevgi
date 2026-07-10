@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "forwardable"
-
 module Sevgi
   module Geometry
     # Generated superclass for Line.
@@ -36,14 +34,33 @@ module Sevgi
       #   @raise [Sevgi::Geometry::Error] when either point cannot be coerced
       def self.from_points(...) = new_by_points(...)
 
-      extend Forwardable
+      # Returns the clockwise line angle in degrees.
+      # @return [Float]
+      def angle = head.angle
 
-      def_delegators :head, :length, :angle
+      # Returns the ending point.
+      # @return [Sevgi::Geometry::Point]
+      def ending = points.last
 
-      def_delegator :points, :first, :starting
-      def_delegator :points, :last, :ending
+      # Reports whether a point is left of the line equation.
+      # @param point [Sevgi::Geometry::Point, Array<Numeric>] point to test
+      # @return [Boolean]
+      # @raise [Sevgi::Geometry::Error] when point cannot be coerced
+      def left?(point) = equation.left?(point)
 
-      def_delegators :equation, :left?, :right?
+      # Returns the line segment length.
+      # @return [Float]
+      def length = head.length
+
+      # Reports whether a point is right of the line equation.
+      # @param point [Sevgi::Geometry::Point, Array<Numeric>] point to test
+      # @return [Boolean]
+      # @raise [Sevgi::Geometry::Error] when point cannot be coerced
+      def right?(point) = equation.right?(point)
+
+      # Returns the starting point.
+      # @return [Sevgi::Geometry::Point]
+      def starting = points.first
 
       # Draws the line into a graphics node.
       # @param node [Object] graphics node receiving the drawing command

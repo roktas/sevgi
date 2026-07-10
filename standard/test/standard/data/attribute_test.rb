@@ -13,6 +13,17 @@ module Sevgi
         assert_equal(%i[onactivate onfocusin onfocusout], Attribute[:EventGraphical])
       end
 
+      def test_attribute_ignore_accepts_unvalidated_names
+        assert(Attribute.ignore?(:_private))
+        assert(Attribute.ignore?("data-value"))
+        assert(Attribute.ignore?("app:custom"))
+        assert(Attribute.ignore?("xmlns"))
+
+        refute(Attribute.ignore?(:xlink))
+        refute(Attribute.ignore?("xlink:href"))
+        refute(Attribute.ignore?(Object.new))
+      end
+
       def test_attribute_predicates_check_group_membership
         assert(Attribute.is?(:id, :Core))
         refute(Attribute.is?(:style, :Core))
