@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "English"
+require "json"
 
 # rubocop:disable Metrics/BlockLength
 
@@ -37,6 +38,68 @@ projects = Hash[
     .flatten
 ]
 names = (ORDER & projects.keys) + (projects.keys - ORDER).sort
+tracked_libs = names
+  .flat_map { |project| ::Dir[::File.join(rootdir, project, "lib/**/*.rb")] }
+  .map do |file|
+    ::File.expand_path(file)
+  end
+  .sort
+
+COVERAGE_FLOORS = {
+  branch: 78.0,
+  line: 94.0
+}.freeze
+
+def coverage_percent(covered, total)
+  total.zero? ? 100.0 : ((covered * 100.0) / total)
+end
+
+def coverage_totals(report)
+  data = JSON.parse(::File.read(report))
+  totals = {
+    branch: {covered: 0, total: 0},
+    line: {covered: 0, total: 0}
+  }
+
+  data.fetch("coverage").each_value do |file|
+    file.fetch("lines").each do |coverage|
+      next unless coverage.is_a?(::Integer)
+
+      totals[:line][:covered] += 1 if coverage.positive?
+      totals[:line][:total] += 1
+    end
+
+    file.fetch("branches", []).each do |branch|
+      coverage = branch.fetch("coverage")
+      next unless coverage.is_a?(::Integer)
+
+      totals[:branch][:covered] += 1 if coverage.positive?
+      totals[:branch][:total] += 1
+    end
+  end
+
+  totals.transform_values { |total| coverage_percent(total.fetch(:covered), total.fetch(:total)) }
+end
+
+def coverage_files(report)
+  data = JSON.parse(::File.read(report))
+
+  data.fetch("coverage").keys.map { |file| ::File.expand_path(file) }.sort
+end
+
+def require_coverage_files(report, expected)
+  missing = expected - coverage_files(report)
+  raise "Coverage report is missing tracked files:\n#{missing.join("\n")}" unless missing.empty?
+end
+
+def require_coverage_floors(totals, floors)
+  failures = floors.filter_map do |criterion, floor|
+    total = totals.fetch(criterion)
+    "#{criterion}: #{format("%.2f", total)}% < #{format("%.2f", floor)}%" if total < floor
+  end
+
+  raise "Coverage below floor:\n#{failures.join("\n")}" unless failures.empty?
+end
 
 directory(pkgdir)
 
@@ -102,6 +165,27 @@ namespace(:doc) do
   task(:check) do
     sh("yard", "doc", "--fail-on-warning")
     sh("yard", "stats", "--list-undoc")
+  end
+end
+
+desc("Run coverage")
+task(coverage: "coverage:check")
+
+namespace(:coverage) do
+  desc("Run tests with coverage")
+  task(:test) do
+    rm_rf(".cache/ruby/coverage")
+    sh({"COVERAGE" => "1"}, "bundle", "exec", "rake", "test")
+  end
+
+  desc("Check coverage")
+  task(check: :test) do
+    report = ::File.join(rootdir, ".cache/ruby/coverage/coverage.json")
+    require_coverage_files(report, tracked_libs)
+    totals = coverage_totals(report)
+    require_coverage_floors(totals, COVERAGE_FLOORS)
+    warn("Line coverage: #{format("%.2f", totals.fetch(:line))}%")
+    warn("Branch coverage: #{format("%.2f", totals.fetch(:branch))}%")
   end
 end
 

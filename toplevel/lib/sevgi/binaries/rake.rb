@@ -11,11 +11,11 @@ module FileUtils
   # @return [Sevgi::Executor::Scope, nil] execution scope, or nil for an empty file
   # @raise [Sevgi::ArgumentError] when the script file cannot be found
   def sevgi(file, *args, **kwargs)
-    Sevgi.execute_file(F.existing!(file, [EXTENSION])) do |mod|
-      include(Sevgi)
+    Sevgi::Executor.execute_file(Sevgi::F.existing!(file, [Sevgi::EXTENSION])) do
+      extend(Sevgi)
 
-      mod.const_set(:ARGA, args).freeze
-      mod.const_set(:ARGH, kwargs).freeze
+      const_set(:ARGA, args).freeze
+      const_set(:ARGH, kwargs).freeze
     end
   end
 end
