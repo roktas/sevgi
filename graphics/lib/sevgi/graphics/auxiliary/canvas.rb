@@ -6,6 +6,10 @@ module Sevgi
   module Graphics
     # SVG canvas size, margins, viewport, and viewBox.
     class Canvas
+      ORIGIN_FIELDS = %i[x y].freeze
+      REPLACEMENTS = %i[width height unit name margins].freeze
+      private_constant :ORIGIN_FIELDS, :REPLACEMENTS
+
       # @overload call(arg = Undefined, **kwargs)
       #   Builds a canvas from a paper profile or explicit size.
       #   @param arg [Sevgi::Graphics::Paper, Symbol, String, Sevgi::Undefined] paper profile or paper object
@@ -91,8 +95,24 @@ module Sevgi
 
       # Returns a canvas with selected fields replaced.
       # @param kwargs [Hash] replacement options
+      # @option kwargs [Numeric] :width replacement canvas width
+      # @option kwargs [Numeric] :height replacement canvas height
+      # @option kwargs [Symbol, String] :unit replacement SVG unit
+      # @option kwargs [Symbol, String] :name replacement paper name
+      # @option kwargs [Array<Numeric>] :margins replacement margin shorthand values
       # @return [Sevgi::Graphics::Canvas]
-      def with(**kwargs) = self.class.new(**size.to_h, margins: kwargs.fetch(:margins, margin.to_a))
+      # @raise [Sevgi::ArgumentError] when an unknown option is supplied
+      # @raise [Sevgi::ArgumentError] when a replacement value is invalid
+      def with(**kwargs)
+        unknown = kwargs.keys - REPLACEMENTS
+
+        ArgumentError.("Unknown canvas option: #{unknown.first}") unless unknown.empty?
+
+        margins = kwargs.fetch(:margins, margin.to_a)
+        replacements = kwargs.dup.tap { it.delete(:margins) }
+
+        self.class.new(**size.to_h, **replacements, margins:)
+      end
 
       private
 
@@ -113,12 +133,20 @@ module Sevgi
         end
       end
 
+      def coordinate!(field, value)
+        Float(value)
+      rescue ::ArgumentError, ::TypeError
+        ArgumentError.("Invalid canvas origin #{field}: #{value.inspect}")
+      end
+
       def prettify(*floats)
         floats.map { (it % 1).zero? ? it.to_i : it }
       end
 
       def pair(array)
-        array.size == 2 ? array.map(&:to_f) : ArgumentError.("Argument must be an Array of size 2")
+        ArgumentError.("Canvas origin must have exactly two coordinates") unless array.size == 2
+
+        ORIGIN_FIELDS.zip(array).map { |field, value| coordinate!(field, value) }
       end
     end
   end

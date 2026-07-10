@@ -60,11 +60,58 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
+      def test_canvas_with_replaces_size_fields
+        canvas = Canvas.from_paper(:a4)
+
+        [
+          100.0,
+          canvas.with(width: 100).width,
+          200.0,
+          canvas.with(height: 200).height,
+          :px,
+          canvas.with(unit: :px).unit,
+          :custom_icon,
+          canvas.with(name: :custom_icon).name
+        ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+      end
+
+      def test_canvas_with_replaces_combined_fields
+        canvas = Canvas.from_paper(:a4, margins: [1])
+        updated = canvas.with(width: 16, height: 32, unit: :px, name: :icon, margins: [2, 3])
+
+        [
+          16.0,
+          updated.width,
+          32.0,
+          updated.height,
+          :px,
+          updated.unit,
+          :icon,
+          updated.name,
+          [2.0, 3.0, 2.0, 3.0],
+          updated.margin.to_a
+        ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+      end
+
+      def test_canvas_with_rejects_unknown_options
+        canvas = Canvas.from_paper(:a4)
+
+        error = assert_raises(ArgumentError) { canvas.with(color: "red") }
+
+        assert_match(/\bcolor\b/, error.message)
+      end
+
       def test_canvas_rejects_invalid_origin
         canvas = Canvas.from_paper(:a4)
 
         assert_raises(ArgumentError) { canvas.viewbox([1]) }
         assert_raises(ArgumentError) { canvas.viewbox(:origin) }
+
+        x_error = assert_raises(ArgumentError) { canvas.viewbox(["x", 2]) }
+        y_error = assert_raises(ArgumentError) { canvas.viewbox([1, Object.new]) }
+
+        assert_match(/\bx\b/, x_error.message)
+        assert_match(/\by\b/, y_error.message)
       end
     end
 
