@@ -44,6 +44,18 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
+      def test_named_document_lookup_returns_builtin_profiles
+        {
+          base: Document::Base,
+          minimal: Document::Minimal,
+          default: Document::Default,
+          html: Document::HTML,
+          inkscape: Document::Inkscape
+        }.each do |name, klass|
+          assert_same(klass, Graphics.document(name))
+        end
+      end
+
       def test_named_document_registers_profile_and_class
         doc = Graphics.document(:registered, attributes: {"data-var": "registered"})
 
@@ -60,6 +72,19 @@ module Sevgi
         again = Graphics.document(:registered_safe, attributes: {"data-var": "safe"})
 
         assert_same(doc, again)
+      end
+
+      def test_named_document_allows_omitted_matching_fields
+        doc = Graphics.document(:registered_partial, attributes: {"data-var": "safe"}, preambles: ["one"])
+
+        [
+          doc,
+          Graphics.document(:registered_partial),
+          doc,
+          Graphics.document(:registered_partial, attributes: {"data-var": "safe"}),
+          doc,
+          Graphics.document(:registered_partial, preambles: ["one"])
+        ].each_slice(2) { |expected, actual| assert_same(expected, actual) }
       end
 
       def test_named_document_normalizes_profile_names
@@ -91,6 +116,20 @@ module Sevgi
         end
 
         assert_match(/\bregistered_pres\b/, error.message)
+      end
+
+      def test_named_document_conflict_keeps_registration_atomic
+        doc = Graphics.document(:registered_atomic, attributes: {style: {fill: "red"}})
+        attributes = {style: {fill: "blue"}}
+
+        assert_raises(ArgumentError) do
+          Graphics.document(:registered_atomic, attributes:)
+        end
+
+        attributes[:style][:fill] = "green"
+
+        assert_same(doc, Graphics.document(:registered_atomic))
+        assert_equal({fill: "red"}, doc.attributes[:style])
       end
 
       def test_document_profile_copies_input_attributes

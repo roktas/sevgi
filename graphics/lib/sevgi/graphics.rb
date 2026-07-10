@@ -24,13 +24,27 @@ module Sevgi
       Graphics::Canvas.from_paper(...)
     end
 
-    # Defines or returns a document profile class.
-    # @param name [Symbol, String, Sevgi::Undefined] profile name, or Undefined for an anonymous profile
-    # @param preambles [Array<String>, nil] document preamble lines
-    # @param attributes [Hash] default root attributes
+    # @overload document(name)
+    #   Looks up an existing document profile by name.
+    #   @param name [Symbol, String] profile name
+    #   @return [Class] document class
+    #   @raise [Sevgi::ArgumentError] when the profile is unknown
+    # @overload document(name, preambles: Undefined, attributes: Undefined)
+    #   Defines a named document profile, or returns an existing profile when every explicitly supplied field matches.
+    #   Omitted fields are ignored during existing-profile comparison. Profile inputs are copied into the registry.
+    #   @param name [Symbol, String] profile name
+    #   @param preambles [Array<String>, nil, Sevgi::Undefined] document preamble lines
+    #   @param attributes [Hash, Sevgi::Undefined] default root attributes
+    #   @return [Class] document class
+    #   @raise [Sevgi::ArgumentError] when a named profile conflicts with an existing profile
+    # @overload document(preambles: Undefined, attributes: Undefined)
+    #   Defines an anonymous document profile without registering it globally.
+    #   @param preambles [Array<String>, nil, Sevgi::Undefined] document preamble lines
+    #   @param attributes [Hash, Sevgi::Undefined] default root attributes
+    #   @return [Class] anonymous document class
+    #   @raise [Sevgi::ArgumentError] when profile input is invalid
     # @return [Class] document class
-    # @raise [Sevgi::ArgumentError] when a named profile conflicts with an existing profile
-    def document(name = Undefined, preambles: [], attributes: {})
+    def document(name = Undefined, preambles: Undefined, attributes: Undefined)
       Graphics::Document.define(name, preambles:, attributes:)
     end
 

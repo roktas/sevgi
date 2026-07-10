@@ -21,7 +21,21 @@ module Sevgi
           end
         end
 
-        def self.hash(value) = value.to_h { |key, item| [key, copy(item)] }
+        # Returns a recursively frozen independent copy of a value.
+        # @param value [Object] value to copy and freeze
+        # @return [Object] frozen copied value
+        def self.frozen(value)
+          case value
+          when ::Hash
+            value.to_h { |key, item| [frozen(key), frozen(item)] }.freeze
+          when ::Array
+            value.map { frozen(it) }.freeze
+          else
+            duplicate(value).freeze
+          end
+        end
+
+        def self.hash(value) = value.to_h { |key, item| [copy(key), copy(item)] }
 
         def self.duplicate(value)
           value.dup
@@ -67,26 +81,46 @@ module Sevgi
 
       # Defines or returns a document profile class.
       # @param name [Symbol, String, Sevgi::Undefined] profile name, or Undefined for an anonymous profile
-      # @param preambles [Array<String>, nil] document preamble lines
-      # @param attributes [Hash] default root attributes
+      # @param preambles [Array<String>, nil, Sevgi::Undefined] document preamble lines
+      # @param attributes [Hash, Sevgi::Undefined] default root attributes
       # @param overwrite [Boolean] true to replace an existing profile
       # @return [Class] document class
       # @raise [Sevgi::ArgumentError] when a named profile conflicts with an existing profile
-      def self.define(name = Undefined, preambles: [], attributes: {}, overwrite: false)
-        return Class.new(Base) { document(name, preambles:, attributes:, register: false) } if name == Undefined
-
-        profile = Profile.new(name, attributes:, preambles:)
+      def self.define(name = Undefined, preambles: Undefined, attributes: Undefined, overwrite: false)
+        return anonymous(attributes:, preambles:) if name == Undefined
 
         if (current = Profile[name])
-          unless overwrite || current.profile == profile
-            ArgumentError.("Document profile already defined differently: #{name}")
-          end
-
+          reject_conflict(name, current, attributes:, preambles:) unless overwrite
           return current unless overwrite
         end
 
+        attributes, preambles = defaults(attributes:, preambles:)
         Class.new(Base) { document(name, preambles:, attributes:, overwrite:) }
       end
+
+      def self.anonymous(attributes:, preambles:)
+        attributes, preambles = defaults(attributes:, preambles:)
+        Class.new(Base) { document(Undefined, preambles:, attributes:, register: false) }
+      end
+
+      def self.defaults(attributes:, preambles:)
+        [attributes == Undefined ? {} : attributes, preambles == Undefined ? nil : preambles]
+      end
+
+      def self.reject_conflict(name, current, attributes:, preambles:)
+        return if compatible?(current, attributes:, preambles:)
+
+        ArgumentError.("Document profile already defined differently: #{name}")
+      end
+
+      def self.compatible?(klass, attributes:, preambles:)
+        profile = klass.profile
+
+        (attributes == Undefined || Profile.new(nil, attributes:).attributes == profile.attributes) &&
+          (preambles == Undefined || Profile.new(nil, preambles:).preambles == profile.preambles)
+      end
+
+      private_class_method :anonymous, :compatible?, :defaults, :reject_conflict
 
       # Immutable document profile metadata.
       # @api private
@@ -145,8 +179,8 @@ module Sevgi
         # @raise [Sevgi::ArgumentError] when name cannot be normalized
         def initialize(name, attributes: nil, preambles: nil)
           @name = name.nil? ? nil : self.class.normalize!(name)
-          @attributes = Snapshot.copy(attributes || {})
-          @preambles = Snapshot.copy(preambles)
+          @attributes = Snapshot.frozen(attributes || {})
+          @preambles = preambles.nil? ? nil : Snapshot.frozen(preambles)
         end
 
         # Reports strict profile equality.
