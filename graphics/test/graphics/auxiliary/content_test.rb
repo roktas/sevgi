@@ -78,6 +78,33 @@ module Sevgi
         assert_render(actual, actual)
       end
 
+      def test_content_rejects_xml_illegal_characters
+        invalid = [
+          "\u0000",
+          "\u0001",
+          "\u000B",
+          "\u{FFFE}",
+          "\xFF".dup.force_encoding("UTF-8")
+        ]
+
+        invalid.each do |value|
+          [
+            -> { Content.encoded(value) },
+            -> { Content.verbatim(value) },
+            -> { Content.cdata(value) },
+            -> { Content.css({"a" => value}) }
+          ].each { |operation| assert_raises(Sevgi::ArgumentError, &operation) }
+        end
+      end
+
+      def test_content_accepts_xml_whitespace_and_unicode
+        value = "\t\n\r text 😀"
+
+        actual = SVG(:minimal) { text(Content.encoded(value)) }.Render()
+
+        assert_render("<svg>\n  <text>\t\n\r text 😀</text>\n</svg>", actual)
+      end
+
       private
 
       def assert_render(expected, actual)

@@ -4,14 +4,74 @@ module Sevgi
   module Graphics
     # Renderable text-like content inside an SVG element.
     class Content
+      # XML 1.0 character-data validation and escaping helpers.
+      # @api private
+      module XML
+        TERMINATOR = "]]>"
+        TERMINATOR_SPLIT = "]]]]><![CDATA[>"
+        private_constant :TERMINATOR, :TERMINATOR_SPLIT
+
+        class << self
+          def validate(value, seen = {}.compare_by_identity)
+            return validate_string(value.to_s) unless value.is_a?(::Hash) || value.is_a?(::Array)
+
+            validate_nested(value, seen) do
+              value.is_a?(::Hash) ? value.each { |key, item|
+                validate(key, seen)
+                validate(item, seen)
+              } : value.each { validate(it, seen) }
+            end
+          end
+
+          def cdata(value) = validate_string(value.to_s).gsub(TERMINATOR, TERMINATOR_SPLIT)
+
+          private
+
+          def validate_nested(value, seen)
+            ArgumentError.("Cyclic XML content is not supported") if seen.key?(value)
+
+            seen[value] = true
+            yield
+          ensure
+            seen.delete(value)
+          end
+
+          def validate_string(value)
+            ArgumentError.("XML content must be valid UTF-8") unless value.valid_encoding?
+
+            text = value.encode("UTF-8")
+            if (codepoint = text.each_codepoint.find { !legal_codepoint?(it) })
+              ArgumentError.("XML content contains illegal character U+#{format("%04X", codepoint)}")
+            end
+
+            text
+          rescue ::EncodingError => e
+            ArgumentError.("XML content must be valid UTF-8: #{e.message}")
+          end
+
+          def legal_codepoint?(codepoint)
+            [0x9, 0xA, 0xD].include?(codepoint) ||
+              (0x20..0xD7FF).cover?(codepoint) ||
+              (0xE000..0xFFFD).cover?(codepoint) ||
+              (0x10000..0x10FFFF).cover?(codepoint)
+          end
+        end
+      end
+
+      private_constant :XML
+
       # @!attribute [r] content
       #   @return [Object] wrapped content
       attr_reader :content
 
-      # Creates content.
+      # Creates content. All stringified payloads must contain legal XML 1.0 characters and valid UTF-8.
       # @param content [Object] wrapped content
       # @return [void]
-      def initialize(content) = @content = content
+      # @raise [Sevgi::ArgumentError] when content contains invalid encoding, illegal XML characters, or cycles
+      def initialize(content)
+        XML.validate(content)
+        @content = content
+      end
 
       # Copies content payload ownership for duplicated element trees.
       # @param original [Sevgi::Graphics::Content] source content
@@ -97,10 +157,6 @@ module Sevgi
 
       # CDATA section content.
       class CData < Content
-        TERMINATOR = "]]>"
-        TERMINATOR_SPLIT = "]]]]><![CDATA[>"
-        private_constant :TERMINATOR, :TERMINATOR_SPLIT
-
         # Renders CDATA content.
         # Embedded `]]>` terminators are split across adjacent CDATA sections so the output remains valid XML.
         # @param renderer [Object] renderer receiving output
@@ -116,7 +172,7 @@ module Sevgi
 
         private
 
-        def safe(value) = value.to_s.gsub(TERMINATOR, TERMINATOR_SPLIT)
+        def safe(value) = XML.cdata(value)
       end
 
       # CSS content rendered inside a CDATA section.
@@ -167,7 +223,7 @@ module Sevgi
       class Encoded < Content
         # Returns XML text-encoded content.
         # @return [String]
-        def to_s = content.to_s.encode(xml: :text)
+        def to_s = XML.validate(content).encode(xml: :text)
 
         # Renders encoded text content.
         # @param renderer [Object] renderer receiving output
@@ -178,6 +234,11 @@ module Sevgi
 
       # Verbatim content rendered without XML text encoding.
       class Verbatim < Content
+        # Returns validated verbatim content.
+        # @return [String]
+        # @raise [Sevgi::ArgumentError] when content contains invalid encoding or illegal XML characters
+        def to_s = XML.validate(content)
+
         # Renders verbatim content.
         # @param renderer [Object] renderer receiving output
         # @param depth [Integer] current render depth

@@ -184,14 +184,13 @@ module Sevgi
           content = []
           content << content
 
-          rect = text = nil
+          rect = nil
           SVG do
             rect = self.rect(style: attribute)
-            text = self.text(Content.verbatim(content))
           end
 
           assert_raises(Sevgi::ArgumentError) { rect.Duplicate() }
-          assert_raises(Sevgi::ArgumentError) { text.Duplicate() }
+          assert_raises(Sevgi::ArgumentError) { Content.verbatim(content) }
         end
 
         def test_duplicate_copies_a_root_without_a_root_parent
