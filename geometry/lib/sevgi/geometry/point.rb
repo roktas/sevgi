@@ -107,7 +107,7 @@ module Sevgi
       # @param other [Sevgi::Geometry::Point, Array<Numeric>] point to compare
       # @return [Integer, nil]
       # @raise [Sevgi::Geometry::Error] when other cannot be coerced
-      def <=>(other) = (other = Tuple[Point, other]).nan? || nan? ? nil : deconstruct <=> other.deconstruct
+      def <=>(other) = deconstruct <=> Tuple[Point, other].deconstruct
 
       # Reports whether this point is at or above another point in screen coordinates.
       # @param other [Sevgi::Geometry::Point, Array<Numeric>] point to compare
@@ -142,19 +142,11 @@ module Sevgi
       # @return [Integer]
       def hash = [self.class, *deconstruct].hash
 
-      # Reports whether any coordinate is infinite.
-      # @return [Boolean]
-      def infinite? = deconstruct.any?(&:infinite?)
-
       # Reports whether this point is at or left of another point.
       # @param other [Sevgi::Geometry::Point, Array<Numeric>] point to compare
       # @return [Boolean]
       # @raise [Sevgi::Geometry::Error] when other cannot be coerced
       def left?(other) = x <= Tuple[Point, other].x
-
-      # Reports whether any coordinate is NaN.
-      # @return [Boolean]
-      def nan? = deconstruct.any?(&:nan?)
 
       # Reports whether this point is at or right of another point.
       # @param other [Sevgi::Geometry::Point, Array<Numeric>] point to compare

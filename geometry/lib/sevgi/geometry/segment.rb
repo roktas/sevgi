@@ -73,7 +73,7 @@ module Sevgi
       # @param other [Sevgi::Geometry::Segment, Array<Numeric>] segment to compare
       # @return [Integer, nil]
       # @raise [Sevgi::Geometry::Error] when other cannot be coerced
-      def <=>(other) = (other = Tuple[Segment, other]).nan? || nan? ? nil : length <=> other.length
+      def <=>(other) = length <=> Tuple[Segment, other].length
 
       # Returns a segment rounded to precision.
       # @param precision [Integer, nil] decimal precision, or nil for the current function default
@@ -102,19 +102,11 @@ module Sevgi
       # @return [Integer]
       def hash = [self.class, *deconstruct].hash
 
-      # Reports whether any component is infinite.
-      # @return [Boolean]
-      def infinite? = deconstruct.any?(&:infinite?)
-
       # Converts the segment into a line at a point.
       # @param point [Sevgi::Geometry::Point, Array<Numeric>] line start point
       # @return [Sevgi::Geometry::Line]
       # @raise [Sevgi::Geometry::Error] when point cannot be coerced
       def line(point = Origin) = Line[length, angle, position: Tuple[Point, point]]
-
-      # Reports whether any component is NaN.
-      # @return [Boolean]
-      def nan? = deconstruct.any?(&:nan?)
 
       # Returns the opposite segment.
       # @return [Sevgi::Geometry::Segment]

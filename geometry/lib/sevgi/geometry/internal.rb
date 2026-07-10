@@ -2,23 +2,35 @@
 
 module Sevgi
   module Geometry
-    # Validates finite real numeric inputs for geometry primitives.
+    # Validates numeric inputs that can be represented as finite Floats.
     # @api private
     module Real
-      # Coerces a public numeric value to Float.
+      # Coerces a public numeric value to a finite Float.
       # @param field [Symbol, String] coordinate or component name
       # @param value [Object] value to coerce
       # @return [Float] finite float value
-      # @raise [Sevgi::Geometry::Error] when value is not a finite Numeric
+      # @raise [Sevgi::Geometry::Error] when value is not a Numeric, cannot be converted to Float, or is not finite
       def self.[](field, value)
         unless value.is_a?(::Numeric)
           Error.("Geometry #{field} must be a finite Numeric: #{value.inspect}")
         end
 
-        value.to_f.tap do |number|
-          Error.("Geometry #{field} must be finite: #{value.inspect}") unless number.finite?
+        number = coerce(field, value)
+
+        unless number.is_a?(::Float) && number.finite?
+          Error.("Geometry #{field} must be finite: #{value.inspect}")
         end
+
+        number
       end
+
+      def self.coerce(field, value)
+        value.to_f
+      rescue ::StandardError => e
+        Error.("Geometry #{field} must be a finite Numeric: #{value.inspect} (#{e.message})")
+      end
+
+      private_class_method :coerce
     end
 
     private_constant :Real

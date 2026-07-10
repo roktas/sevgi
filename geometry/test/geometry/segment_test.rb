@@ -21,11 +21,27 @@ module Sevgi
         [
           ["x", 0],
           [Object.new, 0],
+          [Complex(1, 2), 0],
           [Float::INFINITY, 0],
-          [Float::NAN, 0]
+          [Float::NAN, 0],
+          [Class.new(Numeric) { def to_f = raise "conversion failed" }.new, 0]
         ].each do |length, angle|
-          assert_raises(Error) { Segment[length, angle] }
+          error = assert_raises(Error) { Segment[length, angle] }
+          assert_match(/length/, error.message)
         end
+      end
+
+      def test_segment_accepts_finite_real_numeric_coercions
+        segment = Segment[Rational(1, 2), Rational(61, 2)]
+
+        [
+          0.5,
+          segment.length,
+          30.5,
+          segment.angle,
+          true,
+          Segment.eq?([Rational(1, 2), Rational(61, 2)], segment)
+        ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
       def test_segment_rejects_malformed_tuples

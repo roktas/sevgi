@@ -74,6 +74,15 @@ module Sevgi
         assert_match(/Must be an equation/, error.message)
       end
 
+      def test_equation_wraps_invalid_numeric_conversion
+        numeric = Class.new(Numeric) { def to_f = raise "conversion failed" }.new
+        error = assert_raises(Error) { Equation.diagonal(slope: Complex(1, 2), intercept: 0) }
+        conversion_error = assert_raises(Error) { Equation.diagonal(slope: numeric, intercept: 0) }
+
+        assert_match(/slope/, error.message)
+        assert_match(/slope/, conversion_error.message)
+      end
+
       def test_unimplemented_intersection_raises_panic_error
         assert_raises(PanicError) do
           Equation.horizontal(3).send(:linear_vs_quadratic, Object.new)

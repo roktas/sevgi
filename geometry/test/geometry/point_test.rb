@@ -32,11 +32,27 @@ module Sevgi
         [
           ["x", 0],
           [Object.new, 0],
+          [Complex(1, 2), 0],
           [Float::INFINITY, 0],
-          [Float::NAN, 0]
+          [Float::NAN, 0],
+          [Class.new(Numeric) { def to_f = raise "conversion failed" }.new, 0]
         ].each do |x, y|
-          assert_raises(Error) { Point[x, y] }
+          error = assert_raises(Error) { Point[x, y] }
+          assert_match(/x/, error.message)
         end
+      end
+
+      def test_point_accepts_finite_real_numeric_coercions
+        point = Point[Rational(1, 2), Rational(5, 2)]
+
+        [
+          0.5,
+          point.x,
+          2.5,
+          point.y,
+          true,
+          Point.eq?([Rational(1, 2), Rational(5, 2)], point)
+        ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
       def test_point_rejects_malformed_tuples

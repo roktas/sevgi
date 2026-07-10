@@ -85,8 +85,6 @@ module Sevgi
       private
 
       def within_range?(point)
-        return false if point.nan?
-
         point = point.approx
         points = [starting.approx, ending.approx]
 
