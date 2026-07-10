@@ -1,4 +1,5 @@
 name: Site
+
 on:
   push:
     branches: ["main"]
@@ -11,17 +12,42 @@ on:
       - "showcase/doc/**"
       - ".github/workflows/site.yml"
   workflow_dispatch:
-concurrency:
-  group: "pages"
-  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
-  site:
+  build:
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    concurrency:
+      group: "site-build-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref_name }}"
+      cancel-in-progress: true
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v6
+      - name: Build 🥁
+        uses: shalzz/zola-deploy-action@74526e63f38f84b82476349bbcd886b82040ff98
+        env:
+          BUILD_DIR: showcase/doc
+          BUILD_ONLY: true
+
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    environment: site
+    concurrency:
+      group: "site-deploy-main"
+      cancel-in-progress: false
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v6
       - name: Deploy 🥁
-        uses: shalzz/zola-deploy-action@v0.22.1
+        uses: shalzz/zola-deploy-action@74526e63f38f84b82476349bbcd886b82040ff98
         env:
           BUILD_DIR: showcase/doc
           PAGES_BRANCH: site
