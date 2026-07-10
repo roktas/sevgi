@@ -134,6 +134,26 @@ module Sevgi
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
         end
 
+        def test_adopt_rejects_invalid_index_atomically
+          source = nil
+          target = nil
+          element = nil
+
+          SVG do
+            source = g { element = line(id: "line") }
+            target = g { line(id: "existing") }
+          end
+
+          ["bad", -3, 4].each do |index|
+            error = assert_raises(Sevgi::ArgumentError) { element.Adopt(target, index:) }
+
+            assert_match(/index/i, error.message)
+            assert_equal([element], source.children)
+            assert_equal(["existing"], target.children.map { it[:id] })
+            assert_same(source, element.parent)
+          end
+        end
+
         def test_adopt_first_inserts_at_front
           target = nil
           element = nil

@@ -65,8 +65,12 @@ module Sevgi
 
             Adoption.validate(self, new_parent)
 
+            same_parent = parent.equal?(new_parent)
+            available = new_parent.children.size - (same_parent ? 1 : 0)
+            insertion = Adoption.index(index, available)
+
             self.Orphan()
-            (@parent = new_parent).children.insert(index, self)
+            (@parent = new_parent).children.insert(insertion, self)
           end
         end
 
@@ -251,6 +255,20 @@ module Sevgi
 
               parent = parent.parent
             end
+          end
+
+          # Normalizes an insertion index before tree mutation.
+          # @param index [Integer] requested insertion index
+          # @param size [Integer] number of available child positions
+          # @return [Integer] normalized non-negative insertion index
+          # @raise [Sevgi::ArgumentError] when the index is not an insertion position
+          def self.index(index, size)
+            ArgumentError.("Adoption index must be an Integer") unless index.is_a?(Integer)
+
+            normalized = index.negative? ? size + index + 1 : index
+            ArgumentError.("Adoption index is outside the child list") unless normalized.between?(0, size)
+
+            normalized
           end
         end
 
