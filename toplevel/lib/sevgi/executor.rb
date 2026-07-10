@@ -19,6 +19,8 @@ module Sevgi
   class Executor
     include Singleton
 
+    private_constant :Scope
+
     # Thread-current key used for the fiber-local executor scope stack.
     # @api private
     SCOPE_KEY = :sevgi_executor_scopes
@@ -169,4 +171,5 @@ module Sevgi
 
     def scopes = Thread.current[SCOPE_KEY] ||= []
   end
+
 end

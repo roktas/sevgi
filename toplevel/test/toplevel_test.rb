@@ -74,6 +74,13 @@ module Sevgi
       assert_empty(err)
     end
 
+    def test_constants_returns_an_owned_snapshot
+      constants = Toplevel.constants
+
+      assert_raises(FrozenError) { constants.clear }
+      assert_same(Function, Toplevel.constants[:F])
+    end
+
     def test_include_preserves_existing_constants
       klass = Class.new
       klass.const_set(:F, :existing)

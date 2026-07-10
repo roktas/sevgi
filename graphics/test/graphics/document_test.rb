@@ -56,6 +56,16 @@ module Sevgi
         end
       end
 
+      def test_profile_is_public_and_registry_is_snapshot_owned
+        profile = Document::Minimal.profile
+        available = Document::Profile.available
+
+        assert_instance_of(Document::Profile, profile)
+        assert_same(Document::Minimal, available[:minimal])
+        assert_raises(FrozenError) { available.clear }
+        assert_same(Document::Minimal, Document::Profile[:minimal])
+      end
+
       def test_named_document_registers_profile_and_class
         doc = Graphics.document(:registered, attributes: {"data-var": "registered"})
 

@@ -3,9 +3,12 @@
 module Sevgi
   module Geometry
     class Equation
-      # Base class for quadratic equations.
+      # Base class reserved for future quadratic equation support.
+      # @api private
       class Quadratic < Equation
       end
+
+      private_constant :Quadratic
     end
 
     # Reserved circle element support.

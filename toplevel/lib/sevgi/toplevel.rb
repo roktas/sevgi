@@ -11,7 +11,9 @@ module Sevgi
     @constants = {}
 
     class << self
-      attr_reader :constants
+      # Returns an immutable snapshot of promoted constants.
+      # @return [Hash<Symbol, Object>]
+      def constants = @constants.dup.freeze
 
       private
 

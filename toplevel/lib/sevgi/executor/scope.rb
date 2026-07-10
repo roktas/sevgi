@@ -6,6 +6,7 @@ module Sevgi
     #
     # Scope objects belong to one executor run and are pushed onto the current
     # fiber's executor stack. They are not shared between concurrent executions.
+    # @api private
     class Scope
       # @!attribute [r] scope
       #   @return [Module] isolated module where script source is evaluated

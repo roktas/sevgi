@@ -31,6 +31,7 @@ module Sevgi
       def test_equation_hides_incomplete_circle_surface
         assert_respond_to(Equation, :horizontal)
         refute_includes(Geometry.constants(false), :Circle)
+        refute_includes(Equation.constants(false), :Quadratic)
       end
 
       def test_intersection_precision_rounds_after_membership

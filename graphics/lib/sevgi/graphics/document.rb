@@ -131,20 +131,24 @@ module Sevgi
 
       private_class_method :anonymous, :compatible?, :defaults, :lookup, :reject_conflict
 
-      # Immutable document profile metadata.
-      # @api private
+      # Immutable document profile metadata exposed by document classes.
       class Profile
         @available = {}
 
         class << self
-          # @return [Hash<Symbol, Class>] registered profile classes
-          attr_reader :available
+          # Returns an immutable snapshot of registered profile classes.
+          # @return [Hash<Symbol, Class>]
+          def available = @available.dup.freeze
+
+          private
+
+          def registry = @available
         end
 
         # Returns a profile class by name.
         # @param name [Object] profile name
         # @return [Class, nil]
-        def self.[](name) = (name = normalize(name)) && available[name]
+        def self.[](name) = (name = normalize(name)) && registry[name]
 
         # Registers a profile class.
         # @param name [Object] profile name
@@ -155,7 +159,7 @@ module Sevgi
         def self.register(name, klass, overwrite: false)
           name = normalize!(name)
 
-          if (current = available[name])
+          if (current = registry[name])
             unless overwrite || current.profile == klass.profile
               ArgumentError.("Document profile already defined differently: #{name}")
             end
@@ -163,7 +167,7 @@ module Sevgi
             return current unless overwrite
           end
 
-          available[name] = klass
+          registry[name] = klass
         end
 
         # Normalizes a profile name.
@@ -210,12 +214,10 @@ module Sevgi
         def preambles = Snapshot.copy(@preambles)
       end
 
-      private_constant :Profile
-
       # Class-level DSL used while defining document classes.
       # @api private
       module DSL
-        # @return [Sevgi::Graphics::Document::Profile] document profile metadata
+        # @return [Sevgi::Graphics::Document::Profile] immutable document profile metadata
         attr_reader :profile
 
         # Sets document profile metadata on a class.
@@ -224,7 +226,7 @@ module Sevgi
         # @param preambles [Array<String>, nil] preamble lines
         # @param register [Boolean] true to register the profile globally
         # @param overwrite [Boolean] true to replace an existing profile
-        # @return [Sevgi::Graphics::Document::Profile]
+        # @return [Sevgi::Graphics::Document::Profile] immutable document profile metadata
         # @raise [Sevgi::ArgumentError] when registration fails
         def document(name, attributes: {}, preambles: nil, register: true, overwrite: false)
           @profile = Profile.new(register ? name : nil, attributes:, preambles:)

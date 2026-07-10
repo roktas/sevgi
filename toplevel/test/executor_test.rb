@@ -192,7 +192,7 @@ module Sevgi
     def test_execute_empty_string_processes_required_library
       result = Executor.execute("", require: "json")
 
-      assert_instance_of(Executor::Scope, result)
+      assert_equal("Sevgi::Executor::Scope", result.class.name)
       assert_nil(result.recent)
       refute(result.error?)
     end
