@@ -170,6 +170,13 @@ This component provides the full `include Sevgi` / `extend Sevgi` DSL. Classes a
 such as `F`, `Geometry`, `Origin`, and `Export`; extending an ordinary object installs DSL methods without mutating
 global `Object` constants.
 
+## Release
+
+The local `rake release` task remains supported for maintainers. It must run from a clean `main` checkout, builds and
+validates every component archive, checks all remote versions and checksums before the first push, then publishes in
+dependency order. A failure during preflight publishes nothing. GitHub Actions `Ship` is the preferred publisher for
+trusted RubyGems credentials; do not mix local and workflow publishing for the same version.
+
 ## Roadmap
 
 > [!WARNING]

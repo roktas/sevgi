@@ -96,11 +96,37 @@ module SevgiRelease
       true
     end
 
-    def preflight!(root:, ref:, package_dir:)
+    def preflight!(root:, ref:, package_dir:, remote_runner: method(:remote_query))
       version = guard!(root:, ref:)
       archives = validate_archives!(root:, package_dir:, version:)
-      validate_remote!(names: archives.map { |archive| archive.fetch(:name) }, version:)
+      validate_remote!(names: archives.map { |archive| archive.fetch(:name) }, version:, runner: remote_runner)
       {version:, archives:}
+    end
+
+    def validate_checksums!(package_dir:, archives:, path: File.join(package_dir, "SHA256SUMS"))
+      return true unless File.file?(path)
+
+      expected = File.readlines(path, chomp: true).to_h do |line|
+        digest, relative = line.split("  ", 2)
+        [relative, digest]
+      end
+
+      archives.each do |archive|
+        relative = File.basename(archive.fetch(:path))
+        actual = Digest::SHA256.file(archive.fetch(:path)).hexdigest
+        raise_error("checksum mismatch: #{relative}") unless expected.fetch(relative, nil) == actual
+      end
+
+      true
+    rescue KeyError => e
+      raise_error("missing checksum: #{e.key}")
+    end
+
+    def publish!(root:, ref:, package_dir:, remote_runner: method(:remote_query), push: method(:push))
+      result = preflight!(root:, ref:, package_dir:, remote_runner:)
+      validate_checksums!(package_dir:, archives: result.fetch(:archives))
+      result.fetch(:archives).each { |archive| push.call(archive.fetch(:path)) }
+      result
     end
 
     def gemspecs(root)
@@ -111,6 +137,13 @@ module SevgiRelease
 
     def remote_query(name)
       Open3.capture3("gem", "list", "--remote", "--exact", "--all", name)
+    end
+
+    def push(path)
+      output, error, status = Open3.capture3("gem", "push", path)
+      raise_error("gem push failed for #{path}: #{error.empty? ? output : error}") unless status.success?
+
+      true
     end
 
     def raise_error(message)

@@ -54,6 +54,55 @@ module Sevgi
       assert_match(/already published/, error.message)
     end
 
+    def test_publish_does_not_push_after_archive_failure
+      with_release_fixture do |root|
+        package_dir = File.join(root, "pkg")
+        FileUtils.mkdir_p(package_dir)
+        File.binwrite(File.join(package_dir, "demo-1.2.3.gem"), "not a gem")
+        pushes = []
+
+        assert_raises(Preflight::Error) do
+          Preflight.publish!(root:, ref: "refs/heads/main", package_dir:, push: -> (path) { pushes << path })
+        end
+
+        assert_empty(pushes)
+      end
+    end
+
+    def test_publish_does_not_push_after_remote_or_checksum_failure
+      with_release_fixture do |root|
+        package_dir = build_fixture_package(root)
+        pushes = []
+        remote_ok = -> (_name) { ["demo ()", "", status(true)] }
+        remote_conflict = -> (_name) { ["demo (1.2.3)", "", status(true)] }
+
+        assert_raises(Preflight::Error) do
+          Preflight.publish!(
+            root:,
+            ref: "refs/heads/main",
+            package_dir:,
+            remote_runner: remote_conflict,
+            push: -> (path) { pushes << path }
+          )
+        end
+
+        assert_empty(pushes)
+
+        File.write(File.join(package_dir, "SHA256SUMS"), "0" * 64 + "  demo-1.2.3.gem\n")
+        assert_raises(Preflight::Error) do
+          Preflight.publish!(
+            root:,
+            ref: "refs/heads/main",
+            package_dir:,
+            remote_runner: remote_ok,
+            push: -> (path) { pushes << path }
+          )
+        end
+
+        assert_empty(pushes)
+      end
+    end
+
     def test_workflow_uses_tracked_guard_and_pinned_actions
       ship = File.read(File.expand_path("../../.github/workflows/ship.yml", __dir__))
 
@@ -93,6 +142,21 @@ module Sevgi
 
         yield root
       end
+    end
+
+    def build_fixture_package(root)
+      component = File.join(root, "demo")
+      package_dir = File.join(root, "pkg")
+      FileUtils.mkdir_p(package_dir)
+      package = File.join(package_dir, "demo-1.2.3.gem")
+
+      capture_io do
+        Dir.chdir(component) do
+          Gem::Package.build(Gem::Specification.load("demo.gemspec"), true, false, package)
+        end
+      end
+
+      package_dir
     end
   end
 end

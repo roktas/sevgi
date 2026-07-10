@@ -3,18 +3,13 @@
 require "json"
 require "open3"
 
+require_relative "script/release"
+
 # rubocop:disable Metrics/BlockLength
 
 Rake::FileUtilsExt.verbose_flag = false
 
 def yellow(string) = "\e[1;33m#{string}\e[0m"
-
-def released?(package, version)
-  output, error, status = Open3.capture3("gem", "list", "--remote", "--exact", "--all", package)
-  raise "Cannot query RubyGems for #{package}: #{error}" unless status.success?
-
-  output.match?(/\A#{Regexp.escape(package)} \((?=.*\b#{Regexp.escape(version)}\b)/)
-end
 
 def require_clean_worktree
   output, error, status = Open3.capture3("git", "status", "--short")
@@ -169,19 +164,6 @@ names.each do |project|
 
     desc("Build #{package}")
     task(build: :package)
-
-    desc("Release #{package}")
-    task(release: :build) do |t|
-      warn("#{yellow(t)}")
-      if released?(package, version)
-        warn("#{package} #{version} is already released")
-        warn("")
-        next
-      end
-
-      sh("gem", "push", gem)
-      warn("")
-    end
   end
 end
 
@@ -194,11 +176,40 @@ namespace(:release) do
   desc("Check release workspace")
   task(:preflight) do
     require_clean_worktree
+    branch, error, status = Open3.capture3("git", "branch", "--show-current")
+    raise "Cannot inspect git branch: #{error}" unless status.success?
+    raise "Release requires the main branch" unless branch.strip == "main"
+
+    Rake::Task[:build].invoke
+    manifest = SevgiRelease::Preflight.preflight!(
+      root: rootdir,
+      ref: "refs/heads/main",
+      package_dir: pkgdir
+    )
+    checksum_file = ::File.join(pkgdir, "SHA256SUMS")
+    ::File.write(
+      checksum_file,
+      manifest
+        .fetch(:archives)
+        .map { |archive| "#{archive.fetch(:sha256)}  #{::File.basename(archive.fetch(:path))}" }
+        .join("\n") +
+        "\n"
+    )
+    SevgiRelease::Preflight.validate_checksums!(
+      package_dir: pkgdir,
+      archives: manifest.fetch(:archives),
+      path: checksum_file
+    )
   end
 end
 
 desc("Release all")
-task(release: ["release:preflight", *names.map { |project| "#{project}:release" }])
+task(:release => "release:preflight") do
+  manifest = SevgiRelease::Preflight.preflight!(root: rootdir, ref: "refs/heads/main", package_dir: pkgdir)
+  SevgiRelease::Preflight.validate_checksums!(package_dir: pkgdir, archives: manifest.fetch(:archives))
+  manifest.fetch(:archives).each { |archive| sh("gem", "push", archive.fetch(:path)) }
+  require_clean_worktree
+end
 
 desc("Build API documentation")
 task(:doc) do
