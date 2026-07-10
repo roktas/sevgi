@@ -21,7 +21,7 @@ module Sevgi
           receiver = SVG(:minimal)
           calls = []
 
-          ::Sevgi::Derender.stub(:evaluate_file!, -> (file, target, id:) { calls << [file, target, id] }) do
+          ::Sevgi::Derender.stub(:evaluate_file_children, -> (file, target, id:) { calls << [file, target, id] }) do
             receiver.IncludeChildren("source.svg", "node")
           end
 

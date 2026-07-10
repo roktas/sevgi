@@ -57,6 +57,14 @@ module Sevgi
     # @raise [Sevgi::ArgumentError] when content is malformed or rootless, or when the id is absent
     def evaluate(content, element, id: nil) = Document.new(content).decompile(id).evaluate(element)
 
+    # Evaluates only the selected node's children under a graphics element.
+    # @param content [String] SVG/XML source content
+    # @param element [Sevgi::Graphics::Element] target graphics element
+    # @param id [String, nil] optional SVG id selecting a node inside the source
+    # @return [Array<Sevgi::Graphics::Element>] included child graphics elements
+    # @raise [Sevgi::ArgumentError] when content is malformed or rootless, or when the id is absent
+    def evaluate_children(content, element, id: nil) = Document.new(content).decompile(id).evaluate_children(element)
+
     # Evaluates an SVG/XML file under a graphics element, including the selected node.
     # @param file [String] path to the source SVG/XML file
     # @param element [Sevgi::Graphics::Element] target graphics element
@@ -67,22 +75,16 @@ module Sevgi
     #   absent
     def evaluate_file(file, element, id: nil) = Document.load_file(file).decompile(id).evaluate(element)
 
-    # Evaluates SVG/XML content under a graphics element, excluding the selected node itself.
-    # @param content [String] SVG/XML source content
-    # @param element [Sevgi::Graphics::Element] target graphics element
-    # @param id [String, nil] optional SVG id selecting a node inside the source
-    # @return [Array<Sevgi::Graphics::Element>] included child graphics elements
-    # @raise [Sevgi::ArgumentError] when content is malformed or rootless, or when the id is absent
-    def evaluate!(content, element, id: nil) = Document.new(content).decompile(id).evaluate!(element)
-
-    # Evaluates an SVG/XML file under a graphics element, excluding the selected node itself.
+    # Evaluates only the selected node's children from an SVG/XML file under a graphics element.
     # @param file [String] path to the source SVG/XML file
     # @param element [Sevgi::Graphics::Element] target graphics element
     # @param id [String, nil] optional SVG id selecting a node inside the source
     # @return [Array<Sevgi::Graphics::Element>] included child graphics elements
     # @raise [Sevgi::ArgumentError] when the file cannot be found, file content is malformed or rootless, or the id is
     #   absent
-    def evaluate_file!(file, element, id: nil) = Document.load_file(file).decompile(id).evaluate!(element)
+    def evaluate_file_children(file, element, id: nil)
+      Document.load_file(file).decompile(id).evaluate_children(element)
+    end
 
     extend self
   end

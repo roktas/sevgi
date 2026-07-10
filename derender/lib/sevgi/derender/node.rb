@@ -81,13 +81,13 @@ module Sevgi
       def evaluate(element, include_current = true)
         return Evaluator.new(element).append(self) if include_current
 
-        children.map { it.evaluate(element) }.compact
+        evaluate_children(element)
       end
 
       # Evaluates only this node's children under a graphics element.
       # @param element [Sevgi::Graphics::Element] target graphics element
       # @return [Array<Sevgi::Graphics::Element>] included child elements
-      def evaluate!(element) = evaluate(element, false)
+      def evaluate_children(element) = children.map { it.evaluate(element) }.compact
 
       # Finds the first descendant whose attribute matches a value.
       # @param arg [String] attribute value to find

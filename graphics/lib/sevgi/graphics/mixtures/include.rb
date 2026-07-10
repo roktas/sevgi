@@ -28,7 +28,7 @@ module Sevgi
         # @raise [Sevgi::ArgumentError] when the file cannot be found, file content is malformed or rootless, or the id is
         #   absent
         # @raise [Sevgi::MissingComponentError] when sevgi/derender is unavailable
-        def IncludeChildren(file, id) = Derender.evaluate_file!(file, self, id:)
+        def IncludeChildren(file, id) = Derender.evaluate_file_children(file, self, id:)
       rescue ::LoadError => e
         raise unless e.path == "sevgi/derender"
 

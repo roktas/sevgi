@@ -60,6 +60,21 @@ module Sevgi
         assert_equal(expected, actual)
       end
 
+      def test_evaluate_returns_included_current_element
+        svg = <<~SVG
+          <g id="xxx">
+            <line id="line1" length="10.0"/>
+          </g>
+        SVG
+          .chomp
+        target = SVG(:minimal)
+
+        actual = Derender.evaluate(svg, target, id: "xxx")
+
+        assert_same(target.children.first, actual)
+        assert_equal("xxx", actual[:id])
+      end
+
       def test_evaluate_treats_kernel_names_as_elements
         each_collision_source do |name, text, svg, marker|
           actual = Derender.evaluate(svg, SVG(:minimal), id: "collision").Render()
@@ -76,7 +91,7 @@ module Sevgi
         end
       end
 
-      def test_evaluate_bang_appends_selected_node_to_document
+      def test_evaluate_children_appends_selected_children
         svg = <<~SVG
           <g id="xxx">
             <line id="line1" length="10.0"/>
@@ -93,18 +108,18 @@ module Sevgi
         SVG
           .chomp
 
-        actual = SVG(:minimal) do
-          Derender.evaluate!(svg, self, id: "xxx")
-        end
-          .Render()
+        target = SVG(:minimal)
+        returned = Derender.evaluate_children(svg, target, id: "xxx")
+        actual = target.Render()
 
         assert_equal(expected, actual)
+        assert_equal(%i[line line], returned.map(&:name))
       end
 
-      def test_evaluate_bang_treats_kernel_names_as_elements
+      def test_evaluate_children_treats_kernel_names_as_elements
         each_collision_source do |name, text, svg, marker|
           actual = SVG(:minimal) do
-            Derender.evaluate!(svg, self, id: "collision")
+            Derender.evaluate_children(svg, self, id: "collision")
           end
             .Render()
 
@@ -145,6 +160,19 @@ module Sevgi
         end
       end
 
+      def test_evaluate_file_returns_included_current_element
+        Dir.mktmpdir do |dir|
+          file = ::File.join(dir, "source.svg")
+          ::File.write(file, "<g id=\"xxx\"><line id=\"line1\"/></g>")
+          target = SVG(:minimal)
+
+          actual = Derender.evaluate_file(file, target, id: "xxx")
+
+          assert_same(target.children.first, actual)
+          assert_equal("xxx", actual[:id])
+        end
+      end
+
       def test_include_treats_kernel_names_as_elements
         each_collision_file do |file, name, text, marker|
           actual = SVG(:minimal) { Include(file, "collision") }.Render()
@@ -179,7 +207,7 @@ module Sevgi
         end
       end
 
-      def test_evaluate_file_bang_appends_selected_children
+      def test_evaluate_file_children_appends_selected_children
         Dir.mktmpdir do |dir|
           file = ::File.join(dir, "source.svg")
           ::File.write(
@@ -193,10 +221,9 @@ module Sevgi
               .chomp
           )
 
-          actual = SVG(:minimal) do
-            Derender.evaluate_file!(file, self, id: "xxx")
-          end
-            .Render()
+          target = SVG(:minimal)
+          returned = Derender.evaluate_file_children(file, target, id: "xxx")
+          actual = target.Render()
 
           expected = <<~SVG
             <svg>
@@ -207,6 +234,7 @@ module Sevgi
             .chomp
 
           assert_equal(expected, actual)
+          assert_equal(%i[line line], returned.map(&:name))
         end
       end
 

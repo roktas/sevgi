@@ -9,6 +9,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 - Breaking: made geometry element collections immutable and element equality/hash exact; use `#eq?(precision:)` for
   approximate element comparison.
+- Breaking: replaced `Derender.evaluate!` and `Derender.evaluate_file!` with explicit `evaluate_children` and
+  `evaluate_file_children` children-only APIs.
 
 ## 0.93.1 - 2026-07-08
 
