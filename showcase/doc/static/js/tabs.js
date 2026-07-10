@@ -45,18 +45,46 @@
 
     if (!svg || svg.getAttribute('viewBox')) return;
 
-    var width = lengthValue(svg.getAttribute('width'));
-    var height = lengthValue(svg.getAttribute('height'));
+    var width = absoluteLength(svg.getAttribute('width'));
+    var height = absoluteLength(svg.getAttribute('height'));
 
     if (width && height) {
-      svg.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
+      svg.setAttribute('viewBox', '0 0 ' + formatNumber(width) + ' ' + formatNumber(height));
     }
   }
 
-  function lengthValue(value) {
-    var match = String(value || '').trim().match(/^(\d+(?:\.\d+)?|\.\d+)(?:px|pt|pc|mm|cm|in)?$/);
+  function absoluteLength(value) {
+    var match = String(value || '')
+      .trim()
+      .match(/^((?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?)(px|pt|pc|mm|cm|in)?$/i);
 
-    return match ? parseFloat(match[1]) : null;
+    if (!match) return null;
+
+    var length = parseFloat(match[1]);
+    if (!isFinite(length) || length <= 0) return null;
+
+    return length * unitScale(match[2]);
+  }
+
+  function formatNumber(value) {
+    return Number(value.toFixed(6)).toString();
+  }
+
+  function unitScale(unit) {
+    switch ((unit || 'px').toLowerCase()) {
+      case 'in':
+        return 96;
+      case 'cm':
+        return 96 / 2.54;
+      case 'mm':
+        return 96 / 25.4;
+      case 'pt':
+        return 96 / 72;
+      case 'pc':
+        return 16;
+      default:
+        return 1;
+    }
   }
 
   function renderAll() {
