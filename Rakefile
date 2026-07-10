@@ -10,7 +10,7 @@ def yellow(string) = "\e[1;33m#{string}\e[0m"
 
 def released?(package, version)
   output = `gem list --remote --exact --all #{package}`
-  raise("Cannot query RubyGems for #{package}") unless $CHILD_STATUS.success?
+  raise "Cannot query RubyGems for #{package}" unless $CHILD_STATUS.success?
 
   output.match?(/\A#{Regexp.escape(package)} \((?=.*\b#{Regexp.escape(version)}\b)/)
 end
@@ -26,69 +26,74 @@ ORDER = %w[
   showcase
 ].freeze
 
-rootdir  = File.expand_path(__dir__)
-version  = File.read("#{rootdir}/VERSION").strip
-projects = Hash[*
-  ::Dir["*/*.gemspec"].map do |file|
-    [ ::File.dirname(file), ::File.basename(file, ".*") ]
-  end.flatten
+rootdir = File.expand_path(__dir__)
+version = File.read("#{rootdir}/VERSION").strip
+pkgdir = File.expand_path(ENV.fetch("PKGDIR", "pkg"), rootdir)
+projects = Hash[
+  *::Dir["*/*.gemspec"]
+    .map do |file|
+      [::File.dirname(file), ::File.basename(file, ".*")]
+    end
+    .flatten
 ]
 names = (ORDER & projects.keys) + (projects.keys - ORDER).sort
 
-directory "pkg"
+directory(pkgdir)
 
 names.each do |project|
   package = projects.fetch(project)
 
-  namespace project do
-    gem     = "#{rootdir}/pkg/#{package}-#{version}.gem"
+  namespace(project) do
+    gem = "#{pkgdir}/#{package}-#{version}.gem"
     gemspec = "#{package}.gemspec"
 
-    %i[ lint test ].each do |tn|
-      desc "#{tn.capitalize} #{project.capitalize}"
-      task tn do |t|
-        warn "#{yellow(t)}"
+    %i[lint test].each do |tn|
+      desc("#{tn.capitalize} #{project.capitalize}")
+      task(tn) do |t|
+        warn("#{yellow(t)}")
         Dir.chdir(project) do
-          sh "rake #{tn}"
+          sh("rake #{tn}")
         end
-        warn ""
+
+        warn("")
       end
     end
 
-    desc "Package #{package}"
-    task package: %w[ pkg ] do |t|
-      warn "#{yellow(t)}"
+    desc("Package #{package}")
+    task(package: [pkgdir]) do |t|
+      warn("#{yellow(t)}")
       Dir.chdir(project) do
-        sh "gem build #{gemspec} --output #{gem}"
+        sh("gem", "build", gemspec, "--output", gem)
       end
-      warn ""
+
+      warn("")
     end
 
-    desc "Build #{package}"
-    task build: :package
+    desc("Build #{package}")
+    task(build: :package)
 
-    desc "Release #{package}"
-    task release: :build do |t|
-      warn "#{yellow(t)}"
+    desc("Release #{package}")
+    task(release: :build) do |t|
+      warn("#{yellow(t)}")
       if released?(package, version)
-        warn "#{package} #{version} is already released"
-        warn ""
+        warn("#{package} #{version} is already released")
+        warn("")
         next
       end
 
-      sh "gem push #{gem}"
-      warn ""
+      sh("gem push #{gem}")
+      warn("")
     end
   end
 end
 
-%i[ build lint release test ].each do |tn|
-  desc "#{tn.capitalize} all"
-  task tn => names.map { |project| "#{project}:#{tn}" }
+%i[build lint release test].each do |tn|
+  desc("#{tn.capitalize} all")
+  task(tn => names.map { |project| "#{project}:#{tn}" })
 end
 
-desc "Bump versions"
-task :bump do
+desc("Bump versions")
+task(:bump) do
   if ENV["version"]
     ::File.write("#{rootdir}/VERSION", version = ENV["version"])
   end
@@ -101,12 +106,12 @@ task :bump do
   end
 end
 
-desc "Clean all"
-task :clean do
-  rm_rf "pkg"
+desc("Clean all")
+task(:clean) do
+  rm_rf("pkg")
 end
 
-desc "Make (almost) all"
-task all:     %i[ lint test ]
+desc("Make (almost) all")
+task(all: %i[lint test])
 
-task default: :test
+task(default: :test)

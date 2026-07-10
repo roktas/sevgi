@@ -1,5 +1,33 @@
 # Sevgi Graphics
 
-Provides the core SVG DSL, document profiles, and rendering behavior.
+Core SVG DSL, document profiles, and rendering behavior.
 
-See the root [README](../README.md) and the documentation site for usage.
+## Install
+
+```sh
+gem install sevgi-graphics
+```
+
+## Require
+
+```ruby
+require "sevgi/graphics"
+```
+
+## Example
+
+```ruby
+doc = Sevgi::Graphics.SVG(:minimal) { rect(width: 3, height: 5) }
+doc.call
+```
+
+## Native prerequisites
+
+None beyond Ruby and this gem's Ruby dependencies.
+
+## Links
+
+- Documentation: https://sevgi.roktas.dev
+- API documentation: https://www.rubydoc.info/gems/sevgi-graphics
+- Source: https://github.com/roktas/sevgi/tree/main/graphics
+- Changelog: https://github.com/roktas/sevgi/blob/main/CHANGELOG.md

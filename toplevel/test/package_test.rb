@@ -1,0 +1,172 @@
+# frozen_string_literal: true
+
+require "fileutils"
+require "open3"
+require "rbconfig"
+require "rubygems/package"
+require "tmpdir"
+
+require_relative "test_helper"
+
+module Sevgi
+  class PackageTest < Minitest::Test
+    ROOT = ::File.expand_path("../..", __dir__)
+    VERSION = ::File.read(::File.join(ROOT, "VERSION")).strip
+    CLEAN_ENV = {
+      "RUBYLIB" => nil,
+      "RUBYOPT" => nil
+    }.freeze
+    Component = Data.define(:dir, :name, :entrypoint, :executables)
+    COMPONENTS = [
+      Component["function", "sevgi-function", "sevgi/function", []],
+      Component["geometry", "sevgi-geometry", "sevgi/geometry", []],
+      Component["graphics", "sevgi-graphics", "sevgi/graphics", []],
+      Component["standard", "sevgi-standard", "sevgi/standard", []],
+      Component["derender", "sevgi-derender", "sevgi/derender", %w[igves]],
+      Component["sundries", "sevgi-sundries", "sevgi/sundries", []],
+      Component["toplevel", "sevgi", "sevgi", %w[sevgi]],
+      Component["showcase", "sevgi-showcase", "sevgi/showcase", []]
+    ].freeze
+
+    def test_archives_are_complete_from_root_and_component_builds
+      Dir.mktmpdir do |dir|
+        root_packages = build_root_packages(::File.join(dir, "root"))
+        component_packages = build_component_packages(::File.join(dir, "components"))
+
+        COMPONENTS.each do |component|
+          assert_package_contents(root_packages.fetch(component.name), component)
+          assert_package_contents(component_packages.fetch(component.name), component)
+        end
+      end
+    end
+
+    def test_archives_install_and_load_from_clean_gem_home
+      Dir.mktmpdir do |dir|
+        packages = build_root_packages(::File.join(dir, "pkg"))
+        gem_home = ::File.join(dir, "gems")
+        install_packages(packages, gem_home)
+
+        smoke_installed_gems(gem_home)
+        smoke_installed_cli(gem_home)
+      end
+    end
+
+    def test_component_readmes_are_self_contained
+      COMPONENTS.each do |component|
+        readme = ::File.read(::File.join(ROOT, component.dir, "README.md"))
+
+        refute_includes(readme, "../", component.name)
+        assert_includes(readme, "gem install #{component.name}", component.name)
+        assert_includes(readme, "require \"#{component.entrypoint}\"", component.name)
+        assert_includes(readme, "Native prerequisites", component.name)
+        assert_includes(readme, "https://sevgi.roktas.dev", component.name)
+        assert_includes(readme, "https://github.com/roktas/sevgi", component.name)
+        assert_includes(readme, "https://www.rubydoc.info/gems/#{component.name}", component.name)
+      end
+    end
+
+    private
+
+    def assert_package_contents(package, component)
+      gem = ::Gem::Package.new(package)
+      contents = gem.contents
+
+      %w[CHANGELOG.md LICENSE README.md].each { assert_includes(contents, it, component.name) }
+      assert_includes(contents, "lib/#{component.entrypoint}.rb", component.name)
+      component.executables.each { assert_includes(contents, "bin/#{it}", component.name) }
+      assert_empty(contents.grep(%r{\A/|\.\.}), component.name)
+      assert_equal(component.executables, gem.spec.executables.sort)
+    end
+
+    def build_component_package(component, dir)
+      package = ::File.join(dir, "#{component.name}.gem")
+      component_dir = ::File.join(ROOT, component.dir)
+
+      ::FileUtils.mkdir_p(dir)
+      capture_io do
+        Dir.chdir(component_dir) do
+          spec = ::Gem::Specification.load("#{component.name}.gemspec")
+          ::Gem::Package.build(spec, true, false, package)
+        end
+      end
+
+      package
+    end
+
+    def build_component_packages(dir)
+      COMPONENTS.to_h { [it.name, build_component_package(it, dir)] }
+    end
+
+    def build_root_packages(dir)
+      out, err, status = Open3.capture3("bundle", "exec", "rake", "build", "PKGDIR=#{dir}", chdir: ROOT)
+
+      assert(status.success?, "stdout:\n#{out}\nstderr:\n#{err}")
+      COMPONENTS.to_h { [it.name, ::File.join(dir, "#{it.name}-#{VERSION}.gem")] }
+    end
+
+    def install_packages(packages, gem_home)
+      args = [
+        RbConfig.ruby,
+        "-S",
+        "gem",
+        "install",
+        "--no-document",
+        "--local",
+        "--force",
+        "--install-dir",
+        gem_home,
+        "--bindir",
+        ::File.join(gem_home, "bin"),
+        "--no-user-install",
+        "--ignore-dependencies",
+        *COMPONENTS.map { packages.fetch(it.name) }
+      ]
+
+      out, err, status = Open3.capture3(clean_env.merge("GEM_HOME" => gem_home, "GEM_PATH" => gem_home), *args)
+      assert(status.success?, "stdout:\n#{out}\nstderr:\n#{err}")
+    end
+
+    def clean_env
+      CLEAN_ENV.merge(ENV.keys.grep(/\ABUNDLE|BUNDLER/).to_h { [it, nil] })
+    end
+
+    def smoke_env(gem_home)
+      clean_env.merge(
+        "GEM_HOME" => gem_home,
+        "GEM_PATH" => ([gem_home] + ::Gem.path).join(::File::PATH_SEPARATOR),
+        "PATH" => [::File.join(gem_home, "bin"), ENV.fetch("PATH")].join(::File::PATH_SEPARATOR)
+      )
+    end
+
+    def smoke_installed_cli(gem_home)
+      out, err, status = Open3.capture3(smoke_env(gem_home), "sevgi", "--version")
+
+      assert(status.success?, "stdout:\n#{out}\nstderr:\n#{err}")
+      assert_equal(VERSION, out.strip)
+    end
+
+    def smoke_installed_gems(gem_home)
+      code = <<~RUBY
+        require "sevgi"
+        require "sevgi/showcase"
+
+        %w[
+          sevgi-function
+          sevgi-geometry
+          sevgi-graphics
+          sevgi-standard
+          sevgi-derender
+          sevgi-sundries
+          sevgi
+          sevgi-showcase
+        ].each do |name|
+          spec = Gem.loaded_specs.fetch(name)
+          raise "\#{name} loaded from \#{spec.full_gem_path}" unless spec.full_gem_path.start_with?(ENV.fetch("GEM_HOME"))
+        end
+      RUBY
+
+      out, err, status = Open3.capture3(smoke_env(gem_home), RbConfig.ruby, "-e", code)
+      assert(status.success?, "stdout:\n#{out}\nstderr:\n#{err}")
+    end
+  end
+end

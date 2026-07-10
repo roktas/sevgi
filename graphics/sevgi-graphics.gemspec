@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.summary = "Core DSL for the Sevgi toolkit."
   s.description = "Provides an extensible DSL for creating SVG content."
   s.homepage = "https://sevgi.roktas.dev"
-  s.files = Dir["README.md", "lib/**/*"]
+  s.files = Dir["CHANGELOG.md", "LICENSE", "README.md", "lib/**/*"]
   s.required_ruby_version = ">= 3.4.0-preview1"
   s.metadata["changelog_uri"] = "https://github.com/roktas/sevgi/blob/main/CHANGELOG.md"
   s.metadata["source_code_uri"] = "https://github.com/roktas/sevgi"

@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.summary = "Various utility functions for the Sevgi toolkit."
   s.description = "Enhances the Sevgi toolkit with utility methods."
   s.homepage = "https://sevgi.roktas.dev"
-  s.files = Dir["README.md", "lib/**/*"]
+  s.files = Dir["CHANGELOG.md", "LICENSE", "README.md", "lib/**/*"]
   s.required_ruby_version = ">= 3.4.0-preview1"
   s.metadata["changelog_uri"] = "https://github.com/roktas/sevgi/blob/main/CHANGELOG.md"
   s.metadata["source_code_uri"] = "https://github.com/roktas/sevgi"
