@@ -57,6 +57,17 @@ module Sevgi
         end
       end
 
+      def test_intersection_explicit_precision_ignores_ambient_membership_precision
+        rect = Rect[1, 1]
+        equation = Equation.vertical(1.4)
+
+        assert_empty(rect.intersection(equation, precision: 1))
+
+        F.with_precision(0) do
+          assert_empty(rect.intersection(equation, precision: 1))
+        end
+      end
+
       def test_intersect_rejects_non_equation
         error = assert_raises(Error) { Equation.horizontal(1).intersect(Object.new) }
 

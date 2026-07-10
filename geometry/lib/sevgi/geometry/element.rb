@@ -345,10 +345,11 @@ module Sevgi
         # @raise [Sevgi::Geometry::Error] when equation is not an equation
         # @raise [Sevgi::PanicError] when the equation combination is not implemented
         def intersection(equation, precision: nil)
-          equations
-            .flat_map { |candidate| equation.intersect(candidate).select { |point| on?(point) } }
-            .map { |point| point.approx(precision) }
-            .uniq
+          points = equations.flat_map do |candidate|
+            equation.intersect(candidate).select { |point| boundary_point?(point, precision) }
+          end
+
+          points.map { |point| point.approx(precision) }.uniq
         end
 
         # Properties
@@ -426,6 +427,12 @@ module Sevgi
         def outside?(point) = !inside?(point)
 
         private
+
+        def boundary_point?(point, precision)
+          return on?(point) if precision.nil?
+
+          F.with_precision(precision) { on?(point) }
+        end
 
         def calculate_points_from_segments
           Error.("No segments found") unless segments
