@@ -103,7 +103,7 @@ module Sevgi
             UnmetConditionError.(element, "Exactly one FilterLightSource element as first required")
           end
 
-          if !(unallowed = Element.unpick(elements[1..], :Descriptive)).empty? && !unallowed.empty?
+          unless (unallowed = Element.unpick(elements[1..], :Descriptive)).empty?
             UnallowedElementsError.(element, unallowed)
           end
         end

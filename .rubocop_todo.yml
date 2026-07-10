@@ -6,11 +6,10 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 19
+# Offense count: 18
 # Configuration parameters: AllowedMethods, AllowedPatterns, CountRepeatedAttributes, Max.
 Metrics/AbcSize:
   Exclude:
-    - 'derender/lib/sevgi/binaries/igsev.rb'
     - 'derender/lib/sevgi/derender/attributes.rb'
     - 'geometry/lib/sevgi/geometry/element.rb'
     - 'geometry/lib/sevgi/geometry/operation/align.rb'
@@ -40,11 +39,10 @@ Metrics/CyclomaticComplexity:
     - 'sundries/lib/sevgi/sundries/export/native.rb'
     - 'sundries/lib/sevgi/sundries/export/system.rb'
 
-# Offense count: 22
+# Offense count: 21
 # Configuration parameters: CountComments, Max, CountAsOne, AllowedMethods, AllowedPatterns.
 Metrics/MethodLength:
   Exclude:
-    - 'derender/lib/sevgi/binaries/igsev.rb'
     - 'derender/lib/sevgi/derender/attributes.rb'
     - 'derender/lib/sevgi/derender/node.rb'
     - 'function/lib/sevgi/function/shell.rb'
@@ -86,6 +84,6 @@ Metrics/ModuleLength:
     - 'standard/lib/sevgi/standard/data/specification.rb'
     - 'sundries/lib/sevgi/sundries/export/native.rb'
 
-# Documentation is intentionally deferred until the public API is ready.
+# YARD coverage is enforced by `rake doc:check`; RuboCop's class/module-only documentation check is redundant here.
 Style/Documentation:
   Enabled: false

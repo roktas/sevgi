@@ -96,9 +96,10 @@ gem install cairo rsvg2 hexapdf
 ## Project Structure
 
 The project consists of 8 components, with the core `graphics` component at the center. In alphabetical order, the
-components are: `derender`, `function`, `geometry`, `graphics`, `showcase`, `standard`, `sundries`, and `toplevel`. Each
-component is also a Ruby gem with the `sevgi-` prefix (for example, `sevgi-graphics`) and, except for `showcase`,
-defines a separate namespace under `Sevgi` (for example, `Sevgi::Graphics`).
+components are: `derender`, `function`, `geometry`, `graphics`, `showcase`, `standard`, `sundries`, and `toplevel`.
+Each component is packaged as a Ruby gem. Most component gems use the `sevgi-` prefix (for example, `sevgi-graphics`);
+the top-level component is the `sevgi` gem. Except for `showcase`, each component defines a separate namespace under
+`Sevgi` (for example, `Sevgi::Graphics`).
 
 ### `derender` - `Sevgi::Derender`
 
