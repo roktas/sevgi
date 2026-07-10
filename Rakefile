@@ -22,6 +22,34 @@ def require_clean_worktree
   raise "Worktree is not clean:\n#{output}" unless output.empty?
 end
 
+def build_docs(rootdir)
+  rm_rf(::File.join(rootdir, ".cache/ruby/doc/api"))
+  rm_rf(::File.join(rootdir, ".cache/ruby/yardoc"))
+  sh("yard", "doc", "--fail-on-warning")
+end
+
+def require_complete_docs
+  output, error, status = Open3.capture3("yard", "stats", "--list-undoc")
+  raise "YARD stats failed: #{error}" unless status.success?
+
+  undocumented = output.lines.select { it.match?(/\(\s*[1-9]\d* undocumented\)/) }
+  raise "Undocumented public API objects:\n#{output}" unless undocumented.empty?
+
+  warn(output)
+end
+
+def require_private_pages_hidden(rootdir)
+  pages = %w[
+    Sevgi/Executor/Scope.html
+    Sevgi/Executor/Source.html
+    Sevgi/Geometry/Equation/Quadratic.html
+    Sevgi/Sundries/Export/Renderer.html
+  ]
+    .map { ::File.join(rootdir, ".cache/ruby/doc/api", it) }
+  present = pages.select { ::File.exist?(it) }
+  raise "Private API pages are exposed:\n#{present.join("\n")}" unless present.empty?
+end
+
 ORDER = %w[
   function
   geometry
@@ -174,14 +202,15 @@ task(release: ["release:preflight", *names.map { |project| "#{project}:release" 
 
 desc("Build API documentation")
 task(:doc) do
-  sh("yard", "doc", "--fail-on-warning")
+  build_docs(rootdir)
 end
 
 namespace(:doc) do
   desc("Check API documentation")
   task(:check) do
-    sh("yard", "doc", "--fail-on-warning")
-    sh("yard", "stats", "--list-undoc")
+    build_docs(rootdir)
+    require_complete_docs
+    require_private_pages_hidden(rootdir)
   end
 end
 

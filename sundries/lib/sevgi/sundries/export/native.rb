@@ -474,6 +474,8 @@ module Sevgi
           end
         end
       end
+
+      private_constant :Renderer
     end
   end
 end

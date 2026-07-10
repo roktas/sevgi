@@ -115,7 +115,7 @@ module Sevgi
         seen.delete(value)
       end
 
-      private :copy_payload
+      private :copy_payload, :copy_nested
 
       # @overload cdata(content)
       #   Builds CDATA content.

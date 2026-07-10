@@ -150,7 +150,7 @@ module Sevgi
         end
 
         # Removes this element from its parent.
-        # @return [Array<Sevgi::Graphics::Element>, nil] parent children after deletion, or nil for root elements
+        # @return [Sevgi::Graphics::Element, nil] the deleted element, or nil for root elements
         def Orphan
           parent.children&.delete(self) unless Root?()
         end

@@ -1,4 +1,5 @@
 --title Sevgi API
+--hide-api private
 --readme README.md
 --db .cache/ruby/yardoc
 --output-dir .cache/ruby/doc/api

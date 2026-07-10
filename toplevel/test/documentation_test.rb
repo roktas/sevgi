@@ -63,6 +63,9 @@ module Sevgi
         params: %w[objects options],
         returns: ["String"]
       },
+      "Sevgi::Graphics::Mixtures::Core#Orphan" => {
+        returns: ["Sevgi::Graphics::Element", "nil"]
+      },
       "Sevgi::Graphics::Mixtures::Symbols#Symbols" => {
         params: %w[mod args kwargs],
         returns: ["Sevgi::Graphics::Element"],
@@ -87,6 +90,20 @@ module Sevgi
       "Sevgi::Standard::Attribute#ignore?" => -> { [Standard.const_get(:Attribute), :ignore?] },
       "Sevgi::Standard::Element#ignore?" => -> { [Standard.const_get(:Element), :ignore?] }
     }.freeze
+    PUBLIC_CONSTANTS = %w[
+      Sevgi::F
+      Sevgi::Geometry::Origin
+      Sevgi::Graphics::Document::Profile
+      Sevgi::Sundries::Export
+    ]
+      .freeze
+    PRIVATE_OBJECTS = %w[
+      Sevgi::Executor::Scope
+      Sevgi::Executor::Source
+      Sevgi::Geometry::Equation::Quadratic
+      Sevgi::Sundries::Export::Renderer
+    ]
+      .freeze
 
     def test_api_private_visibility_matches_runtime
       assert_raises(NameError) { Executor::Source }
@@ -97,12 +114,19 @@ module Sevgi
       assert(Sundries::Grid::Axis.const_defined?(:Query, false))
     end
 
+    def test_public_manifest_and_private_pages_are_explicit
+      PUBLIC_CONSTANTS.each { assert_yard_object(it) }
+      PRIVATE_OBJECTS.each { assert_equal("private", yard(it).tag(:api)&.text, it) }
+    end
+
     def test_doc_tasks_are_wired_into_ci
       rakefile = ::File.read(::File.join(ROOT, "Rakefile"))
       workflow = ::File.read(::File.join(ROOT, ".github/workflows/test.yml"))
 
       assert_includes(rakefile, "task(:doc)")
       assert_includes(rakefile, "task(:check)")
+      assert_includes(rakefile, "require_complete_docs")
+      assert_includes(::File.read(::File.join(ROOT, ".yardopts")), "--hide-api private")
       assert_includes(workflow, "bundle exec rake doc:check")
       assert_includes(workflow, "actions/upload-artifact")
       assert_includes(workflow, ".cache/ruby/doc/api")

@@ -31,6 +31,10 @@ module Sevgi
       assert_equal(:value, Undefined.coalesce(Undefined, Undefined, :value))
     end
 
+    def test_undefined_coalesce_returns_nil_when_all_values_are_undefined
+      assert_nil(Undefined.coalesce(Undefined, Undefined))
+    end
+
     def test_undefined_default_uses_fallback
       assert_equal(:value, Undefined.default(:value, :fallback))
       assert_equal(:fallback, Undefined.default(Undefined, :fallback))

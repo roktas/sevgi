@@ -170,12 +170,14 @@ module Sevgi
         def test_orphan_removes_element_from_parent
           parent = nil
           element = nil
+          orphaned = nil
 
           SVG(id: "main") do
             parent = g(id: "parent") { element = line(id: "line") }
-            element.Orphan()
+            orphaned = element.Orphan()
           end
 
+          assert_same(element, orphaned)
           assert_empty(parent.children)
         end
 

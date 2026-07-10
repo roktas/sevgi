@@ -90,7 +90,10 @@ module Sevgi
       # Returns the first argument that is not {Sevgi::Undefined}.
       # @param args [Array<Object>] candidate values
       # @return [Object, nil] first defined value, including nil, or nil when none exists
-      def undefined.coalesce(*args) = args.find(Self) { |x| !equal?(x) }
+      # @example Resolve an optional value
+      #   Sevgi::Undefined.coalesce(Sevgi::Undefined, nil) # => nil
+      # @see #default
+      def undefined.coalesce(*args) = args.find { |x| !equal?(x) }
     end
     .freeze
 end
