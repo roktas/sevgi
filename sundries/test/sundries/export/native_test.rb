@@ -193,6 +193,35 @@ module Sevgi
           end
         end
 
+        def test_call_rejects_invalid_numeric_options_before_rendering
+          Dir.mktmpdir do |dir|
+            output = File.join(dir, "out.png")
+            invalid = [0, -1, Float::NAN, Float::INFINITY, "10", Complex(1, 2)]
+
+            invalid.each do |value|
+              assert_raises(ExportError) { Export.call(svg(width: 10, height: 10), output, width: value) }
+              assert_raises(ExportError) { Export.call(svg(width: 10, height: 10), output, height: value) }
+              assert_raises(ExportError) { Export.call(svg(width: 10, height: 10), output, dpi: value) }
+            end
+
+            numeric = Class.new(Numeric) { def to_f = raise "conversion failed" }.new
+            assert_raises(ExportError) { Export.call(svg(width: 10, height: 10), output, width: numeric) }
+          end
+        end
+
+        def test_call_rejects_invalid_format_css_and_output_types
+          Dir.mktmpdir do |dir|
+            output = File.join(dir, "out.png")
+
+            assert_raises(ExportError) { Export.call(svg(width: 10, height: 10), output, format: Object.new) }
+            assert_raises(ArgumentError) { Export.call(svg(width: 10, height: 10), output, css: Object.new) }
+
+            invalid_output = Object.new
+            invalid_output.define_singleton_method(:to_s) { raise "path failed" }
+            assert_raises(ArgumentError) { Export.call(svg(width: 10, height: 10), invalid_output) }
+          end
+        end
+
         def test_call_rejects_subpixel_png_dimensions
           Dir.mktmpdir do |dir|
             output = File.join(dir, "out.png")

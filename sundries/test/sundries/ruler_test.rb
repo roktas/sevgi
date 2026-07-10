@@ -62,6 +62,8 @@ module Sevgi
           [/count length must be positive/, -1],
           [/count length must be finite/, Float::NAN],
           [/count length must be finite/, Float::INFINITY],
+          [/count length must be a finite Numeric/, Complex(1, 2)],
+          [/count length must be a finite Numeric/, Class.new(Numeric) { def to_f = raise "conversion failed" }.new],
           [/count length must be Numeric/, "1"]
         ].each do |message, length|
           error = assert_raises(ArgumentError) { interval.count(length) }
@@ -76,6 +78,8 @@ module Sevgi
           [/unit length must be positive/, -1],
           [/unit length must be finite/, Float::NAN],
           [/unit length must be finite/, Float::INFINITY],
+          [/unit length must be a finite Numeric/, Complex(1, 2)],
+          [/unit length must be a finite Numeric/, Class.new(Numeric) { def to_f = raise "conversion failed" }.new],
           [/unit length must be Numeric/, length_object("1")],
           [/unit length must be Numeric/, length_object(nil)],
           [/Object#length must be implemented/, Object.new]
@@ -147,21 +151,33 @@ module Sevgi
           [/brut must be non-negative/, {brut: -1, unit: 1, multiple: 1}],
           [/brut must be finite/, {brut: Float::NAN, unit: 1, multiple: 1}],
           [/brut must be finite/, {brut: Float::INFINITY, unit: 1, multiple: 1}],
+          [/brut must be a finite Numeric/, {brut: Complex(1, 2), unit: 1, multiple: 1}],
+          [
+            /brut must be a finite Numeric/,
+            {brut: Class.new(Numeric) { def to_f = raise "conversion failed" }.new, unit: 1, multiple: 1}
+          ],
           [/brut must be Numeric/, {brut: "10", unit: 1, multiple: 1}],
           [/unit must be positive/, {brut: 10, unit: 0, multiple: 1}],
           [/unit must be positive/, {brut: 10, unit: -1, multiple: 1}],
           [/unit must be finite/, {brut: 10, unit: Float::NAN, multiple: 1}],
           [/unit must be finite/, {brut: 10, unit: Float::INFINITY, multiple: 1}],
+          [/unit must be a finite Numeric/, {brut: 10, unit: Complex(1, 2), multiple: 1}],
+          [
+            /unit must be a finite Numeric/,
+            {brut: 10, unit: Class.new(Numeric) { def to_f = raise "conversion failed" }.new, multiple: 1}
+          ],
           [/unit must be Numeric/, {brut: 10, unit: "1", multiple: 1}],
           [/multiple must be a positive Integer/, {brut: 10, unit: 1, multiple: 0}],
           [/multiple must be a positive Integer/, {brut: 10, unit: 1, multiple: -1}],
           [/multiple must be a positive Integer/, {brut: 10, unit: 1, multiple: 1.5}],
           [/multiple must be a positive Integer/, {brut: 10, unit: 1, multiple: Float::NAN}],
           [/multiple must be a positive Integer/, {brut: 10, unit: 1, multiple: Float::INFINITY}],
+          [/multiple must be a positive Integer/, {brut: 10, unit: 1, multiple: Complex(1, 2)}],
           [/multiple must be a positive Integer/, {brut: 10, unit: 1, multiple: "1"}],
           [/margin must be non-negative/, {brut: 10, unit: 1, multiple: 1, margin: -1}],
           [/margin must be finite/, {brut: 10, unit: 1, multiple: 1, margin: Float::NAN}],
           [/margin must be finite/, {brut: 10, unit: 1, multiple: 1, margin: Float::INFINITY}],
+          [/margin must be a finite Numeric/, {brut: 10, unit: 1, multiple: 1, margin: Complex(1, 2)}],
           [/margin must be Numeric/, {brut: 10, unit: 1, multiple: 1, margin: "1"}],
           [/fitting span must not be negative/, {brut: 10, unit: 1, multiple: 1, margin: 6}]
         ].each do |message, kwargs|

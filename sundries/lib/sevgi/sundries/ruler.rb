@@ -116,7 +116,13 @@ module Sevgi
       def numeric(value, field)
         ArgumentError.("#{field} must be Numeric") unless value.is_a?(::Numeric)
 
-        number = value.to_f
+        number = begin
+          value.to_f
+        rescue ::StandardError => e
+          ArgumentError.("#{field} must be a finite Numeric: #{value.inspect} (#{e.message})")
+        end
+
+        ArgumentError.("#{field} must be a finite Numeric") unless number.is_a?(::Float)
         ArgumentError.("#{field} must be finite") unless number.finite?
 
         number

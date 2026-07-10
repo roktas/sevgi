@@ -22,25 +22,30 @@ module Sevgi
       # @param svg [String] SVG source content
       # @param output [String, #to_s] output file path
       # @param format [Symbol, String, nil] explicit output format, or nil to infer from output extension
-      # @param width [Numeric, nil] target width in output pixels for PNG, or CSS pixels before PDF point conversion
-      # @param height [Numeric, nil] target height in output pixels for PNG, or CSS pixels before PDF point conversion
-      # @param dpi [Numeric] CSS pixel density used for absolute SVG units and PDF point conversion
+      # @param width [Numeric, nil] finite positive target width in output pixels for PNG, or CSS pixels before PDF point conversion
+      # @param height [Numeric, nil] finite positive target height in output pixels for PNG, or CSS pixels before PDF point conversion
+      # @param dpi [Numeric] finite positive CSS pixel density used for absolute SVG units and PDF point conversion
       # @param css [String, nil] CSS inserted before the closing svg tag before rendering
       # @yield [svg] optional source transformation applied before rendering
       # @yieldparam svg [String] SVG source after optional CSS injection
       # @yieldreturn [String] SVG source to render
       # @return [Object] the original output argument
-      # @raise [Sevgi::ArgumentError] when SVG content is not a string or output is blank
-      # @raise [Sevgi::Sundries::Export::ExportError] when format, SVG parsing, SVG dimensions, or render dimensions are invalid
+      # @raise [Sevgi::ArgumentError] when output, CSS, or transformed SVG has an invalid type
+      # @raise [Sevgi::Sundries::Export::ExportError] when format, numeric options, SVG parsing, SVG dimensions, or render dimensions are invalid
       def call(svg, output, format: nil, width: nil, height: nil, dpi: DEFAULT_DPI, css: nil, &block)
         ArgumentError.("SVG content must be a String") unless svg.is_a?(String)
-        ArgumentError.("Export output must be provided") if output.nil? || output.to_s.strip.empty?
+        original_output = output
+        output = output_path(output)
+        format = format_for!(format, output)
+        width = dimension(width, "width")
+        height = dimension(height, "height")
+        dpi = dimension(dpi, "dpi")
+        ArgumentError.("Export CSS must be a String") unless css.nil? || css.is_a?(String)
 
         svg = inject(svg, css) if css && !css.strip.empty?
         svg = block.call(svg) if block
         ArgumentError.("SVG content must be a String") unless svg.is_a?(String)
 
-        format = format_for!(format, output)
         renderer = Renderer.method(format)
 
         begin
@@ -59,7 +64,7 @@ module Sevgi
 
           renderer.call(
             handle: handle,
-            output: output.to_s,
+            output: output,
             iw: iw,
             ih: ih,
             tw: tw,
@@ -70,7 +75,7 @@ module Sevgi
           ExportError.("Render error: #{e.message}")
         end
 
-        output
+        original_output
       end
 
       # Replaces exact placeholder text objects in PDF streams.
@@ -296,6 +301,43 @@ module Sevgi
 
       class << self
         private
+
+        def output_path(output)
+          ArgumentError.("Export output must be provided") if output.nil?
+
+          path = output.to_s
+          ArgumentError.("Export output must be a String-like path") unless path.is_a?(::String)
+          ArgumentError.("Export output must be provided") if path.strip.empty?
+
+          path
+        rescue ::StandardError => e
+          raise if e.is_a?(::Sevgi::ArgumentError)
+
+          ArgumentError.("Export output must be a String-like path: #{e.message}")
+        end
+
+        def dimension(value, field)
+          return if value.nil?
+          ExportError.(dimension_error(field)) unless value.is_a?(::Numeric)
+
+          number = begin
+            value.to_f
+          rescue ::StandardError => e
+            ExportError.(dimension_error(field, e.message))
+          end
+
+          ExportError.(dimension_error(field)) unless number.is_a?(::Float) && number.finite? && number.positive?
+
+          number
+        end
+
+        def dimension_error(field, detail = nil)
+          message = [
+            (%w[width height].include?(field) ? "Invalid export dimensions" : "Invalid export #{field}"),
+            detail
+          ]
+          message.compact.join(": ")
+        end
 
         def intrinsic_size(handle)
           if handle.respond_to?(:intrinsic_dimensions)

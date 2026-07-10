@@ -60,7 +60,7 @@ module Sevgi
       # @raise [Sevgi::Sundries::Export::ExportError] when the explicit format or output extension is unsupported
       def format_for!(format, output)
         if format
-          format = format.to_sym
+          format = normalize_format(format)
           ExportError.("Unsupported export format: #{format}") unless AVAILABLE.key?(format)
 
           format
@@ -78,6 +78,16 @@ module Sevgi
       # @return [String] SVG source with an added style element when a closing svg tag is present
       # @raise [NoMethodError] when SVG content does not support string substitution
       def inject(svg, css) = svg.sub("</svg>", "<style>#{css}</style></svg>")
+
+      def normalize_format(format)
+        unless format.is_a?(::String) || format.is_a?(::Symbol)
+          ExportError.("Export format must be a String or Symbol: #{format.inspect}")
+        end
+
+        format.to_sym
+      end
+
+      private :normalize_format
 
       # Replaces exact placeholder text objects in PDF streams.
       # @param infile [String] source PDF file path
