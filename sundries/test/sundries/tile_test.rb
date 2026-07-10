@@ -145,6 +145,17 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_same(expected, actual) }
       end
 
+      def test_tile_collections_are_immutable
+        tile = Tile.new(Geometry::Rect[3, 5], nx: 2, ny: 3)
+
+        [tile.rows, tile.cols].each do |collection|
+          assert_predicate(collection, :frozen?)
+          assert_predicate(collection.first, :frozen?)
+          assert_raises(FrozenError) { collection.clear }
+          assert_raises(FrozenError) { collection.first.clear }
+        end
+      end
+
       def test_tile_returns_indexed_boxes
         ti = Tile.new(Geometry::Rect[3, 5], nx: 2, ny: 3, position: Geometry::Point[1, 2])
 

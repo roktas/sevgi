@@ -64,16 +64,18 @@ module Sevgi
       def d = @d ||= n * u
 
       # Returns major tick distances, including both endpoints.
-      # @return [Array<Float>]
-      def ds = @ds ||= Array.new(n + 1) { |i| i * u }
+      # The memoized collection is frozen and must be treated as immutable.
+      # @return [Array<Float>] frozen major tick distances
+      def ds = @ds ||= Array.new(n + 1) { |i| i * u }.freeze
 
       # Returns the midpoint distance.
       # @return [Float]
       def h = @h ||= d / 2.0
 
       # Returns midpoint tick distances for each interval segment.
-      # @return [Array<Float>]
-      def hs = @hs ||= Array.new(n) { |i| u * (0.5 + i) }
+      # The memoized collection is frozen and must be treated as immutable.
+      # @return [Array<Float>] frozen midpoint tick distances
+      def hs = @hs ||= Array.new(n) { |i| u * (0.5 + i) }.freeze
 
       # Returns the last major tick index.
       # @return [Integer]
@@ -202,7 +204,8 @@ module Sevgi
       def margin = @margin ||= waste / 2.0
 
       # Returns minor tick distances across the fitted span.
-      # @return [Array<Float>]
+      # The memoized collection is frozen and must be treated as immutable.
+      # @return [Array<Float>] frozen minor tick distances
       def ms = @ms ||= expand.ds
 
       # Returns the unfitted distance distributed outside the fitted span.

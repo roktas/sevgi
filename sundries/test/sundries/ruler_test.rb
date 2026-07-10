@@ -42,6 +42,16 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
+      def test_tick_collections_are_immutable
+        interval = Interval.new(3, 4)
+        ruler = Ruler.new(unit: 1, multiple: 2, brut: 8)
+
+        [interval.ds, interval.hs, ruler.ms].each do |ticks|
+          assert_predicate(ticks, :frozen?)
+          assert_raises(FrozenError) { ticks.clear }
+        end
+      end
+
       def test_interval_measures_objects_by_length
         object = Data.define(:length).new(2.5)
         il = Interval[object, 4]

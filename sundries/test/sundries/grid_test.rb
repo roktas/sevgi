@@ -107,6 +107,24 @@ module Sevgi
         assert_same(query.xys, query.xys)
       end
 
+      def test_grid_query_collections_are_immutable
+        grid = Grid.new(
+          x: Ruler.new(unit: 2, multiple: 2, brut: 8),
+          y: Ruler.new(unit: 1, multiple: 2, brut: 6)
+        )
+        query = grid.x.major
+
+        assert_predicate(query.lines, :frozen?)
+        assert_raises(FrozenError) { query.lines.clear }
+
+        [query.points, query.xys].each do |collection|
+          assert_predicate(collection, :frozen?)
+          assert_predicate(collection.first, :frozen?)
+          assert_raises(FrozenError) { collection.clear }
+          assert_raises(FrozenError) { collection.first.clear }
+        end
+      end
+
       def test_grid_x_major_returns_horizontal_lines
         grid = Grid.new(
           x: Ruler.new(unit: 6, multiple: 5, brut: 210, margin: 15),

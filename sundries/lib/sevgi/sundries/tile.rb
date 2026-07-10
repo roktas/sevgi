@@ -56,8 +56,9 @@ module Sevgi
       def colbox(i = 0) = Geometry::Rect[element.box.width, box.height, position: coordinate(0, i)]
 
       # Returns cells grouped by column.
-      # @return [Array<Array<Sevgi::Geometry::Element>>]
-      def cols = @cols ||= rows.transpose
+      # The outer and nested collections are frozen and must be treated as immutable.
+      # @return [Array<Array<Sevgi::Geometry::Element>>] frozen columns
+      def cols = @cols ||= rows.transpose.map(&:freeze).freeze
 
       # Returns a column by index.
       # @param i [Integer] column index
@@ -89,8 +90,9 @@ module Sevgi
       def rowbox(i = 0) = Geometry::Rect[box.width, element.box.height, position: coordinate(i)]
 
       # Returns cells grouped by row.
-      # @return [Array<Array<Sevgi::Geometry::Element>>]
-      def rows = @rows ||= (0...ny).map { |i| (0...nx).map { |j| element.at(coordinate(i, j)) } }
+      # The outer and nested collections are frozen and must be treated as immutable.
+      # @return [Array<Array<Sevgi::Geometry::Element>>] frozen rows
+      def rows = @rows ||= (0...ny).map { |i| (0...nx).map { |j| element.at(coordinate(i, j)) }.freeze }.freeze
 
       # Iterates over rows.
       # @return [Enumerator, Array<Array<Sevgi::Geometry::Element>>] enumerator without a block, otherwise rows

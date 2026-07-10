@@ -85,16 +85,19 @@ module Sevgi
           def initialize(this, other) = (@this, @other = this, other)
 
           # Returns grid line endpoints as coordinate pairs.
-          # @return [Array<Array<Array<Float>>>]
-          def xys = @xys ||= lines.map { it.points(true).map(&:deconstruct) }
+          # The outer and nested collections are frozen and must be treated as immutable.
+          # @return [Array<Array<Array<Float>>>] frozen coordinate pairs
+          def xys = @xys ||= lines.map { it.points(true).map { |point| point.deconstruct.freeze }.freeze }.freeze
 
           # Returns grid line endpoints as points.
-          # @return [Array<Array<Sevgi::Geometry::Point>>]
-          def points = @points ||= lines.map { it.points(true) }
+          # The outer and nested collections are frozen and must be treated as immutable.
+          # @return [Array<Array<Sevgi::Geometry::Point>>] frozen point pairs
+          def points = @points ||= lines.map { it.points(true).freeze }.freeze
 
           # Returns generated grid lines.
-          # @return [Array<Sevgi::Geometry::Line>]
-          def lines = @lines ||= lines!
+          # The memoized collection is frozen and must be treated as immutable.
+          # @return [Array<Sevgi::Geometry::Line>] frozen lines
+          def lines = @lines ||= lines!.freeze
 
           private
 
