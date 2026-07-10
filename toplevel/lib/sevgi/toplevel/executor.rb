@@ -12,6 +12,7 @@ module Sevgi
   # @param kwargs [Hash] keyword arguments forwarded to {Sevgi::Executor.execute}
   # @return [Sevgi::Executor::Scope, nil] execution result, or nil for empty source
   # @raise [LoadError] when the optional `require:` library cannot be loaded
+  # @note Reentrant and concurrent calls keep independent executor scope stacks per fiber.
   # @see Sevgi::Executor.execute
   def self.execute(*args, **kwargs) = Executor.execute(*args, **kwargs, &BootBlock)
 
@@ -21,6 +22,7 @@ module Sevgi
   # @return [Sevgi::Executor::Scope, nil] execution result, or nil for an empty file
   # @raise [Errno::ENOENT] when the file cannot be read
   # @raise [LoadError] when the optional `require:` library cannot be loaded
+  # @note Reentrant and concurrent calls keep independent executor scope stacks per fiber.
   # @see Sevgi::Executor.execute_file
   def self.execute_file(*args, **kwargs) = Executor.execute_file(*args, **kwargs, &BootBlock)
 
@@ -30,6 +32,7 @@ module Sevgi
     # @return [Array<String>] the input file list
     # @raise [Sevgi::PanicError] when called without an active executor scope
     # @raise [Sevgi::Error] when a file cannot be located
+    # @note `Load` resolves against the active executor scope in the current fiber.
     def Load(*files)
       start = ::File.dirname(caller_locations(1..1).first.path)
 

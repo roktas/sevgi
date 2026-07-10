@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "tmpdir"
+
 require_relative "test_helper"
 
 module Sevgi
@@ -103,6 +105,29 @@ module Sevgi
       )
     end
 
+    def test_execute_file_isolates_concurrent_load_scopes
+      Dir.mktmpdir do |dir|
+        paths = write_concurrent_load_scripts(dir)
+        ready = Queue.new
+        results = Queue.new
+        go = {a: Queue.new, b: Queue.new}
+
+        a = run_concurrent_load(:a, paths[:a][:outer], ready, go[:a], results)
+        assert_equal(:a, ready.pop)
+
+        b = run_concurrent_load(:b, paths[:b][:outer], ready, go[:b], results)
+        assert_equal(:b, ready.pop)
+
+        go[:a].push(true)
+        assert_concurrent_load_result(results.pop, :a, paths[:a])
+
+        go[:b].push(true)
+        assert_concurrent_load_result(results.pop, :b, paths[:b])
+
+        [a, b].each(&:join)
+      end
+    end
+
     def test_execute_empty_string_preserves_active_scope
       result = Executor.execute(
         <<~RUBY
@@ -159,6 +184,19 @@ module Sevgi
       assert_equal(true, result.recent)
     end
 
+    def test_execute_isolates_main_constant
+      old = Sevgi.const_get(:Main, false) if Sevgi.const_defined?(:Main, false)
+      Sevgi.send(:remove_const, :Main) if Sevgi.const_defined?(:Main, false)
+
+      result = Executor.execute("missing")
+
+      refute(Sevgi.const_defined?(:Main, false))
+      assert_equal("undefined local variable or method 'missing' for module Sevgi::Main", result.error.message)
+    ensure
+      Sevgi.send(:remove_const, :Main) if Sevgi.const_defined?(:Main, false)
+      Sevgi.const_set(:Main, old) if old
+    end
+
     def test_execute_paper_rejects_conflicting_profile
       result = Sevgi.execute(
         <<~RUBY
@@ -179,6 +217,35 @@ module Sevgi
       Signal.trap("INT", handler)
 
       Executor.execute("1")
+
+      assert_same(handler, Signal.trap("INT", "IGNORE"))
+    ensure
+      Signal.trap("INT", original)
+    end
+
+    def test_execute_restores_sigint_handler_after_concurrent_execute
+      original = Signal.trap("INT", "DEFAULT")
+      handler = proc { }
+
+      Signal.trap("INT", handler)
+
+      ready = Queue.new
+      results = Queue.new
+      go = {a: Queue.new, b: Queue.new}
+
+      a = run_concurrent_execute(:a, ready, go[:a], results)
+      assert_equal(:a, ready.pop)
+
+      b = run_concurrent_execute(:b, ready, go[:b], results)
+      assert_equal(:b, ready.pop)
+
+      go[:a].push(true)
+      assert_equal(:a, results.pop)
+
+      go[:b].push(true)
+      assert_equal(:b, results.pop)
+
+      [a, b].each(&:join)
 
       assert_same(handler, Signal.trap("INT", "IGNORE"))
     ensure
@@ -251,6 +318,69 @@ module Sevgi
 
       assert(result.error?)
       assert(result.error.message.start_with?("test.rb:12:"))
+    end
+
+    private
+
+    def assert_concurrent_load_result(result, label, paths)
+      actual, scope, error = result
+
+      assert_equal(label, actual)
+      assert_nil(error)
+      assert_equal(label, scope.recent)
+      assert_equal([paths[:outer], paths[:inner]], scope.stack)
+    end
+
+    def run_concurrent_execute(label, ready, go, results)
+      Thread.new do
+        Thread.current[:executor_test_ready] = ready
+        Thread.current[:executor_test_go] = go
+
+        Executor.execute(
+          <<~RUBY
+            Thread.current[:executor_test_ready].push(#{label.inspect})
+            Thread.current[:executor_test_go].pop
+          RUBY
+        )
+
+        results.push(label)
+      end
+    end
+
+    def run_concurrent_load(label, file, ready, go, results)
+      Thread.new do
+        Thread.current[:executor_test_ready] = ready
+        Thread.current[:executor_test_go] = go
+
+        results.push([label, Sevgi.execute_file(file), nil])
+      rescue StandardError => e
+        results.push([label, nil, e])
+      end
+    end
+
+    def write_concurrent_load_scripts(dir)
+      %i[a b].to_h do |label|
+        inner = ::File.join(dir, "inner_#{label}.sevgi")
+        outer = ::File.join(dir, "outer_#{label}.sevgi")
+
+        ::File.write(
+          inner,
+          <<~RUBY
+            @loaded = #{label.inspect}
+          RUBY
+        )
+        ::File.write(
+          outer,
+          <<~RUBY
+            Thread.current[:executor_test_ready].push(#{label.inspect})
+            Thread.current[:executor_test_go].pop
+            Load "inner_#{label}"
+            @loaded
+          RUBY
+        )
+
+        [label, {inner:, outer:}]
+      end
     end
   end
 end

@@ -3,6 +3,9 @@
 module Sevgi
   class Executor
     # Holds one isolated Sevgi script execution scope and its result.
+    #
+    # Scope objects belong to one executor run and are pushed onto the current
+    # fiber's executor stack. They are not shared between concurrent executions.
     class Scope
       # Error raised by low-level executor scope operations.
       Error = Class.new(::Sevgi::Error)
@@ -18,6 +21,8 @@ module Sevgi
       # Creates a script execution scope.
       # @param scope [Module, nil] existing module to evaluate source in
       # @return [void]
+      # @note When no module is supplied, the internal module reports its name as `Sevgi::Main` for readable Ruby error
+      #   messages without publishing a process-global `Sevgi::Main` constant.
       def initialize(scope = nil)
         @scope = scope || main
         @recent = nil
@@ -62,15 +67,13 @@ module Sevgi
 
       # Returns the unique source stack for this execution.
       # @return [Array<String>] source file keys in load order
+      # @note The stack is owned by this scope and is not shared with concurrent executions.
       def stack = @stack.keys
 
       # Returns the most recently pushed source.
       # @return [Sevgi::Executor::Source, nil] most recent source object
       # @api private
       def peek = @stack[@stack.keys.last]
-
-      # Constant name used for the temporary script module under {Sevgi}.
-      MAIN_MODULE = :Main
 
       private
 
@@ -86,10 +89,7 @@ module Sevgi
       end
 
       def main
-        Module.new.tap do |mod|
-          Sevgi.send(:remove_const, MAIN_MODULE) if Sevgi.const_defined?(MAIN_MODULE)
-          Sevgi.const_set(MAIN_MODULE, mod)
-        end
+        Module.new.tap { |mod| mod.define_singleton_method(:name) { "Sevgi::Main" } }
       end
 
       def push(source)

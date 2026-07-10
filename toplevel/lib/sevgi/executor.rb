@@ -11,14 +11,23 @@ module Sevgi
   #
   # The executor is used by script mode and by the `Load` DSL word to preserve a
   # useful load stack while keeping DSL methods out of the caller's global object
-  # whenever possible.
+  # whenever possible. Active scope stacks are isolated per Ruby fiber, so
+  # concurrent executions can perform nested `Load` calls without sharing scope
+  # state. The process SIGINT handler is shared by Ruby, so executor runs guard it
+  # with a reference-counted critical section and restore the previous handler
+  # after the last active execution finishes.
   class Executor
     include Singleton
+
+    # Thread-current key used for the fiber-local executor scope stack.
+    # @api private
+    SCOPE_KEY = :sevgi_executor_scopes
 
     # Loads a script file inside the current executor scope.
     # @param file [String] path to a Sevgi script file
     # @return [Sevgi::Executor::Scope] current execution scope
     # @raise [Sevgi::PanicError] when there is no active executor scope
+    # @note Uses the active executor scope from the current fiber.
     # @api private
     def self.load(file, ...)
       PanicError.("box stack empty; create a box first") unless instance.current
@@ -36,10 +45,12 @@ module Sevgi
     # @yieldreturn [void]
     # @return [Sevgi::Executor::Scope, nil] execution scope, or nil for empty source
     # @raise [LoadError] when the optional required library cannot be loaded
+    # @note Reentrant and concurrent calls keep independent scope stacks per fiber. The temporary SIGINT handler remains
+    #   process-global while any execution is active.
     def self.execute(string, file: nil, line: nil, require: nil, receiver: nil, &block)
       return if string.empty?
 
-      interrupt = Signal.trap("INT") { Kernel.abort("") }
+      instance.trap
 
       ::Kernel.require(require) if require
 
@@ -47,8 +58,8 @@ module Sevgi
       catch(:result) { scope.call(Source.new(string:, file:, line:), receiver, &block) }
 
     ensure
-      Signal.trap("INT", interrupt) if interrupt
-      instance.shutdown if scope
+      instance.restore
+      instance.shutdown(scope) if scope
     end
 
     # Executes a file inside a managed Sevgi script scope.
@@ -60,6 +71,8 @@ module Sevgi
     # @return [Sevgi::Executor::Scope, nil] execution scope, or nil for an empty file
     # @raise [Errno::ENOENT] when the file cannot be read
     # @raise [LoadError] when the optional required library cannot be loaded
+    # @note Reentrant and concurrent calls keep independent scope stacks per fiber. The temporary SIGINT handler remains
+    #   process-global while any execution is active.
     def self.execute_file(file, require: nil, receiver: nil, &block)
       execute(::File.read(file), file: file, line: 1, require:, receiver:, &block)
     end
@@ -71,22 +84,62 @@ module Sevgi
       instance.shutdown
     end
 
-    def initialize = @scopes = []
+    def initialize
+      @signal_count = 0
+      @signal_mutex = Mutex.new
+      @signal_previous = nil
+    end
 
     # Creates and pushes a new executor scope.
     # @param scope [Module, nil] existing module scope to reuse
     # @return [Sevgi::Executor::Scope] created scope
     # @api private
-    def create(scope = nil) = Scope.new(scope).tap { @scopes << it }
+    def create(scope = nil) = Scope.new(scope).tap { scopes << it }
 
     # Returns the active executor scope.
     # @return [Sevgi::Executor::Scope, nil] active scope, if any
     # @api private
-    def current = @scopes.last
+    def current = scopes.last
+
+    # Restores the process SIGINT handler when the last active execution ends.
+    # @return [void]
+    # @api private
+    def restore
+      @signal_mutex.synchronize do
+        next if @signal_count.zero?
+
+        @signal_count -= 1
+        next unless @signal_count.zero?
+
+        Signal.trap("INT", @signal_previous)
+        @signal_previous = nil
+      end
+    end
 
     # Removes the active executor scope.
+    # @param scope [Sevgi::Executor::Scope, nil] exact scope to remove, or nil to pop the current scope
     # @return [Sevgi::Executor::Scope, nil] removed scope
     # @api private
-    def shutdown = @scopes.pop
+    def shutdown(scope = nil)
+      return scopes.pop unless scope
+      return scopes.pop if scopes.last.equal?(scope)
+
+      scopes.delete(scope)
+    end
+
+    # Installs the process SIGINT handler while one or more executions are active.
+    # @return [void]
+    # @api private
+    def trap
+      @signal_mutex.synchronize do
+        @signal_previous = Signal.trap("INT") { Kernel.abort("") } if @signal_count.zero?
+
+        @signal_count += 1
+      end
+    end
+
+    private
+
+    def scopes = Thread.current[SCOPE_KEY] ||= []
   end
 end
