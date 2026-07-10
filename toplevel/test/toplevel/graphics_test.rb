@@ -15,7 +15,7 @@ module Sevgi
       end
 
       obj = klass.new
-      doc = Graphics.document(:mixin)
+      doc = Graphics.document(:mixin, attributes: {})
 
       begin
         Sevgi::Graphics::Mixtures.const_set(:Foo, Module.new)
@@ -31,7 +31,7 @@ module Sevgi
         include(::Sevgi)
       end
 
-      doc = Graphics.document(:anonymous_mixin)
+      doc = Graphics.document(:anonymous_mixin, attributes: {})
       klass.new.Mixin(doc) do
         define_method(:Badge) do
           rect(id: "badge")

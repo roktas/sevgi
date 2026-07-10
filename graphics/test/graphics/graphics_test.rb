@@ -188,7 +188,7 @@ module Sevgi
       end
 
       def test_document_returns_document_class
-        doc = Graphics.document(:foo)
+        doc = Graphics.document(:foo, attributes: {})
         assert(doc < Graphics::Document::Base)
       end
 

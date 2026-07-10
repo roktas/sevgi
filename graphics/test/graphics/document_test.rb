@@ -254,6 +254,18 @@ module Sevgi
 
         assert_match(/\bmissing\b/, error.message)
       end
+
+      def test_document_lookup_does_not_define_unknown_profile
+        assert_raises(ArgumentError) { Graphics.document(:lookup_missing) }
+        assert_raises(ArgumentError) { SVG(:lookup_missing) }
+      end
+
+      def test_document_explicit_empty_definition_is_registered
+        doc = Graphics.document(:explicit_empty, attributes: {})
+
+        assert_same(doc, Graphics.document(:explicit_empty))
+        assert_equal("<svg/>", SVG(:explicit_empty).Render())
+      end
     end
 
     class DocumentMethodMissingTest < Minitest::Test

@@ -30,8 +30,9 @@ module Sevgi
     #   @return [Class] document class
     #   @raise [Sevgi::ArgumentError] when the profile is unknown
     # @overload document(name, preambles: Undefined, attributes: Undefined)
-    #   Defines a named document profile, or returns an existing profile when every explicitly supplied field matches.
-    #   Omitted fields are ignored during existing-profile comparison. Profile inputs are copied into the registry.
+    #   Looks up a named profile when both definition keywords are omitted. Supplying `preambles:` or `attributes:`
+    #   defines a named profile, or returns an existing profile when every explicitly supplied field matches. Omitted
+    #   fields are ignored during existing-profile comparison. Profile inputs are copied into the registry.
     #   @param name [Symbol, String] profile name
     #   @param preambles [Array<String>, nil, Sevgi::Undefined] document preamble lines
     #   @param attributes [Hash, Sevgi::Undefined] default root attributes

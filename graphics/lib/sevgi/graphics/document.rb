@@ -89,6 +89,10 @@ module Sevgi
       def self.define(name = Undefined, preambles: Undefined, attributes: Undefined, overwrite: false)
         return anonymous(attributes:, preambles:) if name == Undefined
 
+        return lookup(name) if preambles == Undefined && attributes == Undefined
+
+        name = Profile.normalize!(name)
+
         if (current = Profile[name])
           reject_conflict(name, current, attributes:, preambles:) unless overwrite
           return current unless overwrite
@@ -101,6 +105,11 @@ module Sevgi
       def self.anonymous(attributes:, preambles:)
         attributes, preambles = defaults(attributes:, preambles:)
         Class.new(Base) { document(Undefined, preambles:, attributes:, register: false) }
+      end
+
+      def self.lookup(name)
+        name = Profile.normalize!(name)
+        Profile[name] || ArgumentError.("Unknown document profile: #{name}")
       end
 
       def self.defaults(attributes:, preambles:)
@@ -120,7 +129,7 @@ module Sevgi
           (preambles == Undefined || Profile.new(nil, preambles:).preambles == profile.preambles)
       end
 
-      private_class_method :anonymous, :compatible?, :defaults, :reject_conflict
+      private_class_method :anonymous, :compatible?, :defaults, :lookup, :reject_conflict
 
       # Immutable document profile metadata.
       # @api private
