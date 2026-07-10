@@ -60,7 +60,7 @@ module Sevgi
       #   @return [Sevgi::Graphics::Paper] inner paper after margins
       attr_reader :size, :margin, :inner
 
-      # Creates a canvas.
+      # Creates a canvas with finite real dimensions greater than zero and margins that leave a positive inner area.
       # @param width [Numeric] canvas width
       # @param height [Numeric] canvas height
       # @param unit [Symbol, String] SVG unit
@@ -117,7 +117,21 @@ module Sevgi
       private
 
       def compute
-        @inner = size.with(width: width - margin.left - margin.right, height: height - margin.top - margin.bottom)
+        @inner = size.with(**inner_size)
+        ensure_inner_area
+      end
+
+      def ensure_inner_area
+        return if @inner.width.positive? && @inner.height.positive?
+
+        ArgumentError.("Canvas margins must leave a positive inner area")
+      end
+
+      def inner_size
+        {
+          width: width - margin.left - margin.right,
+          height: height - margin.top - margin.bottom
+        }
       end
 
       def originate(origin)
@@ -125,7 +139,7 @@ module Sevgi
         when Undefined
           [-margin.left, -margin.top]
         when ::Numeric, ::NilClass
-          [origin.to_f, origin.to_f]
+          scalar_origin(origin)
         when ::Array
           pair(origin)
         else
@@ -134,9 +148,13 @@ module Sevgi
       end
 
       def coordinate!(field, value)
-        Float(value)
-      rescue ::ArgumentError, ::TypeError
-        ArgumentError.("Invalid canvas origin #{field}: #{value.inspect}")
+        return 0.0 if value.nil?
+
+        Scalar.finite(value, context: "canvas origin", field:)
+      end
+
+      def scalar_origin(origin)
+        coordinate!(:origin, origin || 0).then { [it, it] }
       end
 
       def prettify(*floats)

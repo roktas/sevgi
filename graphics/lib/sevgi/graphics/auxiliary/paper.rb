@@ -15,7 +15,7 @@ module Sevgi
       # @!attribute [r] name
       #   @return [Symbol] profile name
 
-      # Creates a paper profile.
+      # Creates a paper profile. Dimensions must be finite real numbers greater than zero.
       # @param width [Numeric] paper width
       # @param height [Numeric] paper height
       # @param unit [Symbol, String] SVG unit
@@ -85,9 +85,7 @@ module Sevgi
       def self.profiles = @profiles
 
       def self.dimension!(field, value)
-        Float(value)
-      rescue ::ArgumentError, ::TypeError
-        ArgumentError.("Invalid paper #{field}: #{value.inspect}")
+        Scalar.finite(value, context: "paper", field:, positive: true)
       end
 
       def self.symbol!(field, value)

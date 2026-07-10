@@ -113,6 +113,34 @@ module Sevgi
         assert_match(/\bx\b/, x_error.message)
         assert_match(/\by\b/, y_error.message)
       end
+
+      def test_canvas_origin_requires_finite_real_coordinates
+        canvas = Canvas.from_paper(:a4)
+
+        [
+          -> { canvas.viewbox("1") },
+          -> { canvas.viewbox([Complex(1, 0), 2]) },
+          -> { canvas.viewbox([Float::NAN, 2]) },
+          -> { canvas.viewbox([Float::INFINITY, 2]) }
+        ].each { |operation| assert_raises(Sevgi::ArgumentError, &operation) }
+      end
+
+      def test_canvas_rejects_invalid_margins_and_overflow
+        [
+          -> { Canvas.from_paper(:a4, margins: [-1]) },
+          -> { Canvas.from_paper(:a4, margins: [Float::NAN]) },
+          -> { Canvas.from_paper(:a4, margins: [Float::INFINITY]) },
+          -> { Canvas.from_paper(:a4, margins: [106]) }
+        ].each { |operation| assert_raises(Sevgi::ArgumentError, &operation) }
+      end
+
+      def test_canvas_with_preserves_source_after_valid_replacement
+        source = Canvas.from_paper(:a4, margins: [3, 5])
+        updated = source.with(width: 100, height: 200, margins: [1])
+
+        assert_equal([210.0, 297.0, [3.0, 5.0, 3.0, 5.0]], [source.width, source.height, source.margin.to_a])
+        assert_equal([100.0, 200.0, [1.0, 1.0, 1.0, 1.0]], [updated.width, updated.height, updated.margin.to_a])
+      end
     end
 
   end

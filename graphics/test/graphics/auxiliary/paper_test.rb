@@ -40,6 +40,19 @@ module Sevgi
         end
       end
 
+      def test_dimensions_require_finite_positive_real_numbers
+        [
+          -> { Paper["3", 5] },
+          -> { Paper[Complex(3, 1), 5] },
+          -> { Paper[Float::NAN, 5] },
+          -> { Paper[Float::INFINITY, 5] },
+          -> { Paper[0, 5] },
+          -> { Paper[-1, 5] },
+          -> { Paper[3, 0] },
+          -> { Paper[3, -1] }
+        ].each { |operation| assert_raises(Sevgi::ArgumentError, &operation) }
+      end
+
       def test_iso_a_profiles_use_standard_small_sizes
         [
           [74.0, 105.0, :mm, :a7],

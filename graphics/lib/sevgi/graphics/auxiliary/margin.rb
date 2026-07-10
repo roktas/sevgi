@@ -15,7 +15,8 @@ module Sevgi
       # @!attribute [r] left
       #   @return [Float] left margin
 
-      # Creates a margin from one to four shorthand values.
+      # Creates a margin from one to four shorthand values. Values must be finite real numbers greater than or equal to
+      # zero.
       # @param top [Numeric, nil] top value or all-sides shorthand
       # @param right [Numeric, nil] right value or horizontal shorthand
       # @param bottom [Numeric, nil] bottom value
@@ -74,7 +75,14 @@ module Sevgi
       def normalize(top, right, bottom, left)
         values = [top, right, bottom, left]
 
-        Margin.members.zip(values_for(values.compact.size, values).map { Float(it) }).to_h
+        Margin
+          .members
+          .zip(
+            values_for(values.compact.size, values).map do |value|
+              Scalar.finite(value, context: "margin", field: :value, nonnegative: true)
+            end
+          )
+          .to_h
       end
 
       def values_for(size, values)
