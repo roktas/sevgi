@@ -159,6 +159,36 @@ module Sevgi
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
         end
 
+        def test_duplicate_copies_nested_attribute_and_content_payloads
+          original = copy = nil
+
+          SVG do
+            original = g(style: {fill: ["red", {opacity: "1"}]}) do
+              text(Content.verbatim(["original"]))
+            end
+
+            copy = original.Duplicate()
+          end
+
+          copy[:style][:fill] << "blue"
+          copy[:style][:fill][1][:opacity] << "!"
+          copy.children.first.contents.first.content << " copy"
+
+          assert_equal(["red", {opacity: "1"}], original[:style][:fill])
+          assert_equal(["original"], original.children.first.contents.first.content)
+        end
+
+        def test_duplicate_copies_a_root_without_a_root_parent
+          original = SVG { g { line } }
+
+          copy = original.Duplicate()
+
+          assert(copy.Root?())
+          assert_same(copy, copy.Root())
+          assert_equal(:svg, copy.name)
+          assert_equal(1, copy.children.size)
+        end
+
         def test_duplicate_operations_stay_in_copied_tree
           copy = copy_branch = copy_leaf = copy_sibling = nil
           original_branch = original_leaf = nil

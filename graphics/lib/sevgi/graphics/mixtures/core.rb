@@ -65,9 +65,7 @@ module Sevgi
 
             Adoption.validate(self, new_parent)
 
-            same_parent = parent.equal?(new_parent)
-            available = new_parent.children.size - (same_parent ? 1 : 0)
-            insertion = Adoption.index(index, available)
+            insertion = Adoption.index_for(self, new_parent, index)
 
             self.Orphan()
             (@parent = new_parent).children.insert(insertion, self)
@@ -269,6 +267,16 @@ module Sevgi
             ArgumentError.("Adoption index is outside the child list") unless normalized.between?(0, size)
 
             normalized
+          end
+
+          # Returns an insertion index after accounting for a same-parent move.
+          # @param element [Sevgi::Graphics::Element] element being moved
+          # @param parent [Sevgi::Graphics::Element] target parent
+          # @param index [Integer] requested insertion index
+          # @return [Integer] normalized insertion index
+          def self.index_for(element, parent, index)
+            same_parent = element.parent.equal?(parent) && parent.children.include?(element)
+            index(index, parent.children.size - (same_parent ? 1 : 0))
           end
         end
 

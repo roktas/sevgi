@@ -129,7 +129,7 @@ module Sevgi
         # @return [void]
         def initialize_copy(original)
           @store = {}
-          original.store.each { |key, value| @store[key] = value.dup }
+          original.store.each { |key, value| @store[key] = copy_value(value) }
 
           super
         end
@@ -188,6 +188,19 @@ module Sevgi
           ArgumentError.("Unsupported value for update: #{new_value}") unless UPDATER.key?(new_value.class)
 
           [old_value, new_value]
+        end
+
+        def copy_value(value)
+          case value
+          when ::Hash
+            value.to_h { |key, nested| [key, copy_value(nested)] }
+          when ::Array
+            value.map { copy_value(it) }
+          when ::String
+            value.dup
+          else
+            value
+          end
         end
 
         private_constant :UPDATER

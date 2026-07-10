@@ -18,18 +18,9 @@ module Sevgi
         # @raise [Sevgi::ArgumentError] when the target parent has a different element class
         def Duplicate(dx: nil, dy: nil, parent: nil, &block)
           duplicated = Subtree.copy(self)
-
-          duplicated.Traverse() do |element|
-            id = element.attributes.delete(:id)
-            element[:"#{ATTRIBUTE_INTERNAL_PREFIX}id"] = id if id
-            block&.call(element)
-          end
-
-          duplicated.Translate(dx, dy) if dx || dy
-
-          duplicated.Adopt(parent)
-
-          duplicated
+          Subtree.prepare(duplicated, &block)
+          Subtree.translate(duplicated, dx, dy)
+          Subtree.attach(duplicated, self, parent)
         end
 
         # Duplicates an element subtree along the x-axis.
@@ -61,9 +52,32 @@ module Sevgi
             element.dup.tap do |duplicated|
               duplicated.send(:parent=, parent)
               duplicated.send(:attributes=, element.attributes.dup)
-              duplicated.send(:contents=, element.contents.dup)
+              duplicated.send(:contents=, element.contents.map(&:dup))
               duplicated.send(:children=, element.children.map { |child| copy(child, duplicated) })
             end
+          end
+
+          # Removes copied public ids and applies an optional customization hook.
+          # @api private
+          def self.prepare(element, &block)
+            element.Traverse() do |node|
+              id = node.attributes.delete(:id)
+              node[:"#{ATTRIBUTE_INTERNAL_PREFIX}id"] = id if id
+              block&.call(node)
+            end
+          end
+
+          # Applies an optional translation to a copied subtree.
+          # @api private
+          def self.translate(element, dx, dy)
+            element.Translate(dx, dy) if dx || dy
+          end
+
+          # Attaches a copied subtree unless it is a detached root copy.
+          # @api private
+          def self.attach(element, source, parent)
+            element.Adopt(parent) if parent || !source.Root?()
+            element
           end
         end
 

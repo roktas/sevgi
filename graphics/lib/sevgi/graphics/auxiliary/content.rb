@@ -13,6 +13,14 @@ module Sevgi
       # @return [void]
       def initialize(content) = @content = content
 
+      # Copies content payload ownership for duplicated element trees.
+      # @param original [Sevgi::Graphics::Content] source content
+      # @return [void]
+      def initialize_copy(original)
+        @content = copy_payload(original.content)
+        super
+      end
+
       # Renders content with a renderer.
       # @abstract Subclasses implement content rendering.
       # @param _renderer [Object] renderer receiving output
@@ -24,6 +32,21 @@ module Sevgi
       # Returns content as a string.
       # @return [String]
       def to_s = content.to_s
+
+      def copy_payload(value)
+        case value
+        when ::Hash
+          value.to_h { |key, nested| [copy_payload(key), copy_payload(nested)] }
+        when ::Array
+          value.map { copy_payload(it) }
+        when ::String
+          value.dup
+        else
+          value
+        end
+      end
+
+      private :copy_payload
 
       # @overload cdata(content)
       #   Builds CDATA content.
