@@ -275,7 +275,7 @@ module Sevgi
             return false if ELEMENTS_WITH_BLOCK_CONTENT.include?(element.name)
             return false if floating?(element)
 
-            element.contents.size == 1 || ELEMENTS_WITH_INLINE_CONTENT.include?(element.name)
+            element.contents.any? || ELEMENTS_WITH_INLINE_CONTENT.include?(element.name)
           end
 
           def indent(depth)

@@ -182,6 +182,25 @@ module Sevgi
           assert_render(expected, actual)
         end
 
+        def test_render_mixed_inline_text_with_multiple_contents
+          expected = <<~SVG
+            <svg>
+              <text>foo&amp;bar<tspan>baz</tspan></text>
+            </svg>
+          SVG
+            .chomp
+
+          actual = SVG(DOC) do
+            text("foo", Content.encoded("&bar")) do
+              tspan("baz")
+            end
+          end
+            .Render()
+
+          assert_render(expected, actual)
+          assert_equal("foo&barbaz", Nokogiri::XML(actual).at_xpath("//text").text)
+        end
+
         def test_render_mixed_inline_text_with_nested_tspans
           expected = <<~SVG
             <svg>
