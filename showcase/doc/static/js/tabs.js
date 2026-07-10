@@ -92,7 +92,18 @@
     Array.prototype.forEach.call(outputs, render);
   }
 
+  function activateTab(label, focus) {
+    var input = document.getElementById(label.dataset.tabInput);
+
+    if (!input) return;
+
+    input.checked = true;
+    syncTabs(label.closest('.tabs'));
+    if (focus) label.focus();
+  }
+
   function init() {
+    initTabs();
     renderAll();
 
     new MutationObserver(renderAll).observe(root, {
@@ -105,6 +116,68 @@
     } else if (systemDark.addListener) {
       systemDark.addListener(renderAll);
     }
+  }
+
+  function initTabs() {
+    var lists = document.querySelectorAll('.tabs[role="tablist"]');
+    Array.prototype.forEach.call(lists, function(tabs) {
+      if (tabs.dataset.tabsReady) return;
+
+      tabs.dataset.tabsReady = 'true';
+      Array.prototype.forEach.call(tabLabels(tabs), function(label, index) {
+        var input = document.getElementById(label.dataset.tabInput);
+        if (input) input.addEventListener('change', function() { syncTabs(tabs); });
+        label.addEventListener('keydown', function(event) { onTabKeydown(event, tabs, index); });
+      });
+      syncTabs(tabs);
+    });
+  }
+
+  function onTabKeydown(event, tabs, index) {
+    var labels = tabLabels(tabs);
+    var target = null;
+
+    switch (event.key) {
+      case 'ArrowDown':
+      case 'ArrowRight':
+        target = labels[(index + 1) % labels.length];
+        break;
+      case 'ArrowLeft':
+      case 'ArrowUp':
+        target = labels[(index + labels.length - 1) % labels.length];
+        break;
+      case 'End':
+        target = labels[labels.length - 1];
+        break;
+      case 'Home':
+        target = labels[0];
+        break;
+      case ' ':
+      case 'Enter':
+        target = labels[index];
+        break;
+      default:
+        return;
+    }
+
+    event.preventDefault();
+    activateTab(target, true);
+  }
+
+  function syncTabs(tabs) {
+    Array.prototype.forEach.call(tabLabels(tabs), function(label) {
+      var input = document.getElementById(label.dataset.tabInput);
+      var panel = document.getElementById(label.dataset.tabPanel);
+      var selected = !!(input && input.checked);
+
+      label.setAttribute('aria-selected', selected ? 'true' : 'false');
+      label.tabIndex = selected ? 0 : -1;
+      if (panel) panel.hidden = !selected;
+    });
+  }
+
+  function tabLabels(tabs) {
+    return Array.prototype.slice.call(tabs.querySelectorAll('[role="tab"][data-tab-input]'));
   }
 
   if (document.readyState === 'loading') {

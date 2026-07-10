@@ -1687,6 +1687,11 @@ button.explore-more {
   outline: 2px solid var(--wt-color-accent);
   outline-offset: -2px;
 }
+.tabs .label:focus-visible {
+  z-index: 1;
+  outline: 2px solid var(--wt-color-accent);
+  outline-offset: -2px;
+}
 .tabs .input:checked + .label {
   background: var(--wt-color-bg-elevated);
   color: var(--wt-color-text);

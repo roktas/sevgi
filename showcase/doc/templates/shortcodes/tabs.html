@@ -19,11 +19,20 @@
 {% set ruby_content_dark = load_data(path=ruby_file_dark) %}
 {% set svg_content_light = load_data(path=svg_file_light) %}
 {% set svg_content_dark = load_data(path=svg_file_dark) %}
+{% set svg_tab = "tab-" ~ base ~ "-svg" %}
+{% set ruby_tab = "tab-" ~ base ~ "-ruby" %}
+{% set xml_tab = "tab-" ~ base ~ "-xml" %}
+{% set svg_input = svg_tab ~ "-input" %}
+{% set ruby_input = ruby_tab ~ "-input" %}
+{% set xml_input = xml_tab ~ "-input" %}
+{% set svg_panel = "panel-" ~ base ~ "-svg" %}
+{% set ruby_panel = "panel-" ~ base ~ "-ruby" %}
+{% set xml_panel = "panel-" ~ base ~ "-xml" %}
 
-<div class="tabs" data-tab-base="{{ base }}">
-  <input class="input" name="tabs-{{ base }}" type="radio" id="tab-{{ base }}-1" checked="checked"/>
-  <label class="label" for="tab-{{ base }}-1" title="SVG Output"><i class="fa-solid fa-image"></i></label>
-  <div class="panel svg-panel">
+<div class="tabs" data-tab-base="{{ base }}" role="tablist" aria-label="{{ base }} example views">
+  <input class="input" name="tabs-{{ base }}" type="radio" id="{{ svg_input }}" checked="checked" tabindex="-1" aria-hidden="true"/>
+  <label class="label" for="{{ svg_input }}" id="{{ svg_tab }}" title="SVG Output" role="tab" tabindex="0" aria-selected="true" aria-controls="{{ svg_panel }}" aria-label="SVG Output" data-tab-input="{{ svg_input }}" data-tab-panel="{{ svg_panel }}"><i class="fa-solid fa-image" aria-hidden="true"></i></label>
+  <div class="panel svg-panel" id="{{ svg_panel }}" role="tabpanel" aria-labelledby="{{ svg_tab }}">
     <template id="svg-light-{{ base }}">
       {{ svg_content_light | safe }}
     </template>
@@ -37,9 +46,9 @@
     </div>
   </div>
 
-  <input class="input" name="tabs-{{ base }}" type="radio" id="tab-{{ base }}-2"/>
-  <label class="label" for="tab-{{ base }}-2" title="Ruby Code"><i class="fa-solid fa-gem"></i></label>
-  <div class="panel code-panel ruby-panel">
+  <input class="input" name="tabs-{{ base }}" type="radio" id="{{ ruby_input }}" tabindex="-1" aria-hidden="true"/>
+  <label class="label" for="{{ ruby_input }}" id="{{ ruby_tab }}" title="Ruby Code" role="tab" tabindex="0" aria-selected="false" aria-controls="{{ ruby_panel }}" aria-label="Ruby Code" data-tab-input="{{ ruby_input }}" data-tab-panel="{{ ruby_panel }}"><i class="fa-solid fa-gem" aria-hidden="true"></i></label>
+  <div class="panel code-panel ruby-panel" id="{{ ruby_panel }}" role="tabpanel" aria-labelledby="{{ ruby_tab }}">
     <div class="theme-light">
 {{ "```ruby
 " ~ ruby_content_light ~ "
@@ -52,9 +61,9 @@
     </div>
   </div>
   
-  <input class="input" name="tabs-{{ base }}" type="radio" id="tab-{{ base }}-3"/>
-  <label class="label" for="tab-{{ base }}-3" title="XML Code"><i class="fa-solid fa-code"></i></label>
-  <div class="panel code-panel svg-code-panel">
+  <input class="input" name="tabs-{{ base }}" type="radio" id="{{ xml_input }}" tabindex="-1" aria-hidden="true"/>
+  <label class="label" for="{{ xml_input }}" id="{{ xml_tab }}" title="XML Code" role="tab" tabindex="0" aria-selected="false" aria-controls="{{ xml_panel }}" aria-label="XML Code" data-tab-input="{{ xml_input }}" data-tab-panel="{{ xml_panel }}"><i class="fa-solid fa-code" aria-hidden="true"></i></label>
+  <div class="panel code-panel svg-code-panel" id="{{ xml_panel }}" role="tabpanel" aria-labelledby="{{ xml_tab }}">
     <div class="theme-light">
 {{ "```xml
 " ~ svg_content_light ~ "
