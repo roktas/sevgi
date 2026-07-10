@@ -96,7 +96,7 @@ module Sevgi
       runner = -> (_name) { ["demo (1.2.3)", "", status(true)] }
 
       error = assert_raises(Preflight::Error) do
-        Preflight.validate_remote!(names: ["demo"], version: "1.2.3", runner:)
+        Preflight.assert_remote!(names: ["demo"], version: "1.2.3", runner:)
       end
 
       assert_match(/already published/, error.message)
@@ -155,7 +155,7 @@ module Sevgi
       with_release_fixture do |root|
         package_dir = build_fixture_package(root)
         archives = Preflight.validate_archives!(root:, package_dir:, version: "1.2.3")
-        assert(Preflight.validate_checksums!(package_dir:, archives:))
+        assert_nil(Preflight.assert_checksums!(package_dir:, archives:))
 
         digest = Digest::SHA256.file(archives.first.fetch(:path)).hexdigest
         File.write(File.join(package_dir, "SHA256SUMS"), "#{digest}  demo-1.2.3.gem\n")
@@ -177,7 +177,7 @@ module Sevgi
 
     def test_remote_and_push_failures_are_reported
       error = assert_raises(Preflight::Error) do
-        Preflight.validate_remote!(
+        Preflight.assert_remote!(
           names: ["demo"],
           version: "1.2.3",
           runner: -> (_name) { ["", "network", status(false)] }
@@ -191,13 +191,13 @@ module Sevgi
         ["failure", "", status(false)]
       ].each do |output, error_text, result|
         error = assert_raises(Preflight::Error) do
-          Open3.stub(:capture3, [output, error_text, result]) { Preflight.push("demo.gem") }
+          Open3.stub(:capture3, [output, error_text, result]) { Preflight.push_gem("demo.gem") }
         end
 
         assert_match(/gem push failed/, error.message)
       end
 
-      Open3.stub(:capture3, ["", "", status(true)]) { assert(Preflight.push("demo.gem")) }
+      Open3.stub(:capture3, ["", "", status(true)]) { assert_nil(Preflight.push_gem("demo.gem")) }
     end
 
     def test_workflow_uses_tracked_guard_and_pinned_actions

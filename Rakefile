@@ -172,6 +172,10 @@ end
   task(tn => names.map { |project| "#{project}:#{tn}" })
 end
 
+desc("Lint release tooling")
+task(:script_lint) { sh("bundle", "exec", "rubocop", "script", "--display-cop-names") }
+task(:lint).enhance([:script_lint])
+
 namespace(:release) do
   desc("Check release workspace")
   task(:preflight) do
@@ -195,7 +199,7 @@ namespace(:release) do
         .join("\n") +
         "\n"
     )
-    SevgiRelease::Preflight.validate_checksums!(
+    SevgiRelease::Preflight.assert_checksums!(
       package_dir: pkgdir,
       archives: manifest.fetch(:archives),
       path: checksum_file
@@ -206,7 +210,7 @@ end
 desc("Release all")
 task(:release => "release:preflight") do
   manifest = SevgiRelease::Preflight.preflight!(root: rootdir, ref: "refs/heads/main", package_dir: pkgdir)
-  SevgiRelease::Preflight.validate_checksums!(package_dir: pkgdir, archives: manifest.fetch(:archives))
+  SevgiRelease::Preflight.assert_checksums!(package_dir: pkgdir, archives: manifest.fetch(:archives))
   manifest.fetch(:archives).each { |archive| sh("gem", "push", archive.fetch(:path)) }
   require_clean_worktree
 end
