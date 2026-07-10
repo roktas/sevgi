@@ -16,6 +16,34 @@ module Sevgi
           assert_equal(%w[primary selected], element[:class])
         end
 
+        def test_classify_normalizes_rendered_tokens
+          element = SVG do
+            rect(class: [:primary, "secondary tertiary"]).Classify(
+              "primary",
+              :secondary,
+              "tertiary quaternary",
+              %i[quaternary fifth]
+            )
+          end
+            .children
+            .first
+
+          assert_equal(%w[primary secondary tertiary quaternary fifth], element[:class])
+        end
+
+        def test_classify_doesnt_mutate_caller_array
+          classes = ["primary"]
+
+          element = SVG do
+            rect(class: classes).Classify("selected")
+          end
+            .children
+            .first
+
+          assert_equal(["primary"], classes)
+          assert_equal(%w[primary selected], element[:class])
+        end
+
         def test_defaults_preserves_false_attribute
           element = SVG do
             rect(hidden: false).Defaults(hidden: true)

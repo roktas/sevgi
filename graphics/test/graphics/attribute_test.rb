@@ -29,6 +29,21 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
+      def test_import_doesnt_alias_array_values
+        classes = ["primary"]
+        attributes = Attributes.new(class: classes)
+
+        classes << "caller"
+        attributes[:class] << "store"
+
+        [
+          %w[primary caller],
+          classes,
+          %w[primary store],
+          attributes[:class]
+        ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+      end
+
       def test_update_suffix_merges_values
         attributes = Attributes.new(class: "primary", style: {stroke: "red"})
 

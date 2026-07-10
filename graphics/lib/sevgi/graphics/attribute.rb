@@ -75,7 +75,7 @@ module Sevgi
             .compact
             .to_a
             .to_h do |key, value|
-              [key.to_sym, value.is_a?(::Hash) ? value.transform_keys(&:to_sym) : value]
+              [key.to_sym, import_value(value)]
             end
 
           @store.merge!(hash)
@@ -157,6 +157,20 @@ module Sevgi
         attr_reader :store
 
         private
+
+        # Returns a caller-owned value copy for import.
+        # @param value [Object] attribute value
+        # @return [Object] imported value
+        def import_value(value)
+          case value
+          when ::Hash
+            value.transform_keys(&:to_sym)
+          when ::Array
+            value.dup
+          else
+            value
+          end
+        end
 
         UPDATER = {
           ::String => proc { |old_value, new_value| [old_value, new_value].reject(&:empty?).join(" ") },

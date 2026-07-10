@@ -82,23 +82,22 @@ module Sevgi
         end
 
         # Adds CSS classes without duplicating existing values.
-        # @param classes [Array<String, Symbol>] class names
+        # @param classes [Array<String, Symbol, Array>] class tokens; strings are split on whitespace
         # @return [Sevgi::Graphics::Element] self
         def Classify(*classes)
           tap do
-            klasses = case self[:class]
-            when ::Array
-              self[:class]
-            when ::String
-              self[:class].split
-            when nil
-              []
-            else
-              [self[:class]]
+            tokens = proc do |value|
+              case value
+              when nil
+                []
+              when ::Array
+                value.flat_map { tokens.call(it) }
+              else
+                value.to_s.split
+              end
             end
 
-            classes.each { klasses << it unless klasses.include?(it) }
-            self[:class] = klasses
+            self[:class] = [*tokens.call(self[:class]), *tokens.call(classes)].uniq
           end
         end
 
