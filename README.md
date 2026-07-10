@@ -72,7 +72,7 @@ See [Showcase](showcase/srv) for examples and output.
 
 ## Requirements
 
-Sevgi requires Ruby 3.4.0 or newer. CI verifies the minimum Ruby 3.4 line and the current development Ruby version
+Sevgi requires Ruby 3.4.0 or newer. CI verifies the exact Ruby 3.4.0 floor and the current development Ruby version
 recorded in `.ruby-version`.
 
 SVG-only usage does not require native export gems. PDF/PNG export uses `sevgi-sundries` lazily and requires the

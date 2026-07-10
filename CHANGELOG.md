@@ -5,6 +5,10 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## Unreleased
 
+### Changed
+
+- CI now exercises the exact Ruby 3.4.0 compatibility floor separately from the current development Ruby.
+
 ## 0.94.0 - 2026-07-10
 
 ### Changed
