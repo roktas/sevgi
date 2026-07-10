@@ -135,9 +135,9 @@ module Sevgi
           # Argument validators for tile helpers.
           ASSERTION = {
             id: proc { |name, value| "Argument '#{name}' must be a string" unless value.is_a?(::String) },
-            n: proc { |name, value| "Argument '#{name}' must be a positive integer" unless value.positive? },
-            nx: proc { |name, value| "Argument '#{name}' must be a positive integer" unless value.positive? },
-            ny: proc { |name, value| "Argument '#{name}' must be a positive integer" unless value.positive? },
+            n: proc { |name, value| positive_integer_issue(name, value) },
+            nx: proc { |name, value| positive_integer_issue(name, value) },
+            ny: proc { |name, value| positive_integer_issue(name, value) },
             d: proc { |name, value| "Argument '#{name}' must be a number" unless value.is_a?(::Numeric) },
             dx: proc { |name, value| "Argument '#{name}' must be a number" unless value.is_a?(::Numeric) },
             dy: proc { |name, value| "Argument '#{name}' must be a number" unless value.is_a?(::Numeric) },
@@ -146,6 +146,14 @@ module Sevgi
             oy: proc { |name, value| "Argument '#{name}' must be a number" unless value.is_a?(::Numeric) },
             proc: proc { |name, value| "Argument '#{name}' must be a proc" unless value.nil? || value.is_a?(::Proc) }
           }.freeze
+
+          # Returns a validation issue unless value is a positive integer.
+          # @param name [Symbol] argument name
+          # @param value [Object] argument value
+          # @return [String, nil] validation issue
+          def positive_integer_issue(name, value)
+            "Argument '#{name}' must be a positive integer" unless value.is_a?(::Integer) && value.positive?
+          end
 
           # Validates tile arguments.
           # @param kwargs [Hash] tile arguments

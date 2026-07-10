@@ -24,13 +24,14 @@ module Sevgi
       # @return [void]
       # @raise [Sevgi::ArgumentError] when element is not a geometry element
       # @raise [Sevgi::ArgumentError] when nx or ny is not a positive integer
+      # @raise [Sevgi::ArgumentError] when position is not a point or two-number array
       def initialize(element, position: Geometry::Origin, nx: 1, ny: 1)
         ArgumentError.("Must be an Element object: #{element}") unless element.is_a?(Geometry::Element)
         ArgumentError.("Tile nx must be positive") unless nx.is_a?(::Integer) && nx.positive?
         ArgumentError.("Tile ny must be positive") unless ny.is_a?(::Integer) && ny.positive?
 
         @element = element
-        @position = position
+        @position = self.class.send(:position, position)
 
         @nx = nx
         @ny = ny
@@ -96,6 +97,22 @@ module Sevgi
       alias each_row each
 
       private
+
+      # Coerces a public tile position.
+      # @param position [Sevgi::Geometry::Point, Array<Numeric>] tile origin
+      # @return [Sevgi::Geometry::Point]
+      # @raise [Sevgi::ArgumentError] when position is not a point or two-number array
+      def self.position(position)
+        return position if position.is_a?(Geometry::Point)
+
+        unless position.is_a?(::Array) && position.size == 2 && position.all?(::Numeric)
+          ArgumentError.("Tile position must be a Point or two-number Array")
+        end
+
+        Geometry::Point[*position]
+      end
+
+      private_class_method :position
 
       def coordinate(i, j = 0) = position.translate(j * element.box.width, i * element.box.height)
     end

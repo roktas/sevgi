@@ -15,14 +15,41 @@ module Sevgi
         element = Geometry::Rect[3, 5]
 
         [
+          [/nx must be positive/, {nx: "2", ny: 1}],
+          [/nx must be positive/, {nx: 1.5, ny: 1}],
+          [/nx must be positive/, {nx: Object.new, ny: 1}],
           [/nx must be positive/, {nx: 0, ny: 1}],
           [/nx must be positive/, {nx: -1, ny: 1}],
+          [/ny must be positive/, {nx: 1, ny: "2"}],
+          [/ny must be positive/, {nx: 1, ny: 1.5}],
+          [/ny must be positive/, {nx: 1, ny: Object.new}],
           [/ny must be positive/, {nx: 1, ny: 0}],
           [/ny must be positive/, {nx: 1, ny: -1}]
         ].each do |message, kwargs|
           error = assert_raises(ArgumentError) { Tile.new(element, **kwargs) }
 
           assert_match(message, error.message)
+        end
+      end
+
+      def test_tile_accepts_point_and_array_positions
+        element = Geometry::Rect[3, 5]
+
+        [
+          Geometry::Point[1, 2],
+          Tile.new(element, position: Geometry::Point[1, 2]).position,
+          Geometry::Point[1, 2],
+          Tile.new(element, position: [1, 2]).position
+        ].each_slice(2) { |expected, actual| assert_geometry_equal(expected, actual) }
+      end
+
+      def test_tile_rejects_invalid_positions
+        element = Geometry::Rect[3, 5]
+
+        [Object.new, [1], [1, 2, 3], ["x", 2]].each do |position|
+          error = assert_raises(ArgumentError) { Tile.new(element, position:) }
+
+          assert_match(/\bposition\b/, error.message)
         end
       end
 

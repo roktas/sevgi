@@ -41,6 +41,30 @@ module Sevgi
           assert_match(/\bny\b.*\bpositive/, error.message)
         end
 
+        def test_tile_rejects_invalid_counts
+          [
+            [:nx, "2"],
+            [:nx, 1.5],
+            [:nx, Object.new],
+            [:nx, 0],
+            [:nx, -1],
+            [:ny, "2"],
+            [:ny, 1.5],
+            [:ny, Object.new],
+            [:ny, 0],
+            [:ny, -1]
+          ].each do |field, value|
+            error = assert_raises(ArgumentError) do
+              SVG(DOC) do
+                kwargs = {:nx => 1, :dx => 1, :ny => 1, :dy => 4, field => value}
+                Tile("rect", **kwargs)
+              end
+            end
+
+            assert_match(/\b#{field}\b.*\bpositive integer\b/, error.message)
+          end
+        end
+
         def test_tile_renders_single_use
           expected = <<~SVG
             <svg>
@@ -188,6 +212,16 @@ module Sevgi
           assert_match(/\bn\b.*\bpositive/, error.message)
         end
 
+        def test_tile_x_rejects_invalid_counts
+          ["2", 1.5, Object.new, 0, -1].each do |value|
+            error = assert_raises(ArgumentError) do
+              SVG(DOC) { TileX("rect", n: value, d: 1) }
+            end
+
+            assert_match(/\bn\b.*\bpositive integer\b/, error.message)
+          end
+        end
+
         def test_tile_x_renders_single_use
           expected = <<~SVG
             <svg>
@@ -289,6 +323,16 @@ module Sevgi
           end
 
           assert_match(/\bn\b.*\bpositive/, error.message)
+        end
+
+        def test_tile_y_rejects_invalid_counts
+          ["2", 1.5, Object.new, 0, -1].each do |value|
+            error = assert_raises(ArgumentError) do
+              SVG(DOC) { TileY("rect", n: value, d: 1) }
+            end
+
+            assert_match(/\bn\b.*\bpositive integer\b/, error.message)
+          end
         end
 
         def test_tile_y_renders_single_use
