@@ -4,18 +4,26 @@ on:
   workflow_dispatch:
 
 jobs:
-  publish:
+  guard:
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
-    environment: release
     permissions:
       contents: read
-      id-token: write
-    concurrency:
-      group: "ship-${{ github.ref }}"
-      cancel-in-progress: false
     steps:
     - name: Checkout 🛎️
-      uses: actions/checkout@v6
+      uses: actions/checkout@9f698171ed81b15d1823a05fc7211befd50c8ae0 # v6.0.3
+    - name: Guard ref and versions 🧯
+      run: ruby script/release.rb guard "$GITHUB_REF"
+
+  verify:
+    needs: guard
+    if: needs.guard.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+    - name: Checkout 🛎️
+      uses: actions/checkout@9f698171ed81b15d1823a05fc7211befd50c8ae0 # v6.0.3
     - name: Native dependencies 🧱
       run: |
         sudo apt-get update
@@ -27,44 +35,10 @@ jobs:
           librsvg2-dev \
           pkg-config
     - name: Ruby 🥁
-      uses: ruby/setup-ruby@v1
-      with: { bundler-cache: true }
-    - name: Guard dry run 🧪
-      shell: bash
-      run: |
-        set -Eeuo pipefail
-        ruby <<'RUBY'
-        version = File.read("VERSION").strip
-
-        def allowed?(ref, version)
-          ref == "refs/heads/main" || ref == "refs/tags/v#{version}"
-        end
-
-        abort("main must be allowed") unless allowed?("refs/heads/main", version)
-        abort("matching tag must be allowed") unless allowed?("refs/tags/v#{version}", version)
-        abort("feature branch must be rejected") if allowed?("refs/heads/review", version)
-        abort("wrong tag must be rejected") if allowed?("refs/tags/v0.0.0", version)
-        RUBY
-    - name: Guard ref and version 🧯
-      shell: bash
-      run: |
-        set -Eeuo pipefail
-        ruby <<'RUBY'
-        version = File.read("VERSION").strip
-        ref = ENV.fetch("GITHUB_REF")
-
-        unless ref == "refs/heads/main" || ref == "refs/tags/v#{version}"
-          abort("ship must run from main or refs/tags/v#{version}; got #{ref}")
-        end
-
-        versions = Dir["*/lib/sevgi/**/version.rb"].to_h do |file|
-          [file, File.read(file)[/VERSION\s*=\s*"([^"]+)"/, 1]]
-        end
-        mismatches = versions.reject { |_file, value| value == version }
-
-        abort("missing version constants: #{versions.select { |_file, value| value.nil? }.keys.join(", ")}") if versions.any? { |_file, value| value.nil? }
-        abort("VERSION mismatch: #{mismatches.map { |file, value| "#{file}=#{value}" }.join(", ")}") unless mismatches.empty?
-        RUBY
+      uses: ruby/setup-ruby@d45b1a4e94b71acab930e56e79c6aa188764e7f9 # v1.316.0
+      with:
+        ruby-version: "4.0.5"
+        bundler-cache: true
     - name: Lint 🔬
       run: bundle exec rake lint
     - name: Unit 🔬
@@ -73,51 +47,45 @@ jobs:
       run: bundle exec rake doc:check
     - name: Build 📦
       run: bundle exec rake build
-    - name: Package preflight 📦
-      shell: bash
-      run: |
-        set -Eeuo pipefail
-        ruby <<'RUBY'
-        require "rubygems/package"
-
-        version = File.read("VERSION").strip
-        specs = Dir["*/*.gemspec"].sort.map { |file| Gem::Specification.load(file) || abort("Malformed gemspec: #{file}") }
-
-        specs.each do |spec|
-          path = "pkg/#{spec.name}-#{version}.gem"
-          abort("Missing package: #{path}") unless File.file?(path)
-
-          package = Gem::Package.new(path)
-          archive = package.spec
-          abort("Malformed package name: #{path}") unless archive.name == spec.name
-          abort("Malformed package version: #{path}") unless archive.version.to_s == version
-
-          files = archive.files
-          abort("Empty package: #{path}") if files.empty?
-
-          invalid = files.grep(%r{\A(?:/|\.\./)|(?:^|/)\.agents(?:/|$)|(?:^|/)AGENTS\.md\z})
-          abort("Invalid package contents in #{path}: #{invalid.join(", ")}") unless invalid.empty?
-        rescue StandardError => e
-          abort("#{path}: #{e.message}")
-        end
-        RUBY
-    - name: RubyGems preflight 💎
-      shell: bash
-      run: |
-        set -Eeuo pipefail
-        ruby <<'RUBY'
-        require "shellwords"
-
-        version = File.read("VERSION").strip
-        names = Dir["*/*.gemspec"].sort.map { |file| Gem::Specification.load(file).name }
-
-        names.each do |name|
-          output = `gem list --remote --exact --all #{Shellwords.escape(name)}`
-          abort("Cannot query RubyGems for #{name}") unless $?.success?
-          abort("#{name} #{version} is already published") if output.match?(/\A#{Regexp.escape(name)} \((?=.*\b#{Regexp.escape(version)}\b)/)
-        end
-        RUBY
-    - name: Push 💎
-      uses: rubygems/release-gem@v1
+    - name: Package and remote preflight 🧪
+      run: ruby script/release.rb preflight "$GITHUB_REF" pkg
+    - name: Checksum packages 🔐
+      run: sha256sum pkg/*.gem > pkg/SHA256SUMS
+    - name: Upload immutable packages 📤
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
       with:
-        attestations: false
+        name: release-packages-${{ github.sha }}
+        path: pkg/
+        if-no-files-found: error
+        overwrite: false
+
+  publish:
+    needs: verify
+    if: needs.verify.result == 'success'
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: read
+      id-token: write
+    concurrency:
+      group: "ship-${{ github.ref }}"
+      cancel-in-progress: false
+    steps:
+    - name: Download immutable packages 📥
+      uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+      with:
+        name: release-packages-${{ github.sha }}
+        path: pkg
+    - name: Ruby 🥁
+      uses: ruby/setup-ruby@d45b1a4e94b71acab930e56e79c6aa188764e7f9 # v1.316.0
+      with:
+        ruby-version: "4.0.5"
+    - name: Configure RubyGems trusted publishing 🔑
+      uses: rubygems/configure-rubygems-credentials@dc5a8d8553e6ee01fc26761a49e99e733d17954a # v2.1.0
+    - name: Verify and push packages 💎
+      run: |
+        set -Eeuo pipefail
+        sha256sum -c pkg/SHA256SUMS
+        for gem in pkg/*.gem; do
+          gem push "$gem"
+        done
