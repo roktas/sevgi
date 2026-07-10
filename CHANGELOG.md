@@ -5,6 +5,11 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## Unreleased
 
+### Changed
+
+- Breaking: made geometry element collections immutable and element equality/hash exact; use `#eq?(precision:)` for
+  approximate element comparison.
+
 ## 0.93.1 - 2026-07-08
 
 ### Changed

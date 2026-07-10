@@ -12,6 +12,17 @@ Minitest::Test.include(Sevgi)
 
 unless defined?(TestHelper)
   module TestHelper
+    def assert_geometry_equal(expected, actual)
+      if expected.is_a?(::Array) && actual.is_a?(::Array)
+        assert_equal(expected.size, actual.size)
+        expected.zip(actual).each { |left, right| assert_geometry_equal(left, right) }
+      elsif expected.is_a?(Sevgi::Geometry::Element) && actual.is_a?(Sevgi::Geometry::Element)
+        assert(expected.eq?(actual), "Expected #{actual.inspect} to approximately equal #{expected.inspect}")
+      else
+        assert_equal(expected, actual)
+      end
+    end
+
     def wtf(...)
       Kernel.puts(...) or Kernel.exit!(0)
     end

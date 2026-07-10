@@ -68,7 +68,7 @@ module Sevgi
           F.approx(ti.box.width),
           15.0,
           F.approx(ti.box.height)
-        ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+        ].each_slice(2) { |expected, actual| assert_geometry_equal(expected, actual) }
       end
 
       def test_tile_each_enumerates_rows
@@ -80,9 +80,9 @@ module Sevgi
           [Geometry::Rect[3, 5, position: [1, 12]], Geometry::Rect[3, 5, position: [4, 12]]]
         ]
 
-        assert_equal(expected, ti.each.to_a)
-        assert_equal(expected, ti.each_row.to_a)
-        ti.each_with_index { |row, i| assert_equal(expected[i], row) }
+        assert_geometry_equal(expected, ti.each.to_a)
+        assert_geometry_equal(expected, ti.each_row.to_a)
+        ti.each_with_index { |row, i| assert_geometry_equal(expected[i], row) }
       end
 
       def test_tile_each_col_enumerates_columns
@@ -101,8 +101,8 @@ module Sevgi
           ]
         ]
 
-        assert_equal(expected, ti.each_col.to_a)
-        ti.cols.each_with_index { |col, i| assert_equal(expected[i], col) }
+        assert_geometry_equal(expected, ti.each_col.to_a)
+        ti.cols.each_with_index { |col, i| assert_geometry_equal(expected[i], col) }
       end
 
       def test_tile_memoizes_rows_cols_and_box
@@ -130,7 +130,7 @@ module Sevgi
           ti.colbox(1),
           Geometry::Rect[3, 15, position: [1, 2]],
           ti.colbox
-        ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+        ].each_slice(2) { |expected, actual| assert_geometry_equal(expected, actual) }
       end
     end
   end

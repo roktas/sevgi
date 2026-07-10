@@ -67,7 +67,7 @@ module Sevgi
       end
 
       def test_rect_from_size_builds_origin_rect
-        assert_equal(rect345, Rect.from_size(3, 4))
+        assert(rect345.eq?(Rect.from_size(3, 4)))
       end
 
       def test_rect_from_corners_preserves_position_and_size

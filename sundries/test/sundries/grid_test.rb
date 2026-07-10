@@ -344,7 +344,7 @@ module Sevgi
             Geometry::Rect[4, 2, position: [4, 0]]
           ],
           gr.row
-        ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+        ].each_slice(2) { |expected, actual| assert_geometry_equal(expected, actual) }
       end
 
       def test_grid_returns_row_and_column_boxes
@@ -362,7 +362,7 @@ module Sevgi
           gr.rowbox(1),
           Geometry::Rect[8, 2, position: Geometry::Origin],
           gr.rowbox
-        ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+        ].each_slice(2) { |expected, actual| assert_geometry_equal(expected, actual) }
       end
     end
   end

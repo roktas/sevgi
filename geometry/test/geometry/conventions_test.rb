@@ -79,7 +79,7 @@ module Sevgi
           Rect[3, 4],
           Polyline.(Origin, [2, 0], [2, 1]),
           Polyline[Segment.rightward(2), Segment.downward(1)]
-        ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+        ].each_slice(2) { |expected, actual| assert(expected.eq?(actual)) }
       end
 
       def test_boxes_use_top_left_positions

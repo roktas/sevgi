@@ -210,6 +210,7 @@ module Sevgi
 
           @points ||= calculate_points_from_segments
           @segments ||= calculate_segments_from_points
+          freeze_geometry!
 
           sanitize
         end
@@ -234,11 +235,11 @@ module Sevgi
           approx.draw!(...)
         end
 
-        # Returns element points.
+        # Returns immutable element points.
         # @param approximate [Boolean] true to round points with the current function precision
-        # @return [Array<Sevgi::Geometry::Point>]
+        # @return [Array<Sevgi::Geometry::Point>] frozen point collection
         def points(approximate = false)
-          approximate ? @points.map(&:approx) : @points
+          approximate ? @points.map(&:approx).freeze : @points
         end
 
         # Returns the first point.
@@ -247,11 +248,11 @@ module Sevgi
           @position ||= points.first
         end
 
-        # Returns element segments.
+        # Returns immutable element segments.
         # @param approximate [Boolean] true to round segments with the current function precision
-        # @return [Array<Sevgi::Geometry::Segment>]
+        # @return [Array<Sevgi::Geometry::Segment>] frozen segment collection
         def segments(approximate = false)
-          approximate ? @segments.map(&:approx) : @segments
+          approximate ? @segments.map(&:approx).freeze : @segments
         end
 
         # Affinity methods
@@ -264,22 +265,32 @@ module Sevgi
 
         # Equality methods
 
-        # Reports strict element equality by class and approximate points.
+        # Compares element points with optional numeric precision.
+        # @param other [Object] object to compare
+        # @param precision [Integer, nil] decimal precision, or nil for the current function default
+        # @return [Boolean]
+        def eq?(other, precision: nil)
+          other.instance_of?(self.class) &&
+            points.size == other.points.size &&
+            points.zip(other.points).all? { |left, right| left.eq?(right, precision:) }
+        end
+
+        # Reports strict element equality by class and exact points.
         # @param other [Object] object to compare
         # @return [Boolean]
-        def eql?(other) = self.class == other.class && points(true) == other.points(true)
+        def eql?(other) = other.instance_of?(self.class) && points == other.points
 
         # Returns a hash compatible with strict equality.
         # @return [Integer]
-        def hash = [self.class, *points(true)].hash
+        def hash = [self.class, *points].hash
 
         alias == eql?
 
         # Interaction methods
 
-        # Returns boundary equations for all lines.
-        # @return [Array<Sevgi::Geometry::Equation::Linear>]
-        def equations = @equations ||= lines.map(&:equation)
+        # Returns immutable boundary equations for all lines.
+        # @return [Array<Sevgi::Geometry::Equation::Linear>] frozen equation collection
+        def equations = @equations ||= lines.map(&:equation).freeze
 
         # Intersects the element boundary with an equation.
         #
@@ -321,12 +332,15 @@ module Sevgi
         # @return [Sevgi::Geometry::Segment]
         def head = @head ||= segments.first
 
-        # Returns boundary lines derived from segments and points.
-        # @return [Array<Sevgi::Geometry::Line>]
+        # Returns immutable boundary lines derived from segments and points.
+        # @return [Array<Sevgi::Geometry::Line>] frozen line collection
         def lines
-          @lines ||= segments.zip(points[...segments.size]).map { |segment, position|
-            segment.line(position)
-          }
+          @lines ||= segments
+            .zip(points[...segments.size])
+            .map { |segment, position|
+              segment.line(position)
+            }
+            .freeze
         end
 
         # Returns the sum of segment lengths.
@@ -380,6 +394,11 @@ module Sevgi
           Error.("No points found") unless points
 
           points.each_cons(2).map { Segment.(*it) }
+        end
+
+        def freeze_geometry!
+          @points = @points.dup.freeze
+          @segments = @segments.dup.freeze
         end
 
         # rubocop:disable Metrics/MethodLength
