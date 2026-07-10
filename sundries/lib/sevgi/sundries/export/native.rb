@@ -6,6 +6,7 @@ require "cairo"
 require "fileutils"
 require "hexapdf"
 require "rsvg2"
+require "stringio"
 require "tempfile"
 
 module Sevgi
@@ -133,6 +134,166 @@ module Sevgi
         temp&.close!
       end
 
+      # Parses and rewrites supported PDF text operators without crossing text objects.
+      # @api private
+      module Stamp
+        extend self
+
+        PDF_LITERAL_ESCAPE = {
+          "\\" => "\\\\",
+          "(" => "\\(",
+          ")" => "\\)",
+          "\b" => "\\b",
+          "\f" => "\\f",
+          "\n" => "\\n",
+          "\r" => "\\r",
+          "\t" => "\\t"
+        }.freeze
+
+        private_constant :PDF_LITERAL_ESCAPE
+
+        def replace(data, stamp:, placeholder:)
+          replacements, count = replacements(data, stamp:, placeholder:)
+          stamped = data.dup
+
+          replacements.sort_by(&:first).reverse_each do |start, finish, replacement|
+            stamped[start...finish] = replacement
+          end
+
+          [stamped, count]
+        end
+
+        private
+
+        def pdf_literal(text)
+          "(#{text.to_s.each_char.map { PDF_LITERAL_ESCAPE.fetch(it, it) }.join})"
+        end
+
+        def replacements(data, stamp:, placeholder:)
+          tokenizer = HexaPDF::Tokenizer.new(::StringIO.new(data))
+          serializer = HexaPDF::Serializer.new
+          operands = []
+          state = {
+            fill_span: nil,
+            fill_white: false,
+            fill_replaced: false,
+            font_size: nil,
+            in_text: false,
+            stack: []
+          }
+          replacements = []
+          count = 0
+
+          loop do
+            start = tokenizer.pos
+            object = tokenizer.next_object(allow_keyword: true)
+            break if object.equal?(HexaPDF::Tokenizer::NO_MORE_TOKENS)
+
+            finish = tokenizer.pos
+            unless object.is_a?(HexaPDF::Tokenizer::Token)
+              operands << [object, start, finish]
+              next
+            end
+
+            count += process_operator(
+              object.to_sym,
+              operands,
+              finish,
+              data,
+              stamp:,
+              placeholder:,
+              serializer:,
+              state:,
+              replacements:
+            )
+
+            operands.clear
+          end
+
+          [replacements, count]
+        end
+
+        def process_operator(operator, operands, finish, data, stamp:, placeholder:, serializer:, state:, replacements:)
+          case operator
+          when :q
+            state[:stack] << state.values_at(:fill_span, :fill_white, :fill_replaced, :font_size)
+          when :Q
+            restore_state(state) if state[:stack].any?
+          when :rg
+            set_fill_state(state, operands, finish)
+          when :BT
+            state[:in_text] = true
+          when :ET
+            state[:in_text] = false
+          when :Tf
+            state[:font_size] = operands.last&.first if operands.size >= 2
+          when :Tj, :"'", :"\"", :TJ
+            return add_text_replacement(
+              operator,
+              operands,
+              data,
+              stamp:,
+              placeholder:,
+              serializer:,
+              state:,
+              replacements:
+            )
+          end
+
+          0
+        end
+
+        def restore_state(state)
+          state[:fill_span], state[:fill_white], state[:fill_replaced], state[:font_size] = state[:stack].pop
+        end
+
+        def set_fill_state(state, operands, finish)
+          state[:fill_white] = operands.size == 3 && operands.all? { |value, _start, _finish| value == 1 }
+          state[:fill_span] = [operands.first[1], finish] if state[:fill_white]
+          state[:fill_replaced] = false
+          state[:fill_span] = nil unless state[:fill_white]
+        end
+
+        def add_text_replacement(operator, operands, data, stamp:, placeholder:, serializer:, state:, replacements:)
+          replacement = text_replacement(data, operator, operands, stamp:, placeholder:, serializer:, state:)
+          return 0 unless replacement
+
+          replacements << replacement
+          add_color_replacement(data, state, replacements)
+          1
+        end
+
+        def add_color_replacement(data, state, replacements)
+          return unless state[:fill_span] && !state[:fill_replaced]
+
+          color_start, color_finish = state[:fill_span]
+          prefix = data[color_start...color_finish].to_s[/\A\s*/]
+          replacements << [color_start, color_finish, "#{prefix}0.101961 0.101961 0.101961 rg"]
+          state[:fill_replaced] = true
+        end
+
+        def text_replacement(data, operator, operands, stamp:, placeholder:, serializer:, state:)
+          return unless state[:in_text] && state[:fill_white] && state[:font_size]
+
+          case operator
+          when :Tj, :"'", :"\""
+            value, start, finish = operands.last || []
+            return unless value.is_a?(String) && value == placeholder
+
+            prefix = data[start...finish].to_s[/\A\s*/]
+            [start, finish, "#{prefix}#{pdf_literal(stamp)}"]
+          when :TJ
+            value, start, finish = operands.last || []
+            return unless value.is_a?(Array) && value.grep(String).join == placeholder
+
+            prefix = data[start...finish].to_s[/\A\s*/]
+            [start, finish, "#{prefix}#{serializer.serialize_array([stamp])}"]
+          end
+        end
+      end
+
+      private_constant :Stamp
+
       class << self
         private
 
@@ -204,32 +365,8 @@ module Sevgi
           width.round.positive? && height.round.positive?
         end
 
-        PDF_LITERAL_ESCAPE = {
-          "\\" => "\\\\",
-          "(" => "\\(",
-          ")" => "\\)",
-          "\b" => "\\b",
-          "\f" => "\\f",
-          "\n" => "\\n",
-          "\r" => "\\r",
-          "\t" => "\\t"
-        }.freeze
-
-        private_constant :PDF_LITERAL_ESCAPE
-
-        def pdf_literal(text)
-          "(#{text.to_s.each_char.map { PDF_LITERAL_ESCAPE.fetch(it, it) }.join})"
-        end
-
         def stamp_stream(data, stamp:, placeholder:)
-          count = 0
-          pattern = %r{1 1 1 rg (BT\s+.*?/\S+ \d+ Tf\s+)#{Regexp.escape(pdf_literal(placeholder))}Tj}m
-          stamped = data.gsub(pattern) do
-            count += 1
-            "0.101961 0.101961 0.101961 rg #{Regexp.last_match(1)}#{pdf_literal(stamp)}Tj"
-          end
-
-          [stamped, count]
+          Stamp.replace(data, stamp:, placeholder:)
         end
       end
 

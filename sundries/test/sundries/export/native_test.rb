@@ -288,6 +288,32 @@ module Sevgi
           end
         end
 
+        def test_stamp_does_not_cross_text_objects_or_colors
+          Dir.mktmpdir do |dir|
+            infile = File.join(dir, "in.pdf")
+            outfile = File.join(dir, "out.pdf")
+            write_pdf(
+              infile,
+              "1 1 1 rg BT /F1 12 Tf (other)Tj ET\n" \
+                "0 0 0 rg BT /F1 12 Tf (old)Tj ET"
+            )
+
+            refute(Export.stamp(infile, outfile, stamp: "new", placeholder: "old"))
+            refute_path_exists(outfile)
+          end
+        end
+
+        def test_stamp_accepts_decimal_font_size_and_positioned_text
+          Dir.mktmpdir do |dir|
+            infile = File.join(dir, "in.pdf")
+            outfile = File.join(dir, "out.pdf")
+            write_pdf(infile, "1 1 1 rg BT /F1 12.5 Tf [(old)] TJ ET")
+
+            assert(Export.stamp(infile, outfile, stamp: "new", placeholder: "old"))
+            assert_equal(["0.101961 0.101961 0.101961 rg BT /F1 12.5 Tf [(new)] TJ ET"], pdf_streams(outfile))
+          end
+        end
+
         def test_stamp_escapes_pdf_literal_replacement_text
           Dir.mktmpdir do |dir|
             infile = File.join(dir, "in.pdf")
