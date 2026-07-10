@@ -38,6 +38,12 @@ module Sevgi
         end
       end
 
+      def test_lined_element_hides_incomplete_builders
+        assert_respond_to(Element, :lined)
+        refute_respond_to(Element, :arced)
+        refute_includes(Element.constants(false), :Arced)
+      end
+
       def test_lined_element_equality_is_exact
         left = Rect[1.04, 1.04]
         right = Rect[1.0, 1.0]

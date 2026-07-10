@@ -28,6 +28,11 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
+      def test_equation_hides_incomplete_circle_surface
+        assert_respond_to(Equation, :horizontal)
+        refute_includes(Geometry.constants(false), :Circle)
+      end
+
       def test_intersection_precision_rounds_after_membership
         triangle = Triangle[Segment[2, 0], Segment[1, 150]]
         equ = Equation.vertical(1.2)

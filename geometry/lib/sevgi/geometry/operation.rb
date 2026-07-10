@@ -19,6 +19,8 @@ module Sevgi
       # @return [Array<Symbol>] registered operation names
       def register(handler, *operations) = operations.each { |operation| def_operation(operation, handler) }
 
+      private :register
+
       private
 
       def def_operation(operation, handler)

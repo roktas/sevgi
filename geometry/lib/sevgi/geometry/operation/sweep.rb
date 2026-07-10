@@ -128,6 +128,8 @@ module Sevgi
       end
 
       register(Sweep, :sweep, :sweep!, :unisweep)
+
+      private_constant :Sweep
     end
   end
 end

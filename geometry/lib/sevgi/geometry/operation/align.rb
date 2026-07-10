@@ -59,6 +59,8 @@ module Sevgi
       end
 
       register(Align, :align, :alignment)
+
+      private_constant :Align
     end
   end
 end

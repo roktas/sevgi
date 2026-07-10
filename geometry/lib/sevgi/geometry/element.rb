@@ -19,6 +19,8 @@ module Sevgi
       #   @raise [NoMethodError] until arced elements are implemented
       def self.arced(...) = Arced.build(...)
 
+      private_class_method :arced
+
       # Core API
 
       # Returns a copy moved to a point and optional offset.
@@ -445,6 +447,8 @@ module Sevgi
       # @api private
       class Arced < self
       end
+
+      private_constant :Arced
       # rubocop:enable Metrics/ClassLength
     end
 
@@ -454,9 +458,5 @@ module Sevgi
     require_relative "elements/polyline"
     require_relative "elements/rect"
     require_relative "elements/triangle"
-
-    require_relative "elements/circle"
-    require_relative "elements/curve"
-    require_relative "elements/ellipse"
   end
 end

@@ -8,7 +8,8 @@ module Sevgi
       end
     end
 
-    # Circle equation support is not implemented yet.
+    # Reserved circle element support.
+    # @api private
     class Circle
       # Returns the circle equation.
       # @abstract Circle equation support is not implemented yet.
@@ -18,5 +19,7 @@ module Sevgi
         PanicError.("#{self.class}#equation must be implemented")
       end
     end
+
+    private_constant :Circle
   end
 end
