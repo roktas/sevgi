@@ -7,9 +7,12 @@ module Sevgi
     # Builds a drawable grid from a graphics canvas.
     # @param canvas [Sevgi::Graphics::Canvas] canvas defining page size and margins
     # @param unit [Numeric] minor grid unit
-    # @param multiple [Numeric] number of minor units in each major interval
+    # @param multiple [Integer] number of minor units in each major interval
     # @return [Sevgi::Sundries::Grid] grid fitted to the canvas
-    # @raise [Sevgi::ArgumentError] when canvas, unit, multiple, or fitting span is invalid
+    # @raise [Sevgi::ArgumentError] when canvas is not a graphics canvas
+    # @raise [Sevgi::ArgumentError] when unit is not a finite positive number
+    # @raise [Sevgi::ArgumentError] when multiple is not a positive integer
+    # @raise [Sevgi::ArgumentError] when canvas dimensions, margins, and grid intervals cannot fit
     def Grid(canvas, unit:, multiple:)
       ArgumentError.("Must be a Canvas: #{canvas}") unless canvas.is_a?(Graphics::Canvas)
 

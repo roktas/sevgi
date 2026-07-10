@@ -30,5 +30,19 @@ module Sevgi
 
       assert_match(/Must be a Canvas/, error.message)
     end
+
+    def test_grid_rejects_invalid_ruler_inputs
+      receiver = Module.new.extend(::Sevgi)
+      canvas = Graphics::Canvas.from_paper(:a4)
+
+      [
+        [/Ruler unit must be positive/, {unit: 0, multiple: 2}],
+        [/Ruler multiple must be a positive Integer/, {unit: 5, multiple: 1.5}]
+      ].each do |message, kwargs|
+        error = assert_raises(ArgumentError) { receiver.Grid(canvas, **kwargs) }
+
+        assert_match(message, error.message)
+      end
+    end
   end
 end

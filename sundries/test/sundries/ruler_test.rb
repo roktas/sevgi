@@ -54,15 +54,45 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
-      def test_interval_rejects_invalid_unit
-        assert_raises(ArgumentError) { Interval.new(Object.new, 4) }
+      def test_interval_count_rejects_invalid_lengths
+        interval = Interval.new(3, 4)
+
+        [
+          [/count length must be positive/, 0],
+          [/count length must be positive/, -1],
+          [/count length must be finite/, Float::NAN],
+          [/count length must be finite/, Float::INFINITY],
+          [/count length must be Numeric/, "1"]
+        ].each do |message, length|
+          error = assert_raises(ArgumentError) { interval.count(length) }
+
+          assert_match(message, error.message)
+        end
+      end
+
+      def test_interval_rejects_invalid_unit_lengths
+        [
+          [/unit length must be positive/, 0],
+          [/unit length must be positive/, -1],
+          [/unit length must be finite/, Float::NAN],
+          [/unit length must be finite/, Float::INFINITY],
+          [/unit length must be Numeric/, length_object("1")],
+          [/unit length must be Numeric/, length_object(nil)],
+          [/Object#length must be implemented/, Object.new]
+        ].each do |message, unit|
+          error = assert_raises(ArgumentError) { Interval.new(unit, 4) }
+
+          assert_match(message, error.message)
+        end
       end
 
       def test_interval_rejects_invalid_count
         [
           -1,
           1.5,
-          Float::NAN
+          Float::NAN,
+          Float::INFINITY,
+          "1"
         ].each do |count|
           error = assert_raises(ArgumentError) { Interval.new(1, count) }
 
@@ -114,9 +144,25 @@ module Sevgi
 
       def test_ruler_rejects_invalid_dimensions
         [
+          [/brut must be non-negative/, {brut: -1, unit: 1, multiple: 1}],
+          [/brut must be finite/, {brut: Float::NAN, unit: 1, multiple: 1}],
+          [/brut must be finite/, {brut: Float::INFINITY, unit: 1, multiple: 1}],
+          [/brut must be Numeric/, {brut: "10", unit: 1, multiple: 1}],
           [/unit must be positive/, {brut: 10, unit: 0, multiple: 1}],
-          [/multiple must be positive/, {brut: 10, unit: 1, multiple: 0}],
+          [/unit must be positive/, {brut: 10, unit: -1, multiple: 1}],
+          [/unit must be finite/, {brut: 10, unit: Float::NAN, multiple: 1}],
+          [/unit must be finite/, {brut: 10, unit: Float::INFINITY, multiple: 1}],
+          [/unit must be Numeric/, {brut: 10, unit: "1", multiple: 1}],
+          [/multiple must be a positive Integer/, {brut: 10, unit: 1, multiple: 0}],
+          [/multiple must be a positive Integer/, {brut: 10, unit: 1, multiple: -1}],
+          [/multiple must be a positive Integer/, {brut: 10, unit: 1, multiple: 1.5}],
+          [/multiple must be a positive Integer/, {brut: 10, unit: 1, multiple: Float::NAN}],
+          [/multiple must be a positive Integer/, {brut: 10, unit: 1, multiple: Float::INFINITY}],
+          [/multiple must be a positive Integer/, {brut: 10, unit: 1, multiple: "1"}],
           [/margin must be non-negative/, {brut: 10, unit: 1, multiple: 1, margin: -1}],
+          [/margin must be finite/, {brut: 10, unit: 1, multiple: 1, margin: Float::NAN}],
+          [/margin must be finite/, {brut: 10, unit: 1, multiple: 1, margin: Float::INFINITY}],
+          [/margin must be Numeric/, {brut: 10, unit: 1, multiple: 1, margin: "1"}],
           [/fitting span must not be negative/, {brut: 10, unit: 1, multiple: 1, margin: 6}]
         ].each do |message, kwargs|
           error = assert_raises(ArgumentError) { Ruler.new(**kwargs) }
@@ -393,6 +439,10 @@ module Sevgi
           r.ds
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
+
+      private
+
+      def length_object(length) = Data.define(:length).new(length)
     end
   end
 end

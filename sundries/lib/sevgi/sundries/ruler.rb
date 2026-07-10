@@ -20,7 +20,10 @@ module Sevgi
       # @param n [Integer] non-negative interval count
       # @return [Sevgi::Sundries::Interval]
       # @raise [Sevgi::ArgumentError] when count is not a non-negative integer
-      # @raise [Sevgi::ArgumentError] when the unit length cannot be measured
+      # @raise [Sevgi::ArgumentError] when the unit object does not expose length
+      # @raise [Sevgi::ArgumentError] when the measured unit length is not numeric
+      # @raise [Sevgi::ArgumentError] when the measured unit length is not finite
+      # @raise [Sevgi::ArgumentError] when the measured unit length is not positive
       def self.[](e, n) = new(e, n)
 
       # @!attribute [r] n
@@ -34,12 +37,13 @@ module Sevgi
       # @param n [Integer] non-negative interval count
       # @return [void]
       # @raise [Sevgi::ArgumentError] when count is not a non-negative integer
-      # @raise [Sevgi::ArgumentError] when the unit length cannot be measured
+      # @raise [Sevgi::ArgumentError] when the unit object does not expose length
+      # @raise [Sevgi::ArgumentError] when the measured unit length is not numeric
+      # @raise [Sevgi::ArgumentError] when the measured unit length is not finite
+      # @raise [Sevgi::ArgumentError] when the measured unit length is not positive
       def initialize(e, n)
-        ArgumentError.("Interval count must be a non-negative Integer") unless n.is_a?(::Integer) && !n.negative?
-
+        @n = non_negative_integer(n, "Interval count")
         @u = measure(e)
-        @n = n
       end
 
       # Returns a major tick distance by index.
@@ -50,7 +54,10 @@ module Sevgi
       # Counts how many whole lengths fit into this interval.
       # @param length [Numeric] candidate length
       # @return [Integer]
-      def count(length) = (d / length.to_f).to_i
+      # @raise [Sevgi::ArgumentError] when length is not numeric
+      # @raise [Sevgi::ArgumentError] when length is not finite
+      # @raise [Sevgi::ArgumentError] when length is not positive
+      def count(length) = (d / positive_number(length, "Interval count length")).to_i
 
       # Returns the total interval distance.
       # @return [Float]
@@ -82,11 +89,50 @@ module Sevgi
       private
 
       def measure(e)
-        return e.to_f if e.is_a?(::Numeric)
+        value = if e.is_a?(::Numeric)
+          e
+        else
+          ArgumentError.("#{e.class}#length must be implemented") unless e.respond_to?(:length)
 
-        ArgumentError.("#{e.class}#length must be implemented") unless e.respond_to?(:length)
+          e.length
+        end
 
-        e.length
+        positive_number(value, "Interval unit length")
+      end
+
+      def non_negative_integer(value, field)
+        ArgumentError.("#{field} must be a non-negative Integer") unless value.is_a?(::Integer) && !value.negative?
+
+        value
+      end
+
+      def non_negative_number(value, field)
+        number = numeric(value, field)
+        ArgumentError.("#{field} must be non-negative") if number.negative?
+
+        number
+      end
+
+      def numeric(value, field)
+        ArgumentError.("#{field} must be Numeric") unless value.is_a?(::Numeric)
+
+        number = value.to_f
+        ArgumentError.("#{field} must be finite") unless number.finite?
+
+        number
+      end
+
+      def positive_integer(value, field)
+        ArgumentError.("#{field} must be a positive Integer") unless value.is_a?(::Integer) && value.positive?
+
+        value
+      end
+
+      def positive_number(value, field)
+        number = numeric(value, field)
+        ArgumentError.("#{field} must be positive") unless number.positive?
+
+        number
       end
     end
 
@@ -116,16 +162,22 @@ module Sevgi
       # @param multiple [Integer] number of subinterval units per major interval
       # @param margin [Numeric] minimum margin on each side
       # @return [void]
-      # @raise [Sevgi::ArgumentError] when unit or multiple is not positive
+      # @raise [Sevgi::ArgumentError] when brut is not numeric
+      # @raise [Sevgi::ArgumentError] when brut is not finite
+      # @raise [Sevgi::ArgumentError] when brut is negative
+      # @raise [Sevgi::ArgumentError] when unit is not numeric
+      # @raise [Sevgi::ArgumentError] when unit is not finite
+      # @raise [Sevgi::ArgumentError] when unit is not positive
+      # @raise [Sevgi::ArgumentError] when multiple is not a positive integer
+      # @raise [Sevgi::ArgumentError] when margin is not numeric
+      # @raise [Sevgi::ArgumentError] when margin is not finite
       # @raise [Sevgi::ArgumentError] when margin is negative
       # @raise [Sevgi::ArgumentError] when the fitting span is negative
       def initialize(brut:, unit:, multiple:, margin: 0.0)
-        ArgumentError.("Ruler unit must be positive") unless unit.to_f.positive?
-        ArgumentError.("Ruler multiple must be positive") unless multiple.to_f.positive?
-        ArgumentError.("Ruler margin must be non-negative") if margin.to_f.negative?
-
-        @brut = brut.to_f
-        margin = margin.to_f
+        @brut = non_negative_number(brut, "Ruler brut")
+        unit = positive_number(unit, "Ruler unit")
+        multiple = positive_integer(multiple, "Ruler multiple")
+        margin = non_negative_number(margin, "Ruler margin")
         @sub = Interval.new(unit, multiple)
 
         n = divide(unit:, multiple:, brut: @brut, margin:)
