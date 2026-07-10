@@ -45,7 +45,9 @@ module Sevgi
 
           def build
             element.Traverse() do |element|
-              next unless (id = element[:id])
+              next unless (value = element[:id])
+
+              id = Attribute.xml_text(value)
 
               if @namespace.key?(id)
                 (@collision[id] ||= [@namespace[id]]) << element

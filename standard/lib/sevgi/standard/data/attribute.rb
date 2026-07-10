@@ -491,12 +491,26 @@ module Sevgi
         ]
       )
 
+      RESERVED_NAMESPACE_PREFIXES = %w[xlink: xml:].freeze
+      private_constant :RESERVED_NAMESPACE_PREFIXES
+
       def ignore?(attribute)
-        attribute.start_with?("_") ||
-          attribute == :xmlns ||
-          attribute.start_with?("data-") ||
-          (attribute.to_s.include?(":") && !attribute.start_with?("xlink:") && !attribute.start_with?("xml:"))
+        return false unless attribute.is_a?(::String) || attribute.is_a?(::Symbol)
+
+        name = attribute.to_s
+
+        Name.valid?(name) && ignored_name?(name)
       end
+
+      def ignored_name?(name)
+        name.start_with?("_") || name == "xmlns" || name.start_with?("data-") || foreign_namespace?(name)
+      end
+
+      def foreign_namespace?(name)
+        name.include?(":") && RESERVED_NAMESPACE_PREFIXES.none? { name.start_with?(it) }
+      end
+
+      private_class_method :foreign_namespace?, :ignored_name?
     end
   end
 end

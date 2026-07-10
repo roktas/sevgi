@@ -14,11 +14,14 @@ module Sevgi
       attr_reader :spec
 
       # Builds a validator for one SVG element.
-      # @param element [Symbol] SVG element name
+      # @param element [String, Symbol] SVG element name
       # @return [void]
+      # @raise [Sevgi::ArgumentError] when element is not a valid public name
       # @raise [Sevgi::InvalidElementsError] when the element is unknown
       # @raise [Sevgi::PanicError] when the element model is missing or unimplemented
       def initialize(element)
+        element = Name.normalize!(element, context: "element")
+
         InvalidElementsError.(element) unless (@spec = Specification[@element = element])
 
         PanicError.("No model specified: #{element}") unless spec[:model]
@@ -30,10 +33,11 @@ module Sevgi
       end
 
       # Validates one usage of the configured SVG element.
-      # @param attributes [Array<Symbol>, nil] attribute names used by the element
+      # @param attributes [Array<String, Symbol>, nil] attribute names used by the element
       # @param cdata [String, nil] character data content
-      # @param elements [Array<Symbol>, nil] child element names
+      # @param elements [Array<String, Symbol>, nil] child element names
       # @return [Boolean] true when the usage conforms
+      # @raise [Sevgi::ArgumentError] when any name is not a valid public name
       # @raise [Sevgi::ValidationError] when the usage violates the standard data
       def call(attributes: nil, cdata: nil, elements: nil)
         if attributes
@@ -50,18 +54,23 @@ module Sevgi
       @cache = {}
 
       # Validates one SVG element usage, using cached element validators.
-      # @param element [Symbol] SVG element name
-      # @param attributes [Array<Symbol>, nil] attribute names used by the element
+      # @param element [String, Symbol] SVG element name
+      # @param attributes [Array<String, Symbol>, nil] attribute names used by the element
       # @param cdata [String, nil] character data content
-      # @param elements [Array<Symbol>, nil] child element names
+      # @param elements [Array<String, Symbol>, nil] child element names
       # @return [Boolean] true when the usage conforms or the element is ignored
+      # @raise [Sevgi::ArgumentError] when any name is not a valid public name
       # @raise [Sevgi::ValidationError] when the usage violates the standard data
       # @raise [Sevgi::PanicError] when the standard data refers to an invalid model
       def self.call(element, attributes: nil, cdata: nil, elements: nil)
+        element = Name.normalize!(element, context: "element")
+        attributes = Name.list!(attributes, context: "attribute")
+        elements = Name.list!(elements || [], context: "element")
+
         Element.ignore?(element) or
           (@cache[element] ||= new(element)).call(
             attributes: Attribute.concerns(attributes),
-            elements: Element.concerns(elements || []),
+            elements: Element.concerns(elements),
             cdata:
           )
       end

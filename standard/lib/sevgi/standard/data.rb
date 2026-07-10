@@ -115,10 +115,16 @@ module Sevgi
       def group?(name) = /[[:upper:]]/.match?(name[0])
 
       # Checks whether an element uses one of the requested content models.
-      # @param name [Symbol] SVG element name
-      # @param models [Array<Symbol>] model names to match
+      # @param name [String, Symbol] SVG element name
+      # @param models [Array<String, Symbol>] model names to match
       # @return [Boolean]
-      def model?(name, *models) = models.any? { (self[name] || {})[:model] == it }
+      # @raise [Sevgi::ArgumentError] when any name is not a valid public name
+      def model?(name, *models)
+        name = Name.normalize!(name, context: "element")
+        models = models.map { Name.normalize!(it, context: "model") }
+
+        models.any? { (self[name] || {})[:model] == it }
+      end
 
       private
 

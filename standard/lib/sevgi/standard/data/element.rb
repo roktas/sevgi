@@ -266,7 +266,11 @@ module Sevgi
       )
 
       def ignore?(element)
-        (name = element.to_s).include?(":") || name.start_with?("_")
+        return false unless element.is_a?(::String) || element.is_a?(::Symbol)
+
+        name = element.to_s
+
+        Name.valid?(name) && (name.include?(":") || name.start_with?("_"))
       end
     end
   end

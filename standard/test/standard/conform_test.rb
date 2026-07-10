@@ -47,10 +47,25 @@ module Sevgi
         assert(
           Conform.(
             :svg,
-            attributes: %i[xmlns data-role _internal inkscape:label],
-            elements: %i[_internal sodipodi:namedview]
+            attributes: ["xmlns", "data-role", "_internal", "inkscape:label"],
+            elements: ["_internal", "sodipodi:namedview"]
           )
         )
+      end
+
+      def test_conform_rejects_object_namespace_bypass
+        attribute = Object.new
+        element = Object.new
+        attribute.define_singleton_method(:to_s) { "inkscape:label" }
+        element.define_singleton_method(:to_s) { "sodipodi:namedview" }
+
+        assert_raises(ArgumentError) do
+          Conform.(:svg, attributes: [attribute], elements: [])
+        end
+
+        assert_raises(ArgumentError) do
+          Conform.(:svg, attributes: [], elements: [element])
+        end
       end
 
       def test_conform_validates_reserved_namespace_members

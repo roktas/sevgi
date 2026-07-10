@@ -41,6 +41,21 @@ module Sevgi
 
       extend Ident
 
+      # Returns the text form used for an XML attribute value before escaping.
+      # @param value [Object] attribute value
+      # @return [String]
+      # @api private
+      def self.xml_text(value)
+        case value
+        when ::Hash
+          value.map { |key, attr_value| "#{key}:#{attr_value}" }.join("; ")
+        when ::Array
+          value.join(" ")
+        else
+          value.to_s
+        end
+      end
+
       # Mutable SVG attribute store with Sevgi update syntax.
       class Store
         # Creates an attribute store.
@@ -164,16 +179,7 @@ module Sevgi
         private_constant :UPDATER
 
         def to_xml(id, value)
-          text = case value
-          when ::Hash
-            value.map { |key, attr_value| "#{key}:#{attr_value}" }.join("; ")
-          when ::Array
-            value.join(" ")
-          else
-            value.to_s
-          end
-
-          "#{id}=#{text.encode(xml: :attr)}"
+          "#{id}=#{Attribute.xml_text(value).encode(xml: :attr)}"
         end
       end
     end

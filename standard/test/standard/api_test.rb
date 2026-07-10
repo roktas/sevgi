@@ -13,12 +13,26 @@ module Sevgi
         assert_equal(Standard.attributes.size, Attribute.all.size)
       end
 
-      def test_predicates_reject_non_symbolic_names
-        refute(Standard.element?(nil))
-        refute(Standard.element?(Object.new))
+      def test_public_names_accept_string_and_symbol
+        assert(Standard.element?(:svg))
+        assert(Standard.element?("svg"))
+        assert(Standard.attribute?(:viewBox))
+        assert(Standard.attribute?("viewBox"))
+        assert_equal(Standard.specification(:svg), Standard.specification("svg"))
+        assert(Standard.model?("text", "CDataOrSomeElements"))
+        assert(Standard.conform("svg", attributes: ["viewBox"], elements: ["g"]))
+      end
 
-        refute(Standard.attribute?(nil))
-        refute(Standard.attribute?(Object.new))
+      def test_public_names_reject_non_string_symbol_objects
+        object = Object.new
+
+        assert_raises(ArgumentError) { Standard.element?(nil) }
+        assert_raises(ArgumentError) { Standard.element?(object) }
+        assert_raises(ArgumentError) { Standard.attribute?(nil) }
+        assert_raises(ArgumentError) { Standard.attribute?(object) }
+        assert_raises(ArgumentError) { Standard.specification(object) }
+        assert_raises(ArgumentError) { Standard.model?(object, :SomeElements) }
+        assert_raises(ArgumentError) { Standard.conform(object) }
       end
 
       def test_specification_returns_element_contract
@@ -60,9 +74,10 @@ module Sevgi
         refute_includes(Standard.specification(:svg)[:elements], :agentElement)
       end
 
-      def test_specification_rejects_non_symbolic_names
-        assert_nil(Standard[nil])
-        assert_nil(Standard.specification(Object.new))
+      def test_specification_rejects_invalid_names
+        assert_nil(Standard.specification(:missing))
+        assert_raises(ArgumentError) { Standard[nil] }
+        assert_raises(ArgumentError) { Standard.specification("not a qname") }
       end
     end
   end

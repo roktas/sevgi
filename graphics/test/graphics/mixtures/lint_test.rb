@@ -22,6 +22,18 @@ module Sevgi
           assert_match(/\bsame\b/, error.message)
         end
 
+        def test_lint_rejects_serialized_duplicate_ids
+          error = assert_raises(LintError) do
+            SVG(:minimal) do
+              rect(id: :same)
+              circle(id: "same")
+            end
+              .()
+          end
+
+          assert_match(/\bsame\b/, error.message)
+        end
+
         def test_lint_can_be_disabled_for_call
           actual = SVG(:minimal) do
             rect(id: "same")
