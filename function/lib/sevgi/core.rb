@@ -45,21 +45,6 @@ module Sevgi
   # Error raised for invalid public API usage.
   ArgumentError = Class.new(Error) unless defined?(self::ArgumentError)
 
-  # Shared immutable empty array.
-  EMPTY_ARRAY = [].freeze
-
-  # Shared immutable empty hash.
-  EMPTY_HASH = {}.freeze
-
-  # Shared immutable empty options hash.
-  EMPTY_OPTS = {}.freeze
-
-  # Shared empty string.
-  EMPTY_STRING = ""
-
-  # Identity callable.
-  IDENTITY = -> (x) { x }.freeze
-
   # Sentinel object used to distinguish an omitted value from nil.
   Undefined = Object
     .new

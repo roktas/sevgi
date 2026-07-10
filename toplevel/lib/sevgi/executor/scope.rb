@@ -7,9 +7,6 @@ module Sevgi
     # Scope objects belong to one executor run and are pushed onto the current
     # fiber's executor stack. They are not shared between concurrent executions.
     class Scope
-      # Error raised by low-level executor scope operations.
-      Error = Class.new(::Sevgi::Error)
-
       # @!attribute [r] scope
       #   @return [Module] isolated module where script source is evaluated
       # @!attribute [r] recent

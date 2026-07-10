@@ -20,19 +20,6 @@ unless defined?(TestHelper)
         assert_equal(expected, actual)
       end
     end
-
-    def wtf(...)
-      Kernel.puts(...) or Kernel.exit!(0)
-    end
-
-    def wtf!(...)
-      pp(...) or Kernel.exit!(0)
-    end
-
-    def out(actual, file: "/tmp/out", indent: " " * 12)
-      File.write(file, actual.gsub(/^/, indent))
-      Kernel.exit!(0)
-    end
   end
 
   Minitest::Test.include(TestHelper)

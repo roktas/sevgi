@@ -8,25 +8,6 @@ require "minitest/focus"
 
 require "sevgi/geometry"
 
-unless defined?(TestHelper)
-  module TestHelper
-    def wtf(...)
-      Kernel.puts(...) or Kernel.exit!(0)
-    end
-
-    def wtf!(...)
-      pp(...) or Kernel.exit!(0)
-    end
-
-    def out(actual, file: "/tmp/out", indent: " " * 12)
-      File.write(file, actual.gsub(/^/, indent))
-      Kernel.exit!(0)
-    end
-  end
-
-  Minitest::Test.include(TestHelper)
-end
-
 Minitest::Reporters.use!([Minitest::Reporters::SpecReporter.new])
 
 # rubocop:disable Style/ClassAndModuleChildren
