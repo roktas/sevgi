@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "fileutils"
+require "open3"
 require "rubygems/package"
 
 require_relative "../../script/release"
@@ -45,6 +46,35 @@ module Sevgi
         File.write(File.join(root, "demo/lib/sevgi/version.rb"), "VERSION = \"9.9.9\"\\n")
         error = assert_raises(Preflight::Error) { Preflight.guard!(root:, ref: "refs/heads/main") }
         assert_match(/VERSION mismatch/, error.message)
+      end
+    end
+
+    def test_read_version_rejects_missing_and_invalid_files
+      Dir.mktmpdir do |root|
+        error = assert_raises(Preflight::Error) { Preflight.read_version(root) }
+        assert_match(/missing VERSION/, error.message)
+
+        File.write(File.join(root, "VERSION"), "1.2\n")
+        error = assert_raises(Preflight::Error) { Preflight.read_version(root) }
+        assert_match(/invalid VERSION/, error.message)
+      end
+    end
+
+    def test_version_validation_rejects_empty_project
+      Dir.mktmpdir do |root|
+        File.write(File.join(root, "VERSION"), "1.2.3\n")
+        error = assert_raises(Preflight::Error) { Preflight.validate_versions!(root, "1.2.3") }
+        assert_match(/missing version constants/, error.message)
+      end
+    end
+
+    def test_archive_preflight_rejects_missing_package
+      with_release_fixture do |root|
+        error = assert_raises(Preflight::Error) do
+          Preflight.validate_archives!(root:, package_dir: File.join(root, "pkg"), version: "1.2.3")
+        end
+
+        assert_match(/missing package/, error.message)
       end
     end
 
@@ -119,6 +149,55 @@ module Sevgi
 
         assert_empty(pushes)
       end
+    end
+
+    def test_publish_accepts_valid_checksum_and_pushes_in_order
+      with_release_fixture do |root|
+        package_dir = build_fixture_package(root)
+        archives = Preflight.validate_archives!(root:, package_dir:, version: "1.2.3")
+        assert(Preflight.validate_checksums!(package_dir:, archives:))
+
+        digest = Digest::SHA256.file(archives.first.fetch(:path)).hexdigest
+        File.write(File.join(package_dir, "SHA256SUMS"), "#{digest}  demo-1.2.3.gem\n")
+        pushes = []
+        remote_ok = -> (_name) { ["demo ()", "", status(true)] }
+
+        result = Preflight.publish!(
+          root:,
+          ref: "refs/heads/main",
+          package_dir:,
+          remote_runner: remote_ok,
+          push: -> (path) { pushes << path }
+        )
+
+        assert_equal(archives, result.fetch(:archives))
+        assert_equal([archives.first.fetch(:path)], pushes)
+      end
+    end
+
+    def test_remote_and_push_failures_are_reported
+      error = assert_raises(Preflight::Error) do
+        Preflight.validate_remote!(
+          names: ["demo"],
+          version: "1.2.3",
+          runner: -> (_name) { ["", "network", status(false)] }
+        )
+      end
+
+      assert_match(/cannot query RubyGems/, error.message)
+
+      [
+        ["failure", "denied", status(false)],
+        ["failure", "", status(false)]
+      ].each do |output, error_text, result|
+        error = assert_raises(Preflight::Error) do
+          Open3.stub(:capture3, [output, error_text, result]) { Preflight.push("demo.gem") }
+        end
+
+        assert_match(/gem push failed/, error.message)
+      end
+
+      Open3.stub(:capture3, ["", "", status(true)]) { assert(Preflight.push("demo.gem")) }
     end
 
     def test_workflow_uses_tracked_guard_and_pinned_actions

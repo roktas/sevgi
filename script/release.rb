@@ -129,8 +129,6 @@ module SevgiRelease
       end
 
       true
-    rescue KeyError => e
-      raise_error("missing checksum: #{e.key}")
     end
 
     def publish!(root:, ref:, package_dir:, remote_runner: method(:remote_query), push: method(:push))
