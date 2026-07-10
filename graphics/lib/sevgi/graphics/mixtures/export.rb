@@ -10,7 +10,8 @@ module Sevgi
         # @param kwargs [Hash] export options
         # @return [String] output path
         # @raise [Sevgi::MissingComponentError] when sevgi/sundries is unavailable
-        # @raise [Sevgi::Sundries::ExportError] when native export fails
+        # @raise [Sevgi::MissingComponentError] when native export gems are unavailable
+        # @raise [Sevgi::Sundries::Export::ExportError] when native export fails
         def PDF(path = nil, **kwargs, &block)
           begin
             require "sevgi/sundries"
@@ -29,7 +30,8 @@ module Sevgi
         # @param kwargs [Hash] export options
         # @return [String] output path
         # @raise [Sevgi::MissingComponentError] when sevgi/sundries is unavailable
-        # @raise [Sevgi::Sundries::ExportError] when native export fails
+        # @raise [Sevgi::MissingComponentError] when native export gems are unavailable
+        # @raise [Sevgi::Sundries::Export::ExportError] when native export fails
         def PNG(path = nil, **kwargs, &block)
           begin
             require "sevgi/sundries"

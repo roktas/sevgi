@@ -28,8 +28,24 @@ Requires Ruby 3.4.0 or newer. CI verifies Ruby 3.4 and the current development R
 
 ## Native prerequisites
 
-Basic ruler, grid, and tile helpers need only Ruby dependencies. PDF/PNG export helpers require Cairo and librsvg
-system libraries with development headers available to the `cairo` and `rsvg2` gems.
+Basic ruler, grid, and tile helpers need only Ruby dependencies. Installing `sevgi-sundries` does not install native
+export gems.
+
+PDF/PNG export helpers load the optional Ruby gems `cairo`, `rsvg2`, and `hexapdf` only when export is used. Install
+their system libraries and gems separately:
+
+```sh
+sudo apt-get update
+sudo apt-get install -y libcairo2-dev libgdk-pixbuf-2.0-dev libgirepository1.0-dev libglib2.0-dev librsvg2-dev pkg-config
+gem install cairo rsvg2 hexapdf
+```
+
+On macOS with Homebrew:
+
+```sh
+brew install cairo gdk-pixbuf gobject-introspection librsvg pkg-config
+gem install cairo rsvg2 hexapdf
+```
 
 ## Links
 

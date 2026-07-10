@@ -41,9 +41,6 @@ PATH
   remote: sundries
   specs:
     sevgi-sundries (0.93.1)
-      cairo
-      hexapdf (~> 1.5)
-      rsvg2 (>= 4.3.6)
       sevgi-function (= 0.93.1)
       sevgi-geometry (= 0.93.1)
       sevgi-graphics (= 0.93.1)
@@ -222,11 +219,14 @@ PLATFORMS
 
 DEPENDENCIES
   bundler (~> 4.0)
+  cairo
+  hexapdf (~> 1.5)
   irb
   minitest (~> 5.27)
   minitest-focus (~> 1.4)
   minitest-reporters (~> 1.7)
   rake
+  rsvg2 (>= 4.3.6)
   rubocop-md
   rubocop-packaging
   rubocop-rake

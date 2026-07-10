@@ -17,6 +17,7 @@ module Sevgi
   #
   # This component loads its eager public surfaces directly. `Ruler`, `Tile`, and `Grid` therefore require
   # `sevgi-function`, `sevgi-geometry`, and `sevgi-graphics` as runtime dependencies of the `sevgi-sundries` gem.
+  # Native PDF/PNG export gems are optional and loaded only by {Export} when export is used.
   module Sundries
   end
 end

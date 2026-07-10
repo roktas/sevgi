@@ -76,6 +76,24 @@ See [Showcase](showcase/srv) for examples and output.
 Sevgi requires Ruby 3.4.0 or newer. CI verifies the minimum Ruby 3.4 line and the current development Ruby version
 recorded in `.ruby-version`.
 
+SVG-only usage does not require native export gems. PDF/PNG export uses `sevgi-sundries` lazily and requires the
+optional Ruby gems `cairo`, `rsvg2`, and `hexapdf`.
+
+On Debian/Ubuntu, install the native libraries first:
+
+```sh
+sudo apt-get update
+sudo apt-get install -y libcairo2-dev libgdk-pixbuf-2.0-dev libgirepository1.0-dev libglib2.0-dev librsvg2-dev pkg-config
+gem install cairo rsvg2 hexapdf
+```
+
+On macOS with Homebrew:
+
+```sh
+brew install cairo gdk-pixbuf gobject-introspection librsvg pkg-config
+gem install cairo rsvg2 hexapdf
+```
+
 ## Project Structure
 
 The project consists of 8 components, with the core `graphics` component at the center. In alphabetical order, the

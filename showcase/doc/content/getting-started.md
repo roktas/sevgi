@@ -33,6 +33,22 @@ gem install sevgi
 This installs the `sevgi` executable used by `.sevgi` scripts and pulls in the standard components: graphics, geometry,
 standard validation, derendering, sundries, and shared functions.
 
+SVG-only scripts do not need native export gems. If a script writes PDF or PNG through Sevgi's native export helpers,
+install the optional native export stack separately. On Debian/Ubuntu:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y libcairo2-dev libgdk-pixbuf-2.0-dev libgirepository1.0-dev libglib2.0-dev librsvg2-dev pkg-config
+gem install cairo rsvg2 hexapdf
+```
+
+On macOS with Homebrew:
+
+```bash
+brew install cairo gdk-pixbuf gobject-introspection librsvg pkg-config
+gem install cairo rsvg2 hexapdf
+```
+
 ## Choose A Document Profile
 
 `SVG` can be called with a document profile. `:minimal` emits compact SVG without the XML declaration; the default

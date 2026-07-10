@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "../export"
+
 require "cairo"
 require "fileutils"
 require "hexapdf"
@@ -8,13 +10,12 @@ require "tempfile"
 
 module Sevgi
   module Sundries
-    # Exports SVG content and post-processes PDF output.
     module Export
-      # Raised when SVG export or PDF post-processing cannot be completed.
-      ExportError = Class.new(Error)
-
-      # Default SVG CSS pixel density.
-      DEFAULT_DPI = 96.0
+      %i[
+        call
+        stamp
+        stamp!
+      ].each { remove_method(it) if method_defined?(it) }
 
       # Exports SVG source to a PDF or PNG file using librsvg and Cairo.
       # @param svg [String] SVG source content
@@ -30,7 +31,7 @@ module Sevgi
       # @return [Object] the original output argument
       # @raise [Sevgi::ArgumentError] when SVG content is not a string or output is blank
       # @raise [Sevgi::Sundries::Export::ExportError] when format, SVG parsing, SVG dimensions, or render dimensions are invalid
-      def self.call(svg, output, format: nil, width: nil, height: nil, dpi: DEFAULT_DPI, css: nil, &block)
+      def call(svg, output, format: nil, width: nil, height: nil, dpi: DEFAULT_DPI, css: nil, &block)
         ArgumentError.("SVG content must be a String") unless svg.is_a?(String)
         ArgumentError.("Export output must be provided") if output.nil? || output.to_s.strip.empty?
 
@@ -70,39 +71,6 @@ module Sevgi
 
         output
       end
-
-      # Supported export format names mapped to file extensions.
-      AVAILABLE = (EXTENSIONS = {
-        ".pdf" => :pdf,
-        ".png" => :png
-      }.freeze)
-        .invert
-        .freeze
-
-      # Resolves the export format from an explicit value or output extension.
-      # @param format [Symbol, String, nil] explicit format
-      # @param output [String, #to_s] output path
-      # @return [Symbol] resolved format
-      # @raise [Sevgi::Sundries::Export::ExportError] when the explicit format or output extension is unsupported
-      def format_for!(format, output)
-        if format
-          format = format.to_sym
-          ExportError.("Unsupported export format: #{format}") unless AVAILABLE.key?(format)
-
-          format
-        else
-          ext = File.extname(output.to_s).downcase
-          ExportError.("Unrecognized file extension: #{ext}") unless EXTENSIONS.key?(ext)
-
-          EXTENSIONS[ext]
-        end
-      end
-
-      # Inserts CSS before the closing svg tag.
-      # @param svg [String] SVG source content
-      # @param css [String] CSS source content
-      # @return [String] SVG source with an added style element when a closing svg tag is present
-      def inject(svg, css) = svg.sub("</svg>", "<style>#{css}</style></svg>")
 
       # Replaces exact placeholder text objects in PDF streams.
       # The placeholder must appear as a PDF literal string in a white text object matching the export stamp pattern.

@@ -21,8 +21,4 @@ Gem::Specification.new do |s|
   s.add_dependency("sevgi-function", version)
   s.add_dependency("sevgi-geometry", version)
   s.add_dependency("sevgi-graphics", version)
-
-  s.add_runtime_dependency("cairo")
-  s.add_runtime_dependency("hexapdf", "~> 1.5")
-  s.add_runtime_dependency("rsvg2", ">= 4.3.6")
 end

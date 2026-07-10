@@ -34,8 +34,24 @@ Requires Ruby 3.4.0 or newer. CI verifies Ruby 3.4 and the current development R
 
 ## Native prerequisites
 
-The top-level gem installs Sevgi's standard components. Native export helpers come from `sevgi-sundries` and require
-Cairo and librsvg system libraries when PDF/PNG export is used.
+The top-level gem installs Sevgi's standard components without native export gems. SVG-only scripts need no native
+packages beyond the standard Ruby dependencies.
+
+PDF/PNG export helpers come from `sevgi-sundries` and lazily load the optional Ruby gems `cairo`, `rsvg2`, and
+`hexapdf`. On Debian/Ubuntu:
+
+```sh
+sudo apt-get update
+sudo apt-get install -y libcairo2-dev libgdk-pixbuf-2.0-dev libgirepository1.0-dev libglib2.0-dev librsvg2-dev pkg-config
+gem install cairo rsvg2 hexapdf
+```
+
+On macOS with Homebrew:
+
+```sh
+brew install cairo gdk-pixbuf gobject-introspection librsvg pkg-config
+gem install cairo rsvg2 hexapdf
+```
 
 ## Links
 

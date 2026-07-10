@@ -18,10 +18,13 @@ end
 
 group :test, :development do
   gem "bundler", "~> 4.0"
+  gem "cairo"
+  gem "hexapdf", "~> 1.5"
   gem "minitest", "~> 5.27"
   gem "minitest-focus", "~> 1.4"
   gem "minitest-reporters", "~> 1.7"
   gem "rake"
+  gem "rsvg2", ">= 4.3.6"
   gem "simplecov", "~> 0.22"
 end
 
