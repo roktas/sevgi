@@ -9,6 +9,17 @@ module SevgiRelease
     module_function
 
     VERSION_PATTERN = /\A\d+\.\d+\.\d+\z/
+    COMPONENT_ORDER = %w[
+      sevgi-function
+      sevgi-geometry
+      sevgi-graphics
+      sevgi-standard
+      sevgi-derender
+      sevgi-sundries
+      sevgi
+      sevgi-showcase
+    ]
+      .freeze
 
     def guard!(root:, ref:)
       version = read_version(root)
@@ -130,9 +141,11 @@ module SevgiRelease
     end
 
     def gemspecs(root)
-      Dir[File.join(root, "*/*.gemspec")].sort.map do |file|
+      specs = Dir[File.join(root, "*/*.gemspec")].map do |file|
         Gem::Specification.load(file) || raise_error("malformed gemspec: #{file}")
       end
+
+      specs.sort_by { |spec| [COMPONENT_ORDER.index(spec.name) || COMPONENT_ORDER.length, spec.name] }
     end
 
     def remote_query(name)

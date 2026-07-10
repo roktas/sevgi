@@ -18,6 +18,24 @@ module Sevgi
       refute(Preflight.allowed_ref?("refs/tags/v1.2", "1.2"))
     end
 
+    def test_archive_order_matches_component_dependencies
+      root = File.expand_path("../..", __dir__)
+
+      assert_equal(
+        %w[
+          sevgi-function
+          sevgi-geometry
+          sevgi-graphics
+          sevgi-standard
+          sevgi-derender
+          sevgi-sundries
+          sevgi
+          sevgi-showcase
+        ],
+        Preflight.gemspecs(root).map(&:name)
+      )
+    end
+
     def test_guard_rejects_missing_and_mismatched_versions
       with_release_fixture do |root|
         FileUtils.rm(File.join(root, "demo/lib/sevgi/version.rb"))
