@@ -245,6 +245,39 @@ module Sevgi
           assert_equal([["TERM", 12_345], ["KILL", 12_345]], signals)
         end
 
+        def test_sh_coordinates_overlapping_signal_handlers
+          baseline = proc { }
+          previous = Signal.trap("INT", baseline)
+          first = Runner.new
+          second = Runner.new
+          signals = []
+
+          Process.stub(:kill, -> (signal, pid) { signals << [signal, pid] }) do
+            SignalCoordinator.register(first, 1)
+            SignalCoordinator.register(second, 2)
+            SignalCoordinator.send(:dispatch)
+            SignalCoordinator.send(:dispatch)
+            SignalCoordinator.unregister(first)
+
+            current = Signal.trap("INT", "DEFAULT")
+            refute_same(baseline, current)
+            Signal.trap("INT", current)
+
+            SignalCoordinator.unregister(second)
+            restored = Signal.trap("INT", "DEFAULT")
+            assert_same(baseline, restored)
+          end
+
+          assert_equal(
+            [["TERM", 1], ["TERM", 2], ["KILL", 1], ["KILL", 2]],
+            signals
+          )
+        ensure
+          SignalCoordinator.unregister(first) if first
+          SignalCoordinator.unregister(second) if second
+          Signal.trap("INT", previous) if previous
+        end
+
         def test_sh_writes_block_input_once
           calls = 0
 

@@ -73,6 +73,52 @@ module Sevgi
         def self.dummy = new([], [], [], 0)
       end
 
+      # Coordinates the process-global SIGINT handler for overlapping shell runners.
+      # @api private
+      module SignalCoordinator
+        Entry = Data.define(:runner, :pid)
+
+        class << self
+          def register(runner, pid)
+            mutex.synchronize do
+              install unless entries.any?
+              entries[runner] = Entry.new(runner, pid)
+            end
+          end
+
+          def unregister(runner)
+            mutex.synchronize do
+              entries.delete(runner)
+              restore unless entries.any?
+            end
+          end
+
+          private
+
+          attr_reader :entries, :mutex
+
+          def dispatch
+            active = mutex.synchronize { entries.values.dup }
+            active.each { |entry| entry.runner.send(:handle_sigint, entry.pid) }
+          end
+
+          def install
+            @previous = Signal.trap("INT") { dispatch }
+          end
+
+          def mutex = @mutex ||= Mutex.new
+
+          def entries = @entries ||= {}
+
+          def restore
+            Signal.trap("INT", @previous)
+            @previous = nil
+          end
+        end
+      end
+
+      private_constant :SignalCoordinator
+
       # Runs shell commands and captures stdout, stderr, and exit status.
       # @api private
       class Runner
@@ -103,8 +149,9 @@ module Sevgi
 
         # rubocop:disable Lint/RescueException
         def capture(stdin, stdout, stderr, wait_thread, &input)
-          # Handle `^C`
-          previous = trap("INT") { handle_sigint(wait_thread.pid) }
+          registered = false
+          SignalCoordinator.register(self, wait_thread.pid)
+          registered = true
           readers = start_readers(stdout, stderr)
 
           read_process(stdin, wait_thread, readers, &input)
@@ -113,7 +160,7 @@ module Sevgi
           raise
         ensure
           close_input(stdin)
-          trap("INT", previous) if previous
+          SignalCoordinator.unregister(self) if registered
         end
         # rubocop:enable Lint/RescueException
 
@@ -198,7 +245,7 @@ module Sevgi
       #   @raise [SystemCallError] when the executable cannot be spawned or process pipes cannot be opened
       #   @raise [StandardError] when the input block raises; the child is terminated and reaped before propagation
       #   @note The child's stdin is closed after the input block. During execution, the first SIGINT sends TERM to the
-      #     child process and the second SIGINT sends KILL; the previous SIGINT handler is restored before return.
+      #     child process and the second SIGINT as KILL to each active child, then restores the previous handler.
       def sh(...) = Runner.new.(...)
 
       # Runs a command, requiring both executable lookup and successful exit status.
@@ -210,7 +257,7 @@ module Sevgi
       # @raise [SystemCallError] when the executable cannot be spawned or process pipes cannot be opened
       # @raise [StandardError] when the input block raises; the child is terminated and reaped before propagation
       # @note The child's stdin is closed after the input block. During execution, the first SIGINT sends TERM to the
-      #   child process and the second SIGINT sends KILL; the previous SIGINT handler is restored before return.
+      #   child process and the second SIGINT as KILL to each active child, then restores the previous handler.
       def sh!(*args, &block)
         executable!(*args) unless args.empty?
 
