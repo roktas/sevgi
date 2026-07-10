@@ -27,6 +27,37 @@ module Sevgi
         assert(Conform.(:rect, attributes: []))
       end
 
+      def test_conform_accepts_scalar_names_without_mutating_inputs
+        attributes = ["viewBox"]
+        elements = [:g]
+
+        assert(Conform.(:svg, attributes: "viewBox", elements: :g))
+        assert(Conform.(:svg, attributes:, elements:))
+        assert_equal(["viewBox"], attributes)
+        assert_equal([:g], elements)
+      end
+
+      def test_conform_rejects_non_list_name_inputs
+        assert_raises(ArgumentError) { Conform.(:svg, attributes: false) }
+        assert_raises(ArgumentError) { Conform.(:svg, elements: {}) }
+      end
+
+      def test_conform_does_not_cache_rejected_usage
+        cache = Conform.instance_variable_get(:@cache)
+        snapshot = cache.dup
+        element = :rect
+        cache.delete(element)
+        baseline = cache.dup
+
+        assert_raises(InvalidAttributesError) do
+          Conform.(element, attributes: :notAnSvgAttribute)
+        end
+
+        assert_equal(baseline, cache)
+      ensure
+        cache&.replace(snapshot) if snapshot
+      end
+
       def test_cdata_only_rejects_child_elements
         error = assert_raises(UnallowedElementsError) do
           Conform.(:title, cdata: "Name", elements: %i[g])

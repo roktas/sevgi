@@ -20,7 +20,7 @@ module Sevgi
 
     # @overload attributes(*groups)
     #   Returns SVG attributes, optionally restricted to one or more attribute groups.
-    #   @param groups [Array<Symbol>] attribute group names
+    #   @param groups [Array<String, Symbol>] attribute group names
     #   @return [Set<Symbol>] mutation-isolated attribute-name snapshot
     def attributes(...) = Attribute.set(...)
 
@@ -34,9 +34,9 @@ module Sevgi
     # @overload conform(element, attributes: nil, cdata: nil, elements: nil)
     #   Validates an SVG element usage against the standard data.
     #   @param element [String, Symbol] SVG element name
-    #   @param attributes [Array<String, Symbol>, nil] attribute names used by the element
+    #   @param attributes [Array<String, Symbol>, String, Symbol, nil] attribute names used by the element
     #   @param cdata [String, nil] character data content
-    #   @param elements [Array<String, Symbol>, nil] child element names
+    #   @param elements [Array<String, Symbol>, String, Symbol, nil] child element names
     #   @return [Boolean] true when the usage conforms
     #   @raise [Sevgi::ArgumentError] when any name is not a String or Symbol
     #   @raise [Sevgi::ArgumentError] when any name is not a valid SVG-style name
@@ -46,7 +46,7 @@ module Sevgi
 
     # @overload elements(*groups)
     #   Returns SVG elements, optionally restricted to one or more element groups.
-    #   @param groups [Array<Symbol>] element group names
+    #   @param groups [Array<String, Symbol>] element group names
     #   @return [Set<Symbol>] mutation-isolated element-name snapshot
     def elements(...) = Element.set(...)
 

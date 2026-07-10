@@ -13,6 +13,21 @@ module Sevgi
         assert_equal(%i[desc metadata title], Element[:Descriptive])
       end
 
+      def test_element_set_accepts_string_and_symbol_groups
+        expected = Element.set(:Descriptive)
+
+        assert_equal(expected, Element.set("Descriptive"))
+        assert_equal(expected, Element.set(:Descriptive, "Descriptive"))
+      end
+
+      def test_element_set_rejects_unknown_groups_without_mutation
+        before = Element.all
+        error = assert_raises(ArgumentError) { Element.set(:UnknownGroup) }
+
+        assert_match(/Unknown SVG group/, error.message)
+        assert_equal(before, Element.all)
+      end
+
       def test_element_ignore_accepts_unvalidated_names
         assert(Element.ignore?(:_private))
         assert(Element.ignore?("app:custom"))

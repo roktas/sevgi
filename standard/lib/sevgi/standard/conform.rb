@@ -33,9 +33,9 @@ module Sevgi
       end
 
       # Validates one usage of the configured SVG element.
-      # @param attributes [Array<String, Symbol>, nil] attribute names used by the element
+      # @param attributes [Array<String, Symbol>, String, Symbol, nil] attribute names used by the element
       # @param cdata [String, nil] character data content
-      # @param elements [Array<String, Symbol>, nil] child element names
+      # @param elements [Array<String, Symbol>, String, Symbol, nil] child element names
       # @return [Boolean] true when the usage conforms
       # @raise [Sevgi::ArgumentError] when any name is not a valid public name
       # @raise [Sevgi::ValidationError] when the usage violates the standard data
@@ -65,15 +65,28 @@ module Sevgi
       def self.call(element, attributes: nil, cdata: nil, elements: nil)
         element = Name.normalize!(element, context: "element")
         attributes = Name.list!(attributes, context: "attribute")
-        elements = Name.list!(elements || [], context: "element")
+        elements = Name.list!(elements, context: "element") || []
 
         Element.ignore?(element) or
-          (@cache[element] ||= new(element)).call(
-            attributes: Attribute.concerns(attributes),
-            elements: Element.concerns(elements),
-            cdata:
-          )
+          validate(element, attributes:, elements:, cdata:)
       end
+
+      def self.validate(element, attributes:, elements:, cdata:)
+        validator = @cache[element] || new(element)
+        result = validator.call(**arguments(attributes, elements, cdata))
+        @cache[element] ||= validator
+        result
+      end
+
+      def self.arguments(attributes, elements, cdata)
+        {
+          attributes: Attribute.concerns(attributes),
+          elements: Element.concerns(elements),
+          cdata:
+        }
+      end
+
+      private_class_method :arguments, :validate
     end
 
     private_constant :Conform, :Model

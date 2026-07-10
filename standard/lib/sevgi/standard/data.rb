@@ -56,15 +56,29 @@ module Sevgi
       def pick(names, *groups) = names.select { |name| groups.any? { is?(name, it) } }
 
       # Returns all names or names from selected groups.
-      # @param groups [Array<Symbol>] group names
+      # @param groups [Array<String, Symbol>] group names
       # @return [Set<Symbol>] mutation-isolated selected-name snapshot
-      def set(*groups) = groups.empty? ? all : Set[*data.values_at(*groups).flatten.compact.uniq.sort]
+      def set(*groups)
+        return all if groups.empty?
+
+        Set[*data.values_at(*groups!(groups)).flatten.uniq.sort]
+      end
 
       # Removes names that belong to any requested group.
       # @param names [Array<Symbol>] names to filter
       # @param groups [Array<Symbol>] group names
       # @return [Array<Symbol>] filtered names
       def unpick(names, *groups) = names.reject { |name| groups.any? { is?(name, it) } }
+
+      def groups!(groups)
+        groups = groups.map { Name.normalize!(it, context: "group") }
+        unknown = groups.reject { data.key?(it) }
+        ArgumentError.("Unknown SVG group(s): #{unknown.map(&:inspect).join(", ")}") unless unknown.empty?
+
+        groups
+      end
+
+      private :groups!
 
       # Removes ignored names from a list.
       # @param names [Array<Symbol>, nil] names to filter

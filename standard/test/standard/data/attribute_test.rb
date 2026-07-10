@@ -13,6 +13,21 @@ module Sevgi
         assert_equal(%i[onactivate onfocusin onfocusout], Attribute[:EventGraphical])
       end
 
+      def test_attribute_set_accepts_string_and_symbol_groups
+        expected = Attribute.set(:EventGraphical)
+
+        assert_equal(expected, Attribute.set("EventGraphical"))
+        assert_equal(expected, Attribute.set(:EventGraphical, "EventGraphical"))
+      end
+
+      def test_attribute_set_rejects_unknown_groups_without_mutation
+        before = Attribute.all
+        error = assert_raises(ArgumentError) { Attribute.set(:UnknownGroup) }
+
+        assert_match(/Unknown SVG group/, error.message)
+        assert_equal(before, Attribute.all)
+      end
+
       def test_attribute_ignore_accepts_unvalidated_names
         assert(Attribute.ignore?(:_private))
         assert(Attribute.ignore?("data-value"))

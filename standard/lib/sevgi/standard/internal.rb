@@ -32,12 +32,15 @@ module Sevgi
       end
 
       # Normalizes a list of public names.
-      # @param values [Array<String, Symbol>, nil] public names
+      # @param values [Array<String, Symbol>, String, Symbol, nil] public names
       # @param context [String] name context for error messages
       # @return [Array<Symbol>, nil] normalized names
       # @raise [Sevgi::ArgumentError] when any value is not a valid public name
       def self.list!(values, context:)
-        values&.map { normalize!(it, context:) }
+        return if values.nil?
+
+        values = [values] unless values.is_a?(::Array)
+        values.map { normalize!(it, context:) }
       end
     end
 
