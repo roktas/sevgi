@@ -8,8 +8,17 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Changed
 
 - CI now exercises the exact Ruby 3.4.0 compatibility floor separately from the current development Ruby.
+- Standard no longer caches missing SVG specifications, preserving later registry updates.
+- Release verification now keeps the Ruby floor compatible with the checked-in bundle.
 
 ## 0.94.0 - 2026-07-10
+
+### Security
+
+- XML content is validated before rendering, preventing control characters and unsafe markup from reaching the
+  generated document.
+- Derendered XML is treated as data rather than executable Ruby, so input content cannot run arbitrary DSL code while
+  being converted.
 
 ### Changed
 
@@ -17,6 +26,24 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   approximate element comparison.
 - Breaking: replaced `Derender.evaluate!` and `Derender.evaluate_file!` with explicit `evaluate_children` and
   `evaluate_file_children` children-only APIs.
+- Native PDF/PNG export dependencies are optional at runtime; users who use those exporters must install Cairo/RSVG
+  and the relevant PDF libraries explicitly.
+- Executor, showcase, and shell execution now isolate process-global state and report nested load failures with their
+  source stack.
+- Generated documentation and package archives are validated as part of the release checks.
+
+### Fixed
+
+- Preserved mixed inline text, qualified names, whitespace, and raw element parents during Derender round-tripping.
+- Rejected cyclic duplicate/adoption payloads and invalid XML, canvas, geometry, standard, and export inputs before
+  mutating or rendering.
+- Kept open-path geometry from receiving synthetic interiors and made explicit intersection precision independent of
+  ambient precision.
+- Corrected PDF stamping across text objects, Ruby replacement backreferences, decimal positions, and escaped PDF
+  literals.
+- Made gem manifests independent of the process working directory and removed parent-directory paths from archives.
+- Stabilized empty script handling, executor signal guards, concurrent shell signals, and recursive load detection.
+- Hardened showcase rendering, standalone shell helpers, and generated SVG artifacts across browser layouts.
 
 ## 0.93.1 - 2026-07-08
 

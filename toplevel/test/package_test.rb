@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "fileutils"
+require "digest"
 require "open3"
 require "rbconfig"
 require "rubygems/package"
@@ -59,6 +60,23 @@ module Sevgi
 
         smoke_installed_gems(gem_home)
         smoke_installed_cli(gem_home)
+      end
+    end
+
+    def test_component_documents_are_canonical_and_substantive
+      license = ::File.join(ROOT, "LICENSE")
+      changelog = ::File.join(ROOT, "CHANGELOG.md")
+      license_digest = ::Digest::SHA256.file(license).hexdigest
+      changelog_digest = ::Digest::SHA256.file(changelog).hexdigest
+
+      COMPONENTS.each do |component|
+        component_license = ::File.join(ROOT, component.dir, "LICENSE")
+        component_changelog = ::File.join(ROOT, component.dir, "CHANGELOG.md")
+
+        assert_equal(license_digest, ::Digest::SHA256.file(component_license).hexdigest, component.name)
+        assert_equal(changelog_digest, ::Digest::SHA256.file(component_changelog).hexdigest, component.name)
+        assert_operator(::File.size(component_license), :>, 10_000, component.name)
+        assert_includes(::File.read(component_changelog), "## 0.94.0", component.name)
       end
     end
 
@@ -169,6 +187,16 @@ module Sevgi
       contents = gem.contents
 
       %w[CHANGELOG.md LICENSE README.md].each { assert_includes(contents, it, component.name) }
+      assert_equal(
+        ::Digest::SHA256.file(::File.join(ROOT, "LICENSE")).hexdigest,
+        package_file_digest(package, "LICENSE"),
+        component.name
+      )
+      assert_equal(
+        ::Digest::SHA256.file(::File.join(ROOT, "CHANGELOG.md")).hexdigest,
+        package_file_digest(package, "CHANGELOG.md"),
+        component.name
+      )
       assert_includes(contents, "lib/#{component.entrypoint}.rb", component.name)
       assert_includes(contents, "lib/#{component.entrypoint}/version.rb", component.name)
       component.executables.each { assert_includes(contents, "bin/#{it}", component.name) }
@@ -190,6 +218,13 @@ module Sevgi
       end
 
       package
+    end
+
+    def package_file_digest(package, path)
+      ::Dir.mktmpdir do |dir|
+        ::Gem::Package.new(package).extract_files(dir)
+        ::Digest::SHA256.file(::File.join(dir, path)).hexdigest
+      end
     end
 
     def build_component_packages(dir)
