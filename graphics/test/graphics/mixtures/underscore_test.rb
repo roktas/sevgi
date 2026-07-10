@@ -69,6 +69,25 @@ module Sevgi
 
           assert_equal({page: "one", group: "main", shape: "box"}, descendant.Ancestral())
         end
+
+        def test_ancestral_uses_only_ancestor_chain
+          descendant = nil
+
+          SVG(DOC, _: {root: "root", shared: "root"}) do
+            g(_: {sibling: "sibling", shared: "sibling"}) do
+              rect(_: {niece: "niece", shared: "niece"})
+            end
+
+            g(_: {ancestor: "ancestor", shared: "ancestor"}) do
+              descendant = rect(_: {self: "self", shared: "self"})
+            end
+          end
+
+          assert_equal(
+            {root: "root", ancestor: "ancestor", self: "self", shared: "self"},
+            descendant.Ancestral()
+          )
+        end
       end
     end
   end

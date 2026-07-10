@@ -19,11 +19,16 @@ module Sevgi
           _(Content.verbatim("<!-- #{comment} -->"))
         end
 
-        # Merges internal ancestral attributes from the document root to this element.
+        # Merges internal attributes from the document root, ancestors, and this element.
+        # Only the direct root-to-self ancestor chain participates; sibling subtrees are ignored. When the same key is
+        # present on multiple chain elements, the nearest element to the receiver wins.
         # @return [Hash] merged internal attributes
         def Ancestral
+          chain = []
+          TraverseUp { |element| chain.unshift(element) }
+
           {}.tap do |result|
-            Root().Traverse() { |element| result.merge!(element[:_]) if element.has?(:_) }
+            chain.each { |element| result.merge!(element[:_]) if element.has?(:_) }
           end
         end
       end
