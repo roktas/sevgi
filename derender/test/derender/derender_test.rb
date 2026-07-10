@@ -75,6 +75,16 @@ module Sevgi
         assert_equal("xxx", actual[:id])
       end
 
+      def test_evaluate_accepts_a_raw_graphics_element_parent
+        target = Graphics::Element.root
+
+        actual = Derender.evaluate("<g id=\"raw\"><line/></g>", target)
+
+        assert_same(target.children.first, actual)
+        assert_equal(:g, actual.name)
+        assert_equal(:line, actual.children.first.name)
+      end
+
       def test_evaluate_treats_kernel_names_as_elements
         each_collision_source do |name, text, svg, marker|
           actual = Derender.evaluate(svg, SVG(:minimal), id: "collision").Render()

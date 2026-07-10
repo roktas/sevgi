@@ -18,7 +18,7 @@ module Sevgi
         when :CSS
           append_css(node)
         when :Text
-          parent.Element(:_, node.content)
+          build(:_, node.content)
         else
           append_element(node)
         end
@@ -31,11 +31,11 @@ module Sevgi
       def append_css(node)
         return unless (hash = Css.to_h(node.node.content))
 
-        parent.Element(:style, Graphics::Content.css(hash), type: "text/css", **node.attributes)
+        build(:style, Graphics::Content.css(hash), type: "text/css", **node.attributes)
       end
 
       def append_element(node)
-        parent.Element(node.name, *content(node), **attributes(node)).tap do |element|
+        build(node.name, *content(node), **attributes(node)).tap do |element|
           node.children.each { self.class.new(element).append(it) } unless content(node).any?
         end
       end
@@ -44,6 +44,10 @@ module Sevgi
 
       def content(node)
         node.children.one? && node.children.first.node.text? ? [node.content] : []
+      end
+
+      def build(name, *contents, **attributes)
+        parent.class.element(name.to_sym, *contents, attributes, parent:)
       end
     end
 
