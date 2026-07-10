@@ -3,9 +3,20 @@
 module Sevgi
   module Graphics
     # Callable drawing module support.
-    # @api private
+    # Extend a plain Ruby module with this API to make its public instance methods callable drawing steps.
+    # @example Define and call a drawing module
+    #   Widget = Module.new do
+    #     extend Sevgi::Graphics::Module
+    #
+    #     def item(id)
+    #       rect(id:)
+    #     end
+    #   end
+    #
+    #   SVG { Call(Widget, "box") }
     module Module
-      # Tracks newly defined public methods as callable drawing steps.
+      # Tracks newly defined methods as callable drawing candidates.
+      # Invocation runs unique methods that are still public, preserving tracked definition order.
       # @param method [Symbol] method name Ruby reports as added
       # @return [Array<Symbol>, nil]
       def method_added(method)
@@ -49,6 +60,7 @@ module Sevgi
       #   @param args [Array<Object>] callable arguments
       #   @param kwargs [Hash] callable keyword arguments
       #   @return [Object, nil] last callable return value
+      #   @raise [Sevgi::ArgumentError] when mod is not a plain module
       def self.call(mod, receiver, ...)
         mod._befores.each { receiver.Within(receiver, &it) } if mod.respond_to?(:_befores) && mod._befores
         # return last callable return value
@@ -64,8 +76,22 @@ module Sevgi
       def self.callables(mod)
         ArgumentError.("Must be a module: #{mod}") unless mod.instance_of?(::Module)
 
-        (mod.respond_to?(:_callables) ? mod._callables : mod.instance_methods).map { mod.instance_method(it) }
+        callable_names(mod).uniq.filter_map do |name|
+          mod.instance_method(name) if mod.public_method_defined?(name)
+        end
       end
+
+      def self.callable_names(mod)
+        tracked = mod.ancestors.reverse_each.filter_map do |ancestor|
+          ancestor._callables if ancestor.respond_to?(:_callables)
+        end
+
+        return tracked.flatten unless tracked.empty?
+
+        mod.public_instance_methods
+      end
+
+      private_class_method :callable_names
     end
 
     module Mixtures
