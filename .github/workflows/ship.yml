@@ -1,12 +1,18 @@
 name: Ship
+
 on:
   workflow_dispatch:
+
 jobs:
-  push:
+  publish:
     runs-on: ubuntu-latest
+    environment: release
     permissions:
-      contents: write
+      contents: read
       id-token: write
+    concurrency:
+      group: "ship-${{ github.ref }}"
+      cancel-in-progress: false
     steps:
     - name: Checkout 🛎️
       uses: actions/checkout@v6
@@ -23,6 +29,92 @@ jobs:
     - name: Ruby 🥁
       uses: ruby/setup-ruby@v1
       with: { bundler-cache: true }
+    - name: Guard dry run 🧪
+      shell: bash
+      run: |
+        set -Eeuo pipefail
+        ruby <<'RUBY'
+        version = File.read("VERSION").strip
+
+        def allowed?(ref, version)
+          ref == "refs/heads/main" || ref == "refs/tags/v#{version}"
+        end
+
+        abort("main must be allowed") unless allowed?("refs/heads/main", version)
+        abort("matching tag must be allowed") unless allowed?("refs/tags/v#{version}", version)
+        abort("feature branch must be rejected") if allowed?("refs/heads/review", version)
+        abort("wrong tag must be rejected") if allowed?("refs/tags/v0.0.0", version)
+        RUBY
+    - name: Guard ref and version 🧯
+      shell: bash
+      run: |
+        set -Eeuo pipefail
+        ruby <<'RUBY'
+        version = File.read("VERSION").strip
+        ref = ENV.fetch("GITHUB_REF")
+
+        unless ref == "refs/heads/main" || ref == "refs/tags/v#{version}"
+          abort("ship must run from main or refs/tags/v#{version}; got #{ref}")
+        end
+
+        versions = Dir["*/lib/sevgi/**/version.rb"].to_h do |file|
+          [file, File.read(file)[/VERSION\s*=\s*"([^"]+)"/, 1]]
+        end
+        mismatches = versions.reject { |_file, value| value == version }
+
+        abort("missing version constants: #{versions.select { |_file, value| value.nil? }.keys.join(", ")}") if versions.any? { |_file, value| value.nil? }
+        abort("VERSION mismatch: #{mismatches.map { |file, value| "#{file}=#{value}" }.join(", ")}") unless mismatches.empty?
+        RUBY
+    - name: Lint 🔬
+      run: bundle exec rake lint
+    - name: Unit 🔬
+      run: bundle exec rake test
+    - name: Build 📦
+      run: bundle exec rake build
+    - name: Package preflight 📦
+      shell: bash
+      run: |
+        set -Eeuo pipefail
+        ruby <<'RUBY'
+        require "rubygems/package"
+
+        version = File.read("VERSION").strip
+        specs = Dir["*/*.gemspec"].sort.map { |file| Gem::Specification.load(file) || abort("Malformed gemspec: #{file}") }
+
+        specs.each do |spec|
+          path = "pkg/#{spec.name}-#{version}.gem"
+          abort("Missing package: #{path}") unless File.file?(path)
+
+          package = Gem::Package.new(path)
+          archive = package.spec
+          abort("Malformed package name: #{path}") unless archive.name == spec.name
+          abort("Malformed package version: #{path}") unless archive.version.to_s == version
+
+          files = archive.files
+          abort("Empty package: #{path}") if files.empty?
+
+          invalid = files.grep(%r{\A(?:/|\.\./)|(?:^|/)\.agents(?:/|$)|(?:^|/)AGENTS\.md\z})
+          abort("Invalid package contents in #{path}: #{invalid.join(", ")}") unless invalid.empty?
+        rescue StandardError => e
+          abort("#{path}: #{e.message}")
+        end
+        RUBY
+    - name: RubyGems preflight 💎
+      shell: bash
+      run: |
+        set -Eeuo pipefail
+        ruby <<'RUBY'
+        require "shellwords"
+
+        version = File.read("VERSION").strip
+        names = Dir["*/*.gemspec"].sort.map { |file| Gem::Specification.load(file).name }
+
+        names.each do |name|
+          output = `gem list --remote --exact --all #{Shellwords.escape(name)}`
+          abort("Cannot query RubyGems for #{name}") unless $?.success?
+          abort("#{name} #{version} is already published") if output.match?(/\A#{Regexp.escape(name)} \((?=.*\b#{Regexp.escape(version)}\b)/)
+        end
+        RUBY
     - name: Push 💎
       uses: rubygems/release-gem@v1
       with:
