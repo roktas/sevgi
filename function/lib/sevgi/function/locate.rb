@@ -28,54 +28,72 @@ module Sevgi
       # @!attribute [r] paths
       #   @return [Array<String>] candidate paths
       # @!attribute [r] start
-      #   @return [String] start directory
+      #   @return [String] absolute start directory
       # @!attribute [r] exclude
       #   @return [Array<String>, nil] expanded paths ignored during lookup
       attr_reader :paths, :start, :exclude
 
       # Builds an upward file locator.
       # @param paths [Array<String>, String] candidate file paths
-      # @param start [String] directory where lookup starts
-      # @param exclude [Array<String>, String, nil] paths ignored during lookup
+      # @param start [String] directory where lookup starts, expanded without changing process cwd
+      # @param exclude [Array<String>, String, nil] paths ignored during lookup after absolute expansion
       # @return [void]
       def initialize(paths, start = ::Dir.pwd, exclude: nil)
         @paths = Array(paths)
-        @start = start
+        @start = ::File.expand_path(start)
         @exclude = [*exclude].map { ::File.expand_path(it) } unless exclude.nil?
       end
 
       # Runs the upward lookup.
       # @yield optional matcher used instead of file existence checks
-      # @yieldparam path [String] candidate path
+      # @yieldparam path [String] absolute candidate path
       # @yieldreturn [Boolean]
       # @return [Sevgi::Function::Location, nil] found location, or nil
-      # @raise [Errno::ENOENT] when the start directory cannot be entered
+      # @raise [Errno::ENOENT] when the start directory does not exist
+      # @raise [Errno::ENOTDIR] when the start path is not a directory
       def call(&block)
-        origin = ::Dir.pwd
-        ::Dir.chdir(start)
+        validate_start!
 
-        here = ::Dir.pwd
-        until (found = match(&block))
-          ::Dir.chdir("..")
-          ::Dir.pwd == here ? return : here = ::Dir.pwd
+        each_parent(start) do |here|
+          next unless (found = match(here, &block))
+
+          slug, file = found
+
+          return Location[file, slug, here]
         end
-
-        Location[::File.expand_path(found, here), found, here]
-      ensure
-        ::Dir.chdir(origin)
       end
 
       private
 
-      def match(&block)
-        finder = block ||
-          if exclude.nil?
-            proc { |path| ::File.exist?(path) }
-          else
-            proc { |path| !exclude.include?(::File.expand_path(path)) && ::File.exist?(path) }
-          end
+      def each_parent(here)
+        loop do
+          yield here
 
-        paths.find { finder.call(it) }
+          parent = ::File.dirname(here)
+          break if parent == here
+
+          here = parent
+        end
+      end
+
+      def excluded?(candidate)
+        exclude&.include?(candidate)
+      end
+
+      def match(here, &block)
+        paths.each do |path|
+          candidate = ::File.expand_path(path, here)
+          next if !block && excluded?(candidate)
+
+          return [path, candidate] if (block || proc { ::File.exist?(it) }).call(candidate)
+        end
+
+        nil
+      end
+
+      def validate_start!
+        raise ::Errno::ENOENT, start unless ::File.exist?(start)
+        raise ::Errno::ENOTDIR, start unless ::File.directory?(start)
       end
     end
 

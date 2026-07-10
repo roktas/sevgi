@@ -49,6 +49,54 @@ module Sevgi
         end
       end
 
+      def test_locate_custom_matcher_receives_absolute_paths
+        ::Dir.mktmpdir do |dir|
+          start = ::File.join(dir, "child")
+          ::FileUtils.mkdir_p(start)
+          file = ::File.join(dir, "target.sevgi")
+          ::File.write(file, "")
+
+          seen = []
+          location = Locate.(["target.sevgi"], start) do |candidate|
+            seen << candidate
+            ::File.exist?(candidate)
+          end
+
+          assert_equal(file, location.file)
+          assert(seen.all? { it.start_with?("/") })
+        end
+      end
+
+      def test_locate_concurrent_calls_keep_results_and_cwd
+        origin = ::Dir.pwd
+
+        ::Dir.mktmpdir do |dir|
+          files = prepare_concurrent_tree(dir)
+          ready = Queue.new
+          release = {a: Queue.new, b: Queue.new}
+          results = Queue.new
+
+          a = run_controlled_locate(:a, files, ready, release, results)
+          assert_equal(:a, ready.pop)
+
+          b = run_controlled_locate(:b, files, ready, release, results)
+          assert_equal(:b, ready.pop)
+
+          release[:a].push(true)
+          a.join
+
+          release[:b].push(true)
+          b.join
+
+          found = 2.times.to_h { results.pop }
+
+          assert_equal(files[:a][:file], found[:a].file)
+          assert_equal(files[:b][:file], found[:b].file)
+        end
+
+        assert_equal(origin, ::Dir.pwd)
+      end
+
       def test_locate_restores_working_directory
         origin = ::Dir.pwd
 
@@ -57,6 +105,38 @@ module Sevgi
         end
 
         assert_equal(origin, ::Dir.pwd)
+      end
+
+      private
+
+      def controlled_match(label, files, ready, release)
+        proc do |candidate|
+          if ::File.expand_path(candidate) == files[label][:file]
+            ready.push(label)
+            release[label].pop
+          end
+
+          ::File.exist?(candidate)
+        end
+      end
+
+      def prepare_concurrent_tree(dir)
+        %i[a b].to_h do |label|
+          parent = ::File.join(dir, label.to_s)
+          start = ::File.join(parent, "child")
+          file = ::File.join(parent, "#{label}.sevgi")
+          ::FileUtils.mkdir_p(start)
+          ::File.write(file, "")
+
+          [label, {file:, start:}]
+        end
+      end
+
+      def run_controlled_locate(label, files, ready, release, results)
+        Thread.new do
+          location = Locate.(["#{label}.sevgi"], files[label][:start], &controlled_match(label, files, ready, release))
+          results.push([label, location])
+        end
       end
     end
   end
