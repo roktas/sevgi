@@ -2,6 +2,10 @@
 
 module Sevgi
   class Executor
+    # Raised when a source attempts to load another source already active in the same scope.
+    class CycleError < ::Sevgi::Error
+    end
+
     # Wraps an exception raised while executing Sevgi script source.
     class Error < ::Sevgi::Error
       # @!attribute [r] error

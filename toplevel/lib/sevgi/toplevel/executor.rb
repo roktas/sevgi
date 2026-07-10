@@ -36,7 +36,7 @@ module Sevgi
       start = ::File.dirname(caller_locations(1..1).first.path)
 
       files.each do |file|
-        location = F.locate(file, start, exclude: start)
+        location = F.locate(file, start)
 
         ::Sevgi::Executor.load(location.file)
       end

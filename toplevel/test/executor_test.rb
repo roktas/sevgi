@@ -79,10 +79,10 @@ module Sevgi
         ],
         result.stack
       )
-      assert_equal("recursive load", result.error.message)
+      assert_instance_of(Executor::CycleError, result.error.error)
+      assert_match(/Recursive Sevgi load/, result.error.message)
       assert_equal(
         [
-          "#{FIXTURES_DIR}/test_load_recursive_outer.sevgi:3",
           "#{FIXTURES_DIR}/test_load_recursive_inner.sevgi:3",
           "#{FIXTURES_DIR}/test_load_recursive_outer.sevgi:6"
         ].map { it.delete_prefix("#{Dir.pwd}/") },
@@ -138,6 +138,48 @@ module Sevgi
         assert_match(/sevgi_missing_nested_dependency/, result.error.message)
         refute_match(/outer/, result.error.message)
         assert_equal(["script.sevgi"], result.stack)
+      end
+    end
+
+    def test_execute_file_rejects_direct_load_cycle
+      Dir.mktmpdir do |dir|
+        file = File.join(dir, "self.sevgi")
+        File.write(file, "Load 'self'\n")
+
+        result = Sevgi.execute_file(file)
+
+        assert_instance_of(Executor::CycleError, result.error.error)
+        assert_match(/Recursive Sevgi load/, result.error.message)
+        assert_equal([file], result.stack)
+      end
+    end
+
+    def test_execute_file_rejects_two_file_cycle
+      Dir.mktmpdir do |dir|
+        first = File.join(dir, "first.sevgi")
+        second = File.join(dir, "second.sevgi")
+        File.write(first, "Load 'second'\n")
+        File.write(second, "Load 'first'\n")
+
+        result = Sevgi.execute_file(first)
+
+        assert_instance_of(Executor::CycleError, result.error.error)
+        assert_equal([first, second], result.stack)
+        assert_includes(result.error.message, first)
+      end
+    end
+
+    def test_execute_file_rejects_symlink_cycle_by_canonical_identity
+      Dir.mktmpdir do |dir|
+        real = File.join(dir, "real.sevgi")
+        alias_file = File.join(dir, "alias.sevgi")
+        File.write(real, "Load 'alias'\n")
+        File.symlink(real, alias_file)
+
+        result = Sevgi.execute_file(real)
+
+        assert_instance_of(Executor::CycleError, result.error.error)
+        assert_equal([real, alias_file], result.stack)
       end
     end
 

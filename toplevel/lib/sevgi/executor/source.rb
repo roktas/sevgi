@@ -29,6 +29,14 @@ module Sevgi
       # Returns the stack key used for this source.
       # @return [String] source file name
       def key = file
+
+      # Returns the canonical identity used for active-load cycle detection.
+      # @return [String] canonical source identity
+      def identity
+        ::File.realpath(file)
+      rescue ::SystemCallError
+        ::File.expand_path(file)
+      end
     end
   end
 end

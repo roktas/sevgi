@@ -26,6 +26,7 @@ module Sevgi
         @recent = nil
         @error = nil
         @stack = {}
+        @active = {}
       end
 
       # Reports whether execution captured an error.
@@ -41,17 +42,9 @@ module Sevgi
       # @api private
       def call(source, receiver = nil, &boot)
         push(source)
+        execute(source, receiver, &boot)
 
-        tap do
-          @recent = run(source, receiver, &boot)
-
-          # rubocop:disable Lint/RescueException
-        rescue Exception => e
-          @error = Executor::Error.new(e, self)
-
-          throw(:result, self)
-          # rubocop:enable Lint/RescueException
-        end
+        self
       end
 
       # Captures a preprocessing failure for this scope.
@@ -108,6 +101,33 @@ module Sevgi
 
       def push(source)
         tap { @stack[source.key] = source }
+      end
+
+      def enter(source)
+        if @active.key?(source.identity)
+          raise Executor::CycleError, "Recursive Sevgi load: #{source.file}"
+        end
+
+        @active[source.identity] = source
+        source
+      end
+
+      def leave(source)
+        return unless source
+
+        @active.delete(source.identity) if @active[source.identity].equal?(source)
+      end
+
+      def execute(source, receiver, &boot)
+        active = enter(source)
+        @recent = run(source, receiver, &boot)
+        # rubocop:disable Lint/RescueException
+      rescue Exception => e
+        @error = Executor::Error.new(e, self)
+        throw(:result, self)
+        # rubocop:enable Lint/RescueException
+      ensure
+        leave(active)
       end
 
       def run(source, receiver, &boot)
