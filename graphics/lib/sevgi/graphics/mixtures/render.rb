@@ -179,6 +179,13 @@ module Sevgi
           #   @raise [Sevgi::ArgumentError] when style is missing or unsupported
           def self.call(root, **) = new(root, **).call(*root.class.preambles)
 
+          # Renders a root element without document preambles.
+          # @param root [Sevgi::Graphics::Element] root element
+          # @param options [Hash] renderer options
+          # @return [String] SVG fragment source
+          # @raise [Sevgi::ArgumentError] when style is missing or unsupported
+          def self.fragment(root, **options) = new(root, **options).call
+
           # Appends rendered lines to the output buffer.
           # @param depth [Integer, nil] indentation depth
           # @param lines [Array<String>] rendered lines
@@ -315,10 +322,11 @@ module Sevgi
         def Render(**) = Renderer.(self, **)
 
         # Renders only this element's children.
-        # Child render output preserves each child's text whitespace and inline mixed-content formatting.
+        # Child render output omits document preambles and preserves each child's text whitespace and inline
+        # mixed-content formatting.
         # @param separator [String] separator between child documents
-        # @return [String] rendered children
-        def RenderChildren(separator = "\n\n") = children.map(&:Render).join(separator)
+        # @return [String] rendered child fragments
+        def RenderChildren(separator = "\n\n") = children.map { Renderer.fragment(it) }.join(separator)
       end
     end
   end

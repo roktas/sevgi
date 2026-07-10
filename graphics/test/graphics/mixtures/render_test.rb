@@ -262,6 +262,12 @@ module Sevgi
           assert_match(/\bunknown\b/, error.message)
         end
 
+        def test_render_children_returns_empty_fragments
+          %i[default minimal html inkscape].each do |profile|
+            assert_equal("", SVG(profile).RenderChildren())
+          end
+        end
+
         def test_render_children_joins_top_level_children
           doc = SVG(DOC) do
             rect(id: "one")
@@ -269,6 +275,28 @@ module Sevgi
           end
 
           assert_render("<rect id=\"one\"/>\n\n<circle id=\"two\"/>", doc.RenderChildren(), fragment: true)
+        end
+
+        def test_render_children_omits_document_preambles
+          %i[default minimal html inkscape].each do |profile|
+            actual = SVG(profile) { rect }.RenderChildren()
+
+            assert_render("<rect/>", actual, fragment: true)
+            refute_includes(actual, "<?xml")
+          end
+        end
+
+        def test_render_children_omits_preambles_for_multiple_children
+          %i[default minimal html inkscape].each do |profile|
+            actual = SVG(profile) do
+              rect
+              circle
+            end
+              .RenderChildren()
+
+            assert_render("<rect/>\n\n<circle/>", actual, fragment: true)
+            refute_includes(actual, "<?xml")
+          end
         end
 
         private
