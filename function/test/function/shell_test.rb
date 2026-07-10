@@ -11,24 +11,83 @@ module Sevgi
   module Function
     module Shell
       class ShellTest < Minitest::Test
-        def teardown
-          clear_executable_cache
+        def test_executable_accepts_absolute_path
+          with_executable("absolute-tool") do |path|
+            assert(Function.executable?(path))
+          end
         end
 
-        def test_executable_caches_positive_result
-          with_executable("cached-tool") do |path|
-            assert(Function.executable?("cached-tool"))
+        def test_executable_accepts_relative_path
+          Dir.mktmpdir do |dir|
+            path = ::File.join(dir, "relative-tool")
+            ::File.write(path, "#!/bin/sh\n")
+            FileUtils.chmod("+x", path)
 
-            FileUtils.rm(path)
+            Dir.chdir(dir) do
+              assert(Function.executable?("./relative-tool"))
+            end
+          end
+        end
 
-            assert(Function.executable?("cached-tool"))
+        def test_executable_rejects_directories
+          Dir.mktmpdir do |dir|
+            executable_dir = ::File.join(dir, "tool-dir")
+            ::Dir.mkdir(executable_dir)
+            FileUtils.chmod("+x", executable_dir)
+
+            with_path(dir) do
+              refute(Function.executable?("tool-dir"))
+            end
+          end
+        end
+
+        def test_executable_accepts_symlinked_files
+          Dir.mktmpdir do |dir|
+            target = ::File.join(dir, "target-tool")
+            link = ::File.join(dir, "linked-tool")
+            ::File.write(target, "#!/bin/sh\n")
+            FileUtils.chmod("+x", target)
+            ::File.symlink(target, link)
+
+            with_path(dir) do
+              assert(Function.executable?("linked-tool"))
+            end
+          end
+        end
+
+        def test_executable_accepts_empty_path_segment
+          Dir.mktmpdir do |dir|
+            path = ::File.join(dir, "local-tool")
+            ::File.write(path, "#!/bin/sh\n")
+            FileUtils.chmod("+x", path)
+
+            Dir.chdir(dir) do
+              with_exact_path(["", ENV.fetch("PATH", nil)].compact.join(::File::PATH_SEPARATOR)) do
+                assert(Function.executable?("local-tool"))
+              end
+            end
+          end
+        end
+
+        def test_executable_observes_path_mutation
+          Dir.mktmpdir do |dir|
+            path = ::File.join(dir, "mutable-tool")
+
+            with_exact_path("") do
+              refute(Function.executable?("mutable-tool"))
+
+              ::File.write(path, "#!/bin/sh\n")
+              FileUtils.chmod("+x", path)
+              ENV["PATH"] = dir
+
+              assert(Function.executable?("mutable-tool"))
+            end
           end
         end
 
         def test_executable_returns_false_without_path
           path = ENV.fetch("PATH", nil)
           ENV.delete("PATH")
-          clear_executable_cache
 
           refute(Function.executable?("missing-tool"))
         ensure
@@ -40,25 +99,7 @@ module Sevgi
           refute(Function.executable?(""))
         end
 
-        def test_executable_caches_negative_result
-          Dir.mktmpdir do |dir|
-            with_path(dir) do
-              clear_executable_cache
-
-              refute(Function.executable?("missing-tool"))
-
-              path = ::File.join(dir, "missing-tool")
-              ::File.write(path, "#!/bin/sh\n")
-              FileUtils.chmod("+x", path)
-
-              refute(Function.executable?("missing-tool"))
-            end
-          end
-        end
-
         def test_executable_bang_raises_for_missing_program
-          clear_executable_cache
-
           error = assert_raises(Error) { Function.executable!("missing-tool --version") }
 
           assert_equal("Missing executable: missing-tool", error.message)
@@ -235,12 +276,6 @@ module Sevgi
           end
         end
 
-        def clear_executable_cache
-          return unless Function.instance_variable_defined?(:@executable_cache)
-
-          Function.remove_instance_variable(:@executable_cache)
-        end
-
         def with_executable(program)
           Dir.mktmpdir do |dir|
             path = ::File.join(dir, program)
@@ -248,10 +283,17 @@ module Sevgi
             FileUtils.chmod("+x", path)
 
             with_path(dir) do
-              clear_executable_cache
               yield path
             end
           end
+        end
+
+        def with_exact_path(value)
+          path = ENV.fetch("PATH", nil)
+          ENV["PATH"] = value
+          yield
+        ensure
+          ENV["PATH"] = path
         end
 
         def with_path(dir)

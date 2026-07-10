@@ -6,17 +6,17 @@ module Sevgi
   module Function
     # Shell execution helpers and executable lookup utilities.
     module Shell
-      # Checks whether a program exists in PATH.
-      # @param program [Object] program name
-      # @return [Boolean] true when an executable with this name is found
+      # Checks whether a program exists and is executable.
+      # @param program [Object] program name, absolute path, or relative slash-containing path
+      # @return [Boolean] true when an executable regular file is found
+      # @note PATH is evaluated on every call; empty PATH segments mean the current directory.
       def executable?(program)
         program = program.to_s
         return false if program.empty?
+        return executable_file?(program) if slash_path?(program)
 
-        executable_cache.fetch(program) do
-          executable_cache[program] = ENV.fetch("PATH", "").split(::File::PATH_SEPARATOR).any? do |dir|
-            ::File.executable?(::File.join(dir, program))
-          end
+        ENV.fetch("PATH", "").split(::File::PATH_SEPARATOR, -1).any? do |dir|
+          executable_file?(::File.join(dir.empty? ? "." : dir, program))
         end
       end
 
@@ -226,7 +226,13 @@ module Sevgi
 
       private
 
-      def executable_cache = @executable_cache ||= {}
+      def executable_file?(path)
+        ::File.file?(path) && ::File.executable?(path)
+      end
+
+      def slash_path?(program)
+        program.include?(::File::SEPARATOR) || (::File::ALT_SEPARATOR && program.include?(::File::ALT_SEPARATOR))
+      end
     end
 
     extend Shell

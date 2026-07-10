@@ -77,8 +77,13 @@ module Sevgi
       # @param length [Numeric] total length
       # @param division [Numeric] division size
       # @return [Integer]
-      # @raise [ZeroDivisionError] when division is zero
-      def count(length, division) = (length / division.to_f).to_i
+      # @raise [Sevgi::ArgumentError] when division is zero
+      def count(length, division)
+        divisor = division.to_f
+        ArgumentError.("Division must not be zero") if divisor.zero?
+
+        (length / divisor).to_i
+      end
 
       # Compares two numeric values after approximate rounding.
       # @param left [Numeric] left operand

@@ -33,6 +33,19 @@ module Sevgi
             Function.pluralize("CamelOctopus")
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
         end
+
+        def test_pluralize_uses_converted_string
+          object = Object.new
+
+          [
+            "1s",
+            Function.pluralize(1),
+            "",
+            Function.pluralize(nil),
+            "#{object}s",
+            Function.pluralize(object)
+          ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+        end
       end
     end
   end

@@ -62,6 +62,12 @@ module Sevgi
           assert_equal(1.23, Function.round(1.2345, 2))
         end
 
+        def test_count_rejects_zero_division
+          error = assert_raises(ArgumentError) { Function.count(1, 0) }
+
+          assert_equal("Division must not be zero", error.message)
+        end
+
         def test_trig_helpers_use_degrees
           [
             1.0,

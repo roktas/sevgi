@@ -22,19 +22,17 @@ module Sevgi
     # Lightweight English pluralization helper.
     module Pluralize
       # Words that should not be pluralized.
-      UNCOUNTABLES = Hash[
-        *%w[
-          sheep
-          fish
-          sheep
-          series
-          species
-          money
-          rice
-          information
-          equipment
-        ].map { [it, true] }.flatten
+      UNCOUNTABLES = %w[
+        equipment
+        fish
+        information
+        money
+        rice
+        series
+        sheep
+        species
       ]
+        .to_h { [it, true] }
         .freeze
 
       # Singular-to-plural forms that do not follow suffix rules.
@@ -99,7 +97,7 @@ module Sevgi
       def pluralize(word)
         result = word.to_s.dup
 
-        return result if word.empty? || UNCOUNTABLES.key?(result) || PLURALS.key?(result)
+        return result if result.empty? || UNCOUNTABLES.key?(result) || PLURALS.key?(result)
         return IRREGULARS[result] if IRREGULARS.key?(result)
 
         RULES.each { |(rule, replacement)| break if result.sub!(rule, replacement) }
