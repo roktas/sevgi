@@ -5,9 +5,15 @@ require "forwardable"
 module Sevgi
   module Graphics
     module Mixtures
-      # Internal traversal stop token.
+      # Traversal stop token returned by {Core#Stay}.
+      #
+      # @!attribute [r] value
+      #   @return [Object] value returned from traversal
+      Stop = Data.define(:value)
+
+      # Internal traversal engine.
       # @api private
-      Traversal = Data.define(:value) do
+      module Traversal
         # Runs a depth-first traversal.
         # @param element [Sevgi::Graphics::Element] starting element
         # @param depth [Integer] starting depth
@@ -21,7 +27,7 @@ module Sevgi
         end
 
         def self.stop(value)
-          throw(:traversal, value.value) if value.is_a?(self)
+          throw(:traversal, value.value) if value.is_a?(Stop)
         end
 
         def self.visit(element, depth, leave, &block)
@@ -172,8 +178,8 @@ module Sevgi
         # @overload Stay(value)
         #   Wraps a traversal return value as a stop token.
         #   @param value [Object] value returned from traversal
-        #   @return [Sevgi::Graphics::Mixtures::Traversal]
-        def Stay(...) = Traversal.new(...)
+        #   @return [Sevgi::Graphics::Mixtures::Stop]
+        def Stay(...) = Stop.new(...)
 
         # Traverses the subtree depth-first.
         # @param depth [Integer] starting depth
@@ -196,7 +202,7 @@ module Sevgi
           element = self
 
           loop do
-            yield(element, height).tap { return it.value if it.is_a?(Traversal) }
+            yield(element, height).tap { return it.value if it.is_a?(Stop) }
 
             break if element.Root?()
 

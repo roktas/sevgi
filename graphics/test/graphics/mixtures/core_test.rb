@@ -235,6 +235,14 @@ module Sevgi
           assert_equal("target", found[:id])
         end
 
+        def test_stay_returns_public_stop_token
+          doc = SVG(id: "main")
+          token = doc.Stay(:done)
+
+          assert_instance_of(Stop, token)
+          assert_equal(:done, token.value)
+        end
+
         def test_traverse_up_visits_ancestors
           descendant = nil
 

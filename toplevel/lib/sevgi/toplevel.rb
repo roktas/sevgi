@@ -18,9 +18,10 @@ module Sevgi
       def inject(base)
         return if base.instance_variable_defined?("@_toplevel_injected_")
 
-        target = base.is_a?(::Module) ? base : base.class
-        @constants.each do |name, constant|
-          target.const_set(name, constant) unless target.const_defined?(name, false)
+        if base.is_a?(::Module)
+          @constants.each do |name, constant|
+            base.const_set(name, constant) unless base.const_defined?(name, false)
+          end
         end
 
         base.instance_variable_set("@_toplevel_injected_", true)
@@ -31,7 +32,7 @@ module Sevgi
       end
     end
 
-    # Injects promoted constants when the DSL is included.
+    # Injects promoted constants when the DSL is included in a module or class.
     # @param base [Module] the class or module receiving promoted constants
     # @return [void]
     # @api private
@@ -40,9 +41,11 @@ module Sevgi
       inject(base)
     end
 
-    # Injects promoted constants when the DSL is extended.
-    # @param base [Object] the object or module receiving promoted constants
+    # Injects promoted constants when the DSL is extended by a module.
+    # @param base [Object] the object or module receiving the DSL methods
     # @return [void]
+    # @note Constants are promoted only to modules/classes. Extending an ordinary object installs methods without
+    #   writing constants to `Object`.
     # @api private
     def self.extended(base)
       super

@@ -2,6 +2,16 @@
 
 module Sevgi
   module Function
+    # Found file location returned by locate helpers.
+    #
+    # @!attribute [r] file
+    #   @return [String] absolute matching file path
+    # @!attribute [r] slug
+    #   @return [String] candidate path that matched
+    # @!attribute [r] dir
+    #   @return [String] directory where the match was found
+    Location = Data.define(:file, :slug, :dir)
+
     # Locates one of several candidate files by walking upward from a start directory.
     class Locate
       # @overload call(paths, start = Dir.pwd, exclude: nil, &block)
@@ -12,12 +22,8 @@ module Sevgi
       #   @yield optional matcher used instead of file existence checks
       #   @yieldparam path [String] candidate path
       #   @yieldreturn [Boolean]
-      #   @return [Sevgi::Function::Locate::Location, nil] found location, or nil
+      #   @return [Sevgi::Function::Location, nil] found location, or nil
       def self.call(*, **, &block) = new(*, **).call(&block)
-
-      Location = Data.define(:file, :slug, :dir)
-
-      private_constant :Location
 
       # @!attribute [r] paths
       #   @return [Array<String>] candidate paths
@@ -42,7 +48,7 @@ module Sevgi
       # @yield optional matcher used instead of file existence checks
       # @yieldparam path [String] candidate path
       # @yieldreturn [Boolean]
-      # @return [Sevgi::Function::Locate::Location, nil] found location, or nil
+      # @return [Sevgi::Function::Location, nil] found location, or nil
       # @raise [Errno::ENOENT] when the start directory cannot be entered
       def call(&block)
         origin = ::Dir.pwd
@@ -78,7 +84,7 @@ module Sevgi
     # @param start [String] directory where lookup starts
     # @param exclude [Array<String>, String, nil] paths ignored during lookup
     # @param extension [String] default extension added before lookup
-    # @return [Sevgi::Function::Locate::Location] found location
+    # @return [Sevgi::Function::Location] found location
     # @raise [Sevgi::Error] when no matching file exists
     def self.locate(filename, start, exclude: nil, extension: EXTENSION)
       Locate.(F.qualify(filename, extension), start, exclude:).tap do |path|

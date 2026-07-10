@@ -17,6 +17,7 @@ module Sevgi
 
           location = Function.locate("target", start)
 
+          assert_instance_of(Function::Location, location)
           assert_equal(file, location.file)
           assert_equal("target.sevgi", location.slug)
           assert_equal(dir, location.dir)

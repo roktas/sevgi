@@ -183,6 +183,8 @@ module Sevgi
           [
             SVG(:minimal, :executor_test_card).Render(validate: false),
             F.pluralize("cat"),
+            F.equal?(Sevgi::F),
+            F.respond_to?(:existing!),
             Origin,
             Export
           ]
@@ -198,10 +200,14 @@ module Sevgi
         result.recent[0],
         "cats",
         result.recent[1],
-        Geometry::Origin,
+        true,
         result.recent[2],
+        true,
+        result.recent[3],
+        Geometry::Origin,
+        result.recent[4],
         Sundries::Export,
-        result.recent[3]
+        result.recent[5]
       ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
     end
 

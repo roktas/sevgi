@@ -26,9 +26,11 @@ def SVG(...) = Sevgi::Graphics.SVG(...)
 
 # Full top-level API for Sevgi library and script consumers.
 #
-# Including or extending this module installs DSL methods such as `Paper`, `Load`,
-# and `Grid`, plus convenience constants such as `F`, `Geometry`, `Origin`, and
-# `Export`.
+# Including this module in a class or module installs DSL methods such as
+# `Paper`, `Load`, and `Grid`, plus convenience constants such as `F`,
+# `Geometry`, `Origin`, and `Export`. Extending a module does the same.
+# Extending an ordinary object installs the methods only and does not write
+# promoted constants to `Object`.
 #
 # @example Include the DSL in an object
 #   class Drawing
@@ -50,6 +52,7 @@ module Sevgi
   # Installs the full toplevel DSL into an extending object or module.
   # @param base [Object] the receiver extended with the DSL methods
   # @return [void]
+  # @note Promoted constants are written only when base is a module or class.
   # @api private
   def self.extended(base)
     super

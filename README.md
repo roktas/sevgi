@@ -97,10 +97,11 @@ end
 
 ### `function` - `Sevgi::Function`
 
-General helper methods used across all components (for example, `F.round`). For convenience, all methods can be called
-through `F` instead of `Function`. This component contains general-purpose code that is used at least a few times across
-multiple components. Helper methods or objects that are specific to one component live in that component. For larger
-helper **objects** that are not specific to any component, prefer the `sundries` component.
+General helper methods used across all components (for example, `F.round`). `F` is the same public object as
+`Sevgi::Function` in library, included, and script modes, so all function helpers are available through the same alias.
+This component contains general-purpose code that is used at least a few times across multiple components. Helper
+methods or objects that are specific to one component live in that component. For larger helper **objects** that are not
+specific to any component, prefer the `sundries` component.
 
 ### `geometry` - `Sevgi::Geometry`
 
@@ -142,8 +143,9 @@ be useful in various scenarios.
 
 ### `toplevel` - `Sevgi::Toplevel`
 
-This component injects selected library symbols (for example, `SVG`) into the top level, especially for use in "script"
-mode.
+This component provides the full `include Sevgi` / `extend Sevgi` DSL. Classes and modules receive promoted constants
+such as `F`, `Geometry`, `Origin`, and `Export`; extending an ordinary object installs DSL methods without mutating
+global `Object` constants.
 
 ## Roadmap
 
