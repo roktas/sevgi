@@ -85,6 +85,16 @@ module Sevgi
         refute(Standard.model?(:missing, :SomeElements))
       end
 
+      def test_missing_lookup_doesnt_pollute_cache
+        refute(Standard.specification(:missing))
+        Specification.send(:charge)
+
+        cache = Specification.instance_variable_get(:@spec)
+        refute_includes(cache.keys, :missing)
+      ensure
+        Specification.send(:flush)
+      end
+
       def test_expand_preserves_raw_specification_data
         Specification.import(
           agentSpec: {

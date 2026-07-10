@@ -131,12 +131,15 @@ module Sevgi
       @spec = {}
 
       def expand(name)
-        @spec[name] ||= if data[name]
-          data[name].transform_values { |value| value.is_a?(::Array) ? value.dup : value }.tap do |spec|
+        return unless data.key?(name)
+
+        @spec[name] ||= data
+          .fetch(name)
+          .transform_values { |value| value.is_a?(::Array) ? value.dup : value }
+          .tap do |spec|
             expand_names(spec[:elements], Element.data)
             expand_names(spec[:attributes], Attribute.data)
           end
-        end
       end
 
       def expand_names(names, list)
