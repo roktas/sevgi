@@ -13,7 +13,7 @@ module Sevgi
         # Sweeps parallel lines across a lined element in both directions.
         #
         # Generated lines are boundary-to-boundary interior spans. A single
-        # sweep position can produce multiple lines for closed concave elements.
+        # sweep position can produce multiple lines for closed concave elements; open paths produce no interior lines.
         # @param element [Sevgi::Geometry::Element::Lined] element to intersect
         # @param initial [Sevgi::Geometry::Point, Array<Numeric>] point on the initial sweep line
         # @param angle [Numeric] clockwise sweep line angle in degrees
@@ -39,7 +39,7 @@ module Sevgi
         # Sweeps parallel lines across a lined element and requires at least one result.
         #
         # Generated lines are boundary-to-boundary interior spans. A single
-        # sweep position can produce multiple lines for closed concave elements.
+        # sweep position can produce multiple lines for closed concave elements; open paths produce no interior lines.
         # @param element [Sevgi::Geometry::Element::Lined] element to intersect
         # @param initial [Sevgi::Geometry::Point, Array<Numeric>] point on the initial sweep line
         # @param angle [Numeric] clockwise sweep line angle in degrees
@@ -64,7 +64,7 @@ module Sevgi
         # Sweeps parallel lines in one signed direction from an equation.
         #
         # Generated lines are boundary-to-boundary interior spans. A single
-        # sweep position can produce multiple lines for closed concave elements.
+        # sweep position can produce multiple lines for closed concave elements; open paths produce no interior lines.
         # @param element [Sevgi::Geometry::Element::Lined] element to intersect
         # @param equation [Sevgi::Geometry::Equation] initial sweep equation
         # @param step [Numeric] signed distance between sweep lines
@@ -97,6 +97,8 @@ module Sevgi
         private
 
         def interior_lines(element, equation, points)
+          return [] if element.class.respond_to?(:open?) && element.class.open?
+
           if points.size == 2
             line = simple_line(points)
 

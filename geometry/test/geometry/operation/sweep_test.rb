@@ -122,6 +122,21 @@ module Sevgi
           assert_empty(lines)
         end
 
+        def test_sweep_open_polyline_has_no_interiors
+          polyline = Polyline.([0, 0], [2, 2], [4, 0])
+
+          assert_empty(Operation.unisweep(polyline, Equation.horizontal(1), 10))
+          assert_raises(OperationError) do
+            Operation.sweep!(polyline, initial: [2, 1], angle: 0, step: 1)
+          end
+        end
+
+        def test_sweep_self_crossing_open_polyline_has_no_interiors
+          polyline = Polyline.([0, 0], [2, 2], [0, 2], [2, 0])
+
+          assert_empty(Operation.unisweep(polyline, Equation.horizontal(1), 10))
+        end
+
         def test_sweep_keeps_vertex_crossing_span
           diamond = Polygon.([1, 0], [2, 1], [1, 2], [0, 1])
           lines = Operation.unisweep(diamond, Equation.horizontal(1), 10)
