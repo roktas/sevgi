@@ -12,6 +12,7 @@ module Sevgi
   class PackageTest < Minitest::Test
     ROOT = ::File.expand_path("../..", __dir__)
     VERSION = ::File.read(::File.join(ROOT, "VERSION")).strip
+    MINIMUM_RUBY = "3.4.0"
     CLEAN_ENV = {
       "RUBYLIB" => nil,
       "RUBYOPT" => nil
@@ -59,10 +60,29 @@ module Sevgi
         assert_includes(readme, "gem install #{component.name}", component.name)
         assert_includes(readme, "require \"#{component.entrypoint}\"", component.name)
         assert_includes(readme, "Native prerequisites", component.name)
+        assert_includes(readme, "Ruby #{MINIMUM_RUBY} or newer", component.name)
         assert_includes(readme, "https://sevgi.roktas.dev", component.name)
         assert_includes(readme, "https://github.com/roktas/sevgi", component.name)
         assert_includes(readme, "https://www.rubydoc.info/gems/#{component.name}", component.name)
       end
+    end
+
+    def test_gemspec_ruby_floor_matches_documentation
+      COMPONENTS.each do |component|
+        gemspec = ::Gem::Specification.load(::File.join(ROOT, component.dir, "#{component.name}.gemspec"))
+
+        assert_equal(">= #{MINIMUM_RUBY}", gemspec.required_ruby_version.to_s, component.name)
+      end
+    end
+
+    def test_test_workflow_covers_ruby_floor_and_development_ruby
+      workflow = ::File.read(::File.join(ROOT, ".github/workflows/test.yml"))
+      development_ruby = ::File.read(::File.join(ROOT, ".ruby-version")).strip
+
+      assert_includes(workflow, "\"#{MINIMUM_RUBY.delete_suffix(".0")}\"")
+      assert_includes(workflow, "\"#{development_ruby}\"")
+      assert_includes(workflow, "bundle exec rake test")
+      assert_includes(workflow, "bundle exec rake build")
     end
 
     private

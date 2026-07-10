@@ -22,6 +22,10 @@ tile = Sevgi::Sundries::Tile.new(rect)
 tile.box.height
 ```
 
+## Ruby compatibility
+
+Requires Ruby 3.4.0 or newer. CI verifies Ruby 3.4 and the current development Ruby from `.ruby-version`.
+
 ## Native prerequisites
 
 Basic ruler, grid, and tile helpers need only Ruby dependencies. PDF/PNG export helpers require Cairo and librsvg

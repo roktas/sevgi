@@ -21,6 +21,10 @@ Sevgi::Standard.element?(:rect)
 Sevgi::Standard.attribute?(:width)
 ```
 
+## Ruby compatibility
+
+Requires Ruby 3.4.0 or newer. CI verifies Ruby 3.4 and the current development Ruby from `.ruby-version`.
+
 ## Native prerequisites
 
 None beyond Ruby and this gem's Ruby dependencies.

@@ -28,6 +28,10 @@ end.call
 sevgi drawing.sevgi
 ```
 
+## Ruby compatibility
+
+Requires Ruby 3.4.0 or newer. CI verifies Ruby 3.4 and the current development Ruby from `.ruby-version`.
+
 ## Native prerequisites
 
 The top-level gem installs Sevgi's standard components. Native export helpers come from `sevgi-sundries` and require

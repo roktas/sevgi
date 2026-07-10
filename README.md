@@ -71,6 +71,11 @@ extension.
 
 See [Showcase](showcase/srv) for examples and output.
 
+## Requirements
+
+Sevgi requires Ruby 3.4.0 or newer. CI verifies the minimum Ruby 3.4 line and the current development Ruby version
+recorded in `.ruby-version`.
+
 ## Project Structure
 
 The project consists of 8 components, with the core `graphics` component at the center. In alphabetical order, the
