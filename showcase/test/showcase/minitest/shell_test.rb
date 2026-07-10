@@ -2,6 +2,7 @@
 
 require "rbconfig"
 require "timeout"
+require "tmpdir"
 
 require_relative "../../test_helper"
 
@@ -65,9 +66,56 @@ module Sevgi
         assert_equal(["showcase"], result.out)
       end
 
+      def test_run_closes_stdin_without_input
+        result = Timeout.timeout(2) do
+          Shell.run(ruby, "-e", "puts STDIN.read.empty?")
+        end
+
+        assert_equal(["true"], result.out)
+      end
+
+      def test_run_cleans_up_when_input_block_raises
+        Dir.mktmpdir do |dir|
+          pidfile = File.join(dir, "pid")
+          script = <<~RUBY
+            File.write(#{pidfile.inspect}, Process.pid)
+            STDIN.read
+          RUBY
+          wait = method(:wait_for_file)
+
+          Timeout.timeout(5) do
+            assert_raises(RuntimeError) do
+              Shell.run(ruby, "-e", script) do
+                wait.call(pidfile)
+                raise "input failed"
+              end
+            end
+          end
+
+          assert_process_exited(Integer(File.read(pidfile)))
+        end
+      end
+
       private
 
+      def assert_process_exited(pid)
+        Timeout.timeout(2) do
+          loop do
+            Process.kill(0, pid)
+            sleep(0.05)
+          rescue Errno::ESRCH
+            break
+          end
+        end
+      end
+
       def ruby = RbConfig.ruby
+
+      def wait_for_file(path)
+        Timeout.timeout(2) do
+          sleep(0.01) until File.exist?(path)
+        end
+      end
     end
   end
 end

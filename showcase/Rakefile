@@ -107,13 +107,7 @@ if ::Dir.exist?("srv")
         if File.exist?(cfg = bin.yml) && (yaml = YAML.load_file(cfg)) && (color = yaml["dark"])
           say("***", t.name)
 
-          content = ::File.read(t.source)
-          color.each do |key, value|
-            content.gsub!(/(['"])#{Regexp.escape(key)}\1/, "\\1#{value}\\1")
-          end
-
-          File.write(t.name, content)
-          File.chmod(0777, t.name)
+          Sevgi::Showcase::Dark.apply_file(t.source, t.name, color)
         else
           say(">>>", t.name)
 

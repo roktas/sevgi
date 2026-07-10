@@ -45,11 +45,13 @@ module Sevgi
 
         # Runs a command and captures stdout, stderr, and exit status.
         # @param args [Array<String>] command and arguments
+        # @yield optional stdin writer evaluated with stdin as receiver
+        # @yieldreturn [Object]
         # @return [Sevgi::Test::Shell::Result]
+        # @raise [StandardError] when the input block raises; the child is terminated and reaped before propagation
         def run(*args, &block)
           out, err, status = Open3.popen3(*args) do |stdin, stdout, stderr, thread|
-            inputs(stdin, thread, &block) if block
-            outputs(stdout, stderr, thread)
+            capture(stdin, stdout, stderr, thread, &block)
           end
 
           Result[args, out, err, status.exitstatus]
@@ -57,21 +59,38 @@ module Sevgi
 
         private
 
-        def inputs(stdin, thread, &block)
-          stdin.instance_exec(thread, &block)
-          stdin.close unless stdin.closed?
+        # rubocop:disable Lint/RescueException
+        def capture(stdin, stdout, stderr, thread, &block)
+          trap = trap("INT") { handle_sigint(thread.pid) }
+          readers = outputs(stdout, stderr)
+
+          collect_capture(stdin, thread, readers, &block)
+        rescue Exception
+          cleanup_failed_capture(stdin, thread, readers)
+          raise
+        ensure
+          close_input(stdin)
+          trap("INT", trap) if trap
+        end
+        # rubocop:enable Lint/RescueException
+
+        def cleanup_failed_capture(stdin, thread, readers)
+          close_input(stdin)
+          stop_process(thread)
+          Array(readers).each(&:join)
         end
 
-        def outputs(stdout, stderr, thread)
-          # handle `^C`
-          trap = trap("INT") { handle_sigint(thread.pid) }
+        def close_input(stdin)
+          stdin.close unless stdin.closed?
+        rescue IOError
+          nil
+        end
 
-          out = Thread.new { stdout.readlines.map(&:chomp) }
-          err = Thread.new { stderr.readlines.map(&:chomp) }
+        def collect_capture(stdin, thread, readers, &block)
+          inputs(stdin, thread, &block)
+          close_input(stdin)
 
-          [out.value, err.value, thread.value]
-        ensure
-          trap("INT", trap) if trap
+          [readers[0].value, readers[1].value, thread.value]
         end
 
         def handle_sigint(pid)
@@ -86,6 +105,33 @@ module Sevgi
           @coathooks += 1
         rescue Errno::ESRCH
           warn("No process to kill.")
+        end
+
+        def inputs(stdin, thread, &block)
+          stdin.instance_exec(thread, &block) if block
+        end
+
+        def kill_process(signal, pid)
+          ::Process.kill(signal, pid)
+        rescue Errno::ESRCH
+          nil
+        end
+
+        def outputs(stdout, stderr)
+          [
+            Thread.new { stdout.readlines.map(&:chomp) },
+            Thread.new { stderr.readlines.map(&:chomp) }
+          ]
+        end
+
+        def stop_process(thread)
+          return unless thread&.alive?
+
+          kill_process("TERM", thread.pid)
+          return if thread.join(1)
+
+          kill_process("KILL", thread.pid)
+          thread.join
         end
       end
 

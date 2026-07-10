@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 
 CELL_SIZE = 20
-COLORS = %w[#FF6961 #77DD77 #FFD700].freeze
+COLORS = %w[#f27b72 #7fdc9c #f1c95b].freeze
 COLS = 8
 ROWS = 3
 

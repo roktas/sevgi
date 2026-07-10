@@ -6,28 +6,28 @@
       }
     ]]>
   </style>
-  <rect class="cell" x="0" y="0" width="20" height="20" rx="2" fill="#FF6961"/>
-  <rect class="cell" x="0" y="20" width="20" height="20" rx="2" fill="#77DD77"/>
-  <rect class="cell" x="0" y="40" width="20" height="20" rx="2" fill="#FFD700"/>
-  <rect class="cell" x="20" y="0" width="20" height="20" rx="2" fill="#77DD77"/>
-  <rect class="cell" x="20" y="20" width="20" height="20" rx="2" fill="#FFD700"/>
-  <rect class="cell" x="20" y="40" width="20" height="20" rx="2" fill="#FF6961"/>
-  <rect class="cell" x="40" y="0" width="20" height="20" rx="2" fill="#FFD700"/>
-  <rect class="cell" x="40" y="20" width="20" height="20" rx="2" fill="#FF6961"/>
-  <rect class="cell" x="40" y="40" width="20" height="20" rx="2" fill="#77DD77"/>
-  <rect class="cell" x="60" y="0" width="20" height="20" rx="2" fill="#FF6961"/>
-  <rect class="cell" x="60" y="20" width="20" height="20" rx="2" fill="#77DD77"/>
-  <rect class="cell" x="60" y="40" width="20" height="20" rx="2" fill="#FFD700"/>
-  <rect class="cell" x="80" y="0" width="20" height="20" rx="2" fill="#77DD77"/>
-  <rect class="cell" x="80" y="20" width="20" height="20" rx="2" fill="#FFD700"/>
-  <rect class="cell" x="80" y="40" width="20" height="20" rx="2" fill="#FF6961"/>
-  <rect class="cell" x="100" y="0" width="20" height="20" rx="2" fill="#FFD700"/>
-  <rect class="cell" x="100" y="20" width="20" height="20" rx="2" fill="#FF6961"/>
-  <rect class="cell" x="100" y="40" width="20" height="20" rx="2" fill="#77DD77"/>
-  <rect class="cell" x="120" y="0" width="20" height="20" rx="2" fill="#FF6961"/>
-  <rect class="cell" x="120" y="20" width="20" height="20" rx="2" fill="#77DD77"/>
-  <rect class="cell" x="120" y="40" width="20" height="20" rx="2" fill="#FFD700"/>
-  <rect class="cell" x="140" y="0" width="20" height="20" rx="2" fill="#77DD77"/>
-  <rect class="cell" x="140" y="20" width="20" height="20" rx="2" fill="#FFD700"/>
-  <rect class="cell" x="140" y="40" width="20" height="20" rx="2" fill="#FF6961"/>
+  <rect class="cell" x="0" y="0" width="20" height="20" rx="2" fill="#f27b72"/>
+  <rect class="cell" x="0" y="20" width="20" height="20" rx="2" fill="#7fdc9c"/>
+  <rect class="cell" x="0" y="40" width="20" height="20" rx="2" fill="#f1c95b"/>
+  <rect class="cell" x="20" y="0" width="20" height="20" rx="2" fill="#7fdc9c"/>
+  <rect class="cell" x="20" y="20" width="20" height="20" rx="2" fill="#f1c95b"/>
+  <rect class="cell" x="20" y="40" width="20" height="20" rx="2" fill="#f27b72"/>
+  <rect class="cell" x="40" y="0" width="20" height="20" rx="2" fill="#f1c95b"/>
+  <rect class="cell" x="40" y="20" width="20" height="20" rx="2" fill="#f27b72"/>
+  <rect class="cell" x="40" y="40" width="20" height="20" rx="2" fill="#7fdc9c"/>
+  <rect class="cell" x="60" y="0" width="20" height="20" rx="2" fill="#f27b72"/>
+  <rect class="cell" x="60" y="20" width="20" height="20" rx="2" fill="#7fdc9c"/>
+  <rect class="cell" x="60" y="40" width="20" height="20" rx="2" fill="#f1c95b"/>
+  <rect class="cell" x="80" y="0" width="20" height="20" rx="2" fill="#7fdc9c"/>
+  <rect class="cell" x="80" y="20" width="20" height="20" rx="2" fill="#f1c95b"/>
+  <rect class="cell" x="80" y="40" width="20" height="20" rx="2" fill="#f27b72"/>
+  <rect class="cell" x="100" y="0" width="20" height="20" rx="2" fill="#f1c95b"/>
+  <rect class="cell" x="100" y="20" width="20" height="20" rx="2" fill="#f27b72"/>
+  <rect class="cell" x="100" y="40" width="20" height="20" rx="2" fill="#7fdc9c"/>
+  <rect class="cell" x="120" y="0" width="20" height="20" rx="2" fill="#f27b72"/>
+  <rect class="cell" x="120" y="20" width="20" height="20" rx="2" fill="#7fdc9c"/>
+  <rect class="cell" x="120" y="40" width="20" height="20" rx="2" fill="#f1c95b"/>
+  <rect class="cell" x="140" y="0" width="20" height="20" rx="2" fill="#7fdc9c"/>
+  <rect class="cell" x="140" y="20" width="20" height="20" rx="2" fill="#f1c95b"/>
+  <rect class="cell" x="140" y="40" width="20" height="20" rx="2" fill="#f27b72"/>
 </svg>

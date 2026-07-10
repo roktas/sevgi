@@ -1,52 +1,55 @@
 #!/usr/bin/env -S ruby -S sevgi
 # frozen_string_literal: true
 
-WIDTH   = 150 # 15 cm width (ruler's length)
-HEIGHT  = 20  # 2  cm height
+# 15 cm width (ruler's length)
+WIDTH = 150
+# 2  cm height
+HEIGHT = 20
 
 STYLE = {
-  ".labels": { fill:   "white", font: "3pt monospace"             },
-  ".majors": { stroke: "white", "stroke-width": 0.2               },
-  ".halves": { stroke: "white", "stroke-width": 0.1               },
-  ".minors": { stroke: "white", "stroke-width": 0.1               },
-  ".frame":  { stroke: "white", "stroke-width": 0.1, fill: "none" }
+  ".labels": {fill: "white", font: "3pt monospace"},
+  ".majors": {stroke: "white", "stroke-width": 0.2},
+  ".halves": {stroke: "white", "stroke-width": 0.1},
+  ".minors": {stroke: "white", "stroke-width": 0.1},
+  ".frame": {stroke: "white", "stroke-width": 0.1, fill: "none"}
 }.freeze
 
-SVG width: "210mm", height: "50mm", viewBox: "0 0 210 50" do
-  css STYLE
+SVG(width: "210mm", height: "50mm", viewBox: "0 0 210 50") do
+  css(STYLE)
 
-  rect id: "frame", width: WIDTH, height: HEIGHT, class: "frame"
+  rect(id: "frame", width: WIDTH, height: HEIGHT, class: "frame")
 
-  layer id: "minors" do
+  layer(id: "minors") do
     length = 2
 
     (0..WIDTH).step(1) do |x|
-      VLineBy x:, y: 0, length: length, class: "minors"
-      VLineBy x:, y: HEIGHT, length: -length, class: "minors"
+      VLineBy(x:, y: 0, length: length, class: "minors")
+      VLineBy(x:, y: HEIGHT, length: -length, class: "minors")
     end
   end
 
-  layer id: "halves" do
+  layer(id: "halves") do
     length = 4
 
     (0..WIDTH).step(5) do |x|
-      VLineBy x:, y: 0, length: length, class: "minors"
-      VLineBy x:, y: HEIGHT, length: -length, class: "minors"
+      VLineBy(x:, y: 0, length: length, class: "halves")
+      VLineBy(x:, y: HEIGHT, length: -length, class: "halves")
     end
   end
 
-  layer id: "majors" do
+  layer(id: "majors") do
     length = 6
 
     (10..(WIDTH - 10)).step(10) do |x|
-      VLineBy x:, y: 0, length: length, class: "minors"
-      VLineBy x:, y: HEIGHT, length: -length, class: "minors"
+      VLineBy(x:, y: 0, length: length, class: "majors")
+      VLineBy(x:, y: HEIGHT, length: -length, class: "majors")
     end
 
-    layer id: "labels" do
+    layer(id: "labels") do
       (10..(WIDTH - 10)).step(10).each_with_index do |x, i|
-        text (i + 1).to_s, "text-anchor": "middle", x:, y: length + 5.5, class: "labels"
+        text((i + 1).to_s, "text-anchor": "middle", x:, y: length + 5.5, class: "labels")
       end
     end
   end
-end.Save
+end
+  .Save()
