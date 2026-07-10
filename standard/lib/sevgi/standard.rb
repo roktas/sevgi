@@ -18,7 +18,7 @@ module Sevgi
     # @overload attributes(*groups)
     #   Returns SVG attributes, optionally restricted to one or more attribute groups.
     #   @param groups [Array<Symbol>] attribute group names
-    #   @return [Set<Symbol>] attribute names
+    #   @return [Set<Symbol>] mutation-isolated attribute-name snapshot
     def attributes(...) = Attribute.set(...)
 
     # Reports whether an attribute name is recognized by the SVG standard data.
@@ -40,7 +40,7 @@ module Sevgi
     # @overload elements(*groups)
     #   Returns SVG elements, optionally restricted to one or more element groups.
     #   @param groups [Array<Symbol>] element group names
-    #   @return [Set<Symbol>] element names
+    #   @return [Set<Symbol>] mutation-isolated element-name snapshot
     def elements(...) = Element.set(...)
 
     # Reports whether an element name is recognized by the SVG standard data.
@@ -56,8 +56,9 @@ module Sevgi
     def model?(...) = Specification.model?(...)
 
     # Returns the expanded standard contract for an SVG element.
+    # The returned hash and nested arrays are mutation-isolated snapshots; changing them does not alter the registry.
     # @param name [Object] SVG element name
-    # @return [Hash, nil] expanded specification data, or nil when name is invalid or unknown
+    # @return [Hash, nil] expanded specification snapshot, or nil when name is invalid or unknown
     def specification(name) = name.respond_to?(:to_sym) ? Specification[name.to_sym] : nil
 
     alias [] specification

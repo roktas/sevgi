@@ -4,12 +4,44 @@ require_relative "data/color"
 
 module Sevgi
   module Standard
+    # Defensive copy helper for public standard-data snapshots.
+    # @api private
+    module Snapshot
+      # Returns a recursively independent copy of a value.
+      # @param value [Object] value to copy
+      # @return [Object] copied value
+      def self.copy(value)
+        case value
+        when ::Hash
+          hash(value)
+        when ::Array
+          value.map { copy(it) }
+        when ::Set
+          Set[*value.map { copy(it) }]
+        else
+          duplicate(value)
+        end
+      end
+
+      def self.hash(value) = value.to_h { |key, item| [key, copy(item)] }
+
+      def self.duplicate(value)
+        value.dup
+      rescue ::TypeError
+        value
+      end
+
+      private_class_method :duplicate, :hash
+    end
+
+    private_constant :Snapshot
+
     # Shared set operations for SVG standard data lists.
     # @api private
     module Common
       # Returns every known name in this data list.
-      # @return [Set<Symbol>]
-      def all = @all ||= Set[*data.values.flatten.uniq.sort]
+      # @return [Set<Symbol>] mutation-isolated set snapshot
+      def all = Snapshot.copy(@all ||= Set[*data.values.flatten.uniq.sort])
 
       # Checks whether a name belongs to a group.
       # @param name [Symbol] item name
@@ -25,7 +57,7 @@ module Sevgi
 
       # Returns all names or names from selected groups.
       # @param groups [Array<Symbol>] group names
-      # @return [Set<Symbol>] selected names
+      # @return [Set<Symbol>] mutation-isolated selected-name snapshot
       def set(*groups) = groups.empty? ? all : Set[*data.values_at(*groups).flatten.compact.uniq.sort]
 
       # Removes names that belong to any requested group.
@@ -74,8 +106,8 @@ module Sevgi
 
       # Returns expanded standard specification data for one element.
       # @param name [Symbol] SVG element name
-      # @return [Hash, nil] expanded specification data
-      def [](name) = expand(name)
+      # @return [Hash, nil] mutation-isolated expanded specification snapshot
+      def [](name) = Snapshot.copy(expand(name))
 
       # Reports whether a name is a data group name.
       # @param name [Symbol] element or group name

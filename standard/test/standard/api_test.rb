@@ -26,6 +26,28 @@ module Sevgi
         assert_includes(Standard.specification(:svg).keys, :attributes)
       end
 
+      def test_public_sets_are_mutation_isolated
+        Standard.attributes.clear
+        Standard.elements.clear
+
+        assert(Standard.attribute?(:id))
+        assert(Standard.element?(:svg))
+      end
+
+      def test_specification_hash_is_mutation_isolated
+        Standard.specification(:svg).clear
+
+        assert_includes(Standard.specification(:svg).keys, :attributes)
+      end
+
+      def test_specification_nested_arrays_are_mutation_isolated
+        Standard.specification(:svg)[:attributes].clear
+        Standard.specification(:svg)[:elements] << :agentElement
+
+        assert_includes(Standard.specification(:svg)[:attributes], :id)
+        refute_includes(Standard.specification(:svg)[:elements], :agentElement)
+      end
+
       def test_specification_rejects_non_symbolic_names
         assert_nil(Standard[nil])
         assert_nil(Standard.specification(Object.new))

@@ -4,6 +4,36 @@ module Sevgi
   module Graphics
     # SVG document profile factory.
     module Document
+      # Defensive copy helper for profile metadata snapshots.
+      # @api private
+      module Snapshot
+        # Returns a recursively independent copy of a value.
+        # @param value [Object] value to copy
+        # @return [Object] copied value
+        def self.copy(value)
+          case value
+          when ::Hash
+            hash(value)
+          when ::Array
+            value.map { copy(it) }
+          else
+            duplicate(value)
+          end
+        end
+
+        def self.hash(value) = value.to_h { |key, item| [key, copy(item)] }
+
+        def self.duplicate(value)
+          value.dup
+        rescue ::TypeError
+          value
+        end
+
+        private_class_method :duplicate, :hash
+      end
+
+      private_constant :Snapshot
+
       # Builds a root SVG element from a document profile.
       # @param document [Symbol, String, Class] profile name or document class
       # @param canvas [Sevgi::Graphics::Canvas, Sevgi::Graphics::Paper, Symbol, String, Sevgi::Undefined, nil] canvas input
@@ -107,12 +137,6 @@ module Sevgi
         # @return [Symbol, nil] profile name
         attr_reader :name
 
-        # @return [Hash] default root attributes
-        attr_reader :attributes
-
-        # @return [Array<String>, nil] preamble lines
-        attr_reader :preambles
-
         # Creates profile metadata.
         # @param name [Object, nil] profile name
         # @param attributes [Hash, nil] default root attributes
@@ -121,8 +145,8 @@ module Sevgi
         # @raise [Sevgi::ArgumentError] when name cannot be normalized
         def initialize(name, attributes: nil, preambles: nil)
           @name = name.nil? ? nil : self.class.normalize!(name)
-          @attributes = attributes || {}
-          @preambles = preambles
+          @attributes = Snapshot.copy(attributes || {})
+          @preambles = Snapshot.copy(preambles)
         end
 
         # Reports strict profile equality.
@@ -130,9 +154,17 @@ module Sevgi
         # @return [Boolean]
         def ==(other) = self.class == other.class && deconstruct == other.deconstruct
 
+        # Returns default root attributes.
+        # @return [Hash] mutation-isolated attribute snapshot
+        def attributes = Snapshot.copy(@attributes)
+
         # Returns profile components.
         # @return [Array<(Symbol, nil), Hash, (Array<String>, nil)>]
         def deconstruct = [name, attributes, preambles]
+
+        # Returns preamble lines.
+        # @return [Array<String>, nil] mutation-isolated preamble snapshot
+        def preambles = Snapshot.copy(@preambles)
       end
 
       private_constant :Profile

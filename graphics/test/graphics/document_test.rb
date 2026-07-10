@@ -93,6 +93,53 @@ module Sevgi
         assert_match(/\bregistered_pres\b/, error.message)
       end
 
+      def test_document_profile_copies_input_attributes
+        attributes = {style: {fill: "red"}, viewBox: [0, 0, 1, 1]}
+        doc = Graphics.document(:registered_attribute_copy, attributes:)
+
+        attributes[:style][:fill] = "blue"
+        attributes[:viewBox] << 2
+
+        [
+          {fill: "red"},
+          doc.attributes[:style],
+          [0, 0, 1, 1],
+          doc.attributes[:viewBox]
+        ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+      end
+
+      def test_document_profile_copies_input_preambles
+        preambles = ["one"]
+        doc = Graphics.document(:registered_preamble_copy, preambles:)
+
+        preambles << "two"
+
+        assert_equal(["one"], doc.preambles)
+      end
+
+      def test_document_profile_returns_attribute_snapshots
+        doc = Graphics.document(:registered_attribute_snapshot, attributes: {style: {fill: "red"}, viewBox: [0, 0]})
+        attributes = doc.attributes
+
+        attributes[:style][:fill] = "blue"
+        attributes[:viewBox] << 1
+
+        [
+          {fill: "red"},
+          doc.attributes[:style],
+          [0, 0],
+          doc.attributes[:viewBox]
+        ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+      end
+
+      def test_document_profile_returns_preamble_snapshots
+        doc = Graphics.document(:registered_preamble_snapshot, preambles: ["one"])
+
+        doc.preambles << "two"
+
+        assert_equal(["one"], doc.preambles)
+      end
+
       def test_document_bang_overwrites_profile
         first = Graphics.document!(:registered_force, attributes: {"data-var": "first"})
         second = Graphics.document!(:registered_force, attributes: {"data-var": "second"})
