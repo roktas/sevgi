@@ -16,7 +16,7 @@ module Sevgi
       # Loads and parses an SVG/XML file, using the parse cache when possible.
       # @param path [String] path to the source file, with or without `.svg` extension
       # @return [Sevgi::Derender::Document] document wrapper
-      # @raise [Sevgi::ArgumentError] when the file cannot be found
+      # @raise [Sevgi::ArgumentError] when the file cannot be found or file content is malformed XML
       # @raise [Errno::EACCES] when the file cannot be read
       def self.load_file(path)
         entry = ::File.expand_path(F.qualify(path, "svg"))
@@ -35,7 +35,12 @@ module Sevgi
       # Parses SVG/XML content.
       # @param content [String] SVG/XML source content
       # @return [Nokogiri::XML::Document] parsed XML document
-      def self.parse(content) = Nokogiri::XML(content)
+      # @raise [Sevgi::ArgumentError] when content is not well-formed XML
+      def self.parse(content)
+        Nokogiri::XML(content.lstrip, &:strict)
+      rescue Nokogiri::XML::SyntaxError => e
+        raise ArgumentError, "Malformed XML: #{e.message.lines.first.strip}", cause: e
+      end
 
       # Extracts the XML declaration from SVG/XML content.
       # @param content [String] SVG/XML source content
@@ -57,6 +62,7 @@ module Sevgi
       # @yield optional initializer used by {load_file} to install cached parse state
       # @yieldreturn [void]
       # @return [void]
+      # @raise [Sevgi::ArgumentError] when content is malformed XML
       def initialize(content, &block)
         instance_exec(&block) if block
 
@@ -67,7 +73,7 @@ module Sevgi
       # Converts the root or selected node into a derender node.
       # @param id [String, nil] optional SVG id selecting a node inside the document
       # @return [Sevgi::Derender::Node] selected node in the derender tree
-      # @raise [Sevgi::ArgumentError] when the id is absent
+      # @raise [Sevgi::ArgumentError] when the document has no root element or the id is absent
       def decompile(id = nil)
         if id
           if (found = doc.xpath("//*[@id=#{xpath_literal(id)}]") || []).empty?
@@ -78,6 +84,8 @@ module Sevgi
         else
           doc.root
         end => element
+
+        ArgumentError.("XML document has no root element") unless element
 
         Node.new(element, pres)
       end

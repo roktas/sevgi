@@ -72,6 +72,27 @@ module Sevgi
         end
       end
 
+      def test_new_wraps_malformed_xml_as_argument_error
+        error = assert_raises(ArgumentError) do
+          Derender::Document.new("<svg><g></svg>")
+        end
+
+        assert_match(/Malformed XML/, error.message)
+        assert_instance_of(Nokogiri::XML::SyntaxError, error.cause)
+      end
+
+      def test_decompile_rejects_rootless_document
+        rootless = Nokogiri::XML::Document.new
+
+        Derender::Document.stub(:parse, rootless) do
+          error = assert_raises(ArgumentError) do
+            Derender::Document.new("<svg/>").decompile
+          end
+
+          assert_equal("XML document has no root element", error.message)
+        end
+      end
+
       def test_pres_extracts_preambles
         svg = <<~SVG
 

@@ -5,32 +5,37 @@ require_relative "derender/internal"
 require_relative "derender/attributes"
 require_relative "derender/document"
 require_relative "derender/elements"
+require_relative "derender/evaluator"
 require_relative "derender/node"
 
 require_relative "derender/version"
 
 module Sevgi
   # Converts SVG/XML content into Sevgi DSL source or evaluates it into graphics elements.
+  #
+  # Evaluation APIs treat SVG/XML as data: they build graphics element trees directly and do not execute generated Ruby
+  # source. Malformed, rootless, or unmatched input is rejected with {Sevgi::ArgumentError}.
   module Derender
     # Converts SVG/XML content into a derender node.
     # @param content [String] SVG/XML source content
     # @param id [String, nil] optional SVG id selecting a node inside the source
     # @return [Sevgi::Derender::Node] selected node in the derender tree
-    # @raise [Sevgi::ArgumentError] when the id is absent
+    # @raise [Sevgi::ArgumentError] when content is malformed or rootless, or when the id is absent
     def decompile(content, id: nil) = Document.new(content).decompile(id)
 
     # Converts an SVG/XML file into a derender node.
     # @param file [String] path to the source SVG/XML file
     # @param id [String, nil] optional SVG id selecting a node inside the source
     # @return [Sevgi::Derender::Node] selected node in the derender tree
-    # @raise [Sevgi::ArgumentError] when the file cannot be found or the id is absent
+    # @raise [Sevgi::ArgumentError] when the file cannot be found, file content is malformed or rootless, or the id is
+    #   absent
     def decompile_file(file, id: nil) = Document.load_file(file).decompile(id)
 
     # Converts SVG/XML content into Sevgi DSL Ruby source.
     # @param content [String] SVG/XML source content
     # @param id [String, nil] optional SVG id selecting a node inside the source
     # @return [String] formatted Sevgi DSL source
-    # @raise [Sevgi::ArgumentError] when the id is absent
+    # @raise [Sevgi::ArgumentError] when content is malformed or rootless, or when the id is absent
     # @raise [Sevgi::PanicError] when generated Ruby source cannot be formatted
     def derender(content, id: nil) = Document.new(content).decompile(id).derender
 
@@ -38,7 +43,8 @@ module Sevgi
     # @param file [String] path to the source SVG/XML file
     # @param id [String, nil] optional SVG id selecting a node inside the source
     # @return [String] formatted Sevgi DSL source
-    # @raise [Sevgi::ArgumentError] when the file cannot be found or the id is absent
+    # @raise [Sevgi::ArgumentError] when the file cannot be found, file content is malformed or rootless, or the id is
+    #   absent
     # @raise [Sevgi::PanicError] when generated Ruby source cannot be formatted
     def derender_file(file, id: nil) = Document.load_file(file).decompile(id).derender
 
@@ -46,36 +52,36 @@ module Sevgi
     # @param content [String] SVG/XML source content
     # @param element [Sevgi::Graphics::Element] target graphics element
     # @param id [String, nil] optional SVG id selecting a node inside the source
-    # @return [Sevgi::Graphics::Element] target graphics element
-    # @raise [Sevgi::ArgumentError] when the id is absent
-    # @raise [Sevgi::PanicError] when generated Ruby source cannot be formatted
+    # @return [Sevgi::Graphics::Element, nil] included selected/root graphics element, or nil when the selected node
+    #   produces no graphics output
+    # @raise [Sevgi::ArgumentError] when content is malformed or rootless, or when the id is absent
     def evaluate(content, element, id: nil) = Document.new(content).decompile(id).evaluate(element)
 
     # Evaluates an SVG/XML file under a graphics element, including the selected node.
     # @param file [String] path to the source SVG/XML file
     # @param element [Sevgi::Graphics::Element] target graphics element
     # @param id [String, nil] optional SVG id selecting a node inside the source
-    # @return [Sevgi::Graphics::Element] target graphics element
-    # @raise [Sevgi::ArgumentError] when the file cannot be found or the id is absent
-    # @raise [Sevgi::PanicError] when generated Ruby source cannot be formatted
+    # @return [Sevgi::Graphics::Element, nil] included selected/root graphics element, or nil when the selected node
+    #   produces no graphics output
+    # @raise [Sevgi::ArgumentError] when the file cannot be found, file content is malformed or rootless, or the id is
+    #   absent
     def evaluate_file(file, element, id: nil) = Document.load_file(file).decompile(id).evaluate(element)
 
     # Evaluates SVG/XML content under a graphics element, excluding the selected node itself.
     # @param content [String] SVG/XML source content
     # @param element [Sevgi::Graphics::Element] target graphics element
     # @param id [String, nil] optional SVG id selecting a node inside the source
-    # @return [Sevgi::Graphics::Element] target graphics element
-    # @raise [Sevgi::ArgumentError] when the id is absent
-    # @raise [Sevgi::PanicError] when generated Ruby source cannot be formatted
+    # @return [Array<Sevgi::Graphics::Element>] included child graphics elements
+    # @raise [Sevgi::ArgumentError] when content is malformed or rootless, or when the id is absent
     def evaluate!(content, element, id: nil) = Document.new(content).decompile(id).evaluate!(element)
 
     # Evaluates an SVG/XML file under a graphics element, excluding the selected node itself.
     # @param file [String] path to the source SVG/XML file
     # @param element [Sevgi::Graphics::Element] target graphics element
     # @param id [String, nil] optional SVG id selecting a node inside the source
-    # @return [Sevgi::Graphics::Element] target graphics element
-    # @raise [Sevgi::ArgumentError] when the file cannot be found or the id is absent
-    # @raise [Sevgi::PanicError] when generated Ruby source cannot be formatted
+    # @return [Array<Sevgi::Graphics::Element>] included child graphics elements
+    # @raise [Sevgi::ArgumentError] when the file cannot be found, file content is malformed or rootless, or the id is
+    #   absent
     def evaluate_file!(file, element, id: nil) = Document.load_file(file).decompile(id).evaluate!(element)
 
     extend self

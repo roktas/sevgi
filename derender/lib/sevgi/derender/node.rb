@@ -82,18 +82,17 @@ module Sevgi
       # Evaluates this node under a graphics element.
       # @param element [Sevgi::Graphics::Element] target graphics element
       # @param include_current [Boolean] true to evaluate this node, false to evaluate only children
-      # @return [Sevgi::Graphics::Element] target graphics element
-      # @raise [Sevgi::PanicError] when generated Ruby source cannot be formatted
+      # @return [Sevgi::Graphics::Element, Array<Sevgi::Graphics::Element>, nil] included current element, included child
+      #   elements when include_current is false, or nil when the node does not produce graphics output
       def evaluate(element, include_current = true)
-        return element.instance_eval(derender) if include_current
+        return Evaluator.new(element).append(self) if include_current
 
-        children.each { element.instance_eval(it.derender) }
+        children.map { it.evaluate(element) }.compact
       end
 
       # Evaluates only this node's children under a graphics element.
       # @param element [Sevgi::Graphics::Element] target graphics element
-      # @return [Sevgi::Graphics::Element] target graphics element
-      # @raise [Sevgi::PanicError] when generated Ruby source cannot be formatted
+      # @return [Array<Sevgi::Graphics::Element>] included child elements
       def evaluate!(element) = evaluate(element, false)
 
       # Finds the first descendant whose attribute matches a value.
