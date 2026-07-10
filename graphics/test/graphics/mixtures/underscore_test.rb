@@ -58,6 +58,11 @@ module Sevgi
           assert_equal(expected, actual)
         end
 
+        def test_comment_rejects_invalid_xml_bodies
+          assert_raises(ArgumentError) { SVG(DOC) { Comment("a -- b") } }
+          assert_raises(ArgumentError) { SVG(DOC) { Comment("trailing-") } }
+        end
+
         def test_ancestral_merges_internal_attributes
           descendant = nil
 

@@ -27,11 +27,13 @@ module Sevgi
 
       # @overload cdata(content)
       #   Builds CDATA content.
+      #   Content values are stringified during rendering, and embedded CDATA terminators are split safely.
       #   @param content [Object] wrapped content
       #   @return [Sevgi::Graphics::Content::CData]
       def self.cdata(...) = CData.new(...)
 
       # Wraps content arguments, encoding non-content values.
+      # Non-content values are stringified by encoded content before XML text escaping.
       # @param args [Array<Object>] content arguments
       # @return [Array<Sevgi::Graphics::Content>]
       def self.contents(*args) = args.map { it.is_a?(Content) ? it : encoded(it) }
@@ -45,6 +47,7 @@ module Sevgi
 
       # @overload encoded(content)
       #   Builds XML text-encoded content.
+      #   Arbitrary objects are stringified before XML text escaping.
       #   @param content [Object] wrapped content
       #   @return [Sevgi::Graphics::Content::Encoded]
       def self.encoded(...) = Encoded.new(...)
@@ -62,7 +65,12 @@ module Sevgi
 
       # CDATA section content.
       class CData < Content
+        TERMINATOR = "]]>"
+        TERMINATOR_SPLIT = "]]]]><![CDATA[>"
+        private_constant :TERMINATOR, :TERMINATOR_SPLIT
+
         # Renders CDATA content.
+        # Embedded `]]>` terminators are split across adjacent CDATA sections so the output remains valid XML.
         # @param renderer [Object] renderer receiving output
         # @param depth [Integer] current render depth
         # @return [void]
@@ -70,9 +78,13 @@ module Sevgi
           depth += 1
 
           renderer.append(depth, "<![CDATA[")
-          renderer.append(depth + 1, *Array(content))
+          renderer.append(depth + 1, *Array(content).map { safe(it) })
           renderer.append(depth, "]]>")
         end
+
+        private
+
+        def safe(value) = value.to_s.gsub(TERMINATOR, TERMINATOR_SPLIT)
       end
 
       # CSS content rendered inside a CDATA section.
@@ -123,7 +135,7 @@ module Sevgi
       class Encoded < Content
         # Returns XML text-encoded content.
         # @return [String]
-        def to_s = content.encode(xml: :text)
+        def to_s = content.to_s.encode(xml: :text)
 
         # Renders encoded text content.
         # @param renderer [Object] renderer receiving output

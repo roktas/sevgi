@@ -117,7 +117,7 @@ module Sevgi
 
         # Builds a child element with an explicit tag name.
         # @param tag [Symbol, String] SVG tag name
-        # @param contents [Array<Object>] text or content objects
+        # @param contents [Array<Object>] text or content objects; non-content objects are stringified and XML-encoded
         # @param attributes [Hash] SVG attributes
         # @return [Sevgi::Graphics::Element] new child element
         def Element(tag, *contents, **attributes, &block)
