@@ -15,7 +15,12 @@ require "rake/testtask"
 
 desc("Run unit tests")
 Rake::TestTask.new(:test) do |t|
-  t.test_files = FileList["test/**/*_test.rb"].exclude(/(^[._]|integration)/)
+  t.test_files = FileList["test/**/*_test.rb"].exclude(/(^[._]|integration|browser)/)
+end
+
+desc("Run real-browser documentation tests")
+Rake::TestTask.new(:browser) do |t|
+  t.test_files = FileList["test/**/*browser_test.rb"]
 end
 
 if ::File.exist?("test/integration_test.rb")
