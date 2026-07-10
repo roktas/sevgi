@@ -483,7 +483,6 @@ module Sevgi
         Deprecated: %i[
           accent-height
           alphabetic
-          amplitude
           arabic-form
           ascent
           attributeType

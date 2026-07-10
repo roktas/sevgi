@@ -26,6 +26,18 @@ module Sevgi
         assert_includes(Standard.specification(:svg).keys, :attributes)
       end
 
+      def test_supported_element_names_match_specifications
+        element = Standard.const_get(:Element)
+        specification = Standard.const_get(:Specification)
+
+        assert_equal(element.all, Set[*specification.data.keys])
+      end
+
+      def test_supported_element_policy
+        assert(Standard.element?(:discard))
+        refute(Standard.element?(:solidcolor))
+      end
+
       def test_public_sets_are_mutation_isolated
         Standard.attributes.clear
         Standard.elements.clear

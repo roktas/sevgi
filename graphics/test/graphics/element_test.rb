@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "../test_helper"
+require "sevgi/standard"
 
 module Sevgi
   module Graphics
@@ -139,6 +140,26 @@ module Sevgi
             false,
             Element.root?(child)
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+        end
+
+        def test_standard_elements_round_trip_through_dsl
+          special_children = {
+            feDiffuseLighting: [:feDistantLight],
+            feSpecularLighting: [:feDistantLight]
+          }
+
+          Standard.elements.each do |name|
+            element = nil
+
+            SVG(:minimal) do
+              element = Element(name) do
+                special_children.fetch(name, []).each { Element(it) }
+              end
+            end
+
+            assert_equal(name, element.name)
+            assert(Standard.conform(name, attributes: element.attributes.list, elements: element.children.map(&:name)))
+          end
         end
       end
 

@@ -18,6 +18,11 @@ module Sevgi
         refute(Attribute.is?(:style, :Core))
       end
 
+      def test_attribute_deprecated_group_excludes_valid_filter_attributes
+        refute(Attribute.is?(:amplitude, :Deprecated))
+        assert(Attribute.is?(:amplitude, :FilterTransferFunction))
+      end
+
       def test_attribute_pick_unpick_partition_groups
         assert_equal(
           %i[class stroke-width style color],

@@ -12,6 +12,9 @@ require_relative "standard/version"
 
 module Sevgi
   # SVG standard data and validation helpers.
+  # The registry is a Sevgi compatibility set based on SVG 2 plus the split-out SVG modules and legacy entries already
+  # modeled in the bundled specifications. Supported element names must have matching specification data; abandoned or
+  # unspecified proposal entries are not exposed as supported elements.
   module Standard
     extend self
 

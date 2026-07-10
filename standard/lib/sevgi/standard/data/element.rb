@@ -8,6 +8,7 @@ module Sevgi
           animate
           animateMotion
           animateTransform
+          discard
           mpath
           set
         ],
@@ -146,7 +147,6 @@ module Sevgi
           linearGradient
           pattern
           radialGradient
-          solidcolor
         ],
 
         Renderable: %i[
