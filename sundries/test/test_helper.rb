@@ -6,9 +6,7 @@ require "minitest/autorun"
 require "minitest/reporters"
 require "minitest/focus"
 
-require "sevgi"
-
-Minitest::Test.include(Sevgi)
+require "sevgi/sundries"
 
 unless defined?(TestHelper)
   module TestHelper

@@ -19,6 +19,8 @@ Gem::Specification.new do |s|
   s.metadata["rubygems_mfa_required"] = "true"
 
   s.add_dependency("sevgi-function", version)
+  s.add_dependency("sevgi-geometry", version)
+  s.add_dependency("sevgi-graphics", version)
 
   s.add_runtime_dependency("cairo")
   s.add_runtime_dependency("hexapdf", "~> 1.5")

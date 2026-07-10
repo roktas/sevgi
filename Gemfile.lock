@@ -45,6 +45,8 @@ PATH
       hexapdf (~> 1.5)
       rsvg2 (>= 4.3.6)
       sevgi-function (= 0.93.1)
+      sevgi-geometry (= 0.93.1)
+      sevgi-graphics (= 0.93.1)
 
 PATH
   remote: toplevel
