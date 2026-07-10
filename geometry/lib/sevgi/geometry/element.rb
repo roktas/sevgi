@@ -282,17 +282,20 @@ module Sevgi
         def equations = @equations ||= lines.map(&:equation)
 
         # Intersects the element boundary with an equation.
+        #
+        # Boundary membership is tested on unrounded candidate points. `precision:`
+        # only rounds returned coordinates and controls duplicate collapse after
+        # membership has been accepted. When `precision` is nil, returned points use
+        # the current function precision.
         # @param equation [Sevgi::Geometry::Equation] equation to intersect with
-        # @param precision [Integer, nil] decimal precision, or nil for the current function default
+        # @param precision [Integer, nil] decimal precision for returned points, or nil for the current function default
         # @return [Array<Sevgi::Geometry::Point>] unique boundary intersection points
         # @raise [Sevgi::Geometry::Error] when equation is not an equation
         # @raise [Sevgi::PanicError] when the equation combination is not implemented
         def intersection(equation, precision: nil)
           equations
-            .map do |candidate|
-              equation.intersect(candidate).map { |point| point.approx(precision) }.select { |point| on?(point) }
-            end
-            .flatten
+            .flat_map { |candidate| equation.intersect(candidate).select { |point| on?(point) } }
+            .map { |point| point.approx(precision) }
             .uniq
         end
 

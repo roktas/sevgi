@@ -28,6 +28,30 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
+      def test_intersection_precision_rounds_after_membership
+        triangle = Triangle[Segment[2, 0], Segment[1, 150]]
+        equ = Equation.vertical(1.2)
+
+        [
+          [[1.2, 0.0], [1.2, 0.5]],
+          triangle.intersection(equ, precision: 1).map(&:deconstruct),
+          [[1.2, 0.0], [1.2, 0.4619]],
+          triangle.intersection(equ, precision: 4).map(&:deconstruct)
+        ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+      end
+
+      def test_intersection_precision_ignores_thread_default
+        triangle = Triangle[Segment[2, 0], Segment[1, 150]]
+        equ = Equation.vertical(1.2)
+
+        F.with_precision(2) do
+          assert_equal(
+            [[1.2, 0.0], [1.2, 0.5]],
+            triangle.intersection(equ, precision: 1).map(&:deconstruct)
+          )
+        end
+      end
+
       def test_intersect_rejects_non_equation
         error = assert_raises(Error) { Equation.horizontal(1).intersect(Object.new) }
 
