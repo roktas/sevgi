@@ -47,6 +47,65 @@ module Sevgi
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
         end
 
+        def test_adopt_rejects_descendant_parent_atomically
+          child = nil
+          element = nil
+          grandchild = nil
+
+          doc = SVG(id: "main") do
+            element = g(id: "element") do
+              child = g(id: "child") do
+                grandchild = line(id: "grandchild")
+              end
+            end
+          end
+
+          error = assert_raises(Sevgi::ArgumentError) { element.Adopt(grandchild) }
+
+          assert_match(/descendant/i, error.message)
+
+          [
+            [element],
+            doc.children,
+            doc,
+            element.parent,
+            [child],
+            element.children,
+            element,
+            child.parent,
+            [grandchild],
+            child.children,
+            child,
+            grandchild.parent
+          ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+        end
+
+        def test_adopt_rejects_self_parent_atomically
+          child = nil
+          element = nil
+
+          doc = SVG(id: "main") do
+            element = g(id: "element") do
+              child = line(id: "child")
+            end
+          end
+
+          error = assert_raises(Sevgi::ArgumentError) { element.Adopt(element) }
+
+          assert_match(/itself/i, error.message)
+
+          [
+            [element],
+            doc.children,
+            doc,
+            element.parent,
+            [child],
+            element.children,
+            element,
+            child.parent
+          ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+        end
+
         def test_adopt_first_inserts_at_front
           target = nil
           element = nil

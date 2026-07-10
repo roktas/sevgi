@@ -46,6 +46,7 @@ module Sevgi
         # @param index [Integer] insertion index
         # @return [Sevgi::Graphics::Element] self
         # @raise [Sevgi::ArgumentError] when the target parent has a different element class
+        # @raise [Sevgi::ArgumentError] when the target parent is this element or one of its descendants
         def Adopt(new_parent = nil, index: -1)
           tap do
             if new_parent
@@ -56,6 +57,8 @@ module Sevgi
               new_parent = parent
             end
 
+            Adoption.validate(self, new_parent)
+
             self.Orphan()
             (@parent = new_parent).children.insert(index, self)
           end
@@ -65,6 +68,8 @@ module Sevgi
         #   Moves this element to the beginning of a parent.
         #   @param new_parent [Sevgi::Graphics::Element, nil] target parent or current parent
         #   @return [Sevgi::Graphics::Element] self
+        #   @raise [Sevgi::ArgumentError] when the target parent has a different element class
+        #   @raise [Sevgi::ArgumentError] when the target parent is this element or one of its descendants
         def AdoptFirst(*)
           Adopt(*, index: 0)
         end
@@ -223,6 +228,28 @@ module Sevgi
         def <<(element)
           Append(element)
         end
+
+        # Adoption target validation that keeps tree mutation atomic.
+        # @api private
+        module Adoption
+          # Rejects target parents that would create a cycle.
+          # @param element [Sevgi::Graphics::Element] element being moved
+          # @param parent [Sevgi::Graphics::Element, Object] target parent
+          # @return [void]
+          # @raise [Sevgi::ArgumentError] when the target parent is this element or one of its descendants
+          def self.validate(element, parent)
+            ArgumentError.("Element cannot be adopted under itself") if parent.equal?(element)
+
+            while parent.respond_to?(:Root?)
+              ArgumentError.("Element cannot be adopted under its descendant") if parent.equal?(element)
+              break if parent.Root?()
+
+              parent = parent.parent
+            end
+          end
+        end
+
+        private_constant :Adoption
       end
     end
   end
