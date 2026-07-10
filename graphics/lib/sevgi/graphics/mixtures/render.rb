@@ -96,38 +96,60 @@ module Sevgi
 
             # Creates an inline splice tracker.
             # @return [void]
-            def initialize = @marks = []
+            def initialize
+              @marks = []
+              @stack = []
+            end
 
             # Starts an inline splice range.
             # @param index [Integer] output index
             # @param depth [Integer] element depth
-            # @return [Array<Sevgi::Graphics::Mixtures::Render::Renderer::Inlines::Mark>]
-            def start(index, depth) = @marks << Mark.new(start: index, depth:)
+            # @return [Sevgi::Graphics::Mixtures::Render::Renderer::Inlines::Mark] opened mark
+            def start(index, depth)
+              Mark.new(start: index, depth:).tap do |mark|
+                @marks << mark
+                @stack << mark
+              end
+            end
 
-            # Ends the latest inline splice range.
+            # Ends the innermost inline splice range.
             # @param index [Integer] output index
             # @return [Integer]
-            def stop(index) = @marks.last.stop = index
+            # @raise [Sevgi::PanicError] when no inline range is open
+            def stop(index)
+              mark = @stack.pop
+              PanicError.("Inline content range was not opened") unless mark
+
+              mark.stop = index
+            end
 
             # Joins marked output ranges into inline content.
             # @param output [Array<Array<String>, nil>] renderer output buffer
             # @param indent [String] indentation unit
             # @param separator [String] line separator
             # @return [Array<Array<String>, nil>, nil]
+            # @raise [Sevgi::PanicError] when an inline range was not closed
             def join(output, indent:, separator:)
               return if @marks.empty?
 
-              @marks.each do |mark|
-                depth = mark.depth
-
-                ((mark.start + 1)..mark.stop).each do |i|
-                  output[i].map! { |line| line.delete_prefix(indent * (depth + 1)) }
-                  output[mark.start][-1] += output[i].join(separator)
-                  output[i] = nil
-                end
-              end
+              @marks.reverse_each { |mark| join_mark(output, mark, indent:, separator:) }
 
               output.compact!
+            end
+
+            private
+
+            def join_mark(output, mark, indent:, separator:)
+              PanicError.("Inline content range was not closed") unless mark.stop
+
+              ((mark.start + 1)..mark.stop).each do |index|
+                lines = output[index]
+                next unless lines
+
+                lines.map! { |line| line.delete_prefix(indent * (mark.depth + 1)) }
+                output[mark.start][-1] += lines.join(separator)
+                output[index] = nil
+              end
             end
           end
 
@@ -284,12 +306,16 @@ module Sevgi
 
         # @overload Render(**options)
         #   Renders this element as SVG source.
+        #   Elements with inline text content may also contain inline children such as `tspan`; the renderer keeps those
+        #   descendants in the same text line. Whitespace inside content objects is preserved as given, and encoded
+        #   content is XML-escaped unless a verbatim content object is used.
         #   @param options [Hash] renderer options
         #   @return [String] SVG source
         #   @raise [Sevgi::ArgumentError] when style is missing or unsupported
         def Render(**) = Renderer.(self, **)
 
         # Renders only this element's children.
+        # Child render output preserves each child's text whitespace and inline mixed-content formatting.
         # @param separator [String] separator between child documents
         # @return [String] rendered children
         def RenderChildren(separator = "\n\n") = children.map(&:Render).join(separator)

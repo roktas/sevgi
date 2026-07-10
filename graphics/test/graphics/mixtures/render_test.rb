@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "nokogiri"
+
 require_relative "../../test_helper"
 
 module Sevgi
@@ -37,7 +39,7 @@ module Sevgi
           end
             .Render()
 
-          assert_equal(expected, actual)
+          assert_render(expected, actual)
         end
 
         def test_render_text_element_preserves_xml_space
@@ -53,7 +55,7 @@ module Sevgi
           end
             .Render()
 
-          assert_equal(expected, actual)
+          assert_render(expected, actual)
         end
 
         def test_render_text_element_escapes_special_characters
@@ -69,7 +71,7 @@ module Sevgi
           end
             .Render()
 
-          assert_equal(expected, actual)
+          assert_render(expected, actual)
         end
 
         def test_render_text_element_preserves_verbatim_content
@@ -101,7 +103,7 @@ module Sevgi
           end
             .Render()
 
-          assert_equal(expected, actual)
+          assert_render(expected, actual)
         end
 
         def test_render_inline_content_element_wraps_long_attribute
@@ -121,7 +123,101 @@ module Sevgi
           end
             .Render()
 
-          assert_equal(expected, actual)
+          assert_render(expected, actual)
+        end
+
+        def test_render_mixed_inline_text_with_one_tspan
+          expected = <<~SVG
+            <svg>
+              <text>foo<tspan>bar</tspan></text>
+            </svg>
+          SVG
+            .chomp
+
+          actual = SVG(DOC) do
+            text("foo") do
+              tspan("bar")
+            end
+          end
+            .Render()
+
+          assert_render(expected, actual)
+        end
+
+        def test_render_mixed_inline_text_with_multiple_tspans
+          expected = <<~SVG
+            <svg>
+              <text>foo<tspan>bar</tspan><tspan>baz</tspan></text>
+            </svg>
+          SVG
+            .chomp
+
+          actual = SVG(DOC) do
+            text("foo") do
+              tspan("bar")
+              tspan("baz")
+            end
+          end
+            .Render()
+
+          assert_render(expected, actual)
+        end
+
+        def test_render_mixed_inline_text_with_trailing_text
+          expected = <<~SVG
+            <svg>
+              <text>foo<tspan>bar</tspan>baz</text>
+            </svg>
+          SVG
+            .chomp
+
+          actual = SVG(DOC) do
+            text("foo") do
+              tspan("bar")
+              _("baz")
+            end
+          end
+            .Render()
+
+          assert_render(expected, actual)
+        end
+
+        def test_render_mixed_inline_text_with_nested_tspans
+          expected = <<~SVG
+            <svg>
+              <text>foo<tspan>bar<tspan>baz</tspan></tspan></text>
+            </svg>
+          SVG
+            .chomp
+
+          actual = SVG(DOC) do
+            text("foo") do
+              tspan("bar") do
+                tspan("baz")
+              end
+            end
+          end
+            .Render()
+
+          assert_render(expected, actual)
+        end
+
+        def test_render_mixed_inline_text_preserves_xml_space
+          expected = <<~SVG
+            <svg>
+              <text xml:space="preserve"> foo <tspan> bar </tspan></text>
+            </svg>
+          SVG
+            .chomp
+
+          actual = SVG(DOC) do
+            text(" foo ", "xml:space": "preserve") do
+              tspan(" bar ")
+            end
+          end
+            .Render()
+
+          assert_render(expected, actual)
         end
 
         def test_render_block_style_splits_attributes
@@ -141,7 +237,7 @@ module Sevgi
           end
             .Render(style: :block)
 
-          assert_equal(expected, actual)
+          assert_render(expected, actual)
         end
 
         def test_render_inline_style_keeps_attributes_inline
@@ -157,7 +253,7 @@ module Sevgi
           end
             .Render(style: :inline)
 
-          assert_equal(expected, actual)
+          assert_render(expected, actual)
         end
 
         def test_render_rejects_unrecognized_style
@@ -172,7 +268,16 @@ module Sevgi
             circle(id: "two")
           end
 
-          assert_equal("<rect id=\"one\"/>\n\n<circle id=\"two\"/>", doc.RenderChildren())
+          assert_render("<rect id=\"one\"/>\n\n<circle id=\"two\"/>", doc.RenderChildren(), fragment: true)
+        end
+
+        private
+
+        def assert_render(expected, actual, fragment: false)
+          assert_equal(expected, actual)
+          xml = fragment ? "<wrapper>#{actual}</wrapper>" : actual
+
+          Nokogiri::XML(xml, &:strict)
         end
       end
     end
