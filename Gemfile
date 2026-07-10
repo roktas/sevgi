@@ -2,7 +2,7 @@
 
 source "https://rubygems.org"
 
-ruby File.read(File.expand_path(".ruby-version", __dir__)).strip
+ruby ">= 3.4.0"
 
 group :sevgi do
   gem "sevgi-derender", path: "derender"
