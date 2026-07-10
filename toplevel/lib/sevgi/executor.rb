@@ -44,22 +44,11 @@ module Sevgi
     # @yield optional boot block that installs DSL methods before evaluation
     # @yieldreturn [void]
     # @return [Sevgi::Executor::Scope, nil] execution scope, or nil for empty source
-    # @raise [LoadError] when the optional required library cannot be loaded
+    # @note Required-library load failures are captured as {Sevgi::Executor::Error} on the returned scope.
     # @note Reentrant and concurrent calls keep independent scope stacks per fiber. The temporary SIGINT handler remains
     #   process-global while any execution is active.
     def self.execute(string, file: nil, line: nil, require: nil, receiver: nil, &block)
-      return if string.empty?
-
-      instance.trap
-
-      ::Kernel.require(require) if require
-
-      scope = instance.create
-      catch(:result) { scope.call(Source.new(string:, file:, line:), receiver, &block) }
-
-    ensure
-      instance.restore
-      instance.shutdown(scope) if scope
+      execute_source(Source.new(string:, file:, line:), require:, receiver:, &block)
     end
 
     # Executes a file inside a managed Sevgi script scope.
@@ -69,12 +58,18 @@ module Sevgi
     # @yield optional boot block that installs DSL methods before evaluation
     # @yieldreturn [void]
     # @return [Sevgi::Executor::Scope, nil] execution scope, or nil for an empty file
-    # @raise [Errno::ENOENT] when the file cannot be read
-    # @raise [LoadError] when the optional required library cannot be loaded
+    # @note File-read and required-library load failures are captured as {Sevgi::Executor::Error} on the returned scope.
     # @note Reentrant and concurrent calls keep independent scope stacks per fiber. The temporary SIGINT handler remains
     #   process-global while any execution is active.
     def self.execute_file(file, require: nil, receiver: nil, &block)
-      execute(::File.read(file), file: file, line: 1, require:, receiver:, &block)
+      source = nil
+      begin
+        source = Source.load(file)
+      rescue ::SystemCallError => e
+        return capture_error(Source.new(string: "", file:, line: 1), e)
+      end
+
+      execute_source(source, require:, receiver:, &block)
     end
 
     # Removes the current executor scope.
@@ -137,6 +132,36 @@ module Sevgi
         @signal_count += 1
       end
     end
+
+    def self.capture_error(source, error)
+      instance.trap
+      scope = instance.create
+      scope.capture(source, error)
+    ensure
+      instance.restore
+      instance.shutdown(scope) if scope
+    end
+
+    def self.execute_source(source, require:, receiver:, &block)
+      return if source.string.empty?
+
+      instance.trap
+      scope = instance.create
+      catch(:result) { run_source(scope, source, require, receiver, &block) }
+
+    ensure
+      instance.restore
+      instance.shutdown(scope) if scope
+    end
+
+    def self.run_source(scope, source, library, receiver, &block)
+      ::Kernel.require(library) if library
+      scope.call(source, receiver, &block)
+    rescue ::LoadError => e
+      scope.capture(source, e)
+    end
+
+    private_class_method :capture_error, :execute_source, :run_source
 
     private
 

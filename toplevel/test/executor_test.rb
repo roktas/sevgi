@@ -105,6 +105,42 @@ module Sevgi
       )
     end
 
+    def test_execute_file_wraps_missing_file
+      missing = "#{FIXTURES_DIR}/missing.sevgi"
+
+      result = Sevgi.execute_file(missing)
+
+      assert(result.error?)
+      assert_instance_of(Executor::Error, result.error)
+      assert_instance_of(::Errno::ENOENT, result.error.error)
+      assert_equal([missing], result.stack)
+    end
+
+    def test_execute_wraps_required_load_error
+      result = Executor.execute("1", file: "script.sevgi", require: "sevgi_missing_test_library")
+
+      assert(result.error?)
+      assert_instance_of(Executor::Error, result.error)
+      assert_instance_of(::LoadError, result.error.error)
+      assert_match(/sevgi_missing_test_library/, result.error.message)
+      assert_equal(["script.sevgi"], result.stack)
+    end
+
+    def test_execute_preserves_nested_load_error
+      Dir.mktmpdir do |dir|
+        library = ::File.join(dir, "outer.rb")
+        ::File.write(library, "require 'sevgi_missing_nested_dependency'\n")
+
+        result = Executor.execute("1", file: "script.sevgi", require: library.delete_suffix(".rb"))
+
+        assert(result.error?)
+        assert_instance_of(::LoadError, result.error.error)
+        assert_match(/sevgi_missing_nested_dependency/, result.error.message)
+        refute_match(/outer/, result.error.message)
+        assert_equal(["script.sevgi"], result.stack)
+      end
+    end
+
     def test_execute_file_isolates_concurrent_load_scopes
       Dir.mktmpdir do |dir|
         paths = write_concurrent_load_scripts(dir)
@@ -173,11 +209,8 @@ module Sevgi
       result = Executor.execute(
         <<~RUBY
           before = Sevgi::Executor.instance.current
-          begin
-            Sevgi::Executor.execute("1", require: "sevgi_missing_test_library")
-          rescue LoadError
-            before.equal?(Sevgi::Executor.instance.current)
-          end
+          inner = Sevgi::Executor.execute("1", require: "sevgi_missing_test_library")
+          before.equal?(Sevgi::Executor.instance.current) && inner.error?
         RUBY
       )
 

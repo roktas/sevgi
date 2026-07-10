@@ -56,14 +56,30 @@ module Sevgi
         end
       end
 
+      # Captures a preprocessing failure for this scope.
+      # @param source [Sevgi::Executor::Source] source active when preprocessing failed
+      # @param error [Exception] original preprocessing exception
+      # @return [Sevgi::Executor::Scope] self, with error populated
+      # @api private
+      def capture(source, error)
+        push(source)
+        @error = Executor::Error.new(error, self)
+        self
+      end
+
       # Loads a file into this existing execution scope.
       # @param file [String] source file to read and evaluate
       # @yield optional boot block that installs DSL methods before evaluation
       # @yieldreturn [void]
       # @return [Sevgi::Executor::Scope] self, with recent or error populated
-      # @raise [Errno::ENOENT] when the file cannot be read
+      # @note File-read failures are captured as {Sevgi::Executor::Error} on this scope.
       # @api private
-      def load(file, &block) = call(Source.load(file), &block)
+      def load(file, &block)
+        call(Source.load(file), &block)
+      rescue ::SystemCallError => e
+        capture(Source.new(string: "", file:, line: 1), e)
+        throw(:result, self)
+      end
 
       # Returns the unique source stack for this execution.
       # @return [Array<String>] source file keys in load order

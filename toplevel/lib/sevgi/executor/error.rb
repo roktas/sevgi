@@ -32,6 +32,10 @@ module Sevgi
           .map { |line| line.delete_prefix("#{::Dir.pwd}/") }
       end
 
+      # Returns the original exception as the wrapped cause.
+      # @return [Exception]
+      def cause = error
+
       # Returns the script load stack active at failure time.
       # @return [Array<String>] script file names in load order
       def stack = scope.stack

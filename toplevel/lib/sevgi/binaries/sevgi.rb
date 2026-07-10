@@ -56,8 +56,7 @@ module Sevgi
       # Runs the `sevgi` command-line interface.
       # @param argv [Array<String>, String, nil] command-line arguments
       # @return [nil]
-      # @raise [LoadError] when a required Ruby library cannot be loaded
-      # @raise [Sevgi::Executor::Error] when `--exception` or `SEVGI_VOMIT` requests raw errors
+      # @raise [Sevgi::Executor::Error] when `--exception` or `SEVGI_VOMIT` requests raw executor errors
       # @raise [SystemExit] when command-line usage or script execution aborts
       def call(argv)
         return puts(help) if (options = Options.parse(argv = Array(argv))).help
