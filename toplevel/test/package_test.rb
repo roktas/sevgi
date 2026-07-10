@@ -41,6 +41,16 @@ module Sevgi
       end
     end
 
+    def test_root_build_is_independent_of_cwd
+      Dir.mktmpdir do |dir|
+        packages = build_root_packages(::File.join(dir, "pkg"), chdir: dir)
+
+        COMPONENTS.each do |component|
+          assert_package_contents(packages.fetch(component.name), component)
+        end
+      end
+    end
+
     def test_archives_install_and_load_from_clean_gem_home
       Dir.mktmpdir do |dir|
         packages = build_root_packages(::File.join(dir, "pkg"))
@@ -49,6 +59,23 @@ module Sevgi
 
         smoke_installed_gems(gem_home)
         smoke_installed_cli(gem_home)
+      end
+    end
+
+    def test_gemspec_manifests_are_independent_of_cwd
+      Dir.mktmpdir do |dir|
+        [ROOT, dir].each do |cwd|
+          Dir.chdir(cwd) do
+            COMPONENTS.each do |component|
+              path = ::File.join(ROOT, component.dir, "#{component.name}.gemspec")
+              spec = ::Gem::Specification.load(path)
+
+              assert_equal(component.name, spec.name)
+              assert_includes(spec.files, "lib/#{component.entrypoint}/version.rb", component.name)
+              refute(spec.files.any? { |file| file.start_with?("/", "../") }, component.name)
+            end
+          end
+        end
       end
     end
 
@@ -142,8 +169,10 @@ module Sevgi
 
       %w[CHANGELOG.md LICENSE README.md].each { assert_includes(contents, it, component.name) }
       assert_includes(contents, "lib/#{component.entrypoint}.rb", component.name)
+      assert_includes(contents, "lib/#{component.entrypoint}/version.rb", component.name)
       component.executables.each { assert_includes(contents, "bin/#{it}", component.name) }
       assert_empty(contents.grep(%r{\A/|\.\.}), component.name)
+      refute(contents.any? { |file| file == "AGENTS.md" || file.start_with?(".agents/") }, component.name)
       assert_equal(component.executables, gem.spec.executables.sort)
     end
 
@@ -166,8 +195,18 @@ module Sevgi
       COMPONENTS.to_h { [it.name, build_component_package(it, dir)] }
     end
 
-    def build_root_packages(dir)
-      out, err, status = Open3.capture3("bundle", "exec", "rake", "build", "PKGDIR=#{dir}", chdir: ROOT)
+    def build_root_packages(dir, chdir: ROOT)
+      out, err, status = Open3.capture3(
+        {"BUNDLE_GEMFILE" => ::File.join(ROOT, "Gemfile")},
+        "bundle",
+        "exec",
+        "rake",
+        "-f",
+        ::File.join(ROOT, "Rakefile"),
+        "build",
+        "PKGDIR=#{dir}",
+        chdir:
+      )
 
       assert(status.success?, "stdout:\n#{out}\nstderr:\n#{err}")
       COMPONENTS.to_h { [it.name, ::File.join(dir, "#{it.name}-#{VERSION}.gem")] }

@@ -37,9 +37,10 @@ rootdir = File.expand_path(__dir__)
 version = File.read("#{rootdir}/VERSION").strip
 pkgdir = File.expand_path(ENV.fetch("PKGDIR", "pkg"), rootdir)
 projects = Hash[
-  *::Dir["*/*.gemspec"]
+  *::Dir[::File.join(rootdir, "*/*.gemspec")]
     .map do |file|
-      [::File.dirname(file), ::File.basename(file, ".*")]
+      project = ::File.dirname(file).delete_prefix("#{rootdir}/")
+      [project, ::File.basename(file, ".*")]
     end
     .flatten
 ]
@@ -120,7 +121,7 @@ names.each do |project|
       desc("#{tn.capitalize} #{project.capitalize}")
       task(tn) do |t|
         warn("#{yellow(t)}")
-        Dir.chdir(project) do
+        Dir.chdir(::File.join(rootdir, project)) do
           sh("rake", tn.to_s)
         end
 
@@ -131,7 +132,7 @@ names.each do |project|
     desc("Package #{package}")
     task(package: [pkgdir]) do |t|
       warn("#{yellow(t)}")
-      Dir.chdir(project) do
+      Dir.chdir(::File.join(rootdir, project)) do
         sh("gem", "build", gemspec, "--output", gem)
       end
 
@@ -218,7 +219,7 @@ task(:bump) do
     ::File.write("#{rootdir}/VERSION", version = ENV["version"])
   end
 
-  ::Dir["*/**/version.rb"].each do |source|
+  ::Dir[::File.join(rootdir, "*/**/version.rb")].each do |source|
     ::File.write(
       source,
       ::File.read(source).gsub(/^(\s*)VERSION(\s*)= .*?$/, "\\1VERSION = \"#{version}\"")
