@@ -149,7 +149,7 @@ module Sevgi
 
       protected
 
-      attr_writer :children, :attributes
+      attr_writer :attributes, :children, :contents, :parent
     end
   end
 end

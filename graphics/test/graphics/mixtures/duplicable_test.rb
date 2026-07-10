@@ -116,6 +116,114 @@ module Sevgi
           refute_equal(ids.values_at(:element1, :element2), doc.children[1].children.map(&:object_id).first(2))
         end
 
+        def test_duplicate_reparents_copied_tree
+          original = copy = nil
+
+          doc = SVG do
+            original = g(id: "original", class: ["main"], style: {fill: "red"}) do
+              g(id: "branch") do
+                text("label", id: "leaf")
+              end
+            end
+
+            copy = original.Duplicate()
+          end
+
+          original_nodes = nodes(original)
+          copy_nodes = nodes(copy)
+
+          assert_equal(%i[g g text], copy_nodes.map(&:name))
+          assert_same(doc, copy.parent)
+
+          copy_nodes.drop(1).each do |node|
+            assert_includes(copy_nodes, node.parent)
+            refute_includes(original_nodes, node.parent)
+          end
+
+          copy[:class] << "copy"
+          copy[:style][:fill] = "blue"
+
+          [
+            "original",
+            original[:id],
+            ["main"],
+            original[:class],
+            {fill: "red"},
+            original[:style],
+            [original.children.first],
+            original.children,
+            original,
+            original.children.first.parent,
+            original.children.first,
+            original.children.first.children.first.parent
+          ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+        end
+
+        def test_duplicate_operations_stay_in_copied_tree
+          copy = copy_branch = copy_leaf = copy_sibling = nil
+          original_branch = original_leaf = nil
+
+          doc = SVG do
+            original = g(id: "original") do
+              original_branch = g(id: "branch") do
+                original_leaf = line(id: "leaf")
+              end
+            end
+
+            copy = original.Duplicate() do |element|
+              id = element[:"#{ATTRIBUTE_INTERNAL_PREFIX}id"]
+              element[:id] = "#{id}-copy" if id
+            end
+
+            copy_branch = copy.children.first
+            copy_leaf = copy_branch.children.first
+            copy_leaf.With() { copy_sibling = circle(id: "copy-sibling") }
+            copy_leaf.Adopt(copy)
+          end
+
+          ancestors = []
+          copy_leaf.TraverseUp() { |element| ancestors << element }
+
+          assert_equal([original_leaf], original_branch.children)
+          assert_equal([copy_sibling], copy_branch.children)
+          assert_equal([copy_branch, copy_leaf], copy.children)
+          assert_equal([copy_leaf, copy, doc], ancestors)
+
+          [
+            "original",
+            doc.children.first[:id],
+            "branch",
+            original_branch[:id],
+            "leaf",
+            original_leaf[:id],
+            "original-copy",
+            copy[:id],
+            "branch-copy",
+            copy_branch[:id],
+            "leaf-copy",
+            copy_leaf[:id]
+          ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+        end
+
+        def test_duplicate_copies_content_containers
+          original = copy = nil
+
+          SVG do
+            original = text("original")
+            copy = original.Duplicate()
+            copy.contents << Content.encoded("copy")
+          end
+
+          refute_same(original.contents, copy.contents)
+
+          [
+            ["original"],
+            original.contents.map(&:content),
+            %w[original copy],
+            copy.contents.map(&:content)
+          ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+        end
+
         def test_duplicate_convenience_methods
           element1, element2, element3 = Array.new(3)
 
@@ -135,6 +243,12 @@ module Sevgi
             "translate(0 1)",
             element3[:transform]
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+        end
+
+        private
+
+        def nodes(element)
+          [].tap { |result| element.Traverse() { |node| result << node } }
         end
       end
     end
