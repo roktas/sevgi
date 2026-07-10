@@ -10,8 +10,11 @@ module Sevgi
         # Default maximum number of sweep iterations.
         LIMIT = 1_000
 
-        # Sweeps parallel lines across an element in both directions.
-        # @param element [Sevgi::Geometry::Element] element to intersect
+        # Sweeps parallel lines across a lined element in both directions.
+        #
+        # Generated lines are boundary-to-boundary interior spans. A single
+        # sweep position can produce multiple lines for closed concave elements.
+        # @param element [Sevgi::Geometry::Element::Lined] element to intersect
         # @param initial [Sevgi::Geometry::Point, Array<Numeric>] point on the initial sweep line
         # @param angle [Numeric] clockwise sweep line angle in degrees
         # @param step [Numeric] signed distance between sweep lines
@@ -33,8 +36,11 @@ module Sevgi
           end
         end
 
-        # Sweeps parallel lines and requires at least one result.
-        # @param element [Sevgi::Geometry::Element] element to intersect
+        # Sweeps parallel lines across a lined element and requires at least one result.
+        #
+        # Generated lines are boundary-to-boundary interior spans. A single
+        # sweep position can produce multiple lines for closed concave elements.
+        # @param element [Sevgi::Geometry::Element::Lined] element to intersect
         # @param initial [Sevgi::Geometry::Point, Array<Numeric>] point on the initial sweep line
         # @param angle [Numeric] clockwise sweep line angle in degrees
         # @param step [Numeric] signed distance between sweep lines
@@ -56,7 +62,10 @@ module Sevgi
         end
 
         # Sweeps parallel lines in one signed direction from an equation.
-        # @param element [Sevgi::Geometry::Element] element to intersect
+        #
+        # Generated lines are boundary-to-boundary interior spans. A single
+        # sweep position can produce multiple lines for closed concave elements.
+        # @param element [Sevgi::Geometry::Element::Lined] element to intersect
         # @param equation [Sevgi::Geometry::Equation] initial sweep equation
         # @param step [Numeric] signed distance between sweep lines
         # @param limit [Integer] maximum iterations
@@ -69,9 +78,7 @@ module Sevgi
             points = element.intersection(equation)
             return lines if points.empty?
 
-            if points.size == 2 && !(line = Line.(*points)).ignorable?
-              lines << line
-            end
+            lines.concat(interior_lines(element, equation, points))
 
             equation = equation.shift(step)
           end
@@ -85,6 +92,38 @@ module Sevgi
         # @return [Boolean]
         def applicable?(element)
           element.respond_to?(:intersection)
+        end
+
+        private
+
+        def interior_lines(element, equation, points)
+          if points.size == 2
+            line = simple_line(points)
+
+            return line ? [line] : []
+          end
+
+          sorted_points(equation, points).each_cons(2).filter_map do |starting, ending|
+            next unless element.inside?(midpoint(starting, ending))
+
+            simple_line([starting, ending])
+          end
+        end
+
+        def midpoint(starting, ending)
+          Point[(starting.x + ending.x) / 2.0, (starting.y + ending.y) / 2.0]
+        end
+
+        def simple_line(points)
+          line = Line.(*points)
+
+          line unless line.ignorable?
+        end
+
+        def sorted_points(equation, points)
+          points.sort_by do |point|
+            equation.is_a?(Equation::Linear::Vertical) ? [point.y, point.x] : [point.x, point.y]
+          end
         end
       end
 

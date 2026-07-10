@@ -33,6 +33,14 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
+      def test_polyline_inside_is_boundary_only
+        polyline = Polyline.from_points([0, 0], [2, 0], [1, 1])
+
+        assert(polyline.inside?([1, 0]))
+        refute(polyline.inside?([1, 0.5]))
+        assert(polyline.outside?([1, 0.5]))
+      end
+
       def test_polyline_approx_respects_scoped_precision
         polyline = Polyline.from_points([0, 0], [1.234_567_89, 0])
 

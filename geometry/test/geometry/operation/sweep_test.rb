@@ -84,6 +84,51 @@ module Sevgi
           assert_raises(OperationError) { sweeper.(limit - 1) }
         end
 
+        def test_sweep_concave_returns_all_spans
+          lines = Operation.unisweep(concave_u, Equation.horizontal(2), 10)
+
+          assert_equal(
+            [
+              [[0.0, 2.0], [1.0, 2.0]],
+              [[3.0, 2.0], [4.0, 2.0]]
+            ],
+            line_points(lines)
+          )
+        end
+
+        def test_sweep_concave_order_independent
+          points = concave_u_points
+          expected = [
+            [[0.0, 2.0], [1.0, 2.0]],
+            [[3.0, 2.0], [4.0, 2.0]]
+          ]
+
+          [points, points.reverse].each do |path|
+            assert_equal(expected, line_points(Operation.unisweep(Polygon.(*path), Equation.horizontal(2), 10)))
+          end
+        end
+
+        def test_sweep_l_shape_returns_inner_span
+          polygon = Polygon.([0, 0], [3, 0], [3, 1], [1, 1], [1, 3], [0, 3])
+          lines = Operation.unisweep(polygon, Equation.horizontal(2), 10)
+
+          assert_equal([[[0.0, 2.0], [1.0, 2.0]]], line_spans(lines))
+        end
+
+        def test_sweep_skips_tangent_vertex
+          triangle = Polygon.([0, 0], [2, 2], [4, 0])
+          lines = Operation.unisweep(triangle, Equation.horizontal(2), 10)
+
+          assert_empty(lines)
+        end
+
+        def test_sweep_keeps_vertex_crossing_span
+          diamond = Polygon.([1, 0], [2, 1], [1, 2], [0, 1])
+          lines = Operation.unisweep(diamond, Equation.horizontal(1), 10)
+
+          assert_equal([[[0.0, 1.0], [2.0, 1.0]]], line_spans(lines))
+        end
+
         def test_sweep_vertical_returns_parallel_lines
           assert_equal(4, Operation.sweep!(rect345, initial: rect345.position, angle: 90.0, step: 1.0).size)
         end
@@ -91,6 +136,27 @@ module Sevgi
         def test_sweep_horizontal_returns_parallel_lines
           assert_equal(5, Operation.sweep!(rect345, initial: rect345.position, angle: 0.0, step: 1.0).size)
         end
+
+        private
+
+        def concave_u = Polygon.(*concave_u_points)
+
+        def concave_u_points
+          [
+            [0, 0],
+            [4, 0],
+            [4, 4],
+            [3, 4],
+            [3, 1],
+            [1, 1],
+            [1, 4],
+            [0, 4]
+          ]
+        end
+
+        def line_spans(lines) = line_points(lines).map(&:sort).sort
+
+        def line_points(lines) = lines.map { it.points.map(&:deconstruct) }
       end
     end
   end

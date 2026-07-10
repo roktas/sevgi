@@ -354,11 +354,16 @@ module Sevgi
         # Relation methods
 
         # Reports whether a point is inside or on the boundary.
+        #
+        # Open paths have no filled interior; for them this predicate is true
+        # only for points on the actual path boundary.
         # @param point [Sevgi::Geometry::Point, Array<Numeric>] point to test
         # @return [Boolean]
         # @raise [Sevgi::Geometry::Error] when point cannot be coerced
         def inside?(point)
           point = Tuple[Point, point]
+
+          return on?(point) if self.class.open?
 
           on?(point) || pnpoly(points, point)
         end
