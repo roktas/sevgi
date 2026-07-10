@@ -19,6 +19,7 @@ module Sevgi
 
         assert_includes(out, "<rect")
       ensure
+        base.remove_method(:Save) if base.method_defined?(:Save) && base.instance_method(:Save).owner == base
         base.define_method(:Save, save) if save
         base.remove_method(:Save!) if base.method_defined?(:Save!) && base.instance_method(:Save!).owner == base
       end

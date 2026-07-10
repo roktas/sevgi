@@ -7,7 +7,7 @@ $LOAD_PATH.push(File.expand_path("lib", __dir__))
 
 require "sevgi/showcase"
 
-ENV["PATH"] += ":#{::File.expand_path("bin")}" if ::Dir.exist?("bin")
+ENV["PATH"] = [ENV["PATH"], ::File.expand_path("bin")].compact.join(::File::PATH_SEPARATOR) if ::Dir.exist?("bin")
 
 # Test
 
@@ -57,7 +57,7 @@ if ::Dir.exist?("srv")
     file(bin.svg => bin.file) do |t|
       say(">>>", t.name)
 
-      sh(t.source, verbose: false)
+      sh([t.source, t.source], verbose: false)
     end
 
     bin.svg
@@ -122,7 +122,7 @@ if ::Dir.exist?("srv")
       file((target = ::File.expand_path("#{dir}/#{bin.svg!}")) => source) do |t|
         say("...", t.name)
 
-        sh("#{t.source}", verbose: false)
+        sh([t.source, t.source], verbose: false)
       end
 
       files << target
@@ -141,7 +141,7 @@ if ::Dir.exist?("srv")
 
   desc("Build site")
   task(:"site:build") do
-    Dir.chdir("doc") { sh("zola build") }
+    Dir.chdir("doc") { sh("zola", "build") }
   end
 
   desc("Serve site")
@@ -171,7 +171,7 @@ end
 
 require "rake/clean"
 
-CLEAN.include("*.gem", "pkg", "coverage")
+CLEAN.include("*.gem", "pkg")
 
 # Default
 

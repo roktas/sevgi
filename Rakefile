@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require "English"
 require "json"
+require "open3"
 
 # rubocop:disable Metrics/BlockLength
 
@@ -10,10 +10,16 @@ Rake::FileUtilsExt.verbose_flag = false
 def yellow(string) = "\e[1;33m#{string}\e[0m"
 
 def released?(package, version)
-  output = `gem list --remote --exact --all #{package}`
-  raise "Cannot query RubyGems for #{package}" unless $CHILD_STATUS.success?
+  output, error, status = Open3.capture3("gem", "list", "--remote", "--exact", "--all", package)
+  raise "Cannot query RubyGems for #{package}: #{error}" unless status.success?
 
   output.match?(/\A#{Regexp.escape(package)} \((?=.*\b#{Regexp.escape(version)}\b)/)
+end
+
+def require_clean_worktree
+  output, error, status = Open3.capture3("git", "status", "--short")
+  raise "Cannot inspect git status: #{error}" unless status.success?
+  raise "Worktree is not clean:\n#{output}" unless output.empty?
 end
 
 ORDER = %w[
@@ -115,7 +121,7 @@ names.each do |project|
       task(tn) do |t|
         warn("#{yellow(t)}")
         Dir.chdir(project) do
-          sh("rake #{tn}")
+          sh("rake", tn.to_s)
         end
 
         warn("")
@@ -144,16 +150,26 @@ names.each do |project|
         next
       end
 
-      sh("gem push #{gem}")
+      sh("gem", "push", gem)
       warn("")
     end
   end
 end
 
-%i[build lint release test].each do |tn|
+%i[build lint test].each do |tn|
   desc("#{tn.capitalize} all")
   task(tn => names.map { |project| "#{project}:#{tn}" })
 end
+
+namespace(:release) do
+  desc("Check release workspace")
+  task(:preflight) do
+    require_clean_worktree
+  end
+end
+
+desc("Release all")
+task(release: ["release:preflight", *names.map { |project| "#{project}:release" }])
 
 desc("Build API documentation")
 task(:doc) do
@@ -189,6 +205,13 @@ namespace(:coverage) do
   end
 end
 
+namespace(:clean) do
+  desc("Clean coverage reports")
+  task(:coverage) do
+    rm_rf(::File.join(rootdir, ".cache/ruby/coverage"))
+  end
+end
+
 desc("Bump versions")
 task(:bump) do
   if ENV["version"]
@@ -205,7 +228,7 @@ end
 
 desc("Clean all")
 task(:clean) do
-  rm_rf("pkg")
+  rm_rf(pkgdir)
 end
 
 desc("Make (almost) all")
