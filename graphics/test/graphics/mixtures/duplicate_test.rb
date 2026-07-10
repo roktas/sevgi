@@ -178,6 +178,22 @@ module Sevgi
           assert_equal(["original"], original.children.first.contents.first.content)
         end
 
+        def test_duplicate_rejects_cyclic_payloads
+          attribute = {}
+          attribute[:self] = attribute
+          content = []
+          content << content
+
+          rect = text = nil
+          SVG do
+            rect = self.rect(style: attribute)
+            text = self.text(Content.verbatim(content))
+          end
+
+          assert_raises(Sevgi::ArgumentError) { rect.Duplicate() }
+          assert_raises(Sevgi::ArgumentError) { text.Duplicate() }
+        end
+
         def test_duplicate_copies_a_root_without_a_root_parent
           original = SVG { g { line } }
 

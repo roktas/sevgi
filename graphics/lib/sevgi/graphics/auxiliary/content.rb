@@ -33,17 +33,26 @@ module Sevgi
       # @return [String]
       def to_s = content.to_s
 
-      def copy_payload(value)
-        case value
-        when ::Hash
-          value.to_h { |key, nested| [copy_payload(key), copy_payload(nested)] }
-        when ::Array
-          value.map { copy_payload(it) }
-        when ::String
-          value.dup
-        else
-          value
+      def copy_payload(value, seen = {}.compare_by_identity)
+        return value.dup if value.is_a?(::String)
+        return value unless value.is_a?(::Hash) || value.is_a?(::Array)
+
+        copy_nested(value, seen) do
+          if value.is_a?(::Hash)
+            value.to_h { |key, nested| [copy_payload(key, seen), copy_payload(nested, seen)] }
+          else
+            value.map { copy_payload(it, seen) }
+          end
         end
+      end
+
+      def copy_nested(value, seen)
+        ArgumentError.("Cannot duplicate cyclic content payload") if seen.key?(value)
+
+        seen[value] = true
+        yield
+      ensure
+        seen.delete(value)
       end
 
       private :copy_payload

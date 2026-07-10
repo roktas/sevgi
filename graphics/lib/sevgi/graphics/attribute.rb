@@ -190,17 +190,26 @@ module Sevgi
           [old_value, new_value]
         end
 
-        def copy_value(value)
-          case value
-          when ::Hash
-            value.to_h { |key, nested| [key, copy_value(nested)] }
-          when ::Array
-            value.map { copy_value(it) }
-          when ::String
-            value.dup
-          else
-            value
+        def copy_value(value, seen = {}.compare_by_identity)
+          return value.dup if value.is_a?(::String)
+          return value unless value.is_a?(::Hash) || value.is_a?(::Array)
+
+          copy_nested(value, seen) do
+            if value.is_a?(::Hash)
+              value.to_h { |key, nested| [copy_value(key, seen), copy_value(nested, seen)] }
+            else
+              value.map { copy_value(it, seen) }
+            end
           end
+        end
+
+        def copy_nested(value, seen)
+          ArgumentError.("Cannot duplicate cyclic attribute payload") if seen.key?(value)
+
+          seen[value] = true
+          yield
+        ensure
+          seen.delete(value)
         end
 
         private_constant :UPDATER
