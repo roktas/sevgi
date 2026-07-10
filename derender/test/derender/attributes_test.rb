@@ -32,6 +32,14 @@ module Sevgi
         assert_equal(expected, actual)
       end
 
+      def test_style_attribute_decompiles_empty_declarations
+        hash = {"style" => ""}
+
+        actual = Attributes.decompile(hash)
+
+        assert_equal("style: {}", actual)
+      end
+
       def test_decompile_doesnt_mutate_input_hash
         hash = {"style" => "color: red", "id" => "root", "class" => "main"}
 

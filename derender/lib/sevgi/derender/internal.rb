@@ -21,7 +21,11 @@ module Sevgi
       # Parses an inline style declaration string.
       # @param style_string [String] CSS declaration source
       # @return [Hash] parsed declarations for the synthetic universal selector
-      def to_h!(style_string) = to_h("* { #{style_string} }")["*"]
+      def to_h!(style_string)
+        hash = to_h("* { #{style_string} }")
+
+        hash ? hash.fetch("*", {}) : {}
+      end
 
       # Converts a CSS key into a Ruby hash key.
       # @param arg [String] CSS key

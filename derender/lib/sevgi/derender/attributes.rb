@@ -38,7 +38,8 @@ module Sevgi
             key = Css.to_key(key) if key.is_a?(::String)
 
             if key == "style"
-              "{ #{Attributes.decompile(Css.to_h!(value))} }"
+              style = Css.to_h!(value)
+              style.empty? ? "{}" : "{ #{Attributes.decompile(style)} }"
             elsif value.is_a?(::String)
               Css.to_value(value)
             elsif value.is_a?(::Hash)

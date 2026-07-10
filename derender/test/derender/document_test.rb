@@ -7,10 +7,6 @@ require_relative "../test_helper"
 module Sevgi
   module Derender
     class DocumentTest < Minitest::Test
-      def teardown
-        Derender::Document.cache.clear
-      end
-
       def test_declaration_extracts_xml_declaration
         svg = <<~SVG
           <?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -28,6 +24,14 @@ module Sevgi
         assert_equal(expected, actual)
       end
 
+      def test_declaration_stops_at_xml_token_boundary
+        svg = "<?xml version=\"1.0\"?><svg/>"
+
+        actual = Derender::Document.declaration(svg)
+
+        assert_equal("<?xml version=\"1.0\"?>", actual)
+      end
+
       def test_decompile_locates_id_with_quotes
         svg = <<~SVG
           <svg>
@@ -41,23 +45,29 @@ module Sevgi
         assert_equal({"id" => "a\"'b"}, actual)
       end
 
-      def test_load_file_caches_parsed_document
+      def test_load_file_reparses_changed_content
         Dir.mktmpdir do |dir|
-          file = ::File.join(dir, "cached.svg")
+          file = ::File.join(dir, "changed.svg")
           ::File.write(file, "<svg id=\"root\"/>")
-          calls = 0
 
-          Derender::Document.stub(
-            :parse,
-            -> (content) {
-              calls += 1
-              Nokogiri::XML(content)
-            }
-          ) do
-            2.times { Derender::Document.load_file(file).decompile("root") }
-          end
+          assert_equal({"id" => "root"}, Derender::Document.load_file(file).decompile.attributes)
 
-          assert_equal(1, calls)
+          ::File.write(file, "<svg id=\"updated\"/>")
+
+          assert_equal({"id" => "updated"}, Derender::Document.load_file(file).decompile.attributes)
+        end
+      end
+
+      def test_load_file_returns_isolated_documents
+        Dir.mktmpdir do |dir|
+          file = ::File.join(dir, "isolated.svg")
+          ::File.write(file, "<svg id=\"root\"/>")
+          first = Derender::Document.load_file(file)
+          first.doc.root["id"] = "mutated"
+
+          actual = Derender::Document.load_file(file).decompile.attributes
+
+          assert_equal({"id" => "root"}, actual)
         end
       end
 
@@ -79,6 +89,14 @@ module Sevgi
 
         assert_match(/Malformed XML/, error.message)
         assert_instance_of(Nokogiri::XML::SyntaxError, error.cause)
+      end
+
+      def test_decompile_rejects_comment_only_document
+        error = assert_raises(ArgumentError) do
+          Derender::Document.new("<!-- no root -->").decompile
+        end
+
+        assert_match(/\A(?:Malformed XML|XML document has no root element)/, error.message)
       end
 
       def test_decompile_rejects_rootless_document

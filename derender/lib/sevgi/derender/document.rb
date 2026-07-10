@@ -6,14 +6,10 @@ module Sevgi
   module Derender
     # Parsed SVG/XML document wrapper used by the derender pipeline.
     class Document
-      @cache = {}
-
-      class << self
-        # @return [Hash{String => Nokogiri::XML::Document}] parsed document cache keyed by expanded file path
-        attr_reader :cache
-      end
-
-      # Loads and parses an SVG/XML file, using the parse cache when possible.
+      # Loads and parses an SVG/XML file.
+      #
+      # Each call reads the current file content and returns an isolated parsed document. Caller mutation of one loaded
+      # document does not affect later loads of the same path.
       # @param path [String] path to the source file, with or without `.svg` extension
       # @return [Sevgi::Derender::Document] document wrapper
       # @raise [Sevgi::ArgumentError] when the file cannot be found or file content is malformed XML
@@ -24,20 +20,19 @@ module Sevgi
         ArgumentError.("File not found: #{path}") unless ::File.exist?(entry)
 
         content = ::File.read(entry)
-        new(content) do
-          @doc = self.class.cache[entry] ||
-            begin
-              self.class.cache[entry] = self.class.parse(content)
-            end
-        end
+        new(content)
       end
 
-      # Parses SVG/XML content.
+      # Parses SVG/XML content in strict XML mode.
       # @param content [String] SVG/XML source content
       # @return [Nokogiri::XML::Document] parsed XML document
       # @raise [Sevgi::ArgumentError] when content is not well-formed XML
+      # @raise [Sevgi::ArgumentError] when content has no root element
       def self.parse(content)
-        Nokogiri::XML(content.lstrip, &:strict)
+        Nokogiri::XML(content.to_s.lstrip, &:strict).tap do |doc|
+          ArgumentError.("XML document has no root element") unless doc.root
+        end
+
       rescue Nokogiri::XML::SyntaxError => e
         raise ArgumentError, "Malformed XML: #{e.message.lines.first.strip}", cause: e
       end
@@ -46,9 +41,9 @@ module Sevgi
       # @param content [String] SVG/XML source content
       # @return [String, nil] XML declaration line, if present
       def self.declaration(content)
-        return unless (content = content.lstrip).start_with?("<?xml ")
+        return unless (content = content.to_s.lstrip).start_with?("<?xml ")
 
-        content.split("\n").first
+        content[/\A<\?xml\b.*?\?>/m]
       end
 
       # @!attribute [r] doc
@@ -87,7 +82,7 @@ module Sevgi
 
         ArgumentError.("XML document has no root element") unless element
 
-        Node.new(element, pres)
+        Node.new(element, pres, namespaces: namespace_scope(element))
       end
 
       # Returns XML declaration and pre-root nodes preserved for root decompilation.
@@ -100,6 +95,18 @@ module Sevgi
       end
 
       private
+
+      def namespace_scope(element)
+        element == doc.root ? local_namespaces(element) : element.namespaces
+      end
+
+      def local_namespaces(element)
+        return {} unless element.respond_to?(:namespace_definitions)
+
+        element.namespace_definitions.to_h do |namespace|
+          [namespace.prefix ? "xmlns:#{namespace.prefix}" : "xmlns", namespace.href]
+        end
+      end
 
       def xpath_literal(value)
         value = value.to_s

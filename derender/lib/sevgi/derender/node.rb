@@ -15,10 +15,13 @@ module Sevgi
       # Builds a derender node.
       # @param node [Nokogiri::XML::Node] source XML node
       # @param pres [Array<String>] preamble XML lines carried by the root node
+      # @param namespaces [Hash{String => String}, nil] namespace declarations to emit on this node; selected roots use
+      #   their full inherited namespace scope, while ordinary children use only declarations from their own element
       # @return [void]
-      def initialize(node, pres = [])
+      def initialize(node, pres = [], namespaces: nil)
         @node = node
         @pres = pres
+        @namespaces = namespaces
         @type = dispatch
       end
 
@@ -39,23 +42,11 @@ module Sevgi
 
       # Returns source XML attributes keyed with namespace prefixes when present.
       # @return [Hash{String => String}] XML attributes
-      def attributes
-        @attributes ||= node.attribute_nodes.to_h do |attr|
-          name, value = attr.name, attr.value
+      def attributes = @attributes ||= node.attribute_nodes.to_h { [attribute_key(it), it.value] }
 
-          if attr.respond_to?(:namespace) && (namespace = attr.namespace) && (prefix = namespace.prefix)
-            "#{prefix}:#{name}"
-          else
-            name
-          end => key
-
-          [key, value]
-        end
-      end
-
-      # Returns source XML attributes.
+      # Returns source XML attributes and namespace declarations emitted on this node.
       # @return [Hash{String => String}] XML attributes
-      def attributes! = attributes
+      def attributes! = {**attributes, **namespaces}
 
       # Returns non-ignorable child derender nodes.
       # @return [Array<Sevgi::Derender::Node>] child nodes
@@ -66,9 +57,12 @@ module Sevgi
           .reject { |child| ignorable_child?(child) }
       end
 
-      # Returns node text content, preserving or stripping whitespace according to xml:space.
+      # Returns node text content.
+      #
+      # `xml:space="preserve"` keeps content verbatim. Default-space text nodes are stripped for ordinary pretty-printed
+      # content, but inline text boundary spaces next to element siblings are kept because they affect rendered SVG text.
       # @return [String]
-      def content = @content ||= preserve_space? ? node.content : node.content.strip
+      def content = @content ||= preserve_space? ? node.content : normalized_content
 
       # Converts this node into formatted Sevgi DSL Ruby source.
       # @return [String] formatted Sevgi DSL source
@@ -102,22 +96,16 @@ module Sevgi
       def find(arg, by: "id")
         return self if attributes[by] == arg
 
-        children&.each do |child|
-          found = child.find(arg, by:)
-
-          return found if found
-        end
-
-        nil
+        children.lazy.map { it.find(arg, by:) }.find(&:itself)
       end
 
       # Returns the source XML node name.
       # @return [String]
       def name = @name ||= node.name
 
-      # Returns source XML namespaces.
+      # Returns source XML namespace declarations emitted on this node.
       # @return [Hash{String => String}] namespace declarations
-      def namespaces = (@namespaces ||= node.namespaces.to_h { |namespace, uri| [namespace, uri] })
+      def namespaces = (@namespaces ||= local_namespaces)
 
       # Reports whether this node is the SVG root strategy.
       # @return [Boolean]
@@ -125,14 +113,17 @@ module Sevgi
 
       private
 
+      def attribute_key(attribute) = [attribute.namespace&.prefix, attribute.name].compact.join(":")
+
       def dispatch
-        if node.text?
+        case
+        when node.text?
           :Text
-        elsif node.comment?
+        when node.comment?
           :Junk
-        elsif node.name == "style"
+        when node.name == "style"
           :CSS
-        elsif node.name == "svg"
+        when node.name == "svg"
           :Root
         else
           :Any
@@ -141,7 +132,8 @@ module Sevgi
       end
 
       def ignorable_child?(child)
-        child.type == :Junk || (child.node.text? && child.node.text.strip.empty? && !child.preserve_space?)
+        child.type == :Junk ||
+          (child.node.text? && child.node.text.strip.empty? && !child.preserve_space? && !child.inline_text?)
       end
 
       protected
@@ -159,7 +151,19 @@ module Sevgi
         false
       end
 
+      def inline_text? = node.text? && !node.content.match?(/[\r\n]/) && node.parent&.children&.any?(&:element?)
+
       private
+
+      def normalized_content = inline_text? ? node.content : node.content.strip
+
+      def local_namespaces
+        return {} unless node.respond_to?(:namespace_definitions)
+
+        node.namespace_definitions.to_h do |namespace|
+          [namespace.prefix ? "xmlns:#{namespace.prefix}" : "xmlns", namespace.href]
+        end
+      end
 
       def each_node
         current = node

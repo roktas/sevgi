@@ -29,6 +29,44 @@ module Sevgi
           assert_equal(expected, actual)
         end
 
+        def test_text_child_preserves_inline_boundary_spaces
+          svg = <<~SVG
+            <text>A <tspan>B</tspan> C</text>
+          SVG
+            .chomp
+
+          actual = Derender.derender(svg)
+
+          expected = <<~SEVGI
+            text do
+              _ "A "
+              tspan "B"
+              _ " C"
+            end
+          SEVGI
+
+          assert_equal(expected, actual)
+        end
+
+        def test_text_child_preserves_inline_space_between_elements
+          svg = <<~SVG
+            <text><tspan>A</tspan> <tspan>B</tspan></text>
+          SVG
+            .chomp
+
+          actual = Derender.derender(svg)
+
+          expected = <<~SEVGI
+            text do
+              tspan "A"
+              _ " "
+              tspan "B"
+            end
+          SEVGI
+
+          assert_equal(expected, actual)
+        end
+
         def test_text_element_decompiles_plain_content
           svg = <<~SVG
             <text>You are</text>

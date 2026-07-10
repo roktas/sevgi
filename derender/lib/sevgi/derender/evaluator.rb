@@ -40,7 +40,7 @@ module Sevgi
         end
       end
 
-      def attributes(node) = node.root? ? node.attributes! : node.attributes
+      def attributes(node) = node.attributes!
 
       def content(node)
         node.children.one? && node.children.first.node.text? ? [node.content] : []

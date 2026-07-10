@@ -226,7 +226,7 @@ module Sevgi
         actual = Derender.evaluate(svg, SVG(:minimal), id: "chunk").Render()
 
         expected = <<~SVG
-          <g id="chunk">
+          <g id="chunk" xmlns:xlink="http://www.w3.org/1999/xlink">
             <clip-path xlink:href="#clip">
               <text xml:space="preserve">  spaced  </text>
             </clip-path>
@@ -240,6 +240,72 @@ module Sevgi
           </g>
         SVG
           .chomp
+
+        assert_equal(expected, actual)
+      end
+
+      def test_derender_selected_node_preserves_namespace_scope
+        svg = <<~SVG
+          <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+            <g id="chunk">
+              <use xlink:href="#shape"/>
+            </g>
+          </svg>
+        SVG
+          .chomp
+
+        actual = Derender.derender(svg, id: "chunk")
+
+        expected = <<~SEVGI
+          g id: "chunk", xmlns: "http://www.w3.org/2000/svg", "xmlns:xlink": "http://www.w3.org/1999/xlink" do
+            use "xlink:href": "#shape"
+          end
+        SEVGI
+
+        assert_equal(expected, actual)
+      end
+
+      def test_evaluate_selected_node_preserves_namespace_scope
+        svg = <<~SVG
+          <svg xmlns:xlink="http://www.w3.org/1999/xlink">
+            <g id="chunk">
+              <use xlink:href="#shape"/>
+            </g>
+          </svg>
+        SVG
+          .chomp
+
+        actual = Derender.evaluate(svg, SVG(:minimal), id: "chunk").Render()
+
+        expected = <<~SVG
+          <g id="chunk" xmlns:xlink="http://www.w3.org/1999/xlink">
+            <use xlink:href="#shape"/>
+          </g>
+        SVG
+          .chomp
+
+        assert_equal(expected, actual)
+      end
+
+      def test_derender_child_node_preserves_local_namespace
+        svg = <<~SVG
+          <svg>
+            <g id="chunk" xmlns:mark="https://example.test/mark">
+              <use mark:href="#shape"/>
+            </g>
+          </svg>
+        SVG
+          .chomp
+
+        actual = Derender.derender(svg)
+
+        expected = <<~SEVGI
+          SVG do
+            g id: "chunk", "xmlns:mark": "https://example.test/mark" do
+              use "mark:href": "#shape"
+            end
+          end
+        SEVGI
 
         assert_equal(expected, actual)
       end
