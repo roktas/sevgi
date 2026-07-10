@@ -24,6 +24,15 @@ module Sevgi
         assert_equal(expected, actual)
       end
 
+      def test_pres_excludes_nil_without_xml_declaration
+        svg = "<!-- comment --><?app value=\"true\"?><svg/>"
+
+        actual = Derender::Document.new(svg).pres
+
+        assert_equal(["<!-- comment -->", "<?app value=\"true\"?>"], actual)
+        assert(actual.all?(String))
+      end
+
       def test_declaration_stops_at_xml_token_boundary
         svg = "<?xml version=\"1.0\"?><svg/>"
 

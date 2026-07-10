@@ -48,6 +48,38 @@ module Sevgi
           assert_equal(expected, actual)
         end
 
+        def test_text_child_preserves_tabs_and_boundary_spaces
+          svg = "<text> A\n<tspan>B</tspan>\tC </text>"
+
+          actual = Derender.derender(svg)
+
+          expected = <<~SEVGI
+            text do
+              _ " A"
+              tspan "B"
+              _ "\\tC "
+            end
+          SEVGI
+
+          assert_equal(expected, actual)
+        end
+
+        def test_text_child_strips_crlf_indentation
+          svg = "<text> A\r\n  <tspan>B</tspan>\r\n C </text>"
+
+          actual = Derender.derender(svg)
+
+          expected = <<~SEVGI
+            text do
+              _ " A"
+              tspan "B"
+              _ "C "
+            end
+          SEVGI
+
+          assert_equal(expected, actual)
+        end
+
         def test_text_child_preserves_inline_space_between_elements
           svg = <<~SVG
             <text><tspan>A</tspan> <tspan>B</tspan></text>

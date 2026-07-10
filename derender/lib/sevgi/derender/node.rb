@@ -60,7 +60,8 @@ module Sevgi
       # Returns node text content.
       #
       # `xml:space="preserve"` keeps content verbatim. Default-space text nodes are stripped for ordinary pretty-printed
-      # content, but inline text boundary spaces next to element siblings are kept because they affect rendered SVG text.
+      # content; line-break indentation around mixed-content children is removed while inline boundary spaces and tabs are
+      # kept because they affect rendered SVG text.
       # @return [String]
       def content = @content ||= preserve_space? ? node.content : normalized_content
 
@@ -99,9 +100,9 @@ module Sevgi
         children.lazy.map { it.find(arg, by:) }.find(&:itself)
       end
 
-      # Returns the source XML node name.
+      # Returns the source XML qualified name, including its namespace prefix when present.
       # @return [String]
-      def name = @name ||= node.name
+      def name = @name ||= [node.namespace&.prefix, node.name].compact.join(":")
 
       # Returns source XML namespace declarations emitted on this node.
       # @return [Hash{String => String}] namespace declarations
@@ -151,11 +152,18 @@ module Sevgi
         false
       end
 
-      def inline_text? = node.text? && !node.content.match?(/[\r\n]/) && node.parent&.children&.any?(&:element?)
+      def inline_text? = mixed_text? && !node.content.match?(/[\r\n]/)
 
       private
 
-      def normalized_content = inline_text? ? node.content : node.content.strip
+      def normalized_content
+        return node.content if mixed_text? && inline_text?
+        return node.content.strip unless mixed_text?
+
+        node.content.sub(/\A[ \t]*\r?\n[ \t]*/, "").sub(/[ \t]*\r?\n[ \t]*\z/, "")
+      end
+
+      def mixed_text? = node.text? && node.parent&.children&.any?(&:element?)
 
       def local_namespaces
         return {} unless node.respond_to?(:namespace_definitions)

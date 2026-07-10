@@ -46,6 +46,18 @@ module Sevgi
         assert_equal(expected, actual)
       end
 
+      def test_conversions_reject_malformed_xml
+        target = SVG(:minimal)
+
+        [
+          -> { Derender.decompile("<svg>") },
+          -> { Derender.derender("<svg>") },
+          -> { Derender.evaluate("<svg>", target) }
+        ].each do |conversion|
+          assert_raises(ArgumentError, &conversion)
+        end
+      end
+
       def test_evaluate_renders_selected_node_in_document
         expected = svg = <<~SVG
           <g id="xxx">
@@ -299,6 +311,45 @@ module Sevgi
             use "xlink:href": "#shape"
           end
         SEVGI
+
+        assert_equal(expected, actual)
+      end
+
+      def test_derender_preserves_qualified_element_names
+        svg = <<~SVG
+          <svg xmlns:mark="https://example.test/mark">
+            <mark:shape mark:value="x"/>
+          </svg>
+        SVG
+          .chomp
+
+        actual = Derender.derender(svg)
+
+        expected = <<~SEVGI
+          SVG "xmlns:mark": "https://example.test/mark" do
+            Element(:"mark:shape", "mark:value": "x")
+          end
+        SEVGI
+
+        assert_equal(expected, actual)
+      end
+
+      def test_evaluate_preserves_qualified_element_names
+        svg = <<~SVG
+          <svg xmlns:mark="https://example.test/mark">
+            <mark:shape mark:value="x"/>
+          </svg>
+        SVG
+          .chomp
+
+        actual = Derender.evaluate(svg, SVG(:minimal)).Render()
+
+        expected = <<~SVG
+          <svg xmlns:mark="https://example.test/mark">
+            <mark:shape mark:value="x"/>
+          </svg>
+        SVG
+          .chomp
 
         assert_equal(expected, actual)
       end

@@ -24,7 +24,15 @@ module Sevgi
           args << Ruby.literal(content) if has_content
           args << Attributes.decompile(attributes) if has_attributes && attributes.any?
 
+          return qualified_leaf(args) if element.include?(":")
+
           args.empty? ? element : "#{element} #{args.join(", ")}"
+        end
+
+        def qualified_leaf(args)
+          call = "Element(:#{Ruby.literal(element)}"
+
+          args.empty? ? "#{call})" : "#{call}, #{args.join(", ")})"
         end
 
         def tree

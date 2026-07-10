@@ -54,14 +54,11 @@ module Sevgi
 
       # Builds a parsed document wrapper from SVG/XML content.
       # @param content [String] SVG/XML source content
-      # @yield optional initializer used by {load_file} to install cached parse state
-      # @yieldreturn [void]
       # @return [void]
       # @raise [Sevgi::ArgumentError] when content is malformed XML
-      def initialize(content, &block)
-        instance_exec(&block) if block
-
-        @doc ||= self.class.parse(content)
+      # @raise [Sevgi::ArgumentError] when content has no root element
+      def initialize(content)
+        @doc = self.class.parse(content)
         @decl = self.class.declaration(content)
       end
 
@@ -85,12 +82,14 @@ module Sevgi
         Node.new(element, pres, namespaces: namespace_scope(element))
       end
 
-      # Returns XML declaration and pre-root nodes preserved for root decompilation.
+      # Returns XML declaration and pre-root nodes preserved for root decompilation. The result contains only String
+      # lines and omits the declaration when the source did not provide one.
       # @return [Array<String>] preamble XML lines
       def pres
         @pres ||= [].tap do |lines|
           lines.append(*doc.children.take_while { |node| node != doc.root }.map(&:to_xml))
-          lines.unshift(decl) unless lines.first == decl
+          lines.unshift(decl) if decl && lines.first != decl
+          lines.compact!
         end
       end
 
