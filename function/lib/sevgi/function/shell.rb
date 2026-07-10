@@ -24,8 +24,9 @@ module Sevgi
       # @param args [Array<Object>] command arguments
       # @return [nil]
       # @raise [Sevgi::Error] when the program cannot be found in PATH
+      # @note The first argument is checked as one exact argv entry; it is never shell-split.
       def executable!(*args)
-        program = args.first.to_s.split.first
+        program = args.first.to_s
         Error.("Missing executable: #{program}") unless executable?(program)
       end
 
@@ -94,8 +95,6 @@ module Sevgi
           end
 
           private
-
-          attr_reader :entries, :mutex
 
           def dispatch
             active = mutex.synchronize { entries.values.dup }

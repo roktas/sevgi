@@ -74,12 +74,13 @@ module Sevgi
       def cot(degrees) = 1.0 / ::Math.tan(to_radians(degrees))
 
       # Counts complete divisions in a length.
-      # @param length [Numeric] total length
-      # @param division [Numeric] division size
+      # @param length [Numeric] finite total length
+      # @param division [Numeric] finite, non-zero division size
       # @return [Integer]
-      # @raise [Sevgi::ArgumentError] when division is zero
+      # @raise [Sevgi::ArgumentError] when an operand is not a finite Numeric or division is zero
       def count(length, division)
-        divisor = division.to_f
+        length = finite_real(:length, length)
+        divisor = finite_real(:division, division)
         ArgumentError.("Division must not be zero") if divisor.zero?
 
         (length / divisor).to_i
@@ -167,6 +168,25 @@ module Sevgi
       # @param precision [Integer, nil] explicit precision, or nil to use {Math.precision}
       # @return [Boolean]
       def zero?(value, precision: nil) = eq?(value, 0.0, precision:)
+
+      private
+
+      def finite_real(field, value)
+        unless value.is_a?(::Numeric)
+          ArgumentError.("#{field} must be a finite Numeric: #{value.inspect}")
+        end
+
+        number = begin
+          value.to_f
+        rescue ::StandardError => e
+          ArgumentError.("#{field} must be a finite Numeric: #{value.inspect} (#{e.message})")
+        end
+
+        ArgumentError.("#{field} must be finite: #{value.inspect}") unless number.is_a?(::Float) && number.finite?
+
+        number
+      end
+
     end
 
     extend Math

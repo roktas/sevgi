@@ -102,7 +102,13 @@ module Sevgi
         def test_executable_bang_raises_for_missing_program
           error = assert_raises(Error) { Function.executable!("missing-tool --version") }
 
-          assert_equal("Missing executable: missing-tool", error.message)
+          assert_equal("Missing executable: missing-tool --version", error.message)
+        end
+
+        def test_executable_bang_accepts_absolute_path_with_spaces
+          with_executable("tool with spaces") do |path|
+            Function.executable!(path)
+          end
         end
 
         def test_executable_bang_rejects_blank_program

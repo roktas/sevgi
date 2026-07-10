@@ -48,6 +48,7 @@ module Sevgi
       # @yield optional matcher used instead of file existence checks
       # @yieldparam path [String] absolute candidate path
       # @yieldreturn [Boolean]
+      # @note Absolute exclusions are applied before the default or custom matcher.
       # @return [Sevgi::Function::Location, nil] found location, or nil
       # @raise [Errno::ENOENT] when the start directory does not exist
       # @raise [Errno::ENOTDIR] when the start path is not a directory
@@ -83,7 +84,7 @@ module Sevgi
       def match(here, &block)
         paths.each do |path|
           candidate = ::File.expand_path(path, here)
-          next if !block && excluded?(candidate)
+          next if excluded?(candidate)
 
           return [path, candidate] if (block || proc { ::File.exist?(it) }).call(candidate)
         end

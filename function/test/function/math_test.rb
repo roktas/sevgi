@@ -68,6 +68,29 @@ module Sevgi
           assert_equal("Division must not be zero", error.message)
         end
 
+        def test_count_rejects_non_finite_or_non_numeric_operands
+          values = ["1", Complex(1, 2), Float::NAN, Float::INFINITY]
+
+          values.each do |value|
+            assert_raises(ArgumentError) { Function.count(value, 1) }
+            assert_raises(ArgumentError) { Function.count(1, value) }
+          end
+
+          numeric = Class.new(Numeric) { def to_f = raise "conversion failed" }.new
+          error = assert_raises(ArgumentError) { Function.count(1, numeric) }
+
+          assert_match(/division/, error.message)
+        end
+
+        def test_count_accepts_finite_real_operands
+          [
+            2,
+            Function.count(Rational(5, 1), Rational(2, 1)),
+            2,
+            Function.count(5.0, 2)
+          ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+        end
+
         def test_trig_helpers_use_degrees
           [
             1.0,

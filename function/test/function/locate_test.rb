@@ -67,6 +67,24 @@ module Sevgi
         end
       end
 
+      def test_locate_excludes_candidates_before_custom_matcher
+        ::Dir.mktmpdir do |dir|
+          start = ::File.join(dir, "child")
+          ::FileUtils.mkdir_p(start)
+          file = ::File.join(dir, "target.sevgi")
+          ::File.write(file, "")
+          seen = []
+
+          location = Locate.("target.sevgi", start, exclude: file) do |candidate|
+            seen << candidate
+            ::File.exist?(candidate)
+          end
+
+          assert_nil(location)
+          refute_includes(seen, file)
+        end
+      end
+
       def test_locate_concurrent_calls_keep_results_and_cwd
         origin = ::Dir.pwd
 
