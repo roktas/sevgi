@@ -176,6 +176,19 @@ module Sevgi
       assert_equal(true, result.recent)
     end
 
+    def test_execute_empty_string_preserves_signal_guard
+      executor = Executor.instance
+      executor.send(:trap)
+
+      begin
+        assert_equal(1, executor.instance_variable_get(:@signal_count))
+        Executor.execute("")
+        assert_equal(1, executor.instance_variable_get(:@signal_count))
+      ensure
+        executor.send(:restore)
+      end
+    end
+
     def test_execute_installs_dsl_in_isolated_scope
       result = Sevgi.execute(
         <<~RUBY

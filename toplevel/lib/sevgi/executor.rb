@@ -135,23 +135,24 @@ module Sevgi
     end
 
     def self.capture_error(source, error)
-      instance.trap
+      acquired = instance.trap
       scope = instance.create
       scope.capture(source, error)
     ensure
-      instance.restore
+      instance.restore if acquired
       instance.shutdown(scope) if scope
     end
 
     def self.execute_source(source, require:, receiver:, &block)
+      acquired = false
       return if source.string.empty?
 
-      instance.trap
+      acquired = instance.trap
       scope = instance.create
       catch(:result) { run_source(scope, source, require, receiver, &block) }
 
     ensure
-      instance.restore
+      instance.restore if acquired
       instance.shutdown(scope) if scope
     end
 
