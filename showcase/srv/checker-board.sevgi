@@ -1,96 +1,85 @@
 #!/usr/bin/env -S ruby -S sevgi
 # frozen_string_literal: true
 
-class CheckerBoard
+module CheckerBoard
+  extend Sevgi::Graphics::Module
+
   BOARD_MARGIN = 50
   CELL_SIZE = 100
   PIECE_SIZE = 80
+  SIZE = (CELL_SIZE * 8) + (BOARD_MARGIN * 2)
 
   STYLE = {
-    ".board-frame" => { fill: "#d1bfa7", stroke: "#6a3f2b" },
+    ".board-frame" => {fill: "#d1bfa7", stroke: "#6a3f2b"},
     ".inner-frame" => {
       fill: "#6a3f2b",
       stroke: "#6a3f2b",
       "stroke-width": (BOARD_MARGIN * 0.7).round
     },
-    ".cell" => { stroke: "white", "stroke-width": 1 },
-    ".light.cell" => { fill: "#d4a76f" },
-    ".dark.cell" => { fill: "#6a3f2b" },
+    ".cell" => {stroke: "white", "stroke-width": 1},
+    ".light.cell" => {fill: "#d4a76f"},
+    ".dark.cell" => {fill: "#6a3f2b"},
     ".piece" => {
       filter: "drop-shadow(8px 8px 8px rgba(0, 0, 0, 0.5))",
       stroke: "none"
     },
-    ".light.piece" => { fill: "#f5f5f5" },
-    ".dark.piece" => { fill: "#333" }
+    ".light.piece" => {fill: "#f5f5f5"},
+    ".dark.piece" => {fill: "#333"}
   }.freeze
 
-  def initialize
-    @pieces = []
+  def style(*) = css(STYLE)
+
+  def frame(*)
+    square(class: "board-frame", length: SIZE)
+    square(
+      class: "inner-frame",
+      x: BOARD_MARGIN,
+      y: BOARD_MARGIN,
+      length: SIZE - (BOARD_MARGIN * 2)
+    )
   end
 
-  def width = (CELL_SIZE * 8) + (BOARD_MARGIN * 2)
-
-  def height = width
-
-  def view_box = "0 0 #{width} #{height}"
-
-  def add_piece(row, col, dark: false)
-    @pieces << [row, col, dark]
-  end
-
-  def render_on(svg)
-    svg.css STYLE
-    add_frame(svg)
-    add_cells(svg)
-    add_pieces(svg)
-  end
-
-  private
-
-  def add_frame(svg)
-    svg.rect class: "board-frame", x: 0, y: 0, width: width, height: height
-    svg.rect class: "inner-frame", x: BOARD_MARGIN, y: BOARD_MARGIN,
-             width: width - (BOARD_MARGIN * 2),
-             height: height - (BOARD_MARGIN * 2)
-  end
-
-  def add_cells(svg)
+  def cells(*)
     8.times do |row|
       8.times do |col|
-        svg.rect class: "#{(row + col).even? ? "dark" : "light"} cell",
-                 x: (col * CELL_SIZE) + BOARD_MARGIN,
-                 y: (row * CELL_SIZE) + BOARD_MARGIN,
-                 width: CELL_SIZE,
-                 height: CELL_SIZE
+        rect(
+          class: "#{(row + col).even? ? "dark" : "light"} cell",
+          x: (col * CELL_SIZE) + BOARD_MARGIN,
+          y: (row * CELL_SIZE) + BOARD_MARGIN,
+          width: CELL_SIZE,
+          height: CELL_SIZE
+        )
       end
     end
   end
 
-  def add_pieces(svg)
-    @pieces.each do |row, col, dark|
-      x = (col * CELL_SIZE) + BOARD_MARGIN + 10
-      y = (row * CELL_SIZE) + BOARD_MARGIN + 10
+  def pieces(set)
+    center = BOARD_MARGIN + (CELL_SIZE / 2)
 
-      svg.circle class: "#{dark ? "dark" : "light"} piece",
-                 cx: x + (PIECE_SIZE / 2),
-                 cy: y + (PIECE_SIZE / 2),
-                 r: PIECE_SIZE / 2
+    set.each do |tone, positions|
+      positions.each do |row, col|
+        circle(
+          class: "#{tone} piece",
+          cx: (col * CELL_SIZE) + center,
+          cy: (row * CELL_SIZE) + center,
+          r: PIECE_SIZE / 2
+        )
+      end
     end
   end
 end
 
-board = CheckerBoard.new
+pieces = {
+  dark: [[0, 1], [0, 3], [0, 5], [0, 7], [1, 0], [1, 2], [1, 4], [1, 6]],
+  light: [[6, 1], [6, 3], [6, 5], [6, 7], [7, 0], [7, 2], [7, 4], [7, 6]]
+}
 
-[1, 3, 5, 7].each do |col|
-  board.add_piece 0, col, dark: true
-  board.add_piece 6, col, dark: false
+SVG(
+  :minimal,
+  width: CheckerBoard::SIZE,
+  height: CheckerBoard::SIZE,
+  viewBox: "0 0 #{CheckerBoard::SIZE} #{CheckerBoard::SIZE}"
+) do
+  Call(CheckerBoard, pieces)
 end
-
-[0, 2, 4, 6].each do |col|
-  board.add_piece 1, col, dark: true
-  board.add_piece 7, col, dark: false
-end
-
-SVG :minimal, width: board.width, height: board.height, viewBox: board.view_box do
-  board.render_on(self)
-end.Save
+  .Save()

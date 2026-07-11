@@ -1,13 +1,18 @@
 <svg width="128" height="30" viewBox="0 0 128 30">
   <rect x="2" y="2" width="124" height="26" rx="4" fill="none" stroke="#666"/>
-  <rect x="5" y="5" width="10" height="20" rx="3" fill="green" fill-opacity="1"/>
-  <rect x="17" y="5" width="10" height="20" rx="3" fill="green" fill-opacity="1"/>
-  <rect x="29" y="5" width="10" height="20" rx="3" fill="green" fill-opacity="1"/>
-  <rect x="41" y="5" width="10" height="20" rx="3" fill="green" fill-opacity="1"/>
-  <rect x="53" y="5" width="10" height="20" rx="3" fill="green" fill-opacity="1"/>
-  <rect x="65" y="5" width="10" height="20" rx="3" fill="green" fill-opacity="1"/>
-  <rect x="77" y="5" width="10" height="20" rx="3" fill="green" fill-opacity="1"/>
-  <rect x="89" y="5" width="10" height="20" rx="3" fill="green" fill-opacity="0.3"/>
-  <rect x="101" y="5" width="10" height="20" rx="3" fill="green" fill-opacity="0.3"/>
-  <rect x="113" y="5" width="10" height="20" rx="3" fill="green" fill-opacity="0.3"/>
+  <defs>
+    <g id="led">
+      <rect y="5" width="10" height="20" rx="3" fill="green"/>
+    </g>
+  </defs>
+  <use id="led-1" href="#led" class="tile-col-1 tile-col-first" x="5"/>
+  <use id="led-2" href="#led" class="tile-col-2" x="17"/>
+  <use id="led-3" href="#led" class="tile-col-3" x="29"/>
+  <use id="led-4" href="#led" class="tile-col-4" x="41"/>
+  <use id="led-5" href="#led" class="tile-col-5" x="53"/>
+  <use id="led-6" href="#led" class="tile-col-6" x="65"/>
+  <use id="led-7" href="#led" class="tile-col-7" x="77"/>
+  <use id="led-8" href="#led" class="tile-col-8" x="89" fill-opacity="0.3"/>
+  <use id="led-9" href="#led" class="tile-col-9" x="101" fill-opacity="0.3"/>
+  <use id="led-10" href="#led" class="tile-col-10 tile-col-last" x="113" fill-opacity="0.3"/>
 </svg>

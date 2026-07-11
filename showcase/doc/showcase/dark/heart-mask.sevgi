@@ -8,7 +8,7 @@ SVG :minimal, width: 120, height: 120, viewBox: "-10 -10 120 120" do
        maskUnits: "userSpaceOnUse",
        maskContentUnits: "userSpaceOnUse",
        x: 0, y: 0, width: 100, height: 100 do
-    rect x: 0, y: 0, width: 100, height: 100, fill: "white"
+    square length: 100, fill: "white"
     path d: HEART_PATH, fill: "black"
   end
 

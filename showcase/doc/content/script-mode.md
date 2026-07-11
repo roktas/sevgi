@@ -14,8 +14,8 @@ A script usually has three parts:
 - Ruby constants, helper classes, or calculations
 - an `SVG` block followed by `Save`, `Write`, or `Out`
 
-The checker-board example shows the pattern clearly: a regular Ruby class stores the drawing data, and the `SVG` block
-uses that data to emit elements.
+The checker-board example shows the pattern clearly: a regular Ruby hash stores the piece positions, while a callable
+drawing module groups receiver-free DSL steps that the `SVG` block invokes with `Call`.
 
 {{ tabs(base="checker-board", dir="../showcase") }}
 

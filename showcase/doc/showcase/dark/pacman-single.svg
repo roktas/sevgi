@@ -4,6 +4,7 @@
   <circle id="eye" cx="90" cy="28" r="6" fill="#222222"/>
   <polygon id="mouth" points="80,50 120,20 120,80" fill="#222222"/>
   <symbol id="dot">
+    <title>Dot</title>
     <circle cx="120" cy="50" r="6" fill="#e5c39c"/>
   </symbol>
   <g id="dots">

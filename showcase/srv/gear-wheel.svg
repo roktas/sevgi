@@ -1,12 +1,12 @@
 <svg width="100" height="100" viewBox="0 0 100 100">
-  <rect x="0" y="0" width="100" height="100" fill="lightgreen"/>
+  <rect width="100" height="100" fill="lightgreen"/>
   <mask id="hole" maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse" x="0" y="0" width="100" height="100">
-    <rect x="0" y="0" width="100" height="100" fill="white"/>
+    <rect width="100" height="100" fill="white"/>
     <circle cx="50" cy="50" r="15" fill="black"/>
   </mask>
-  <circle cx="50" cy="50" r="30" mask="url(#hole)" fill="#333" stroke="none"/>
-  <rect x="45" y="10" width="10" height="80" mask="url(#hole)" transform="rotate(0 50 50)" fill="#333" stroke="none"/>
-  <rect x="45" y="10" width="10" height="80" mask="url(#hole)" transform="rotate(45 50 50)" fill="#333" stroke="none"/>
-  <rect x="45" y="10" width="10" height="80" mask="url(#hole)" transform="rotate(90 50 50)" fill="#333" stroke="none"/>
-  <rect x="45" y="10" width="10" height="80" mask="url(#hole)" transform="rotate(135 50 50)" fill="#333" stroke="none"/>
+  <circle cx="50" cy="50" r="30" fill="#333" mask="url(#hole)" stroke="none"/>
+  <rect x="45" y="10" width="10" height="80" fill="#333" mask="url(#hole)" stroke="none"/>
+  <rect x="45" y="10" width="10" height="80" fill="#333" mask="url(#hole)" stroke="none" transform="rotate(45, 50, 50)"/>
+  <rect x="45" y="10" width="10" height="80" fill="#333" mask="url(#hole)" stroke="none" transform="rotate(90, 50, 50)"/>
+  <rect x="45" y="10" width="10" height="80" fill="#333" mask="url(#hole)" stroke="none" transform="rotate(135, 50, 50)"/>
 </svg>
