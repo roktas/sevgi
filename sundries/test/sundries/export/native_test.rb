@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require "tmpdir"
-require "hexapdf"
 
 require_relative "../../test_helper"
+require "sevgi/sundries/export/native"
 
 module Sevgi
   module Sundries
@@ -328,7 +328,6 @@ module Sevgi
               infile = File.join(dir, "in.pdf")
               outfile = File.join(dir, "out.pdf")
               expected = stream.sub("1 1 1 rg", "0.101961 0.101961 0.101961 rg").gsub("(old)", "(new)")
-              Export.send(:native!)
               rewritten, count = Export.send(:stamp_stream, stream, stamp: "new", placeholder: "old")
 
               assert_equal(expected, rewritten)
