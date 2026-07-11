@@ -439,23 +439,19 @@ module SevgiBuild
       runner.call("yard", "doc", "--fail-on-warning")
     end
 
-    def complete!(runner: Open3.method(:capture3), reporter: Kernel.method(:warn))
+    def verify!(root:, runner: Open3.method(:capture3), reporter: Kernel.method(:warn))
       output, error, status = runner.call("yard", "stats", "--list-undoc")
       raise "YARD stats failed: #{error}" unless status.success?
 
       undocumented = output.lines.grep(/\(\s*[1-9]\d* undocumented\)/)
       raise "Undocumented public API objects:\n#{output}" unless undocumented.empty?
 
-      reporter.call(output)
-      output
-    end
-
-    def hide_private!(root:)
       pages = PRIVATE_PAGES.map { File.join(root, ".cache/ruby/doc/api", it) }
       present = pages.select { File.exist?(it) }
       raise "Private API pages are exposed:\n#{present.join("\n")}" unless present.empty?
 
-      nil
+      reporter.call(output)
+      output
     end
 
     def run(*args)
@@ -636,8 +632,7 @@ namespace(:doc) do
   desc("Check API documentation")
   task(:check) do
     SevgiBuild::Docs.build!(root: rootdir)
-    SevgiBuild::Docs.complete!
-    SevgiBuild::Docs.hide_private!(root: rootdir)
+    SevgiBuild::Docs.verify!(root: rootdir)
   end
 end
 

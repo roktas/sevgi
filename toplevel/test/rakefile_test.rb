@@ -102,7 +102,7 @@ module Sevgi
       )
     end
 
-    def test_docs_reject_failed_stats_and_undocumented_api
+    def test_docs_verify_rejects_incomplete_stats
       cases = [
         [["", "yard failed", Status.new(false)], /YARD stats failed/],
         [["Methods: 2 (1 undocumented)\n", "", Status.new(true)], /Undocumented public API/]
@@ -110,38 +110,50 @@ module Sevgi
 
       cases.each do |result, message|
         error = assert_raises(RuntimeError) do
-          Build::Docs.complete!(runner: -> (*_args) { result }, reporter: -> (_output) { })
+          Build::Docs.verify!(root: ROOT, runner: -> (*_args) { result }, reporter: -> (_output) { })
         end
 
         assert_match(message, error.message)
       end
     end
 
-    def test_docs_report_complete_stats
+    def test_docs_verify_reports_complete_stats
       reports = []
       result = ["Methods: 2 (0 undocumented)\n", "", Status.new(true)]
 
-      output = Build::Docs.complete!(runner: -> (*_args) { result }, reporter: -> (text) { reports << text })
+      output = Build::Docs.verify!(
+        root: ROOT,
+        runner: -> (*_args) { result },
+        reporter: -> (text) { reports << text }
+      )
 
       assert_equal(result.first, output)
       assert_equal([result.first], reports)
     end
 
-    def test_docs_reject_exposed_private_pages
+    def test_docs_verify_rejects_exposed_private_pages
       Dir.mktmpdir do |root|
         page = File.join(root, ".cache/ruby/doc/api/Sevgi/Executor/Scope.html")
         FileUtils.mkdir_p(File.dirname(page))
         File.write(page, "private")
+        result = ["Methods: 2 (0 undocumented)\n", "", Status.new(true)]
 
-        error = assert_raises(RuntimeError) { Build::Docs.hide_private!(root:) }
+        error = assert_raises(RuntimeError) do
+          Build::Docs.verify!(root:, runner: -> (*_args) { result }, reporter: -> (_output) { })
+        end
 
         assert_includes(error.message, page)
       end
     end
 
-    def test_docs_accept_hidden_private_pages
+    def test_docs_verify_accepts_hidden_private_pages
       Dir.mktmpdir do |root|
-        assert_nil(Build::Docs.hide_private!(root:))
+        result = ["Methods: 2 (0 undocumented)\n", "", Status.new(true)]
+
+        assert_equal(
+          result.first,
+          Build::Docs.verify!(root:, runner: -> (*_args) { result }, reporter: -> (_output) { })
+        )
       end
     end
 
@@ -322,14 +334,12 @@ module Sevgi
       calls = []
 
       Build::Docs.stub(:build!, -> (**) { calls << :build }) do
-        Build::Docs.stub(:complete!, -> { calls << :complete }) do
-          Build::Docs.stub(:hide_private!, -> (**) { calls << :private }) do
-            invoke(task)
-          end
+        Build::Docs.stub(:verify!, -> (**) { calls << :verify }) do
+          invoke(task)
         end
       end
 
-      assert_equal(%i[build complete private], calls)
+      assert_equal(%i[build verify], calls)
     end
 
     private
