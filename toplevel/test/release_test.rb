@@ -2,10 +2,12 @@
 
 require "fileutils"
 require "open3"
+require "rake"
 require "rubygems/package"
 
-require_relative "../../script/release"
 require_relative "test_helper"
+
+load(File.expand_path("../../Rakefile", __dir__)) unless defined?(SevgiRelease::Preflight)
 
 module Sevgi
   class ReleaseTest < Minitest::Test
@@ -203,9 +205,9 @@ module Sevgi
     def test_workflow_uses_tracked_guard_and_pinned_actions
       ship = File.read(File.expand_path("../../.github/workflows/ship.yml", __dir__))
 
-      assert_includes(ship, "script/release.rb guard")
-      assert_includes(ship, "script/release.rb preflight")
-      refute_includes(ship, "def allowed?")
+      assert_includes(ship, "Rake::Task[\"release:guard\"].invoke")
+      assert_includes(ship, "bundle exec rake release:verify")
+      refute_includes(ship, "script/release.rb")
       ship.scan(/^\s+uses:\s+([^\s]+)$/).flatten.each do |reference|
         assert_match(/@[0-9a-f]{40}\z/, reference)
       end

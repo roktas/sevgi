@@ -152,8 +152,7 @@ module Sevgi
       root = ::File.read(::File.join(ROOT, "Rakefile"))
       component = ::File.read(::File.join(ROOT, "showcase/Rakefile"))
 
-      release = ::File.read(::File.join(ROOT, "script/release.rb"))
-      assert_includes(release, "Open3.capture3(\"gem\", \"list\"")
+      assert_includes(root, "Open3.capture3(\"gem\", \"list\"")
       assert_includes(root, "sh(\"rake\", tn.to_s)")
       assert_includes(root, "sh(\"gem\", \"push\", archive.fetch(:path))")
       assert_includes(component, "::File::PATH_SEPARATOR")
