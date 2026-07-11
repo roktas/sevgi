@@ -230,7 +230,7 @@ module Sevgi
 
     def runtime_path(owner, name, method, separator)
       file = method.source_location&.first
-      return unless file && ::File.file?(file) && ::File.expand_path(file).start_with?("#{ROOT}/")
+      return unless file && LIB_FILES.include?(::File.expand_path(file))
 
       "#{owner.name}#{separator}#{name}"
     end
