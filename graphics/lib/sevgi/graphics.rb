@@ -2,6 +2,7 @@
 
 require "sevgi/function"
 
+require_relative "graphics/xml"
 require_relative "graphics/attribute"
 require_relative "graphics/auxiliary"
 require_relative "graphics/element"
@@ -38,13 +39,13 @@ module Sevgi
     #   @param preambles [Array<String>, nil, Sevgi::Undefined] document preamble lines
     #   @param attributes [Hash, nil, Sevgi::Undefined] default root attributes; nil means an empty Hash
     #   @return [Class] document class
-    #   @raise [Sevgi::ArgumentError] when a profile conflicts or metadata is invalid, cyclic, or cannot be stringified
+    #   @raise [Sevgi::ArgumentError] when a profile conflicts or metadata is invalid XML, cyclic, or cannot be stringified
     # @overload document(preambles: Undefined, attributes: Undefined)
     #   Defines an anonymous document profile without registering it globally.
     #   @param preambles [Array<String>, nil, Sevgi::Undefined] document preamble lines
     #   @param attributes [Hash, nil, Sevgi::Undefined] default root attributes; nil means an empty Hash
     #   @return [Class] anonymous document class
-    #   @raise [Sevgi::ArgumentError] when metadata is invalid, cyclic, or cannot be stringified
+    #   @raise [Sevgi::ArgumentError] when metadata is invalid XML, cyclic, or cannot be stringified
     # @return [Class] document class
     def document(name = Undefined, preambles: Undefined, attributes: Undefined)
       Graphics::Document.define(name, preambles:, attributes:)
@@ -56,7 +57,7 @@ module Sevgi
     # Validation and snapshot capture complete before an existing registration is replaced.
     # @param attributes [Hash, nil] default root attributes; nil means an empty Hash
     # @return [Class] document class
-    # @raise [Sevgi::ArgumentError] when the name or metadata is invalid, cyclic, or cannot be stringified
+    # @raise [Sevgi::ArgumentError] when the name or metadata is invalid XML, cyclic, or cannot be stringified
     def document!(name, preambles: [], attributes: {})
       Graphics::Document.define(name, preambles:, attributes:, overwrite: true)
     end
@@ -97,7 +98,7 @@ module Sevgi
     # @yield evaluates the drawing DSL in the root element
     # @yieldreturn [Object] ignored block result
     # @return [Sevgi::Graphics::Document::Proto] SVG root element
-    # @raise [Sevgi::ArgumentError] when the document or canvas profile is unknown
+    # @raise [Sevgi::ArgumentError] when the document/canvas profile or root XML attributes are invalid
     def SVG(document = :default, canvas = Undefined, **, &block)
       Graphics::Document.(document, canvas, **, &block)
     end

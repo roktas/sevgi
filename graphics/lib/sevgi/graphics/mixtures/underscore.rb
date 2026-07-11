@@ -15,9 +15,9 @@ module Sevgi
         # Adds an XML comment.
         # @param comment [Object] comment text
         # @return [Sevgi::Graphics::Element] floating comment element
-        # @raise [Sevgi::ArgumentError] when comment text would produce malformed XML
+        # @raise [Sevgi::ArgumentError] when comment cannot be stringified as valid XML or would form malformed markup
         def Comment(comment)
-          comment = comment.to_s
+          comment = XML.text(comment, context: "XML comment")
 
           ArgumentError.("XML comment must not contain '--'") if comment.include?("--")
           ArgumentError.("XML comment must not end with '-'") if comment.end_with?("-")

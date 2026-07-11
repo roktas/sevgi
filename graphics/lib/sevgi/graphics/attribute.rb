@@ -20,22 +20,33 @@ module Sevgi
         # @param given [String, Symbol] attribute name
         # @return [Boolean]
         def internal?(given)
-          (@internal ||= {})[given] ||= given.start_with?(ATTRIBUTE_INTERNAL_PREFIX)
+          (@internal ||= {})[given] ||= key(given).start_with?(ATTRIBUTE_INTERNAL_PREFIX)
         end
 
         # Returns the normalized attribute id.
         # @param given [String, Symbol] attribute name
         # @return [Symbol]
         def id(given)
-          (@id ||= {})[given] ||= (updateable?(given) ? given.to_s.delete_suffix(ATTRIBUTE_UPDATE_SUFFIX) : given)
-            .to_sym
+          (@id ||= {})[given] ||= begin
+            name = updateable?(given) ? key(given).delete_suffix(ATTRIBUTE_UPDATE_SUFFIX) : key(given)
+            XML.name(name, context: "XML attribute name") unless internal?(given)
+            name.to_sym
+          end
         end
 
         # Reports whether an attribute uses merge/update syntax.
         # @param given [String, Symbol] attribute name
         # @return [Boolean]
         def updateable?(given)
-          (@updateable ||= {})[given] ||= given.end_with?(ATTRIBUTE_UPDATE_SUFFIX)
+          (@updateable ||= {})[given] ||= key(given).end_with?(ATTRIBUTE_UPDATE_SUFFIX)
+        end
+
+        private
+
+        def key(given)
+          return given.to_s if given.is_a?(::String) || given.is_a?(::Symbol)
+
+          ArgumentError.("XML attribute name must be a String or Symbol")
         end
       end
 
@@ -44,9 +55,11 @@ module Sevgi
       # Returns the text form used for an XML attribute value before escaping.
       # @param value [Object] attribute value
       # @return [String]
+      # @raise [Sevgi::ArgumentError] when value is invalid, cyclic, or cannot be stringified as XML
       # @api private
       def self.xml_text(value)
-        case value
+        value = XML.snapshot(value, context: "XML attribute value")
+        text = case value
         when ::Hash
           value.map { |key, attr_value| "#{key}:#{attr_value}" }.join("; ")
         when ::Array
@@ -54,13 +67,23 @@ module Sevgi
         else
           value.to_s
         end
+
+        XML.text(text, context: "XML attribute value")
       end
+
+      # Validates a nested XML attribute value.
+      # @param value [Object] value to validate
+      # @return [Object] original value
+      # @raise [Sevgi::ArgumentError] when value is invalid, cyclic, or cannot be stringified as XML
+      # @api private
+      def self.validate(value) = XML.validate(value, context: "XML attribute value")
 
       # Mutable SVG attribute store with Sevgi update syntax.
       class Store
         # Creates an attribute store.
         # @param attributes [Hash] initial attributes
         # @return [void]
+        # @raise [Sevgi::ArgumentError] when a name or value is not valid XML, is cyclic, or cannot be stringified
         def initialize(attributes = {})
           @store = {}
 
@@ -70,12 +93,15 @@ module Sevgi
         # Imports attributes into the store.
         # @param attributes [Hash] attributes to merge
         # @return [Hash] internal store
+        # @raise [Sevgi::ArgumentError] when a name or value is not valid XML, is cyclic, or cannot be stringified
         def import(attributes)
           hash = attributes
             .compact
             .to_a
             .to_h do |key, value|
-              [key.to_sym, import_value(value)]
+              id = Attribute.id(key)
+              Attribute.validate(value)
+              [id, import_value(value)]
             end
 
           @store.merge!(hash)
@@ -84,6 +110,7 @@ module Sevgi
         # Returns an attribute by normalized key.
         # @param key [String, Symbol] attribute key
         # @return [Object, nil]
+        # @raise [Sevgi::ArgumentError] when key is not a valid XML attribute name
         def [](key)
           @store[Attribute.id(key)]
         end
@@ -94,15 +121,19 @@ module Sevgi
         # @return [Object, nil] assigned value or nil
         # @raise [Sevgi::ArgumentError] when update syntax receives incompatible values
         # @raise [Sevgi::ArgumentError] when update syntax receives an unsupported value type
+        # @raise [Sevgi::ArgumentError] when a name or value is not valid XML, is cyclic, or cannot be stringified
         def []=(key, value)
           return if value.nil?
 
-          @store[id = Attribute.id(key)] = @store.key?(id) && Attribute.updateable?(key) ? update(id, value) : value
+          id = Attribute.id(key)
+          Attribute.validate(value)
+          @store[id] = @store.key?(id) && Attribute.updateable?(key) ? update(id, value) : value
         end
 
         # Deletes an attribute by normalized key.
         # @param key [String, Symbol] attribute key
         # @return [Object, nil] deleted value
+        # @raise [Sevgi::ArgumentError] when key is not a valid XML attribute name
         def delete(key)
           @store.delete(Attribute.id(key))
         end
@@ -120,6 +151,7 @@ module Sevgi
         # Reports whether an attribute exists.
         # @param key [String, Symbol] attribute key
         # @return [Boolean]
+        # @raise [Sevgi::ArgumentError] when key is not a valid XML attribute name
         def has?(key)
           @store.key?(Attribute.id(key))
         end
@@ -148,6 +180,7 @@ module Sevgi
 
         # Returns rendered XML attribute lines.
         # @return [Array<String>]
+        # @raise [Sevgi::ArgumentError] when stored names or values are invalid, cyclic, or cannot be stringified
         def to_xml_lines
           export.map { |id, value| to_xml(id, value) }
         end
@@ -215,7 +248,8 @@ module Sevgi
         private_constant :UPDATER
 
         def to_xml(id, value)
-          "#{id}=#{Attribute.xml_text(value).encode(xml: :attr)}"
+          name = XML.name(id, context: "XML attribute name")
+          "#{name}=#{Attribute.xml_text(value).encode(xml: :attr)}"
         end
       end
     end

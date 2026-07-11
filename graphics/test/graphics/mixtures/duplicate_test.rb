@@ -185,15 +185,15 @@ module Sevgi
         end
 
         def test_duplicate_rejects_cyclic_payloads
-          attribute = {}
-          attribute[:self] = attribute
           content = []
           content << content
 
           rect = nil
           SVG do
-            rect = self.rect(style: attribute)
+            rect = self.rect(style: {})
           end
+
+          rect[:style][:self] = rect[:style]
 
           assert_raises(Sevgi::ArgumentError) { rect.Duplicate() }
           assert_raises(Sevgi::ArgumentError) { Content.verbatim(content) }

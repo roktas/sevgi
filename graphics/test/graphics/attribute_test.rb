@@ -69,6 +69,57 @@ module Sevgi
           attributes.to_xml_lines
         )
       end
+
+      def test_xml_rejects_invalid_attribute_values
+        invalid = ["illegal\0value", "\xFF".b]
+
+        invalid.each do |value|
+          error = assert_raises(Sevgi::ArgumentError) { Attributes.new(fill: value) }
+
+          assert_match(/XML attribute value/i, error.message)
+        end
+      end
+
+      def test_xml_rejects_cyclic_attribute_values
+        array = []
+        array << array
+        hash = {}
+        hash[:self] = hash
+
+        [array, hash].each do |value|
+          error = assert_raises(Sevgi::ArgumentError) { Attributes.new(data: value) }
+
+          assert_match(/cyclic XML attribute value/i, error.message)
+        end
+      end
+
+      def test_xml_rejects_invalid_attribute_names
+        ["", "bad name", "1bad", "bad:name:again", "\xFF".b].each do |name|
+          error = assert_raises(Sevgi::ArgumentError) { Attributes.new(name => "value") }
+
+          assert_match(/XML attribute name/i, error.message)
+        end
+      end
+
+      def test_xml_revalidates_mutated_attribute_values
+        attributes = Attributes.new(fill: +"red", class: ["shape"])
+        attributes[:fill].replace("illegal\0value")
+        attributes[:class] << attributes[:class]
+
+        assert_raises(Sevgi::ArgumentError) { attributes.to_xml_lines }
+      end
+
+      def test_xml_preserves_namespaces_and_unicode
+        attributes = Attributes.new("xml:lang": "tr", "veri-çeşidi": "kar\u{0131}\u{015f}\u{0131}k & parlak")
+
+        assert_equal(
+          [
+            "xml:lang=\"tr\"",
+            "veri-çeşidi=\"karışık &amp; parlak\""
+          ],
+          attributes.to_xml_lines
+        )
+      end
     end
   end
 end

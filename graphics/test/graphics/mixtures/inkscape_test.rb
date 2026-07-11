@@ -19,7 +19,7 @@ module Sevgi
             layer(id: "layer1") { rect(id: "rect") }
             symbol!(id: "glyph") { rect(width: 1) }
           end
-            .Render(validate: false)
+            .Render()
 
           assert_match(/<g id="layer1" inkscape:groupmode="layer">/, actual)
           assert_match(/<g id="glyph" role="inkscape:symbol">/, actual)
@@ -31,7 +31,7 @@ module Sevgi
             Layer(Widget, "layered")
             Layer!(Widget, "locked")
           end
-            .Render(validate: false)
+            .Render()
 
           [
             %r{<g id="Widget">\n    <rect id="grouped"/>\n  </g>},
@@ -46,7 +46,7 @@ module Sevgi
               page[:class] = "print"
             end
           end
-            .Render(validate: false)
+            .Render()
 
           assert_match(%r{<inkscape:page id="page-1" x="1" y="2" width="3" height="4" class="print"/>}, actual)
         end
@@ -55,7 +55,7 @@ module Sevgi
           actual = SVG(:inkscape) do
             PagesTabular(rows: 2, cols: 2, width: 10, height: 20, gap: 5)
           end
-            .Render(validate: false)
+            .Render()
 
           [
             /id="pageview-1x1" x="0" y="0"/,
@@ -75,7 +75,7 @@ module Sevgi
               keywords: %w[print poster]
             )
           end
-            .Render(validate: false)
+            .Render()
 
           [
             %r{<inkscape:_name>Poster</inkscape:_name>},

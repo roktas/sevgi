@@ -162,7 +162,7 @@ module Sevgi
           #   @option options [Integer] :linelength hybrid attribute line length
           #   @option options [Symbol] :style attribute style, one of :hybrid, :inline, or :block
           #   @return [void]
-          #   @raise [Sevgi::ArgumentError] when style is missing or unsupported
+          #   @raise [Sevgi::ArgumentError] when an option is unknown, malformed, missing, or unsupported
           def initialize(root, **)
             @root = root
             @options = DEFAULTS.merge(**)
@@ -177,14 +177,14 @@ module Sevgi
           #   @param root [Sevgi::Graphics::Element] root element
           #   @param options [Hash] renderer options
           #   @return [String] SVG source
-          #   @raise [Sevgi::ArgumentError] when style is missing or unsupported
+          #   @raise [Sevgi::ArgumentError] when options, preambles, names, attributes, or content are invalid XML
           def self.call(root, **) = new(root, **).call(*root.class.preambles)
 
           # Renders a root element without document preambles.
           # @param root [Sevgi::Graphics::Element] root element
           # @param options [Hash] renderer options
           # @return [String] SVG fragment source
-          # @raise [Sevgi::ArgumentError] when style is missing or unsupported
+          # @raise [Sevgi::ArgumentError] when options, names, attributes, or content are invalid XML
           def self.fragment(root, **options) = new(root, **options).call
 
           # Appends rendered lines to the output buffer.
@@ -200,8 +200,9 @@ module Sevgi
           # Renders the document.
           # @param preambles [Array<String>] preamble lines
           # @return [String] SVG source
+          # @raise [Sevgi::ArgumentError] when a preamble or rendered value is not valid XML text
           def call(*preambles)
-            output.append(preambles) unless preambles.empty?
+            output.append(preambles.map { XML.text(it, context: "XML preamble") }) unless preambles.empty?
 
             root.Traverse(
               0,
@@ -235,6 +236,7 @@ module Sevgi
           end
 
           def build
+            validate_options!
             ArgumentError.("Missing style") unless options[:style]
 
             case options[:style]
@@ -304,7 +306,7 @@ module Sevgi
 
           def join
             inlines.join(output, indent: options[:indent], separator: SEPARATOR)
-            output.join(SEPARATOR)
+            XML.text(output.join(SEPARATOR), context: "SVG output")
           end
 
           def render_enter(element, depth)
@@ -327,6 +329,22 @@ module Sevgi
           end
 
           def unclosed = @closed = false
+
+          def validate_options!
+            unknown = options.keys - DEFAULTS.keys
+            ArgumentError.("Unknown renderer options: #{unknown.join(", ")}") unless unknown.empty?
+
+            indent = options[:indent]
+            unless indent.is_a?(::String) && /\A[\t\n\r ]*\z/.match?(indent)
+              ArgumentError.("Renderer indent must contain only XML whitespace")
+            end
+
+            options[:indent] = XML.text(indent, context: "Renderer indent")
+            linelength = options[:linelength]
+            return if linelength.is_a?(::Integer) && linelength >= 0
+
+            ArgumentError.("Renderer linelength must be a non-negative Integer")
+          end
         end
 
         private_constant :Renderer
@@ -339,7 +357,7 @@ module Sevgi
         #   same-named elements under a foreign default namespace retain ordinary inline text formatting.
         #   @param options [Hash] renderer options
         #   @return [String] SVG source
-        #   @raise [Sevgi::ArgumentError] when style is missing or unsupported
+        #   @raise [Sevgi::ArgumentError] when options, preambles, names, attributes, or content are invalid XML
         def Render(**) = Renderer.(self, **)
 
         # Renders only this element's children.
@@ -347,7 +365,13 @@ module Sevgi
         # mixed-content formatting.
         # @param separator [String] separator between child documents
         # @return [String] rendered child fragments
-        def RenderChildren(separator = "\n\n") = children.map { Renderer.fragment(it) }.join(separator)
+        # @raise [Sevgi::ArgumentError] when separator or rendered child data is not valid XML text
+        def RenderChildren(separator = "\n\n")
+          ArgumentError.("SVG fragment separator must be a String") unless separator.is_a?(::String)
+
+          separator = XML.text(separator, context: "SVG fragment separator")
+          children.map { Renderer.fragment(it) }.join(separator)
+        end
       end
     end
   end

@@ -64,6 +64,17 @@ module Sevgi
           assert_raises(ArgumentError) { SVG(DOC) { Comment("invalid\u0000") } }
         end
 
+        def test_comment_rejects_stringification_failures
+          raising = Object.new.tap { it.define_singleton_method(:to_s) { raise "broken" } }
+          wrong = Object.new.tap { it.define_singleton_method(:to_s) { Object.new } }
+
+          [raising, wrong, "\xFF".b].each do |comment|
+            error = assert_raises(Sevgi::ArgumentError) { SVG(DOC) { Comment(comment) } }
+
+            assert_match(/XML comment/i, error.message)
+          end
+        end
+
         def test_ancestral_merges_internal_attributes
           descendant = nil
 

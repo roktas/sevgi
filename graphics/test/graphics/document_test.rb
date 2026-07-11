@@ -330,7 +330,7 @@ module Sevgi
             Graphics.document(:registered_bad_value, attributes: {fill: value})
           end
 
-          assert_match(/profile metadata cannot be stringified/i, error.message)
+          assert_match(/profile metadata (?:cannot be|stringification)/i, error.message)
           assert_equal(before, Document::Profile.available)
         end
 
@@ -342,6 +342,28 @@ module Sevgi
 
         assert_match(/metadata keys collide after stringification/i, error.message)
         assert_equal(before, Document::Profile.available)
+      end
+
+      def test_document_rejects_invalid_xml_metadata
+        current = Graphics.document(:registered_xml_safe, attributes: {fill: "red"})
+        before = Document::Profile.available
+        operations = [
+          -> { Graphics.document(:registered_xml_value, attributes: {fill: "illegal\0value"}) },
+          -> { Graphics.document(:registered_xml_name, attributes: {"bad name" => "value"}) },
+          -> { Graphics.document(preambles: ["illegal\0preamble"]) },
+          -> { Graphics.document(preambles: ["\xFF".b]) },
+          -> { Graphics.document!(:registered_xml_safe, preambles: ["illegal\0preamble"]) }
+        ]
+
+        operations.each do |operation|
+          error = assert_raises(Sevgi::ArgumentError, &operation)
+
+          assert_match(/document profile metadata|document profile attribute name/i, error.message)
+          assert_equal(before, Document::Profile.available)
+        end
+
+        assert_same(current, Graphics.document(:registered_xml_safe))
+        assert_equal("<svg fill=\"red\"/>", SVG(:registered_xml_safe).Render())
       end
 
       def test_document_bang_overwrites_profile

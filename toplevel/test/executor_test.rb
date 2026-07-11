@@ -244,7 +244,7 @@ module Sevgi
         <<~RUBY
           Paper(3, 5, :executor_test_card)
           [
-            SVG(:minimal, :executor_test_card).Render(validate: false),
+            SVG(:minimal, :executor_test_card).Render(),
             F.pluralize("cat"),
             F.equal?(Sevgi::F),
             F.respond_to?(:existing!),

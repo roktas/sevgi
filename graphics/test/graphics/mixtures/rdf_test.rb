@@ -10,7 +10,7 @@ module Sevgi
           actual = SVG(:inkscape) do
             License_CC0(title: "Demo", creator: "Author")
           end
-            .Render(validate: false)
+            .Render()
 
           assert_match(/<rdf:RDF\b/, actual)
           assert_match(%r{<dc:title>Demo</dc:title>}, actual)

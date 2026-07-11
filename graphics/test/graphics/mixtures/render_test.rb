@@ -301,6 +301,25 @@ module Sevgi
           assert_match(/\bunknown\b/, error.message)
         end
 
+        def test_render_validates_formatting_options
+          document = SVG(DOC) { rect }
+          invalid = [
+            {indent: "text"},
+            {indent: "illegal\0indent"},
+            {indent: 2},
+            {linelength: -1},
+            {linelength: 1.5},
+            {validate: false},
+            {unknown: true}
+          ]
+
+          invalid.each do |options|
+            assert_raises(Sevgi::ArgumentError) { document.Render(**options) }
+          end
+
+          assert_render("<svg>\n\t<rect/>\n</svg>", document.Render(indent: "\t", linelength: 0))
+        end
+
         def test_render_children_returns_empty_fragments
           %i[default minimal html inkscape].each do |profile|
             assert_equal("", SVG(profile).RenderChildren())
@@ -314,6 +333,20 @@ module Sevgi
           end
 
           assert_render("<rect id=\"one\"/>\n\n<circle id=\"two\"/>", doc.RenderChildren(), fragment: true)
+        end
+
+        def test_render_children_validates_separator
+          document = SVG(DOC) do
+            rect
+            circle
+          end
+
+          ["illegal\0separator", "\xFF".b, Object.new].each do |separator|
+            assert_raises(Sevgi::ArgumentError) { document.RenderChildren(separator) }
+          end
+
+          actual = document.RenderChildren("\n<!-- split -->\n")
+          assert_render("<rect/>\n<!-- split -->\n<circle/>", actual, fragment: true)
         end
 
         def test_render_children_omits_document_preambles

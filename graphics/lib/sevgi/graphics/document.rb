@@ -63,8 +63,9 @@ module Sevgi
           def capture_value(value)
             case value
             when ::String
-              value.dup.freeze
+              XML.text(value, context: "Document profile metadata").freeze
             when ::Numeric, ::Symbol, ::NilClass, ::TrueClass, ::FalseClass
+              XML.text(value, context: "Document profile metadata")
               value
             else
               stringify(value).freeze
@@ -72,14 +73,7 @@ module Sevgi
           end
 
           def stringify(value)
-            text = value.to_s
-            ArgumentError.("Document profile metadata cannot be stringified") unless text.is_a?(::String)
-
-            text.dup
-          rescue Sevgi::ArgumentError
-            raise
-          rescue ::StandardError => e
-            ArgumentError.("Document profile metadata cannot be stringified: #{e.class}: #{e.message}")
+            XML.text(value, context: "Document profile metadata")
           end
         end
       end
@@ -92,7 +86,7 @@ module Sevgi
       # @yield evaluates the drawing DSL in the new root element
       # @yieldreturn [Object] ignored block result
       # @return [Sevgi::Graphics::Document::Proto] SVG root element
-      # @raise [Sevgi::ArgumentError] when the document profile is unknown
+      # @raise [Sevgi::ArgumentError] when the document profile or root XML attributes are invalid
       def self.call(document, canvas = Undefined, **, &block)
         klass = case document
         when ::Class
@@ -127,7 +121,7 @@ module Sevgi
       # @param attributes [Hash, nil, Sevgi::Undefined] default root attributes
       # @param overwrite [Boolean] true to replace an existing profile
       # @return [Class] document class
-      # @raise [Sevgi::ArgumentError] when a name conflicts or metadata is invalid, cyclic, or cannot be stringified
+      # @raise [Sevgi::ArgumentError] when a name conflicts or metadata is invalid XML, cyclic, or cannot be stringified
       def self.define(name = Undefined, preambles: Undefined, attributes: Undefined, overwrite: false)
         return anonymous(attributes:, preambles:) if name == Undefined
 
@@ -251,7 +245,7 @@ module Sevgi
         # @param attributes [Hash, nil] default root attributes; nil means an empty Hash
         # @param preambles [Array<String>, nil] preamble lines
         # @return [void]
-        # @raise [Sevgi::ArgumentError] when name or metadata is invalid, cyclic, or cannot be stringified
+        # @raise [Sevgi::ArgumentError] when name or metadata is invalid XML, cyclic, or cannot be stringified
         def initialize(name, attributes: nil, preambles: nil)
           @name = name.nil? ? nil : self.class.normalize!(name)
           validate_attributes!(attributes)
@@ -293,7 +287,9 @@ module Sevgi
         end
 
         def normalize_attribute!(key)
-          return key.to_sym if key.is_a?(::String) || key.is_a?(::Symbol)
+          if key.is_a?(::String) || key.is_a?(::Symbol)
+            return XML.name(key, context: "Document profile attribute name").to_sym
+          end
 
           ArgumentError.("Document profile attribute names must be Strings or Symbols")
         end
@@ -325,7 +321,7 @@ module Sevgi
         # @param register [Boolean] true to register the profile globally
         # @param overwrite [Boolean] true to replace an existing profile
         # @return [Sevgi::Graphics::Document::Profile] immutable document profile metadata
-        # @raise [Sevgi::ArgumentError] when registration fails or metadata is invalid, cyclic, or cannot be stringified
+        # @raise [Sevgi::ArgumentError] when registration fails or metadata is invalid XML, cyclic, or cannot be stringified
         def document(name, attributes: {}, preambles: nil, register: true, overwrite: false)
           profile = Profile.new(register ? name : nil, attributes:, preambles:)
           Registry.register(name, self, profile:, overwrite:) if register
@@ -364,11 +360,13 @@ module Sevgi
         #   @param objects [Array<Object>] optional renderer arguments
         #   @param options [Hash] render options
         #   @return [String] SVG document source
+        #   @raise [Sevgi::ArgumentError] when renderer options or XML-bound values are invalid
         def call(*, **)
           options = DEFAULTS.merge(**)
 
           self.PreRender(*, **options) if respond_to?(:PreRender)
-          self.Render(*, **options)
+          render_options = options.reject { |key, _| DEFAULTS.key?(key) }
+          self.Render(*, **render_options)
         end
 
         # Returns inherited root attributes for this document class.

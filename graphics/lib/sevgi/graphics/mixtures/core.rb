@@ -125,8 +125,9 @@ module Sevgi
         # @yield evaluates the drawing DSL in the new child element
         # @yieldreturn [Object] ignored block result
         # @return [Sevgi::Graphics::Element] new child element
+        # @raise [Sevgi::ArgumentError] when the tag, attributes, or content are not valid XML
         def Element(tag, *contents, **attributes, &block)
-          self.class.send(:new, tag.to_sym, contents: Content.contents(*contents), attributes:, parent: self, &block)
+          self.class.send(:new, tag, contents: Content.contents(*contents), attributes:, parent: self, &block)
         end
 
         # Forwards this element as the first argument to another receiver.

@@ -54,6 +54,47 @@ module Sevgi
           assert_equal(false, element[:hidden])
         end
 
+        def test_element_rejects_invalid_xml_names_atomically
+          document = SVG(:minimal)
+          object = Object.new.tap { it.define_singleton_method(:to_s) { "rect" } }
+
+          ["", "bad name", "1bad", "bad:name:again", "\xFF".b, object].each do |name|
+            error = assert_raises(Sevgi::ArgumentError) { document.Element(name) }
+
+            assert_match(/XML element name/i, error.message)
+            assert_empty(document.children)
+          end
+        end
+
+        def test_element_rejects_invalid_attributes_atomically
+          document = SVG(:minimal)
+          cycle = []
+          cycle << cycle
+          invalid = [
+            {fill: "illegal\0value"},
+            {"bad name" => "value"},
+            {data: cycle}
+          ]
+
+          invalid.each do |attributes|
+            assert_raises(Sevgi::ArgumentError) { document.Element(:rect, **attributes) }
+            assert_empty(document.children)
+          end
+        end
+
+        def test_element_accepts_unicode_and_qualified_names
+          document = SVG(:minimal) do
+            Element("çizim", "yerli")
+            Element("f:çizim", "yabancı", "xmlns:f": "urn:foreign")
+          end
+
+          assert_equal(%i[çizim f:çizim], document.children.map(&:name))
+          assert_equal(
+            "<svg>\n  <çizim>yerli</çizim>\n  <f:çizim xmlns:f=\"urn:foreign\">yabancı</f:çizim>\n</svg>",
+            document.Render()
+          )
+        end
+
         def test_adopt_moves_element_to_new_parent
           source = nil
           target = nil

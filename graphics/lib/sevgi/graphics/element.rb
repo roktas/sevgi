@@ -16,12 +16,14 @@ module Sevgi
       # @yieldreturn [Object] ignored block result
       # @return [Sevgi::Graphics::Element]
       # @raise [Sevgi::ArgumentError] when an argument cannot be parsed as attributes or content
+      # @raise [Sevgi::ArgumentError] when the element name or an attribute is not valid XML
       def self.element(name, *, parent:, &block) = new(name, **Dispatch.parse(name, *), parent:, &block)
 
       # Builds an SVG root element.
       # @yield evaluates the drawing DSL in the root element
       # @yieldreturn [Object] ignored block result
       # @return [Sevgi::Graphics::Element]
+      # @raise [Sevgi::ArgumentError] when a root attribute is not valid XML
       def self.root(*, &block) = element(:svg, *, parent: RootParent, &block)
 
       # Reports whether an element is the root element.
@@ -88,8 +90,13 @@ module Sevgi
       # @yield evaluates the drawing DSL in the new element
       # @yieldreturn [Object] ignored block result
       # @return [void]
+      # @raise [Sevgi::ArgumentError] when the element name or an attribute is not valid XML
       def initialize(name, parent:, attributes: {}, contents: [], &block)
-        @name = name
+        unless name.is_a?(::String) || name.is_a?(::Symbol)
+          ArgumentError.("XML element name must be a String or Symbol")
+        end
+
+        @name = XML.name(name, context: "XML element name").to_sym
         @attributes = Attributes.new(attributes)
         @children = []
         @contents = contents
