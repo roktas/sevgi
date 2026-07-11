@@ -21,7 +21,11 @@ module SevgiRelease
   module Preflight
     module_function
 
+    MANIFEST = "SHA256SUMS"
     VERSION_PATTERN = /\A\d+\.\d+\.\d+\z/
+
+    private_constant :MANIFEST
+
     def guard!(root:, ref:)
       version = read_version(root)
       raise_error("unsupported release ref: #{ref}") unless allowed_ref?(ref, version)
@@ -89,31 +93,45 @@ module SevgiRelease
       {version:, archives:}
     end
 
-    def assert_checksums!(package_dir:, archives:, path: File.join(package_dir, "SHA256SUMS"))
-      return unless File.file?(path)
+    def assert_checksums!(package_dir:, archives:, path: File.join(package_dir, MANIFEST))
+      raise_error("missing release manifest: #{path}") unless File.file?(path)
 
-      expected = checksum_entries(path)
-      archives.each { |archive| assert_checksum!(archive, expected) }
+      entries = checksum_entries(path)
+      expected = archives.map { |archive| File.basename(archive.fetch(:path)) }
+      declared = entries.map(&:first)
+      raise_error("release manifest order mismatch") unless declared == expected
+
+      assert_archive_set!(package_dir, expected)
+      archives.zip(entries).each { |archive, (_name, digest)| assert_checksum!(archive, digest) }
+      nil
     end
 
     def checksum_entries(path)
-      File.readlines(path, chomp: true).to_h do |line|
-        digest, relative = line.split("  ", 2)
-        [relative, digest]
+      entries = File.readlines(path, chomp: true).map do |line|
+        match = /\A([0-9a-f]{64})  ([A-Za-z0-9][A-Za-z0-9._-]*\.gem)\z/.match(line)
+        raise_error("malformed release manifest: #{line.inspect}") unless match
+
+        [match[2], match[1]]
       end
+
+      raise_error("empty release manifest: #{path}") if entries.empty?
+
+      entries
     end
 
     def assert_checksum!(archive, expected)
       relative = File.basename(archive.fetch(:path))
       actual = Digest::SHA256.file(archive.fetch(:path)).hexdigest
-      raise_error("checksum mismatch: #{relative}") unless expected.fetch(relative, nil) == actual
+      raise_error("checksum mismatch: #{relative}") unless expected == actual
     end
 
-    def publish!(root:, ref:, package_dir:, remote_runner: method(:remote_query), push: method(:push_gem))
-      result = preflight!(root:, ref:, package_dir:, remote_runner:)
-      assert_checksums!(package_dir:, archives: result.fetch(:archives))
-      result.fetch(:archives).each { |archive| push.call(archive.fetch(:path)) }
-      result
+    def write_manifest!(package_dir:, archives:, path: File.join(package_dir, MANIFEST))
+      names = archives.map { |archive| File.basename(archive.fetch(:path)) }
+      assert_archive_set!(package_dir, names)
+      lines = archives.map { |archive| "#{archive.fetch(:sha256)}  #{File.basename(archive.fetch(:path))}" }
+      File.write(path, "#{lines.join("\n")}\n")
+      assert_checksums!(package_dir:, archives:, path:)
+      path
     end
 
     def gemspecs(root)
@@ -128,10 +146,16 @@ module SevgiRelease
       Open3.capture3("gem", "list", "--remote", "--exact", "--all", name)
     end
 
-    def push_gem(path)
-      output, error, status = Open3.capture3("gem", "push", path)
-      raise_error("gem push failed for #{path}: #{error.empty? ? output : error}") unless status.success?
+    def assert_archive_set!(package_dir, expected)
+      raise_error("duplicate release archives") unless expected.uniq.size == expected.size
+
+      actual = Dir[File.join(package_dir, "*.gem")].map { File.basename(it) }.sort
+      return if actual == expected.sort
+
+      raise_error("release archive set mismatch: expected #{expected.sort.join(", ")}; got #{actual.join(", ")}")
     end
+
+    private_class_method :assert_archive_set!
 
     def raise_error(message)
       raise Error, message
@@ -368,7 +392,8 @@ namespace(:release) do
 
   desc("Validate built release archives")
   task(:verify) do
-    SevgiRelease::Preflight.preflight!(root: rootdir, ref: ENV.fetch("GITHUB_REF"), package_dir: pkgdir)
+    result = SevgiRelease::Preflight.preflight!(root: rootdir, ref: ENV.fetch("GITHUB_REF"), package_dir: pkgdir)
+    SevgiRelease::Preflight.write_manifest!(package_dir: pkgdir, archives: result.fetch(:archives))
   end
 
   desc("Check release workspace")
@@ -384,20 +409,7 @@ namespace(:release) do
       ref: "refs/heads/main",
       package_dir: pkgdir
     )
-    checksum_file = ::File.join(pkgdir, "SHA256SUMS")
-    ::File.write(
-      checksum_file,
-      manifest
-        .fetch(:archives)
-        .map { |archive| "#{archive.fetch(:sha256)}  #{::File.basename(archive.fetch(:path))}" }
-        .join("\n") +
-        "\n"
-    )
-    SevgiRelease::Preflight.assert_checksums!(
-      package_dir: pkgdir,
-      archives: manifest.fetch(:archives),
-      path: checksum_file
-    )
+    SevgiRelease::Preflight.write_manifest!(package_dir: pkgdir, archives: manifest.fetch(:archives))
   end
 end
 

@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
+require "digest"
 require "fileutils"
-require "open3"
 require "rake"
-require "rubygems/package"
+require "tmpdir"
 
 require_relative "test_helper"
 
@@ -37,6 +37,52 @@ module Sevgi
         ],
         Preflight.gemspecs(root).map(&:name)
       )
+    end
+
+    def test_manifest_preserves_archive_order
+      Dir.mktmpdir do |package_dir|
+        archives = %w[zeta alpha].map do |name|
+          path = File.join(package_dir, "#{name}-1.2.3.gem")
+          File.write(path, name)
+          {name:, path:, sha256: Digest::SHA256.file(path).hexdigest}
+        end
+
+        manifest = Preflight.write_manifest!(package_dir:, archives:)
+
+        assert_equal(
+          archives.map { "#{it.fetch(:sha256)}  #{File.basename(it.fetch(:path))}" },
+          File.readlines(manifest, chomp: true)
+        )
+        assert_nil(Preflight.assert_checksums!(package_dir:, archives:))
+
+        lines = File.readlines(manifest)
+        File.write(manifest, lines.reverse.join)
+        assert_raises(Preflight::Error) { Preflight.assert_checksums!(package_dir:, archives:) }
+      end
+    end
+
+    def test_manifest_rejects_archive_set_drift
+      Dir.mktmpdir do |package_dir|
+        path = File.join(package_dir, "demo-1.2.3.gem")
+        File.write(path, "demo")
+        archive = {name: "demo", path:, sha256: Digest::SHA256.file(path).hexdigest}
+        archives = [archive]
+        manifest = Preflight.write_manifest!(package_dir:, archives:)
+        line = File.read(manifest)
+
+        File.write(File.join(package_dir, "extra-1.2.3.gem"), "extra")
+        assert_raises(Preflight::Error) { Preflight.assert_checksums!(package_dir:, archives:) }
+        FileUtils.rm(File.join(package_dir, "extra-1.2.3.gem"))
+
+        File.write(manifest, line + line)
+        assert_raises(Preflight::Error) { Preflight.assert_checksums!(package_dir:, archives:) }
+
+        File.write(manifest, line.sub(/\A[0-9a-f]{64}/, "0" * 64))
+        assert_raises(Preflight::Error) { Preflight.assert_checksums!(package_dir:, archives:) }
+
+        FileUtils.rm(manifest)
+        assert_raises(Preflight::Error) { Preflight.assert_checksums!(package_dir:, archives:) }
+      end
     end
 
     def test_guard_rejects_missing_and_mismatched_versions
@@ -104,80 +150,7 @@ module Sevgi
       assert_match(/already published/, error.message)
     end
 
-    def test_publish_does_not_push_after_archive_failure
-      with_release_fixture do |root|
-        package_dir = File.join(root, "pkg")
-        FileUtils.mkdir_p(package_dir)
-        File.binwrite(File.join(package_dir, "demo-1.2.3.gem"), "not a gem")
-        pushes = []
-
-        assert_raises(Preflight::Error) do
-          Preflight.publish!(root:, ref: "refs/heads/main", package_dir:, push: -> (path) { pushes << path })
-        end
-
-        assert_empty(pushes)
-      end
-    end
-
-    def test_publish_does_not_push_after_remote_or_checksum_failure
-      with_release_fixture do |root|
-        package_dir = build_fixture_package(root)
-        pushes = []
-        remote_ok = -> (_name) { ["demo ()", "", status(true)] }
-        remote_conflict = -> (_name) { ["demo (1.2.3)", "", status(true)] }
-
-        assert_raises(Preflight::Error) do
-          Preflight.publish!(
-            root:,
-            ref: "refs/heads/main",
-            package_dir:,
-            remote_runner: remote_conflict,
-            push: -> (path) { pushes << path }
-          )
-        end
-
-        assert_empty(pushes)
-
-        File.write(File.join(package_dir, "SHA256SUMS"), "#{"0" * 64}  demo-1.2.3.gem\n")
-        assert_raises(Preflight::Error) do
-          Preflight.publish!(
-            root:,
-            ref: "refs/heads/main",
-            package_dir:,
-            remote_runner: remote_ok,
-            push: -> (path) { pushes << path }
-          )
-        end
-
-        assert_empty(pushes)
-      end
-    end
-
-    def test_publish_accepts_valid_checksum_and_pushes_in_order
-      with_release_fixture do |root|
-        package_dir = build_fixture_package(root)
-        archives = Preflight.validate_archives!(root:, package_dir:, version: "1.2.3")
-        assert_nil(Preflight.assert_checksums!(package_dir:, archives:))
-
-        digest = Digest::SHA256.file(archives.first.fetch(:path)).hexdigest
-        File.write(File.join(package_dir, "SHA256SUMS"), "#{digest}  demo-1.2.3.gem\n")
-        pushes = []
-        remote_ok = -> (_name) { ["demo ()", "", status(true)] }
-
-        result = Preflight.publish!(
-          root:,
-          ref: "refs/heads/main",
-          package_dir:,
-          remote_runner: remote_ok,
-          push: -> (path) { pushes << path }
-        )
-
-        assert_equal(archives, result.fetch(:archives))
-        assert_equal([archives.first.fetch(:path)], pushes)
-      end
-    end
-
-    def test_remote_and_push_failures_are_reported
+    def test_remote_failure_is_reported
       error = assert_raises(Preflight::Error) do
         Preflight.assert_remote!(
           names: ["demo"],
@@ -187,19 +160,6 @@ module Sevgi
       end
 
       assert_match(/cannot query RubyGems/, error.message)
-
-      [
-        ["failure", "denied", status(false)],
-        ["failure", "", status(false)]
-      ].each do |output, error_text, result|
-        error = assert_raises(Preflight::Error) do
-          Open3.stub(:capture3, [output, error_text, result]) { Preflight.push_gem("demo.gem") }
-        end
-
-        assert_match(/gem push failed/, error.message)
-      end
-
-      Open3.stub(:capture3, ["", "", status(true)]) { assert_nil(Preflight.push_gem("demo.gem")) }
     end
 
     def test_workflow_uses_tracked_guard_and_pinned_actions
@@ -241,21 +201,6 @@ module Sevgi
 
         yield root
       end
-    end
-
-    def build_fixture_package(root)
-      component = File.join(root, "demo")
-      package_dir = File.join(root, "pkg")
-      FileUtils.mkdir_p(package_dir)
-      package = File.join(package_dir, "demo-1.2.3.gem")
-
-      capture_io do
-        Dir.chdir(component) do
-          Gem::Package.build(Gem::Specification.load("demo.gemspec"), true, false, package)
-        end
-      end
-
-      package_dir
     end
   end
 end

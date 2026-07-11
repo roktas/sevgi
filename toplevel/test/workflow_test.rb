@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require "digest"
+require "fileutils"
+require "open3"
+require "tmpdir"
 require "yaml"
 
 require_relative "test_helper"
@@ -48,6 +52,63 @@ module Sevgi
 
       refute_includes(ship, "Gem::Package.new")
       assert_includes(File.read(File.join(ROOT, ".github/dependabot.yml")), "package-ecosystem: github-actions")
+    end
+
+    def test_ship_publish_uses_manifest_order
+      Dir.mktmpdir do |dir|
+        package_dir = File.join(dir, "pkg")
+        bin = File.join(dir, "bin")
+        log = File.join(dir, "pushes")
+        FileUtils.mkdir_p([package_dir, bin])
+        archives = %w[zeta-1.2.3.gem alpha-1.2.3.gem]
+
+        File.write(
+          File.join(bin, "gem"),
+          <<~BASH
+            #!/usr/bin/env bash
+            set -Eeuo pipefail
+            printf '%s\n' "$2" >> "$PUSH_LOG"
+          BASH
+        )
+        FileUtils.chmod("+x", File.join(bin, "gem"))
+        archives.each { File.write(File.join(package_dir, it), it) }
+        checksums = archives.map { "#{Digest::SHA256.file(File.join(package_dir, it)).hexdigest}  #{it}" }
+        File.write(File.join(package_dir, "SHA256SUMS"), "#{checksums.join("\n")}\n")
+
+        script = File.join(dir, "publish")
+        File.write(script, "#!/usr/bin/env bash\n#{ship_publish_script}")
+        FileUtils.chmod("+x", script)
+        env = {"PATH" => "#{bin}:#{ENV.fetch("PATH")}", "PUSH_LOG" => log}
+        out, err, status = Open3.capture3(env, script, chdir: dir)
+
+        assert(status.success?, "stdout:\n#{out}\nstderr:\n#{err}")
+        assert_equal(archives.map { "pkg/#{it}" }, File.readlines(log, chomp: true))
+
+        FileUtils.rm(log)
+        File.write(File.join(package_dir, "extra-1.2.3.gem"), "extra")
+        _out, _err, status = Open3.capture3(env, script, chdir: dir)
+
+        refute(status.success?)
+        refute_path_exists(log)
+
+        FileUtils.rm(File.join(package_dir, "extra-1.2.3.gem"))
+        File.write(File.join(package_dir, archives.first), "tampered")
+        _out, _err, status = Open3.capture3(env, script, chdir: dir)
+
+        refute(status.success?)
+        refute_path_exists(log)
+      end
+    end
+
+    private
+
+    def ship_publish_script
+      workflow = YAML.safe_load_file(File.join(ROOT, ".github/workflows/ship.yml"), aliases: true)
+      step = workflow.fetch("jobs").fetch("publish").fetch("steps").find { |candidate|
+        candidate["name"] == "Verify and push packages 💎"
+      }
+
+      step.fetch("run")
     end
   end
 end

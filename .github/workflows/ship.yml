@@ -49,8 +49,6 @@ jobs:
       run: bundle exec rake build
     - name: Package and remote preflight 🧪
       run: bundle exec rake release:verify
-    - name: Checksum packages 🔐
-      run: sha256sum pkg/*.gem > pkg/SHA256SUMS
     - name: Upload immutable packages 📤
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
       with:
@@ -85,7 +83,18 @@ jobs:
     - name: Verify and push packages 💎
       run: |
         set -Eeuo pipefail
-        sha256sum -c pkg/SHA256SUMS
-        for gem in pkg/*.gem; do
-          gem push "$gem"
+        unset CDPATH
+        mapfile -t archives < <(awk 'NF == 2 { print $2 }' pkg/SHA256SUMS)
+        [[ ${#archives[@]} -gt 0 ]] || { printf 'Empty release manifest\n' >&2; exit 1; }
+        [[ ${#archives[@]} -eq $(wc -l < pkg/SHA256SUMS) ]] || { printf 'Malformed release manifest\n' >&2; exit 1; }
+        mapfile -t packaged < <(find pkg -maxdepth 1 -type f -name '*.gem' -printf '%f\n' | sort)
+        mapfile -t declared < <(printf '%s\n' "${archives[@]}" | sort -u)
+        [[ ${#declared[@]} -eq ${#archives[@]} ]] || { printf 'Duplicate release archive\n' >&2; exit 1; }
+        diff -u <(printf '%s\n' "${declared[@]}") <(printf '%s\n' "${packaged[@]}")
+        (
+          cd pkg
+          sha256sum -c SHA256SUMS
+        )
+        for archive in "${archives[@]}"; do
+          gem push "pkg/$archive"
         done
