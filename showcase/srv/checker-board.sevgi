@@ -10,45 +10,39 @@ module CheckerBoard
   SIZE = (CELL_SIZE * 8) + (BOARD_MARGIN * 2)
 
   STYLE = {
-    ".board-frame" => {fill: "#d1bfa7", stroke: "#6a3f2b"},
+    ".board-frame" => { fill: "#d1bfa7", stroke: "#6a3f2b" },
     ".inner-frame" => {
       fill: "#6a3f2b",
       stroke: "#6a3f2b",
       "stroke-width": (BOARD_MARGIN * 0.7).round
     },
-    ".cell" => {stroke: "white", "stroke-width": 1},
-    ".light.cell" => {fill: "#d4a76f"},
-    ".dark.cell" => {fill: "#6a3f2b"},
+    ".cell" => { stroke: "white", "stroke-width": 1 },
+    ".light.cell" => { fill: "#d4a76f" },
+    ".dark.cell" => { fill: "#6a3f2b" },
     ".piece" => {
       filter: "drop-shadow(8px 8px 8px rgba(0, 0, 0, 0.5))",
       stroke: "none"
     },
-    ".light.piece" => {fill: "#f5f5f5"},
-    ".dark.piece" => {fill: "#333"}
+    ".light.piece" => { fill: "#f5f5f5" },
+    ".dark.piece" => { fill: "#333" }
   }.freeze
 
-  def style(*) = css(STYLE)
+  def style(*) = css STYLE
 
   def frame(*)
-    square(class: "board-frame", length: SIZE)
-    square(
-      class: "inner-frame",
-      x: BOARD_MARGIN,
-      y: BOARD_MARGIN,
-      length: SIZE - (BOARD_MARGIN * 2)
-    )
+    square class: "board-frame", length: SIZE
+    square class: "inner-frame", x: BOARD_MARGIN, y: BOARD_MARGIN,
+           length: SIZE - (BOARD_MARGIN * 2)
   end
 
   def cells(*)
     8.times do |row|
       8.times do |col|
-        rect(
-          class: "#{(row + col).even? ? "dark" : "light"} cell",
-          x: (col * CELL_SIZE) + BOARD_MARGIN,
-          y: (row * CELL_SIZE) + BOARD_MARGIN,
-          width: CELL_SIZE,
-          height: CELL_SIZE
-        )
+        rect class: "#{(row + col).even? ? "dark" : "light"} cell",
+             x: (col * CELL_SIZE) + BOARD_MARGIN,
+             y: (row * CELL_SIZE) + BOARD_MARGIN,
+             width: CELL_SIZE,
+             height: CELL_SIZE
       end
     end
   end
@@ -58,12 +52,10 @@ module CheckerBoard
 
     set.each do |tone, positions|
       positions.each do |row, col|
-        circle(
-          class: "#{tone} piece",
-          cx: (col * CELL_SIZE) + center,
-          cy: (row * CELL_SIZE) + center,
-          r: PIECE_SIZE / 2
-        )
+        circle class: "#{tone} piece",
+               cx: (col * CELL_SIZE) + center,
+               cy: (row * CELL_SIZE) + center,
+               r: PIECE_SIZE / 2
       end
     end
   end
@@ -74,12 +66,9 @@ pieces = {
   light: [[6, 1], [6, 3], [6, 5], [6, 7], [7, 0], [7, 2], [7, 4], [7, 6]]
 }
 
-SVG(
-  :minimal,
-  width: CheckerBoard::SIZE,
-  height: CheckerBoard::SIZE,
-  viewBox: "0 0 #{CheckerBoard::SIZE} #{CheckerBoard::SIZE}"
-) do
-  Call(CheckerBoard, pieces)
-end
-  .Save()
+SVG :minimal,
+    width: CheckerBoard::SIZE,
+    height: CheckerBoard::SIZE,
+    viewBox: "0 0 #{CheckerBoard::SIZE} #{CheckerBoard::SIZE}" do
+  Call CheckerBoard, pieces
+end.Save
