@@ -317,6 +317,81 @@ module Sevgi
           end
         end
 
+        def test_stamp_reuses_fill_across_graphics_state
+          [
+            "1 1 1 rg q BT /F1 12 Tf (old) Tj ET Q BT /F1 12 Tf (old) Tj ET",
+            "1 1 1 rg q q BT /F1 12 Tf (old) Tj ET Q BT /F1 12 Tf (old) Tj ET Q " \
+              "BT /F1 12 Tf (old) Tj ET",
+            "1 1 1 rg q BT /F1 12 Tf (old) Tj ET Q q BT /F1 12 Tf (old) Tj ET Q"
+          ].each do |stream|
+            Dir.mktmpdir do |dir|
+              infile = File.join(dir, "in.pdf")
+              outfile = File.join(dir, "out.pdf")
+              expected = stream.sub("1 1 1 rg", "0.101961 0.101961 0.101961 rg").gsub("(old)", "(new)")
+              Export.send(:native!)
+              rewritten, count = Export.send(:stamp_stream, stream, stamp: "new", placeholder: "old")
+
+              assert_equal(expected, rewritten)
+              assert_equal(stream.scan("(old)").size, count)
+
+              write_pdf(infile, stream)
+              assert(Export.stamp(infile, outfile, stamp: "new", placeholder: "old"))
+
+              assert_equal([expected], pdf_streams(outfile))
+              assert_valid_content_stream(expected)
+            end
+          end
+        end
+
+        def test_stamp_rewrites_multiple_pages_and_streams
+          Dir.mktmpdir do |dir|
+            infile = File.join(dir, "in.pdf")
+            outfile = File.join(dir, "out.pdf")
+            stream = "1 1 1 rg BT /F1 12 Tf (old) Tj ET"
+            write_pdf_pages(infile, [stream], [stream, stream])
+
+            assert(Export.stamp(infile, outfile, stamp: "new", placeholder: "old"))
+            expected = "0.101961 0.101961 0.101961 rg BT /F1 12 Tf (new) Tj ET"
+
+            assert_equal([expected, expected, expected], pdf_streams(outfile))
+            pdf_streams(outfile).each { assert_valid_content_stream(it) }
+          end
+        end
+
+        def test_stamp_restores_fill_without_matching_black_text
+          Dir.mktmpdir do |dir|
+            infile = File.join(dir, "in.pdf")
+            outfile = File.join(dir, "out.pdf")
+            stream = "1 1 1 rg q 0 0 0 rg BT /F1 12 Tf (old) Tj ET Q BT /F1 12 Tf (old) Tj ET"
+            write_pdf(infile, stream)
+
+            assert(Export.stamp(infile, outfile, stamp: "new", placeholder: "old"))
+            expected = "0.101961 0.101961 0.101961 rg q 0 0 0 rg BT /F1 12 Tf (old) Tj ET Q " \
+              "BT /F1 12 Tf (new) Tj ET"
+
+            assert_equal([expected], pdf_streams(outfile))
+            assert_valid_content_stream(expected)
+          end
+        end
+
+        def test_stamp_rejects_unbalanced_graphics_state
+          [
+            "1 1 1 rg q BT /F1 12 Tf (old) Tj ET",
+            "1 1 1 rg Q BT /F1 12 Tf (old) Tj ET",
+            "1 1 1 rg BT /F1 12 Tf (old) Tj",
+            "1 1 1 rg ET BT /F1 12 Tf (old) Tj ET"
+          ].each do |stream|
+            Dir.mktmpdir do |dir|
+              infile = File.join(dir, "in.pdf")
+              outfile = File.join(dir, "out.pdf")
+              write_pdf(infile, stream)
+
+              refute(Export.stamp(infile, outfile, stamp: "new", placeholder: "old"))
+              refute_path_exists(outfile)
+            end
+          end
+        end
+
         def test_stamp_does_not_cross_text_objects_or_colors
           Dir.mktmpdir do |dir|
             infile = File.join(dir, "in.pdf")
@@ -454,6 +529,12 @@ module Sevgi
           Box.new(nil, nil, right - left, top - bottom)
         end
 
+        def assert_valid_content_stream(stream)
+          HexaPDF::Content::Parser.parse(stream) do |operator, operands|
+            assert_equal(3, operands.size) if operator == :rg
+          end
+        end
+
         def pdf_streams(path)
           doc = HexaPDF::Document.open(path)
 
@@ -484,9 +565,16 @@ module Sevgi
         end
 
         def write_pdf(path, *streams)
+          write_pdf_pages(path, streams)
+        end
+
+        def write_pdf_pages(path, *pages)
           doc = HexaPDF::Document.new
-          page = doc.pages.add
-          page[:Contents] = streams.map { |stream| doc.add({}, stream:) }
+          pages.each do |streams|
+            page = doc.pages.add
+            page[:Contents] = streams.map { |stream| doc.add({}, stream:) }
+          end
+
           doc.write(path)
         end
 

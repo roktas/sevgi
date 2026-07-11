@@ -97,6 +97,7 @@ module Sevgi
       # @return [Boolean] true when at least one matching placeholder was replaced
       # @raise [Sevgi::MissingComponentError] when native export gems are unavailable
       # @raise [Sevgi::Sundries::Export::ExportError] when the PDF cannot be read, rewritten, or stamped
+      # @note Streams with unbalanced graphics-state or text-object operators are left unchanged.
       def stamp(infile, outfile, stamp:, placeholder:) = native!.stamp(infile, outfile, stamp:, placeholder:)
 
       # Replaces exact placeholder text objects inside a PDF file in place.
@@ -106,6 +107,7 @@ module Sevgi
       # @return [Boolean] true when at least one matching placeholder was replaced
       # @raise [Sevgi::MissingComponentError] when native export gems are unavailable
       # @raise [Sevgi::Sundries::Export::ExportError] when the PDF cannot be read, rewritten, stamped, or replaced
+      # @note Streams with unbalanced graphics-state or text-object operators are left unchanged.
       def stamp!(infile, stamp:, placeholder:) = native!.stamp!(infile, stamp:, placeholder:)
 
       extend self

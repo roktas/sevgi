@@ -88,6 +88,7 @@ module Sevgi
       # @param placeholder [String] placeholder text to replace
       # @return [Boolean] true when at least one matching placeholder was replaced
       # @raise [Sevgi::Sundries::Export::ExportError] when the PDF cannot be read, rewritten, or stamped
+      # @note Streams with unbalanced graphics-state or text-object operators are left unchanged.
       def stamp(infile, outfile, stamp:, placeholder:)
         doc = HexaPDF::Document.open(infile)
         replacements = 0
@@ -121,6 +122,7 @@ module Sevgi
       # @param placeholder [String] placeholder text to replace
       # @return [Boolean] true when at least one matching placeholder was replaced
       # @raise [Sevgi::Sundries::Export::ExportError] when the PDF cannot be read, rewritten, stamped, or replaced
+      # @note Streams with unbalanced graphics-state or text-object operators are left unchanged.
       def stamp!(infile, stamp:, placeholder:)
         temp = Tempfile.new(%w[stamp .pdf], File.dirname(infile))
         stamped = stamp(infile, temp.path, stamp:, placeholder:)
@@ -161,8 +163,8 @@ module Sevgi
           replacements, count = replacements(data, stamp:, placeholder:)
           stamped = data.dup
 
-          replacements.sort_by(&:first).reverse_each do |start, finish, replacement|
-            stamped[start...finish] = replacement
+          replacements.sort_by { |span, _replacement| span.first }.reverse_each do |span, replacement|
+            stamped[span.first...span.last] = replacement
           end
 
           [stamped, count]
@@ -181,12 +183,12 @@ module Sevgi
           state = {
             fill_span: nil,
             fill_white: false,
-            fill_replaced: false,
             font_size: nil,
             in_text: false,
-            stack: []
+            stack: [],
+            valid: true
           }
-          replacements = []
+          replacements = {}
           count = 0
 
           loop do
@@ -215,20 +217,22 @@ module Sevgi
             operands.clear
           end
 
-          [replacements, count]
+          state[:valid] && state[:stack].empty? && !state[:in_text] ? [replacements, count] : [{}, 0]
         end
 
         def process_operator(operator, operands, finish, data, stamp:, placeholder:, serializer:, state:, replacements:)
           case operator
           when :q
-            state[:stack] << state.values_at(:fill_span, :fill_white, :fill_replaced, :font_size)
+            state[:stack] << state.values_at(:fill_span, :fill_white, :font_size)
           when :Q
-            restore_state(state) if state[:stack].any?
+            state[:stack].any? ? restore_state(state) : state[:valid] = false
           when :rg
             set_fill_state(state, operands, finish)
           when :BT
+            state[:valid] = false if state[:in_text]
             state[:in_text] = true
           when :ET
+            state[:valid] = false unless state[:in_text]
             state[:in_text] = false
           when :Tf
             state[:font_size] = operands.last&.first if operands.size >= 2
@@ -249,13 +253,12 @@ module Sevgi
         end
 
         def restore_state(state)
-          state[:fill_span], state[:fill_white], state[:fill_replaced], state[:font_size] = state[:stack].pop
+          state[:fill_span], state[:fill_white], state[:font_size] = state[:stack].pop
         end
 
         def set_fill_state(state, operands, finish)
           state[:fill_white] = operands.size == 3 && operands.all? { |value, _start, _finish| value == 1 }
           state[:fill_span] = [operands.first[1], finish] if state[:fill_white]
-          state[:fill_replaced] = false
           state[:fill_span] = nil unless state[:fill_white]
         end
 
@@ -263,18 +266,18 @@ module Sevgi
           replacement = text_replacement(data, operator, operands, stamp:, placeholder:, serializer:, state:)
           return 0 unless replacement
 
-          replacements << replacement
+          start, finish, text = replacement
+          replacements[[start, finish]] = text
           add_color_replacement(data, state, replacements)
           1
         end
 
         def add_color_replacement(data, state, replacements)
-          return unless state[:fill_span] && !state[:fill_replaced]
+          return unless state[:fill_span]
 
           color_start, color_finish = state[:fill_span]
           prefix = data[color_start...color_finish].to_s[/\A\s*/]
-          replacements << [color_start, color_finish, "#{prefix}0.101961 0.101961 0.101961 rg"]
-          state[:fill_replaced] = true
+          replacements[[color_start, color_finish]] ||= "#{prefix}0.101961 0.101961 0.101961 rg"
         end
 
         def text_replacement(data, operator, operands, stamp:, placeholder:, serializer:, state:)
