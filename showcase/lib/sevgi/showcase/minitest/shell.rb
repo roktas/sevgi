@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "open3"
+require "sevgi/function"
 
 module Sevgi
   # Minitest helpers used by the showcase component.
@@ -9,47 +10,9 @@ module Sevgi
     # Shell runner helpers for showcase tests.
     # @api private
     module Shell
-      # Coordinates the process-global SIGINT handler for overlapping showcase runners.
+      # Shared process-global SIGINT coordinator.
       # @api private
-      module SignalCoordinator
-        Entry = Data.define(:runner, :pid)
-
-        class << self
-          def register(runner, pid)
-            mutex.synchronize do
-              install unless entries.any?
-              entries[runner] = Entry.new(runner, pid)
-            end
-          end
-
-          def unregister(runner)
-            mutex.synchronize do
-              entries.delete(runner)
-              restore unless entries.any?
-            end
-          end
-
-          private
-
-          def dispatch
-            active = mutex.synchronize { entries.values.dup }
-            active.each { |entry| entry.runner.send(:handle_sigint, entry.pid) }
-          end
-
-          def entries = @entries ||= {}
-
-          def install
-            @previous = Signal.trap("INT") { dispatch }
-          end
-
-          def mutex = @mutex ||= Mutex.new
-
-          def restore
-            Signal.trap("INT", @previous)
-            @previous = nil
-          end
-        end
-      end
+      SignalCoordinator = ::Sevgi::Function::Shell.const_get(:SignalCoordinator, false)
 
       private_constant :SignalCoordinator
 
@@ -93,7 +56,8 @@ module Sevgi
         # @yieldreturn [Object]
         # @return [Sevgi::Test::Shell::Result]
         # @raise [StandardError] when the input block raises; the child is terminated and reaped before propagation
-        # @note The first SIGINT sends TERM and the second sends KILL. The handler is restored after the last active run.
+        # @note The first SIGINT sends TERM and the second sends KILL outside trap context. The handler is restored after
+        #   the last active run.
         def run(*args, &block)
           @coathooks = 0
           out, err, status = Open3.popen3(*args) do |stdin, stdout, stderr, thread|

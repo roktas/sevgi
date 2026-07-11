@@ -78,6 +78,9 @@ module Sevgi
       # @api private
       module SignalCoordinator
         Entry = Data.define(:runner, :pid)
+        WAKE = "."
+
+        private_constant :WAKE
 
         class << self
           def register(runner, pid)
@@ -88,30 +91,78 @@ module Sevgi
           end
 
           def unregister(runner)
-            mutex.synchronize do
-              entries.delete(runner)
+            worker = mutex.synchronize do
+              next unless entries.delete(runner)
+
               restore unless entries.any?
             end
+
+            worker.join if worker && worker != Thread.current
           end
 
           private
 
           def dispatch
             active = mutex.synchronize { entries.values.dup }
-            active.each { |entry| entry.runner.send(:handle_sigint, entry.pid) }
+            active.each { dispatch_entry(it) }
+          end
+
+          def dispatch_entry(entry)
+            entry.runner.send(:handle_sigint, entry.pid)
+          rescue ::StandardError => e
+            warn("SIGINT dispatch failed: #{e.message}")
           end
 
           def install
-            @previous = Signal.trap("INT") { dispatch }
+            reader, writer = ::IO.pipe
+            worker = Thread.new { listen(reader) }
+            previous = Signal.trap("INT") { notify(writer) }
+
+            @previous = previous
+            @worker = worker
+            @writer = writer
+          rescue ::StandardError
+            Signal.trap("INT", previous) if previous
+            close_io(writer)
+            worker&.join
+            close_io(reader)
+            raise
+          end
+
+          def listen(reader)
+            dispatch while reader.read(1)
+          rescue ::IOError, ::SystemCallError
+            nil
+          ensure
+            close_io(reader)
           end
 
           def mutex = @mutex ||= Mutex.new
 
           def entries = @entries ||= {}
 
+          def notify(writer)
+            writer.write_nonblock(WAKE, exception: false)
+          rescue ::IOError, ::SystemCallError
+            nil
+          end
+
           def restore
             Signal.trap("INT", @previous)
             @previous = nil
+
+            writer = @writer
+            worker = @worker
+            @worker = nil
+            @writer = nil
+            close_io(writer)
+            worker
+          end
+
+          def close_io(io)
+            io&.close unless io&.closed?
+          rescue ::IOError
+            nil
           end
         end
       end
@@ -244,7 +295,8 @@ module Sevgi
       #   @raise [SystemCallError] when the executable cannot be spawned or process pipes cannot be opened
       #   @raise [StandardError] when the input block raises; the child is terminated and reaped before propagation
       #   @note The child's stdin is closed after the input block. During execution, the first SIGINT sends TERM to the
-      #     child process and the second SIGINT as KILL to each active child, then restores the previous handler.
+      #     child process and the second SIGINT as KILL to each active child outside trap context, then restores the
+      #     previous handler.
       def sh(...) = Runner.new.(...)
 
       # Runs a command, requiring both executable lookup and successful exit status.
@@ -256,7 +308,8 @@ module Sevgi
       # @raise [SystemCallError] when the executable cannot be spawned or process pipes cannot be opened
       # @raise [StandardError] when the input block raises; the child is terminated and reaped before propagation
       # @note The child's stdin is closed after the input block. During execution, the first SIGINT sends TERM to the
-      #   child process and the second SIGINT as KILL to each active child, then restores the previous handler.
+      #   child process and the second SIGINT as KILL to each active child outside trap context, then restores the previous
+      #   handler.
       def sh!(*args, &block)
         executable!(*args) unless args.empty?
 

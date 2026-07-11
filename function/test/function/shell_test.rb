@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "fileutils"
+require "open3"
 require "rbconfig"
 require "timeout"
 require "tmpdir"
@@ -251,6 +252,104 @@ module Sevgi
           assert_equal([["TERM", 12_345], ["KILL", 12_345]], signals)
         end
 
+        def test_sh_real_sigint_escalates_without_trap_errors
+          Dir.mktmpdir do |dir|
+            completed = false
+            ready = ::File.join(dir, "ready")
+            term = ::File.join(dir, "term")
+            child = <<~RUBY
+              Signal.trap("TERM") { File.write(#{term.inspect}, "TERM") }
+              File.write(#{ready.inspect}, Process.pid)
+              loop { sleep(1) }
+            RUBY
+            script = <<~RUBY
+              require "rbconfig"
+              require "sevgi/function"
+              baseline = Thread.list.count
+              restored = false
+              Signal.trap("INT") { restored = true }
+              result = Sevgi::Function.sh(RbConfig.ruby, "-e", #{child.inspect})
+              Process.kill("INT", Process.pid)
+              puts(result.exit_code.inspect, restored.inspect, (Thread.list.count == baseline).inspect)
+            RUBY
+
+            out, err, status = run_signal_probe(script, ready) do |pid|
+              Process.kill("INT", pid)
+              wait_for_file(term)
+              Process.kill("INT", pid)
+            end
+
+            completed = status.success?
+
+            assert(status.success?, "stdout:\n#{out}\nstderr:\n#{err}")
+            assert_equal(%w[nil true true], out.lines(chomp: true))
+            assert_includes(err, "SIGINT received.")
+            assert_includes(err, "SIGINT received again. Force quitting...")
+            refute_includes(err, "trap context")
+          ensure
+            stop_probe(::File.read(ready).to_i) if !completed && ready && ::File.exist?(ready)
+          end
+        end
+
+        def test_sh_real_sigint_reaches_overlapping_children
+          Dir.mktmpdir do |dir|
+            completed = false
+            ready = 2.times.map { ::File.join(dir, "ready#{it}") }
+            term = 2.times.map { ::File.join(dir, "term#{it}") }
+            children = 2.times.map do |index|
+              <<~RUBY
+                Signal.trap("TERM") { File.write(#{term[index].inspect}, "TERM"); exit(23) }
+                File.write(#{ready[index].inspect}, Process.pid)
+                loop { sleep(1) }
+              RUBY
+            end
+
+            script = <<~RUBY
+              require "rbconfig"
+              require "sevgi/function"
+              restored = false
+              Signal.trap("INT") { restored = true }
+              children = #{children.inspect}
+              results = children.map do |child|
+                Thread.new { Sevgi::Function.sh(RbConfig.ruby, "-e", child) }
+              end.map(&:value)
+              Process.kill("INT", Process.pid)
+              puts(*results.map { it.exit_code.inspect }, restored.inspect)
+            RUBY
+
+            out, err, status = run_signal_probe(script, ready) { Process.kill("INT", it) }
+            completed = status.success?
+
+            assert(status.success?, "stdout:\n#{out}\nstderr:\n#{err}")
+            assert_equal(%w[23 23 true], out.lines(chomp: true))
+            assert(term.all? { ::File.exist?(it) })
+            refute_includes(err, "trap context")
+          ensure
+            Array(ready).each { stop_probe(::File.read(it).to_i) if !completed && ::File.exist?(it) }
+          end
+        end
+
+        def test_sh_signal_dispatch_survives_runner_error
+          bad = Object.new
+          def bad.handle_sigint(*) = raise "broken runner"
+
+          good = Runner.new
+          signals = []
+
+          Process.stub(:kill, -> (signal, pid) { signals << [signal, pid] }) do
+            SignalCoordinator.register(bad, 1)
+            SignalCoordinator.register(good, 2)
+            _out, err = capture_io { SignalCoordinator.send(:dispatch) }
+
+            assert_includes(err, "SIGINT dispatch failed: broken runner")
+          ensure
+            SignalCoordinator.unregister(bad)
+            SignalCoordinator.unregister(good)
+          end
+
+          assert_equal([["TERM", 2]], signals)
+        end
+
         def test_sh_coordinates_overlapping_signal_handlers
           baseline = proc { }
           previous = Signal.trap("INT", baseline)
@@ -269,7 +368,7 @@ module Sevgi
             refute_same(baseline, current)
             Signal.trap("INT", current)
 
-            SignalCoordinator.unregister(second)
+            2.times { SignalCoordinator.unregister(second) }
             restored = Signal.trap("INT", "DEFAULT")
             assert_same(baseline, restored)
           end
@@ -307,6 +406,28 @@ module Sevgi
               break
             end
           end
+        end
+
+        def run_signal_probe(script, ready)
+          lib = ::File.expand_path("../../lib", __dir__)
+          rubylib = [lib, ENV.fetch("RUBYLIB", nil)].compact.join(::File::PATH_SEPARATOR)
+
+          ::Open3.popen3({"RUBYLIB" => rubylib}, RbConfig.ruby, "-e", script) do |stdin, stdout, stderr, thread|
+            stdin.close
+            Array(ready).each { wait_for_file(it) }
+            yield(thread.pid)
+            status = Timeout.timeout(3) { thread.value }
+
+            return [stdout.read, stderr.read, status]
+          ensure
+            stop_probe(thread.pid) if thread&.alive?
+          end
+        end
+
+        def stop_probe(pid)
+          ::Process.kill("KILL", pid)
+        rescue Errno::ESRCH
+          nil
         end
 
         def wait_for_file(path)
