@@ -9,6 +9,39 @@ require_relative "../test_helper"
 module Sevgi
   module Graphics
     class GraphicsTest < Minitest::Test
+      class Phases
+        def initialize(parties)
+          @parties = parties
+          @counts = Hash.new(0)
+          @condition = ConditionVariable.new
+          @mutex = Mutex.new
+        end
+
+        def wait(phase)
+          @mutex.synchronize do
+            @counts[phase] += 1
+            @condition.broadcast if @counts[phase] == @parties
+            @condition.wait(@mutex) while @counts[phase] < @parties
+          end
+        end
+      end
+
+      class Name
+        def initialize(name, phases)
+          @name = name
+          @phase = 0
+          @phases = phases
+        end
+
+        def to_sym
+          @phase += 1
+          @phases.wait(@phase)
+          @name
+        end
+      end
+
+      private_constant :Name, :Phases
+
       def test_svg_constant_aliases_graphics
         assert(SVG.is_a?(::Module))
         assert_equal(SVG, Graphics)
@@ -216,6 +249,24 @@ module Sevgi
         assert_match(/\ba4\b/, error.message)
       end
 
+      def test_paper_race_rejects_conflicting_profile
+        name = :graphics_paper_race
+        successes, failures = racing_papers(name, [3, 7]).partition { |_, result| !result.is_a?(::Exception) }
+        registered = Paper.public_send(name)
+
+        assert_equal(1, successes.size)
+        assert_equal([Sevgi::ArgumentError], failures.map { |_, result| result.class })
+        assert_equal([registered.width], successes.map { |width, _| width.to_f })
+      end
+
+      def test_paper_race_keeps_matching_profile
+        name = :graphics_paper_same_race
+        results = racing_papers(name, [3, 3])
+
+        refute(results.any? { |_, result| result.is_a?(::Exception) })
+        assert_equal([3.0, 5.0, :mm, name], Paper.public_send(name).deconstruct)
+      end
+
       def test_paper_bang_overwrites_existing_profile
         Graphics.paper!(3, 5, :graphics_test_overwrite)
         Graphics.paper!(7, 11, :graphics_test_overwrite)
@@ -224,6 +275,20 @@ module Sevgi
       end
 
       private
+
+      def racing_papers(name, widths)
+        phases = Phases.new(widths.size)
+        widths
+          .map do |width|
+            Thread.new do
+              input = Name.new(name, phases)
+              [width, Graphics.paper(width, 5, input)]
+            rescue ::StandardError => e
+              [width, e]
+            end
+          end
+          .map(&:value)
+      end
 
       def run_with_load_error(component, path, script)
         Dir.mktmpdir do |dir|

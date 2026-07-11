@@ -71,26 +71,44 @@ module Sevgi
         name ? @mutex.synchronize { profiles.key?(name) } : false
       end
 
-      # Defines or atomically replaces a named paper profile after complete validation. Names that are not Ruby call
-      # syntax remain accessible through `public_send`.
+      # Defines a named paper profile after complete validation. Registration is process-global and thread-atomic.
+      # Existing profiles are replaced by default; with `overwrite: false`, identical definitions return the canonical
+      # profile and conflicting definitions raise. Names that are not Ruby call syntax remain accessible through
+      # `public_send`.
       # @param name [Symbol, String] profile name
+      # @param overwrite [Boolean] true to replace an existing profile
       # @param spec [Hash] paper dimensions and unit
       # @option spec [Numeric] :width paper width
       # @option spec [Numeric] :height paper height
       # @option spec [Symbol, String] :unit SVG unit
       # @return [Sevgi::Graphics::Paper]
-      # @raise [Sevgi::ArgumentError] when the name, dimensions, unit, or options are reserved or invalid
-      def self.define(name, **spec)
+      # @raise [Sevgi::ArgumentError] when the name, dimensions, unit, overwrite flag, or options are reserved or invalid,
+      #   or a non-bang definition conflicts with the registered profile
+      def self.define(name, overwrite: true, **spec)
         name = symbol!(:name, name)
         ArgumentError.("Paper name is reserved: #{name}") if reserved?(name)
+        overwrite = overwrite!(overwrite)
         profile = new(name:, **spec)
 
+        store(name, profile, overwrite:)
+      end
+
+      def self.accessor(name)
+        return if @accessors.key?(name)
+
+        define_singleton_method(name) { @mutex.synchronize { profiles.fetch(name) } }
+        @accessors[name] = true
+      end
+
+      def self.store(name, profile, overwrite:)
         @mutex.synchronize do
-          unless @accessors.key?(name)
-            define_singleton_method(name) { @mutex.synchronize { profiles.fetch(name) } }
-            @accessors[name] = true
+          if !overwrite && (current = profiles[name])
+            ArgumentError.("Paper already defined differently: #{name}") unless current == profile
+
+            next current
           end
 
+          accessor(name)
           profiles[name] = profile
         end
       end
@@ -109,6 +127,12 @@ module Sevgi
         ArgumentError.("Unknown paper options: #{options.keys.join(", ")}")
       end
 
+      def self.overwrite!(value)
+        return value if [true, false].include?(value)
+
+        ArgumentError.("Paper overwrite must be true or false")
+      end
+
       def self.symbol(value)
         normalized = value.to_sym if value.respond_to?(:to_sym)
         normalized if normalized.is_a?(::Symbol)
@@ -122,7 +146,17 @@ module Sevgi
 
       @reserved = methods.map(&:to_sym).freeze
 
-      private_class_method :dimension!, :options!, :profiles, :reserved?, :symbol, :symbol!
+      private_class_method(
+        :accessor,
+        :dimension!,
+        :options!,
+        :overwrite!,
+        :profiles,
+        :reserved?,
+        :store,
+        :symbol,
+        :symbol!
+      )
 
       Papers.each { |name, (width, height, unit)| define(name, width:, height:, unit:) }
 

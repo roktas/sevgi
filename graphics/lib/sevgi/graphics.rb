@@ -63,7 +63,8 @@ module Sevgi
       Graphics::Document.define(name, preambles:, attributes:, overwrite: true)
     end
 
-    # Defines a paper profile unless the same profile already exists.
+    # Defines a paper profile unless the same profile already exists. Registration is process-global and thread-atomic;
+    # an identical concurrent definition is idempotent and a conflicting definition is rejected.
     # @param width [Numeric] paper width
     # @param height [Numeric] paper height
     # @param name [Symbol, String] profile name
@@ -71,13 +72,7 @@ module Sevgi
     # @return [Symbol, String] original profile name
     # @raise [Sevgi::ArgumentError] when the profile is invalid or an existing profile has different dimensions
     def paper(width, height, name = :custom, unit: "mm")
-      profile = Graphics::Paper[width, height, unit, name]
-
-      if Graphics::Paper.exist?(name)
-        ArgumentError.("Paper already defined differently: #{name}") unless Graphics::Paper.public_send(name) == profile
-      else
-        Graphics::Paper.define(name, width:, height:, unit:)
-      end
+      Graphics::Paper.define(name, width:, height:, unit:, overwrite: false)
 
       name
     end

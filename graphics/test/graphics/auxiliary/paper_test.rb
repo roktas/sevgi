@@ -15,6 +15,23 @@ module Sevgi
         assert_equal([7.0, 11.0, :mm, :paper_test_card], Paper.paper_test_card.deconstruct)
       end
 
+      def test_define_can_preserve_matching_profile
+        name = :paper_test_preserve
+        original = Paper.define(name, width: 3, height: 5)
+        matching = Paper.define(name, width: 3, height: 5, overwrite: false)
+
+        assert_same(original, matching)
+        assert_raises(Sevgi::ArgumentError) do
+          Paper.define(name, width: 7, height: 11, overwrite: false)
+        end
+
+        assert_raises(Sevgi::ArgumentError) do
+          Paper.define(name, width: 7, height: 11, overwrite: nil)
+        end
+
+        assert_same(original, Paper.public_send(name))
+      end
+
       def test_define_rejects_reserved_methods
         error = assert_raises(ArgumentError) do
           Paper.define(:define, width: 3, height: 5)
