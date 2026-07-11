@@ -2,7 +2,9 @@
 
 module Sevgi
   module Graphics
-    # Renderable text-like content inside an SVG element.
+    # Renderable text-like content inside an SVG element. Content owns an immutable deep snapshot: strings and containers
+    # are copied, mutable leaf objects are stringified once during construction, and {#content} returns caller-owned
+    # copies. Later mutations cannot change rendering or invalidate the construction-time XML checks.
     class Content
       # XML 1.0 character-data validation and escaping helpers.
       # @api private
@@ -21,9 +23,18 @@ module Sevgi
                 validate(item, seen)
               } : value.each { validate(it, seen) }
             end
+
+            value
           end
 
-          def cdata(value) = validate_string(value.to_s).gsub(TERMINATOR, TERMINATOR_SPLIT)
+          def cdata(value) = text(value).gsub(TERMINATOR, TERMINATOR_SPLIT)
+
+          def text(value)
+            return validate_string(value) if value.is_a?(::String)
+
+            validate(value)
+            validate_string(value.to_s)
+          end
 
           private
 
@@ -60,24 +71,94 @@ module Sevgi
 
       private_constant :XML
 
-      # @!attribute [r] content
-      #   @return [Object] wrapped content
-      attr_reader :content
+      # Immutable payload capture and caller-owned copy helpers.
+      # @api private
+      module Snapshot
+        VALUES = [::NilClass, ::TrueClass, ::FalseClass, ::Symbol, ::Integer, ::Float, ::Rational, ::Complex].freeze
+        private_constant :VALUES
 
-      # Creates content. All stringified payloads must contain legal XML 1.0 characters and valid UTF-8.
+        class << self
+          def capture(value, seen = {}.compare_by_identity)
+            case value
+            when ::String
+              XML.text(value).freeze
+            when ::Hash
+              capture_nested(value, seen) { capture_hash(value, seen) }.freeze
+            when ::Array
+              capture_nested(value, seen) { value.map { capture(it, seen) } }.freeze
+            else
+              VALUES.include?(value.class) ? value : stringify(value).freeze
+            end
+          end
+
+          def copy(value)
+            case value
+            when ::String
+              value.dup
+            when ::Hash
+              value.to_h { |key, item| [copy(key), copy(item)] }
+            when ::Array
+              value.map { copy(it) }
+            else
+              value
+            end
+          end
+
+          private
+
+          def capture_hash(value, seen)
+            value.each_with_object({}) do |(key, item), captured|
+              key = capture(key, seen)
+              ArgumentError.("XML content keys collide after stringification") if captured.key?(key)
+
+              captured[key] = capture(item, seen)
+            end
+          end
+
+          def capture_nested(value, seen)
+            ArgumentError.("Cyclic XML content is not supported") if seen.key?(value)
+
+            seen[value] = true
+            yield
+          ensure
+            seen.delete(value)
+          end
+
+          def stringify(value)
+            text = value.to_s
+            ArgumentError.("XML content stringification must return a String") unless text.is_a?(::String)
+
+            XML.text(text)
+          rescue Sevgi::ArgumentError
+            raise
+          rescue ::StandardError => e
+            ArgumentError.("XML content cannot be stringified: #{e.class}: #{e.message}")
+          end
+        end
+      end
+
+      private_constant :Snapshot
+
+      # Returns a recursively independent, caller-owned payload snapshot.
+      # @return [Object] wrapped content snapshot
+      def content = Snapshot.copy(@content)
+
+      # Creates immutable content from a deep payload snapshot. Strings and containers are copied recursively; mutable
+      # non-container objects are stringified once during construction. The caller's objects are never retained.
       # @param content [Object] wrapped content
       # @return [void]
-      # @raise [Sevgi::ArgumentError] when content contains invalid encoding, illegal XML characters, or cycles
+      # @raise [Sevgi::ArgumentError] when content cannot be stringified, contains invalid encoding or illegal XML
+      #   characters, contains cycles, or has keys that collide after stringification
       def initialize(content)
-        XML.validate(content)
-        @content = content
+        @content = Snapshot.capture(content)
+        XML.validate(@content)
       end
 
       # Copies content payload ownership for duplicated element trees.
       # @param original [Sevgi::Graphics::Content] source content
       # @return [void]
       def initialize_copy(original)
-        @content = copy_payload(original.content)
+        @content = Snapshot.capture(original.content)
         super
       end
 
@@ -91,57 +172,45 @@ module Sevgi
 
       # Returns content as a string.
       # @return [String]
-      def to_s = content.to_s
+      def to_s = XML.text(payload)
 
-      def copy_payload(value, seen = {}.compare_by_identity)
-        return value.dup if value.is_a?(::String)
-        return value unless value.is_a?(::Hash) || value.is_a?(::Array)
+      def payload = @content
 
-        copy_nested(value, seen) do
-          if value.is_a?(::Hash)
-            value.to_h { |key, nested| [copy_payload(key, seen), copy_payload(nested, seen)] }
-          else
-            value.map { copy_payload(it, seen) }
-          end
-        end
-      end
-
-      def copy_nested(value, seen)
-        ArgumentError.("Cannot duplicate cyclic content payload") if seen.key?(value)
-
-        seen[value] = true
-        yield
-      ensure
-        seen.delete(value)
-      end
-
-      private :copy_payload, :copy_nested
+      private :payload
 
       # @overload cdata(content)
       #   Builds CDATA content.
-      #   Content values are stringified during rendering, and embedded CDATA terminators are split safely.
+      #   Mutable objects are stringified during construction, and embedded CDATA terminators are split safely.
       #   @param content [Object] wrapped content
       #   @return [Sevgi::Graphics::Content::CData]
+      #   @raise [Sevgi::ArgumentError] when content cannot be stringified, contains invalid encoding or illegal XML 1.0
+      #     characters, contains cycles, or has keys that collide after stringification
       def self.cdata(...) = CData.new(...)
 
       # Wraps content arguments, encoding non-content values.
-      # Non-content values are stringified by encoded content before XML text escaping.
+      # Mutable non-content values are stringified by encoded content during construction, before XML text escaping.
       # @param args [Array<Object>] content arguments
       # @return [Array<Sevgi::Graphics::Content>]
+      # @raise [Sevgi::ArgumentError] when an argument cannot be stringified, contains invalid encoding or illegal XML
+      #   1.0 characters, contains cycles, or has keys that collide after stringification
       def self.contents(*args) = args.map { it.is_a?(Content) ? it : encoded(it) }
 
       # @overload css(content)
       #   Builds CSS content.
       #   @param content [Hash] CSS rules
       #   @return [Sevgi::Graphics::Content::CSS]
-      #   @raise [Sevgi::ArgumentError] when content is not a hash
+      #   @raise [Sevgi::ArgumentError] when content is not a hash, contains a malformed style, cannot be stringified,
+      #     contains invalid encoding or illegal XML 1.0 characters, contains cycles, or has keys that collide after
+      #     stringification
       def self.css(...) = CSS.new(...)
 
       # @overload encoded(content)
       #   Builds XML text-encoded content.
-      #   Arbitrary objects are stringified before XML text escaping.
+      #   Mutable objects are stringified during construction before XML text escaping.
       #   @param content [Object] wrapped content
       #   @return [Sevgi::Graphics::Content::Encoded]
+      #   @raise [Sevgi::ArgumentError] when content cannot be stringified, contains invalid encoding or illegal XML 1.0
+      #     characters, contains cycles, or has keys that collide after stringification
       def self.encoded(...) = Encoded.new(...)
 
       # Joins content lines with newlines.
@@ -151,11 +220,16 @@ module Sevgi
 
       # @overload verbatim(content)
       #   Builds verbatim content.
+      #   Mutable objects are stringified during construction.
       #   @param content [Object] wrapped content
       #   @return [Sevgi::Graphics::Content::Verbatim]
+      #   @raise [Sevgi::ArgumentError] when content cannot be stringified, contains invalid encoding or illegal XML 1.0
+      #     characters, contains cycles, or has keys that collide after stringification
       def self.verbatim(...) = Verbatim.new(...)
 
-      # CDATA section content.
+      # CDATA section content backed by an immutable payload snapshot. Mutable leaf objects are stringified during
+      # construction; embedded terminators are split during rendering.
+      # @see Content.cdata
       class CData < Content
         # Renders CDATA content.
         # Embedded `]]>` terminators are split across adjacent CDATA sections so the output remains valid XML.
@@ -166,7 +240,7 @@ module Sevgi
           depth += 1
 
           renderer.append(depth, "<![CDATA[")
-          renderer.append(depth + 1, *Array(content).map { safe(it) })
+          renderer.append(depth + 1, *Array(payload).map { safe(it) })
           renderer.append(depth, "]]>")
         end
 
@@ -175,14 +249,19 @@ module Sevgi
         def safe(value) = XML.cdata(value)
       end
 
-      # CSS content rendered inside a CDATA section.
+      # CSS content rendered inside a CDATA section. Rules are captured recursively during construction; mutable
+      # selectors, property names, and values are stringified once, and embedded CDATA terminators are split safely.
+      # @see Content.css
       class CSS < Content
         # Creates CSS content.
         # @param content [Hash] CSS rules
         # @return [void]
-        # @raise [Sevgi::ArgumentError] when content is not a hash
+        # @raise [Sevgi::ArgumentError] when content is not a hash, contains a malformed style, cannot be stringified,
+        #   contains invalid encoding or illegal XML 1.0 characters, contains cycles, or has keys that collide after
+        #   stringification
         def initialize(content)
-          ArgumentError.("CSS content must be a hash: #{content}") unless content.is_a?(::Hash)
+          ArgumentError.("CSS content must be a hash") unless content.is_a?(::Hash)
+          validate_styles(content)
 
           super
         end
@@ -192,21 +271,20 @@ module Sevgi
         # @param renderer [Object] renderer receiving output
         # @param depth [Integer] current render depth
         # @return [void]
-        # @raise [Sevgi::ArgumentError] when a style value cannot be rendered
         def render(renderer, depth)
           depth += 1
 
           renderer.append(depth, "<![CDATA[")
 
           depth += 1
-          content.each do |rule, styles|
+          payload.each do |rule, styles|
             case styles
             when ::Hash
-              renderer.append(depth, "#{rule} {")
-              renderer.append(depth + 1, *styles.map { |key, value| "#{key}: #{value};" })
+              renderer.append(depth, safe("#{rule} {"))
+              renderer.append(depth + 1, *styles.map { |key, value| safe("#{key}: #{value};") })
               renderer.append(depth, "}")
             when ::String, ::Symbol, ::Numeric
-              renderer.append(depth, "#{rule}: #{styles};")
+              renderer.append(depth, safe("#{rule}: #{styles};"))
             else
               ArgumentError.("Malformed style: #{styles}")
             end
@@ -217,13 +295,27 @@ module Sevgi
           renderer.append(depth, "]]>")
         end
         # rubocop:enable Metrics/MethodLength
+
+        private
+
+        def safe(value) = XML.cdata(value)
+
+        def validate_styles(content)
+          content.each_value do |styles|
+            next if styles.is_a?(::Hash) || styles.is_a?(::String) || styles.is_a?(::Symbol) || styles.is_a?(::Numeric)
+
+            ArgumentError.("Malformed style type: #{styles.class}")
+          end
+        end
       end
 
-      # XML text-encoded content.
+      # XML text-encoded content backed by an immutable payload snapshot. Mutable leaf objects are stringified during
+      # construction, before XML escaping.
+      # @see Content.encoded
       class Encoded < Content
         # Returns XML text-encoded content.
         # @return [String]
-        def to_s = XML.validate(content).encode(xml: :text)
+        def to_s = XML.text(payload).encode(xml: :text)
 
         # Renders encoded text content.
         # @param renderer [Object] renderer receiving output
@@ -232,12 +324,14 @@ module Sevgi
         def render(renderer, depth) = renderer.append(depth + 1, to_s)
       end
 
-      # Verbatim content rendered without XML text encoding.
+      # Verbatim content backed by an immutable payload snapshot. Mutable leaf objects are stringified during
+      # construction. Verbatim content bypasses XML escaping; validation guarantees encoding and legal XML 1.0 code
+      # points, not well-formed markup supplied by the caller.
+      # @see Content.verbatim
       class Verbatim < Content
         # Returns validated verbatim content.
         # @return [String]
-        # @raise [Sevgi::ArgumentError] when content contains invalid encoding or illegal XML characters
-        def to_s = XML.validate(content)
+        def to_s = XML.text(payload)
 
         # Renders verbatim content.
         # @param renderer [Object] renderer receiving output

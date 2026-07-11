@@ -87,14 +87,11 @@ module Sevgi
         end
 
         def test_css_wrapper_rejects_malformed_styles
-          error = assert_raises(ArgumentError) do
-            SVG(DOC) do
-              css(rect: Object.new)
-            end
-              .Render()
-          end
+          doc = SVG(DOC)
+          error = assert_raises(ArgumentError) { doc.css(rect: Object.new) }
 
           assert_match(/\bMalformed style\b/, error.message)
+          assert_empty(doc.children)
         end
       end
     end

@@ -63,7 +63,8 @@ module Sevgi
         # @param hash [Hash, nil] CSS rules
         # @param attributes [Hash] style attributes or CSS rules when hash is nil
         # @return [Sevgi::Graphics::Element] style element
-        # @raise [Sevgi::ArgumentError] when CSS content is not a hash
+        # @raise [Sevgi::ArgumentError] when CSS rules are malformed, cyclic, cannot be stringified, or contain invalid
+        #   encoding or illegal XML 1.0 characters
         def css(hash = nil, **attributes)
           hash, attributes = attributes, {} unless hash
 

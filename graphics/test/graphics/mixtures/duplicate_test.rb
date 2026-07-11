@@ -172,10 +172,16 @@ module Sevgi
 
           copy[:style][:fill] << "blue"
           copy[:style][:fill][1][:opacity] << "!"
-          copy.children.first.contents.first.content << " copy"
+          original_content = original.children.first.contents.first.content
+          copy_content = copy.children.first.contents.first.content
+          copy_content.first << " copy"
 
           assert_equal(["red", {opacity: "1"}], original[:style][:fill])
+          assert_equal(["original"], original_content)
           assert_equal(["original"], original.children.first.contents.first.content)
+          assert_equal(["original"], copy.children.first.contents.first.content)
+          refute_same(original_content, copy_content)
+          refute_same(original_content.first, copy_content.first)
         end
 
         def test_duplicate_rejects_cyclic_payloads
