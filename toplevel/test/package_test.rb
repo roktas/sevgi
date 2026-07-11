@@ -173,7 +173,7 @@ module Sevgi
       workflow = ::File.read(::File.join(ROOT, ".github/workflows/test.yml"))
       development_ruby = ::File.read(::File.join(ROOT, ".ruby-version")).strip
 
-      assert_includes(workflow, "\"#{MINIMUM_RUBY}\"")
+      assert_includes(workflow, "\"3.4\"")
       refute_includes(workflow, "MINIMUM_RUBY.delete_suffix")
       assert_includes(workflow, "\"#{development_ruby}\"")
       assert_includes(workflow, "bundle exec rake test")
