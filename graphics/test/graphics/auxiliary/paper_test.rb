@@ -6,9 +6,12 @@ module Sevgi
   module Graphics
     class PaperTest < Minitest::Test
       def test_define_allows_profile_overwrite
-        Paper.define(:paper_test_card, width: 3, height: 5)
-        Paper.define(:paper_test_card, width: 7, height: 11)
+        _, stderr = capture_io do
+          Paper.define(:paper_test_card, width: 3, height: 5)
+          Paper.define(:paper_test_card, width: 7, height: 11)
+        end
 
+        assert_empty(stderr)
         assert_equal([7.0, 11.0, :mm, :paper_test_card], Paper.paper_test_card.deconstruct)
       end
 
@@ -51,6 +54,60 @@ module Sevgi
           -> { Paper[3, 0] },
           -> { Paper[3, -1] }
         ].each { |operation| assert_raises(Sevgi::ArgumentError, &operation) }
+      end
+
+      def test_symbol_inputs_reject_invalid_converters
+        raising = Object.new.tap { it.define_singleton_method(:to_sym) { raise "broken" } }
+        wrong = Object.new.tap { it.define_singleton_method(:to_sym) { "paper" } }
+
+        [raising, wrong].each do |value|
+          [
+            -> { Paper[3, 5, value] },
+            -> { Paper[3, 5, :mm, value] },
+            -> { Paper.define(value, width: 3, height: 5) }
+          ].each do |operation|
+            assert_raises(Sevgi::ArgumentError, &operation)
+          end
+
+          refute(Paper.exist?(value))
+        end
+      end
+
+      def test_define_validates_before_replacing_profile
+        name = :paper_atomic_card
+        original = Paper.define(name, width: 3, height: 5)
+        ghost = :paper_invalid_ghost
+        invalid = [
+          -> { Paper.define(name, width: "wide", height: 7) },
+          -> { Paper.define(name, width: 7, height: 11, typo: true) },
+          -> { Paper.define(ghost, width: 7, height: 11, typo: true) },
+          -> { Paper.new(width: 7, height: 11, typo: true) }
+        ]
+
+        invalid.each { |operation| assert_raises(Sevgi::ArgumentError, &operation) }
+
+        assert_same(original, Paper.public_send(name))
+        assert(Paper.exist?(name))
+        refute(Paper.exist?(ghost))
+        refute_respond_to(Paper, ghost)
+      end
+
+      def test_define_supports_non_identifier_profile_names
+        ["paper-card", "paper card", "1paper"].each do |name|
+          profile = Paper.define(name, width: 3, height: 5)
+
+          assert_same(profile, Paper.public_send(name))
+          assert(Paper.exist?(name))
+          assert_equal(name.to_sym, profile.name)
+        end
+      end
+
+      def test_comparison_returns_nil_for_incompatible_objects
+        smaller = Paper[3, 5]
+        larger = Paper[7, 11]
+
+        assert_nil(smaller <=> Object.new)
+        assert_equal([smaller, larger], [larger, smaller].sort)
       end
 
       def test_iso_a_profiles_use_standard_small_sizes
