@@ -4,6 +4,7 @@ require "json"
 require "digest"
 require "open3"
 require "rubygems/package"
+require "zlib"
 
 module SevgiRelease
   COMPONENT_ORDER = %w[
@@ -164,6 +165,98 @@ module SevgiRelease
     module Archive
       module_function
 
+      # Reads and validates the physical members of a gem payload.
+      module Payload
+        LIMIT = 10 * 1024 * 1024
+        private_constant :LIMIT
+
+        module_function
+
+        def read(path)
+          entries = nil
+          File.open(path, "rb") do |io|
+            Gem::Package::TarReader.new(io) { |tar| entries = scan(tar, path) }
+          end
+
+          entries || Preflight.raise_error("missing data.tar.gz in #{path}")
+        rescue Preflight::Error
+          raise
+        rescue StandardError => e
+          Preflight.raise_error("malformed package container in #{path}: #{e.message}")
+        end
+
+        def scan(tar, path)
+          entries = nil
+          tar.each { |entry| entries = extract(entry, path) || entries }
+          entries
+        end
+
+        def extract(entry, path)
+          case entry.full_name
+          when "metadata"
+            validate_metadata!(member_read(entry, path), entry.full_name, path)
+          when "metadata.gz"
+            validate_metadata!(gzip_read(entry, path), entry.full_name, path)
+          when "checksums.yaml.gz"
+            validate_checksums!(gzip_read(entry, path), entry.full_name, path)
+          when "data.tar.gz"
+            data_entries(entry, path)
+          end
+        end
+
+        def data_entries(entry, path)
+          with_member(entry.full_name, path) do
+            Zlib::GzipReader.wrap(entry) do |gzip|
+              Gem::Package::TarReader.new(gzip).map do |item|
+                {path: item.full_name, file: item.file?}
+              end
+            end
+          end
+        end
+
+        def gzip_read(entry, path)
+          with_member(entry.full_name, path) do
+            Zlib::GzipReader.wrap(entry) { |gzip| limited_read(gzip) }
+          end
+        end
+
+        def limited_read(io)
+          content = io.read(LIMIT + 1)
+          Preflight.raise_error("package member exceeds #{LIMIT} bytes") if content.bytesize > LIMIT
+
+          content
+        end
+
+        def member_read(entry, path)
+          with_member(entry.full_name, path) { limited_read(entry) }
+        end
+
+        def validate_checksums!(content, name, path)
+          with_member(name, path) do
+            Gem.load_yaml
+            checksums = Gem::SafeYAML.safe_load(content)
+            Preflight.raise_error("checksum metadata is not a Hash") unless checksums.is_a?(Hash)
+          end
+        end
+
+        def validate_metadata!(content, name, path)
+          with_member(name, path) do
+            archive = Gem::Specification.from_yaml(content)
+            unless archive.is_a?(Gem::Specification)
+              Preflight.raise_error("package metadata is not a gem specification")
+            end
+          end
+        end
+
+        def with_member(name, path)
+          yield
+        rescue StandardError => e
+          Preflight.raise_error("malformed #{name} in #{path}: #{e.message}")
+        end
+      end
+
+      private_constant :Payload
+
       def validate!(root:, package_dir:, version:)
         specs = Preflight.gemspecs(root)
         Preflight.raise_error("no gemspecs found") if specs.empty?
@@ -175,8 +268,8 @@ module SevgiRelease
         path = File.join(package_dir, "#{spec.name}-#{version}.gem")
         Preflight.raise_error("missing package: #{path}") unless File.file?(path)
 
-        archive = load_archive(path, spec, version)
-        validate_contents!(archive, path)
+        archive, entries = load_archive(path, spec, version)
+        validate_contents!(spec, archive, entries, path)
 
         {name: spec.name, path:, sha256: Digest::SHA256.file(path).hexdigest}
       rescue StandardError => e
@@ -185,24 +278,99 @@ module SevgiRelease
         Preflight.raise_error("#{path}: #{e.message}")
       end
 
-      def validate_contents!(archive, path)
-        files = archive.files
-        Preflight.raise_error("empty package: #{path}") if files.empty?
-        validate_paths!(files, path)
-        validate_required_files!(files, path)
+      def validate_contents!(spec, archive, entries, path)
+        manifest = spec.files
+        expected = source_files(spec)
+        declared = archive.files
+        actual = entries.map { it.fetch(:path) }
+
+        validate_entries!(entries, path)
+        validate_file_list!(manifest, path, "gemspec")
+        validate_file_list!(declared, path, "metadata")
+        validate_match!(declared, actual, path)
+        validate_metadata!(expected, declared, path)
+        validate_required_files!(actual, path)
+      end
+
+      def source_files(spec)
+        root = File.dirname(spec.loaded_from)
+        spec.files.select { |file| File.file?(File.join(root, file)) }
       end
 
       def load_archive(path, spec, version)
+        entries = Payload.read(path)
         archive = Gem::Package.new(path).spec
         Preflight.raise_error("malformed package name: #{path}") unless archive.name == spec.name
         Preflight.raise_error("malformed package version: #{path}") unless archive.version.to_s == version
 
-        archive
+        [archive, entries]
+      end
+
+      def validate_entries!(entries, path)
+        Preflight.raise_error("empty package: #{path}") if entries.empty?
+
+        files = entries.map { it.fetch(:path) }
+        validate_file_list!(files, path, "payload")
+        invalid = entries.reject { it.fetch(:file) }.map { it.fetch(:path) }
+        Preflight.raise_error("non-file package entries in #{path}: #{invalid.join(", ")}") unless invalid.empty?
+      end
+
+      def validate_file_list!(files, path, source)
+        duplicates = files.tally.select { |_file, count| count > 1 }.keys.sort
+        unless duplicates.empty?
+          Preflight.raise_error("duplicate package #{source} entries in #{path}: #{duplicates.join(", ")}")
+        end
+
+        validate_paths!(files, path)
+      end
+
+      def validate_match!(declared, actual, path)
+        missing = (declared - actual).sort
+        unexpected = (actual - declared).sort
+        return if missing.empty? && unexpected.empty?
+
+        details = []
+        details << "missing from payload: #{missing.join(", ")}" unless missing.empty?
+        details << "unexpected payload entries: #{unexpected.join(", ")}" unless unexpected.empty?
+        Preflight.raise_error("package contents mismatch in #{path}: #{details.join("; ")}")
+      end
+
+      def validate_metadata!(expected, declared, path)
+        missing = (expected - declared).sort
+        unexpected = (declared - expected).sort
+        return if missing.empty? && unexpected.empty?
+
+        details = []
+        details << "missing metadata entries: #{missing.join(", ")}" unless missing.empty?
+        details << "unexpected metadata entries: #{unexpected.join(", ")}" unless unexpected.empty?
+        Preflight.raise_error("package metadata mismatch in #{path}: #{details.join("; ")}")
       end
 
       def validate_paths!(files, path)
-        invalid = files.grep(%r{\A(?:/|\.\./)|(?:^|/)\.agents(?:/|$)|(?:^|/)AGENTS\.md\z})
+        invalid = files.select { invalid_path?(it) }
         Preflight.raise_error("invalid package contents in #{path}: #{invalid.join(", ")}") unless invalid.empty?
+      end
+
+      def invalid_path?(file)
+        return true unless file.is_a?(String) && !file.empty? && file.valid_encoding?
+
+        parts = file.split("/", -1)
+        invalid_root?(file) || invalid_parts?(parts)
+      end
+
+      def invalid_parts?(parts)
+        parts.any?(&:empty?) ||
+          parts.include?(".") ||
+          parts.include?("..") ||
+          parts.include?(".agents") ||
+          parts.last == "AGENTS.md"
+      end
+
+      def invalid_root?(file)
+        file.start_with?("/", "\\") ||
+          file.match?(%r{\A[A-Za-z]:[\\/]}) ||
+          file.include?("\\") ||
+          file.match?(/[[:cntrl:]]/)
       end
 
       def validate_required_files!(files, path)
