@@ -9,7 +9,7 @@ module Sevgi
         Widget = ::Module.new do
           extend(Graphics::Module)
 
-          def item(id)
+          def call(id)
             rect(id:)
           end
         end

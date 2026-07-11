@@ -10,10 +10,12 @@ module Sevgi
           mod = ::Module.new do
             extend(Graphics::Module)
 
-            call { rect(id: "before") }
-            call(true) { rect(id: "after") }
+            before { rect(id: "before-1") }
+            before { rect(id: "before-2") }
+            after { rect(id: "after-1") }
+            after { rect(id: "after-2") }
 
-            def item(id)
+            def call(id)
               rect(id:)
             end
           end
@@ -22,11 +24,18 @@ module Sevgi
           result = doc.Call(mod, "main")
 
           [
-            %w[before main after],
+            %w[before-1 before-2 main after-1 after-2],
             doc.children.map { it[:id] },
             "main",
             result[:id]
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+        end
+
+        def test_hooks_require_blocks
+          mod = ::Module.new { extend(Graphics::Module) }
+
+          assert_raises(ArgumentError) { mod.before }
+          assert_raises(ArgumentError) { mod.after }
         end
 
         def test_call_skips_non_public_methods

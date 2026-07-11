@@ -27,7 +27,7 @@ module CheckerBoard
     ".dark.piece" => { fill: "#333" }
   }.freeze
 
-  call do # Draw the board.
+  before do # Draw the board.
     css STYLE
 
     square class: "board-frame", length: SIZE
@@ -44,7 +44,7 @@ module CheckerBoard
     end
   end
 
-  def pieces(placement)
+  def call(placement)
     center = BOARD_MARGIN + (CELL_SIZE / 2)
 
     placement.each do |tone, rows|

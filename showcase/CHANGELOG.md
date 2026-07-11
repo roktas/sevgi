@@ -5,6 +5,11 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## Unreleased
 
+### Changed
+
+- Breaking: replaced callable drawing module `call` hook registration with explicit `before` and `after` hooks; modules
+  with one drawing method now conventionally name it `call`.
+
 ## 0.95.0 - 2026-07-11
 
 ### Security
