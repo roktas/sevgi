@@ -52,6 +52,79 @@ module Sevgi
 
       extend Ident
 
+      # Owned mutable snapshots for values entering an attribute store.
+      # @api private
+      module Snapshot
+        class << self
+          def capture(value, normalize: false, seen: {}.compare_by_identity)
+            case value
+            when ::Hash
+              nested(value, seen) { capture_hash(value, normalize:, seen:) }
+            when ::Array
+              nested(value, seen) { value.map { capture(it, seen:) } }
+            else
+              capture_value(value)
+            end
+          end
+
+          private
+
+          def capture_hash(value, normalize:, seen:)
+            identities = {}
+            value.each_with_object({}) do |(key, item), captured|
+              key = normalize ? symbol(key) : capture(key, seen:)
+              identity = normalize ? key : XML.snapshot(key, context: "XML attribute value")
+              if captured.key?(key) || identities.key?(identity)
+                ArgumentError.("Attribute keys collide after normalization or stringification")
+              end
+
+              identities[identity] = true
+              captured[key] = capture(item, seen:)
+            end
+          end
+
+          def capture_value(value)
+            text = XML.text(value, context: "XML attribute value")
+            case value
+            when ::Numeric, ::Symbol, ::NilClass, ::TrueClass, ::FalseClass
+              value
+            else
+              text
+            end
+          end
+
+          def nested(value, seen)
+            ArgumentError.("Cyclic XML attribute value is not supported") if seen.key?(value)
+
+            seen[value] = true
+            yield
+          ensure
+            seen.delete(value)
+          end
+
+          def symbol(key)
+            normalized = key.to_sym if key.respond_to?(:to_sym)
+            return normalized if normalized.is_a?(::Symbol)
+
+            ArgumentError.("Attribute Hash keys must normalize to Symbols")
+          rescue Sevgi::ArgumentError
+            raise
+          rescue ::StandardError => e
+            ArgumentError.("Attribute Hash key cannot be normalized: #{e.class}: #{e.message}")
+          end
+        end
+      end
+
+      private_constant :Snapshot
+
+      # Captures a caller-independent attribute value.
+      # @param value [Object] value to capture
+      # @param normalize [Boolean] normalize direct Hash keys to Symbols
+      # @return [Object] owned mutable snapshot
+      # @raise [Sevgi::ArgumentError] when value is invalid, cyclic, collides, or cannot be converted
+      # @api private
+      def self.capture(value, normalize: false) = Snapshot.capture(value, normalize:)
+
       # Returns the text form used for an XML attribute value before escaping.
       # @param value [Object] attribute value
       # @return [String]
@@ -71,43 +144,42 @@ module Sevgi
         XML.text(text, context: "XML attribute value")
       end
 
-      # Validates a nested XML attribute value.
-      # @param value [Object] value to validate
-      # @return [Object] original value
-      # @raise [Sevgi::ArgumentError] when value is invalid, cyclic, or cannot be stringified as XML
-      # @api private
-      def self.validate(value) = XML.validate(value, context: "XML attribute value")
-
       # Mutable SVG attribute store with Sevgi update syntax.
       class Store
-        # Creates an attribute store.
+        # Creates an attribute store from recursively owned snapshots. Mutable non-container leaves are stringified
+        # once; later caller mutation cannot change the store.
         # @param attributes [Hash] initial attributes
         # @return [void]
-        # @raise [Sevgi::ArgumentError] when a name or value is not valid XML, is cyclic, or cannot be stringified
+        # @raise [Sevgi::ArgumentError] when input is not a Hash or a name/value is invalid, cyclic, colliding, or cannot
+        #   be converted
         def initialize(attributes = {})
           @store = {}
 
           import(attributes)
         end
 
-        # Imports attributes into the store.
+        # Atomically imports recursively owned attribute snapshots.
         # @param attributes [Hash] attributes to merge
         # @return [Hash] internal store
-        # @raise [Sevgi::ArgumentError] when a name or value is not valid XML, is cyclic, or cannot be stringified
+        # @raise [Sevgi::ArgumentError] when input is not a Hash or a name/value is invalid, cyclic, colliding, or cannot
+        #   be converted
         def import(attributes)
-          hash = attributes
-            .compact
-            .to_a
-            .to_h do |key, value|
-              id = Attribute.id(key)
-              Attribute.validate(value)
-              [id, import_value(value)]
-            end
+          ArgumentError.("Attributes must be imported from a Hash") unless attributes.is_a?(::Hash)
+
+          hash = attributes.each_with_object({}) do |(key, value), captured|
+            next if value.nil?
+
+            id = Attribute.id(key)
+            ArgumentError.("Attribute names collide after normalization: #{id}") if captured.key?(id)
+
+            captured[id] = Attribute.capture(value, normalize: value.is_a?(::Hash))
+          end
 
           @store.merge!(hash)
         end
 
-        # Returns an attribute by normalized key.
+        # Returns a live stored attribute value. Mutating a returned container intentionally mutates this store; rendering
+        # revalidates the resulting value.
         # @param key [String, Symbol] attribute key
         # @return [Object, nil]
         # @raise [Sevgi::ArgumentError] when key is not a valid XML attribute name
@@ -115,18 +187,18 @@ module Sevgi
           @store[Attribute.id(key)]
         end
 
-        # Assigns an attribute value.
+        # Assigns a recursively owned attribute snapshot. Mutable non-container leaves are stringified once.
         # @param key [String, Symbol] attribute key
         # @param value [Object, nil] attribute value; nil is ignored
-        # @return [Object, nil] assigned value or nil
+        # @return [Object, nil] stored snapshot or nil
         # @raise [Sevgi::ArgumentError] when update syntax receives incompatible values
         # @raise [Sevgi::ArgumentError] when update syntax receives an unsupported value type
-        # @raise [Sevgi::ArgumentError] when a name or value is not valid XML, is cyclic, or cannot be stringified
+        # @raise [Sevgi::ArgumentError] when a name/value is invalid, cyclic, colliding, or cannot be converted
         def []=(key, value)
           return if value.nil?
 
           id = Attribute.id(key)
-          Attribute.validate(value)
+          value = Attribute.capture(value, normalize: value.is_a?(::Hash))
           @store[id] = @store.key?(id) && Attribute.updateable?(key) ? update(id, value) : value
         end
 
@@ -138,8 +210,8 @@ module Sevgi
           @store.delete(Attribute.id(key))
         end
 
-        # Returns public attributes ready for rendering.
-        # @return [Hash]
+        # Returns public attributes ready for rendering. Nested values remain live store values.
+        # @return [Hash] shallow attribute view
         def export
           hash = @store.reject { |id, _| Attribute.internal?(id) }
           return hash unless hash.key?(:id)
@@ -156,12 +228,13 @@ module Sevgi
           @store.key?(Attribute.id(key))
         end
 
-        # Copies the attribute store.
+        # Copies the attribute store with recursively independent values.
         # @param original [Sevgi::Graphics::Attribute::Store] store to copy
         # @return [void]
+        # @raise [Sevgi::ArgumentError] when live stored values became cyclic or invalid
         def initialize_copy(original)
           @store = {}
-          original.store.each { |key, value| @store[key] = copy_value(value) }
+          original.store.each { |key, value| @store[key] = Attribute.capture(value) }
 
           super
         end
@@ -172,8 +245,9 @@ module Sevgi
           export.keys
         end
 
-        # Returns the internal attribute hash.
-        # @return [Hash]
+        # Returns the live internal attribute Hash. Mutating it intentionally mutates this store; rendering revalidates
+        # names and values.
+        # @return [Hash] live internal store
         def to_h
           @store
         end
@@ -191,20 +265,6 @@ module Sevgi
 
         private
 
-        # Returns a caller-owned value copy for import.
-        # @param value [Object] attribute value
-        # @return [Object] imported value
-        def import_value(value)
-          case value
-          when ::Hash
-            value.transform_keys(&:to_sym)
-          when ::Array
-            value.dup
-          else
-            value
-          end
-        end
-
         UPDATER = {
           ::String => proc { |old_value, new_value| [old_value, new_value].reject(&:empty?).join(" ") },
           ::Symbol => proc { |old_value, new_value| [old_value, new_value].reject(&:empty?).join(" ").to_sym },
@@ -221,28 +281,6 @@ module Sevgi
           ArgumentError.("Unsupported value for update: #{new_value}") unless UPDATER.key?(new_value.class)
 
           [old_value, new_value]
-        end
-
-        def copy_value(value, seen = {}.compare_by_identity)
-          return value.dup if value.is_a?(::String)
-          return value unless value.is_a?(::Hash) || value.is_a?(::Array)
-
-          copy_nested(value, seen) do
-            if value.is_a?(::Hash)
-              value.to_h { |key, nested| [copy_value(key, seen), copy_value(nested, seen)] }
-            else
-              value.map { copy_value(it, seen) }
-            end
-          end
-        end
-
-        def copy_nested(value, seen)
-          ArgumentError.("Cannot duplicate cyclic attribute payload") if seen.key?(value)
-
-          seen[value] = true
-          yield
-        ensure
-          seen.delete(value)
         end
 
         private_constant :UPDATER
