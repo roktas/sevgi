@@ -16,9 +16,9 @@ module Sevgi
           def capture(value, seen = {}.compare_by_identity)
             case value
             when ::Hash
-              capture_nested(value, seen) { capture_hash(value, seen) }.freeze
+              nested(value, seen) { capture_hash(value, seen) }.freeze
             when ::Array
-              capture_nested(value, seen) { value.map { capture(it, seen) } }.freeze
+              nested(value, seen) { value.map { capture(it, seen) } }.freeze
             else
               capture_value(value)
             end
@@ -51,7 +51,7 @@ module Sevgi
             end
           end
 
-          def capture_nested(value, seen)
+          def nested(value, seen)
             ArgumentError.("Cyclic document profile metadata is not supported") if seen.key?(value)
 
             seen[value] = true
