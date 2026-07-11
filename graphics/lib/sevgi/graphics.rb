@@ -34,7 +34,8 @@ module Sevgi
     #   Looks up a named profile when both definition keywords are omitted. Supplying `preambles:` or `attributes:`
     #   defines a named profile, or returns an existing profile when every explicitly supplied field matches. Omitted
     #   fields are ignored during existing-profile comparison. Profile containers and strings are copied into the
-    #   registry; mutable non-container attribute values are stringified once before registration.
+    #   process-global, thread-atomic registry; mutable non-container attribute values are stringified once before
+    #   registration.
     #   @param name [Symbol, String] profile name
     #   @param preambles [Array<String>, nil, Sevgi::Undefined] document preamble lines
     #   @param attributes [Hash, nil, Sevgi::Undefined] default root attributes; nil means an empty Hash
@@ -52,9 +53,9 @@ module Sevgi
     end
 
     # Defines or replaces a document profile class.
+    # Validation and snapshot capture complete before an existing registration is atomically replaced.
     # @param name [Symbol, String] profile name
     # @param preambles [Array<String>, nil] document preamble lines
-    # Validation and snapshot capture complete before an existing registration is replaced.
     # @param attributes [Hash, nil] default root attributes; nil means an empty Hash
     # @return [Class] document class
     # @raise [Sevgi::ArgumentError] when the name or metadata is invalid XML, cyclic, or cannot be stringified

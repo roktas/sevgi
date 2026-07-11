@@ -114,9 +114,9 @@ module Sevgi
       private_class_method :canvas_attributes
 
       # Defines or returns a document profile class.
+      # Profile metadata is captured before class or thread-atomic registry mutation. Mutable non-container attribute
+      # values are stringified once during capture.
       # @param name [Symbol, String, Sevgi::Undefined] profile name, or Undefined for an anonymous profile
-      # Profile metadata is captured before class or registry mutation. Mutable non-container attribute values are
-      # stringified once during capture.
       # @param preambles [Array<String>, nil, Sevgi::Undefined] document preamble lines
       # @param attributes [Hash, nil, Sevgi::Undefined] default root attributes
       # @param overwrite [Boolean] true to replace an existing profile
@@ -171,16 +171,23 @@ module Sevgi
       # @api private
       module Registry
         @available = {}
+        @mutex = ::Mutex.new
 
         class << self
-          def [](name) = @available[name]
+          def [](name) = @mutex.synchronize { @available[name] }
 
-          def available = @available.dup.freeze
+          def available = @mutex.synchronize { @available.dup.freeze }
 
           def register(name, klass, profile: nil, overwrite: false)
             name = Profile.normalize!(name)
             validate!(name, klass, profile)
 
+            @mutex.synchronize { store(name, klass, profile, overwrite) }
+          end
+
+          private
+
+          def store(name, klass, profile, overwrite)
             if (current = @available[name])
               unless overwrite || current.profile == profile
                 ArgumentError.("Document profile already defined differently: #{name}")
@@ -191,8 +198,6 @@ module Sevgi
 
             @available[name] = klass
           end
-
-          private
 
           def validate!(name, klass, profile)
             unless klass.is_a?(::Class) && klass <= Proto
@@ -208,15 +213,16 @@ module Sevgi
 
       private_constant :Registry
 
-      # Immutable, read-only document profile metadata exposed by document classes. Metadata containers and strings are
-      # captured recursively; other mutable attribute values are stringified once during construction.
+      # Immutable, read-only document profile metadata exposed by document classes. Process-global lookup and registration
+      # are thread-atomic. Metadata containers and strings are captured recursively; other mutable attribute values are
+      # stringified once during construction.
       # @see Sevgi::Graphics.document
       class Profile
-        # Returns an immutable snapshot of registered profile classes.
+        # Returns a thread-coherent immutable snapshot of registered profile classes.
         # @return [Hash<Symbol, Class>]
         def self.available = Registry.available
 
-        # Returns a profile class by name.
+        # Returns a profile class by name from the process-global registry.
         # @param name [Object] profile name
         # @return [Class, nil]
         def self.[](name) = (name = normalize(name)) && Registry[name]

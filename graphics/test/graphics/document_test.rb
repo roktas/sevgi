@@ -27,7 +27,29 @@ module Sevgi
         end
       end
 
-      private_constant :MutableProfileValue
+      class RacingProfiles < Hash
+        def initialize(source, target, entered, release)
+          super()
+          update(source)
+          @blocked = false
+          @entered = entered
+          @release = release
+          @target = target
+        end
+
+        def [](name)
+          value = super
+          if name == @target && !@blocked
+            @blocked = true
+            @entered << true
+            @release.pop
+          end
+
+          value
+        end
+      end
+
+      private_constant :MutableProfileValue, :RacingProfiles
 
       def test_default_profile_renders_preamble_and_namespace
         expected = <<~SVG
@@ -118,6 +140,20 @@ module Sevgi
           assert_raises(ArgumentError) { registry.register(name, Document::Minimal) }
           assert_equal(before, Document::Profile.available)
         end
+      end
+
+      def test_profile_registry_serializes_conflicting_writes
+        registry = Document.const_get(:Registry, false)
+        original = registry.instance_variable_get(:@available)
+        name = :registered_thread_atomic
+        values = racing_registrations(registry, original, name)
+        classes, errors = values.partition { it.is_a?(::Class) }
+
+        assert_equal(1, classes.size)
+        assert_equal([Sevgi::ArgumentError], errors.map(&:class))
+        assert_same(classes.fetch(0), registry[name])
+      ensure
+        registry.instance_variable_set(:@available, original)
       end
 
       def test_named_document_registers_profile_and_class
@@ -456,6 +492,39 @@ module Sevgi
 
         assert_same(doc, Graphics.document(:explicit_empty))
         assert_equal("<svg/>", SVG(:explicit_empty).Render())
+      end
+
+      private
+
+      def racing_registrations(registry, original, name)
+        entered = Queue.new
+        release = Queue.new
+        registry.instance_variable_set(:@available, RacingProfiles.new(original, name, entered, release))
+        results = Queue.new
+        first = profile_registration(registry, name, "red", results)
+        entered.pop
+        second = profile_registration(registry, name, "blue", results, started = Queue.new)
+        started.pop
+        Thread.pass while second.alive? && second.status != "sleep"
+        release << true
+        [first, second].each(&:join)
+        2.times.map { results.pop }
+      ensure
+        release << true
+        [first, second].compact.each(&:join)
+      end
+
+      def profile_registration(registry, name, fill, results, started = nil)
+        profile = Document::Profile.new(name, attributes: {fill:})
+        klass = Class.new(Document::Base)
+        klass.instance_variable_set(:@profile, profile)
+
+        Thread.new do
+          started << true if started
+          results << registry.register(name, klass, profile:)
+        rescue ::StandardError => e
+          results << e
+        end
       end
     end
 
