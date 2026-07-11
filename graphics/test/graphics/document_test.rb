@@ -13,7 +13,7 @@ module Sevgi
     class DocumentProfileTest < Minitest::Test
       DOC = :test
 
-      class MutableProfileValue
+      class MutableValue
         attr_reader :calls, :text
 
         def initialize(text)
@@ -27,7 +27,7 @@ module Sevgi
         end
       end
 
-      class PausedProfileValue
+      class PausedValue
         def initialize(entered, release)
           @entered = entered
           @release = release
@@ -40,7 +40,7 @@ module Sevgi
         end
       end
 
-      class RacingProfiles < Hash
+      class Gate < Hash
         def initialize(source, target, entered, release)
           super()
           update(source)
@@ -62,7 +62,7 @@ module Sevgi
         end
       end
 
-      private_constant :MutableProfileValue, :PausedProfileValue, :RacingProfiles
+      private_constant :Gate, :MutableValue, :PausedValue
 
       def test_default_profile_renders_preamble_and_namespace
         expected = <<~SVG
@@ -351,7 +351,7 @@ module Sevgi
       end
 
       def test_document_rejects_invalid_preamble_without_coercion
-        preamble = MutableProfileValue.new("header")
+        preamble = MutableValue.new("header")
         before = Document::Profile.available
 
         assert_raises(Sevgi::ArgumentError) do
@@ -363,7 +363,7 @@ module Sevgi
       end
 
       def test_document_owns_mutable_profile_values
-        value = MutableProfileValue.new(+"red")
+        value = MutableValue.new(+"red")
         shared = [1, 2]
         doc = Graphics.document(
           :registered_mutable_value,
@@ -407,8 +407,8 @@ module Sevgi
           assert_equal(before, Document::Profile.available)
         end
 
-        left = MutableProfileValue.new("same")
-        right = MutableProfileValue.new("same")
+        left = MutableValue.new("same")
+        right = MutableValue.new("same")
         error = assert_raises(Sevgi::ArgumentError) do
           Graphics.document(:registered_bad_value, attributes: {style: {left => 1, right => 2}})
         end
@@ -538,7 +538,7 @@ module Sevgi
         release = Queue.new
         threads = 2.times.map do
           Thread.new do
-            value = PausedProfileValue.new(entered, release)
+            value = PausedValue.new(entered, release)
             Graphics.document(name, attributes: {fill: value})
           end
         end
@@ -554,7 +554,7 @@ module Sevgi
       def racing_registrations(registry, original, name)
         entered = Queue.new
         release = Queue.new
-        registry.instance_variable_set(:@available, RacingProfiles.new(original, name, entered, release))
+        registry.instance_variable_set(:@available, Gate.new(original, name, entered, release))
         results = Queue.new
         first = profile_registration(registry, name, "red", results)
         entered.pop

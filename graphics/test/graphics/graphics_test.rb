@@ -9,7 +9,7 @@ require_relative "../test_helper"
 module Sevgi
   module Graphics
     class GraphicsTest < Minitest::Test
-      class Phases
+      class Barrier
         def initialize(parties)
           @parties = parties
           @counts = Hash.new(0)
@@ -27,20 +27,20 @@ module Sevgi
       end
 
       class Name
-        def initialize(name, phases)
+        def initialize(name, barrier)
           @name = name
           @phase = 0
-          @phases = phases
+          @barrier = barrier
         end
 
         def to_sym
           @phase += 1
-          @phases.wait(@phase)
+          @barrier.wait(@phase)
           @name
         end
       end
 
-      private_constant :Name, :Phases
+      private_constant :Barrier, :Name
 
       def test_svg_constant_aliases_graphics
         assert(SVG.is_a?(::Module))
@@ -277,11 +277,11 @@ module Sevgi
       private
 
       def racing_papers(name, widths)
-        phases = Phases.new(widths.size)
+        barrier = Barrier.new(widths.size)
         widths
           .map do |width|
             Thread.new do
-              input = Name.new(name, phases)
+              input = Name.new(name, barrier)
               [width, Graphics.paper(width, 5, input)]
             rescue ::StandardError => e
               [width, e]
