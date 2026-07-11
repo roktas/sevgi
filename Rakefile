@@ -205,10 +205,10 @@ module SevgiRelease
         specs = Preflight.gemspecs(root)
         Preflight.raise_error("no gemspecs found") if specs.empty?
 
-        specs.map { |spec| validate_one(spec, package_dir:, version:) }
+        specs.map { |spec| check(spec, package_dir:, version:) }
       end
 
-      def validate_one(spec, package_dir:, version:)
+      def check(spec, package_dir:, version:)
         path = File.join(package_dir, "#{spec.name}-#{version}.gem")
         Preflight.raise_error("missing package: #{path}") unless File.file?(path)
 
