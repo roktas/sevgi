@@ -52,13 +52,17 @@ module Sevgi
       def_delegators :@margin, *Margin.members
       def_delegators :@size, *Paper.members
 
-      # @!attribute [r] size
-      #   @return [Sevgi::Graphics::Paper] paper size object
-      # @!attribute [r] margin
-      #   @return [Sevgi::Graphics::Margin] canvas margins
-      # @!attribute [r] inner
-      #   @return [Sevgi::Graphics::Paper] inner paper after margins
-      attr_reader :size, :margin, :inner
+      # Returns the paper size object.
+      # @return [Sevgi::Graphics::Paper]
+      attr_reader :size
+
+      # Returns the canvas margins.
+      # @return [Sevgi::Graphics::Margin]
+      attr_reader :margin
+
+      # Returns the inner paper after margins.
+      # @return [Sevgi::Graphics::Paper]
+      attr_reader :inner
 
       # Creates a canvas with finite real dimensions greater than zero and margins that leave a positive inner area.
       # @param width [Numeric] canvas width
@@ -79,12 +83,12 @@ module Sevgi
       # @overload attributes(origin = Undefined)
       #   Returns SVG root viewport attributes.
       #   @param origin [Numeric, Array<Numeric>, nil, Sevgi::Undefined] viewBox origin
-      #   @return [Hash]
+      #   @return [Hash{Symbol => String}] SVG viewport and viewBox attributes
       #   @raise [Sevgi::ArgumentError] when origin is invalid
       def attributes(...) = {**viewport, viewBox: viewbox(...)}
 
       # Returns SVG width and height attributes.
-      # @return [Hash]
+      # @return [Hash{Symbol => String}] SVG width and height attributes
       def viewport = {width: "#{width}#{unit}", height: "#{height}#{unit}"}
 
       # Returns the SVG viewBox string.

@@ -152,6 +152,8 @@ module Sevgi
       }.each { |name, (width, height, unit)| define(name, width:, height:, unit:) }
 
       class << self
+        # Returns the default A4 paper profile.
+        # @return [Sevgi::Graphics::Paper]
         alias_method :default, :a4
       end
 

@@ -46,11 +46,13 @@ module Sevgi
         content[/\A<\?xml\b.*?\?>/m]
       end
 
-      # @!attribute [r] doc
-      #   @return [Nokogiri::XML::Document] parsed XML document
-      # @!attribute [r] decl
-      #   @return [String, nil] XML declaration line, if present
-      attr_reader :doc, :decl
+      # Returns the parsed XML document.
+      # @return [Nokogiri::XML::Document]
+      attr_reader :doc
+
+      # Returns the source XML declaration when present.
+      # @return [String, nil]
+      attr_reader :decl
 
       # Builds a parsed document wrapper from SVG/XML content.
       # @param content [String] SVG/XML source content

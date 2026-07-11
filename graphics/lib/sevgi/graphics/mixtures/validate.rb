@@ -4,6 +4,18 @@ module Sevgi
   module Graphics
     module Mixtures
       # DSL helpers for SVG standard validation.
+      #
+      # @!method CData
+      #   Returns text content used as SVG character data.
+      #   @return [String, nil] joined text content or nil
+      # @!method NS?(name)
+      #   Reports whether a namespace is available on this element or an ancestor.
+      #   @param name [Symbol, String] namespace suffix without xmlns:
+      #   @return [Boolean]
+      # @!method Validate
+      #   Validates this subtree against SVG standard metadata when that component is available.
+      #   @return [Sevgi::Graphics::Element, nil] self after validation, or nil without sevgi/standard
+      #   @raise [Sevgi::ValidationError] when SVG validation fails
       module Validate
         # Returns text content used as SVG character data.
         # @return [String, nil] joined text content or nil

@@ -18,6 +18,8 @@ module Sevgi
         # @param dy [Numeric] vertical spacing
         # @param oy [Numeric] vertical offset
         # @param proc [Proc, nil] optional coordinate/customization proc
+        # @yield evaluates the template drawing DSL in a generated group
+        # @yieldreturn [Object] ignored block result
         # @return [Sevgi::Graphics::Element] self
         # @raise [Sevgi::ArgumentError] when a required tile argument is missing or invalid
         def Tile(
@@ -67,6 +69,8 @@ module Sevgi
         # @param d [Numeric] horizontal spacing
         # @param o [Numeric] horizontal offset
         # @param proc [Proc, nil] optional coordinate/customization proc
+        # @yield evaluates the template drawing DSL in a generated group
+        # @yieldreturn [Object] ignored block result
         # @return [Sevgi::Graphics::Element] self
         # @raise [Sevgi::ArgumentError] when a required tile argument is missing or invalid
         def TileX(id = Undefined, n: Undefined, d: Undefined, o: 0, proc: nil, &block)
@@ -100,6 +104,8 @@ module Sevgi
         # @param d [Numeric] vertical spacing
         # @param o [Numeric] vertical offset
         # @param proc [Proc, nil] optional coordinate/customization proc
+        # @yield evaluates the template drawing DSL in a generated group
+        # @yieldreturn [Object] ignored block result
         # @return [Sevgi::Graphics::Element] self
         # @raise [Sevgi::ArgumentError] when a required tile argument is missing or invalid
         def TileY(id = Undefined, n: Undefined, d: Undefined, o: 0, proc: nil, &block)

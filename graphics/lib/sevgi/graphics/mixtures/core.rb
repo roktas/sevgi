@@ -53,6 +53,7 @@ module Sevgi
         # @return [Sevgi::Graphics::Element] self
         # @raise [Sevgi::ArgumentError] when the target parent has a different element class
         # @raise [Sevgi::ArgumentError] when the target parent is this element or one of its descendants
+        # @raise [Sevgi::ArgumentError] when index is not an Integer insertion position
         def Adopt(new_parent = nil, index: -1)
           tap do
             new_parent ||= parent
@@ -121,6 +122,8 @@ module Sevgi
         # @param tag [Symbol, String] SVG tag name
         # @param contents [Array<Object>] text or content objects; non-content objects are stringified and XML-encoded
         # @param attributes [Hash] SVG attributes
+        # @yield evaluates the drawing DSL in the new child element
+        # @yieldreturn [Object] ignored block result
         # @return [Sevgi::Graphics::Element] new child element
         def Element(tag, *contents, **attributes, &block)
           self.class.send(:new, tag.to_sym, contents: Content.contents(*contents), attributes:, parent: self, &block)
@@ -183,6 +186,10 @@ module Sevgi
         # Traverses the subtree depth-first.
         # @param depth [Integer] starting depth
         # @param leave [Proc, nil] optional leave callback
+        # @yield [element, depth] visits each element before its children
+        # @yieldparam element [Sevgi::Graphics::Element] visited element
+        # @yieldparam depth [Integer] element depth
+        # @yieldreturn [Object] ignored unless it is a {Stop} token
         # @return [Sevgi::Graphics::Element, Object] self or the value passed through Stay
         # @raise [Sevgi::ArgumentError] when no block is given
         def Traverse(depth = 0, leave = nil, &block)
@@ -193,6 +200,10 @@ module Sevgi
 
         # Traverses ancestors from this element to the root.
         # @param height [Integer] starting height
+        # @yield [element, height] visits this element and each ancestor
+        # @yieldparam element [Sevgi::Graphics::Element] visited element
+        # @yieldparam height [Integer] ancestor height
+        # @yieldreturn [Object] ignored unless it is a {Stop} token
         # @return [Object, nil] value passed through Stay, or nil
         # @raise [Sevgi::ArgumentError] when no block is given
         def TraverseUp(height = 0, &block)
@@ -213,6 +224,8 @@ module Sevgi
         # Evaluates a block in the parent element context.
         # @param args [Array<Object>] optional receiver override followed by block arguments
         # @param kwargs [Hash] keyword arguments passed to the block
+        # @yield evaluates in the selected receiver's parent context
+        # @yieldreturn [Object] ignored block result
         # @return [Sevgi::Graphics::Element] self
         def With(*args, **kwargs, &block)
           tap { (args.shift || self).parent.instance_exec(*args, **kwargs, &block) }
@@ -221,6 +234,8 @@ module Sevgi
         # Evaluates a block in this element context.
         # @param args [Array<Object>] optional receiver override followed by block arguments
         # @param kwargs [Hash] keyword arguments passed to the block
+        # @yield evaluates in the selected receiver context
+        # @yieldreturn [Object] ignored block result
         # @return [Sevgi::Graphics::Element] self
         def Within(*args, **kwargs, &block)
           tap { (args.shift || self).instance_exec(*args, **kwargs, &block) }

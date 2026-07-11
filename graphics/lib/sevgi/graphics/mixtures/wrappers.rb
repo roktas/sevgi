@@ -27,6 +27,8 @@ module Sevgi
         # Builds a titled SVG symbol.
         # @param name [String] human-readable symbol name
         # @param kwargs [Hash] symbol attributes
+        # @yield evaluates the drawing DSL in the symbol element
+        # @yieldreturn [Object] ignored block result
         # @return [Sevgi::Graphics::Element] symbol element
         def Symbol(name, **kwargs, &block)
           id = (words = name.split).map(&:downcase).join("-")

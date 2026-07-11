@@ -21,13 +21,17 @@ module Sevgi
 
     # Node in a derender tree produced from an SVG/XML node.
     class Node
-      # @!attribute [r] node
-      #   @return [Nokogiri::XML::Node] source XML node
-      # @!attribute [r] pres
-      #   @return [Array<String>] preamble XML lines carried by the root node
-      # @!attribute [r] type
-      #   @return [Symbol] dispatch type used by derender element strategies
-      attr_reader :node, :pres, :type
+      # Returns the source XML node.
+      # @return [Nokogiri::XML::Node]
+      attr_reader :node
+
+      # Returns preamble XML lines carried by the root node.
+      # @return [Array<String>]
+      attr_reader :pres
+
+      # Returns the dispatch type used by derender element strategies.
+      # @return [Symbol]
+      attr_reader :type
 
       # Builds a derender node.
       # @param node [Nokogiri::XML::Node] source XML node
@@ -69,12 +73,7 @@ module Sevgi
 
       # Returns non-ignorable child derender nodes.
       # @return [Array<Sevgi::Derender::Node>] child nodes
-      def children
-        @children ||= node
-          .children
-          .map { |child| self.class.new(child, top: false) }
-          .reject { |child| ignorable_child?(child) }
-      end
+      def children = @children ||= node.children.map { self.class.new(it, top: false) }.reject { ignorable_child?(it) }
 
       # Returns node text content.
       #

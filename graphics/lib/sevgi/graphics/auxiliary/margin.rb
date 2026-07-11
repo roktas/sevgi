@@ -22,6 +22,7 @@ module Sevgi
       # @param bottom [Numeric, nil] bottom value
       # @param left [Numeric, nil] left value
       # @return [void]
+      # @raise [Sevgi::ArgumentError] when a supplied margin is not a finite, non-negative real number
       def initialize(top: nil, right: nil, bottom: nil, left: nil)
         super(**normalize(top, right, bottom, left))
       end
@@ -55,6 +56,9 @@ module Sevgi
       def vertical = top + bottom
 
       alias_method :==, :eql?
+
+      # Returns margin values in top, right, bottom, left order.
+      # @return [Array<Float>]
       alias_method :to_a, :deconstruct
 
       # Builds a margin from an array-like shorthand.

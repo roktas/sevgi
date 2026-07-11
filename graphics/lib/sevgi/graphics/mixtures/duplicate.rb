@@ -14,8 +14,10 @@ module Sevgi
         # @param parent [Sevgi::Graphics::Element, nil] parent for the duplicated subtree
         # @yield [element] optional customization hook for each copied element
         # @yieldparam element [Sevgi::Graphics::Element] copied element
+        # @yieldreturn [Object] ignored customization result
         # @return [Sevgi::Graphics::Element] duplicated element
         # @raise [Sevgi::ArgumentError] when the target parent has a different element class
+        # @raise [Sevgi::ArgumentError] when copied attributes or contents contain cyclic payloads
         def Duplicate(dx: nil, dy: nil, parent: nil, &block)
           duplicated = Subtree.copy(self)
           Subtree.prepare(duplicated, &block)
@@ -28,8 +30,10 @@ module Sevgi
         # @param parent [Sevgi::Graphics::Element, nil] parent for the duplicated subtree
         # @yield [element] optional customization hook for each copied element
         # @yieldparam element [Sevgi::Graphics::Element] copied element
+        # @yieldreturn [Object] ignored customization result
         # @return [Sevgi::Graphics::Element] duplicated element
         # @raise [Sevgi::ArgumentError] when the target parent has a different element class
+        # @raise [Sevgi::ArgumentError] when copied attributes or contents contain cyclic payloads
         def DuplicateX(dx, parent: nil, &block) = Duplicate(dx:, dy: 0, parent:, &block)
 
         # Duplicates an element subtree along the y-axis.
@@ -37,8 +41,10 @@ module Sevgi
         # @param parent [Sevgi::Graphics::Element, nil] parent for the duplicated subtree
         # @yield [element] optional customization hook for each copied element
         # @yieldparam element [Sevgi::Graphics::Element] copied element
+        # @yieldreturn [Object] ignored customization result
         # @return [Sevgi::Graphics::Element] duplicated element
         # @raise [Sevgi::ArgumentError] when the target parent has a different element class
+        # @raise [Sevgi::ArgumentError] when copied attributes or contents contain cyclic payloads
         def DuplicateY(dy, parent: nil, &block) = Duplicate(dx: 0, dy:, parent:, &block)
 
         # Recursive subtree copier that keeps duplicate implementation state out of the DSL surface.

@@ -157,6 +157,7 @@ module Sevgi
       # Copies content payload ownership for duplicated element trees.
       # @param original [Sevgi::Graphics::Content] source content
       # @return [void]
+      # @api private
       def initialize_copy(original)
         @content = Snapshot.capture(original.content)
         super

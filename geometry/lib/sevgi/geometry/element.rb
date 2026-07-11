@@ -203,6 +203,11 @@ module Sevgi
 
         private_class_method :define_line_shortcuts, :define_point_shortcuts, :define_shortcuts
 
+        # Creates a lined element from a geometry-definition block.
+        # @yield evaluates point or segment definitions in the new element
+        # @yieldreturn [Object] ignored block result
+        # @return [void]
+        # @raise [Sevgi::Geometry::Error] when the block is absent or defines inconsistent geometry
         def initialize(&block)
           super()
 

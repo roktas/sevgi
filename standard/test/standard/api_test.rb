@@ -44,7 +44,7 @@ module Sevgi
         element = Standard.const_get(:Element)
         specification = Standard.const_get(:Specification)
 
-        assert_equal(element.all, Set[*specification.data.keys])
+        assert_equal(element.all, Set[*specification.send(:data).keys])
       end
 
       def test_supported_element_policy

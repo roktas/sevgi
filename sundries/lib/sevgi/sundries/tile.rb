@@ -6,15 +6,21 @@ module Sevgi
     class Tile
       include Enumerable
 
-      # @!attribute [r] element
-      #   @return [Sevgi::Geometry::Element] source element repeated by the tile
-      # @!attribute [r] position
-      #   @return [Sevgi::Geometry::Point] tile origin
-      # @!attribute [r] nx
-      #   @return [Integer] number of columns
-      # @!attribute [r] ny
-      #   @return [Integer] number of rows
-      attr_reader :element, :position, :nx, :ny
+      # Returns the source geometry element.
+      # @return [Sevgi::Geometry::Element]
+      attr_reader :element
+
+      # Returns the tile origin.
+      # @return [Sevgi::Geometry::Point]
+      attr_reader :position
+
+      # Returns the number of columns.
+      # @return [Integer]
+      attr_reader :nx
+
+      # Returns the number of rows.
+      # @return [Integer]
+      attr_reader :ny
 
       # Creates a tile from a source geometry element.
       # @param element [Sevgi::Geometry::Element] geometry element to repeat

@@ -26,11 +26,13 @@ module Sevgi
       # @raise [Sevgi::ArgumentError] when the measured unit length is not positive
       def self.[](e, n) = new(e, n)
 
-      # @!attribute [r] n
-      #   @return [Integer] interval count
-      # @!attribute [r] u
-      #   @return [Float] unit length
-      attr_reader :n, :u
+      # Returns the interval count.
+      # @return [Integer]
+      attr_reader :n
+
+      # Returns the unit length.
+      # @return [Float]
+      attr_reader :u
 
       # Creates an interval.
       # @param e [Numeric, #length] unit length or an object exposing length
@@ -158,11 +160,13 @@ module Sevgi
     #   ruler = Sevgi::Sundries::Ruler.new(unit: 1, multiple: 10, brut: 150)
     #   ruler.d # => 150.0
     class Ruler < Interval
-      # @!attribute [r] brut
-      #   @return [Float] full available span before fitting
-      # @!attribute [r] sub
-      #   @return [Sevgi::Sundries::Interval] source subinterval
-      attr_reader :brut, :sub
+      # Returns the full available span before fitting.
+      # @return [Float]
+      attr_reader :brut
+
+      # Returns the source subinterval.
+      # @return [Sevgi::Sundries::Interval]
+      attr_reader :sub
 
       # Creates a ruler fitted into the given span.
       # @param brut [Numeric] full available span

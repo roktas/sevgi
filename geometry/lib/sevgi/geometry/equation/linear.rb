@@ -7,11 +7,13 @@ module Sevgi
       class Linear < Equation
         # Non-axis-aligned linear equation in `y = slope * x + intercept` form.
         class Diagonal < Linear
-          # @!attribute [r] slope
-          #   @return [Float] line slope
-          # @!attribute [r] intercept
-          #   @return [Float] y-intercept
-          attr_reader :slope, :intercept
+          # Returns the line slope.
+          # @return [Float]
+          attr_reader :slope
+
+          # Returns the y-intercept.
+          # @return [Float]
+          attr_reader :intercept
 
           # Creates a diagonal linear equation.
           # @param slope [Numeric] line slope

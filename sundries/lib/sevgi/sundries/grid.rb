@@ -13,11 +13,13 @@ module Sevgi
       # @raise [Sevgi::ArgumentError] when either argument is not a ruler
       def self.[](x, y) = new(x:, y:)
 
-      # @!attribute [r] x
-      #   @return [Sevgi::Sundries::Grid::X] horizontal axis ruler and line queries
-      # @!attribute [r] y
-      #   @return [Sevgi::Sundries::Grid::Y] vertical axis ruler and line queries
-      attr_reader :x, :y
+      # Returns the horizontal axis ruler and line queries.
+      # @return [Sevgi::Sundries::Grid::X]
+      attr_reader :x
+
+      # Returns the vertical axis ruler and line queries.
+      # @return [Sevgi::Sundries::Grid::Y]
+      attr_reader :y
 
       # Creates a grid from horizontal and vertical rulers.
       # @param x [Sevgi::Sundries::Ruler] horizontal ruler

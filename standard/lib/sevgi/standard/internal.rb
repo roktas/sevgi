@@ -76,6 +76,7 @@ module Sevgi
 
           class << self
             attr_reader :data
+            private :data
           end
         end
       end

@@ -3,16 +3,24 @@
 module Sevgi
   module Graphics
     # SVG element node used by the graphics DSL.
+    #
+    # @!method self.valid?(name)
+    #   Reports whether an SVG element name is known.
+    #   @param name [Symbol] SVG element name
+    #   @return [Boolean]
     class Element
       # Builds an element node.
       # @param name [Symbol, String] SVG element name
       # @param parent [Sevgi::Graphics::Element] parent element
+      # @yield evaluates the drawing DSL in the new element
+      # @yieldreturn [Object] ignored block result
       # @return [Sevgi::Graphics::Element]
       # @raise [Sevgi::ArgumentError] when an argument cannot be parsed as attributes or content
       def self.element(name, *, parent:, &block) = new(name, **Dispatch.parse(name, *), parent:, &block)
 
       # Builds an SVG root element.
-      # @param block [Proc, nil] DSL block evaluated in the root element
+      # @yield evaluates the drawing DSL in the root element
+      # @yieldreturn [Object] ignored block result
       # @return [Sevgi::Graphics::Element]
       def self.root(*, &block) = element(:svg, *, parent: RootParent, &block)
 
@@ -52,23 +60,33 @@ module Sevgi
 
       extend Ident
 
-      # @!attribute [r] name
-      #   @return [Symbol] SVG element name
-      # @!attribute [r] attributes
-      #   @return [Sevgi::Graphics::Attributes] attribute store
-      # @!attribute [r] children
-      #   @return [Array<Sevgi::Graphics::Element>] child elements
-      # @!attribute [r] contents
-      #   @return [Array<Sevgi::Graphics::Content>] element content objects
-      # @!attribute [r] parent
-      #   @return [Sevgi::Graphics::Element, Object] parent element or root sentinel
-      attr_reader :name, :attributes, :children, :contents, :parent
+      # Returns the SVG element name.
+      # @return [Symbol]
+      attr_reader :name
+
+      # Returns the attribute store.
+      # @return [Sevgi::Graphics::Attributes]
+      attr_reader :attributes
+
+      # Returns child elements.
+      # @return [Array<Sevgi::Graphics::Element>]
+      attr_reader :children
+
+      # Returns element content objects.
+      # @return [Array<Sevgi::Graphics::Content>]
+      attr_reader :contents
+
+      # Returns the parent element or root sentinel.
+      # @return [Sevgi::Graphics::Element, Object] parent element or root sentinel
+      attr_reader :parent
 
       # Creates an element.
       # @param name [Symbol] SVG element name
       # @param parent [Sevgi::Graphics::Element, Object] parent element or root sentinel
       # @param attributes [Hash] SVG attributes
       # @param contents [Array<Sevgi::Graphics::Content>] content objects
+      # @yield evaluates the drawing DSL in the new element
+      # @yieldreturn [Object] ignored block result
       # @return [void]
       def initialize(name, parent:, attributes: {}, contents: [], &block)
         @name = name
@@ -84,6 +102,8 @@ module Sevgi
 
       # Dispatches SVG element DSL calls and caches valid element methods.
       # @param name [Symbol] missing method name
+      # @yield evaluates the drawing DSL in the dispatched child element
+      # @yieldreturn [Object] ignored block result
       # @return [Sevgi::Graphics::Element]
       # @raise [NameError] when the name is not a valid SVG element
       # @raise [Sevgi::ArgumentError] when an argument cannot be parsed as attributes or content
@@ -95,6 +115,7 @@ module Sevgi
       # @param name [Symbol] queried method name
       # @param include_private [Boolean] standard Ruby respond_to? flag
       # @return [Boolean]
+      # @api private
       def respond_to_missing?(name, include_private = false)
         Element.valid?(Element.id(name)) || super
       end

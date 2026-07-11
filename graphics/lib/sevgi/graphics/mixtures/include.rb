@@ -4,6 +4,23 @@ module Sevgi
   module Graphics
     module Mixtures
       # DSL helpers for including derendered SVG/XML fragments.
+      #
+      # @!method Include(file, id)
+      #   Includes a derendered node matching an id.
+      #   SVG/XML content is treated as data and is not evaluated as Ruby source.
+      #   @param file [String] source SVG/XML file
+      #   @param id [String, Symbol] source node id
+      #   @return [Sevgi::Graphics::Element, nil] included element, or nil when it produces no graphics output
+      #   @raise [Sevgi::ArgumentError] when the file is absent or XML content is malformed, rootless, or lacks the id
+      #   @raise [Sevgi::MissingComponentError] when sevgi/derender is unavailable
+      # @!method IncludeChildren(file, id)
+      #   Includes the children of a derendered node matching an id.
+      #   SVG/XML content is treated as data and is not evaluated as Ruby source.
+      #   @param file [String] source SVG/XML file
+      #   @param id [String, Symbol] source node id
+      #   @return [Array<Sevgi::Graphics::Element>] included children
+      #   @raise [Sevgi::ArgumentError] when the file is absent or XML content is malformed, rootless, or lacks the id
+      #   @raise [Sevgi::MissingComponentError] when sevgi/derender is unavailable
       module Include
         require "sevgi/derender"
 

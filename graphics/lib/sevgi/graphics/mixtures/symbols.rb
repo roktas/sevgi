@@ -9,6 +9,9 @@ module Sevgi
         # @param mod [Module] callable drawing module
         # @param args [Array<Object>] callable arguments
         # @param kwargs [Hash] defs attributes
+        # @yield [name] converts each callable name to a symbol id
+        # @yieldparam name [Symbol] callable method name
+        # @yieldreturn [String, Symbol] symbol id
         # @return [Sevgi::Graphics::Element] defs element
         # @raise [Sevgi::ArgumentError] when mod is not a plain module
         def Symbols(mod, *args, **kwargs, &block)

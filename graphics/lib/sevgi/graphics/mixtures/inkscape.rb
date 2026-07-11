@@ -26,6 +26,8 @@ module Sevgi
         # @param mod [Module] callable drawing module
         # @param args [Array<Object>] callable arguments
         # @param kwargs [Hash] group attributes
+        # @yield forwards customization to the callable module
+        # @yieldreturn [Object] callable customization result
         # @return [Sevgi::Graphics::Element] group element
         # @raise [Sevgi::ArgumentError] when mod is not a plain module
         def Group(mod, *args, **kwargs, &block)
@@ -37,6 +39,8 @@ module Sevgi
         # @param mod [Module] callable drawing module
         # @param args [Array<Object>] callable arguments
         # @param kwargs [Hash] layer attributes
+        # @yield forwards customization to the callable module
+        # @yieldreturn [Object] callable customization result
         # @return [Sevgi::Graphics::Element] layer element
         # @raise [Sevgi::ArgumentError] when mod is not a plain module
         def Layer(mod, *args, **kwargs, &block)
@@ -48,6 +52,8 @@ module Sevgi
         # @param mod [Module] callable drawing module
         # @param args [Array<Object>] callable arguments
         # @param kwargs [Hash] layer attributes
+        # @yield forwards customization to the callable module
+        # @yieldreturn [Object] callable customization result
         # @return [Sevgi::Graphics::Element] layer element
         # @raise [Sevgi::ArgumentError] when mod is not a plain module
         def Layer!(mod, *args, **kwargs, &block)
@@ -58,6 +64,8 @@ module Sevgi
         # @overload layer(**attributes)
         #   Builds an Inkscape layer group.
         #   @param attributes [Hash] layer attributes
+        #   @yield evaluates the drawing DSL in the layer
+        #   @yieldreturn [Object] ignored block result
         #   @return [Sevgi::Graphics::Element] layer group
         def layer(**, &block)
           g("inkscape:groupmode": "layer", **, &block)
@@ -66,6 +74,8 @@ module Sevgi
         # @overload layer!(**attributes)
         #   Builds an insensitive Inkscape layer group.
         #   @param attributes [Hash] layer attributes
+        #   @yield evaluates the drawing DSL in the layer
+        #   @yieldreturn [Object] ignored block result
         #   @return [Sevgi::Graphics::Element] layer group
         def layer!(**, &block)
           layer("sodipodi:insensitive": "true", **, &block)
@@ -74,6 +84,9 @@ module Sevgi
         # Builds an Inkscape namedview containing page elements.
         # @param pages [Array<Hash>] page attribute hashes
         # @param id [String] namedview id
+        # @yield [page] customizes each generated page element
+        # @yieldparam page [Sevgi::Graphics::Element] generated page element
+        # @yieldreturn [Object] ignored customization result
         # @return [Sevgi::Graphics::Element] namedview element
         def Pages(*pages, id: "namedview", **, &block)
           Element(:"sodipodi:namedview", id:, **) do
@@ -111,6 +124,8 @@ module Sevgi
         # @overload symbol!(**attributes)
         #   Builds an Inkscape symbol group hidden from the symbols menu.
         #   @param attributes [Hash] symbol attributes
+        #   @yield evaluates the drawing DSL in the symbol group
+        #   @yieldreturn [Object] ignored block result
         #   @return [Sevgi::Graphics::Element] symbol group
         def symbol!(**, &block)
           if Is?(:defs)

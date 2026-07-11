@@ -8,11 +8,13 @@ module Sevgi
 
     # Wraps an exception raised while executing Sevgi script source.
     class Error < ::Sevgi::Error
-      # @!attribute [r] error
-      #   @return [Exception] original exception raised by script execution
-      # @!attribute [r] scope
-      #   @return [Sevgi::Executor::Scope] executor scope active when the error was captured
-      attr_reader :error, :scope
+      # Returns the original script exception.
+      # @return [Exception]
+      attr_reader :error
+
+      # Returns the executor scope active when the error was captured.
+      # @return [Sevgi::Executor::Scope]
+      attr_reader :scope
 
       # Builds an executor error wrapper.
       # @param error [Exception] original exception

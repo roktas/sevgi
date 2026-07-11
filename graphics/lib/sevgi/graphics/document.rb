@@ -51,6 +51,8 @@ module Sevgi
       # Builds a root SVG element from a document profile.
       # @param document [Symbol, String, Class] profile name or document class
       # @param canvas [Sevgi::Graphics::Canvas, Sevgi::Graphics::Paper, Symbol, String, Sevgi::Undefined, nil] canvas input
+      # @yield evaluates the drawing DSL in the new root element
+      # @yieldreturn [Object] ignored block result
       # @return [Sevgi::Graphics::Document::Proto] SVG root element
       # @raise [Sevgi::ArgumentError] when the document profile is unknown
       def self.call(document, canvas = Undefined, **, &block)
@@ -293,7 +295,7 @@ module Sevgi
         end
 
         # Returns inherited root attributes for this document class.
-        # @return [Hash]
+        # @return [Hash{Symbol => Object}] inherited root attributes
         def self.attributes = self == Proto ? {} : {**superclass.attributes, **profile.attributes}
 
         # Returns inherited preamble lines for this document class.

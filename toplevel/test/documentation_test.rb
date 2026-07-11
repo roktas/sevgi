@@ -17,79 +17,8 @@ module Sevgi
     ]
       .flat_map { ::Dir[::File.join(ROOT, it, "lib/**/*.rb")] }
       .freeze
-    CONTRACTS = {
-      "Sevgi::Derender.evaluate" => {
-        params: %w[content element id],
-        returns: ["Sevgi::Graphics::Element", "nil"],
-        raises: ["Sevgi::ArgumentError"]
-      },
-      "Sevgi::Function::Math#count" => {
-        params: %w[length division],
-        returns: ["Integer"],
-        raises: ["Sevgi::ArgumentError"]
-      },
-      "Sevgi::Geometry::Element::Lined#translate" => {
-        params: %w[dx dy],
-        returns: ["Sevgi::Geometry::Element::Lined"]
-      },
-      "Sevgi::Geometry::Line#length" => {
-        returns: ["Float"]
-      },
-      "Sevgi::Geometry::Operation.align" => {
-        params: %w[element other alignment],
-        returns: ["Sevgi::Geometry::Element"],
-        raises: [
-          "Sevgi::ArgumentError",
-          "Sevgi::Geometry::Operation::OperationInapplicableError"
-        ]
-      },
-      "Sevgi::Geometry::Operation.sweep" => {
-        params: %w[element initial angle step limit],
-        returns: ["Array<Sevgi::Geometry::Line>"],
-        raises: [
-          "Sevgi::Geometry::Error",
-          "Sevgi::Geometry::Operation::OperationError",
-          "Sevgi::Geometry::Operation::OperationInapplicableError"
-        ],
-        yields: true
-      },
-      "Sevgi::Geometry::Point#x" => {
-        returns: ["Float"]
-      },
-      "Sevgi::Geometry::Rect#top_left" => {
-        returns: ["Sevgi::Geometry::Point"]
-      },
-      "Sevgi::Graphics::Document::Proto#call" => {
-        params: %w[objects options],
-        returns: ["String"]
-      },
-      "Sevgi::Graphics::Mixtures::Core#Orphan" => {
-        returns: ["Sevgi::Graphics::Element", "nil"]
-      },
-      "Sevgi::Graphics::Mixtures::Symbols#Symbols" => {
-        params: %w[mod args kwargs],
-        returns: ["Sevgi::Graphics::Element"],
-        raises: ["Sevgi::ArgumentError"]
-      },
-      "Sevgi::Standard::Attribute#ignore?" => {
-        params: %w[attribute],
-        returns: ["Boolean"]
-      },
-      "Sevgi::Standard::Element#ignore?" => {
-        params: %w[element],
-        returns: ["Boolean"]
-      }
-    }.freeze
-    DYNAMIC_METHODS = {
-      "Sevgi::Derender.evaluate" => -> { [Derender, :evaluate] },
-      "Sevgi::Geometry::Element::Lined#translate" => -> { [Geometry::Rect[3, 5], :translate] },
-      "Sevgi::Geometry::Line#length" => -> { [Geometry::Line[3, 0], :length] },
-      "Sevgi::Geometry::Operation.align" => -> { [Geometry::Operation, :align] },
-      "Sevgi::Geometry::Operation.sweep" => -> { [Geometry::Operation, :sweep] },
-      "Sevgi::Geometry::Rect#top_left" => -> { [Geometry::Rect[3, 5], :top_left] },
-      "Sevgi::Standard::Attribute#ignore?" => -> { [Standard.const_get(:Attribute), :ignore?] },
-      "Sevgi::Standard::Element#ignore?" => -> { [Standard.const_get(:Element), :ignore?] }
-    }.freeze
+    CONTRACT_TAGS = %w[param raise return yield yieldparam yieldreturn].freeze
+    GENERIC_RETURNS = %w[Array Hash Object].freeze
     PUBLIC_CONSTANTS = %w[
       Sevgi::F
       Sevgi::Geometry::Origin
@@ -138,24 +67,33 @@ module Sevgi
       assert_includes(content, "https://www.rubydoc.info/gems/sevgi")
     end
 
-    def test_dynamic_public_surfaces_are_documented
-      DYNAMIC_METHODS.each do |path, builder|
-        receiver, method = builder.call
+    def test_public_method_inventory_matches_runtime
+      missing = intended_methods.reject { runtime_method?(it) }.map(&:path)
+      unexpected = runtime_methods.reject { documented_runtime_method?(it) }
 
-        assert_respond_to(receiver, method, path)
-        assert_yard_object(path)
-      end
+      assert_empty(missing, "Documented methods missing at runtime:\n#{missing.join("\n")}")
+      assert_empty(unexpected, "Runtime methods missing from YARD:\n#{unexpected.join("\n")}")
     end
 
-    def test_semantic_public_docs_have_contract_tags
-      CONTRACTS.each do |path, contract|
-        tags = documentation_tags(path)
+    def test_public_methods_have_complete_contracts
+      errors = intended_methods.flat_map { contract_errors(it) }
 
-        Array(contract[:params]).each { assert_includes(tag_names(tags, :param), it, path) }
-        Array(contract[:returns]).each { assert_includes(tag_types(tags, :return), it, path) }
-        Array(contract[:raises]).each { assert_includes(tag_types(tags, :raise), it, path) }
-        assert(yielding?(tags), path) if contract[:yields]
-      end
+      assert_empty(errors, errors.join("\n"))
+    end
+
+    def test_public_inventory_handles_method_shapes
+      paths = intended_methods.map(&:path)
+
+      assert_operator(paths.size, :>, 500)
+      %w[
+        Sevgi::Function::Locate.call
+        Sevgi::Function::Locate#call
+        Sevgi::Function::Locate#exclude
+        Sevgi::Function::File#existing_map!
+        Sevgi::Geometry::Line#length
+        Sevgi::Graphics::Margin#to_a
+      ]
+        .each { assert_includes(paths, it) }
     end
 
     private
@@ -164,17 +102,199 @@ module Sevgi
       assert(yard(path), "Missing YARD object: #{path}")
     end
 
-    def documentation_tags(path)
-      object = yard(path) or flunk("Missing YARD object: #{path}")
-      overloads = object.tags(:overload)
-      sources = overloads.empty? ? [object] : overloads
-
-      sources.flat_map { |source| source.tags.reject { it.tag_name == "overload" } }
+    def alias_target(object)
+      name = object.namespace.aliases.fetch(object)
+      separator = object.scope == :class ? "." : "#"
+      yard("#{object.namespace.path}#{separator}#{name}")
     end
 
-    def tag_names(tags, name) = tags.select { it.tag_name == name.to_s }.map(&:name).compact
+    def contract_errors(object)
+      contract_sources(object).each_with_index.flat_map do |source, index|
+        label = object.tags(:overload).empty? ? object.path : "#{object.path} overload #{index + 1}"
+        source_errors(object, source, label)
+      end
+    end
 
-    def tag_types(tags, name) = tags.select { it.tag_name == name.to_s }.flat_map { it.types || [] }
+    def contract_sources(object)
+      overloads = object.tags(:overload)
+      return overloads unless overloads.empty?
+      return [object] unless object.is_alias?
+
+      target = alias_target(object)
+      target ? contract_sources(target) : [object]
+    end
+
+    def contract_tags(source) = source.tags.select { CONTRACT_TAGS.include?(it.tag_name) }
+
+    def documented_runtime_method?(path)
+      return true if yard(path)
+      return true if paper_profile?(path)
+
+      dynamic_element_method?(path)
+    end
+
+    def dynamic_element_method?(path)
+      prefix = "Sevgi::Graphics::Element#"
+      return false unless path.start_with?(prefix)
+
+      name = path.delete_prefix(prefix).to_sym
+      Graphics::Element.valid?(Graphics::Element.send(:id, name))
+    end
+
+    def effective_private?(object)
+      current = object
+      while current && current != YARD::Registry.root
+        return true if current.tag(:api)&.text == "private"
+
+        current = current.namespace
+      end
+
+      false
+    end
+
+    def expected_params(source)
+      source
+        .parameters
+        .reject { |name, _default| name.to_s.start_with?("&") }
+        .map { |name, _default| name.to_s.sub(/\A\*+/, "").delete_suffix(":") }
+        .reject { it.empty? || it == "..." }
+    end
+
+    def feature_loaded?(file)
+      path = ::File.expand_path(file, ROOT)
+      $LOADED_FEATURES.any? { ::File.expand_path(it) == path }
+    end
+
+    def intended_methods
+      registry
+        .all(:method)
+        .select { it.visibility == :public && !effective_private?(it) }
+        .sort_by(&:path)
+    end
+
+    def paper_profile?(path)
+      prefix = "Sevgi::Graphics::Paper."
+      return false unless path.start_with?(prefix)
+
+      name = path.delete_prefix(prefix).to_sym
+      Graphics::Paper.exist?(name) && Graphics::Paper.public_send(name).is_a?(Graphics::Paper)
+    end
+
+    def precise_return?(tag)
+      types = tag.types || []
+      return false if types.empty?
+      return true unless types.intersect?(GENERIC_RETURNS)
+
+      !tag.text.to_s.strip.empty?
+    end
+
+    def runtime_constant(path)
+      path.split("::").reject(&:empty?).inject(::Object) { |owner, name| owner.const_get(name, false) }
+    end
+
+    def runtime_method?(object)
+      return true unless feature_loaded?(object.file)
+      return top_level_method?(object) if object.namespace == YARD::Registry.root
+
+      owner = runtime_constant(object.namespace.path)
+      return owner.respond_to?(object.name) if object.scope == :class
+      return owner.private_method_defined?(:initialize) if object.name == :initialize
+
+      owner.public_method_defined?(object.name)
+    rescue NameError
+      false
+    end
+
+    def runtime_methods
+      registry
+        .all
+        .select { %i[class module].include?(it.type) && !effective_private?(it) }
+        .filter_map { runtime_constant_or_nil(it.path) }
+        .uniq
+        .flat_map { runtime_paths(it) }
+        .uniq
+        .sort
+    end
+
+    def runtime_paths(owner)
+      instance = owner.public_instance_methods(false).filter_map do |name|
+        runtime_path(owner, name, owner.instance_method(name), "#")
+      end
+
+      singleton = owner.singleton_methods(false).filter_map do |name|
+        runtime_path(owner, name, owner.method(name), ".")
+      end
+
+      instance + singleton
+    end
+
+    def runtime_path(owner, name, method, separator)
+      file = method.source_location&.first
+      return unless file && ::File.file?(file) && ::File.expand_path(file).start_with?("#{ROOT}/")
+
+      "#{owner.name}#{separator}#{name}"
+    end
+
+    def runtime_constant_or_nil(path)
+      runtime_constant(path)
+    rescue NameError
+      nil
+    end
+
+    def source_errors(object, source, label)
+      tags = contract_tags(source)
+      errors = parameter_errors(source, tags, label)
+      returns = tags.select { it.tag_name == "return" }
+      errors << "#{label}: missing precise @return" if returns.empty? || returns.any? { !precise_return?(it) }
+      errors.concat(raise_errors(tags, label))
+      errors.concat(yield_errors(object, source, tags, label))
+      errors
+    end
+
+    def parameter_errors(source, tags, label)
+      expected = expected_params(source).sort
+      actual = tags.select { it.tag_name == "param" }.map(&:name).compact.sort
+      errors = []
+      errors << "#{label}: @param #{actual.inspect}, expected #{expected.inspect}" unless actual == expected
+      tags.select { it.tag_name == "param" }.each do |tag|
+        errors << "#{label}: incomplete @param #{tag.name}" if (tag.types || []).empty? || tag.text.to_s.strip.empty?
+      end
+
+      errors
+    end
+
+    def raise_errors(tags, label)
+      raises = tags.select { it.tag_name == "raise" }
+      raises.filter_map do |tag|
+        next if tag.types&.one? && !tag.text.to_s.strip.empty?
+
+        "#{label}: each @raise needs one exception type and a condition"
+      end
+    end
+
+    def top_level_method?(object)
+      ::Object.public_method_defined?(object.name) || ::Object.private_method_defined?(object.name)
+    end
+
+    def yield_errors(object, source, tags, label)
+      return [] unless yields?(object, source)
+
+      names = tags.map(&:tag_name)
+      errors = []
+      errors << "#{label}: missing @yield" unless names.include?("yield")
+      yieldreturns = tags.select { it.tag_name == "yieldreturn" }
+      errors << "#{label}: missing precise @yieldreturn" unless precise_yieldreturn?(yieldreturns)
+
+      errors
+    end
+
+    def yields?(object, source)
+      sources = [source, object]
+      sources.any? { it.parameters.any? { |name, _default| name.to_s.start_with?("&") } } ||
+        (object.is_explicit? && object.source&.match?(/\byield(?:\s|\()/))
+    end
+
+    def precise_yieldreturn?(tags) = !tags.empty? && tags.all? { (it.types || []).any? }
 
     def yard(path)
       registry
@@ -201,8 +321,5 @@ module Sevgi
       $VERBOSE = verbose
     end
 
-    def yielding?(tags)
-      tags.any? { %w[yield yieldparam yieldreturn].include?(it.tag_name) }
-    end
   end
 end

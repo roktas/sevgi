@@ -8,6 +8,9 @@ module Sevgi
         # Exports the document as PDF.
         # @param path [String, nil] output path or directory
         # @param kwargs [Hash] export options
+        # @yield [svg] transforms SVG source before rendering
+        # @yieldparam svg [String] rendered SVG source
+        # @yieldreturn [String] transformed SVG source
         # @return [String] output path
         # @raise [Sevgi::MissingComponentError] when sevgi/sundries is unavailable
         # @raise [Sevgi::MissingComponentError] when native export gems are unavailable
@@ -28,6 +31,9 @@ module Sevgi
         # Exports the document as PNG.
         # @param path [String, nil] output path or directory
         # @param kwargs [Hash] export options
+        # @yield [svg] transforms SVG source before rendering
+        # @yieldparam svg [String] rendered SVG source
+        # @yieldreturn [String] transformed SVG source
         # @return [String] output path
         # @raise [Sevgi::MissingComponentError] when sevgi/sundries is unavailable
         # @raise [Sevgi::MissingComponentError] when native export gems are unavailable

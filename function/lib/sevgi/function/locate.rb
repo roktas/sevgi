@@ -25,13 +25,17 @@ module Sevgi
       #   @return [Sevgi::Function::Location, nil] found location, or nil
       def self.call(*, **, &block) = new(*, **).call(&block)
 
-      # @!attribute [r] paths
-      #   @return [Array<String>] candidate paths
-      # @!attribute [r] start
-      #   @return [String] absolute start directory
-      # @!attribute [r] exclude
-      #   @return [Array<String>, nil] expanded paths ignored during lookup
-      attr_reader :paths, :start, :exclude
+      # Returns candidate paths.
+      # @return [Array<String>]
+      attr_reader :paths
+
+      # Returns the absolute start directory.
+      # @return [String]
+      attr_reader :start
+
+      # Returns expanded paths ignored during lookup.
+      # @return [Array<String>, nil]
+      attr_reader :exclude
 
       # Builds an upward file locator.
       # @param paths [Array<String>, String] candidate file paths

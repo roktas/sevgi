@@ -7,6 +7,8 @@ module Sevgi
       module RDF
         # Adds RDF license metadata inside a metadata element.
         # @param kwargs [Hash] RDF work options
+        # @yield evaluates additional RDF work metadata
+        # @yieldreturn [Object] ignored block result
         # @return [Sevgi::Graphics::Element] metadata element
         def License(**kwargs, &block) = metadata { RDFWork(**kwargs, &block) }
 
@@ -14,6 +16,8 @@ module Sevgi
         #
         # Adds Creative Commons BY-SA license metadata.
         # @param kwargs [Hash] RDF work options
+        # @yield evaluates additional RDF work metadata
+        # @yieldreturn [Object] ignored block result
         # @return [Sevgi::Graphics::Element] metadata element
         def License_CC_BY_SA(**kwargs, &block)
           License(**kwargs, license: "https://creativecommons.org/licenses/by-sa/4.0/", &block)
@@ -21,6 +25,8 @@ module Sevgi
 
         # Adds Creative Commons BY-NC license metadata.
         # @param kwargs [Hash] RDF work options
+        # @yield evaluates additional RDF work metadata
+        # @yieldreturn [Object] ignored block result
         # @return [Sevgi::Graphics::Element] metadata element
         def License_CC_BY_NC(**kwargs, &block)
           License(**kwargs, license: "https://creativecommons.org/licenses/by-nc/4.0/", &block)
@@ -28,6 +34,8 @@ module Sevgi
 
         # Adds Creative Commons BY-NC-SA license metadata.
         # @param kwargs [Hash] RDF work options
+        # @yield evaluates additional RDF work metadata
+        # @yieldreturn [Object] ignored block result
         # @return [Sevgi::Graphics::Element] metadata element
         def License_CC_BY_NC_SA(**kwargs, &block)
           License(**kwargs, license: "https://creativecommons.org/licenses/by-nc-sa/4.0/", &block)
@@ -35,6 +43,8 @@ module Sevgi
 
         # Adds Creative Commons BY-ND license metadata.
         # @param kwargs [Hash] RDF work options
+        # @yield evaluates additional RDF work metadata
+        # @yieldreturn [Object] ignored block result
         # @return [Sevgi::Graphics::Element] metadata element
         def License_CC_BY_ND(**kwargs, &block)
           License(**kwargs, license: "https://creativecommons.org/licenses/by-nd/4.0/", &block)
@@ -42,6 +52,8 @@ module Sevgi
 
         # Adds Creative Commons BY-NC-ND license metadata.
         # @param kwargs [Hash] RDF work options
+        # @yield evaluates additional RDF work metadata
+        # @yieldreturn [Object] ignored block result
         # @return [Sevgi::Graphics::Element] metadata element
         def License_CC_BY_NC_ND(**kwargs, &block)
           License(**kwargs, license: "https://creativecommons.org/licenses/by-nc-nd/4.0/", &block)
@@ -49,6 +61,8 @@ module Sevgi
 
         # Adds Creative Commons Zero metadata.
         # @param kwargs [Hash] RDF work options
+        # @yield evaluates additional RDF work metadata
+        # @yieldreturn [Object] ignored block result
         # @return [Sevgi::Graphics::Element] metadata element
         def License_CC0(**kwargs, &block)
           License(**kwargs, license: "https://creativecommons.org/publicdomain/zero/1.0/", &block)
@@ -56,11 +70,15 @@ module Sevgi
 
         # Adds Free Art License metadata.
         # @param kwargs [Hash] RDF work options
+        # @yield evaluates additional RDF work metadata
+        # @yieldreturn [Object] ignored block result
         # @return [Sevgi::Graphics::Element] metadata element
         def License_LAL(**kwargs, &block) = License(**kwargs, license: "https://artlibre.org/licence/lal/en/", &block)
 
         # Builds an RDF root element.
         # @param _kwargs [Hash] currently unused options
+        # @yield evaluates the RDF drawing DSL
+        # @yieldreturn [Object] ignored block result
         # @return [Sevgi::Graphics::Element] RDF element
         # @raise [Sevgi::ArgumentError] when no block is given
         def RDF(**_kwargs, &block)
@@ -86,6 +104,8 @@ module Sevgi
         # @option kwargs [String] :date date
         # @option kwargs [String] :language language
         # @option kwargs [String] :license license URL
+        # @yield evaluates additional RDF work metadata
+        # @yieldreturn [Object] ignored block result
         # @return [Sevgi::Graphics::Element] RDF element
         def RDFWork(**kwargs, &block)
           RDF do

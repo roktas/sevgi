@@ -151,8 +151,8 @@ module Sevgi
           .fetch(name)
           .transform_values { |value| value.is_a?(::Array) ? value.dup : value }
           .tap do |spec|
-            expand_names(spec[:elements], Element.data)
-            expand_names(spec[:attributes], Attribute.data)
+            expand_names(spec[:elements], Element.send(:data))
+            expand_names(spec[:attributes], Attribute.send(:data))
           end
       end
 

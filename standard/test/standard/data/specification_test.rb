@@ -6,7 +6,7 @@ module Sevgi
   module Standard
     class SpecificationTest < Minitest::Test
       def test_specified_element_names_are_valid
-        Specification.data.each_key { Conform.new(it) }
+        Specification.send(:data).each_key { Conform.new(it) }
       end
 
       def test_expanded_specification_for_linearGradient
@@ -103,7 +103,7 @@ module Sevgi
             model: :SomeElements
           }
         )
-        spec = Specification.data[:agentSpec]
+        spec = Specification.send(:data)[:agentSpec]
         attributes = spec[:attributes].dup
         elements = spec[:elements].dup
 
@@ -112,7 +112,7 @@ module Sevgi
         assert_equal(attributes, spec[:attributes])
         assert_equal(elements, spec[:elements])
       ensure
-        Specification.data.delete(:agentSpec)
+        Specification.send(:data).delete(:agentSpec)
         Specification.send(:flush)
       end
 
@@ -132,7 +132,7 @@ module Sevgi
         assert_equal(Attribute[:Core], Specification[:agentSpec][:attributes])
         assert_equal(Element[:Descriptive], Specification[:agentSpec][:elements])
       ensure
-        Specification.data.delete(:agentSpec)
+        Specification.send(:data).delete(:agentSpec)
         Specification.send(:flush)
       end
     end
@@ -145,11 +145,11 @@ module Sevgi
       def test_charge_expands_each_specification
         cache = Specification.instance_variable_get(:@spec)
 
-        assert_equal(Specification.data.keys.sort, cache.keys.sort)
+        assert_equal(Specification.send(:data).keys.sort, cache.keys.sort)
       end
 
       def test_expanded_names_are_not_duplicated
-        Specification.data.each_key do |name|
+        Specification.send(:data).each_key do |name|
           spec = Specification.send(:expand, name)
 
           assert_equal(spec[:attributes].uniq, spec[:attributes], "#{name}: Duplicate attributes")
@@ -158,7 +158,7 @@ module Sevgi
       end
 
       def test_expanded_names_belong_to_their_registry
-        Specification.data.each_key do |name|
+        Specification.send(:data).each_key do |name|
           spec = Specification.send(:expand, name)
           unknown_attributes = spec[:attributes].reject { Attribute.all.include?(it) }
           unknown_elements = (spec[:elements] || []).reject { Element.all.include?(it) }
@@ -169,7 +169,7 @@ module Sevgi
       end
 
       def test_listed_elements_are_not_duplicated_in_any_group
-        Specification.data.each do |name, spec|
+        Specification.send(:data).each do |name, spec|
           next unless (elements = spec[:elements])
 
           groups = elements.select { |name| Specification.group?(name) }
@@ -190,7 +190,7 @@ module Sevgi
       end
 
       def test_listed_attributes_are_not_duplicated_in_any_group
-        Specification.data.each do |name, spec|
+        Specification.send(:data).each do |name, spec|
           next unless (attributes = spec[:attributes])
 
           groups = attributes.select { |name| Specification.group?(name) }

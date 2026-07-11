@@ -12,6 +12,9 @@ module Sevgi
 
         # Writes rendered SVG to standard output.
         # @param kwargs [Hash] render options
+        # @yield [content] optionally transforms rendered content before output
+        # @yieldparam content [String] rendered SVG source
+        # @yieldreturn [String] transformed SVG source
         # @return [Object] F.out return value
         def Out(**kwargs, &filter)
           F.out(self.(**kwargs), &filter)
@@ -21,6 +24,9 @@ module Sevgi
         # @param path [String, nil] output path or directory
         # @param default [String, nil] default output path
         # @param backup_suffix [String, nil] suffix used for an existing-file backup
+        # @yield [content] optionally transforms rendered content before output
+        # @yieldparam content [String] rendered SVG source
+        # @yieldreturn [String] transformed SVG source
         # @return [Object] F.out return value
         def Save(path = nil, default: nil, backup_suffix: nil, &filter)
           default ||= F.subext(EXT, caller_locations(1..1).first.path)
@@ -42,6 +48,9 @@ module Sevgi
         # Writes rendered SVG to a path.
         # @param path [String] output path
         # @param kwargs [Hash] render options
+        # @yield [content] optionally transforms rendered content before output
+        # @yieldparam content [String] rendered SVG source
+        # @yieldreturn [String] transformed SVG source
         # @return [Object] F.out return value
         def Write(path, **kwargs, &filter)
           F.out(self.(**kwargs), path, &filter)

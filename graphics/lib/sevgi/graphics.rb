@@ -92,7 +92,8 @@ module Sevgi
     # Builds an SVG root document.
     # @param document [Symbol, String, Class] document profile name or document class
     # @param canvas [Sevgi::Graphics::Canvas, Sevgi::Graphics::Paper, Symbol, String, Sevgi::Undefined, nil] canvas input
-    # @param block [Proc, nil] DSL block evaluated in the root element
+    # @yield evaluates the drawing DSL in the root element
+    # @yieldreturn [Object] ignored block result
     # @return [Sevgi::Graphics::Document::Proto] SVG root element
     # @raise [Sevgi::ArgumentError] when the document or canvas profile is unknown
     def SVG(document = :default, canvas = Undefined, **, &block)

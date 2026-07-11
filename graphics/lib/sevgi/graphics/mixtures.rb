@@ -8,11 +8,15 @@ module Sevgi
       #   Includes a named mixture and optional anonymous extension into a document class.
       #   @param mod [Symbol, String] mixture constant name
       #   @param document [Class] document class receiving the mixture
+      #   @yield defines methods in the anonymous mixture
+      #   @yieldreturn [Object] ignored module-definition result
       #   @return [Module, nil] optional anonymous mixture when a block is given
       #   @raise [NameError] when the mixture does not exist
       # @overload mixin(document = Graphics::Document::Base, &block)
       #   Includes only an anonymous extension into a document class.
       #   @param document [Class] document class receiving the mixture
+      #   @yield defines methods in the anonymous mixture
+      #   @yieldreturn [Object] ignored module-definition result
       #   @return [Module] anonymous mixture
       #   @raise [Sevgi::ArgumentError] when no named mixture or block is given
       def self.mixin(mod = Undefined, document = Graphics::Document::Base, &block)
