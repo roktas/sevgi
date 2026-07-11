@@ -55,14 +55,7 @@ module Sevgi
         # @raise [Sevgi::ArgumentError] when the target parent is this element or one of its descendants
         def Adopt(new_parent = nil, index: -1)
           tap do
-            if new_parent
-              unless instance_of?(new_parent.class)
-                ArgumentError.("Element type does not match the new parent type: #{self.class}")
-              end
-            else
-              new_parent = parent
-            end
-
+            new_parent ||= parent
             Adoption.validate(self, new_parent)
 
             insertion = Adoption.index_for(self, new_parent, index)
@@ -82,11 +75,13 @@ module Sevgi
           Adopt(*, index: 0)
         end
 
-        # Appends existing elements as children.
-        # @param elements [Array<Sevgi::Graphics::Element>] elements to append
+        # Appends distinct existing elements as children in argument order.
+        # Each element transfers from its current parent. The complete batch is validated before any element moves.
+        # @param elements [Array<Sevgi::Graphics::Element>] distinct elements to append
         # @return [Sevgi::Graphics::Element] self
+        # @raise [Sevgi::ArgumentError] when an argument has a different element class, is repeated, or is this target or its ancestor
         def Append(*elements)
-          tap { elements.each { it.Adopt(self) } }
+          tap { Adoption.batch(elements, self, front: false) }
         end
 
         # Adds CSS classes without duplicating existing values.
@@ -155,11 +150,13 @@ module Sevgi
           parent.children&.delete(self) unless Root?()
         end
 
-        # Prepends existing elements as children.
-        # @param elements [Array<Sevgi::Graphics::Element>] elements to prepend
+        # Prepends distinct existing elements as children in argument order.
+        # Each element transfers from its current parent. The complete batch is validated before any element moves.
+        # @param elements [Array<Sevgi::Graphics::Element>] distinct elements to prepend
         # @return [Sevgi::Graphics::Element] self
+        # @raise [Sevgi::ArgumentError] when an argument has a different element class, is repeated, or is this target or its ancestor
         def Prepend(*elements)
-          tap { elements.each { it.AdoptFirst(self) } }
+          tap { Adoption.batch(elements, self, front: true) }
         end
 
         # Returns the root document element.
@@ -239,12 +236,32 @@ module Sevgi
         # Adoption target validation that keeps tree mutation atomic.
         # @api private
         module Adoption
+          # Moves a validated batch to the front or back of a parent.
+          # @param elements [Array<Sevgi::Graphics::Element>] elements to move
+          # @param parent [Sevgi::Graphics::Element] target parent
+          # @param front [Boolean] whether to prepend instead of append
+          # @return [void]
+          # @raise [Sevgi::ArgumentError] when an argument is incompatible, repeated, or would create a cycle
+          def self.batch(elements, parent, front:)
+            validate_batch(elements, parent)
+
+            if front
+              elements.reverse_each { it.AdoptFirst(parent) }
+            else
+              elements.each { it.Adopt(parent) }
+            end
+          end
+
           # Rejects target parents that would create a cycle.
           # @param element [Sevgi::Graphics::Element] element being moved
           # @param parent [Sevgi::Graphics::Element, Object] target parent
           # @return [void]
-          # @raise [Sevgi::ArgumentError] when the target parent is this element or one of its descendants
+          # @raise [Sevgi::ArgumentError] when the parent is incompatible or would create a cycle
           def self.validate(element, parent)
+            unless element.instance_of?(parent.class)
+              ArgumentError.("Element type does not match the new parent type: #{element.class}")
+            end
+
             ArgumentError.("Element cannot be adopted under itself") if parent.equal?(element)
 
             while parent.respond_to?(:Root?)
@@ -278,6 +295,18 @@ module Sevgi
             same_parent = element.parent.equal?(parent) && parent.children.include?(element)
             index(index, parent.children.size - (same_parent ? 1 : 0))
           end
+
+          def self.validate_batch(elements, parent)
+            seen = {}.compare_by_identity
+            elements.each do |element|
+              ArgumentError.("Element appears more than once in adoption batch") if seen.key?(element)
+
+              seen[element] = true
+              validate(element, parent)
+            end
+          end
+
+          private_class_method :validate_batch
         end
 
         private_constant :Adoption

@@ -167,6 +167,122 @@ module Sevgi
           assert_equal(%w[line first], target.children.map { it[:id] })
         end
 
+        def test_batch_preserves_same_parent_order
+          %i[Append Prepend].each do |method|
+            elements = {}
+            target = SVG do
+              %w[first existing second last].each do |id|
+                elements[id] = line(id:)
+              end
+            end
+
+            result = target.public_send(method, elements.fetch("first"), elements.fetch("second"))
+
+            expected = method == :Append ? %w[existing last first second] : %w[first second existing last]
+            assert_same(target, result)
+            assert_equal(expected, target.children.map { it[:id] })
+          end
+        end
+
+        def test_batch_preserves_cross_parent_order
+          %i[Append Prepend].each do |method|
+            sources = []
+            target = nil
+            elements = []
+            SVG do
+              sources << g { elements << line(id: "first") }
+              target = g { line(id: "existing") }
+              sources << g { elements << line(id: "second") }
+            end
+
+            target.public_send(method, *elements)
+
+            expected = method == :Append ? %w[existing first second] : %w[first second existing]
+            assert_equal(expected, target.children.map { it[:id] })
+            assert(sources.all? { it.children.empty? })
+            assert(elements.all? { it.parent.equal?(target) })
+          end
+        end
+
+        def test_batch_preserves_already_positioned_order
+          %i[Append Prepend].each do |method|
+            elements = {}
+            ids = method == :Append ? %w[existing first second] : %w[first second existing]
+            target = SVG do
+              ids.each { |id| elements[id] = line(id:) }
+            end
+
+            target.public_send(method, elements.fetch("first"), elements.fetch("second"))
+
+            assert_equal(ids, target.children.map { it[:id] })
+          end
+        end
+
+        def test_batch_rejects_duplicate_arguments_atomically
+          %i[Append Prepend].each do |method|
+            source = nil
+            target = nil
+            element = nil
+            SVG do
+              source = g(id: "source") { element = line(id: "moving") }
+              target = g(id: "target") { line(id: "existing") }
+            end
+
+            error = assert_raises(Sevgi::ArgumentError) do
+              target.public_send(method, element, element)
+            end
+
+            assert_match(/more than once|duplicate/i, error.message)
+            assert_equal([element], source.children)
+            assert_equal(["existing"], target.children.map { it[:id] })
+            assert_same(source, element.parent)
+          end
+        end
+
+        def test_batch_rejects_invalid_later_element_atomically
+          %i[Append Prepend].each do |method|
+            source = nil
+            target = nil
+            element = nil
+            doc = SVG do
+              source = g(id: "source") { element = line(id: "moving") }
+              target = g(id: "target") { line(id: "existing") }
+            end
+
+            error = assert_raises(Sevgi::ArgumentError) do
+              target.public_send(method, element, target)
+            end
+
+            assert_match(/itself/i, error.message)
+            assert_equal(%w[source target], doc.children.map { it[:id] })
+            assert_equal([element], source.children)
+            assert_equal(["existing"], target.children.map { it[:id] })
+            assert_same(source, element.parent)
+            assert_same(doc, target.parent)
+          end
+        end
+
+        def test_batch_rejects_incompatible_elements_atomically
+          %i[Append Prepend].each do |method|
+            source = nil
+            target = nil
+            element = nil
+            SVG do
+              source = g { element = line(id: "moving") }
+              target = g { line(id: "existing") }
+            end
+
+            error = assert_raises(Sevgi::ArgumentError) do
+              target.public_send(method, element, Object.new)
+            end
+
+            assert_match(/type/i, error.message)
+            assert_equal([element], source.children)
+            assert_equal(["existing"], target.children.map { it[:id] })
+            assert_same(source, element.parent)
+          end
+        end
+
         def test_orphan_removes_element_from_parent
           parent = nil
           element = nil
