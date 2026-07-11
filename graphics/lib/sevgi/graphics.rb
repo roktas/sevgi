@@ -35,7 +35,7 @@ module Sevgi
     #   defines a named profile, or returns an existing profile when every explicitly supplied field matches. Omitted
     #   fields are ignored during existing-profile comparison. Profile containers and strings are copied into the
     #   process-global, thread-atomic registry; mutable non-container attribute values are stringified once before
-    #   registration.
+    #   registration. Concurrent identical definitions return the same canonical registered class.
     #   @param name [Symbol, String] profile name
     #   @param preambles [Array<String>, nil, Sevgi::Undefined] document preamble lines
     #   @param attributes [Hash, nil, Sevgi::Undefined] default root attributes; nil means an empty Hash

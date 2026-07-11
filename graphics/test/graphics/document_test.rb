@@ -27,6 +27,19 @@ module Sevgi
         end
       end
 
+      class PausedProfileValue
+        def initialize(entered, release)
+          @entered = entered
+          @release = release
+        end
+
+        def to_s
+          @entered << true
+          @release.pop
+          "red"
+        end
+      end
+
       class RacingProfiles < Hash
         def initialize(source, target, entered, release)
           super()
@@ -49,7 +62,7 @@ module Sevgi
         end
       end
 
-      private_constant :MutableProfileValue, :RacingProfiles
+      private_constant :MutableProfileValue, :PausedProfileValue, :RacingProfiles
 
       def test_default_profile_renders_preamble_and_namespace
         expected = <<~SVG
@@ -172,6 +185,15 @@ module Sevgi
         again = Graphics.document(:registered_safe, attributes: {"data-var": "safe"})
 
         assert_same(doc, again)
+      end
+
+      def test_named_document_race_returns_canonical_class
+        name = :registered_concurrent_same
+        classes = concurrent_documents(name)
+
+        assert(classes.all?(::Class))
+        assert_same(classes.first, classes.last)
+        assert_same(classes.first, Graphics.document(name))
       end
 
       def test_named_document_allows_omitted_matching_fields
@@ -495,6 +517,24 @@ module Sevgi
       end
 
       private
+
+      def concurrent_documents(name)
+        entered = Queue.new
+        release = Queue.new
+        threads = 2.times.map do
+          Thread.new do
+            value = PausedProfileValue.new(entered, release)
+            Graphics.document(name, attributes: {fill: value})
+          end
+        end
+
+        2.times { entered.pop }
+        2.times { release << true }
+        threads.map(&:value)
+      ensure
+        2.times { release << true } if release
+        threads&.each(&:join)
+      end
 
       def racing_registrations(registry, original, name)
         entered = Queue.new

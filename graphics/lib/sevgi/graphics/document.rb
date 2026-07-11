@@ -115,7 +115,8 @@ module Sevgi
 
       # Defines or returns a document profile class.
       # Profile metadata is captured before class or thread-atomic registry mutation. Mutable non-container attribute
-      # values are stringified once during capture.
+      # values are stringified once during capture. Successful named definitions return the canonical class stored by
+      # the registry, including when identical definitions race.
       # @param name [Symbol, String, Sevgi::Undefined] profile name, or Undefined for an anonymous profile
       # @param preambles [Array<String>, nil, Sevgi::Undefined] document preamble lines
       # @param attributes [Hash, nil, Sevgi::Undefined] default root attributes
@@ -136,6 +137,7 @@ module Sevgi
 
         attributes, preambles = defaults(attributes:, preambles:)
         Class.new(Base) { document(name, preambles:, attributes:, overwrite:) }
+        Registry[name]
       end
 
       def self.anonymous(attributes:, preambles:)
