@@ -131,49 +131,68 @@ module Sevgi
 
       private_class_method :anonymous, :compatible?, :defaults, :lookup, :reject_conflict
 
-      # Immutable document profile metadata exposed by document classes.
-      class Profile
+      # Process-global document profile registry.
+      # @api private
+      module Registry
         @available = {}
 
         class << self
-          # Returns an immutable snapshot of registered profile classes.
-          # @return [Hash<Symbol, Class>]
+          def [](name) = @available[name]
+
           def available = @available.dup.freeze
+
+          def register(name, klass, profile: nil, overwrite: false)
+            name = Profile.normalize!(name)
+            validate!(name, klass, profile)
+
+            if (current = @available[name])
+              unless overwrite || current.profile == profile
+                ArgumentError.("Document profile already defined differently: #{name}")
+              end
+
+              return current unless overwrite
+            end
+
+            @available[name] = klass
+          end
 
           private
 
-          def registry = @available
+          def validate!(name, klass, profile)
+            unless klass.is_a?(::Class) && klass <= Proto
+              ArgumentError.("Document profile class must inherit Document::Proto: #{klass}")
+            end
+
+            return if profile.is_a?(Profile) && profile.name == name
+
+            ArgumentError.("Document profile class has invalid metadata: #{klass}")
+          end
         end
+      end
+
+      private_constant :Registry
+
+      # Immutable, read-only document profile metadata exposed by document classes.
+      # @see Sevgi::Graphics.document
+      class Profile
+        # Returns an immutable snapshot of registered profile classes.
+        # @return [Hash<Symbol, Class>]
+        def self.available = Registry.available
 
         # Returns a profile class by name.
         # @param name [Object] profile name
         # @return [Class, nil]
-        def self.[](name) = (name = normalize(name)) && registry[name]
-
-        # Registers a profile class.
-        # @param name [Object] profile name
-        # @param klass [Class] document class
-        # @param overwrite [Boolean] true to replace an existing profile
-        # @return [Class] registered class
-        # @raise [Sevgi::ArgumentError] when name is invalid or conflicts with an existing profile
-        def self.register(name, klass, overwrite: false)
-          name = normalize!(name)
-
-          if (current = registry[name])
-            unless overwrite || current.profile == klass.profile
-              ArgumentError.("Document profile already defined differently: #{name}")
-            end
-
-            return current unless overwrite
-          end
-
-          registry[name] = klass
-        end
+        def self.[](name) = (name = normalize(name)) && Registry[name]
 
         # Normalizes a profile name.
         # @param name [Object] profile name
         # @return [Symbol, nil]
-        def self.normalize(name) = name.respond_to?(:to_sym) ? name.to_sym : nil
+        def self.normalize(name)
+          normalized = name.to_sym if name.respond_to?(:to_sym)
+          normalized if normalized.is_a?(::Symbol)
+        rescue ::StandardError
+          nil
+        end
 
         # Normalizes a profile name or raises.
         # @param name [Object] profile name
@@ -229,9 +248,9 @@ module Sevgi
         # @return [Sevgi::Graphics::Document::Profile] immutable document profile metadata
         # @raise [Sevgi::ArgumentError] when registration fails
         def document(name, attributes: {}, preambles: nil, register: true, overwrite: false)
-          @profile = Profile.new(register ? name : nil, attributes:, preambles:)
-          Profile.register(name, self, overwrite:) if register
-          @profile
+          profile = Profile.new(register ? name : nil, attributes:, preambles:)
+          Registry.register(name, self, profile:, overwrite:) if register
+          @profile = profile
         end
 
         # Includes a graphics mixture into the document class.

@@ -66,6 +66,44 @@ module Sevgi
         assert_same(Document::Minimal, Document::Profile[:minimal])
       end
 
+      def test_profile_registry_is_not_public
+        before = Document::Profile.available
+
+        refute_respond_to(Document::Profile, :register)
+        assert_raises(NoMethodError) { Document::Profile.register(:broken, String) }
+        assert_equal(before, Document::Profile.available)
+        assert_raises(ArgumentError) { SVG(:broken) }
+      end
+
+      def test_profile_registry_rejects_invalid_classes
+        registry = Document.const_get(:Registry, false)
+        before = Document::Profile.available
+        invalid = [
+          [String, nil],
+          [Class.new(Document::Proto), nil],
+          [Document::Minimal, Document::Minimal.profile],
+          [Object.new, nil]
+        ]
+
+        invalid.each do |klass, profile|
+          assert_raises(ArgumentError) { registry.register(:broken, klass, profile:) }
+          assert_equal(before, Document::Profile.available)
+        end
+      end
+
+      def test_profile_registry_rejects_invalid_names
+        registry = Document.const_get(:Registry, false)
+        before = Document::Profile.available
+        raising = Object.new.tap { it.define_singleton_method(:to_sym) { raise "conversion failed" } }
+        wrong = Object.new.tap { it.define_singleton_method(:to_sym) { "broken" } }
+
+        [Object.new, raising, wrong].each do |name|
+          assert_nil(Document::Profile.normalize(name))
+          assert_raises(ArgumentError) { registry.register(name, Document::Minimal) }
+          assert_equal(before, Document::Profile.available)
+        end
+      end
+
       def test_named_document_registers_profile_and_class
         doc = Graphics.document(:registered, attributes: {"data-var": "registered"})
 
@@ -213,11 +251,15 @@ module Sevgi
       end
 
       def test_class_document_rejects_conflicting_profile
+        profile = Document::Test.profile
+
         error = assert_raises(ArgumentError) do
-          Class.new(Document::Base) { document(:test, attributes: {"data-var": "conflict"}) }
+          Document::Test.document(:test, attributes: {"data-var": "conflict"})
         end
 
         assert_match(/\btest\b/, error.message)
+        assert_same(profile, Document::Test.profile)
+        assert_equal("<svg data-var=\"xxx\"/>", SVG(Document::Test).Render())
       end
 
       def test_subclass_root_attributes_doesnt_leak
