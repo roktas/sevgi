@@ -5,6 +5,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## Unreleased
 
+## 0.95.0 - 2026-07-11
+
 ### Security
 
 - Validated XML-bound names, metadata, content, attributes, comments, preambles, and renderer inputs before serialization;

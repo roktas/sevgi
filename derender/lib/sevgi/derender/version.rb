@@ -3,6 +3,6 @@
 module Sevgi
   module Derender
     # Current version of the Sevgi derender gem.
-    VERSION = "0.94.0"
+    VERSION = "0.95.0"
   end
 end
