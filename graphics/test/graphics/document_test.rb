@@ -312,7 +312,7 @@ module Sevgi
           -> { Document::Profile.new(nil, attributes: hash) },
           -> { Graphics.document(attributes: hash) },
           -> { Graphics.document(:registered_cycle_hash, attributes: hash) },
-          -> { Graphics.document(:registered_cycle_array, preambles: array) },
+          -> { Graphics.document(:registered_cycle_array, attributes: {viewBox: array}) },
           -> { Graphics.document!(:registered_cycle_safe, attributes: hash) },
           -> { Class.new(Document::Base) { document(:registered_cycle_class, attributes: hash) } }
         ]
@@ -329,13 +329,16 @@ module Sevgi
 
       def test_document_validates_profile_metadata_shape
         before = Document::Profile.available
+        cyclic = []
+        cyclic << cyclic
         invalid = [
           {attributes: []},
           {attributes: "fill"},
           {attributes: {Object.new => "red"}},
           {attributes: {"fill" => "red", :fill => "blue"}},
           {preambles: "header"},
-          {preambles: ["header", 1]}
+          {preambles: ["header", 1]},
+          {preambles: cyclic}
         ]
 
         invalid.each do |metadata|
@@ -345,6 +348,18 @@ module Sevgi
 
           assert_equal(before, Document::Profile.available)
         end
+      end
+
+      def test_document_rejects_invalid_preamble_without_coercion
+        preamble = MutableProfileValue.new("header")
+        before = Document::Profile.available
+
+        assert_raises(Sevgi::ArgumentError) do
+          Graphics.document(:registered_invalid_preamble, preambles: [preamble])
+        end
+
+        assert_equal(0, preamble.calls)
+        assert_equal(before, Document::Profile.available)
       end
 
       def test_document_owns_mutable_profile_values

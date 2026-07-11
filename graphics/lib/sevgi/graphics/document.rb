@@ -305,14 +305,11 @@ module Sevgi
         def capture_preambles(preambles)
           return if preambles.nil?
 
-          unless preambles.is_a?(::Array)
+          unless preambles.is_a?(::Array) && preambles.all?(::String)
             ArgumentError.("Document profile preambles must be an Array of Strings")
           end
 
-          captured = Snapshot.capture(preambles)
-          return captured if preambles.all?(::String)
-
-          ArgumentError.("Document profile preambles must be an Array of Strings")
+          Snapshot.capture(preambles)
         end
       end
 
