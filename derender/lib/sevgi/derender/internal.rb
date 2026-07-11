@@ -53,6 +53,68 @@ module Sevgi
     module Ruby
       require "rufo"
 
+      IDENTIFIER = /\A[a-z][a-zA-Z0-9]*\z/
+      KEYWORDS = %w[
+        BEGIN
+        END
+        alias
+        and
+        begin
+        break
+        case
+        class
+        def
+        defined
+        do
+        else
+        elsif
+        end
+        ensure
+        false
+        for
+        if
+        in
+        module
+        next
+        nil
+        not
+        or
+        redo
+        rescue
+        retry
+        return
+        self
+        super
+        then
+        true
+        undef
+        unless
+        until
+        when
+        while
+        yield
+      ]
+        .freeze
+
+      private_constant :IDENTIFIER, :KEYWORDS
+
+      # Reports whether an XML element name can be emitted as a bare DSL call.
+      # @param name [String] XML element name
+      # @return [Boolean]
+      def bare_element?(name)
+        require "sevgi/graphics" unless defined?(Graphics::Element)
+
+        name = name.to_s
+
+        IDENTIFIER.match?(name) &&
+          !name.include?("_") &&
+          !KEYWORDS.include?(name) &&
+          Graphics::Element.valid?(name.to_sym) &&
+          !receiver_collision?(name.to_sym)
+      rescue ::Sevgi::ArgumentError
+        false
+      end
+
       # Formats generated Ruby source.
       # @param unformatted_ruby [String] unformatted Ruby source
       # @return [String] formatted Ruby source
@@ -67,6 +129,16 @@ module Sevgi
       # @param value [Object] value to stringify
       # @return [String] Ruby string literal source
       def literal(value) = value.to_s.inspect
+
+      private
+
+      def receiver_collision?(name)
+        document = Graphics::Document.const_get(:Base, false)
+
+        document.ancestors.any? do |ancestor|
+          ancestor.method_defined?(name, false) || ancestor.private_method_defined?(name, false)
+        end
+      end
 
       extend self
     end

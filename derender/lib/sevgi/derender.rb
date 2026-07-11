@@ -13,6 +13,10 @@ require_relative "derender/version"
 module Sevgi
   # Converts SVG/XML content into Sevgi DSL source or evaluates it into graphics elements.
   #
+  # Generated source uses bare DSL calls only for recognized element names that cannot dispatch to an existing Ruby or
+  # Sevgi method. Other XML names use the explicit `Element` DSL word so executing generated source preserves the XML
+  # tree without invoking same-named Ruby methods.
+  #
   # Evaluation APIs treat SVG/XML as data: they build graphics element trees directly and do not execute generated Ruby
   # source. Malformed, rootless, or unmatched input is rejected with {Sevgi::ArgumentError}.
   module Derender
@@ -36,6 +40,7 @@ module Sevgi
     #   @return [String] formatted Sevgi DSL source
     #   @raise [Sevgi::ArgumentError] when content is malformed or rootless, or when the id is absent
     #   @raise [Sevgi::PanicError] when generated Ruby source cannot be formatted
+    #   @note Unsafe bare Ruby names are emitted through the explicit `Element` DSL word.
     # @!method self.derender_file(file, id: nil)
     #   Converts an SVG/XML file into Sevgi DSL Ruby source.
     #   @param file [String] path to the source SVG/XML file
@@ -44,6 +49,7 @@ module Sevgi
     #   @raise [Sevgi::ArgumentError] when the file cannot be found, file content is malformed or rootless, or the id is
     #     absent
     #   @raise [Sevgi::PanicError] when generated Ruby source cannot be formatted
+    #   @note Unsafe bare Ruby names are emitted through the explicit `Element` DSL word.
     # @!method self.evaluate(content, element, id: nil)
     #   Evaluates SVG/XML content under a graphics element, including the selected node.
     #   @param content [String] SVG/XML source content
@@ -98,6 +104,7 @@ module Sevgi
     # @return [String] formatted Sevgi DSL source
     # @raise [Sevgi::ArgumentError] when content is malformed or rootless, or when the id is absent
     # @raise [Sevgi::PanicError] when generated Ruby source cannot be formatted
+    # @note Unsafe bare Ruby names are emitted through the explicit `Element` DSL word.
     def derender(content, id: nil) = Document.new(content).decompile(id).derender
 
     # Converts an SVG/XML file into Sevgi DSL Ruby source.
@@ -107,6 +114,7 @@ module Sevgi
     # @raise [Sevgi::ArgumentError] when the file cannot be found, file content is malformed or rootless, or the id is
     #   absent
     # @raise [Sevgi::PanicError] when generated Ruby source cannot be formatted
+    # @note Unsafe bare Ruby names are emitted through the explicit `Element` DSL word.
     def derender_file(file, id: nil) = Document.load_file(file).decompile(id).derender
 
     # Evaluates SVG/XML content under a graphics element, including the selected node.

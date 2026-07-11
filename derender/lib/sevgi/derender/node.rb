@@ -68,6 +68,7 @@ module Sevgi
       # Converts this node into formatted Sevgi DSL Ruby source.
       # @return [String] formatted Sevgi DSL source
       # @raise [Sevgi::PanicError] when generated Ruby source cannot be formatted
+      # @note Unsafe bare Ruby names are emitted through the explicit `Element` DSL word.
       def derender = Ruby.format(decompile(pres).join("\n"))
 
       # Returns the Sevgi DSL element name for this node.
