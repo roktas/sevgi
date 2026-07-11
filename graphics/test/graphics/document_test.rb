@@ -13,6 +13,22 @@ module Sevgi
     class DocumentProfileTest < Minitest::Test
       DOC = :test
 
+      class MutableProfileValue
+        attr_reader :calls, :text
+
+        def initialize(text)
+          @calls = 0
+          @text = text
+        end
+
+        def to_s
+          @calls += 1
+          text
+        end
+      end
+
+      private_constant :MutableProfileValue
+
       def test_default_profile_renders_preamble_and_namespace
         expected = <<~SVG
           <?xml version="1.0" standalone="no"?>
@@ -225,6 +241,107 @@ module Sevgi
         doc.preambles << "two"
 
         assert_equal(["one"], doc.preambles)
+      end
+
+      def test_document_rejects_cyclic_profile_metadata
+        current = Graphics.document(:registered_cycle_safe, attributes: {fill: "red"})
+        hash = {}
+        hash[:self] = hash
+        array = []
+        array << array
+        before = Document::Profile.available
+        operations = [
+          -> { Document::Profile.new(nil, attributes: hash) },
+          -> { Graphics.document(attributes: hash) },
+          -> { Graphics.document(:registered_cycle_hash, attributes: hash) },
+          -> { Graphics.document(:registered_cycle_array, preambles: array) },
+          -> { Graphics.document!(:registered_cycle_safe, attributes: hash) },
+          -> { Class.new(Document::Base) { document(:registered_cycle_class, attributes: hash) } }
+        ]
+
+        operations.each do |operation|
+          error = assert_raises(Sevgi::ArgumentError, &operation)
+          assert_match(/cyclic document profile metadata/i, error.message)
+          assert_equal(before, Document::Profile.available)
+        end
+
+        assert_same(current, Graphics.document(:registered_cycle_safe))
+        assert_equal("<svg fill=\"red\"/>", SVG(:registered_cycle_safe).Render())
+      end
+
+      def test_document_validates_profile_metadata_shape
+        before = Document::Profile.available
+        invalid = [
+          {attributes: []},
+          {attributes: "fill"},
+          {attributes: {Object.new => "red"}},
+          {attributes: {"fill" => "red", :fill => "blue"}},
+          {preambles: "header"},
+          {preambles: ["header", 1]}
+        ]
+
+        invalid.each do |metadata|
+          assert_raises(Sevgi::ArgumentError) do
+            Graphics.document(:registered_invalid_metadata, **metadata)
+          end
+
+          assert_equal(before, Document::Profile.available)
+        end
+      end
+
+      def test_document_owns_mutable_profile_values
+        value = MutableProfileValue.new(+"red")
+        shared = [1, 2]
+        doc = Graphics.document(
+          :registered_mutable_value,
+          attributes: {
+            style: {fill: value},
+            first: shared,
+            second: shared,
+            count: 2,
+            flag: false,
+            omitted: nil,
+            token: :round
+          }
+        )
+
+        value.text.replace("blue")
+        shared << 3
+        attributes = doc.attributes
+        attributes[:style][:fill].replace("green")
+        attributes[:first] << 4
+
+        assert_equal(1, value.calls)
+        assert_equal({fill: "red"}, doc.attributes[:style])
+        assert_equal([1, 2], doc.attributes[:first])
+        assert_equal([1, 2], doc.attributes[:second])
+        assert_equal([2, false, nil, :round], doc.attributes.values_at(:count, :flag, :omitted, :token))
+        expected = "<svg style=\"fill:red\" first=\"1 2\" second=\"1 2\" count=\"2\" flag=\"false\" token=\"round\"/>"
+        assert_equal(expected, SVG(doc).Render())
+      end
+
+      def test_document_rejects_value_stringification_errors
+        raising = Object.new.tap { it.define_singleton_method(:to_s) { raise "broken" } }
+        wrong = Object.new.tap { it.define_singleton_method(:to_s) { Object.new } }
+        before = Document::Profile.available
+
+        [raising, wrong].each do |value|
+          error = assert_raises(Sevgi::ArgumentError) do
+            Graphics.document(:registered_bad_value, attributes: {fill: value})
+          end
+
+          assert_match(/profile metadata cannot be stringified/i, error.message)
+          assert_equal(before, Document::Profile.available)
+        end
+
+        left = MutableProfileValue.new("same")
+        right = MutableProfileValue.new("same")
+        error = assert_raises(Sevgi::ArgumentError) do
+          Graphics.document(:registered_bad_value, attributes: {style: {left => 1, right => 2}})
+        end
+
+        assert_match(/metadata keys collide after stringification/i, error.message)
+        assert_equal(before, Document::Profile.available)
       end
 
       def test_document_bang_overwrites_profile

@@ -32,18 +32,19 @@ module Sevgi
     # @overload document(name, preambles: Undefined, attributes: Undefined)
     #   Looks up a named profile when both definition keywords are omitted. Supplying `preambles:` or `attributes:`
     #   defines a named profile, or returns an existing profile when every explicitly supplied field matches. Omitted
-    #   fields are ignored during existing-profile comparison. Profile inputs are copied into the registry.
+    #   fields are ignored during existing-profile comparison. Profile containers and strings are copied into the
+    #   registry; mutable non-container attribute values are stringified once before registration.
     #   @param name [Symbol, String] profile name
     #   @param preambles [Array<String>, nil, Sevgi::Undefined] document preamble lines
-    #   @param attributes [Hash, Sevgi::Undefined] default root attributes
+    #   @param attributes [Hash, nil, Sevgi::Undefined] default root attributes; nil means an empty Hash
     #   @return [Class] document class
-    #   @raise [Sevgi::ArgumentError] when a named profile conflicts with an existing profile
+    #   @raise [Sevgi::ArgumentError] when a profile conflicts or metadata is invalid, cyclic, or cannot be stringified
     # @overload document(preambles: Undefined, attributes: Undefined)
     #   Defines an anonymous document profile without registering it globally.
     #   @param preambles [Array<String>, nil, Sevgi::Undefined] document preamble lines
-    #   @param attributes [Hash, Sevgi::Undefined] default root attributes
+    #   @param attributes [Hash, nil, Sevgi::Undefined] default root attributes; nil means an empty Hash
     #   @return [Class] anonymous document class
-    #   @raise [Sevgi::ArgumentError] when profile input is invalid
+    #   @raise [Sevgi::ArgumentError] when metadata is invalid, cyclic, or cannot be stringified
     # @return [Class] document class
     def document(name = Undefined, preambles: Undefined, attributes: Undefined)
       Graphics::Document.define(name, preambles:, attributes:)
@@ -52,9 +53,10 @@ module Sevgi
     # Defines or replaces a document profile class.
     # @param name [Symbol, String] profile name
     # @param preambles [Array<String>, nil] document preamble lines
-    # @param attributes [Hash] default root attributes
+    # Validation and snapshot capture complete before an existing registration is replaced.
+    # @param attributes [Hash, nil] default root attributes; nil means an empty Hash
     # @return [Class] document class
-    # @raise [Sevgi::ArgumentError] when the profile name is invalid
+    # @raise [Sevgi::ArgumentError] when the name or metadata is invalid, cyclic, or cannot be stringified
     def document!(name, preambles: [], attributes: {})
       Graphics::Document.define(name, preambles:, attributes:, overwrite: true)
     end

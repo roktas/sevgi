@@ -7,43 +7,81 @@ module Sevgi
       # Defensive copy helper for profile metadata snapshots.
       # @api private
       module Snapshot
-        # Returns a recursively independent copy of a value.
-        # @param value [Object] value to copy
-        # @return [Object] copied value
-        def self.copy(value)
-          case value
-          when ::Hash
-            hash(value)
-          when ::Array
-            value.map { copy(it) }
-          else
-            duplicate(value)
+        class << self
+          # Captures recursively immutable profile metadata. Mutable non-container values are stringified once.
+          # @param value [Object] value to capture
+          # @param seen [Hash] container identities on the current traversal path
+          # @return [Object] immutable captured value
+          # @raise [Sevgi::ArgumentError] when metadata is cyclic, has colliding keys, or cannot be stringified
+          def capture(value, seen = {}.compare_by_identity)
+            case value
+            when ::Hash
+              capture_nested(value, seen) { capture_hash(value, seen) }.freeze
+            when ::Array
+              capture_nested(value, seen) { value.map { capture(it, seen) } }.freeze
+            else
+              capture_value(value)
+            end
+          end
+
+          # Returns a recursively caller-owned copy of captured metadata.
+          # @param value [Object] captured value to copy
+          # @return [Object] caller-owned copy
+          def copy(value)
+            case value
+            when ::String
+              value.dup
+            when ::Hash
+              value.to_h { |key, item| [copy(key), copy(item)] }
+            when ::Array
+              value.map { copy(it) }
+            else
+              value
+            end
+          end
+
+          private
+
+          def capture_hash(value, seen)
+            value.each_with_object({}) do |(key, item), captured|
+              key = capture(key, seen)
+              ArgumentError.("Document profile metadata keys collide after stringification") if captured.key?(key)
+
+              captured[key] = capture(item, seen)
+            end
+          end
+
+          def capture_nested(value, seen)
+            ArgumentError.("Cyclic document profile metadata is not supported") if seen.key?(value)
+
+            seen[value] = true
+            yield
+          ensure
+            seen.delete(value)
+          end
+
+          def capture_value(value)
+            case value
+            when ::String
+              value.dup.freeze
+            when ::Numeric, ::Symbol, ::NilClass, ::TrueClass, ::FalseClass
+              value
+            else
+              stringify(value).freeze
+            end
+          end
+
+          def stringify(value)
+            text = value.to_s
+            ArgumentError.("Document profile metadata cannot be stringified") unless text.is_a?(::String)
+
+            text.dup
+          rescue Sevgi::ArgumentError
+            raise
+          rescue ::StandardError => e
+            ArgumentError.("Document profile metadata cannot be stringified: #{e.class}: #{e.message}")
           end
         end
-
-        # Returns a recursively frozen independent copy of a value.
-        # @param value [Object] value to copy and freeze
-        # @return [Object] frozen copied value
-        def self.frozen(value)
-          case value
-          when ::Hash
-            value.to_h { |key, item| [frozen(key), frozen(item)] }.freeze
-          when ::Array
-            value.map { frozen(it) }.freeze
-          else
-            duplicate(value).freeze
-          end
-        end
-
-        def self.hash(value) = value.to_h { |key, item| [copy(key), copy(item)] }
-
-        def self.duplicate(value)
-          value.dup
-        rescue ::TypeError
-          value
-        end
-
-        private_class_method :duplicate, :hash
       end
 
       private_constant :Snapshot
@@ -83,11 +121,13 @@ module Sevgi
 
       # Defines or returns a document profile class.
       # @param name [Symbol, String, Sevgi::Undefined] profile name, or Undefined for an anonymous profile
+      # Profile metadata is captured before class or registry mutation. Mutable non-container attribute values are
+      # stringified once during capture.
       # @param preambles [Array<String>, nil, Sevgi::Undefined] document preamble lines
-      # @param attributes [Hash, Sevgi::Undefined] default root attributes
+      # @param attributes [Hash, nil, Sevgi::Undefined] default root attributes
       # @param overwrite [Boolean] true to replace an existing profile
       # @return [Class] document class
-      # @raise [Sevgi::ArgumentError] when a named profile conflicts with an existing profile
+      # @raise [Sevgi::ArgumentError] when a name conflicts or metadata is invalid, cyclic, or cannot be stringified
       def self.define(name = Undefined, preambles: Undefined, attributes: Undefined, overwrite: false)
         return anonymous(attributes:, preambles:) if name == Undefined
 
@@ -174,7 +214,8 @@ module Sevgi
 
       private_constant :Registry
 
-      # Immutable, read-only document profile metadata exposed by document classes.
+      # Immutable, read-only document profile metadata exposed by document classes. Metadata containers and strings are
+      # captured recursively; other mutable attribute values are stringified once during construction.
       # @see Sevgi::Graphics.document
       class Profile
         # Returns an immutable snapshot of registered profile classes.
@@ -207,14 +248,15 @@ module Sevgi
 
         # Creates profile metadata.
         # @param name [Object, nil] profile name
-        # @param attributes [Hash, nil] default root attributes
+        # @param attributes [Hash, nil] default root attributes; nil means an empty Hash
         # @param preambles [Array<String>, nil] preamble lines
         # @return [void]
-        # @raise [Sevgi::ArgumentError] when name cannot be normalized
+        # @raise [Sevgi::ArgumentError] when name or metadata is invalid, cyclic, or cannot be stringified
         def initialize(name, attributes: nil, preambles: nil)
           @name = name.nil? ? nil : self.class.normalize!(name)
-          @attributes = Snapshot.frozen(attributes || {})
-          @preambles = preambles.nil? ? nil : Snapshot.frozen(preambles)
+          validate_attributes!(attributes)
+          @attributes = Snapshot.capture(attributes || {})
+          @preambles = capture_preambles(preambles)
         end
 
         # Reports strict profile equality.
@@ -233,6 +275,41 @@ module Sevgi
         # Returns preamble lines.
         # @return [Array<String>, nil] mutation-isolated preamble snapshot
         def preambles = Snapshot.copy(@preambles)
+
+        private
+
+        def validate_attributes!(attributes)
+          return if attributes.nil?
+
+          ArgumentError.("Document profile attributes must be a Hash") unless attributes.is_a?(::Hash)
+
+          normalized = {}
+          attributes.each_key do |key|
+            id = normalize_attribute!(key)
+            ArgumentError.("Document profile attribute names collide after normalization: #{id}") if normalized.key?(id)
+
+            normalized[id] = true
+          end
+        end
+
+        def normalize_attribute!(key)
+          return key.to_sym if key.is_a?(::String) || key.is_a?(::Symbol)
+
+          ArgumentError.("Document profile attribute names must be Strings or Symbols")
+        end
+
+        def capture_preambles(preambles)
+          return if preambles.nil?
+
+          unless preambles.is_a?(::Array)
+            ArgumentError.("Document profile preambles must be an Array of Strings")
+          end
+
+          captured = Snapshot.capture(preambles)
+          return captured if preambles.all?(::String)
+
+          ArgumentError.("Document profile preambles must be an Array of Strings")
+        end
       end
 
       # Class-level DSL used while defining document classes.
@@ -243,12 +320,12 @@ module Sevgi
 
         # Sets document profile metadata on a class.
         # @param name [Object] profile name
-        # @param attributes [Hash] default root attributes
+        # @param attributes [Hash, nil] default root attributes
         # @param preambles [Array<String>, nil] preamble lines
         # @param register [Boolean] true to register the profile globally
         # @param overwrite [Boolean] true to replace an existing profile
         # @return [Sevgi::Graphics::Document::Profile] immutable document profile metadata
-        # @raise [Sevgi::ArgumentError] when registration fails
+        # @raise [Sevgi::ArgumentError] when registration fails or metadata is invalid, cyclic, or cannot be stringified
         def document(name, attributes: {}, preambles: nil, register: true, overwrite: false)
           profile = Profile.new(register ? name : nil, attributes:, preambles:)
           Registry.register(name, self, profile:, overwrite:) if register
