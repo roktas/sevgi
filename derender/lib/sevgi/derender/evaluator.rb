@@ -35,14 +35,14 @@ module Sevgi
       end
 
       def append_element(node)
-        build(node.name, *content(node), **attributes(node)).tap do |element|
-          node.children.each { self.class.new(element).append(it) } unless content(node).any?
+        contents = contents(node)
+
+        build(node.name, *contents, **node.attributes!).tap do |element|
+          node.children.each { self.class.new(element).append(it) } if contents.empty?
         end
       end
 
-      def attributes(node) = node.attributes!
-
-      def content(node)
+      def contents(node)
         node.children.one? && node.children.first.node.text? ? [node.content] : []
       end
 

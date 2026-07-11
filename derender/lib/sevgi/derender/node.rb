@@ -2,9 +2,9 @@
 
 module Sevgi
   module Derender
-    # Namespace domain classifier for derender strategies.
+    # Namespace classifier for derender strategies.
     # @api private
-    module Domain
+    module Namespace
       SVG = "http://www.w3.org/2000/svg"
       private_constant :SVG
 
@@ -17,7 +17,7 @@ module Sevgi
       end
     end
 
-    private_constant :Domain
+    private_constant :Namespace
 
     # Node in a derender tree produced from an SVG/XML node.
     class Node
@@ -143,9 +143,9 @@ module Sevgi
           :Text
         when node.comment?
           :Junk
-        when Domain.svg?(node, "style")
+        when Namespace.svg?(node, "style")
           :CSS
-        when @top && Domain.svg?(node, "svg")
+        when @top && Namespace.svg?(node, "svg")
           :Root
         else
           :Any
