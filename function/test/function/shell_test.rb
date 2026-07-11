@@ -337,14 +337,14 @@ module Sevgi
           signals = []
 
           Process.stub(:kill, -> (signal, pid) { signals << [signal, pid] }) do
-            SignalCoordinator.register(bad, 1)
-            SignalCoordinator.register(good, 2)
-            _out, err = capture_io { SignalCoordinator.send(:dispatch) }
+            Signals.register(bad, 1)
+            Signals.register(good, 2)
+            _out, err = capture_io { Signals.send(:dispatch) }
 
             assert_includes(err, "SIGINT dispatch failed: broken runner")
           ensure
-            SignalCoordinator.unregister(bad)
-            SignalCoordinator.unregister(good)
+            Signals.unregister(bad)
+            Signals.unregister(good)
           end
 
           assert_equal([["TERM", 2]], signals)
@@ -358,17 +358,17 @@ module Sevgi
           signals = []
 
           Process.stub(:kill, -> (signal, pid) { signals << [signal, pid] }) do
-            SignalCoordinator.register(first, 1)
-            SignalCoordinator.register(second, 2)
-            SignalCoordinator.send(:dispatch)
-            SignalCoordinator.send(:dispatch)
-            SignalCoordinator.unregister(first)
+            Signals.register(first, 1)
+            Signals.register(second, 2)
+            Signals.send(:dispatch)
+            Signals.send(:dispatch)
+            Signals.unregister(first)
 
             current = Signal.trap("INT", "DEFAULT")
             refute_same(baseline, current)
             Signal.trap("INT", current)
 
-            2.times { SignalCoordinator.unregister(second) }
+            2.times { Signals.unregister(second) }
             restored = Signal.trap("INT", "DEFAULT")
             assert_same(baseline, restored)
           end
@@ -378,8 +378,8 @@ module Sevgi
             signals
           )
         ensure
-          SignalCoordinator.unregister(first) if first
-          SignalCoordinator.unregister(second) if second
+          Signals.unregister(first) if first
+          Signals.unregister(second) if second
           Signal.trap("INT", previous) if previous
         end
 

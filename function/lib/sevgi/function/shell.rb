@@ -74,9 +74,9 @@ module Sevgi
         def self.dummy = new([], [], [], 0)
       end
 
-      # Coordinates the process-global SIGINT handler for overlapping shell runners.
+      # Shared process-global SIGINT state for overlapping shell runners.
       # @api private
-      module SignalCoordinator
+      module Signals
         Entry = Data.define(:runner, :pid)
         WAKE = "."
 
@@ -167,7 +167,7 @@ module Sevgi
         end
       end
 
-      private_constant :SignalCoordinator
+      private_constant :Signals
 
       # Runs shell commands and captures stdout, stderr, and exit status.
       # @api private
@@ -200,7 +200,7 @@ module Sevgi
         # rubocop:disable Lint/RescueException
         def capture(stdin, stdout, stderr, wait_thread, &input)
           registered = false
-          SignalCoordinator.register(self, wait_thread.pid)
+          Signals.register(self, wait_thread.pid)
           registered = true
           readers = start_readers(stdout, stderr)
 
@@ -210,7 +210,7 @@ module Sevgi
           raise
         ensure
           close_input(stdin)
-          SignalCoordinator.unregister(self) if registered
+          Signals.unregister(self) if registered
         end
         # rubocop:enable Lint/RescueException
 

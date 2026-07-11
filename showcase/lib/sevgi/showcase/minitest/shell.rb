@@ -10,11 +10,11 @@ module Sevgi
     # Shell runner helpers for showcase tests.
     # @api private
     module Shell
-      # Shared process-global SIGINT coordinator.
+      # Shared process-global SIGINT state.
       # @api private
-      SignalCoordinator = ::Sevgi::Function::Shell.const_get(:SignalCoordinator, false)
+      Signals = ::Sevgi::Function::Shell.const_get(:Signals, false)
 
-      private_constant :SignalCoordinator
+      private_constant :Signals
 
       # Shell command result.
       # @api private
@@ -86,11 +86,11 @@ module Sevgi
 
         def finish_capture(stdin, registered)
           close_input(stdin)
-          SignalCoordinator.unregister(self) if registered
+          Signals.unregister(self) if registered
         end
 
         def register_capture(thread)
-          SignalCoordinator.register(self, thread.pid)
+          Signals.register(self, thread.pid)
         end
 
         def cleanup_failed_capture(stdin, thread, readers)

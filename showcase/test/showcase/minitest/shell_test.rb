@@ -101,15 +101,15 @@ module Sevgi
         end
       end
 
-      def test_run_shares_process_signal_coordinator
-        function = ::Sevgi::Function::Shell.const_get(:SignalCoordinator, false)
-        showcase = Shell.const_get(:SignalCoordinator, false)
+      def test_run_shares_process_signal_state
+        function = ::Sevgi::Function::Shell.const_get(:Signals, false)
+        showcase = Shell.const_get(:Signals, false)
 
         assert_same(function, showcase)
       end
 
       def test_run_coordinates_overlapping_signal_handlers
-        coordinator = Shell.const_get(:SignalCoordinator, false)
+        registry = Shell.const_get(:Signals, false)
         baseline = proc { }
         previous = Signal.trap("INT", baseline)
         first = Shell::Runner.new
@@ -117,17 +117,17 @@ module Sevgi
         signals = []
 
         Process.stub(:kill, -> (signal, pid) { signals << [signal, pid] }) do
-          coordinator.register(first, 1)
-          coordinator.register(second, 2)
-          coordinator.send(:dispatch)
-          coordinator.send(:dispatch)
-          coordinator.unregister(first)
+          registry.register(first, 1)
+          registry.register(second, 2)
+          registry.send(:dispatch)
+          registry.send(:dispatch)
+          registry.unregister(first)
 
           current = Signal.trap("INT", "DEFAULT")
           refute_same(baseline, current)
           Signal.trap("INT", current)
 
-          coordinator.unregister(second)
+          registry.unregister(second)
           restored = Signal.trap("INT", "DEFAULT")
           assert_same(baseline, restored)
         end
@@ -137,8 +137,8 @@ module Sevgi
           signals
         )
       ensure
-        coordinator&.unregister(first) if first
-        coordinator&.unregister(second) if second
+        registry&.unregister(first) if first
+        registry&.unregister(second) if second
         Signal.trap("INT", previous) if previous
       end
 
