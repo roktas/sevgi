@@ -80,6 +80,21 @@ module Sevgi
       end
     end
 
+    def test_changelog_keeps_review_work_unreleased
+      changelog = ::File.read(::File.join(ROOT, "CHANGELOG.md"))
+      unreleased, released = changelog.split(/^## 0\.94\.0\b/, 2)
+      released = released.split(/^## 0\.93\.1\b/, 2).first
+
+      ["thread-atomic", "physical gem payloads", "Undefined::Self"].each do |text|
+        assert_includes(unreleased, text)
+        refute_includes(released, text)
+      end
+
+      ["Native PDF/PNG", "Derender evaluation treats XML as data"].each do |text|
+        assert_includes(released, text)
+      end
+    end
+
     def test_gemspec_manifests_are_independent_of_cwd
       Dir.mktmpdir do |dir|
         [ROOT, dir].each do |cwd|
