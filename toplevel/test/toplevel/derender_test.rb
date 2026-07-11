@@ -98,7 +98,7 @@ module Sevgi
 
         assert(status.success?, "stdout:\n#{out}\nstderr:\n#{err}")
         refute_path_exists(marker)
-        root = ::Nokogiri::XML(out) { it.strict }.root
+        root = ::Nokogiri::XML(out, &:strict).root
         expected = %w[system send exit raise object_id font-face color-profile class custom_name]
 
         assert_equal(expected, root.element_children.map(&:name))
