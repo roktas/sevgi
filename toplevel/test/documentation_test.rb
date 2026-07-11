@@ -54,7 +54,7 @@ module Sevgi
 
       assert_includes(rakefile, "task(:doc)")
       assert_includes(rakefile, "task(:check)")
-      assert_includes(rakefile, "require_complete_docs")
+      assert_includes(rakefile, "SevgiBuild::Docs.complete!")
       assert_includes(::File.read(::File.join(ROOT, ".yardopts")), "--hide-api private")
       assert_includes(workflow, "bundle exec rake doc:check")
       assert_includes(workflow, "actions/upload-artifact")

@@ -2,6 +2,7 @@
 
 require "json"
 require "digest"
+require "fileutils"
 require "open3"
 require "rubygems/package"
 require "zlib"
@@ -22,10 +23,7 @@ module SevgiRelease
   module Preflight
     module_function
 
-    MANIFEST = "SHA256SUMS"
     VERSION_PATTERN = /\A\d+\.\d+\.\d+\z/
-
-    private_constant :MANIFEST
 
     def guard!(root:, ref:)
       version = read_version(root)
@@ -94,47 +92,6 @@ module SevgiRelease
       {version:, archives:}
     end
 
-    def assert_checksums!(package_dir:, archives:, path: File.join(package_dir, MANIFEST))
-      raise_error("missing release manifest: #{path}") unless File.file?(path)
-
-      entries = checksum_entries(path)
-      expected = archives.map { |archive| File.basename(archive.fetch(:path)) }
-      declared = entries.map(&:first)
-      raise_error("release manifest order mismatch") unless declared == expected
-
-      assert_archive_set!(package_dir, expected)
-      archives.zip(entries).each { |archive, (_name, digest)| assert_checksum!(archive, digest) }
-      nil
-    end
-
-    def checksum_entries(path)
-      entries = File.readlines(path, chomp: true).map do |line|
-        match = /\A([0-9a-f]{64})  ([A-Za-z0-9][A-Za-z0-9._-]*\.gem)\z/.match(line)
-        raise_error("malformed release manifest: #{line.inspect}") unless match
-
-        [match[2], match[1]]
-      end
-
-      raise_error("empty release manifest: #{path}") if entries.empty?
-
-      entries
-    end
-
-    def assert_checksum!(archive, expected)
-      relative = File.basename(archive.fetch(:path))
-      actual = Digest::SHA256.file(archive.fetch(:path)).hexdigest
-      raise_error("checksum mismatch: #{relative}") unless expected == actual
-    end
-
-    def write_manifest!(package_dir:, archives:, path: File.join(package_dir, MANIFEST))
-      names = archives.map { |archive| File.basename(archive.fetch(:path)) }
-      assert_archive_set!(package_dir, names)
-      lines = archives.map { |archive| "#{archive.fetch(:sha256)}  #{File.basename(archive.fetch(:path))}" }
-      File.write(path, "#{lines.join("\n")}\n")
-      assert_checksums!(package_dir:, archives:, path:)
-      path
-    end
-
     def gemspecs(root)
       specs = Dir[File.join(root, "*/*.gemspec")].map do |file|
         Gem::Specification.load(file) || raise_error("malformed gemspec: #{file}")
@@ -146,17 +103,6 @@ module SevgiRelease
     def remote_query(name)
       Open3.capture3("gem", "list", "--remote", "--exact", "--all", name)
     end
-
-    def assert_archive_set!(package_dir, expected)
-      raise_error("duplicate release archives") unless expected.uniq.size == expected.size
-
-      actual = Dir[File.join(package_dir, "*.gem")].map { File.basename(it) }.sort
-      return if actual == expected.sort
-
-      raise_error("release archive set mismatch: expected #{expected.sort.join(", ")}; got #{actual.join(", ")}")
-    end
-
-    private_class_method :assert_archive_set!
 
     def raise_error(message)
       raise Error, message
@@ -241,10 +187,8 @@ module SevgiRelease
 
         def validate_metadata!(content, name, path)
           with_member(name, path) do
-            archive = Gem::Specification.from_yaml(content)
-            unless archive.is_a?(Gem::Specification)
-              Preflight.raise_error("package metadata is not a gem specification")
-            end
+            Gem::Specification.from_yaml(content)
+            nil
           end
         end
 
@@ -383,133 +327,222 @@ module SevgiRelease
     class Error < StandardError
     end
   end
+
+  module Manifest
+    NAME = "SHA256SUMS"
+
+    module_function
+
+    def assert!(package_dir:, archives:, path: File.join(package_dir, NAME))
+      Preflight.raise_error("missing release manifest: #{path}") unless File.file?(path)
+
+      entries = entries(path)
+      expected = archives.map { |archive| File.basename(archive.fetch(:path)) }
+      declared = entries.map(&:first)
+      Preflight.raise_error("release manifest order mismatch") unless declared == expected
+
+      assert_archive_set!(package_dir, expected)
+      archives.zip(entries).each { |archive, (_name, digest)| assert_checksum!(archive, digest) }
+      nil
+    end
+
+    def entries(path)
+      values = File.readlines(path, chomp: true).map do |line|
+        match = /\A([0-9a-f]{64})  ([A-Za-z0-9][A-Za-z0-9._-]*\.gem)\z/.match(line)
+        Preflight.raise_error("malformed release manifest: #{line.inspect}") unless match
+
+        [match[2], match[1]]
+      end
+
+      Preflight.raise_error("empty release manifest: #{path}") if values.empty?
+
+      values
+    end
+
+    def write!(package_dir:, archives:, path: File.join(package_dir, NAME))
+      names = archives.map { |archive| File.basename(archive.fetch(:path)) }
+      assert_archive_set!(package_dir, names)
+      lines = archives.map { |archive| "#{archive.fetch(:sha256)}  #{File.basename(archive.fetch(:path))}" }
+      File.write(path, "#{lines.join("\n")}\n")
+      assert!(package_dir:, archives:, path:)
+      path
+    end
+
+    def assert_archive_set!(package_dir, expected)
+      Preflight.raise_error("duplicate release archives") unless expected.uniq.size == expected.size
+
+      actual = Dir[File.join(package_dir, "*.gem")].map { File.basename(it) }.sort
+      return if actual == expected.sort
+
+      Preflight.raise_error(
+        "release archive set mismatch: expected #{expected.sort.join(", ")}; got #{actual.join(", ")}"
+      )
+    end
+
+    def assert_checksum!(archive, expected)
+      relative = File.basename(archive.fetch(:path))
+      actual = Digest::SHA256.file(archive.fetch(:path)).hexdigest
+      Preflight.raise_error("checksum mismatch: #{relative}") unless expected == actual
+    end
+
+    private_class_method :assert_archive_set!, :assert_checksum!, :entries
+  end
 end
 
-# rubocop:disable Metrics/BlockLength
+module SevgiBuild
+  COMPONENT_ORDER = %w[
+    function
+    geometry
+    graphics
+    standard
+    derender
+    sundries
+    toplevel
+    showcase
+  ].freeze
+
+  module Workspace
+    module_function
+
+    def clean!(runner: Open3.method(:capture3))
+      output, error, status = runner.call("git", "status", "--short")
+      raise "Cannot inspect git status: #{error}" unless status.success?
+      raise "Worktree is not clean:\n#{output}" unless output.empty?
+
+      nil
+    end
+
+    def main!(runner: Open3.method(:capture3))
+      branch, error, status = runner.call("git", "branch", "--show-current")
+      raise "Cannot inspect git branch: #{error}" unless status.success?
+      raise "Release requires the main branch" unless branch.strip == "main"
+
+      nil
+    end
+  end
+
+  module Docs
+    PRIVATE_PAGES = %w[
+      Sevgi/Executor/Scope.html
+      Sevgi/Executor/Source.html
+      Sevgi/Geometry/Equation/Quadratic.html
+      Sevgi/Sundries/Export/Renderer.html
+    ]
+      .freeze
+
+    private_constant :PRIVATE_PAGES
+    module_function
+
+    def build!(root:, remover: FileUtils.method(:rm_rf), runner: method(:run))
+      remover.call(File.join(root, ".cache/ruby/doc/api"))
+      remover.call(File.join(root, ".cache/ruby/yardoc"))
+      runner.call("yard", "doc", "--fail-on-warning")
+    end
+
+    def complete!(runner: Open3.method(:capture3), reporter: Kernel.method(:warn))
+      output, error, status = runner.call("yard", "stats", "--list-undoc")
+      raise "YARD stats failed: #{error}" unless status.success?
+
+      undocumented = output.lines.grep(/\(\s*[1-9]\d* undocumented\)/)
+      raise "Undocumented public API objects:\n#{output}" unless undocumented.empty?
+
+      reporter.call(output)
+      output
+    end
+
+    def hide_private!(root:)
+      pages = PRIVATE_PAGES.map { File.join(root, ".cache/ruby/doc/api", it) }
+      present = pages.select { File.exist?(it) }
+      raise "Private API pages are exposed:\n#{present.join("\n")}" unless present.empty?
+
+      nil
+    end
+
+    def run(*args)
+      system(*args, exception: true)
+    end
+
+    private_class_method :run
+  end
+
+  module Coverage
+    # Preserve the pre-Rakefile baseline while counting the root build code in the denominator.
+    FLOORS = {
+      branch: 80.04,
+      line: 97.05
+    }.freeze
+
+    module_function
+
+    def totals(report)
+      totals = {
+        branch: {covered: 0, total: 0},
+        line: {covered: 0, total: 0}
+      }
+
+      data(report).each_value do |file|
+        accumulate!(totals.fetch(:line), file.fetch("lines"))
+        accumulate!(totals.fetch(:branch), file.fetch("branches", []).map { it.fetch("coverage") })
+      end
+
+      totals.transform_values { percent(it.fetch(:covered), it.fetch(:total)) }
+    end
+
+    def files(report)
+      data(report).keys.map { File.expand_path(it) }.sort
+    end
+
+    def require_files!(report, expected)
+      missing = expected - files(report)
+      raise "Coverage report is missing tracked files:\n#{missing.join("\n")}" unless missing.empty?
+
+      nil
+    end
+
+    def require_floors!(totals, floors = FLOORS)
+      failures = floors.filter_map do |criterion, floor|
+        total = totals.fetch(criterion)
+        "#{criterion}: #{format("%.2f", total)}% < #{format("%.2f", floor)}%" if total < floor
+      end
+
+      raise "Coverage below floor:\n#{failures.join("\n")}" unless failures.empty?
+
+      nil
+    end
+
+    def data(report) = JSON.parse(File.read(report)).fetch("coverage")
+
+    def accumulate!(total, values)
+      values.grep(Integer).each do |coverage|
+        total[:covered] += 1 if coverage.positive?
+        total[:total] += 1
+      end
+    end
+
+    def percent(covered, total) = total.zero? ? 100.0 : ((covered * 100.0) / total)
+
+    private_class_method :accumulate!, :data, :percent
+  end
+end
 
 Rake::FileUtilsExt.verbose_flag = false
 
 task_label = -> (string) { "\e[1;33m#{string}\e[0m" }
 
-def require_clean_worktree
-  output, error, status = Open3.capture3("git", "status", "--short")
-  raise "Cannot inspect git status: #{error}" unless status.success?
-  raise "Worktree is not clean:\n#{output}" unless output.empty?
-end
-
-def build_docs(rootdir)
-  rm_rf(::File.join(rootdir, ".cache/ruby/doc/api"))
-  rm_rf(::File.join(rootdir, ".cache/ruby/yardoc"))
-  sh("yard", "doc", "--fail-on-warning")
-end
-
-def require_complete_docs
-  output, error, status = Open3.capture3("yard", "stats", "--list-undoc")
-  raise "YARD stats failed: #{error}" unless status.success?
-
-  undocumented = output.lines.select { it.match?(/\(\s*[1-9]\d* undocumented\)/) }
-  raise "Undocumented public API objects:\n#{output}" unless undocumented.empty?
-
-  warn(output)
-end
-
-def require_private_pages_hidden(rootdir)
-  pages = %w[
-    Sevgi/Executor/Scope.html
-    Sevgi/Executor/Source.html
-    Sevgi/Geometry/Equation/Quadratic.html
-    Sevgi/Sundries/Export/Renderer.html
-  ]
-    .map { ::File.join(rootdir, ".cache/ruby/doc/api", it) }
-  present = pages.select { ::File.exist?(it) }
-  raise "Private API pages are exposed:\n#{present.join("\n")}" unless present.empty?
-end
-
-ORDER = %w[
-  function
-  geometry
-  graphics
-  standard
-  derender
-  sundries
-  toplevel
-  showcase
-].freeze
-
 rootdir = File.expand_path(__dir__)
-version = File.read("#{rootdir}/VERSION").strip
+version = File.read(File.join(rootdir, "VERSION")).strip
 pkgdir = File.expand_path(ENV.fetch("PKGDIR", "pkg"), rootdir)
-projects = Hash[
-  *::Dir[::File.join(rootdir, "*/*.gemspec")]
-    .map do |file|
-      project = ::File.dirname(file).delete_prefix("#{rootdir}/")
-      [project, ::File.basename(file, ".*")]
-    end
-    .flatten
-]
-names = (ORDER & projects.keys) + (projects.keys - ORDER).sort
-tracked_libs = names
-  .flat_map { |project| ::Dir[::File.join(rootdir, project, "lib/**/*.rb")] }
-  .map do |file|
-    ::File.expand_path(file)
-  end
-  .sort
-
-COVERAGE_FLOORS = {
-  branch: 78.0,
-  line: 94.0
-}.freeze
-
-def coverage_percent(covered, total)
-  total.zero? ? 100.0 : ((covered * 100.0) / total)
+projects = Dir[File.join(rootdir, "*/*.gemspec")].to_h do |file|
+  project = File.dirname(file).delete_prefix("#{rootdir}/")
+  [project, File.basename(file, ".*")]
 end
 
-def coverage_totals(report)
-  data = JSON.parse(::File.read(report))
-  totals = {
-    branch: {covered: 0, total: 0},
-    line: {covered: 0, total: 0}
-  }
-
-  data.fetch("coverage").each_value do |file|
-    file.fetch("lines").each do |coverage|
-      next unless coverage.is_a?(::Integer)
-
-      totals[:line][:covered] += 1 if coverage.positive?
-      totals[:line][:total] += 1
-    end
-
-    file.fetch("branches", []).each do |branch|
-      coverage = branch.fetch("coverage")
-      next unless coverage.is_a?(::Integer)
-
-      totals[:branch][:covered] += 1 if coverage.positive?
-      totals[:branch][:total] += 1
-    end
-  end
-
-  totals.transform_values { |total| coverage_percent(total.fetch(:covered), total.fetch(:total)) }
-end
-
-def coverage_files(report)
-  data = JSON.parse(::File.read(report))
-
-  data.fetch("coverage").keys.map { |file| ::File.expand_path(file) }.sort
-end
-
-def require_coverage_files(report, expected)
-  missing = expected - coverage_files(report)
-  raise "Coverage report is missing tracked files:\n#{missing.join("\n")}" unless missing.empty?
-end
-
-def require_coverage_floors(totals, floors)
-  failures = floors.filter_map do |criterion, floor|
-    total = totals.fetch(criterion)
-    "#{criterion}: #{format("%.2f", total)}% < #{format("%.2f", floor)}%" if total < floor
-  end
-
-  raise "Coverage below floor:\n#{failures.join("\n")}" unless failures.empty?
-end
+order = SevgiBuild::COMPONENT_ORDER
+names = (order & projects.keys) + (projects.keys - order).sort
+tracked_sources = [
+  File.join(rootdir, "Rakefile"),
+  *names.flat_map { |project| Dir[File.join(rootdir, project, "lib/**/*.rb")] }
+].map { File.expand_path(it) }.sort
 
 directory(pkgdir)
 
@@ -523,8 +556,8 @@ names.each do |project|
     %i[lint test].each do |tn|
       desc("#{tn.capitalize} #{project.capitalize}")
       task(tn) do |t|
-        warn("#{task_label.call(t)}")
-        Dir.chdir(::File.join(rootdir, project)) do
+        warn(task_label.call(t))
+        Dir.chdir(File.join(rootdir, project)) do
           sh("rake", tn.to_s)
         end
 
@@ -534,8 +567,8 @@ names.each do |project|
 
     desc("Package #{package}")
     task(package: [pkgdir]) do |t|
-      warn("#{task_label.call(t)}")
-      Dir.chdir(::File.join(rootdir, project)) do
+      warn(task_label.call(t))
+      Dir.chdir(File.join(rootdir, project)) do
         sh("gem", "build", gemspec, "--output", gem)
       end
 
@@ -552,6 +585,13 @@ end
   task(tn => names.map { |project| "#{project}:#{tn}" })
 end
 
+desc("Lint root build tasks")
+task("lint:root") do
+  sh("bundle", "exec", "rubocop", "Rakefile", "--display-cop-names")
+end
+
+Rake::Task[:lint].enhance(["lint:root"])
+
 namespace(:release) do
   desc("Guard release ref and versions")
   task(:guard) do
@@ -561,15 +601,13 @@ namespace(:release) do
   desc("Validate built release archives")
   task(:verify) do
     result = SevgiRelease::Preflight.preflight!(root: rootdir, ref: ENV.fetch("GITHUB_REF"), package_dir: pkgdir)
-    SevgiRelease::Preflight.write_manifest!(package_dir: pkgdir, archives: result.fetch(:archives))
+    SevgiRelease::Manifest.write!(package_dir: pkgdir, archives: result.fetch(:archives))
   end
 
   desc("Check release workspace")
   task(:preflight) do
-    require_clean_worktree
-    branch, error, status = Open3.capture3("git", "branch", "--show-current")
-    raise "Cannot inspect git branch: #{error}" unless status.success?
-    raise "Release requires the main branch" unless branch.strip == "main"
+    SevgiBuild::Workspace.clean!
+    SevgiBuild::Workspace.main!
 
     Rake::Task[:build].invoke
     manifest = SevgiRelease::Preflight.preflight!(
@@ -577,29 +615,29 @@ namespace(:release) do
       ref: "refs/heads/main",
       package_dir: pkgdir
     )
-    SevgiRelease::Preflight.write_manifest!(package_dir: pkgdir, archives: manifest.fetch(:archives))
+    SevgiRelease::Manifest.write!(package_dir: pkgdir, archives: manifest.fetch(:archives))
   end
 end
 
 desc("Release all")
-task(:release => "release:preflight") do
+task(release: "release:preflight") do
   manifest = SevgiRelease::Preflight.preflight!(root: rootdir, ref: "refs/heads/main", package_dir: pkgdir)
-  SevgiRelease::Preflight.assert_checksums!(package_dir: pkgdir, archives: manifest.fetch(:archives))
+  SevgiRelease::Manifest.assert!(package_dir: pkgdir, archives: manifest.fetch(:archives))
   manifest.fetch(:archives).each { |archive| sh("gem", "push", archive.fetch(:path)) }
-  require_clean_worktree
+  SevgiBuild::Workspace.clean!
 end
 
 desc("Build API documentation")
 task(:doc) do
-  build_docs(rootdir)
+  SevgiBuild::Docs.build!(root: rootdir)
 end
 
 namespace(:doc) do
   desc("Check API documentation")
   task(:check) do
-    build_docs(rootdir)
-    require_complete_docs
-    require_private_pages_hidden(rootdir)
+    SevgiBuild::Docs.build!(root: rootdir)
+    SevgiBuild::Docs.complete!
+    SevgiBuild::Docs.hide_private!(root: rootdir)
   end
 end
 
@@ -615,10 +653,10 @@ namespace(:coverage) do
 
   desc("Check coverage")
   task(check: :test) do
-    report = ::File.join(rootdir, ".cache/ruby/coverage/coverage.json")
-    require_coverage_files(report, tracked_libs)
-    totals = coverage_totals(report)
-    require_coverage_floors(totals, COVERAGE_FLOORS)
+    report = File.join(rootdir, ".cache/ruby/coverage/coverage.json")
+    SevgiBuild::Coverage.require_files!(report, tracked_sources)
+    totals = SevgiBuild::Coverage.totals(report)
+    SevgiBuild::Coverage.require_floors!(totals)
     warn("Line coverage: #{format("%.2f", totals.fetch(:line))}%")
     warn("Branch coverage: #{format("%.2f", totals.fetch(:branch))}%")
   end
@@ -627,20 +665,20 @@ end
 namespace(:clean) do
   desc("Clean coverage reports")
   task(:coverage) do
-    rm_rf(::File.join(rootdir, ".cache/ruby/coverage"))
+    rm_rf(File.join(rootdir, ".cache/ruby/coverage"))
   end
 end
 
 desc("Bump versions")
 task(:bump) do
   if ENV["version"]
-    ::File.write("#{rootdir}/VERSION", version = ENV["version"])
+    File.write("#{rootdir}/VERSION", version = ENV["version"])
   end
 
-  ::Dir[::File.join(rootdir, "*/**/version.rb")].each do |source|
-    ::File.write(
+  Dir[File.join(rootdir, "*/**/version.rb")].each do |source|
+    File.write(
       source,
-      ::File.read(source).gsub(/^(\s*)VERSION(\s*)= .*?$/, "\\1VERSION = \"#{version}\"")
+      File.read(source).gsub(/^(\s*)VERSION(\s*)= .*?$/, "\\1VERSION = \"#{version}\"")
     )
   end
 end

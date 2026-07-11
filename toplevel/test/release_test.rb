@@ -14,6 +14,7 @@ load(File.expand_path("../../Rakefile", __dir__)) unless defined?(SevgiRelease::
 
 module Sevgi
   class ReleaseTest < Minitest::Test
+    Manifest = ::SevgiRelease::Manifest
     Preflight = ::SevgiRelease::Preflight
     PAYLOAD = {
       "CHANGELOG.md" => "changes\n",
@@ -56,17 +57,17 @@ module Sevgi
           {name:, path:, sha256: Digest::SHA256.file(path).hexdigest}
         end
 
-        manifest = Preflight.write_manifest!(package_dir:, archives:)
+        manifest = Manifest.write!(package_dir:, archives:)
 
         assert_equal(
           archives.map { "#{it.fetch(:sha256)}  #{File.basename(it.fetch(:path))}" },
           File.readlines(manifest, chomp: true)
         )
-        assert_nil(Preflight.assert_checksums!(package_dir:, archives:))
+        assert_nil(Manifest.assert!(package_dir:, archives:))
 
         lines = File.readlines(manifest)
         File.write(manifest, lines.reverse.join)
-        assert_raises(Preflight::Error) { Preflight.assert_checksums!(package_dir:, archives:) }
+        assert_raises(Preflight::Error) { Manifest.assert!(package_dir:, archives:) }
       end
     end
 
@@ -76,27 +77,57 @@ module Sevgi
         File.write(path, "demo")
         archive = {name: "demo", path:, sha256: Digest::SHA256.file(path).hexdigest}
         archives = [archive]
-        manifest = Preflight.write_manifest!(package_dir:, archives:)
+        manifest = Manifest.write!(package_dir:, archives:)
         line = File.read(manifest)
 
         File.write(File.join(package_dir, "extra-1.2.3.gem"), "extra")
-        assert_raises(Preflight::Error) { Preflight.assert_checksums!(package_dir:, archives:) }
+        assert_raises(Preflight::Error) { Manifest.assert!(package_dir:, archives:) }
         FileUtils.rm(File.join(package_dir, "extra-1.2.3.gem"))
 
         File.write(manifest, line + line)
-        assert_raises(Preflight::Error) { Preflight.assert_checksums!(package_dir:, archives:) }
+        assert_raises(Preflight::Error) { Manifest.assert!(package_dir:, archives:) }
 
         File.write(manifest, line.sub(/\A[0-9a-f]{64}/, "0" * 64))
-        assert_raises(Preflight::Error) { Preflight.assert_checksums!(package_dir:, archives:) }
+        assert_raises(Preflight::Error) { Manifest.assert!(package_dir:, archives:) }
 
         FileUtils.rm(manifest)
-        assert_raises(Preflight::Error) { Preflight.assert_checksums!(package_dir:, archives:) }
+        assert_raises(Preflight::Error) { Manifest.assert!(package_dir:, archives:) }
+      end
+    end
+
+    def test_manifest_rejects_malformed_empty_and_duplicates
+      Dir.mktmpdir do |package_dir|
+        path = File.join(package_dir, "demo-1.2.3.gem")
+        File.write(path, "demo")
+        archive = {name: "demo", path:, sha256: Digest::SHA256.file(path).hexdigest}
+        manifest = File.join(package_dir, "SHA256SUMS")
+
+        ["", "not a manifest\n"].each do |content|
+          File.write(manifest, content)
+          assert_raises(Preflight::Error) do
+            Manifest.assert!(package_dir:, archives: [archive], path: manifest)
+          end
+        end
+
+        assert_raises(Preflight::Error) do
+          Manifest.write!(package_dir:, archives: [archive, archive], path: manifest)
+        end
+      end
+    end
+
+    def test_guard_rejects_unsupported_ref
+      with_release_fixture do |root|
+        error = assert_raises(Preflight::Error) do
+          Preflight.guard!(root:, ref: "refs/heads/review")
+        end
+
+        assert_match(/unsupported release ref/, error.message)
       end
     end
 
     def test_guard_rejects_missing_and_mismatched_versions
       with_release_fixture do |root|
-        FileUtils.rm(File.join(root, "demo/lib/sevgi/version.rb"))
+        File.write(File.join(root, "demo/lib/sevgi/version.rb"), "# missing constant\n")
         error = assert_raises(Preflight::Error) { Preflight.guard!(root:, ref: "refs/heads/main") }
         assert_match(/missing version constants/, error.message)
 
@@ -146,6 +177,104 @@ module Sevgi
         end
 
         assert_match(/demo-1\.2\.3\.gem/, error.message)
+      end
+    end
+
+    def test_archive_rejects_malformed_container
+      with_release_fixture do |root|
+        package_dir = File.join(root, "pkg")
+        FileUtils.mkdir_p(package_dir)
+        File.binwrite(File.join(package_dir, "demo-1.2.3.gem"), "x" * 512)
+
+        error = assert_raises(Preflight::Error) do
+          Preflight.validate_archives!(root:, package_dir:, version: "1.2.3")
+        end
+
+        assert_match(/malformed package container/, error.message)
+      end
+    end
+
+    def test_archive_rejects_missing_gemspecs
+      Dir.mktmpdir do |root|
+        error = assert_raises(Preflight::Error) do
+          Preflight.validate_archives!(root:, package_dir: File.join(root, "pkg"), version: "1.2.3")
+        end
+
+        assert_match(/no gemspecs found/, error.message)
+      end
+    end
+
+    def test_archive_rejects_empty_payload
+      with_release_fixture do |root|
+        write_project_gemspec(root, [])
+        write_release_package(root, declared: [], entries: {})
+
+        error = assert_raises(Preflight::Error) do
+          Preflight.validate_archives!(root:, package_dir: File.join(root, "pkg"), version: "1.2.3")
+        end
+
+        assert_match(/empty package/, error.message)
+      end
+    end
+
+    def test_archive_rejects_wrong_name_and_version
+      cases = [
+        [{name: "other"}, /malformed package name/],
+        [{version: "9.9.9"}, /malformed package version/]
+      ]
+
+      cases.each do |attributes, message|
+        with_release_fixture do |root|
+          metadata = gzip(release_spec(PAYLOAD.keys, **attributes).to_yaml)
+          write_release_package(
+            root,
+            declared: PAYLOAD.keys,
+            entries: PAYLOAD,
+            members: {"metadata.gz" => metadata}
+          )
+
+          error = assert_raises(Preflight::Error) do
+            Preflight.validate_archives!(root:, package_dir: File.join(root, "pkg"), version: "1.2.3")
+          end
+
+          assert_match(message, error.message)
+        end
+      end
+    end
+
+    def test_archive_accepts_plain_metadata
+      with_release_fixture do |root|
+        metadata = release_spec(PAYLOAD.keys).to_yaml
+        write_release_package(root, declared: PAYLOAD.keys, entries: PAYLOAD, members: {"metadata" => metadata})
+
+        archives = Preflight.validate_archives!(root:, package_dir: File.join(root, "pkg"), version: "1.2.3")
+
+        assert_equal(["demo"], archives.map { it.fetch(:name) })
+      end
+    end
+
+    def test_archive_rejects_invalid_metadata
+      with_release_fixture do |root|
+        write_release_package(root, declared: PAYLOAD.keys, entries: PAYLOAD, members: {"metadata" => "--- text\n"})
+
+        error = assert_raises(Preflight::Error) do
+          Preflight.validate_archives!(root:, package_dir: File.join(root, "pkg"), version: "1.2.3")
+        end
+
+        assert_match(/YAML data doesn't evaluate to gem specification/, error.message)
+      end
+    end
+
+    def test_archive_rejects_oversized_metadata
+      with_release_fixture do |root|
+        content = gzip("x" * ((10 * 1024 * 1024) + 1))
+        write_release_package(root, declared: PAYLOAD.keys, entries: PAYLOAD, members: {"metadata.gz" => content})
+
+        error = assert_raises(Preflight::Error) do
+          Preflight.validate_archives!(root:, package_dir: File.join(root, "pkg"), version: "1.2.3")
+        end
+
+        assert_match(/package member exceeds/, error.message)
       end
     end
 
@@ -377,6 +506,44 @@ module Sevgi
       assert_match(/cannot query RubyGems/, error.message)
     end
 
+    def test_preflight_accepts_unpublished_archives
+      with_release_fixture do |root|
+        package_dir = File.join(root, "pkg")
+        write_release_package(root, declared: PAYLOAD.keys, entries: PAYLOAD)
+        queried = []
+
+        result = Preflight.preflight!(
+          root:,
+          ref: "refs/heads/main",
+          package_dir:,
+          remote_runner: -> (name) {
+            queried << name
+            ["#{name} (1.2.2)", "", status(true)]
+          }
+        )
+
+        assert_equal("1.2.3", result.fetch(:version))
+        assert_equal(["demo"], queried)
+      end
+    end
+
+    def test_remote_query_uses_exact_all_versions
+      args = nil
+      result = ["demo (1.2.3)", "", status(true)]
+
+      Open3.stub(
+        :capture3,
+        -> (*command) {
+          args = command
+          result
+        }
+      ) do
+        assert_same(result, Preflight.remote_query("demo"))
+      end
+
+      assert_equal(%w[gem list --remote --exact --all demo], args)
+    end
+
     def test_workflow_uses_tracked_guard_and_pinned_actions
       ship = File.read(File.expand_path("../../.github/workflows/ship.yml", __dir__))
 
@@ -410,17 +577,23 @@ module Sevgi
       io.string
     end
 
-    def release_spec(files)
+    def release_spec(files, name: "demo", version: "1.2.3")
       Gem::Specification.new do |spec|
-        spec.name = "demo"
-        spec.version = "1.2.3"
+        spec.name = name
+        spec.version = version
         spec.summary = "demo"
         spec.authors = ["Test"]
         spec.files = files
       end
     end
 
-    def write_release_package(root, declared:, entries:, members: {}, directories: [])
+    def write_release_package(
+      root,
+      declared:,
+      entries:,
+      members: {},
+      directories: []
+    )
       package_dir = File.join(root, "pkg")
       path = File.join(package_dir, "demo-1.2.3.gem")
       metadata = gzip(release_spec(declared).to_yaml)

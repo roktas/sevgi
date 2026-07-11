@@ -15,7 +15,7 @@ components = %w[
   sundries
   toplevel
 ].freeze
-tracked_glob = File.join(root, "{#{components.join(",")}}/lib/**/*.rb")
+tracked_glob = File.join(root, "{Rakefile,{#{components.join(",")}}/lib/**/*.rb}")
 tracked_files = Dir[tracked_glob].map { |file| File.expand_path(file) }.sort
 
 SimpleCov.root(root)
@@ -36,6 +36,7 @@ SimpleCov.start do
 
   add_filter("/test/")
 
+  add_group("Build", File.join(root, "Rakefile"))
   add_group("Derender", File.join(root, "derender/lib"))
   add_group("Function", File.join(root, "function/lib"))
   add_group("Geometry", File.join(root, "geometry/lib"))
