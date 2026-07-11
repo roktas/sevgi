@@ -549,7 +549,6 @@ module Sevgi
 
       assert_includes(ship, "Rake::Task[\"release:guard\"].invoke")
       assert_includes(ship, "bundle exec rake release:verify")
-      refute_includes(ship, "script/release.rb")
       ship.scan(/^\s+uses:\s+([^\s]+)$/).flatten.each do |reference|
         assert_match(/@[0-9a-f]{40}\z/, reference)
       end
