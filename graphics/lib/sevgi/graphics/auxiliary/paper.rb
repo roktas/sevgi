@@ -28,8 +28,8 @@ module Sevgi
         super(
           width: self.class.send(:dimension!, :width, width),
           height: self.class.send(:dimension!, :height, height),
-          unit: self.class.send(:symbol!, :unit, unit),
-          name: self.class.send(:symbol!, :name, name)
+          unit: self.class.send(:normalize!, :unit, unit),
+          name: self.class.send(:normalize!, :name, name)
         )
       end
 
@@ -67,8 +67,8 @@ module Sevgi
       # @param name [Object] profile name
       # @return [Boolean]
       def self.exist?(name)
-        name = symbol(name)
-        name ? @mutex.synchronize { profiles.key?(name) } : false
+        name = normalize(name)
+        name ? @mutex.synchronize { @profiles.key?(name) } : false
       end
 
       # Defines a named paper profile after complete validation. Registration is process-global and thread-atomic.
@@ -85,37 +85,35 @@ module Sevgi
       # @raise [Sevgi::ArgumentError] when the name, dimensions, unit, overwrite flag, or options are reserved or invalid,
       #   or a non-bang definition conflicts with the registered profile
       def self.define(name, overwrite: true, **spec)
-        name = symbol!(:name, name)
+        name = normalize!(:name, name)
         ArgumentError.("Paper name is reserved: #{name}") if reserved?(name)
         overwrite = overwrite!(overwrite)
         profile = new(name:, **spec)
 
-        store(name, profile, overwrite:)
+        register(name, profile, overwrite:)
       end
 
-      def self.accessor(name)
+      def self.install(name)
         return if @accessors.key?(name)
 
-        define_singleton_method(name) { @mutex.synchronize { profiles.fetch(name) } }
+        define_singleton_method(name) { @mutex.synchronize { @profiles.fetch(name) } }
         @accessors[name] = true
       end
 
-      def self.store(name, profile, overwrite:)
+      def self.register(name, profile, overwrite:)
         @mutex.synchronize do
-          if !overwrite && (current = profiles[name])
+          if !overwrite && (current = @profiles[name])
             ArgumentError.("Paper already defined differently: #{name}") unless current == profile
 
             next current
           end
 
-          accessor(name)
-          profiles[name] = profile
+          install(name)
+          @profiles[name] = profile
         end
       end
 
       def self.reserved?(name) = @reserved.include?(name)
-
-      def self.profiles = @profiles
 
       def self.dimension!(field, value)
         Scalar.finite(value, context: "paper", field:, positive: true)
@@ -133,41 +131,40 @@ module Sevgi
         ArgumentError.("Paper overwrite must be true or false")
       end
 
-      def self.symbol(value)
+      def self.normalize(value)
         normalized = value.to_sym if value.respond_to?(:to_sym)
         normalized if normalized.is_a?(::Symbol)
       rescue ::StandardError
         nil
       end
 
-      def self.symbol!(field, value)
-        symbol(value) || ArgumentError.("Invalid paper #{field}")
+      def self.normalize!(field, value)
+        normalize(value) || ArgumentError.("Invalid paper #{field}")
       end
 
       @reserved = methods.map(&:to_sym).freeze
 
       private_class_method(
-        :accessor,
         :dimension!,
+        :install,
+        :normalize,
+        :normalize!,
         :options!,
         :overwrite!,
-        :profiles,
-        :reserved?,
-        :store,
-        :symbol,
-        :symbol!
+        :register,
+        :reserved?
       )
 
-      Papers.each { |name, (width, height, unit)| define(name, width:, height:, unit:) }
+      PAPER_SIZES.each { |name, (width, height, unit)| define(name, width:, height:, unit:) }
 
       # Returns the default paper profile.
       # @return [Sevgi::Graphics::Paper]
       def self.default
-        @mutex.synchronize { profiles.fetch(:default) }
+        @mutex.synchronize { @profiles.fetch(:default) }
       end
 
       @accessors[:default] = true
-      profiles[:default] = profiles.fetch(:a4)
+      @profiles[:default] = @profiles.fetch(:a4)
     end
   end
 end

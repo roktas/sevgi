@@ -138,7 +138,6 @@ module Sevgi
         # @param tag [Symbol] SVG element name
         # @return [Sevgi::Graphics::Element]
         def call(element, method, tag, *, &)
-          # Low-hanging fruit optimization: define missing method to avoid dispatching cost
           unless Element.method_defined?(method)
             Element.class_exec do
               define_method(method) { |*args, &block| self.class.element(tag, *args, parent: self, &block) }

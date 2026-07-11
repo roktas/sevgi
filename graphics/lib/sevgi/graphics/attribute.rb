@@ -56,10 +56,10 @@ module Sevgi
       # @api private
       module Snapshot
         class << self
-          def capture(value, normalize: false, seen: {}.compare_by_identity)
+          def capture(value, normalize_keys: false, seen: {}.compare_by_identity)
             case value
             when ::Hash
-              nested(value, seen) { capture_hash(value, normalize:, seen:) }
+              nested(value, seen) { capture_hash(value, normalize_keys:, seen:) }
             when ::Array
               nested(value, seen) { value.map { capture(it, seen:) } }
             else
@@ -69,11 +69,11 @@ module Sevgi
 
           private
 
-          def capture_hash(value, normalize:, seen:)
+          def capture_hash(value, normalize_keys:, seen:)
             identities = {}
             value.each_with_object({}) do |(key, item), captured|
-              key = normalize ? symbol(key) : capture(key, seen:)
-              identity = normalize ? key : XML.snapshot(key, context: "XML attribute value")
+              key = normalize_keys ? normalize_key(key) : capture(key, seen:)
+              identity = normalize_keys ? key : XML.snapshot(key, context: "XML attribute value")
               if captured.key?(key) || identities.key?(identity)
                 ArgumentError.("Attribute keys collide after normalization or stringification")
               end
@@ -102,7 +102,7 @@ module Sevgi
             seen.delete(value)
           end
 
-          def symbol(key)
+          def normalize_key(key)
             normalized = key.to_sym if key.respond_to?(:to_sym)
             return normalized if normalized.is_a?(::Symbol)
 
@@ -119,11 +119,11 @@ module Sevgi
 
       # Captures a caller-independent attribute value.
       # @param value [Object] value to capture
-      # @param normalize [Boolean] normalize direct Hash keys to Symbols
+      # @param normalize_keys [Boolean] normalize direct Hash keys to Symbols
       # @return [Object] owned mutable snapshot
       # @raise [Sevgi::ArgumentError] when value is invalid, cyclic, collides, or cannot be converted
       # @api private
-      def self.capture(value, normalize: false) = Snapshot.capture(value, normalize:)
+      def self.capture(value, normalize_keys: false) = Snapshot.capture(value, normalize_keys:)
 
       # Returns the text form used for an XML attribute value before escaping.
       # @param value [Object] attribute value
@@ -172,7 +172,7 @@ module Sevgi
             id = Attribute.id(key)
             ArgumentError.("Attribute names collide after normalization: #{id}") if captured.key?(id)
 
-            captured[id] = Attribute.capture(value, normalize: value.is_a?(::Hash))
+            captured[id] = Attribute.capture(value, normalize_keys: value.is_a?(::Hash))
           end
 
           @store.merge!(hash)
@@ -198,7 +198,7 @@ module Sevgi
           return if value.nil?
 
           id = Attribute.id(key)
-          value = Attribute.capture(value, normalize: value.is_a?(::Hash))
+          value = Attribute.capture(value, normalize_keys: value.is_a?(::Hash))
           @store[id] = @store.key?(id) && Attribute.updateable?(key) ? update(id, value) : value
         end
 

@@ -9,8 +9,8 @@ module Sevgi
       # Immutable payload capture and caller-owned copy helpers.
       # @api private
       module Snapshot
-        VALUES = [::NilClass, ::TrueClass, ::FalseClass, ::Symbol, ::Integer, ::Float, ::Rational, ::Complex].freeze
-        private_constant :VALUES
+        SCALARS = [::NilClass, ::TrueClass, ::FalseClass, ::Symbol, ::Integer, ::Float, ::Rational, ::Complex].freeze
+        private_constant :SCALARS
 
         class << self
           def capture(value, seen = {}.compare_by_identity)
@@ -22,7 +22,7 @@ module Sevgi
             when ::Array
               capture_nested(value, seen) { value.map { capture(it, seen) } }.freeze
             else
-              VALUES.include?(value.class) ? value : stringify(value).freeze
+              SCALARS.include?(value.class) ? value : stringify(value).freeze
             end
           end
 

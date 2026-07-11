@@ -2,9 +2,9 @@
 
 module Sevgi
   module Graphics
-    # Built-in paper profile dimensions and units.
+    # Built-in paper dimensions and units.
     # @api private
-    Papers = {
+    PAPER_SIZES = {
       a0: [841, 1189, "mm"],
       a1: [594, 841, "mm"],
       a2: [420, 594, "mm"],
@@ -57,6 +57,6 @@ module Sevgi
       icon512: [512, 512, "px"]
     }.transform_values(&:freeze).freeze
 
-    private_constant :Papers
+    private_constant :PAPER_SIZES
   end
 end
