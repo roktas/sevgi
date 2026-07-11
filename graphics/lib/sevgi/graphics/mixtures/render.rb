@@ -10,6 +10,7 @@ module Sevgi
         class Renderer
           # Default renderer options.
           DEFAULTS = {indent: "  ", linelength: 140, style: :hybrid}.freeze
+          SVG_NAMESPACE = "http://www.w3.org/2000/svg"
 
           # Attribute rendering strategies.
           # @api private
@@ -77,7 +78,7 @@ module Sevgi
           ELEMENTS_WITH_BLOCK_CONTENT = %i[style].freeze
           SEPARATOR = "\n"
 
-          private_constant :ELEMENTS_WITH_INLINE_CONTENT, :ELEMENTS_WITH_BLOCK_CONTENT, :SEPARATOR
+          private_constant :ELEMENTS_WITH_INLINE_CONTENT, :ELEMENTS_WITH_BLOCK_CONTENT, :SEPARATOR, :SVG_NAMESPACE
 
           # @return [Sevgi::Graphics::Element] root element
           attr_reader :root
@@ -254,9 +255,28 @@ module Sevgi
             element.children.empty? && element.contents.empty?
           end
 
+          def block_content?(element)
+            return false unless ELEMENTS_WITH_BLOCK_CONTENT.include?(element.name)
+
+            namespace = default_namespace(element)
+            namespace.nil? || namespace.to_s.empty? || namespace == SVG_NAMESPACE
+          end
+
           def closed = @closed = true
 
           def closed? = @closed.tap { unclosed }
+
+          def default_namespace(element)
+            current = element
+
+            while current.is_a?(Element)
+              return current.attributes[:xmlns] if current.attributes.has?(:xmlns)
+
+              current = current.parent
+            end
+
+            nil
+          end
 
           def contents(element, depth)
             return if element.contents.empty?
@@ -272,7 +292,7 @@ module Sevgi
           def floating?(element) = element.Is?(:_)
 
           def inline_content?(element)
-            return false if ELEMENTS_WITH_BLOCK_CONTENT.include?(element.name)
+            return false if block_content?(element)
             return false if floating?(element)
 
             element.contents.any? || ELEMENTS_WITH_INLINE_CONTENT.include?(element.name)
@@ -315,7 +335,8 @@ module Sevgi
         #   Renders this element as SVG source.
         #   Elements with inline text content may also contain inline children such as `tspan`; the renderer keeps those
         #   descendants in the same text line. Whitespace inside content objects is preserved as given, and encoded
-        #   content is XML-escaped unless a verbatim content object is used.
+        #   content is XML-escaped unless a verbatim content object is used. SVG `style` elements use block content;
+        #   same-named elements under a foreign default namespace retain ordinary inline text formatting.
         #   @param options [Hash] renderer options
         #   @return [String] SVG source
         #   @raise [Sevgi::ArgumentError] when style is missing or unsupported

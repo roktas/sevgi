@@ -90,6 +90,26 @@ module Sevgi
           assert_equal(expected, actual)
         end
 
+        def test_render_foreign_style_preserves_inline_text
+          expected = <<~SVG
+            <svg>
+              <group xmlns="urn:foreign">
+                <style xml:space="preserve">  raw style  </style>
+              </group>
+            </svg>
+          SVG
+            .chomp
+
+          actual = SVG(DOC) do
+            Element(:group, xmlns: "urn:foreign") do
+              style("  raw style  ", "xml:space": "preserve")
+            end
+          end
+            .Render()
+
+          assert_render(expected, actual)
+        end
+
         def test_render_inline_content_element_encodes_plain_string
           expected = <<~SVG
             <svg>

@@ -2,6 +2,23 @@
 
 module Sevgi
   module Derender
+    # Namespace domain classifier for derender strategies.
+    # @api private
+    module Domain
+      SVG = "http://www.w3.org/2000/svg"
+      private_constant :SVG
+
+      def self.foreign?(node) = node.namespace && node.namespace.href != SVG
+
+      def self.svg?(node, name)
+        namespace = node.namespace
+
+        node.name == name && (namespace.nil? || (namespace.prefix.nil? && namespace.href == SVG))
+      end
+    end
+
+    private_constant :Domain
+
     # Node in a derender tree produced from an SVG/XML node.
     class Node
       # @!attribute [r] node
@@ -17,11 +34,13 @@ module Sevgi
       # @param pres [Array<String>] preamble XML lines carried by the root node
       # @param namespaces [Hash{String => String}, nil] namespace declarations to emit on this node; selected roots use
       #   their full inherited namespace scope, while ordinary children use only declarations from their own element
+      # @param top [Boolean] true when this node is the root of the current conversion
       # @return [void]
-      def initialize(node, pres = [], namespaces: nil)
+      def initialize(node, pres = [], namespaces: nil, top: true)
         @node = node
         @pres = pres
         @namespaces = namespaces
+        @top = top
         @type = dispatch
       end
 
@@ -53,7 +72,7 @@ module Sevgi
       def children
         @children ||= node
           .children
-          .map { |child| self.class.new(child) }
+          .map { |child| self.class.new(child, top: false) }
           .reject { |child| ignorable_child?(child) }
       end
 
@@ -68,6 +87,7 @@ module Sevgi
       # Converts this node into formatted Sevgi DSL Ruby source.
       # @return [String] formatted Sevgi DSL source
       # @raise [Sevgi::PanicError] when generated Ruby source cannot be formatted
+      # @note Foreign namespace elements use the explicit `Element` DSL path, and nested `svg` nodes remain elements.
       # @note Unsafe bare Ruby names are emitted through the explicit `Element` DSL word.
       def derender = Ruby.format(decompile(pres).join("\n"))
 
@@ -80,6 +100,7 @@ module Sevgi
       # @param include_current [Boolean] true to evaluate this node, false to evaluate only children
       # @return [Sevgi::Graphics::Element, Array<Sevgi::Graphics::Element>, nil] included current element, included child
       #   elements when include_current is false, or nil when the node does not produce graphics output
+      # @note Namespace declarations, qualified attributes, significant text, and nested `svg` nodes are preserved.
       def evaluate(element, include_current = true)
         return Evaluator.new(element).append(self) if include_current
 
@@ -123,9 +144,9 @@ module Sevgi
           :Text
         when node.comment?
           :Junk
-        when node.name == "style"
+        when Domain.svg?(node, "style")
           :CSS
-        when node.name == "svg"
+        when @top && Domain.svg?(node, "svg")
           :Root
         else
           :Any

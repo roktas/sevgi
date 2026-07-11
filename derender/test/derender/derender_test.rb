@@ -376,6 +376,33 @@ module Sevgi
         assert_equal(expected, actual)
       end
 
+      def test_namespace_dispatch_round_trips_foreign_nodes
+        xml = <<~SVG
+          <svg xmlns="http://www.w3.org/2000/svg" xmlns:f="urn:foreign" xmlns:q="urn:qualified">
+            <f:style xmlns:m="urn:meta" q:kind="style" m:local="yes" xml:space="preserve">  raw style  </f:style>
+            <f:svg q:kind="svg">
+              <f:item/>
+            </f:svg>
+            <group xmlns="urn:foreign">
+              <style xml:space="preserve">  default style  </style>
+              <svg q:kind="nested">
+                <item/>
+              </svg>
+            </group>
+            <svg id="nested-svg">
+              <circle/>
+            </svg>
+          </svg>
+        SVG
+          .chomp
+
+        generated = instance_eval(Derender.derender(xml), "generated.sevgi").Render()
+        evaluated = Derender.evaluate(xml, SVG(:minimal)).Render()
+
+        assert_xml_tree_equal(xml, generated)
+        assert_xml_tree_equal(xml, evaluated)
+      end
+
       def test_derender_child_node_preserves_local_namespace
         svg = <<~SVG
           <svg>
@@ -400,6 +427,37 @@ module Sevgi
       end
 
       private
+
+      def assert_xml_tree_equal(expected, actual)
+        expected = Nokogiri::XML(expected, &:strict).root
+        actual = Nokogiri::XML(actual, &:strict).root
+
+        assert_equal(xml_signature(expected), xml_signature(actual))
+      end
+
+      def xml_signature(node)
+        [xml_name(node), xml_declarations(node), xml_attributes(node), xml_children(node)]
+      end
+
+      def xml_attributes(node)
+        node
+          .attribute_nodes
+          .map { [[it.namespace&.prefix, it.namespace&.href, it.name], it.value] }
+          .sort_by { it.flatten.map(&:to_s) }
+      end
+
+      def xml_child(node)
+        return xml_signature(node) if node.element?
+        [:text, node.text] if (node.text? || node.cdata?) && !node.text.strip.empty?
+      end
+
+      def xml_children(node) = node.children.filter_map { xml_child(it) }
+
+      def xml_declarations(node)
+        node.namespace_definitions.map { [it.prefix, it.href] }.sort_by { it.map(&:to_s) }
+      end
+
+      def xml_name(node) = [node.namespace&.prefix, node.namespace&.href, node.name]
 
       def collision_source(name, text)
         <<~SVG

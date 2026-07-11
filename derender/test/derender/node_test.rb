@@ -5,6 +5,37 @@ require_relative "../test_helper"
 module Sevgi
   module Derender
     class NodeTest < Minitest::Test
+      def test_dispatch_respects_namespace_and_conversion_root
+        cases = {
+          "<style>.a { fill: red; }</style>" => :CSS,
+          "<style xmlns=\"http://www.w3.org/2000/svg\">.a { fill: red; }</style>" => :CSS,
+          "<s:style xmlns:s=\"http://www.w3.org/2000/svg\"/>" => :Any,
+          "<f:style xmlns:f=\"urn:foreign\"/>" => :Any,
+          "<style xmlns=\"urn:foreign\"/>" => :Any,
+          "<svg/>" => :Root,
+          "<svg xmlns=\"http://www.w3.org/2000/svg\"/>" => :Root,
+          "<s:svg xmlns:s=\"http://www.w3.org/2000/svg\"/>" => :Any,
+          "<f:svg xmlns:f=\"urn:foreign\"/>" => :Any,
+          "<svg xmlns=\"urn:foreign\"/>" => :Any
+        }
+
+        cases.each do |xml, type|
+          assert_equal(type, Derender::Document.new(xml).decompile.type, xml)
+        end
+
+        xml = "<svg xmlns=\"http://www.w3.org/2000/svg\"><svg id=\"nested\"/></svg>"
+        root = Derender::Document.new(xml).decompile
+
+        assert_equal(:Any, root.children.first.type)
+        assert_equal(:Root, Derender::Document.new(xml).decompile("nested").type)
+
+        foreign_style = Derender::Document.new("<style xmlns=\"urn:foreign\">raw</style>").decompile.derender
+        foreign_svg = Derender::Document.new("<svg xmlns=\"urn:foreign\"/>").decompile.derender
+
+        assert_match(/\AElement\(:"style",/, foreign_style)
+        assert_match(/\AElement\(:"svg",/, foreign_svg)
+      end
+
       def test_attributes_keep_regular_and_custom_keys
         svg = <<~SVG
           <g id="xxx" _:foo="fff" _:bar="bbb">

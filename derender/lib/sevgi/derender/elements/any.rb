@@ -24,10 +24,12 @@ module Sevgi
           args << Ruby.literal(content) if has_content
           args << Attributes.decompile(attributes) if has_attributes && attributes.any?
 
-          return explicit_leaf(args) unless root? || Ruby.bare_element?(element)
+          return explicit_leaf(args) unless bare?
 
           args.empty? ? element : "#{element} #{args.join(", ")}"
         end
+
+        def bare? = root? || (!Domain.foreign?(node) && Ruby.bare_element?(element))
 
         def explicit_leaf(args)
           call = "Element(:#{Ruby.literal(element)}"
