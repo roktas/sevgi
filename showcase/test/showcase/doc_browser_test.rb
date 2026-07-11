@@ -1,12 +1,9 @@
 # frozen_string_literal: true
 
 require "json"
-require "English"
-require "open3"
-require "socket"
-require "timeout"
 
 require_relative "../test_helper"
+require_relative "browser"
 
 module Sevgi
   module Showcase
@@ -17,31 +14,18 @@ module Sevgi
       def setup
         skip("set BROWSER=1 to run browser checks") unless ENV["BROWSER"] == "1"
 
-        @port = free_port
-        @session = "sevgi-browser-#{$PROCESS_ID}"
-        @server = Process.spawn(
-          "zola",
-          "serve",
-          "--port",
-          @port.to_s,
-          chdir: File.join(ROOT, "doc"),
-          out: File::NULL,
-          err: File::NULL
-        )
-        wait_for_server
-        cli("open", "http://127.0.0.1:#{@port}/showcase/")
-      rescue Errno::ENOENT => e
+        @browser = Browser.new(root: File.join(ROOT, "doc"))
+        @browser.start
+      rescue Browser::Unavailable => e
         skip("browser prerequisites unavailable: #{e.message}")
       end
 
       def teardown
-        cli("close") if @session
-        return unless @server
-
-        Process.kill("TERM", @server)
-        Process.wait(@server)
-      rescue Errno::ESRCH, Errno::ECHILD
-        nil
+        @browser&.stop
+      rescue Browser::Unavailable => e
+        skip("browser prerequisites unavailable: #{e.message}")
+      rescue Browser::Error => e
+        flunk(e.message)
       end
 
       def test_tabs_support_keyboard_navigation_and_reload
@@ -137,12 +121,11 @@ module Sevgi
       end
 
       def cli(*args)
-        stdout, stderr, status = Open3.capture3("playwright-cli", "-s=#{@session}", *args)
-        return stdout if status.success?
-
-        skip("browser prerequisites unavailable: #{stderr}") if stderr.match?(/browser|executable|playwright/i)
-
-        flunk("playwright-cli failed: #{stderr}\n#{stdout}")
+        @browser.command(*args)
+      rescue Browser::Unavailable => e
+        skip("browser prerequisites unavailable: #{e.message}")
+      rescue Browser::Error => e
+        flunk(e.message)
       end
 
       def eval_json(source)
@@ -151,23 +134,6 @@ module Sevgi
         JSON.parse(payload)
       end
 
-      def free_port
-        server = TCPServer.new("127.0.0.1", 0)
-        server.addr.fetch(1)
-      ensure
-        server&.close
-      end
-
-      def wait_for_server
-        Timeout.timeout(15) do
-          loop do
-            TCPSocket.new("127.0.0.1", @port).close
-            break
-          rescue Errno::ECONNREFUSED
-            sleep(0.1)
-          end
-        end
-      end
     end
   end
 end
