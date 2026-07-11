@@ -49,8 +49,6 @@ module Sevgi
   Undefined = Object
     .new
     .tap do |undefined|
-      const_set(:Self, -> { Undefined })
-
       # Returns the sentinel name.
       # @return [String]
       def undefined.to_s = "Undefined"
