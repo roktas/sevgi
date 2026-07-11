@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 
 module CheckerBoard
-  extend Sevgi::Graphics::Module
+  extend SVG::Module
 
   BOARD_MARGIN = 50
   CELL_SIZE = 100
@@ -27,48 +27,53 @@ module CheckerBoard
     ".dark.piece" => { fill: "#333" }
   }.freeze
 
-  def style(*) = css STYLE
+  call do # Draw the board.
+    css STYLE
 
-  def frame(*)
     square class: "board-frame", length: SIZE
     square class: "inner-frame", x: BOARD_MARGIN, y: BOARD_MARGIN,
            length: SIZE - (BOARD_MARGIN * 2)
-  end
 
-  def cells(*)
     8.times do |row|
       8.times do |col|
-        rect class: "#{(row + col).even? ? "dark" : "light"} cell",
-             x: (col * CELL_SIZE) + BOARD_MARGIN,
-             y: (row * CELL_SIZE) + BOARD_MARGIN,
-             width: CELL_SIZE,
-             height: CELL_SIZE
+        square class: "#{(row + col).even? ? "dark" : "light"} cell",
+               x: (col * CELL_SIZE) + BOARD_MARGIN,
+               y: (row * CELL_SIZE) + BOARD_MARGIN,
+               length: CELL_SIZE
       end
     end
   end
 
-  def pieces(set)
+  def pieces(placement)
     center = BOARD_MARGIN + (CELL_SIZE / 2)
 
-    set.each do |tone, positions|
-      positions.each do |row, col|
-        circle class: "#{tone} piece",
-               cx: (col * CELL_SIZE) + center,
-               cy: (row * CELL_SIZE) + center,
-               r: PIECE_SIZE / 2
+    placement.each do |tone, rows|
+      rows.each do |row, cols|
+        cols.each do |col|
+          circle class: "#{tone} piece",
+                 cx: (col * CELL_SIZE) + center,
+                 cy: (row * CELL_SIZE) + center,
+                 r: PIECE_SIZE / 2
+        end
       end
     end
   end
 end
 
-pieces = {
-  dark: [[0, 1], [0, 3], [0, 5], [0, 7], [1, 0], [1, 2], [1, 4], [1, 6]],
-  light: [[6, 1], [6, 3], [6, 5], [6, 7], [7, 0], [7, 2], [7, 4], [7, 6]]
+placement = {
+  dark: {
+    0 => [1, 3, 5, 7],
+    1 => [0, 2, 4, 6]
+  },
+  light: {
+    6 => [1, 3, 5, 7],
+    7 => [0, 2, 4, 6]
+  }
 }
 
 SVG :minimal,
     width: CheckerBoard::SIZE,
     height: CheckerBoard::SIZE,
     viewBox: "0 0 #{CheckerBoard::SIZE} #{CheckerBoard::SIZE}" do
-  Call CheckerBoard, pieces
+  Call CheckerBoard, placement
 end.Save
