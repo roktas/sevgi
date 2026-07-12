@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "singleton"
+require "sevgi/function"
 
 require_relative "executor/error"
 require_relative "executor/scope"

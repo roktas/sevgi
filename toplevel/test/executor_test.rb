@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "open3"
+require "rbconfig"
 require "tmpdir"
 
 require_relative "test_helper"
@@ -7,6 +9,17 @@ require_relative "test_helper"
 module Sevgi
   class ExecutorTest < Minitest::Test
     FIXTURES_DIR = ::File.expand_path("#{__dir__}/fixtures/executor")
+
+    def test_executor_entrypoint_loads_standalone
+      root = ::File.expand_path("../..", __dir__)
+      load_paths = %w[function toplevel].map { ::File.join(root, it, "lib") }
+      command = "require \"sevgi/executor\"; abort unless Sevgi::Executor.execute(\"1 + 1\").recent == 2"
+      args = [::RbConfig.ruby, "--disable-gems", *load_paths.flat_map { ["-I", it] }, "-e", command]
+
+      output, error, status = ::Open3.capture3(*args)
+
+      assert(status.success?, "stdout:\n#{output}\nstderr:\n#{error}")
+    end
 
     def test_load_raises_panic_error
       fixture = "#{FIXTURES_DIR}/test_load_shutdown.sevgi"
