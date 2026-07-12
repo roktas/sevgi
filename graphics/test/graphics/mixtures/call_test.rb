@@ -371,6 +371,82 @@ module Sevgi
           assert_equal(8.times.map { ["base", it.to_s] }, results)
         end
 
+        def test_dup_owns_callable_configuration
+          original = ::Module.new do
+            extend(Graphics::Module)
+
+            base { rect(id: "original-base") }
+
+            def call
+              rect(id: "original-call")
+            end
+          end
+
+          copy = original.dup
+
+          copy.base { rect(id: "copy-base") }
+          copy.module_eval do
+            def extra
+              rect(id: "copy-extra")
+            end
+          end
+
+          original_doc = SVG(:minimal)
+          copy_doc = SVG(:minimal)
+          original_doc.Call(original)
+          copy_doc.Call(copy)
+
+          assert_equal(%w[original-base original-call], original_doc.children.map { it[:id] })
+          assert_equal(
+            %w[original-base copy-base original-call copy-extra],
+            copy_doc.children.map { it[:id] }
+          )
+        end
+
+        def test_clone_owns_callable_configuration
+          original = ::Module.new do
+            extend(Graphics::Module)
+
+            base { rect(id: "original") }
+          end
+
+          copy = original.clone
+          copy.base { rect(id: "copy") }
+
+          original_doc = SVG(:minimal)
+          copy_doc = SVG(:minimal)
+          original_doc.Call(original)
+          copy_doc.Call(copy)
+
+          assert_equal(["original"], original_doc.children.map { it[:id] })
+          assert_equal(%w[original copy], copy_doc.children.map { it[:id] })
+        end
+
+        def test_freeze_closes_callable_configuration
+          original = ::Module.new do
+            extend(Graphics::Module)
+
+            base { rect(id: "original") }
+          end
+
+          original.freeze
+
+          assert_raises(FrozenError) { original.base { rect(id: "late") } }
+          assert_raises(FrozenError) { original.clone.base { rect(id: "late") } }
+
+          [original.dup, original.clone(freeze: false)].each do |copy|
+            copy.base { rect(id: "copy") }
+            doc = SVG(:minimal)
+            doc.Call(copy)
+
+            assert_equal(%w[original copy], doc.children.map { it[:id] })
+          end
+
+          doc = SVG(:minimal)
+          2.times { doc.Call(original) }
+          assert_equal(%w[original original], doc.children.map { it[:id] })
+        end
+
         def test_call_rejects_non_module_argument
           assert_raises(ArgumentError) { SVG(:minimal).Call(Object.new) }
         end

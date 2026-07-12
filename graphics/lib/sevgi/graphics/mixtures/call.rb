@@ -6,7 +6,9 @@ module Sevgi
     # Extend a plain Ruby module with this API to make its public instance methods callable drawing steps. Name the
     # method `call` when the module has a single drawing step; use descriptive method names when it has multiple steps.
     # Base blocks add argument-independent shared SVG content once per invocation before the public drawing methods.
-    # Invocation does not change the configured module, so it may be frozen after its drawing steps are defined.
+    # Invocation does not change the configured module, so it may be frozen after its drawing steps are defined. A
+    # duplicate or clone owns an independent configuration snapshot; freezing a callable module prevents later base
+    # registration while leaving invocation available.
     # @example Define and call a drawing module
     #   Widget = Module.new do
     #     extend Sevgi::Graphics::Module
@@ -74,9 +76,12 @@ module Sevgi
       # runs once in the current element context and does not receive the invocation arguments.
       # @yield evaluates the drawing DSL in the current element context
       # @yieldreturn [Object] ignored block result
-      # @return [void]
+      # @return [nil]
       # @raise [Sevgi::ArgumentError] when no block is given
+      # @raise [FrozenError] when the callable module is frozen
       def base(&block)
+        raise ::FrozenError, "can't modify frozen callable module" if frozen?
+
         ArgumentError.("Block required") unless block
 
         @sevgi_bases << block
@@ -156,6 +161,30 @@ module Sevgi
 
       private
 
+      # Gives a duplicated callable module independent configuration containers.
+      # @param original [Module] source callable module
+      # @return [void]
+      # @api private
+      def initialize_dup(original)
+        super
+        copy_configuration(original)
+      end
+
+      # Gives a cloned callable module independent configuration containers.
+      # @param original [Module] source callable module
+      # @param freeze [Boolean] whether Ruby preserves the source frozen state
+      # @return [void]
+      # @api private
+      def initialize_clone(original, freeze: true)
+        super
+        copy_configuration(original)
+      end
+
+      def copy_configuration(original)
+        @sevgi_bases = original.instance_variable_get(:@sevgi_bases).dup
+        @sevgi_callables = original.instance_variable_get(:@sevgi_callables).dup
+      end
+
       # Tracks newly defined methods as callable drawing candidates.
       # Invocation runs unique methods that are still public, preserving tracked definition order.
       # @param method [Symbol] method name Ruby reports as added
@@ -166,6 +195,7 @@ module Sevgi
         @sevgi_callables << method
       end
 
+      private :copy_configuration
       private_class_method :bases, :call, :callable_names, :callables, :context, :extended, :invoke
     end
 
