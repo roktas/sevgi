@@ -173,6 +173,33 @@ module Sevgi
         end
       end
 
+      def test_executable_accepts_dash_prefixed_file_after_separator
+        Dir.mktmpdir do |dir|
+          File.write(File.join(dir, "-drawing.sevgi"), "")
+
+          out, err, status = run_sevgi("--", "-drawing.sevgi", chdir: dir)
+
+          assert_predicate(status, :success?)
+          assert_empty(out)
+          assert_empty(err)
+        end
+      end
+
+      def test_executable_rejects_invalid_argv_grammar
+        [
+          [["-r"], /Option requires a library: -r/],
+          [["--require"], /Option requires a library: --require/],
+          [%w[first.sevgi second.sevgi], /Unexpected argument: second\.sevgi/]
+        ].each do |args, message|
+          out, err, status = run_sevgi(*args)
+
+          assert_equal(1, status.exitstatus)
+          assert_empty(out)
+          assert_match(message, err)
+          assert_match(/Usage: sevgi \[options\.\.\.\] \[--\] <Sevgi file>/, err)
+        end
+      end
+
       def test_executable_reports_missing_require_for_empty_script
         with_script("") do |file|
           out, err, status = run_sevgi("-r", "sevgi_missing_test_library", file)
@@ -217,16 +244,18 @@ module Sevgi
         refute_match(%r{toplevel/lib|bin/sevgi|Traceback}, err)
       end
 
-      def run_sevgi(*args, env: {})
+      def run_sevgi(*args, env: {}, chdir: nil)
         lib = ::File.expand_path("../../lib", __dir__)
         bin = ::File.expand_path("../../bin/sevgi", __dir__)
         rubylib = [lib, ENV.fetch("RUBYLIB", nil)].compact.join(::File::PATH_SEPARATOR)
+        options = chdir ? {chdir:} : {}
 
         ::Open3.capture3(
           {"RUBYLIB" => rubylib, "SEVGI_VOMIT" => nil}.merge(env),
           ::RbConfig.ruby,
           bin,
-          *args
+          *args,
+          **options
         )
       end
 

@@ -21,10 +21,18 @@ module Sevgi
         # Parses command-line options and removes them from the argv array.
         # @param argv [Array<String>] mutable command-line argument array
         # @return [Sevgi::Binaries::Sevgi::Options] parsed options
-        # @raise [Sevgi::Binaries::Sevgi::Error] when an option is not recognized
+        # @raise [Sevgi::Binaries::Sevgi::Error] when an option is not recognized or a required value is missing
         def self.parse(argv)
           new.tap do |options|
-            argv.first.start_with?("-") ? option(argv, options) : break until argv.empty?
+            until argv.empty?
+              break unless argv.first.start_with?("-")
+              if argv.first == "--"
+                argv.shift
+                break
+              end
+
+              option(argv, options)
+            end
           end
         end
 
@@ -34,7 +42,7 @@ module Sevgi
           def option(argv, options)
             case (arg = argv.shift)
             when "-r", "--require"
-              options.require = argv.shift
+              options.require = argv.shift || Error.("Option requires a library: #{arg}")
             when "-n", "--nomain"
               options.nomain = true
             when "-x", "--exception"
@@ -57,16 +65,16 @@ module Sevgi
       # @param argv [Array<String>, String, nil] command-line arguments
       # @return [nil]
       # @raise [Sevgi::Executor::Error] when `--exception` or `SEVGI_VOMIT` requests raw executor errors
-      # @raise [SystemExit] when command-line usage or script execution aborts
+      # @raise [SystemExit] when argv does not match `[options...] [--] <file>` or script execution aborts
       def call(argv)
         return puts(help) if (options = Options.parse(argv = Array(argv))).help
         return puts(::Sevgi::VERSION) if options.version
 
-        file = argv.shift
+        file = operand(argv)
         handle(run(file, options), file, options)
 
       rescue Binaries::Sevgi::Error => e
-        abort(e.message)
+        abort("#{e.message}\n\n#{help}")
       end
 
       private
@@ -89,7 +97,7 @@ module Sevgi
 
       def help
         <<~HELP
-          Usage: #{PROGNAME} [options...] <Sevgi file>
+          Usage: #{PROGNAME} [options...] [--] <Sevgi file>
 
           See documentation for detailed help.
 
@@ -98,15 +106,21 @@ module Sevgi
           -n, --nomain          Do not modify main object
           -r, --require LIB     Require Ruby LIB
           -x, --exception       Raise exception instead of abort
+          --                    Stop option parsing
 
           -h, --help            Show this help
           -v, --version         Display version
         HELP
       end
 
-      def run(file, options)
-        Error.("No sevgi file given.") unless file
+      def operand(argv)
+        file = argv.shift || Error.("No sevgi file given.")
+        Error.("Unexpected argument: #{argv.first}") unless argv.empty?
 
+        file
+      end
+
+      def run(file, options)
         ::Sevgi.execute_file(file, require: options.require, receiver: options.nomain ? nil : TOPLEVEL_BINDING.receiver)
       end
     end

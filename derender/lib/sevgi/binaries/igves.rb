@@ -23,7 +23,15 @@ module Sevgi
         # @raise [Sevgi::Binaries::Igves::Error] when an option is not recognized
         def self.parse(argv)
           new.tap do |options|
-            argv.first.start_with?("-") ? option(argv, options) : break until argv.empty?
+            until argv.empty?
+              break unless argv.first.start_with?("-")
+              if argv.first == "--"
+                argv.shift
+                break
+              end
+
+              option(argv, options)
+            end
           end
         end
 
@@ -53,11 +61,11 @@ module Sevgi
       # @raise [Sevgi::ArgumentError] when the SVG file cannot be found
       # @raise [Sevgi::PanicError] when generated Ruby source cannot be formatted
       # @raise [StandardError] when `--exception` or `SEVGI_VOMIT` requests raw errors
-      # @raise [SystemExit] when command-line usage aborts
+      # @raise [SystemExit] when argv does not match `[options...] [--] <file>` or command-line usage aborts
       def call(argv)
         dispatch(Array(argv))
       rescue Binaries::Igves::Error => e
-        abort(e.message)
+        abort("#{e.message}\n\n#{help}")
       end
 
       private
@@ -67,7 +75,7 @@ module Sevgi
         return puts(help) if options.help
         return puts(::Sevgi::VERSION) if options.version
 
-        print_file(argv.shift, options)
+        print_file(operand(argv), options)
       rescue Binaries::Igves::Error
         raise
       rescue ::StandardError => e
@@ -92,21 +100,27 @@ module Sevgi
 
       def help
         <<~HELP
-          Usage: #{PROGNAME} [options...] <SVG file>
+          Usage: #{PROGNAME} [options...] [--] <SVG file>
 
           See documentation for detailed help.
 
           Options:
 
           -x, --exception       Raise exception instead of abort
+          --                    Stop option parsing
           -h, --help            Show this help
           -v, --version         Display version
         HELP
       end
 
-      def run(file, _options)
-        Error.("No SVG file given.") unless file
+      def operand(argv)
+        file = argv.shift || Error.("No SVG file given.")
+        Error.("Unexpected argument: #{argv.first}") unless argv.empty?
 
+        file
+      end
+
+      def run(file, _options)
         Derender.derender_file(file)
       end
 
