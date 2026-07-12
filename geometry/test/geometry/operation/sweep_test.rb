@@ -131,6 +131,30 @@ module Sevgi
           end
         end
 
+        def test_sweep_rejects_invalid_progress_arguments
+          equation = Equation.horizontal(0)
+
+          [
+            /step/,
+            -> { Operation.sweep(rect345, initial: [0, 0], angle: 0, step: 0) },
+            /step/,
+            -> { Operation.unisweep(rect345, equation, Float::NAN) },
+            /step/,
+            -> { Operation.unisweep(rect345, equation, Float::INFINITY) },
+            /limit/,
+            -> { Operation.unisweep(rect345, equation, 1, limit: 0) },
+            /limit/,
+            -> { Operation.unisweep(rect345, equation, 1, limit: -1) },
+            /limit/,
+            -> { Operation.unisweep(rect345, equation, 1, limit: 1.0) }
+          ].each_slice(2) do |message, operation|
+            error = assert_raises(Error, &operation)
+
+            assert_instance_of(Error, error)
+            assert_match(message, error.message)
+          end
+        end
+
         def test_sweep_self_crossing_open_polyline_has_no_interiors
           polyline = Polyline.([0, 0], [2, 2], [0, 2], [2, 0])
 

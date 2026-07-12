@@ -43,7 +43,7 @@ module Sevgi
       #     # @yieldreturn [void]
       #     # @return [Array<Sevgi::Geometry::Line>] generated sweep lines
       #     # @raise [Sevgi::Geometry::Operation::OperationInapplicableError] when element is not sweepable
-      #     # @raise [Sevgi::Geometry::Error] when initial cannot be coerced
+      #     # @raise [Sevgi::Geometry::Error] when initial, step, or limit is invalid
       #     # @raise [Sevgi::Geometry::Operation::OperationError] when iteration reaches the limit
       #     def sweep(element, initial:, angle:, step:, limit: Sweep::LIMIT); end
       #
@@ -58,7 +58,7 @@ module Sevgi
       #     # @yieldreturn [void]
       #     # @return [Array<Sevgi::Geometry::Line>] generated sweep lines
       #     # @raise [Sevgi::Geometry::Operation::OperationInapplicableError] when element is not sweepable
-      #     # @raise [Sevgi::Geometry::Error] when initial cannot be coerced
+      #     # @raise [Sevgi::Geometry::Error] when initial, step, or limit is invalid
       #     # @raise [Sevgi::Geometry::Operation::OperationError] when no lines are found or iteration reaches the limit
       #     def sweep!(element, initial:, angle:, step:, limit: Sweep::LIMIT); end
       #
@@ -69,6 +69,7 @@ module Sevgi
       #     # @param limit [Integer] maximum iterations
       #     # @return [Array<Sevgi::Geometry::Line>] generated sweep lines
       #     # @raise [Sevgi::Geometry::Operation::OperationInapplicableError] when element is not sweepable
+      #     # @raise [Sevgi::Geometry::Error] when step or limit is invalid
       #     # @raise [Sevgi::Geometry::Operation::OperationError] when iteration reaches the limit
       #     def unisweep(element, equation, step, limit: Sweep::LIMIT); end
       #   end

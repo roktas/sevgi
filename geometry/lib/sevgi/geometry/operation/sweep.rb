@@ -23,9 +23,10 @@ module Sevgi
         # @yieldparam lines [Array<Sevgi::Geometry::Line>] generated sweep lines
         # @yieldreturn [void]
         # @return [Array<Sevgi::Geometry::Line>] generated sweep lines
-        # @raise [Sevgi::Geometry::Error] when initial cannot be coerced
+        # @raise [Sevgi::Geometry::Error] when initial, step, or limit is invalid
         # @raise [Sevgi::Geometry::Operation::OperationError] when iteration reaches the limit
         def sweep(element, initial:, angle:, step:, limit: LIMIT, &block)
+          step = validate_arguments(step, limit)
           equation = Tuple[Point, initial].equation(angle)
 
           [
@@ -49,7 +50,7 @@ module Sevgi
         # @yieldparam lines [Array<Sevgi::Geometry::Line>] generated sweep lines
         # @yieldreturn [void]
         # @return [Array<Sevgi::Geometry::Line>] generated sweep lines
-        # @raise [Sevgi::Geometry::Error] when initial cannot be coerced
+        # @raise [Sevgi::Geometry::Error] when initial, step, or limit is invalid
         # @raise [Sevgi::Geometry::Operation::OperationError] when no lines are found or iteration reaches the limit
         def sweep!(element, initial:, angle:, step:, limit: LIMIT, &block)
           sweep(element, initial:, angle:, step:, limit:) do |lines|
@@ -70,8 +71,10 @@ module Sevgi
         # @param step [Numeric] signed distance between sweep lines
         # @param limit [Integer] maximum iterations
         # @return [Array<Sevgi::Geometry::Line>] generated sweep lines
+        # @raise [Sevgi::Geometry::Error] when step or limit is invalid
         # @raise [Sevgi::Geometry::Operation::OperationError] when iteration reaches the limit
         def unisweep(element, equation, step, limit: LIMIT)
+          step = validate_arguments(step, limit)
           lines = []
 
           limit.times do
@@ -95,6 +98,16 @@ module Sevgi
         end
 
         private
+
+        def validate_arguments(step, limit)
+          step = Real[:step, step]
+          Error.("Sweep step must be nonzero") if step.zero?
+          unless limit.is_a?(::Integer) && limit.positive?
+            Error.("Sweep limit must be a positive Integer: #{limit.inspect}")
+          end
+
+          step
+        end
 
         def interior_lines(element, equation, points)
           return [] if element.class.respond_to?(:open?) && element.class.open?
