@@ -48,6 +48,12 @@ module Sevgi
         refute_includes(Element.constants(false), :Arced)
 
         %i[Open Close SHORTCUTS].each { refute_includes(Element::Lined.constants(false), it) }
+        %i[\[\] call from_points from_segments].each { refute_respond_to(Element::Lined, it) }
+
+        generated = Element.lined(2, open: true)
+        %i[\[\] call from_points from_segments].each { assert_respond_to(generated, it) }
+        %i[close? open? poly? size].each { refute_respond_to(generated, it) }
+
         [Line, Rect, Square, Triangle, Parallelogram, Polygon, Polyline].each do |shape|
           %i[build new_by_points new_by_points! new_by_segments].each { refute_respond_to(shape, it) }
           refute_includes(shape.public_instance_methods, :draw!)

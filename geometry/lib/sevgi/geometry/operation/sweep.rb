@@ -111,7 +111,7 @@ module Sevgi
         end
 
         def interior_lines(element, equation, points)
-          return [] if element.class.respond_to?(:open?) && element.class.open?
+          return [] unless element.class.send(:close?)
 
           if points.size == 2
             line = simple_line(points)

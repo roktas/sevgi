@@ -8,6 +8,28 @@ module Sevgi
     private_constant :PolylineBase
 
     # Variable-size open lined element with at least two points.
+    # @!method self.[](*segments, position: Origin)
+    #   Builds a polyline from ordered segments.
+    #   @param segments [Array<Sevgi::Geometry::Segment, Array<Numeric>>] ordered segments
+    #   @param position [Sevgi::Geometry::Point, Array<Numeric>] starting point
+    #   @return [Sevgi::Geometry::Polyline]
+    #   @raise [Sevgi::Geometry::Error] when inputs cannot be coerced or do not form a polyline
+    # @!method self.call(*points)
+    #   Builds a polyline from ordered points.
+    #   @param points [Array<Sevgi::Geometry::Point, Array<Numeric>>] ordered points
+    #   @return [Sevgi::Geometry::Polyline]
+    #   @raise [Sevgi::Geometry::Error] when inputs cannot be coerced or do not form a polyline
+    # @!method self.from_segments(*segments, position: Origin)
+    #   Builds a polyline from ordered segments.
+    #   @param segments [Array<Sevgi::Geometry::Segment, Array<Numeric>>] ordered segments
+    #   @param position [Sevgi::Geometry::Point, Array<Numeric>] starting point
+    #   @return [Sevgi::Geometry::Polyline]
+    #   @raise [Sevgi::Geometry::Error] when inputs cannot be coerced or do not form a polyline
+    # @!method self.from_points(*points)
+    #   Builds a polyline from ordered points.
+    #   @param points [Array<Sevgi::Geometry::Point, Array<Numeric>>] ordered points
+    #   @return [Sevgi::Geometry::Polyline]
+    #   @raise [Sevgi::Geometry::Error] when inputs cannot be coerced or do not form a polyline
     # @example Pair mathematical notation with English conveniences
     #   Polyline[[2, 0], [1, 90]] == Polyline.from_segments([2, 0], [1, 90])
     #   Polyline.([0, 0], [2, 0]) == Polyline.from_points([0, 0], [2, 0])

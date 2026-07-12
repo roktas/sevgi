@@ -121,17 +121,14 @@ module Sevgi
         # @return [Class] lined element subclass
         # @api private
         def self.build(size = Undefined, open: false)
-          Class.new(open ? Open : Close) do
-            define_singleton_method(:close?) { !open }
-
-            define_singleton_method(:open?) { open }
-
-            define_singleton_method(:poly?) { size == Undefined }
-
-            define_singleton_method(:size) { size }
-
-            Lined.send(:define_shortcuts, self, size, open:) unless size == Undefined
-          end
+          klass = Class.new(open ? Open : Close)
+          klass.define_singleton_method(:close?) { !open }
+          klass.define_singleton_method(:poly?) { size == Undefined }
+          klass.define_singleton_method(:size) { size }
+          define_shortcuts(klass, size, open:) unless size == Undefined
+          klass.public_class_method(:[], :call, :from_points, :from_segments)
+          klass.private_class_method(:close?, :poly?, :size)
+          klass
         end
 
         # @overload [](*segments, position: Origin)
@@ -140,13 +137,17 @@ module Sevgi
         #   @param position [Sevgi::Geometry::Point, Array<Numeric>] starting point
         #   @return [Sevgi::Geometry::Element::Lined]
         #   @raise [Sevgi::Geometry::Error] when segments or position cannot be coerced
+        # @api private
         def self.[](...) = new_by_segments(...)
+
+        private_class_method :[]
 
         # @overload call(*points)
         #   Builds an element from points.
         #   @param points [Array<Sevgi::Geometry::Point, Array<Numeric>>] boundary points
         #   @return [Sevgi::Geometry::Element::Lined]
         #   @raise [Sevgi::Geometry::Error] when points cannot be coerced
+        # @api private
         def self.call(...) = new_by_points(...)
 
         # @overload from_points(*points)
@@ -154,6 +155,7 @@ module Sevgi
         #   @param points [Array<Sevgi::Geometry::Point, Array<Numeric>>] boundary points
         #   @return [Sevgi::Geometry::Element::Lined]
         #   @raise [Sevgi::Geometry::Error] when points cannot be coerced
+        # @api private
         def self.from_points(...) = call(...)
 
         # @overload from_segments(*segments, position: Origin)
@@ -162,6 +164,7 @@ module Sevgi
         #   @param position [Sevgi::Geometry::Point, Array<Numeric>] starting point
         #   @return [Sevgi::Geometry::Element::Lined]
         #   @raise [Sevgi::Geometry::Error] when segments or position cannot be coerced
+        # @api private
         def self.from_segments(*segments, position: Origin) = self[*segments, position:]
 
         def self.affine(*points) = new_by_points!(*points)
@@ -200,7 +203,17 @@ module Sevgi
           end
         end
 
-        private_class_method :affine, :build, :new, :new_by_points, :new_by_points!, :new_by_segments
+        private_class_method(
+          :affine,
+          :build,
+          :call,
+          :from_points,
+          :from_segments,
+          :new,
+          :new_by_points,
+          :new_by_points!,
+          :new_by_segments
+        )
 
         def self.define_line_shortcuts(klass, point_names, open:)
           line_names = point_names.each_cons(2).map(&:join)
@@ -445,7 +458,7 @@ module Sevgi
         def inside?(point)
           point = Tuple[Point, point]
 
-          return on?(point) if self.class.open?
+          return on?(point) unless self.class.send(:close?)
 
           on?(point) || pnpoly(points, point)
         end
@@ -520,12 +533,14 @@ module Sevgi
         # rubocop:enable Metrics/MethodLength
 
         def sanitize
-          np = self.class.poly? ? points.size : self.class.size + 1
+          np = self.class.send(:poly?) ? points.size : self.class.send(:size) + 1
           ns = np - 1
 
           Error.("Wrong number of points;  expected #{np} where found #{points.size}") unless points.size == np
           Error.("Wrong number of segments; expected #{ns} where found #{segments.size}") unless segments.size == ns
-          Error.("Element points must form a closed path") if self.class.close? && !points.first.eq?(points.last)
+          return unless self.class.send(:close?) && !points.first.eq?(points.last)
+
+          Error.("Element points must form a closed path")
         end
 
         def validate_geometry! = nil

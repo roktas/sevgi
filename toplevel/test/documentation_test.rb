@@ -19,6 +19,9 @@ module Sevgi
       .freeze
     CONTRACT_TAGS = %w[param raise return yield yieldparam yieldreturn].freeze
     GENERIC_RETURNS = %w[Array Hash Object].freeze
+    CONSTANT_ALIAS_PREFIXES = %w[Sevgi::F:: Sevgi::SVG::].freeze
+    DATA_CLASS_METHODS = %i[\[\] inspect members new].freeze
+    DATA_INSTANCE_METHODS = %i[== deconstruct deconstruct_keys eql? hash inspect to_h with].freeze
     EXACT_CONTRACTS = {
       "#SVG" => [[%w[document canvas attributes], ["Sevgi::Graphics::Document::Proto"]]],
       "Sevgi::Toplevel#Paper" => [[%w[width height name unit], %w[Symbol String]]],
@@ -183,17 +186,19 @@ module Sevgi
       errors = registry
         .all
         .select { %i[class module].include?(it.type) && feature_loaded?(it.file) }
-        .filter_map do |object|
-          expected = effective_private?(object) ? :private : :public
-          actual = public_constant_path?(object.path) ? :public : :private
-          "#{object.path}: documented #{expected}, runtime #{actual}" unless expected == actual
-        end
+        .filter_map { constant_visibility_error(it) }
 
       assert_empty(errors, errors.join("\n"))
+
+      missing = runtime_constant_paths.reject { documented_constant?(it) }
+
+      assert_empty(missing, "Runtime constants missing from YARD:\n#{missing.join("\n")}")
     end
 
     def test_public_inventory_handles_method_shapes
       paths = intended_methods.map(&:path)
+      Graphics::Element.root { marker }
+      runtime = runtime_methods
 
       assert_operator(paths.size, :>, 500)
       %w[
@@ -205,6 +210,16 @@ module Sevgi
         Sevgi::Graphics::Margin#to_a
       ]
         .each { assert_includes(paths, it) }
+
+      %w[
+        Sevgi::Function.changed?
+        Sevgi::Geometry::Triangle.from_points
+        Sevgi::Geometry::Triangle#A
+        Sevgi::Graphics::Document::Minimal#Render
+        Sevgi::Graphics::Element#marker
+        Sevgi::Graphics::Paper.members
+      ]
+        .each { assert_includes(runtime, it) }
     end
 
     private
@@ -237,19 +252,73 @@ module Sevgi
 
     def contract_tags(source) = source.tags.select { CONTRACT_TAGS.include?(it.tag_name) }
 
-    def documented_runtime_method?(path)
-      return true if yard(path)
-      return true if paper_profile?(path)
-
-      dynamic_element_method?(path)
+    def constant_visibility_error(object)
+      expected = effective_private?(object) ? :private : :public
+      actual = public_constant_path?(object.path) ? :public : :private
+      "#{object.path}: documented #{expected}, runtime #{actual}" unless expected == actual
     end
 
-    def dynamic_element_method?(path)
-      prefix = "Sevgi::Graphics::Element#"
-      return false unless path.start_with?(prefix)
+    def documented_runtime_method?(path)
+      entry = runtime_entries.fetch(path)
+      public_yard_method?(yard(path)) || generated_runtime_method?(path, entry)
+    end
 
-      name = path.delete_prefix(prefix).to_sym
-      Graphics::Element.valid?(Graphics::Element.send(:id, name))
+    def data_class?(owner) = owner.is_a?(::Class) && owner < ::Data
+
+    def data_protocol_method?(entry)
+      return false unless data_class?(entry[:target])
+
+      methods = entry[:scope] == :class ? DATA_CLASS_METHODS : DATA_INSTANCE_METHODS
+      methods.include?(entry[:name])
+    end
+
+    def defining_yard_method?(entry)
+      defining_method_paths(entry).any? { public_yard_method?(yard(it)) }
+    end
+
+    def defining_method_paths(entry)
+      owner = entry[:method].owner
+      paths = owner_method_paths(owner, entry[:name])
+      separator = entry[:scope] == :class ? "." : "#"
+      paths.concat(
+        entry[:target].ancestors.filter_map do |ancestor|
+          "#{ancestor.name}#{separator}#{entry[:name]}" if ancestor.name
+        end
+      )
+    end
+
+    def generated_runtime_method?(path, entry)
+      paper_profile?(path) ||
+        data_protocol_method?(entry) ||
+        ruby_protocol_method?(entry) ||
+        defining_yard_method?(entry) ||
+        dynamic_element_method?(entry)
+    end
+
+    def owner_method_paths(owner, name)
+      return ["#{owner.name}##{name}", "#{owner.name}.#{name}"] if owner.name
+
+      target = runtime_modules.find { it.singleton_class.equal?(owner) }
+      target ? ["#{target.name}.#{name}"] : []
+    end
+
+    def public_yard_method?(object)
+      object && object.visibility == :public && !effective_private?(object)
+    end
+
+    def ruby_protocol_method?(entry)
+      entry[:scope] == :instance && entry[:name] == :message && entry[:target] <= ::Exception
+    end
+
+    def dynamic_element_method?(entry)
+      return false unless entry[:scope] == :instance
+      return false unless entry[:target].is_a?(::Class) && entry[:target] <= Graphics::Element
+
+      Graphics::Element.valid?(Graphics::Element.send(:id, entry[:name]))
+    end
+
+    def documented_constant?(path)
+      yard(path) || CONSTANT_ALIAS_PREFIXES.any? { path.start_with?(it) }
     end
 
     def effective_private?(object)
@@ -363,38 +432,66 @@ module Sevgi
     def visibility_checked?(object)
       object.name != :initialize &&
         object.namespace != YARD::Registry.root &&
-        !effective_private?(object.namespace) &&
+        !effective_private?(object) &&
         feature_loaded?(object.file)
     end
 
-    def runtime_methods
-      registry
-        .all
-        .select { %i[class module].include?(it.type) && !effective_private?(it) }
-        .filter_map { runtime_constant_or_nil(it.path) }
-        .uniq
-        .flat_map { runtime_paths(it) }
-        .uniq
-        .sort
-    end
+    def runtime_constant_paths
+      queue = [[::Sevgi, "Sevgi"]]
+      paths = []
 
-    def runtime_paths(owner)
-      instance = owner.public_instance_methods(false).filter_map do |name|
-        runtime_path(owner, name, owner.instance_method(name), "#")
+      until queue.empty?
+        owner, prefix = queue.shift
+        owner.constants(false).sort.each do |name|
+          location = owner.const_source_location(name, false)&.first
+          next unless location && LIB_FILES.include?(::File.expand_path(location))
+
+          path = "#{prefix}::#{name}"
+          value = owner.const_get(name, false)
+
+          paths << path
+          queue << [value, path] if value.is_a?(::Module)
+        end
       end
 
-      singleton = owner.singleton_methods(false).filter_map do |name|
-        runtime_path(owner, name, owner.method(name), ".")
-      end
-
-      instance + singleton
+      paths.uniq.sort
     end
 
-    def runtime_path(owner, name, method, separator)
+    def runtime_entries
+      @runtime_entries ||= runtime_modules.each_with_object({}) do |owner, entries|
+        owner.public_instance_methods.each do |name|
+          method = owner.instance_method(name)
+          next unless project_runtime_method?(owner, method, name, :instance)
+
+          entries["#{owner.name}##{name}"] = {target: owner, method:, name:, scope: :instance}
+        end
+
+        owner.public_methods.each do |name|
+          method = owner.method(name)
+          next unless project_runtime_method?(owner, method, name, :class)
+
+          entries["#{owner.name}.#{name}"] = {target: owner, method:, name:, scope: :class}
+        end
+      end
+    end
+
+    def runtime_methods = runtime_entries.keys.sort
+
+    def runtime_modules
+      @runtime_modules ||= runtime_constant_paths
+        .filter_map { runtime_constant_or_nil(it) }
+        .select { it.is_a?(::Module) && it.name&.start_with?("Sevgi") }
+        .prepend(::Sevgi)
+        .uniq
+    end
+
+    def project_runtime_method?(target, method, name, scope)
       file = method.source_location&.first
-      return unless file && LIB_FILES.include?(::File.expand_path(file))
+      return LIB_FILES.include?(::File.expand_path(file)) if file
+      return false unless data_class?(target)
 
-      "#{owner.name}#{separator}#{name}"
+      methods = scope == :class ? DATA_CLASS_METHODS : DATA_INSTANCE_METHODS
+      methods.include?(name)
     end
 
     def runtime_constant_or_nil(path)

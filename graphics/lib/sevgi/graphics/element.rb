@@ -80,6 +80,7 @@ module Sevgi
       end
 
       extend Ident
+      private_class_method :id
       private_constant :Ident
 
       # Returns the SVG element name.
@@ -139,7 +140,7 @@ module Sevgi
       # @raise [NameError] when the name is not a valid SVG element
       # @raise [Sevgi::ArgumentError] when an argument cannot be parsed as attributes or content
       def method_missing(name, *, &block)
-        Element.valid?(tag = Element.id(name)) ? Dispatch.(self, name, tag, *, &block) : super
+        Element.valid?(tag = Element.send(:id, name)) ? Dispatch.(self, name, tag, *, &block) : super
       end
 
       # Reports whether a missing method can dispatch to an SVG element.
@@ -148,7 +149,7 @@ module Sevgi
       # @return [Boolean]
       # @api private
       def respond_to_missing?(name, include_private = false)
-        Element.valid?(Element.id(name)) || super
+        Element.valid?(Element.send(:id, name)) || super
       end
 
       private :method_missing, :respond_to_missing?

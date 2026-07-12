@@ -8,6 +8,28 @@ module Sevgi
     private_constant :PolygonBase
 
     # Variable-size closed lined element with at least three vertices.
+    # @!method self.[](*segments, position: Origin)
+    #   Builds a polygon from boundary segments.
+    #   @param segments [Array<Sevgi::Geometry::Segment, Array<Numeric>>] boundary segments
+    #   @param position [Sevgi::Geometry::Point, Array<Numeric>] starting point
+    #   @return [Sevgi::Geometry::Polygon]
+    #   @raise [Sevgi::Geometry::Error] when inputs cannot be coerced or do not form a polygon
+    # @!method self.call(*points)
+    #   Builds a polygon from boundary points.
+    #   @param points [Array<Sevgi::Geometry::Point, Array<Numeric>>] boundary points without a repeated closing point
+    #   @return [Sevgi::Geometry::Polygon]
+    #   @raise [Sevgi::Geometry::Error] when inputs cannot be coerced or do not form a polygon
+    # @!method self.from_segments(*segments, position: Origin)
+    #   Builds a polygon from boundary segments.
+    #   @param segments [Array<Sevgi::Geometry::Segment, Array<Numeric>>] boundary segments
+    #   @param position [Sevgi::Geometry::Point, Array<Numeric>] starting point
+    #   @return [Sevgi::Geometry::Polygon]
+    #   @raise [Sevgi::Geometry::Error] when inputs cannot be coerced or do not form a polygon
+    # @!method self.from_points(*points)
+    #   Builds a polygon from boundary points.
+    #   @param points [Array<Sevgi::Geometry::Point, Array<Numeric>>] boundary points without a repeated closing point
+    #   @return [Sevgi::Geometry::Polygon]
+    #   @raise [Sevgi::Geometry::Error] when inputs cannot be coerced or do not form a polygon
     # @example Pair point notation with its English convenience
     #   points = [[0, 0], [2, 0], [1, 1]]
     #   segments = Polygon.(*points).segments

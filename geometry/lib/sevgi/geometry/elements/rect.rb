@@ -10,6 +10,22 @@ module Sevgi
     # Closed four-sided rectangle aligned to the screen axes. Affine operations return Rect while the result remains
     # axis-aligned and widen to {Parallelogram} after rotation or skew changes that category. A Square similarly widens
     # to Rect after unequal scaling.
+    # @!attribute [r] A
+    #   @return [Sevgi::Geometry::Point] top-left vertex
+    # @!attribute [r] B
+    #   @return [Sevgi::Geometry::Point] top-right vertex
+    # @!attribute [r] C
+    #   @return [Sevgi::Geometry::Point] bottom-right vertex
+    # @!attribute [r] D
+    #   @return [Sevgi::Geometry::Point] bottom-left vertex
+    # @!attribute [r] AB
+    #   @return [Sevgi::Geometry::Line] top side
+    # @!attribute [r] BC
+    #   @return [Sevgi::Geometry::Line] right side
+    # @!attribute [r] CD
+    #   @return [Sevgi::Geometry::Line] bottom side
+    # @!attribute [r] DA
+    #   @return [Sevgi::Geometry::Line] left side
     class Rect < RectBase
       # @overload [](width, height, position: Origin)
       #   Builds a rectangle from size and top-left position.

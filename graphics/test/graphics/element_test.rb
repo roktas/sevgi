@@ -73,6 +73,10 @@ module Sevgi
       end
 
       class ElementClassTest < Minitest::Test
+        def test_element_hides_method_name_normalizer
+          refute_respond_to(Element, :id)
+        end
+
         def test_arguments_parse_accepts_empty_input
           parsed = Dispatch.parse(:svg)
 

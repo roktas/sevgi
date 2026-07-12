@@ -9,6 +9,39 @@ module Sevgi
 
     # Closed four-sided element whose opposite sides are equal and parallel. Every construction path rejects
     # degenerate or unrelated side pairs; affine operations preserve the class while that invariant holds.
+    # @!method self.call(*points)
+    #   Builds a parallelogram from four boundary points.
+    #   @param points [Array<Sevgi::Geometry::Point, Array<Numeric>>] four boundary points
+    #   @return [Sevgi::Geometry::Parallelogram]
+    #   @raise [Sevgi::Geometry::Error] when inputs cannot be coerced or do not form a parallelogram
+    # @!method self.from_segments(horizontal, vertical, position: Origin)
+    #   Builds a parallelogram from two adjacent segments and derives their opposites.
+    #   @param horizontal [Sevgi::Geometry::Segment, Array<Numeric>] first adjacent segment
+    #   @param vertical [Sevgi::Geometry::Segment, Array<Numeric>] second adjacent segment
+    #   @param position [Sevgi::Geometry::Point, Array<Numeric>] starting point
+    #   @return [Sevgi::Geometry::Parallelogram]
+    #   @raise [Sevgi::Geometry::Error] when inputs cannot be coerced or do not form a parallelogram
+    # @!method self.from_points(*points)
+    #   Builds a parallelogram from four boundary points.
+    #   @param points [Array<Sevgi::Geometry::Point, Array<Numeric>>] four boundary points
+    #   @return [Sevgi::Geometry::Parallelogram]
+    #   @raise [Sevgi::Geometry::Error] when inputs cannot be coerced or do not form a parallelogram
+    # @!attribute [r] A
+    #   @return [Sevgi::Geometry::Point] first vertex
+    # @!attribute [r] B
+    #   @return [Sevgi::Geometry::Point] second vertex
+    # @!attribute [r] C
+    #   @return [Sevgi::Geometry::Point] third vertex
+    # @!attribute [r] D
+    #   @return [Sevgi::Geometry::Point] fourth vertex
+    # @!attribute [r] AB
+    #   @return [Sevgi::Geometry::Line] side from A to B
+    # @!attribute [r] BC
+    #   @return [Sevgi::Geometry::Line] side from B to C
+    # @!attribute [r] CD
+    #   @return [Sevgi::Geometry::Line] side from C to D
+    # @!attribute [r] DA
+    #   @return [Sevgi::Geometry::Line] side from D to A
     # @example Pair mathematical notation with English conveniences
     #   Parallelogram[[2, 0], [2, -90]] == Parallelogram.from_segments([2, 0], [2, -90])
     #   points = [[0, 0], [2, 0], [2, 2], [0, 2]]

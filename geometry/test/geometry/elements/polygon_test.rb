@@ -9,12 +9,6 @@ module Sevgi
         polygon = Polygon.([0, 0], [2, 0], [1, 1])
 
         [
-          true,
-          Polygon.close?,
-          false,
-          Polygon.open?,
-          true,
-          Polygon.poly?,
           [Point[0, 0], Point[2, 0], Point[1, 1], Point[0, 0]],
           polygon.points,
           3,

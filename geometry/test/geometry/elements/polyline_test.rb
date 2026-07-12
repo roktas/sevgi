@@ -9,12 +9,6 @@ module Sevgi
         polyline = Polyline.from_points([0, 0], [2, 0], [1, 1])
 
         [
-          false,
-          Polyline.close?,
-          true,
-          Polyline.open?,
-          true,
-          Polyline.poly?,
           [Point[0, 0], Point[2, 0], Point[1, 1]],
           polyline.points,
           2,

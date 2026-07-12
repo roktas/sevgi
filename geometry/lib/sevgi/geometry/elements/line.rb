@@ -8,6 +8,18 @@ module Sevgi
     private_constant :LineBase
 
     # Open lined element with one segment.
+    # @!method self.call(starting, ending)
+    #   Builds a line from two endpoints.
+    #   @param starting [Sevgi::Geometry::Point, Array<Numeric>] starting point
+    #   @param ending [Sevgi::Geometry::Point, Array<Numeric>] ending point
+    #   @return [Sevgi::Geometry::Line]
+    #   @raise [Sevgi::Geometry::Error] when either point cannot be coerced
+    # @!attribute [r] A
+    #   @return [Sevgi::Geometry::Point] starting point
+    # @!attribute [r] B
+    #   @return [Sevgi::Geometry::Point] ending point
+    # @!attribute [r] AB
+    #   @return [Sevgi::Geometry::Line] line from A to B
     class Line < LineBase
       # @overload [](length, angle, position: Origin)
       #   Builds a line from length and angle.

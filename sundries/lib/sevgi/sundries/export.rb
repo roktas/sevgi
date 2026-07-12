@@ -16,13 +16,16 @@ module Sevgi
     #   svg = Sevgi::Graphics.SVG(:minimal) { circle(cx: 5, cy: 5, r: 4) }.Render
     #   Sevgi::Sundries::Export.call(svg, "drawing.png", width: 320)
     module Export
-      # Supported export format names mapped to file extensions.
-      AVAILABLE = (EXTENSIONS = {
+      # File extensions mapped to export format names.
+      # @api private
+      EXTENSIONS = {
         ".pdf" => :pdf,
         ".png" => :png
-      }.freeze)
-        .invert
-        .freeze
+      }.freeze
+      private_constant :EXTENSIONS
+
+      # Supported export format names mapped to file extensions.
+      AVAILABLE = EXTENSIONS.invert.freeze
 
       # Default SVG CSS pixel density.
       DEFAULT_DPI = 96.0

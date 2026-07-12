@@ -9,6 +9,35 @@ module Sevgi
 
     # Closed three-sided element built from non-collinear segments or points. Every construction path rejects
     # degenerate triangles; affine operations retain Triangle when the transformed points remain non-degenerate.
+    # @!method self.call(*points)
+    #   Builds a triangle from three boundary points.
+    #   @param points [Array<Sevgi::Geometry::Point, Array<Numeric>>] three boundary points
+    #   @return [Sevgi::Geometry::Triangle]
+    #   @raise [Sevgi::Geometry::Error] when inputs cannot be coerced or form a degenerate triangle
+    # @!method self.from_segments(segment_a, segment_b, position: Origin)
+    #   Builds a triangle from two adjacent segments and derives the closing side.
+    #   @param segment_a [Sevgi::Geometry::Segment, Array<Numeric>] first adjacent segment
+    #   @param segment_b [Sevgi::Geometry::Segment, Array<Numeric>] second adjacent segment
+    #   @param position [Sevgi::Geometry::Point, Array<Numeric>] starting point
+    #   @return [Sevgi::Geometry::Triangle]
+    #   @raise [Sevgi::Geometry::Error] when inputs cannot be coerced or form a degenerate triangle
+    # @!method self.from_points(*points)
+    #   Builds a triangle from three boundary points.
+    #   @param points [Array<Sevgi::Geometry::Point, Array<Numeric>>] three boundary points
+    #   @return [Sevgi::Geometry::Triangle]
+    #   @raise [Sevgi::Geometry::Error] when inputs cannot be coerced or form a degenerate triangle
+    # @!attribute [r] A
+    #   @return [Sevgi::Geometry::Point] first vertex
+    # @!attribute [r] B
+    #   @return [Sevgi::Geometry::Point] second vertex
+    # @!attribute [r] C
+    #   @return [Sevgi::Geometry::Point] third vertex
+    # @!attribute [r] AB
+    #   @return [Sevgi::Geometry::Line] side from A to B
+    # @!attribute [r] BC
+    #   @return [Sevgi::Geometry::Line] side from B to C
+    # @!attribute [r] CA
+    #   @return [Sevgi::Geometry::Line] side from C to A
     # @example Pair mathematical notation with English conveniences
     #   Triangle[[2, 0], [2, 90]] == Triangle.from_segments([2, 0], [2, 90])
     #   Triangle.([0, 0], [2, 0], [2, 2]) == Triangle.from_points([0, 0], [2, 0], [2, 2])
