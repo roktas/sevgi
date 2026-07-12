@@ -23,7 +23,7 @@ module Sevgi
               # @param depth [Integer] element depth
               # @return [void]
               def attributes(element, depth)
-                attributes_block(element, depth, element.attributes.to_xml_lines)
+                attributes_block(element, depth, element.attributes.send(:xml_lines))
               end
             end
 
@@ -35,7 +35,7 @@ module Sevgi
               # @param depth [Integer] element depth
               # @return [void]
               def attributes(element, depth)
-                if attributes_as_block?(lines = element.attributes.to_xml_lines, depth)
+                if attributes_as_block?(lines = element.attributes.send(:xml_lines), depth)
                   attributes_block(element, depth, lines)
                 else
                   attributes_inline(element, depth, lines)
@@ -67,7 +67,7 @@ module Sevgi
               # @param depth [Integer] element depth
               # @return [void]
               def attributes(element, depth)
-                attributes_inline(element, depth, element.attributes.to_xml_lines)
+                attributes_inline(element, depth, element.attributes.send(:xml_lines))
               end
             end
           end

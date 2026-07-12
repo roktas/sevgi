@@ -202,21 +202,6 @@ module Sevgi
           refute_same(original_content.first, copy_content.first)
         end
 
-        def test_duplicate_rejects_cyclic_payloads
-          content = []
-          content << content
-
-          rect = nil
-          SVG do
-            rect = self.rect(style: {})
-          end
-
-          rect[:style][:self] = rect[:style]
-
-          assert_raises(Sevgi::ArgumentError) { rect.Duplicate() }
-          assert_raises(Sevgi::ArgumentError) { Content.verbatim(content) }
-        end
-
         def test_duplicate_copies_a_root_without_a_root_parent
           original = SVG { g { line } }
 

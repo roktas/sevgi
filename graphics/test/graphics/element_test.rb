@@ -155,7 +155,7 @@ module Sevgi
             end
 
             assert_equal(name, element.name)
-            assert(Standard.conform(name, attributes: element.attributes.list, elements: element.children.map(&:name)))
+            assert(Standard.conform(name, attributes: element.attributes.keys, elements: element.children.map(&:name)))
           end
         end
       end

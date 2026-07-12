@@ -21,32 +21,31 @@ module Sevgi
 
       private_constant :MutableValue
 
-      def test_non_rendering_metadata_follows_store_semantics
+      def test_non_rendering_metadata_follows_facade_semantics
         attributes = Attributes.new(id: "visible", "-source": ["original"])
         attributes[:"-note"] = "private"
         copy = attributes.dup
-        copy[:"-source"] << "copy"
+        copy[:"-source"] = [*copy[:"-source"], "copy"]
 
         [
           ["original"],
           attributes[:"-source"],
           %w[original copy],
           copy[:"-source"],
-          {id: "visible"},
-          attributes.export,
-          [:id],
-          attributes.list,
           {id: "visible", "-source": ["original"], "-note": "private"},
-          attributes.to_h,
-          ["id=\"visible\""],
-          attributes.to_xml_lines
+          attributes.to_h
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
 
+        refute_respond_to(attributes, :export)
+        refute_respond_to(attributes, :list)
+        refute_respond_to(attributes, :to_xml_lines)
+        assert_equal([:id], attributes.keys)
+        assert_predicate(attributes.keys, :frozen?)
         assert_equal(["original"], attributes.delete(:"-source"))
         assert_nil(attributes[:"-source"])
       end
 
-      def test_import_doesnt_mutate_nested_hash
+      def test_initialization_doesnt_mutate_nested_hash
         style = {"stroke-width" => 2}
 
         attributes = Attributes.new(style:)
@@ -59,17 +58,20 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
-      def test_import_doesnt_alias_array_values
+      def test_reads_return_owned_snapshots
         classes = ["primary"]
         attributes = Attributes.new(class: classes)
 
         classes << "caller"
-        attributes[:class] << "store"
+        returned = attributes[:class]
+        returned << "reader"
 
         [
           %w[primary caller],
           classes,
-          %w[primary store],
+          %w[primary reader],
+          returned,
+          ["primary"],
           attributes[:class]
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
@@ -88,16 +90,18 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
+      def test_merge_bang_is_atomic_and_returns_self
+        attributes = Attributes.new(fill: "red")
+
+        assert_same(attributes, attributes.merge!(stroke: "black", "-source": "shape"))
+        assert_equal({fill: "red", stroke: "black", "-source": "shape"}, attributes.to_h)
+      end
+
       def test_xml_escapes_array_and_hash_values
         attributes = Attributes.new(class: ["a&b", "c<d"], style: {content: "a & b"})
 
-        assert_equal(
-          [
-            "class=\"a&amp;b c&lt;d\"",
-            "style=\"content:a &amp; b\""
-          ],
-          attributes.to_xml_lines
-        )
+        assert_includes(render_attributes(attributes), "class=\"a&amp;b c&lt;d\"")
+        assert_includes(render_attributes(attributes), "style=\"content:a &amp; b\"")
       end
 
       def test_xml_rejects_invalid_attribute_values
@@ -131,27 +135,24 @@ module Sevgi
         end
       end
 
-      def test_xml_revalidates_mutated_attribute_values
+      def test_read_snapshots_cannot_bypass_validation
         attributes = Attributes.new(fill: +"red", class: ["shape"])
         attributes[:fill].replace("illegal\0value")
         attributes[:class] << attributes[:class]
 
-        assert_raises(Sevgi::ArgumentError) { attributes.to_xml_lines }
+        assert_equal({fill: "red", class: ["shape"]}, attributes.to_h)
+        assert_includes(render_attributes(attributes), "fill=\"red\" class=\"shape\"")
       end
 
       def test_xml_preserves_namespaces_and_unicode
         attributes = Attributes.new("xml:lang": "tr", "veri-çeşidi": "kar\u{0131}\u{015f}\u{0131}k & parlak")
 
-        assert_equal(
-          [
-            "xml:lang=\"tr\"",
-            "veri-çeşidi=\"karışık &amp; parlak\""
-          ],
-          attributes.to_xml_lines
-        )
+        rendered = render_attributes(attributes)
+        assert_includes(rendered, "xml:lang=\"tr\"")
+        assert_includes(rendered, "veri-çeşidi=\"karışık &amp; parlak\"")
       end
 
-      def test_import_owns_nested_attribute_values
+      def test_initialization_owns_nested_attribute_values
         fill = +"red"
         token = +"token"
         nested = +"value"
@@ -189,10 +190,10 @@ module Sevgi
         assert_equal(1, custom.calls)
 
         attributes[:style][:fill].replace("green")
-        assert_equal("green", attributes[:style][:fill])
+        assert_equal("red", attributes[:style][:fill])
         assert_includes(
-          attributes.to_xml_lines,
-          "style=\"fill:green; meta:{&quot;token&quot; =&gt; &quot;value&quot;}\""
+          render_attributes(attributes),
+          "style=\"fill:red; meta:{&quot;token&quot; =&gt; &quot;value&quot;}\""
         )
         assert_equal(1, custom.calls)
       end
@@ -203,12 +204,13 @@ module Sevgi
         custom = MutableValue.new(+"first")
         attributes = Attributes.new
 
-        attributes[:style] = {"fill" => fill}
+        returned = attributes.public_send(:[]=, :style, {"fill" => fill})
         attributes[:class] = classes
         attributes[:data] = custom
         fill.replace("blue")
         classes.first.replace("changed")
         custom.text.replace("second")
+        returned[:fill].replace("returned")
 
         assert_equal({fill: "red"}, attributes[:style])
         assert_equal(["primary"], attributes[:class])
@@ -216,19 +218,19 @@ module Sevgi
         assert_equal(1, custom.calls)
       end
 
-      def test_import_rejects_invalid_payload_atomically
+      def test_merge_bang_rejects_invalid_payload_atomically
         attributes = Attributes.new(fill: "red")
         cycle = []
         cycle << cycle
         bad_key = Object.new
         invalid = [
-          -> { attributes.import([]) },
-          -> { attributes.import("fill") },
-          -> { attributes.import(fill: "blue", data: cycle) },
-          -> { attributes.import("fill" => "blue", :fill => "green") },
-          -> { attributes.import(style: {"fill" => "blue", :fill => "green"}) },
-          -> { attributes.import(style: {meta: {"fill" => "blue", :fill => "green"}}) },
-          -> { attributes.import(style: {bad_key => "blue"}) }
+          -> { attributes.merge!([]) },
+          -> { attributes.merge!("fill") },
+          -> { attributes.merge!(fill: "blue", data: cycle) },
+          -> { attributes.merge!("fill" => "blue", :fill => "green") },
+          -> { attributes.merge!(style: {"fill" => "blue", :fill => "green"}) },
+          -> { attributes.merge!(style: {meta: {"fill" => "blue", :fill => "green"}}) },
+          -> { attributes.merge!(style: {bad_key => "blue"}) }
         ]
 
         invalid.each do |operation|
@@ -249,6 +251,12 @@ module Sevgi
           assert_raises(Sevgi::ArgumentError) { attributes[:style] = value }
           assert_equal({fill: "red"}, attributes[:style])
         end
+      end
+
+      private
+
+      def render_attributes(attributes)
+        SVG(:minimal) { rect(**attributes.to_h) }.Render()
       end
     end
   end

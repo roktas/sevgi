@@ -145,16 +145,8 @@ module Sevgi
         XML.text(text, context: "XML attribute value")
       end
 
-      # Mutable SVG attribute and non-rendering metadata store with Sevgi update syntax.
-      #
-      # Names beginning with {ATTRIBUTE_INTERNAL_PREFIX} can be read, assigned, deleted, and copied like ordinary
-      # attributes. They appear in {#to_h}, but {#list}, {#export}, and rendered XML omit them.
-      #
-      # @example Attach non-rendering source metadata
-      #   attributes = Sevgi::Graphics::Attributes.new(id: "copy", "-source": "original")
-      #   attributes[:"-source"] # => "original"
-      #   attributes.to_h        # => { id: "copy", :"-source" => "original" }
-      #   attributes.export      # => { id: "copy" }
+      # Mutable backing store for SVG attributes.
+      # @api private
       class Store
         # Creates an attribute store from recursively owned snapshots. Mutable non-container leaves are stringified
         # once; later caller mutation cannot change the store.
@@ -188,8 +180,7 @@ module Sevgi
           @store.merge!(hash)
         end
 
-        # Returns a live stored attribute value. Mutating a returned container intentionally mutates this store; rendering
-        # revalidates the resulting value.
+        # Returns a stored attribute value for the public facade.
         # @param key [String, Symbol] attribute key
         # @return [Object, nil]
         # @raise [Sevgi::ArgumentError] when key is not a valid XML attribute name
@@ -241,7 +232,6 @@ module Sevgi
         # Copies the attribute store with recursively independent values.
         # @param original [Sevgi::Graphics::Attributes] store to copy
         # @return [void]
-        # @raise [Sevgi::ArgumentError] when live stored values became cyclic or invalid
         def initialize_copy(original)
           @store = {}
           original.store.each { |key, value| @store[key] = Attribute.capture(value) }
@@ -255,9 +245,8 @@ module Sevgi
           export.keys
         end
 
-        # Returns the live attribute and metadata Hash. Mutating it intentionally mutates this store; rendering
-        # revalidates rendering names and all values.
-        # @return [Hash] live internal store
+        # Returns the internal attribute and metadata Hash.
+        # @return [Hash] backing store
         def to_h
           @store
         end
@@ -302,8 +291,91 @@ module Sevgi
       end
     end
 
-    # Public alias for the SVG attribute store.
-    Attributes = Attribute::Store
+    # Mutable facade for SVG attributes and non-rendering element metadata.
+    #
+    # Names beginning with {ATTRIBUTE_INTERNAL_PREFIX} can be read, assigned, deleted, merged, and copied like ordinary
+    # attributes. They appear in {#to_h}, but public SVG attribute enumeration and rendered XML omit them. All values
+    # entering or leaving this facade are recursively owned snapshots.
+    #
+    # @example Inspect and update element attributes
+    #   element = SVG { rect(id: "copy", "-source": "original") }.children.first
+    #   element.attributes[:"-source"] # => "original"
+    #   element.attributes.merge!(fill: "red")
+    #   element.attributes.to_h # => { id: "copy", :"-source" => "original", fill: "red" }
+    class Attributes
+      # Creates an attribute facade from recursively owned snapshots.
+      # @param attributes [Hash] initial attributes and non-rendering metadata
+      # @return [void]
+      # @raise [Sevgi::ArgumentError] when input is not a Hash or contains an invalid name or value
+      def initialize(attributes = {})
+        @store = Attribute::Store.new(attributes)
+      end
+
+      # Returns an owned snapshot of an attribute value.
+      # @param key [String, Symbol] attribute key
+      # @return [Object, nil] recursively owned value or nil when absent
+      # @raise [Sevgi::ArgumentError] when key is not a valid attribute name
+      def [](key) = snapshot(@store[key])
+
+      # Assigns a recursively owned attribute value.
+      # @param key [String, Symbol] attribute key
+      # @param value [Object, nil] attribute value; nil is ignored
+      # @return [Object, nil] recursively owned stored snapshot or nil
+      # @raise [Sevgi::ArgumentError] when the name, value, or update operation is invalid
+      def []=(key, value)
+        @store[key] = value
+        snapshot(@store[key])
+      end
+
+      # Deletes an attribute and returns an owned snapshot of its value.
+      # @param key [String, Symbol] attribute key
+      # @return [Object, nil] deleted value or nil when absent
+      # @raise [Sevgi::ArgumentError] when key is not a valid attribute name
+      def delete(key) = snapshot(@store.delete(key))
+
+      # Reports whether an attribute exists.
+      # @param key [String, Symbol] attribute key
+      # @return [Boolean]
+      # @raise [Sevgi::ArgumentError] when key is not a valid attribute name
+      def has?(key) = @store.has?(key)
+
+      # Copies the facade with recursively independent values.
+      # @param original [Sevgi::Graphics::Attributes] facade to copy
+      # @return [void]
+      # @raise [Sevgi::ArgumentError] when stored values became invalid
+      def initialize_copy(original)
+        super
+        @store = original.store.dup
+      end
+
+      # Returns rendering attribute names, excluding non-rendering metadata.
+      # @return [Array<Symbol>] frozen name snapshot
+      def keys = @store.list.freeze
+
+      # Atomically merges recursively owned attributes.
+      # @param attributes [Hash] attributes and non-rendering metadata to merge
+      # @return [Sevgi::Graphics::Attributes] self
+      # @raise [Sevgi::ArgumentError] when input is not a Hash or contains an invalid name or value
+      def merge!(attributes)
+        @store.import(attributes)
+        self
+      end
+
+      # Returns a recursively owned Hash snapshot including non-rendering metadata.
+      # @return [Hash]
+      def to_h = snapshot(@store.to_h)
+
+      private
+
+      def snapshot(value) = Attribute.capture(value)
+
+      def xml_lines = @store.to_xml_lines
+
+      protected
+
+      attr_reader :store
+    end
+
     private_constant :Attribute
   end
 end

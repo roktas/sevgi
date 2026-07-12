@@ -41,7 +41,7 @@ module Sevgi
           Traverse do |element|
             Standard.conform(
               element.name,
-              attributes: element.attributes.list,
+              attributes: element.attributes.keys,
               cdata: element.CData(),
               elements: element.children.map(&:name)
             )
