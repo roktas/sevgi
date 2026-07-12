@@ -42,6 +42,44 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
+      def test_canvas_constructors_accept_supported_forms
+        forms = [
+          Canvas.from_paper(:a4),
+          Canvas.from_paper("a4"),
+          Canvas.from_paper(Paper.a4),
+          Canvas.call(:a4),
+          Graphics.canvas(:a4)
+        ]
+
+        assert(forms.all? { it.size == Paper.a4 })
+
+        explicit = [
+          Canvas.from_paper(width: 3, height: 5),
+          Canvas.call(width: 3, height: 5),
+          Graphics.canvas(width: 3, height: 5)
+        ]
+        assert(explicit.all? { [it.width, it.height] == [3.0, 5.0] })
+
+        overridden = Canvas.from_paper(:a4, width: 100, unit: :px, name: :preview)
+        assert_equal(
+          [100.0, 297.0, :px, :preview],
+          [overridden.width, overridden.height, overridden.unit, overridden.name]
+        )
+      end
+
+      def test_canvas_constructors_report_domain_errors
+        [
+          -> { Canvas.new },
+          -> { Canvas.from_paper },
+          -> { Canvas.call },
+          -> { Graphics.canvas },
+          -> { Canvas.new(width: 3) },
+          -> { Canvas.from_paper(height: 5) },
+          -> { Canvas.new(width: 3, height: 5, color: "red") },
+          -> { Canvas.from_paper(false) }
+        ].each { assert_raises(Sevgi::ArgumentError, &it) }
+      end
+
       def test_canvas_rejects_unknown_paper_profile
         error = assert_raises(ArgumentError) { Canvas.from_paper(:missing_paper) }
 

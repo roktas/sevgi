@@ -5,24 +5,50 @@ require "forwardable"
 module Sevgi
   module Graphics
     # SVG canvas size, margins, viewport, and viewBox.
+    # @example Build from a paper profile or an explicit size
+    #   page = Sevgi::Graphics::Canvas.from_paper(:a4, margins: [10])
+    #   icon = Sevgi::Graphics::Canvas.call(width: 24, height: 24, unit: :px)
+    #   page.viewbox       # uses the negative left and top margins as its origin
+    #   icon.viewbox(nil)  # uses `0 0` as its origin
     class Canvas
+      DEFAULTS = {unit: "mm", name: :custom, margins: []}.freeze
+      FIELDS = %i[width height unit name margins].freeze
       ORIGIN_FIELDS = %i[x y].freeze
-      REPLACEMENTS = %i[width height unit name margins].freeze
-      private_constant :ORIGIN_FIELDS, :REPLACEMENTS
+      REQUIRED = %i[width height].freeze
+      private_constant :DEFAULTS, :FIELDS, :ORIGIN_FIELDS, :REQUIRED
 
-      # @overload call(arg = Undefined, **kwargs)
-      #   Builds a canvas from a paper profile or explicit size.
-      #   @param arg [Sevgi::Graphics::Paper, Symbol, String, Sevgi::Undefined] paper profile or paper object
-      #   @param kwargs [Hash] canvas keyword arguments
+      # @overload call(paper, **overrides)
+      #   Builds a canvas from a paper profile with optional field overrides.
+      #   @param paper [Sevgi::Graphics::Paper, Symbol, String] paper object or registered profile
+      #   @param overrides [Hash] canvas field overrides
       #   @return [Sevgi::Graphics::Canvas]
-      #   @raise [Sevgi::ArgumentError] when the paper profile is unknown
+      #   @raise [Sevgi::ArgumentError] when the paper or an override is invalid
+      # @overload call(width:, height:, unit: "mm", name: :custom, margins: [])
+      #   Builds a canvas from an explicit size.
+      #   @param width [Numeric] canvas width
+      #   @param height [Numeric] canvas height
+      #   @param unit [Symbol, String] SVG unit
+      #   @param name [Symbol, String] paper name
+      #   @param margins [Array<Numeric>] margin shorthand values
+      #   @return [Sevgi::Graphics::Canvas]
+      #   @raise [Sevgi::ArgumentError] when a required field is omitted or a value is invalid
       def self.call(...) = from_paper(...)
 
-      # Builds a canvas from a paper profile or explicit size.
-      # @param arg [Sevgi::Graphics::Paper, Symbol, String, Sevgi::Undefined] paper profile or paper object
-      # @param kwargs [Hash] canvas keyword arguments
-      # @return [Sevgi::Graphics::Canvas]
-      # @raise [Sevgi::ArgumentError] when the paper profile is unknown
+      # @overload from_paper(paper, **overrides)
+      #   Builds a canvas from a paper profile with optional field overrides.
+      #   @param paper [Sevgi::Graphics::Paper, Symbol, String] paper object or registered profile
+      #   @param overrides [Hash] canvas field overrides
+      #   @return [Sevgi::Graphics::Canvas]
+      #   @raise [Sevgi::ArgumentError] when the paper or an override is invalid
+      # @overload from_paper(width:, height:, unit: "mm", name: :custom, margins: [])
+      #   Builds a canvas from an explicit size.
+      #   @param width [Numeric] canvas width
+      #   @param height [Numeric] canvas height
+      #   @param unit [Symbol, String] SVG unit
+      #   @param name [Symbol, String] paper name
+      #   @param margins [Array<Numeric>] margin shorthand values
+      #   @return [Sevgi::Graphics::Canvas]
+      #   @raise [Sevgi::ArgumentError] when a required field is omitted or a value is invalid
       def self.from_paper(arg = Undefined, **kwargs)
         case arg
         when Undefined
@@ -39,7 +65,7 @@ module Sevgi
         when ::Symbol, ::String
           Paper.fetch(arg)
         else
-          ArgumentError.("Argument must be a Paper symbol: #{arg}")
+          ArgumentError.("Paper must be a Paper, Symbol, or String: #{arg}")
         end
       end
 
@@ -62,17 +88,24 @@ module Sevgi
       # @return [Sevgi::Graphics::Paper]
       attr_reader :inner
 
-      # Creates a canvas with finite real dimensions greater than zero and margins that leave a positive inner area.
-      # @param width [Numeric] canvas width
-      # @param height [Numeric] canvas height
-      # @param unit [Symbol, String] SVG unit
-      # @param name [Symbol, String] paper name
-      # @param margins [Array<Numeric>] margin shorthand values
-      # @return [void]
-      # @raise [Sevgi::ArgumentError] when margins or numeric dimensions are invalid
-      def initialize(width:, height:, unit: "mm", name: :custom, margins: [])
-        @size = Paper[width, height, unit, name]
-        @margin = Margin[*margins]
+      # @overload initialize(width:, height:, unit: "mm", name: :custom, margins: [])
+      #   Creates a canvas with finite real dimensions greater than zero and margins that leave a positive inner area.
+      #   @param width [Numeric] canvas width
+      #   @param height [Numeric] canvas height
+      #   @param unit [Symbol, String] SVG unit
+      #   @param name [Symbol, String] paper name
+      #   @param margins [Array<Numeric>] margin shorthand values
+      #   @return [void]
+      #   @raise [Sevgi::ArgumentError] when a required field is omitted, an option is unknown, or a value is invalid
+      def initialize(**fields)
+        unknown = fields.keys - FIELDS
+        ArgumentError.("Unknown canvas option: #{unknown.first}") unless unknown.empty?
+        ArgumentError.("Canvas width and height are required") unless REQUIRED.all? { fields.key?(it) }
+
+        fields = DEFAULTS.merge(fields)
+
+        @size = Paper[*fields.values_at(:width, :height, :unit, :name)]
+        @margin = Margin[*fields[:margins]]
 
         compute
         freeze
@@ -80,7 +113,8 @@ module Sevgi
 
       # @overload attributes(origin = Undefined)
       #   Returns SVG root viewport attributes.
-      #   @param origin [Numeric, Array<Numeric>, nil, Sevgi::Undefined] viewBox origin
+      #   Omission uses the negative left and top margins; nil uses zero for both coordinates.
+      #   @param origin [Numeric, Array<Numeric>, nil, Sevgi::Undefined] viewBox origin; a scalar sets both coordinates
       #   @return [Hash{Symbol => String}] SVG viewport and viewBox attributes
       #   @raise [Sevgi::ArgumentError] when origin is invalid
       def attributes(...) = {**viewport, viewBox: viewbox(...)}
@@ -90,7 +124,8 @@ module Sevgi
       def viewport = {width: "#{width}#{unit}", height: "#{height}#{unit}"}
 
       # Returns the SVG viewBox string.
-      # @param origin [Numeric, Array<Numeric>, nil, Sevgi::Undefined] viewBox origin
+      # Omission uses the negative left and top margins; nil uses zero for both coordinates.
+      # @param origin [Numeric, Array<Numeric>, nil, Sevgi::Undefined] viewBox origin; a scalar sets both coordinates
       # @return [String]
       # @raise [Sevgi::ArgumentError] when origin is invalid
       def viewbox(origin = Undefined) = prettify(*originate(origin), width, height).join(" ")
@@ -106,7 +141,7 @@ module Sevgi
       # @raise [Sevgi::ArgumentError] when an unknown option is supplied
       # @raise [Sevgi::ArgumentError] when a replacement value is invalid
       def with(**kwargs)
-        unknown = kwargs.keys - REPLACEMENTS
+        unknown = kwargs.keys - FIELDS
 
         ArgumentError.("Unknown canvas option: #{unknown.first}") unless unknown.empty?
 

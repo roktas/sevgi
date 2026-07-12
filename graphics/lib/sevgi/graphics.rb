@@ -22,12 +22,21 @@ module Sevgi
   #   drawing.Render #=> "<svg ...>...</svg>\n"
   # @see https://sevgi.roktas.dev/showcase/ Runnable drawing examples
   module Graphics
-    # @overload canvas(arg = Undefined, **kwargs)
-    #   Builds a canvas from a paper profile or explicit size.
-    #   @param arg [Sevgi::Graphics::Paper, Symbol, String, Sevgi::Undefined] paper profile or paper object
-    #   @param kwargs [Hash] canvas keyword arguments
+    # @overload canvas(paper, **overrides)
+    #   Builds a canvas from a paper profile with optional field overrides.
+    #   @param paper [Sevgi::Graphics::Paper, Symbol, String] paper object or registered profile
+    #   @param overrides [Hash] canvas field overrides
     #   @return [Sevgi::Graphics::Canvas]
-    #   @raise [Sevgi::ArgumentError] when the paper profile is unknown
+    #   @raise [Sevgi::ArgumentError] when the paper or an override is invalid
+    # @overload canvas(width:, height:, unit: "mm", name: :custom, margins: [])
+    #   Builds a canvas from an explicit size.
+    #   @param width [Numeric] canvas width
+    #   @param height [Numeric] canvas height
+    #   @param unit [Symbol, String] SVG unit
+    #   @param name [Symbol, String] paper name
+    #   @param margins [Array<Numeric>] margin shorthand values
+    #   @return [Sevgi::Graphics::Canvas]
+    #   @raise [Sevgi::ArgumentError] when a required field is omitted or a value is invalid
     def canvas(...)
       Graphics::Canvas.from_paper(...)
     end
