@@ -37,9 +37,7 @@ module Sevgi
         when Paper
           arg
         when ::Symbol, ::String
-          ArgumentError.("Unknown paper profile: #{arg}") unless Paper.exist?(arg)
-
-          Paper.public_send(arg)
+          Paper.fetch(arg)
         else
           ArgumentError.("Argument must be a Paper symbol: #{arg}")
         end

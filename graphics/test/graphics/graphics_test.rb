@@ -252,7 +252,7 @@ module Sevgi
       def test_paper_race_rejects_conflicting_profile
         name = :graphics_paper_race
         successes, failures = racing_papers(name, [3, 7]).partition { |_, result| !result.is_a?(::Exception) }
-        registered = Paper.public_send(name)
+        registered = Paper.fetch(name)
 
         assert_equal(1, successes.size)
         assert_equal([Sevgi::ArgumentError], failures.map { |_, result| result.class })
@@ -264,7 +264,7 @@ module Sevgi
         results = racing_papers(name, [3, 3])
 
         refute(results.any? { |_, result| result.is_a?(::Exception) })
-        assert_equal([3.0, 5.0, :mm, name], Paper.public_send(name).deconstruct)
+        assert_equal([3.0, 5.0, :mm, name], Paper.fetch(name).deconstruct)
       end
 
       def test_paper_bang_overwrites_existing_profile

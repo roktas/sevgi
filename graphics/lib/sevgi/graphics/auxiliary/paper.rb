@@ -71,9 +71,25 @@ module Sevgi
         name ? @mutex.synchronize { @profiles.key?(name) } : false
       end
 
+      # Returns a registered paper profile by name.
+      # @param name [Symbol, String] profile name, including names that are not Ruby identifiers
+      # @return [Sevgi::Graphics::Paper] registered profile
+      # @raise [Sevgi::ArgumentError] when name is invalid or no profile is registered
+      # @example Look up a non-identifier profile name
+      #   Paper.define("business-card", width: 90, height: 50)
+      #   Paper.fetch("business-card")
+      def self.fetch(name)
+        name = normalize!(:name, name)
+        @mutex.synchronize { @profiles.fetch(name) { ArgumentError.("Unknown paper profile: #{name}") } }
+      end
+
+      # Returns registered profile names.
+      # @return [Array<Symbol>] frozen name snapshot
+      def self.keys = @mutex.synchronize { @profiles.keys.freeze }
+
       # Defines a named paper profile after complete validation. Registration is process-global and thread-atomic.
       # Identical definitions return the canonical profile and conflicting definitions raise unless replacement is
-      # explicitly requested. Names that are not Ruby call syntax remain accessible through `public_send`.
+      # explicitly requested. Names that are not Ruby call syntax remain accessible through {.fetch}.
       # @param name [Symbol, String] profile name
       # @param overwrite [Boolean] true to replace an existing profile
       # @param spec [Hash] paper dimensions and unit

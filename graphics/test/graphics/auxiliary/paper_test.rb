@@ -112,10 +112,23 @@ module Sevgi
         ["paper-card", "paper card", "1paper"].each do |name|
           profile = Paper.define(name, width: 3, height: 5)
 
-          assert_same(profile, Paper.public_send(name))
+          assert_same(profile, Paper.fetch(name))
           assert(Paper.exist?(name))
           assert_equal(name.to_sym, profile.name)
         end
+      end
+
+      def test_registry_fetch_and_keys_have_stable_contracts
+        name = :paper_registry_card
+        profile = Paper.define(name, width: 3, height: 5)
+        keys = Paper.keys
+
+        assert_same(profile, Paper.fetch(name.to_s))
+        assert_includes(keys, name)
+        assert_predicate(keys, :frozen?)
+        assert_raises(FrozenError) { keys.clear }
+        assert_raises(Sevgi::ArgumentError) { Paper.fetch(:paper_registry_missing) }
+        assert_raises(Sevgi::ArgumentError) { Paper.fetch(Object.new) }
       end
 
       def test_comparison_returns_nil_for_incompatible_objects
