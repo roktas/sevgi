@@ -4,13 +4,28 @@ module Sevgi
   module Graphics
     module Mixtures
       # DSL helpers for RDF and license metadata.
+      #
+      # @example Add Creative Commons metadata
+      #   SVG(:inkscape) do
+      #     License_CC0(title: "Example", creator: "A. Creator")
+      #   end
       module RDF
+        WORK_OPTIONS = %i[title description creator publisher date language license].freeze
+        private_constant :WORK_OPTIONS
+
         # Adds RDF license metadata inside a metadata element.
         # @param kwargs [Hash] RDF work options
         # @yield evaluates additional RDF work metadata
         # @yieldreturn [Object] ignored block result
         # @return [Sevgi::Graphics::Element] metadata element
-        def License(**kwargs, &block) = metadata { RDFWork(**kwargs, &block) }
+        # @raise [Sevgi::ArgumentError] when an option is unknown
+        # @see #RDFWork
+        def License(**kwargs, &block)
+          unknown = kwargs.keys - WORK_OPTIONS
+          ArgumentError.("Unknown license options: #{unknown.join(", ")}") unless unknown.empty?
+
+          metadata { RDFWork(**kwargs, &block) }
+        end
 
         # Use SPDX license codes in underscored form: https://spdx.org/licenses/
         #
@@ -19,6 +34,8 @@ module Sevgi
         # @yield evaluates additional RDF work metadata
         # @yieldreturn [Object] ignored block result
         # @return [Sevgi::Graphics::Element] metadata element
+        # @raise [Sevgi::ArgumentError] when an option is unknown
+        # @see #RDFWork
         def License_CC_BY_SA(**kwargs, &block)
           License(**kwargs, license: "https://creativecommons.org/licenses/by-sa/4.0/", &block)
         end
@@ -28,6 +45,8 @@ module Sevgi
         # @yield evaluates additional RDF work metadata
         # @yieldreturn [Object] ignored block result
         # @return [Sevgi::Graphics::Element] metadata element
+        # @raise [Sevgi::ArgumentError] when an option is unknown
+        # @see #RDFWork
         def License_CC_BY_NC(**kwargs, &block)
           License(**kwargs, license: "https://creativecommons.org/licenses/by-nc/4.0/", &block)
         end
@@ -37,6 +56,8 @@ module Sevgi
         # @yield evaluates additional RDF work metadata
         # @yieldreturn [Object] ignored block result
         # @return [Sevgi::Graphics::Element] metadata element
+        # @raise [Sevgi::ArgumentError] when an option is unknown
+        # @see #RDFWork
         def License_CC_BY_NC_SA(**kwargs, &block)
           License(**kwargs, license: "https://creativecommons.org/licenses/by-nc-sa/4.0/", &block)
         end
@@ -46,6 +67,8 @@ module Sevgi
         # @yield evaluates additional RDF work metadata
         # @yieldreturn [Object] ignored block result
         # @return [Sevgi::Graphics::Element] metadata element
+        # @raise [Sevgi::ArgumentError] when an option is unknown
+        # @see #RDFWork
         def License_CC_BY_ND(**kwargs, &block)
           License(**kwargs, license: "https://creativecommons.org/licenses/by-nd/4.0/", &block)
         end
@@ -55,6 +78,8 @@ module Sevgi
         # @yield evaluates additional RDF work metadata
         # @yieldreturn [Object] ignored block result
         # @return [Sevgi::Graphics::Element] metadata element
+        # @raise [Sevgi::ArgumentError] when an option is unknown
+        # @see #RDFWork
         def License_CC_BY_NC_ND(**kwargs, &block)
           License(**kwargs, license: "https://creativecommons.org/licenses/by-nc-nd/4.0/", &block)
         end
@@ -64,6 +89,8 @@ module Sevgi
         # @yield evaluates additional RDF work metadata
         # @yieldreturn [Object] ignored block result
         # @return [Sevgi::Graphics::Element] metadata element
+        # @raise [Sevgi::ArgumentError] when an option is unknown
+        # @see #RDFWork
         def License_CC0(**kwargs, &block)
           License(**kwargs, license: "https://creativecommons.org/publicdomain/zero/1.0/", &block)
         end
@@ -73,15 +100,19 @@ module Sevgi
         # @yield evaluates additional RDF work metadata
         # @yieldreturn [Object] ignored block result
         # @return [Sevgi::Graphics::Element] metadata element
+        # @raise [Sevgi::ArgumentError] when an option is unknown
+        # @see #RDFWork
         def License_LAL(**kwargs, &block) = License(**kwargs, license: "https://artlibre.org/licence/lal/en/", &block)
 
         # Builds an RDF root element.
-        # @param _kwargs [Hash] currently unused options
+        # @param kwargs [Hash] options; RDF currently accepts none
         # @yield evaluates the RDF drawing DSL
         # @yieldreturn [Object] ignored block result
         # @return [Sevgi::Graphics::Element] RDF element
         # @raise [Sevgi::ArgumentError] when no block is given
-        def RDF(**_kwargs, &block)
+        # @raise [Sevgi::ArgumentError] when an option is given
+        def RDF(**kwargs, &block)
+          ArgumentError.("Unknown RDF options: #{kwargs.keys.join(", ")}") unless kwargs.empty?
           ArgumentError.("Block required") unless block
 
           Element(
@@ -104,10 +135,24 @@ module Sevgi
         # @option kwargs [String] :date date
         # @option kwargs [String] :language language
         # @option kwargs [String] :license license URL
+        #
+        # | Option | RDF element |
+        # | --- | --- |
+        # | `title` | `dc:title` |
+        # | `description` | `dc:description` |
+        # | `creator` | `dc:creator` |
+        # | `publisher` | `dc:publisher` |
+        # | `date` | `dc:date` |
+        # | `language` | `dc:language` |
+        # | `license` | `cc:license` resource |
         # @yield evaluates additional RDF work metadata
         # @yieldreturn [Object] ignored block result
         # @return [Sevgi::Graphics::Element] RDF element
+        # @raise [Sevgi::ArgumentError] when an option is unknown
         def RDFWork(**kwargs, &block)
+          unknown = kwargs.keys - WORK_OPTIONS
+          ArgumentError.("Unknown RDF work options: #{unknown.join(", ")}") unless unknown.empty?
+
           RDF do
             Element(:"cc:Work", "rdf:about": "") do
               Element(:"dc:format", "image/svg+xml")

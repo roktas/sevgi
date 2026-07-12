@@ -25,6 +25,29 @@ module Sevgi
 
           assert_match(/\bBlock required\b/, error.message)
         end
+
+        def test_rdf_rejects_unknown_options_before_drawing
+          document = SVG(:inkscape)
+
+          error = assert_raises(ArgumentError) { document.RDF(prefix: "dc") { :unused } }
+
+          assert_equal("Unknown RDF options: prefix", error.message)
+          assert_empty(document.children)
+        end
+
+        def test_rdf_work_rejects_unknown_metadata
+          [
+            ["Unknown license options: titel", -> { License_CC0(titel: "Demo") }],
+            ["Unknown RDF work options: titel", -> { RDFWork(titel: "Demo") }]
+          ].each do |message, operation|
+            document = SVG(:inkscape)
+
+            error = assert_raises(ArgumentError) { document.Within(&operation) }
+
+            assert_equal(message, error.message)
+            assert_empty(document.children)
+          end
+        end
       end
     end
   end
