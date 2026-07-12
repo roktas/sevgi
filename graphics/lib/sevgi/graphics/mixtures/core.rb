@@ -62,7 +62,7 @@ module Sevgi
             insertion = Adoption.index_for(self, new_parent, index)
 
             self.Orphan()
-            (@parent = new_parent).children.insert(insertion, self)
+            Element.send(:attach, self, new_parent, index: insertion)
           end
         end
 
@@ -148,10 +148,13 @@ module Sevgi
           self.name() == name.to_sym
         end
 
-        # Removes this element from its parent.
-        # @return [Sevgi::Graphics::Element, nil] the deleted element, or nil for root elements
+        # Removes this element from its parent and makes it a detached subtree root.
+        # @return [Sevgi::Graphics::Element, nil] self, or nil for root elements
         def Orphan
-          parent.children&.delete(self) unless Root?()
+          return if Root?()
+
+          Element.send(:detach, self)
+          self
         end
 
         # Prepends distinct existing elements as children in argument order.
@@ -167,7 +170,7 @@ module Sevgi
         # @return [Sevgi::Graphics::Element]
         def Root
           element = self
-          element = element.parent until element.Root?()
+          element = element.parent while element.parent
 
           element
         end
@@ -215,7 +218,7 @@ module Sevgi
           loop do
             yield(element, height).tap { return it.value if it.is_a?(Stop) }
 
-            break if element.Root?()
+            break unless element.parent
 
             element = element.parent
             height += 1

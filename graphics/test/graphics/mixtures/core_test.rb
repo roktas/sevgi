@@ -336,6 +336,22 @@ module Sevgi
 
           assert_same(element, orphaned)
           assert_empty(parent.children)
+          assert_nil(element.parent)
+          refute(element.Root?())
+          assert_same(element, element.Root())
+        end
+
+        def test_tree_collections_are_read_only_snapshots
+          element = SVG { text("value") }
+          children = element.children
+          contents = children.first.contents
+
+          assert_predicate(children, :frozen?)
+          assert_predicate(contents, :frozen?)
+          assert_raises(FrozenError) { children.clear }
+          assert_raises(FrozenError) { contents.clear }
+          assert_equal([:text], element.children.map(&:name))
+          assert_equal(["value"], element.children.first.contents.map(&:content))
         end
 
         def test_tree_construction_appends_children

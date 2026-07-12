@@ -8,13 +8,11 @@ module Sevgi
     class Element
       class ElementInstanceTest < Minitest::Test
         def test_element_construction_without_block
-          root = Element.send(:new, :g, parent: Element::RootParent, attributes: {"data-var": 42}, contents: ["foo"])
+          root = Element.root("foo", "data-var": 42)
 
           [
-            :g,
+            :svg,
             root.name,
-            Element::RootParent,
-            root.parent,
             [],
             root.children,
             {"data-var": 42},
@@ -24,6 +22,7 @@ module Sevgi
             true,
             Element.root?(root)
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+          assert_nil(root.parent)
 
           child = Element.send(:new, :"missing-glyph", parent: root, attributes: {id: "glyph"})
 
@@ -45,15 +44,13 @@ module Sevgi
 
         def test_element_construction_with_block
           child = nil
-          root = Element.send(:new, :g, parent: Element::RootParent, attributes: {"data-var": 42}) do
+          root = Element.root("data-var": 42) do
             child = missing_glyph(id: "glyph")
           end
 
           [
-            :g,
+            :svg,
             root.name,
-            Element::RootParent,
-            root.parent,
             [child],
             root.children,
             {"data-var": 42},
@@ -71,6 +68,7 @@ module Sevgi
             false,
             Element.root?(child)
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+          assert_nil(root.parent)
         end
       end
 
@@ -121,8 +119,6 @@ module Sevgi
           [
             :svg,
             root.name,
-            Element::RootParent,
-            root.parent,
             [child],
             root.children,
             {"data-var": 42},
@@ -140,6 +136,7 @@ module Sevgi
             false,
             Element.root?(child)
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+          assert_nil(root.parent)
         end
 
         def test_standard_elements_round_trip_through_dsl

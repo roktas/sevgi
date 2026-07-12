@@ -64,7 +64,7 @@ module Sevgi
         end
 
         def test_duplicate_doesnt_create_a_shallow_copy_of_children
-          group1, group2 = Array.new(2)
+          group1, group2, copied_child = Array.new(3)
 
           doc = SVG do
             group1 = g do
@@ -72,9 +72,9 @@ module Sevgi
             end
 
             group2 = group1.Duplicate()
-            group2.children << nil
-
-            group2.children.first[:"data-var"] = "element1 of group2"
+            copied_child = group2.children.first
+            copied_child[:"data-var"] = "element1 of group2"
+            copied_child.Orphan()
           end
 
           [
@@ -82,17 +82,15 @@ module Sevgi
             doc.children.size,
             1,
             doc.children[0].children.size,
-            2,
+            0,
             doc.children[1].children.size
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
-
-          assert_nil(doc.children[1].children.last)
 
           [
             "element1 of group1",
             group1.children.first[:"data-var"],
             "element1 of group2",
-            group2.children.first[:"data-var"]
+            copied_child[:"data-var"]
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
         end
 
@@ -299,15 +297,17 @@ module Sevgi
           SVG do
             original = text("original")
             copy = original.Duplicate()
-            copy.contents << Content.encoded("copy")
           end
 
           refute_same(original.contents, copy.contents)
+          refute_same(original.contents.first, copy.contents.first)
+          assert_predicate(original.contents, :frozen?)
+          assert_predicate(copy.contents, :frozen?)
 
           [
             ["original"],
             original.contents.map(&:content),
-            %w[original copy],
+            ["original"],
             copy.contents.map(&:content)
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
         end

@@ -59,7 +59,7 @@ module Sevgi
           # @param element [Sevgi::Graphics::Element] source subtree root
           # @param parent [Sevgi::Graphics::Element, Object] parent for the copied root
           # @return [Sevgi::Graphics::Element] copied subtree root
-          def self.copy(element, parent = element.parent)
+          def self.copy(element, parent = Element.send(:tree_parent, element))
             element.dup.tap do |duplicated|
               duplicated.send(:parent=, parent)
               duplicated.send(:attributes=, element.attributes.dup)
@@ -91,7 +91,8 @@ module Sevgi
           # Attaches a copied subtree unless it is a detached root copy.
           # @api private
           def self.attach(element, source, parent)
-            element.Adopt(parent) if parent || !source.Root?()
+            target = parent || source.parent
+            element.Adopt(target) if target
             element
           end
         end

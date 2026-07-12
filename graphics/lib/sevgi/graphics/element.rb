@@ -29,7 +29,23 @@ module Sevgi
       # Reports whether an element is the root element.
       # @param element [Sevgi::Graphics::Element] element to test
       # @return [Boolean]
-      def self.root?(element) = element.parent == RootParent
+      def self.root?(element) = tree_parent(element).equal?(RootParent)
+
+      def self.attach(element, parent, index: nil)
+        children = tree_children(parent)
+        index ? children.insert(index, element) : children << element
+        element.instance_variable_set(:@parent, parent)
+      end
+
+      def self.detach(element)
+        parent = tree_parent(element)
+        tree_children(parent).delete(element) if parent.is_a?(element.class)
+        element.instance_variable_set(:@parent, DetachedParent)
+      end
+
+      def self.tree_children(element) = element.instance_variable_get(:@children)
+
+      def self.tree_parent(element) = element.instance_variable_get(:@parent)
 
       class << self
         require "sevgi/standard"
@@ -46,10 +62,13 @@ module Sevgi
         def valid?(...) = true
       end
 
-      private_class_method :new
+      private_class_method :attach, :detach, :new, :tree_children, :tree_parent
 
-      # Sentinel parent used by root SVG elements.
+      # Sentinel parents used by root and detached elements.
       RootParent = Object.new.tap { def it.inspect = "RootParent" }.freeze
+      DetachedParent = Object.new.tap { def it.inspect = "DetachedParent" }.freeze
+
+      private_constant :DetachedParent, :RootParent
 
       # SVG element method-name normalization.
       # @api private
@@ -71,17 +90,20 @@ module Sevgi
       # @return [Sevgi::Graphics::Attributes]
       attr_reader :attributes
 
-      # Returns child elements.
-      # @return [Array<Sevgi::Graphics::Element>]
-      attr_reader :children
+      # Returns a read-only snapshot of child elements in rendering order.
+      # @return [Array<Sevgi::Graphics::Element>] frozen child snapshot
+      def children = @children.dup.freeze
 
-      # Returns element content objects.
-      # @return [Array<Sevgi::Graphics::Content>]
-      attr_reader :contents
+      # Returns a read-only snapshot of element content objects in rendering order.
+      # @return [Array<Sevgi::Graphics::Content>] frozen content snapshot
+      def contents = @contents.dup.freeze
 
-      # Returns the parent element or root sentinel.
-      # @return [Sevgi::Graphics::Element, Object] parent element or root sentinel
-      attr_reader :parent
+      # Returns the parent element.
+      # @return [Sevgi::Graphics::Element, nil] parent element, or nil for a root or detached element
+      # @note Use `Root?` to distinguish a document root from a detached subtree root.
+      def parent
+        @parent if @parent.is_a?(self.class)
+      end
 
       # Creates an element.
       # @param name [Symbol] SVG element name
@@ -100,10 +122,10 @@ module Sevgi
         @name = XML.name(name, context: "XML element name").to_sym
         @attributes = Attributes.new(attributes)
         @children = []
-        @contents = contents
+        @contents = contents.dup
         @parent = parent
 
-        parent.children << self unless self.class.root?(self)
+        self.class.send(:attach, self, parent) unless self.class.root?(self)
 
         instance_exec(&block) if block
       end
