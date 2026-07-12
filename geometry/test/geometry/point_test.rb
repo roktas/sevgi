@@ -32,6 +32,7 @@ module Sevgi
         [
           ["x", 0],
           [Object.new, 0],
+          [Complex(1, 0), 0],
           [Complex(1, 2), 0],
           [Float::INFINITY, 0],
           [Float::NAN, 0],
@@ -108,6 +109,31 @@ module Sevgi
           Point[7, 4],
           point.skew(45, 0).approx
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+      end
+
+      def test_point_affinity_rejects_invalid_operands
+        point = Point[3, 4]
+        invalid = ["oops", Complex(1, 0), Float::INFINITY, Float::NAN]
+        operations = [
+          -> (value) { point.rotate(value) },
+          -> (value) { point.scale(value) },
+          -> (value) { point.scale(1, value) },
+          -> (value) { point.skew(value) },
+          -> (value) { point.skew(1, value) },
+          -> (value) { point.skew_x(value) },
+          -> (value) { point.skew_y(value) },
+          -> (value) { point.translate(value) },
+          -> (value) { point.translate(1, value) }
+        ]
+
+        invalid.product(operations).each do |value, operation|
+          assert_raises(Error) { operation.call(value) }
+        end
+
+        [nil, 0, "true"].each do |value|
+          assert_raises(Error) { point.reflect(x: value) }
+          assert_raises(Error) { point.reflect(y: value) }
+        end
       end
 
       def test_point_sort_orders_by_x_then_y

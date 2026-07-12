@@ -11,8 +11,8 @@ module Sevgi
       # @return [Float] finite float value
       # @raise [Sevgi::Geometry::Error] when value is not a Numeric, cannot be converted to Float, or is not finite
       def self.[](field, value)
-        unless value.is_a?(::Numeric)
-          Error.("Geometry #{field} must be a finite Numeric: #{value.inspect}")
+        unless value.is_a?(::Numeric) && !value.is_a?(::Complex)
+          Error.("Geometry #{field} must be a finite real Numeric: #{value.inspect}")
         end
 
         number = coerce(field, value)
@@ -27,7 +27,7 @@ module Sevgi
       def self.coerce(field, value)
         value.to_f
       rescue ::StandardError => e
-        Error.("Geometry #{field} must be a finite Numeric: #{value.inspect} (#{e.message})")
+        Error.("Geometry #{field} must be a finite real Numeric: #{value.inspect} (#{e.message})")
       end
 
       private_class_method :coerce

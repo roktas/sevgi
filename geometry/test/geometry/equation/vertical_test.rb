@@ -77,6 +77,17 @@ module Sevgi
             ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
           end
 
+          def test_vertical_mapping_and_shift_reject_invalid_operands
+            equation = Equation.vertical(1)
+
+            ["oops", Complex(1, 0), Float::INFINITY, Float::NAN].each do |value|
+              assert_raises(Error) { equation.x(value) }
+              assert_raises(Error) { equation.shift(value) }
+              assert_raises(Error) { equation.shift(dx: value) }
+              assert_raises(Error) { equation.shift(dy: value) }
+            end
+          end
+
           def test_vertical_diagonal_solution
             equ = Equation.vertical(5.0)
             line = Geometry::Line.([-2, -1], [0, 1])

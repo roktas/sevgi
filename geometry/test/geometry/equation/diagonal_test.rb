@@ -29,6 +29,19 @@ module Sevgi
             ].each_slice(2) { |expected, actual| assert_in_delta(expected, actual) }
           end
 
+          def test_diagonal_mappings_and_shift_reject_invalid_operands
+            equation = Equation.diagonal(slope: 2, intercept: 1)
+            invalid = ["oops", Complex(1, 0), Float::INFINITY, Float::NAN]
+
+            invalid.each do |value|
+              assert_raises(Error) { equation.x(value) }
+              assert_raises(Error) { equation.y(value) }
+              assert_raises(Error) { equation.shift(value) }
+              assert_raises(Error) { equation.shift(dx: value) }
+              assert_raises(Error) { equation.shift(dy: value) }
+            end
+          end
+
           def test_diagonal_rejects_invalid_coefficients
             ["2", Object.new, Float::INFINITY, Float::NAN].each do |value|
               assert_raises(Error) { Equation.diagonal(slope: value, intercept: 0) }

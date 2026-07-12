@@ -71,6 +71,23 @@ module Sevgi
         assert_equal(:ok, hash[element])
         assert_equal(:ok, thread_hash[element])
       end
+
+      def test_lined_affinity_and_at_reject_invalid_operands
+        element = Rect[2, 3]
+        original = element.points
+
+        [
+          -> { element.at(dx: "oops") },
+          -> { element.at(dy: Float::INFINITY) },
+          -> { element.rotate("oops") },
+          -> { element.scale(Complex(1, 0)) },
+          -> { element.skew(Float::NAN) },
+          -> { element.translate(Object.new) },
+          -> { element.reflect(x: 1) }
+        ].each { |operation| assert_raises(Error, &operation) }
+
+        assert_same(original, element.points)
+      end
     end
   end
 end

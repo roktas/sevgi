@@ -80,7 +80,11 @@ module Sevgi
       # Returns a parallel line shifted by a signed perpendicular offset.
       # @param distance [Numeric] signed perpendicular offset
       # @return [Sevgi::Geometry::Line]
-      def shift(distance) = translate(distance * F.sin(angle), -distance * F.cos(angle))
+      # @raise [Sevgi::Geometry::Error] when distance is not a finite real number
+      def shift(distance)
+        distance = Real[:distance, distance]
+        translate(distance * F.sin(angle), -distance * F.cos(angle))
+      end
 
       private
 

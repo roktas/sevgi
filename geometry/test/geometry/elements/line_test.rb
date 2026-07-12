@@ -113,6 +113,12 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
+      def test_line_shift_rejects_invalid_distance
+        ["oops", Complex(1, 0), Float::INFINITY, Float::NAN].each do |value|
+          assert_raises(Error) { line345.shift(value) }
+        end
+      end
+
       def test_line_ignorable_detects_zero_box
         assert(Line[0, 0].ignorable?)
         refute(line345.ignorable?)

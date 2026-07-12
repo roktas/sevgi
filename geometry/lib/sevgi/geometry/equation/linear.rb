@@ -5,6 +5,14 @@ module Sevgi
     class Equation
       # Base class for linear equations.
       class Linear < Equation
+        def shift_values(distance, dx, dy)
+          [[:distance, distance], [:dx, dx], [:dy, dy]].map do |field, value|
+            value.nil? ? 0.0 : Real[field, value]
+          end
+        end
+
+        private :shift_values
+
         # Non-axis-aligned linear equation in `y = slope * x + intercept` form.
         class Diagonal < Linear
           public_class_method :new
@@ -81,14 +89,12 @@ module Sevgi
           # @param dx [Numeric, nil] explicit x translation
           # @param dy [Numeric, nil] explicit y translation
           # @return [Sevgi::Geometry::Equation::Linear::Diagonal]
+          # @raise [Sevgi::Geometry::Error] when an operand is not a finite real number
           def shift(distance = nil, dx: nil, dy: nil)
-            dx ||= 0.0
-            dy ||= 0.0
-
-            if distance
-              dx += distance * F.sin(angle = F.atan(slope))
-              dy -= distance * F.cos(angle)
-            end
+            distance, dx, dy = shift_values(distance, dx, dy)
+            angle = F.atan(slope)
+            dx += distance * F.sin(angle)
+            dy -= distance * F.cos(angle)
 
             Diagonal.new(slope:, intercept: intercept - (slope * dx) + dy)
           end
@@ -107,12 +113,14 @@ module Sevgi
           # Evaluates x for a y coordinate.
           # @param y [Numeric] y coordinate
           # @return [Float]
-          def x(y) = (y - intercept) / slope
+          # @raise [Sevgi::Geometry::Error] when y is not a finite real number
+          def x(y) = (Real[:y, y] - intercept) / slope
 
           # Evaluates y for an x coordinate.
           # @param x [Numeric] x coordinate
           # @return [Float]
-          def y(x) = (slope * x) + intercept
+          # @raise [Sevgi::Geometry::Error] when x is not a finite real number
+          def y(x) = (slope * Real[:x, x]) + intercept
 
           alias == eql?
         end
@@ -139,10 +147,11 @@ module Sevgi
           # @param dx [Numeric, nil] accepted for signature compatibility and ignored
           # @param dy [Numeric, nil] explicit y translation
           # @return [Sevgi::Geometry::Equation::Linear::Horizontal]
+          # @raise [Sevgi::Geometry::Error] when an operand is not a finite real number
           def shift(distance = nil, dx: nil, dy: nil)
-            _dx = dx
+            distance, _dx, dy = shift_values(distance, dx, dy)
 
-            self.class.new(intercept + (dy || 0.0) - (distance || 0.0))
+            self.class.new(intercept + dy - distance)
           end
 
           # Rejects x lookup because a horizontal equation does not determine one x coordinate.
@@ -221,10 +230,11 @@ module Sevgi
           # @param dx [Numeric, nil] explicit x translation
           # @param dy [Numeric, nil] accepted for signature compatibility and ignored
           # @return [Sevgi::Geometry::Equation::Linear::Vertical]
+          # @raise [Sevgi::Geometry::Error] when an operand is not a finite real number
           def shift(distance = nil, dx: nil, dy: nil)
-            _dy = dy
+            distance, dx, _dy = shift_values(distance, dx, dy)
 
-            self.class.new(x + (distance || 0.0) + (dx || 0.0))
+            self.class.new(x + distance + dx)
           end
 
           # Formats the equation for display.
@@ -232,9 +242,13 @@ module Sevgi
           def to_s = "Linear<x = #{F.approx(x)}>"
 
           # Evaluates x for a y coordinate.
-          # @param _ [Numeric, nil] ignored y coordinate
+          # @param y [Numeric, nil] ignored finite y coordinate
           # @return [Float]
-          def x(_ = nil) = @x
+          # @raise [Sevgi::Geometry::Error] when y is present and not a finite real number
+          def x(y = nil)
+            Real[:y, y] unless y.nil?
+            @x
+          end
 
           # Evaluates y for an x coordinate.
           # @param _x [Numeric] x coordinate

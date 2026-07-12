@@ -11,40 +11,67 @@ module Sevgi
       # @param x [Boolean] reflect across the x-axis
       # @param y [Boolean] reflect across the y-axis
       # @return [Sevgi::Geometry::Point]
-      def reflect(x: true, y: true) = with(x: (y ? -1 : 1) * self.x(), y: (x ? -1 : 1) * self.y())
+      # @raise [Sevgi::Geometry::Error] when a flag is not Boolean
+      def reflect(x: true, y: true)
+        Error.("Reflection x flag must be Boolean") unless x.equal?(true) || x.equal?(false)
+        Error.("Reflection y flag must be Boolean") unless y.equal?(true) || y.equal?(false)
+
+        with(x: (y ? -1 : 1) * self.x(), y: (x ? -1 : 1) * self.y())
+      end
 
       # Rotates a point around the origin using screen-space degrees.
       # @param a [Numeric] clockwise angle in degrees
       # @return [Sevgi::Geometry::Point]
-      def rotate(a) = with(x: (x * F.cos(a)) - (y * F.sin(a)), y: (x * F.sin(a)) + (y * F.cos(a)))
+      # @raise [Sevgi::Geometry::Error] when angle is not a finite real number
+      def rotate(a)
+        a = Real[:angle, a]
+        with(x: (x * F.cos(a)) - (y * F.sin(a)), y: (x * F.sin(a)) + (y * F.cos(a)))
+      end
 
       # Scales a point from the origin.
       # @param sx [Numeric] x scale factor
       # @param sy [Numeric, Sevgi::Undefined] y scale factor, defaulting to sx
       # @return [Sevgi::Geometry::Point]
-      def scale(sx, sy = Undefined) = with(x: sx * x, y: Undefined.default(sy, sx) * y)
+      # @raise [Sevgi::Geometry::Error] when a scale is not a finite real number
+      def scale(sx, sy = Undefined)
+        sx = Real[:sx, sx]
+        sy = Real[:sy, Undefined.default(sy, sx)]
+        with(x: sx * x, y: sy * y)
+      end
 
       # Skews a point from the origin.
       # @param ax [Numeric] x-axis skew angle in degrees
       # @param ay [Numeric, Sevgi::Undefined] y-axis skew angle in degrees, defaulting to ax
       # @return [Sevgi::Geometry::Point]
-      def skew(ax, ay = Undefined) = with(x: x + (y * F.tan(ax)), y: y + (x * F.tan(Undefined.default(ay, ax))))
+      # @raise [Sevgi::Geometry::Error] when an angle is not a finite real number
+      def skew(ax, ay = Undefined)
+        ax = Real[:ax, ax]
+        ay = Real[:ay, Undefined.default(ay, ax)]
+        with(x: x + (y * F.tan(ax)), y: y + (x * F.tan(ay)))
+      end
 
       # Skews a point along x.
       # @param a [Numeric] skew angle in degrees
       # @return [Sevgi::Geometry::Point]
-      def skew_x(a) = with(x: x + (y * F.tan(a)))
+      # @raise [Sevgi::Geometry::Error] when angle is not a finite real number
+      def skew_x(a) = with(x: x + (y * F.tan(Real[:angle, a])))
 
       # Skews a point along y.
       # @param a [Numeric] skew angle in degrees
       # @return [Sevgi::Geometry::Point]
-      def skew_y(a) = with(y: y + (x * F.tan(a)))
+      # @raise [Sevgi::Geometry::Error] when angle is not a finite real number
+      def skew_y(a) = with(y: y + (x * F.tan(Real[:angle, a])))
 
       # Translates a point.
       # @param dx [Numeric] x offset
       # @param dy [Numeric, Sevgi::Undefined] y offset, defaulting to dx
       # @return [Sevgi::Geometry::Point]
-      def translate(dx, dy = Undefined) = with(x: x + dx, y: y + Undefined.default(dy, dx))
+      # @raise [Sevgi::Geometry::Error] when an offset is not a finite real number
+      def translate(dx, dy = Undefined)
+        dx = Real[:dx, dx]
+        dy = Real[:dy, Undefined.default(dy, dx)]
+        with(x: x + dx, y: y + dy)
+      end
     end
 
     # Immutable point in SVG/screen coordinates.

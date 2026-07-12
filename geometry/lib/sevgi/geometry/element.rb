@@ -30,9 +30,11 @@ module Sevgi
       # @param dx [Numeric] additional x offset
       # @param dy [Numeric] additional y offset
       # @return [Sevgi::Geometry::Element] translated element
-      # @raise [Sevgi::Geometry::Error] when point cannot be coerced
+      # @raise [Sevgi::Geometry::Error] when point or an offset cannot be coerced to finite geometry values
       def at(point = nil, dx: 0, dy: 0)
         point = point ? Tuple[Point, point] : position
+        dx = Real[:dx, dx]
+        dy = Real[:dy, dy]
 
         translate(
           (point.x - position.x) + dx,
@@ -271,39 +273,46 @@ module Sevgi
         #   # @param x [Boolean] reflect across the x-axis
         #   # @param y [Boolean] reflect across the y-axis
         #   # @return [Sevgi::Geometry::Element::Lined]
+        #   # @raise [Sevgi::Geometry::Error] when a flag is not Boolean
         #   def reflect(x: true, y: true); end
         #
         #   # Returns an element rotated around the origin.
         #   # @param a [Numeric] clockwise angle in degrees
         #   # @return [Sevgi::Geometry::Element::Lined]
+        #   # @raise [Sevgi::Geometry::Error] when angle is not a finite real number
         #   def rotate(a); end
         #
         #   # Returns an element scaled from the origin.
         #   # @param sx [Numeric] x scale factor
         #   # @param sy [Numeric, Sevgi::Undefined] y scale factor, defaulting to sx
         #   # @return [Sevgi::Geometry::Element::Lined]
+        #   # @raise [Sevgi::Geometry::Error] when a scale is not a finite real number
         #   def scale(sx, sy = Undefined); end
         #
         #   # Returns an element skewed from the origin.
         #   # @param ax [Numeric] x-axis skew angle in degrees
         #   # @param ay [Numeric, Sevgi::Undefined] y-axis skew angle in degrees, defaulting to ax
         #   # @return [Sevgi::Geometry::Element::Lined]
+        #   # @raise [Sevgi::Geometry::Error] when an angle is not a finite real number
         #   def skew(ax, ay = Undefined); end
         #
         #   # Returns an element skewed along x.
         #   # @param a [Numeric] skew angle in degrees
         #   # @return [Sevgi::Geometry::Element::Lined]
+        #   # @raise [Sevgi::Geometry::Error] when angle is not a finite real number
         #   def skew_x(a); end
         #
         #   # Returns an element skewed along y.
         #   # @param a [Numeric] skew angle in degrees
         #   # @return [Sevgi::Geometry::Element::Lined]
+        #   # @raise [Sevgi::Geometry::Error] when angle is not a finite real number
         #   def skew_y(a); end
         #
         #   # Returns an element translated by offset.
         #   # @param dx [Numeric] x offset
         #   # @param dy [Numeric, Sevgi::Undefined] y offset, defaulting to dx
         #   # @return [Sevgi::Geometry::Element::Lined]
+        #   # @raise [Sevgi::Geometry::Error] when an offset is not a finite real number
         #   def translate(dx, dy = Undefined); end
         Geometry::Affinity.instance_methods.each do |transform|
           define_method(transform) do |*args, **kwargs, &block|

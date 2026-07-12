@@ -50,6 +50,16 @@ module Sevgi
             ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
           end
 
+          def test_horizontal_shift_rejects_invalid_operands
+            equation = Equation.horizontal(1)
+
+            ["oops", Complex(1, 0), Float::INFINITY, Float::NAN].each do |value|
+              assert_raises(Error) { equation.shift(value) }
+              assert_raises(Error) { equation.shift(dx: value) }
+              assert_raises(Error) { equation.shift(dy: value) }
+            end
+          end
+
           def test_horizontal_to_s_preserves_sign
             assert_equal("Linear<y = -3.0>", Equation.horizontal(-3.0).to_s)
           end
