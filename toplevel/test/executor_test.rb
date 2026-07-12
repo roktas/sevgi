@@ -427,18 +427,7 @@ module Sevgi
       ready = Queue.new
       release = Queue.new
 
-      results = receivers.map do |receiver|
-        Thread.new do
-          seen = nil
-          result = Executor.execute("1", receiver:) do
-            seen = self
-            ready << true
-            release.pop
-          end
-
-          [receiver, seen, result.value]
-        end
-      end
+      results = receivers.map { concurrent_boot(it, ready, release) }
 
       receivers.size.times { ready.pop }
       receivers.size.times { release << true }
@@ -607,6 +596,19 @@ module Sevgi
     end
 
     private
+
+    def concurrent_boot(receiver, ready, release)
+      Thread.new do
+        seen = nil
+        result = Executor.execute("1", receiver:) do
+          seen = self
+          ready << true
+          release.pop
+        end
+
+        [receiver, seen, result.value]
+      end
+    end
 
     def assert_concurrent_load_result(result, label, paths)
       actual, scope, error = result
