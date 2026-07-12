@@ -6,6 +6,18 @@ module Sevgi
   module Graphics
     module Mixtures
       class CallTest < Minitest::Test
+        FrozenCallable = ::Module
+          .new do
+            extend(Graphics::Module)
+
+            base { rect(id: "base") }
+
+            def call(id)
+              rect(id:)
+            end
+          end
+          .freeze
+
         def test_call_discovers_all_public_entry_points
           included = ::Module.new do
             def included_item
@@ -321,6 +333,42 @@ module Sevgi
           doc.Call(mod)
 
           assert_equal(%w[first second], doc.children.map { it[:id] })
+        end
+
+        def test_call_accepts_frozen_modules
+          anonymous = ::Module
+            .new do
+              extend(Graphics::Module)
+
+              def call(id)
+                rect(id:)
+              end
+            end
+            .freeze
+          duplicated = FrozenCallable.dup.freeze
+
+          [FrozenCallable, FrozenCallable, duplicated, anonymous].each_with_index do |mod, index|
+            doc = SVG(:minimal)
+            doc.Call(mod, index.to_s)
+
+            expected = mod.equal?(anonymous) ? [index.to_s] : ["base", index.to_s]
+            assert_equal(expected, doc.children.map { it[:id] })
+          end
+        end
+
+        def test_call_accepts_concurrent_frozen_module
+          results = 8
+            .times
+            .map do |index|
+              Thread.new do
+                doc = SVG(:minimal)
+                doc.Call(FrozenCallable, index.to_s)
+                doc.children.map { it[:id] }
+              end
+            end
+            .map(&:value)
+
+          assert_equal(8.times.map { ["base", it.to_s] }, results)
         end
 
         def test_call_rejects_non_module_argument

@@ -6,6 +6,7 @@ module Sevgi
     # Extend a plain Ruby module with this API to make its public instance methods callable drawing steps. Name the
     # method `call` when the module has a single drawing step; use descriptive method names when it has multiple steps.
     # Base blocks add argument-independent shared SVG content once per invocation before the public drawing methods.
+    # Invocation does not change the configured module, so it may be frozen after its drawing steps are defined.
     # @example Define and call a drawing module
     #   Widget = Module.new do
     #     extend Sevgi::Graphics::Module
@@ -145,13 +146,7 @@ module Sevgi
       end
 
       def self.context(mod, receiver)
-        klass = mod.instance_variable_get(:@sevgi_context)
-        unless klass
-          klass = ::Class.new(Context) { include(mod) }
-          mod.instance_variable_set(:@sevgi_context, klass)
-        end
-
-        klass.new(mod, receiver)
+        ::Class.new(Context) { include(mod) }.new(mod, receiver)
       end
 
       def self.invoke(context, receiver, methods, ...)
