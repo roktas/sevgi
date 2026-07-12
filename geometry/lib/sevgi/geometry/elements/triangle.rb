@@ -7,7 +7,8 @@ module Sevgi
     TriangleBase = Element.lined(3)
     private_constant :TriangleBase
 
-    # Closed three-sided element built from two non-collinear adjacent segments.
+    # Closed three-sided element built from non-collinear segments or points. Every construction path rejects
+    # degenerate triangles; affine operations retain Triangle when the transformed points remain non-degenerate.
     class Triangle < TriangleBase
       # Builds a triangle from two adjacent segments.
       #
@@ -42,6 +43,12 @@ module Sevgi
       end
 
       private_class_method :closing_segment, :cross, :validate!
+
+      private
+
+      def validate_geometry!
+        self.class.send(:validate!, segments[0], segments[1])
+      end
     end
   end
 end

@@ -7,7 +7,9 @@ module Sevgi
     RectBase = Element.lined(4)
     private_constant :RectBase
 
-    # Closed four-sided rectangle aligned to the screen axes.
+    # Closed four-sided rectangle aligned to the screen axes. Affine operations return Rect while the result remains
+    # axis-aligned and widen to {Parallelogram} after rotation or skew changes that category. A Square similarly widens
+    # to Rect after unequal scaling.
     class Rect < RectBase
       # @overload [](width, height, position: Origin)
       #   Builds a rectangle from size and top-left position.
@@ -15,7 +17,7 @@ module Sevgi
       #   @param height [Numeric] rectangle height
       #   @param position [Sevgi::Geometry::Point, Array<Numeric>] top-left position
       #   @return [Sevgi::Geometry::Rect]
-      #   @raise [Sevgi::Geometry::Error] when position cannot be coerced
+      #   @raise [Sevgi::Geometry::Error] when position cannot be coerced or a dimension is negative
       def self.[](...) = from_size(...)
 
       # @overload call(top_left, bottom_right)
@@ -33,14 +35,10 @@ module Sevgi
       # @raise [Sevgi::Geometry::Error] when either point cannot be coerced
       def self.from_corners(top_left, bottom_right)
         top_left, bottom_right = Tuples[Point, top_left, bottom_right]
-        width = (bottom_right.x - top_left.x).abs
+        left, right = [top_left.x, bottom_right.x].minmax
+        top, bottom = [top_left.y, bottom_right.y].minmax
 
-        new_by_points(
-          top_left,
-          top_left.translate(width, 0.0),
-          bottom_right,
-          bottom_right.translate(-width, 0.0)
-        )
+        from_size(right - left, bottom - top, position: [left, top])
       end
 
       # Builds a rectangle from size and top-left position.
@@ -48,8 +46,11 @@ module Sevgi
       # @param height [Numeric] rectangle height
       # @param position [Sevgi::Geometry::Point, Array<Numeric>] top-left position
       # @return [Sevgi::Geometry::Rect]
-      # @raise [Sevgi::Geometry::Error] when position cannot be coerced
+      # @raise [Sevgi::Geometry::Error] when position cannot be coerced or a dimension is negative
       def self.from_size(width, height, position: Origin)
+        width = dimension!(:width, width)
+        height = dimension!(:height, height)
+
         new_by_segments(
           Segment.rightward(width),
           Segment.downward(height),
@@ -58,6 +59,39 @@ module Sevgi
           position:
         )
       end
+
+      def self.affine(*points)
+        left, right, top, bottom = bounds(points)
+        width, height = right - left, bottom - top
+
+        unless axis_aligned?(points, left, right, top, bottom)
+          return Parallelogram.new_by_points!(*points)
+        end
+
+        klass = self <= Square && F.eq?(width, height) ? Square : Rect
+        klass.from_size(width, height, position: [left, top])
+      end
+
+      def self.axis_aligned?(points, left, right, top, bottom)
+        expected = [[left, top], [right, top], [right, bottom], [left, bottom]]
+        vertices = points.first(4)
+
+        expected.all? { |corner| vertices.any? { it.eq?(Point[*corner]) } }
+      end
+
+      def self.bounds(points)
+        vertices = points.first(4)
+        [vertices.map(&:x).min, vertices.map(&:x).max, vertices.map(&:y).min, vertices.map(&:y).max]
+      end
+
+      def self.dimension!(name, value)
+        value = Real[name, value]
+        Error.("Rectangle #{name} cannot be negative") if value.negative?
+
+        value
+      end
+
+      private_class_method :affine, :axis_aligned?, :bounds, :dimension!
 
       # Draws the rectangle into a graphics node.
       # @param node [Object] graphics node receiving the drawing command
@@ -111,6 +145,16 @@ module Sevgi
       %i[top right bottom left].each_with_index do |side, i|
         define_method(side) { lines[i] }
       end
+
+      private
+
+      def validate_geometry!
+        left, right, top, bottom = self.class.send(:bounds, points)
+        expected = [[left, top], [right, top], [right, bottom], [left, bottom], [left, top]]
+        valid = points.zip(expected).all? { |point, pair| point.eq?(Point[*pair]) }
+
+        Error.("Rectangle points must form an axis-aligned rectangle") unless valid
+      end
     end
 
     # Rectangle with equal width and height.
@@ -122,8 +166,15 @@ module Sevgi
       # @param length [Numeric] side length
       # @param position [Sevgi::Geometry::Point, Array<Numeric>] top-left position
       # @return [Sevgi::Geometry::Square]
-      # @raise [Sevgi::Geometry::Error] when position cannot be coerced
+      # @raise [Sevgi::Geometry::Error] when position cannot be coerced or length is negative
       def self.[](length, position: Origin) = from_size(length, length, position:)
+
+      private
+
+      def validate_geometry!
+        super
+        Error.("Square sides must have equal length") unless F.eq?(width, height)
+      end
     end
   end
 end

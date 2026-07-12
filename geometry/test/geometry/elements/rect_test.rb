@@ -89,6 +89,20 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
+      def test_rect_from_corners_normalizes_reversed_points
+        rect = Rect.from_corners([4, 6], [1, 2])
+
+        assert_equal(Rect[3, 4, position: [1, 2]], rect)
+      end
+
+      def test_rect_rejects_negative_dimensions
+        [
+          -> { Rect[-1, 2] },
+          -> { Rect[1, -2] },
+          -> { Square[-1] }
+        ].each { assert_raises(Error, &it) }
+      end
+
       def test_rect_at_moves_to_absolute_position
         rect = Rect[3, 4, position: [1, 2]]
 
@@ -125,6 +139,11 @@ module Sevgi
           Point[1, 2],
           square.position
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+      end
+
+      def test_square_rejects_unequal_construction
+        assert_raises(Error) { Square.from_size(2, 3) }
+        assert_raises(Error) { Square.from_corners([0, 0], [2, 3]) }
       end
 
       def test_rect_inside_predicate_accepts_inner_point

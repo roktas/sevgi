@@ -88,6 +88,43 @@ module Sevgi
 
         assert_same(original, element.points)
       end
+
+      def test_lined_affinity_preserves_or_widens_shape_class
+        [
+          Line[2, 30],
+          Line,
+          Triangle[[2, 0], [2, 90]],
+          Triangle,
+          Parallelogram[[2, 0], [2, 90]],
+          Parallelogram,
+          Polygon.([0, 0], [2, 0], [1, 1]),
+          Polygon,
+          Polyline.([0, 0], [2, 0], [1, 1]),
+          Polyline
+        ].each_slice(2) { |shape, klass| assert_instance_of(klass, shape.rotate(30)) }
+
+        rect = Rect[2, 3]
+        square = Square[2]
+
+        assert_instance_of(Rect, rect.translate(1, 2))
+        assert_instance_of(Rect, rect.rotate(90))
+        assert_instance_of(Parallelogram, rect.rotate(30))
+        assert_instance_of(Parallelogram, rect.skew_x(15))
+        assert_instance_of(Square, square.translate(1, 2))
+        assert_instance_of(Rect, square.scale(2, 1))
+        assert_instance_of(Parallelogram, square.rotate(30))
+      end
+
+      def test_widened_rect_draws_transformed_points
+        attrs = nil
+        node = Object.new
+        node.define_singleton_method(:polygon) { |**kwargs| attrs = kwargs }
+        result = Rect[2, 3, position: [1, 1]].rotate(30)
+
+        result.draw(node)
+
+        assert_equal(result.points(true).map { it.deconstruct.join(",") }, attrs[:points])
+      end
     end
   end
 end

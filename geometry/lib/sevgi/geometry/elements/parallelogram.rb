@@ -7,7 +7,8 @@ module Sevgi
     ParallelogramBase = Element.lined(4)
     private_constant :ParallelogramBase
 
-    # Closed four-sided element built from horizontal and vertical segments.
+    # Closed four-sided element whose opposite sides are equal and parallel. Every construction path rejects
+    # degenerate or unrelated side pairs; affine operations preserve the class while that invariant holds.
     class Parallelogram < ParallelogramBase
       # Builds a parallelogram from adjacent horizontal and vertical segments.
       # @param horizontal [Sevgi::Geometry::Segment, Array<Numeric>] horizontal segment
@@ -70,6 +71,19 @@ module Sevgi
 
         self[Segment[width / cosine, angle], vertical, position:]
       end
+
+      private
+
+      def validate_geometry!
+        a, b, c, d = segments
+        valid = opposite?(a, c) && opposite?(b, d) && !F.zero?(cross(a, b))
+
+        Error.("Parallelogram sides must be non-degenerate opposite pairs") unless valid
+      end
+
+      def cross(a, b) = (a.x * b.y) - (a.y * b.x)
+
+      def opposite?(a, b) = F.zero?(a.x + b.x) && F.zero?(a.y + b.y)
     end
   end
 end

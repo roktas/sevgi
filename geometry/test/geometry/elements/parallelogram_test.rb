@@ -23,6 +23,10 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
+      def test_parallelogram_rejects_unrelated_points
+        assert_raises(Error) { Parallelogram.from_points([0, 0], [2, 0], [3, 1], [0, 1]) }
+      end
+
       def test_parallelogram_new_by_height_preserves_tallness
         [[3.0, 90.0], LengthAngle.new(length: 3.0, angle: 90.0)].each do |tallness|
           parallelogram = Parallelogram.new_by_height(

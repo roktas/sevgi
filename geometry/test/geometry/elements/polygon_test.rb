@@ -37,6 +37,10 @@ module Sevgi
 
         assert_equal("Element points must form a closed path", error.message)
       end
+
+      def test_polygon_requires_three_vertices
+        assert_raises(Error) { Polygon.([0, 0], [1, 0]) }
+      end
     end
   end
 end

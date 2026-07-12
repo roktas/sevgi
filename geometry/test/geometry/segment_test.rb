@@ -19,6 +19,7 @@ module Sevgi
 
       def test_segment_rejects_invalid_direct_components
         [
+          [-1, 0],
           ["x", 0],
           [Object.new, 0],
           [Complex(1, 2), 0],

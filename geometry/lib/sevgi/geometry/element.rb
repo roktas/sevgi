@@ -151,6 +151,8 @@ module Sevgi
         #   @raise [Sevgi::Geometry::Error] when segments or position cannot be coerced
         def self.from_segments(...) = new_by_segments(...)
 
+        def self.affine(*points) = new_by_points!(*points)
+
         # @overload new_by_points(*points)
         #   Builds an element from points, applying closed-path behavior where appropriate.
         #   @param points [Array<Sevgi::Geometry::Point, Array<Numeric>>] boundary points
@@ -182,7 +184,7 @@ module Sevgi
           end
         end
 
-        private_class_method(:new)
+        private_class_method :affine, :new
 
         def self.define_line_shortcuts(klass, point_names, open:)
           line_names = point_names.each_cons(2).map(&:join)
@@ -224,6 +226,7 @@ module Sevgi
           freeze_geometry!
 
           sanitize
+          validate_geometry!
         end
 
         # Core methods
@@ -267,6 +270,9 @@ module Sevgi
         end
 
         # Affinity methods
+
+        # Affine operations preserve a shape class while its semantic invariant still holds. Axis-aligned Rect and
+        # Square instances widen to Rect or Parallelogram when rotation, skew, or unequal scaling changes that category.
 
         # @!parse
         #   # Returns an element reflected across the selected axes.
@@ -316,7 +322,8 @@ module Sevgi
         #   def translate(dx, dy = Undefined); end
         Geometry::Affinity.instance_methods.each do |transform|
           define_method(transform) do |*args, **kwargs, &block|
-            self.class.new_by_points!(*points.map { it.public_send(transform, *args, **kwargs, &block) })
+            transformed = points.map { it.public_send(transform, *args, **kwargs, &block) }
+            self.class.send(:affine, *transformed)
           end
         end
 
@@ -503,6 +510,8 @@ module Sevgi
           Error.("Wrong number of segments; expected #{ns} where found #{segments.size}") unless segments.size == ns
           Error.("Element points must form a closed path") if self.class.close? && !points.first.eq?(points.last)
         end
+
+        def validate_geometry! = nil
       end
 
       # Reserved base for future arced elements.

@@ -66,8 +66,13 @@ module Sevgi
       # @param length [Numeric] segment length
       # @param angle [Numeric] clockwise angle in degrees
       # @return [void]
-      # @raise [Sevgi::Geometry::Error] when a component is not a finite Numeric
-      def initialize(length:, angle:) = super(length: Real[:length, length], angle: Real[:angle, angle])
+      # @raise [Sevgi::Geometry::Error] when a component is not finite or length is negative
+      def initialize(length:, angle:)
+        length = Real[:length, length]
+        Error.("Segment length cannot be negative") if length.negative?
+
+        super(length:, angle: Real[:angle, angle])
+      end
 
       # Compares segments by length.
       # @param other [Sevgi::Geometry::Segment, Array<Numeric>] segment to compare

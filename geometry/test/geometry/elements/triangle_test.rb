@@ -34,6 +34,10 @@ module Sevgi
         end
       end
 
+      def test_triangle_rejects_degenerate_points
+        assert_raises(Error) { Triangle.from_points([0, 0], [1, 0], [2, 0]) }
+      end
+
       def test_triangle_exposes_side_lengths
         triangle = Triangle[
           [5.0, F.atan2(4.0, 3.0)],
