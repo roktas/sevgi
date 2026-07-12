@@ -76,7 +76,7 @@ module Sevgi
           # Applies an optional translation to a copied subtree.
           # @api private
           def self.translate(element, dx, dy)
-            element.Translate(dx, dy) if dx || dy
+            element.Translate(dx || 0, dy) if dx || dy
           end
 
           # Attaches a copied subtree unless it is a detached root copy.

@@ -256,6 +256,23 @@ module Sevgi
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
         end
 
+        def test_duplicate_preserves_translation_axis
+          source = SVG { rect }.children.first
+
+          assert_nil(source.Duplicate()[:transform])
+          assert_nil(source.Duplicate(dx: 0)[:transform])
+          assert_nil(source.Duplicate(dy: 0)[:transform])
+
+          [
+            "translate(3)",
+            source.Duplicate(dx: 3)[:transform],
+            "translate(0 4)",
+            source.Duplicate(dy: 4)[:transform],
+            "translate(3 4)",
+            source.Duplicate(dx: 3, dy: 4)[:transform]
+          ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+        end
+
         def test_duplicate_copies_content_containers
           original = copy = nil
 
