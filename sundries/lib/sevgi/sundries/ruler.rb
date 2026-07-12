@@ -192,9 +192,10 @@ module Sevgi
         margin = non_negative_number(margin, "Ruler margin")
         @sub = Interval.new(unit, multiple)
 
-        n = divide(unit:, multiple:, brut: @brut, margin:)
+        span = @brut - (2 * margin)
+        ArgumentError.("Ruler fitting span must not be negative") if span.negative?
 
-        ArgumentError.("Ruler fitting span must not be negative") if n.negative?
+        n = divide(unit:, multiple:, span:)
 
         super(@sub, n)
       end
@@ -233,10 +234,9 @@ module Sevgi
       # Computes the number of major intervals fitting in the available span.
       # @param unit [Numeric] subinterval unit length
       # @param multiple [Integer] number of subinterval units per major interval
-      # @param brut [Numeric] full available span
-      # @param margin [Numeric] minimum margin on each side
+      # @param span [Numeric] span available after margins
       # @return [Integer]
-      def divide(unit:, multiple:, brut:, margin:) = F.count(brut - (2 * margin), unit * multiple)
+      def divide(unit:, multiple:, span:) = F.count(span, unit * multiple)
     end
 
     # Ruler variant that always chooses an even number of major intervals.

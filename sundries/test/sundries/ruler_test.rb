@@ -138,22 +138,34 @@ module Sevgi
       end
 
       def test_ruler_handles_zero_fitting_span
-        r = Ruler.new(unit: 10, multiple: 10, brut: 20)
+        [Ruler, RulerEven].each do |type|
+          r = type.new(unit: 10, multiple: 10, brut: 20, margin: 10)
 
-        [
-          0,
-          r.n,
-          0.0,
-          r.d,
-          20.0,
-          r.waste,
-          10.0,
-          r.margin,
-          [0.0],
-          r.ds,
-          [],
-          r.hs
-        ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+          [
+            0,
+            r.n,
+            0.0,
+            r.d,
+            20.0,
+            r.waste,
+            10.0,
+            r.margin,
+            [0.0],
+            r.ds,
+            [],
+            r.hs
+          ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+        end
+      end
+
+      def test_rulers_reject_slightly_negative_fitting_span
+        [Ruler, RulerEven].each do |type|
+          error = assert_raises(ArgumentError) do
+            type.new(unit: 10, multiple: 10, brut: 5, margin: 3)
+          end
+
+          assert_match(/fitting span must not be negative/, error.message)
+        end
       end
 
       def test_ruler_rejects_invalid_dimensions
