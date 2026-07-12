@@ -45,7 +45,7 @@ module Sevgi
       #   @param format [Symbol, String, nil] explicit output format, or nil to infer from output extension
       #   @param width [Numeric, nil] target width in output pixels for PNG, or CSS pixels before PDF point conversion
       #   @param height [Numeric, nil] target height in output pixels for PNG, or CSS pixels before PDF point conversion
-      #   @param dpi [Numeric] CSS pixel density used for absolute SVG units and PDF point conversion
+      #   @param dpi [Numeric] finite positive CSS pixel density; omission uses {DEFAULT_DPI}, but explicit nil is invalid
       #   @param css [String, nil] CSS inserted before the closing svg tag before rendering
       #   @yield [svg] optional source transformation applied before rendering
       #   @yieldparam svg [String] SVG source after optional CSS injection

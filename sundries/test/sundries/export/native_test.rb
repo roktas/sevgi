@@ -216,8 +216,26 @@ module Sevgi
               assert_raises(ExportError) { Export.call(svg(width: 10, height: 10), output, dpi: value) }
             end
 
+            error = assert_raises(ExportError) do
+              Export.call(svg(width: 10, height: 10), output, dpi: nil)
+            end
+
+            assert_equal("Invalid export dpi", error.message)
+            refute_path_exists(output)
+
             numeric = Class.new(Numeric) { def to_f = raise "conversion failed" }.new
             assert_raises(ExportError) { Export.call(svg(width: 10, height: 10), output, width: numeric) }
+          end
+        end
+
+        def test_call_allows_explicit_nil_dimensions
+          Dir.mktmpdir do |dir|
+            output = File.join(dir, "out.png")
+
+            Export.call(svg(width: 10, height: 20), output, width: nil, height: nil)
+
+            surface = Cairo::ImageSurface.from_png(output)
+            assert_equal([10, 20], [surface.width, surface.height])
           end
         end
 

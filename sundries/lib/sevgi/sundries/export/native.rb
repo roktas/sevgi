@@ -24,7 +24,7 @@ module Sevgi
       # @param format [Symbol, String, nil] explicit output format, or nil to infer from output extension
       # @param width [Numeric, nil] finite positive target width in output pixels for PNG, or CSS pixels before PDF point conversion
       # @param height [Numeric, nil] finite positive target height in output pixels for PNG, or CSS pixels before PDF point conversion
-      # @param dpi [Numeric] finite positive CSS pixel density used for absolute SVG units and PDF point conversion
+      # @param dpi [Numeric] finite positive CSS pixel density; omission uses {DEFAULT_DPI}, but explicit nil is invalid
       # @param css [String, nil] CSS inserted before the closing svg tag before rendering
       # @yield [svg] optional source transformation applied before rendering
       # @yieldparam svg [String] SVG source after optional CSS injection
@@ -39,7 +39,7 @@ module Sevgi
         format = format_for(format, output)
         width = dimension(width, "width")
         height = dimension(height, "height")
-        dpi = dimension(dpi, "dpi")
+        dpi = dimension(dpi, "dpi", optional: false)
         ArgumentError.("Export CSS must be a String") unless css.nil? || css.is_a?(String)
 
         svg = styled(svg, css) if css && !css.strip.empty?
@@ -319,8 +319,8 @@ module Sevgi
           ArgumentError.("Export output must be a String-like path: #{e.message}")
         end
 
-        def dimension(value, field)
-          return if value.nil?
+        def dimension(value, field, optional: true)
+          return if value.nil? && optional
           ExportError.(dimension_error(field)) unless value.is_a?(::Numeric)
 
           number = begin
