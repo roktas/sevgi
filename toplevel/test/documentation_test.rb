@@ -35,9 +35,23 @@ module Sevgi
       Sevgi::Sundries::Export::Renderer
     ]
       .freeze
-    PRIVATE_METHODS = %w[
-      Sevgi::Executor.load
-    ].freeze
+    CONSTRUCTORS = {
+      "Sevgi::Executor" => false,
+      "Sevgi::Executor::Error" => true,
+      "Sevgi::Executor::Result" => true,
+      "Sevgi::Geometry::Element" => false,
+      "Sevgi::Geometry::Element::Lined" => false,
+      "Sevgi::Graphics::Content" => false,
+      "Sevgi::Graphics::Content::CData" => false,
+      "Sevgi::Graphics::Content::CSS" => false,
+      "Sevgi::Graphics::Content::Encoded" => false,
+      "Sevgi::Graphics::Content::Verbatim" => false,
+      "Sevgi::Graphics::Element" => false,
+      "Sevgi::Sundries::Grid::Axis" => false,
+      "Sevgi::Sundries::Grid::Axis::Query" => false,
+      "Sevgi::Sundries::Grid::X" => false,
+      "Sevgi::Sundries::Grid::Y" => false
+    }.freeze
     WORKFLOW_EXAMPLES = %w[
       Sevgi::Derender
       Sevgi::Executor
@@ -58,14 +72,31 @@ module Sevgi
     end
 
     def test_api_private_methods_are_runtime_private
-      exposed = PRIVATE_METHODS.filter_map do |path|
-        object = yard(path)
-        next path unless object&.tag(:api)&.text == "private"
+      exposed = registry.all(:method).filter_map do |object|
+        next unless object.tag(:api)&.text == "private"
+        next if effective_private?(object.namespace) || !feature_loaded?(object.file)
 
-        path if runtime_public?(object)
+        object.path if runtime_public?(object)
       end
 
-      assert_empty(exposed, "Manifested private methods exposed at runtime:\n#{exposed.join("\n")}")
+      assert_empty(exposed, "Private API methods exposed at runtime:\n#{exposed.join("\n")}")
+    end
+
+    def test_constructor_support_is_explicit
+      CONSTRUCTORS.each do |path, supported|
+        owner = runtime_constant(path)
+        constructor = yard("#{path}#initialize")
+        documented = constructor && !effective_private?(constructor)
+
+        assert_equal(supported, owner.respond_to?(:new), "#{path}.new support")
+        assert_equal(supported, !!documented, "#{path}.new documentation")
+      end
+    end
+
+    def test_documented_method_visibility_matches_runtime
+      errors = registry.all(:method).filter_map { visibility_error(it) }
+
+      assert_empty(errors, errors.join("\n"))
     end
 
     def test_public_manifest_and_private_pages_are_explicit
@@ -283,6 +314,31 @@ module Sevgi
       object.scope == :class ? owner.respond_to?(object.name) : owner.public_method_defined?(object.name)
     rescue NameError
       false
+    end
+
+    def runtime_visibility(object)
+      owner = runtime_constant(object.namespace.path)
+      owner = owner.singleton_class if object.scope == :class
+
+      %i[public protected private].find { owner.public_send("#{it}_method_defined?", object.name) }
+    rescue NameError
+      nil
+    end
+
+    def visibility_error(object)
+      return unless visibility_checked?(object)
+
+      actual = runtime_visibility(object)
+      return unless actual && actual != object.visibility
+
+      "#{object.path}: documented #{object.visibility}, runtime #{actual}"
+    end
+
+    def visibility_checked?(object)
+      object.name != :initialize &&
+        object.namespace != YARD::Registry.root &&
+        !effective_private?(object.namespace) &&
+        feature_loaded?(object.file)
     end
 
     def runtime_methods

@@ -49,6 +49,8 @@ module Sevgi
       super
       inject(base)
     end
+
+    private_class_method :extended, :included
   end
 
   extend Toplevel

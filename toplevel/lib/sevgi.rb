@@ -58,4 +58,6 @@ module Sevgi
     super
     base.extend(Toplevel)
   end
+
+  private_class_method :extended, :included
 end

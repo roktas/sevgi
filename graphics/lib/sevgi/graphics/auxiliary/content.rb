@@ -87,6 +87,7 @@ module Sevgi
       # @return [void]
       # @raise [Sevgi::ArgumentError] when content cannot be stringified, contains invalid encoding or illegal XML
       #   characters, contains cycles, or has keys that collide after stringification
+      # @api private
       def initialize(content)
         @content = Snapshot.capture(content)
         XML.validate(@content)
@@ -100,6 +101,8 @@ module Sevgi
         @content = Snapshot.capture(original.content)
         super
       end
+
+      private :initialize_copy
 
       # Renders content with a renderer.
       # @abstract Subclasses implement content rendering.
@@ -124,7 +127,7 @@ module Sevgi
       #   @return [Sevgi::Graphics::Content::CData]
       #   @raise [Sevgi::ArgumentError] when content cannot be stringified, contains invalid encoding or illegal XML 1.0
       #     characters, contains cycles, or has keys that collide after stringification
-      def self.cdata(...) = CData.new(...)
+      def self.cdata(...) = CData.send(:new, ...)
 
       # Wraps content arguments, encoding non-content values.
       # Mutable non-content values are stringified by encoded content during construction, before XML text escaping.
@@ -141,7 +144,7 @@ module Sevgi
       #   @raise [Sevgi::ArgumentError] when content is not a hash, contains a malformed style, cannot be stringified,
       #     contains invalid encoding or illegal XML 1.0 characters, contains cycles, or has keys that collide after
       #     stringification
-      def self.css(...) = CSS.new(...)
+      def self.css(...) = CSS.send(:new, ...)
 
       # @overload encoded(content)
       #   Builds XML text-encoded content.
@@ -150,7 +153,7 @@ module Sevgi
       #   @return [Sevgi::Graphics::Content::Encoded]
       #   @raise [Sevgi::ArgumentError] when content cannot be stringified, contains invalid encoding or illegal XML 1.0
       #     characters, contains cycles, or has keys that collide after stringification
-      def self.encoded(...) = Encoded.new(...)
+      def self.encoded(...) = Encoded.send(:new, ...)
 
       # Joins content lines with newlines.
       # @param contents [Object, Array<Object>] content lines
@@ -164,14 +167,12 @@ module Sevgi
       #   @return [Sevgi::Graphics::Content::Verbatim]
       #   @raise [Sevgi::ArgumentError] when content cannot be stringified, contains invalid encoding or illegal XML 1.0
       #     characters, contains cycles, or has keys that collide after stringification
-      def self.verbatim(...) = Verbatim.new(...)
+      def self.verbatim(...) = Verbatim.send(:new, ...)
 
       # CDATA section content backed by an immutable payload snapshot. Mutable leaf objects are stringified during
       # construction; embedded terminators are split during rendering.
       # @see Content.cdata
       class CData < Content
-        public_class_method :new
-
         # Renders CDATA content.
         # Embedded `]]>` terminators are split across adjacent CDATA sections so the output remains valid XML.
         # @param renderer [Object] renderer receiving output
@@ -194,14 +195,13 @@ module Sevgi
       # selectors, property names, and values are stringified once, and embedded CDATA terminators are split safely.
       # @see Content.css
       class CSS < Content
-        public_class_method :new
-
         # Creates CSS content.
         # @param content [Hash] CSS rules
         # @return [void]
         # @raise [Sevgi::ArgumentError] when content is not a hash, contains a malformed style, cannot be stringified,
         #   contains invalid encoding or illegal XML 1.0 characters, contains cycles, or has keys that collide after
         #   stringification
+        # @api private
         def initialize(content)
           ArgumentError.("CSS content must be a hash") unless content.is_a?(::Hash)
           validate_styles(content)
@@ -254,8 +254,6 @@ module Sevgi
       # construction, before XML escaping.
       # @see Content.encoded
       class Encoded < Content
-        public_class_method :new
-
         # Returns XML text-encoded content.
         # @return [String]
         def to_s = XML.text(payload).encode(xml: :text)
@@ -272,8 +270,6 @@ module Sevgi
       # points, not well-formed markup supplied by the caller.
       # @see Content.verbatim
       class Verbatim < Content
-        public_class_method :new
-
         # Returns validated verbatim content.
         # @return [String]
         def to_s = XML.text(payload)

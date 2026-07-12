@@ -230,6 +230,7 @@ module Sevgi
         # @yieldreturn [Object] ignored block result
         # @return [void]
         # @raise [Sevgi::Geometry::Error] when the block is absent or defines inconsistent geometry
+        # @api private
         def initialize(&block)
           super()
 

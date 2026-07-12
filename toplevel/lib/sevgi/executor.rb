@@ -23,6 +23,7 @@ module Sevgi
   #   result.success? #=> true
   #   result.value    #=> 42
   class Executor
+    private_class_method :new
     private_constant :Scope
 
     # Thread-current key used for the fiber-local executor scope stack.

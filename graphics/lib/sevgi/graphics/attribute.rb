@@ -385,6 +385,8 @@ module Sevgi
         @store = original.store.dup
       end
 
+      private :initialize_copy
+
       # Returns rendering attribute names, excluding non-rendering metadata.
       # @return [Array<Symbol>] frozen name snapshot
       def keys = @store.list.freeze

@@ -114,6 +114,7 @@ module Sevgi
       # @yieldreturn [Object] ignored block result
       # @return [void]
       # @raise [Sevgi::ArgumentError] when the element name or an attribute is not valid XML
+      # @api private
       def initialize(name, parent:, attributes: {}, contents: [], &block)
         unless name.is_a?(::String) || name.is_a?(::Symbol)
           ArgumentError.("XML element name must be a String or Symbol")
@@ -149,6 +150,8 @@ module Sevgi
       def respond_to_missing?(name, include_private = false)
         Element.valid?(Element.id(name)) || super
       end
+
+      private :method_missing, :respond_to_missing?
 
       # Element method-missing parser and cache.
       # @api private

@@ -100,7 +100,7 @@ module Sevgi
         end
 
         def test_arguments_parse_preserves_content_objects
-          parsed = Dispatch.parse(:svg, Content::Verbatim.new("bar & baz"))
+          parsed = Dispatch.parse(:svg, Content.verbatim("bar & baz"))
 
           [
             [Content::Verbatim],

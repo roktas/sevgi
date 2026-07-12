@@ -179,8 +179,8 @@ module Sevgi
         hash[:self] = hash
 
         [array, hash].each do |value|
-          [Content::CData, Content::Encoded, Content::Verbatim].each do |klass|
-            assert_raises(Sevgi::ArgumentError) { klass.new(value) }
+          %i[cdata encoded verbatim].each do |factory|
+            assert_raises(Sevgi::ArgumentError) { Content.public_send(factory, value) }
           end
         end
 
@@ -195,8 +195,8 @@ module Sevgi
         right = MutableText.new("same")
         payload = {left => "left", right => "right"}
 
-        [Content::CData, Content::Encoded, Content::Verbatim].each do |klass|
-          assert_raises(Sevgi::ArgumentError) { klass.new(payload) }
+        %i[cdata encoded verbatim].each do |factory|
+          assert_raises(Sevgi::ArgumentError) { Content.public_send(factory, payload) }
         end
 
         assert_raises(Sevgi::ArgumentError) { Content.css(payload) }

@@ -29,8 +29,8 @@ module Sevgi
       def initialize(x:, y:)
         ArgumentError.("Arguments must be Ruler objects") unless [x, y].all?(Ruler)
 
-        @x = X.new(x, y)
-        @y = Y.new(x, y)
+        @x = X.send(:new, x, y)
+        @y = Y.send(:new, x, y)
 
         super(Geometry::Rect[@x.u, @y.u], nx: @x.n, ny: @y.n)
       end
@@ -54,6 +54,8 @@ module Sevgi
 
       # Axis wrapper exposing grid line queries for one ruler direction.
       class Axis < DelegateClass(Ruler)
+        private_class_method :new
+
         # Returns the major line query.
         # @return [Sevgi::Sundries::Grid::Axis::Major]
         attr_reader :major
@@ -70,20 +72,24 @@ module Sevgi
         # @param this [Sevgi::Sundries::Ruler] ruler represented by this axis
         # @param other [Sevgi::Sundries::Ruler] ruler used for perpendicular tick locations
         # @return [void]
+        # @api private
         def initialize(this, other)
           super(this)
 
-          @major = Major.new(self, other)
-          @halve = Halve.new(self, other)
-          @minor = Minor.new(self, other)
+          @major = Major.send(:new, self, other)
+          @halve = Halve.send(:new, self, other)
+          @minor = Minor.send(:new, self, other)
         end
 
         # Memoized grid line query for an axis.
         class Query
+          private_class_method :new
+
           # Creates a query.
           # @param this [Sevgi::Sundries::Grid::Axis] axis receiving generated lines
           # @param other [Sevgi::Sundries::Ruler] perpendicular ruler supplying tick distances
           # @return [void]
+          # @api private
           def initialize(this, other) = (@this, @other = this, other)
 
           # Returns grid line endpoints as coordinate pairs.
@@ -146,6 +152,7 @@ module Sevgi
         # @param this [Sevgi::Sundries::Ruler] horizontal ruler
         # @param other [Sevgi::Sundries::Ruler] vertical ruler
         # @return [void]
+        # @api private
         def initialize(this, other) = super(other, this)
 
         # Returns the base vertical line for this axis.
