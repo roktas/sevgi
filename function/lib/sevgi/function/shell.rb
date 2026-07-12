@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "open3"
+require "shellwords"
 
 module Sevgi
   module Function
@@ -30,16 +31,41 @@ module Sevgi
         Error.("Missing executable: #{program}") unless executable?(program)
       end
 
-      # Result object returned by shell commands.
-      Result = Struct.new(:args, :outs, :errs, :exit_code) do
+      # Immutable result returned by shell commands.
+      #
+      # @example Inspect a command result
+      #   require "rbconfig"
+      #   result = Sevgi::F.sh(RbConfig.ruby, "-e", "puts 42")
+      #   result.ok?     # => true
+      #   result.outline # => "42"
+      Result = Data.define(:args, :outs, :errs, :exit_code, :signal) do
         # @!attribute [r] args
-        #   @return [Array<String>] command arguments
+        #   @return [Array<String>] frozen command arguments
         # @!attribute [r] outs
-        #   @return [Array<String>] captured stdout lines
+        #   @return [Array<String>] frozen captured stdout lines
         # @!attribute [r] errs
-        #   @return [Array<String>] captured stderr lines
+        #   @return [Array<String>] frozen captured stderr lines
         # @!attribute [r] exit_code
         #   @return [Integer, nil] process exit code
+        # @!attribute [r] signal
+        #   @return [Integer, nil] terminating signal number
+
+        # Creates an owned result snapshot.
+        # @param args [Array<Object>] command arguments
+        # @param outs [Array<String>] captured stdout lines
+        # @param errs [Array<String>] captured stderr lines
+        # @param exit_code [Integer, nil] process exit code
+        # @param signal [Integer, nil] terminating signal number
+        # @return [void]
+        def initialize(args:, outs:, errs:, exit_code:, signal:)
+          super(
+            args: args.map { it.to_s.dup.freeze }.freeze,
+            outs: outs.map { it.dup.freeze }.freeze,
+            errs: errs.map { it.dup.freeze }.freeze,
+            exit_code:,
+            signal:
+          )
+        end
 
         # Returns stdout, a separator, and stderr as one string.
         # @return [String]
@@ -47,7 +73,7 @@ module Sevgi
 
         # Returns the command as a shell-like display string.
         # @return [String]
-        def cmd = args.join(" ")
+        def cmd = ::Shellwords.join(args)
 
         # Returns captured stderr as a string.
         # @return [String]
@@ -59,7 +85,7 @@ module Sevgi
 
         # Reports whether the command exited successfully.
         # @return [Boolean]
-        def ok? = exit_code&.zero?
+        def ok? = !exit_code.nil? && exit_code.zero?
 
         # Returns captured stdout as a string.
         # @return [String]
@@ -69,9 +95,9 @@ module Sevgi
         # @return [String, nil]
         def outline = outs.first
 
-        # Builds a successful empty result.
-        # @return [Sevgi::Function::Shell::Result]
-        def self.dummy = new([], [], [], 0)
+        # Reports whether the command was terminated by a signal.
+        # @return [Boolean]
+        def signaled? = !signal.nil?
       end
 
       # Shared process-global SIGINT state for overlapping shell runners.
@@ -183,16 +209,17 @@ module Sevgi
         # @yield optional content writer for stdin
         # @yieldreturn [String, nil]
         # @return [Sevgi::Function::Shell::Result]
+        # @raise [Sevgi::ArgumentError] when no command is given
         # @raise [Errno::ENOENT] when the executable cannot be spawned
         def call(*args, &input)
-          return Result.dummy if args.empty?
+          ArgumentError.("Shell command required") if args.empty?
 
           @coathooks = 0
           outs, errs, status = Open3.popen3(*args) do |stdin, stdout, stderr, wait_thread|
             capture(stdin, stdout, stderr, wait_thread, &input)
           end
 
-          Result.new(args, outs, errs, status.exitstatus)
+          Result.new(args:, outs:, errs:, exit_code: status.exitstatus, signal: status.termsig)
         end
 
         private
@@ -294,6 +321,7 @@ module Sevgi
       #   @yield optional stdin producer, evaluated once after output readers start
       #   @yieldreturn [String, nil] content to write to stdin; nil writes nothing
       #   @return [Sevgi::Function::Shell::Result]
+      #   @raise [Sevgi::ArgumentError] when no command is given
       #   @raise [SystemCallError] when the executable cannot be spawned or process pipes cannot be opened
       #   @raise [StandardError] when the input block raises; the child is terminated and reaped before propagation
       #   @note The child's stdin is closed after the input block. During execution, the first SIGINT sends TERM to the
@@ -306,6 +334,7 @@ module Sevgi
       # @yield optional stdin producer, evaluated once after output readers start
       # @yieldreturn [String, nil] content to write to stdin; nil writes nothing
       # @return [Sevgi::Function::Shell::Result]
+      # @raise [Sevgi::ArgumentError] when no command is given
       # @raise [Sevgi::Error] when the executable is missing or the command fails
       # @raise [SystemCallError] when the executable cannot be spawned or process pipes cannot be opened
       # @raise [StandardError] when the input block raises; the child is terminated and reaped before propagation

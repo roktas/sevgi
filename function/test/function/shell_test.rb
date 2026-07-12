@@ -121,7 +121,7 @@ module Sevgi
         def test_sh_bang_checks_executable_from_first_argument
           checked = nil
           ran = nil
-          result = Result.new(["tool", "--version"], [], [], 0)
+          result = Result.new(args: ["tool", "--version"], outs: [], errs: [], exit_code: 0, signal: nil)
 
           Function.stub(:executable!, -> (*args) { checked = args }) do
             Function.stub(
@@ -148,16 +148,54 @@ module Sevgi
             end
           end
 
-          assert_equal("Command failed: #{ruby} -e $stderr.puts \"bad\"; exit 7", error.message)
+          command = Shellwords.join([ruby, "-e", "$stderr.puts \"bad\"; exit 7"])
+          assert_equal("Command failed: #{command}", error.message)
         end
 
-        def test_sh_returns_dummy_result_without_arguments
-          result = Function.sh
+        def test_sh_rejects_empty_command
+          assert_raises(ArgumentError) { Function.sh }
+          assert_raises(ArgumentError) { Function.sh! }
+        end
 
-          assert(result.ok?)
-          assert_empty(result.args)
-          assert_empty(result.out)
-          assert_empty(result.err)
+        def test_result_reports_exit_and_signal_status
+          success = Function.sh(RbConfig.ruby, "-e", "exit 0")
+          failure = Function.sh(RbConfig.ruby, "-e", "exit 7")
+          signaled = Function.sh(RbConfig.ruby, "-e", "Process.kill(\"TERM\", Process.pid)")
+
+          assert(success.ok?)
+          refute(success.notok?)
+          refute(success.signaled?)
+          assert_equal(0, success.exit_code)
+
+          refute(failure.ok?)
+          assert(failure.notok?)
+          refute(failure.signaled?)
+          assert_equal(7, failure.exit_code)
+
+          refute(signaled.ok?)
+          assert(signaled.notok?)
+          assert(signaled.signaled?)
+          assert_nil(signaled.exit_code)
+          assert_equal(Signal.list.fetch("TERM"), signaled.signal)
+        end
+
+        def test_result_owns_inputs_and_escapes_display
+          command = +"two words"
+          output = +"out"
+          error = +"err"
+          result = Result.new(args: [command, "'quoted'", 42], outs: [output], errs: [error], exit_code: 0, signal: nil)
+
+          command.clear
+          output.clear
+          error.clear
+
+          assert_equal(["two words", "'quoted'", "42"], result.args)
+          assert_equal(["out"], result.outs)
+          assert_equal(["err"], result.errs)
+          assert_equal("two\\ words \\'quoted\\' 42", result.cmd)
+          [result, result.args, result.outs, result.errs, *result.args, *result.outs, *result.errs].each do |value|
+            assert_predicate(value, :frozen?)
+          end
         end
 
         def test_sh_closes_stdin_without_input
