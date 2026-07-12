@@ -65,6 +65,16 @@ module Sevgi
           end
         end
 
+        def test_tile_rejects_non_finite_spacing_and_offsets
+          %i[dx ox dy oy].product(["oops", Complex(1, 2), Float::INFINITY, Float::NAN]).each do |field, value|
+            document = SVG(DOC)
+            arguments = {:nx => 1, :dx => 1, :ox => 0, :ny => 1, :dy => 1, :oy => 0, field => value}
+
+            assert_raises(Sevgi::ArgumentError) { document.Tile("rect", **arguments) { rect } }
+            assert_empty(document.children)
+          end
+        end
+
         def test_tile_renders_single_use
           expected = <<~SVG
             <svg>
@@ -222,6 +232,16 @@ module Sevgi
           end
         end
 
+        def test_tile_x_rejects_non_finite_spacing_and_offset
+          %i[d o].product(["oops", Complex(1, 2), Float::INFINITY, Float::NAN]).each do |field, value|
+            document = SVG(DOC)
+            arguments = {:n => 1, :d => 1, :o => 0, field => value}
+
+            assert_raises(Sevgi::ArgumentError) { document.TileX("rect", **arguments) { rect } }
+            assert_empty(document.children)
+          end
+        end
+
         def test_tile_x_renders_single_use
           expected = <<~SVG
             <svg>
@@ -332,6 +352,16 @@ module Sevgi
             end
 
             assert_match(/\bn\b.*\bpositive integer\b/, error.message)
+          end
+        end
+
+        def test_tile_y_rejects_non_finite_spacing_and_offset
+          %i[d o].product(["oops", Complex(1, 2), Float::INFINITY, Float::NAN]).each do |field, value|
+            document = SVG(DOC)
+            arguments = {:n => 1, :d => 1, :o => 0, field => value}
+
+            assert_raises(Sevgi::ArgumentError) { document.TileY("rect", **arguments) { rect } }
+            assert_empty(document.children)
           end
         end
 

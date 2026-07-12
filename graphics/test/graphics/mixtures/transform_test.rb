@@ -53,6 +53,44 @@ module Sevgi
           assert_raises(ArgumentError) { element.Matrix(1, 2, 3) }
         end
 
+        def test_transforms_reject_non_finite_real_operands
+          element = SVG { rect }.children.first
+          invalid = ["oops", Complex(1, 2), Float::INFINITY, Float::NAN]
+          operations = {
+            matrix: -> (value) { element.Matrix(value, 0, 0, 1, 0, 0) },
+            rotate: -> (value) { element.Rotate(value) },
+            rotation_origin: -> (value) { element.Rotate(1, value, 0) },
+            scale: -> (value) { element.Scale(value) },
+            scale_y: -> (value) { element.Scale(1, value) },
+            skew_x: -> (value) { element.Skew(value, 0) },
+            skew_y: -> (value) { element.Skew(0, value) },
+            skew_x_axis: -> (value) { element.SkewX(value) },
+            skew_y_axis: -> (value) { element.SkewY(value) },
+            translate: -> (value) { element.Translate(value) },
+            translate_y: -> (value) { element.Translate(0, value) }
+          }
+
+          invalid.product(operations.values).each do |value, operation|
+            assert_raises(Sevgi::ArgumentError) { operation.call(value) }
+            assert_nil(element[:transform])
+          end
+
+          operations.except(:scale_y, :translate_y).each_value do |operation|
+            assert_raises(Sevgi::ArgumentError) { operation.call(nil) }
+            assert_nil(element[:transform])
+          end
+        end
+
+        def test_align_rejects_non_finite_box_dimensions
+          element = SVG { rect }.children.first
+          box = Data.define(:width, :height)
+
+          [box.new(Float::INFINITY, 1), box.new(1, "oops")].each do |invalid|
+            assert_raises(Sevgi::ArgumentError) { element.Align(:center, inner: invalid, outer: box.new(2, 2)) }
+            assert_nil(element[:transform])
+          end
+        end
+
         def test_align_centers_inner_box_in_outer_box
           element = SVG do
             rect.Align(:center, inner: Canvas.(width: 20, height: 10), outer: Canvas.(width: 30, height: 40))

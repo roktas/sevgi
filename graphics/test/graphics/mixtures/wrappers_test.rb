@@ -34,6 +34,18 @@ module Sevgi
           assert_equal(expected, actual)
         end
 
+        def test_line_by_rejects_non_finite_real_operands
+          invalid = ["oops", Complex(1, 2), Float::INFINITY, Float::NAN]
+
+          %i[angle length x y].product(invalid).each do |field, value|
+            document = SVG(DOC)
+            arguments = {:angle => 0, :length => 1, :x => 0, :y => 0, field => value}
+
+            assert_raises(Sevgi::ArgumentError) { document.LineBy(**arguments) }
+            assert_empty(document.children)
+          end
+        end
+
         def test_shape_and_symbol_wrappers_build_elements
           expected = <<~SVG
             <svg>

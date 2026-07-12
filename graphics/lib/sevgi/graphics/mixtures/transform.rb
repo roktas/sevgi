@@ -11,12 +11,15 @@ module Sevgi
         # @param outer [#width, #height, nil] outer box
         # @return [Sevgi::Graphics::Element] self
         # @raise [Sevgi::ArgumentError] when alignment is unsupported
+        # @raise [Sevgi::ArgumentError] when a box dimension is not a finite real number
         def Align(position, inner:, outer:)
           return self unless position && inner && outer
 
           case position.to_sym
           when :center
-            Translate((outer.width - inner.width) / 2.0, (outer.height - inner.height) / 2.0)
+            dimensions = [inner.width, inner.height, outer.width, outer.height]
+            iw, ih, ow, oh = dimensions.map { Scalar.validate(it, context: "alignment", field: :dimension) }
+            Translate((ow - iw) / 2.0, (oh - ih) / 2.0)
           else
             ArgumentError.("Unsupported alignment: #{position}")
           end
@@ -49,10 +52,11 @@ module Sevgi
         # Appends a six-value SVG matrix transform.
         # @param values [Array<Numeric>] matrix values
         # @return [Sevgi::Graphics::Element] self
-        # @raise [Sevgi::ArgumentError] when exactly six values are not supplied
+        # @raise [Sevgi::ArgumentError] when six finite real values are not supplied
         def Matrix(*values)
           tap do
             ArgumentError.("Incorrect transform matrix (six values required): #{values}") if values.size != 6
+            values.each_with_index { |value, index| Scalar.validate(value, context: "matrix", field: index) }
 
             attributes[:"transform#{ATTRIBUTE_UPDATE_SUFFIX}"] = "matrix(#{values.join(" ")})"
           end
@@ -62,14 +66,17 @@ module Sevgi
         # @param a [Numeric] angle in degrees
         # @param origin [Array<Numeric>] optional x and y origin
         # @return [Sevgi::Graphics::Element] self
-        # @raise [Sevgi::ArgumentError] when origin is not two coordinates
+        # @raise [Sevgi::ArgumentError] when angle or origin is not finite real, or origin is not two coordinates
         def Rotate(a, *origin)
           tap do
             if !origin.empty? && origin.size != 2
               ArgumentError.("Incorrect origin (two coordinates required): #{origin}")
             end
 
-            next if a.to_f == 0.0
+            angle = Scalar.validate(a, context: "rotation", field: :angle)
+            origin.each_with_index { |value, index| Scalar.validate(value, context: "rotation", field: index) }
+
+            next if angle.zero?
 
             attributes[:"transform#{ATTRIBUTE_UPDATE_SUFFIX}"] = "rotate(#{[a, *origin].join(", ")})"
           end
@@ -91,8 +98,11 @@ module Sevgi
         # @param x [Numeric] x scale, or uniform scale when y is nil
         # @param y [Numeric, nil] y scale
         # @return [Sevgi::Graphics::Element] self
+        # @raise [Sevgi::ArgumentError] when a scale is not a finite real number
         def Scale(x, y = nil)
           tap do
+            Scalar.validate(x, context: "scale", field: :x)
+            Scalar.validate(y, context: "scale", field: :y) unless y.nil?
             attributes[:"transform#{ATTRIBUTE_UPDATE_SUFFIX}"] = "scale(#{(y ? [x, y] : [x]).join(", ")})"
           end
         end
@@ -101,16 +111,21 @@ module Sevgi
         # @param ax [Numeric] x skew angle in degrees
         # @param ay [Numeric] y skew angle in degrees
         # @return [Sevgi::Graphics::Element] self
+        # @raise [Sevgi::ArgumentError] when an angle is not a finite real number
         def Skew(ax, ay)
+          Scalar.validate(ax, context: "skew", field: :x)
+          Scalar.validate(ay, context: "skew", field: :y)
           Matrix(1.0, ::Math.tan(ay / 180.0 * ::Math::PI), ::Math.tan(ax / 180.0 * ::Math::PI), 1.0, 0.0, 0.0)
         end
 
         # Appends an SVG skewX transform.
         # @param a [Numeric] angle in degrees
         # @return [Sevgi::Graphics::Element] self
+        # @raise [Sevgi::ArgumentError] when angle is not a finite real number
         def SkewX(a)
           tap do
-            next if a.to_f == 0.0
+            angle = Scalar.validate(a, context: "skew", field: :x)
+            next if angle.zero?
 
             attributes[:"transform#{ATTRIBUTE_UPDATE_SUFFIX}"] = "skewX(#{a})"
           end
@@ -119,9 +134,11 @@ module Sevgi
         # Appends an SVG skewY transform.
         # @param a [Numeric] angle in degrees
         # @return [Sevgi::Graphics::Element] self
+        # @raise [Sevgi::ArgumentError] when angle is not a finite real number
         def SkewY(a)
           tap do
-            next if a.to_f == 0.0
+            angle = Scalar.validate(a, context: "skew", field: :y)
+            next if angle.zero?
 
             attributes[:"transform#{ATTRIBUTE_UPDATE_SUFFIX}"] = "skewY(#{a})"
           end
@@ -131,9 +148,12 @@ module Sevgi
         # @param x [Numeric] x translation
         # @param y [Numeric, nil] y translation
         # @return [Sevgi::Graphics::Element] self
+        # @raise [Sevgi::ArgumentError] when a coordinate is not a finite real number
         def Translate(x, y = nil)
           tap do
-            next if x.to_f == 0.0 && (y.nil? || y.to_f == 0.0)
+            dx = Scalar.validate(x, context: "translation", field: :x)
+            dy = Scalar.validate(y, context: "translation", field: :y) unless y.nil?
+            next if dx.zero? && (dy.nil? || dy.zero?)
 
             attributes[:"transform#{ATTRIBUTE_UPDATE_SUFFIX}"] = "translate(#{(y ? [x, y] : [x]).join(" ")})"
           end

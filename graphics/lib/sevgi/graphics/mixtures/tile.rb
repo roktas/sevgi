@@ -12,11 +12,11 @@ module Sevgi
         # Builds a two-dimensional tile grid.
         # @param id [String] referenced template id
         # @param nx [Integer] number of columns
-        # @param dx [Numeric] horizontal spacing
-        # @param ox [Numeric] horizontal offset
+        # @param dx [Numeric] finite horizontal spacing
+        # @param ox [Numeric] finite horizontal offset
         # @param ny [Integer] number of rows
-        # @param dy [Numeric] vertical spacing
-        # @param oy [Numeric] vertical offset
+        # @param dy [Numeric] finite vertical spacing
+        # @param oy [Numeric] finite vertical offset
         # @param proc [Proc, nil] optional coordinate/customization proc
         # @yield evaluates the template drawing DSL in a generated group
         # @yieldreturn [Object] ignored block result
@@ -66,8 +66,8 @@ module Sevgi
         # Builds a one-dimensional horizontal tile row.
         # @param id [String] referenced template id
         # @param n [Integer] number of instances
-        # @param d [Numeric] horizontal spacing
-        # @param o [Numeric] horizontal offset
+        # @param d [Numeric] finite horizontal spacing
+        # @param o [Numeric] finite horizontal offset
         # @param proc [Proc, nil] optional coordinate/customization proc
         # @yield evaluates the template drawing DSL in a generated group
         # @yieldreturn [Object] ignored block result
@@ -101,8 +101,8 @@ module Sevgi
         # Builds a one-dimensional vertical tile column.
         # @param id [String] referenced template id
         # @param n [Integer] number of instances
-        # @param d [Numeric] vertical spacing
-        # @param o [Numeric] vertical offset
+        # @param d [Numeric] finite vertical spacing
+        # @param o [Numeric] finite vertical offset
         # @param proc [Proc, nil] optional coordinate/customization proc
         # @yield evaluates the template drawing DSL in a generated group
         # @yieldreturn [Object] ignored block result
@@ -138,18 +138,25 @@ module Sevgi
         module Helper
           extend self
 
+          finite = proc do |name, value|
+            Scalar.validate(value, context: "tile", field: name)
+            nil
+          rescue ::Sevgi::ArgumentError
+            "Argument '#{name}' must be a finite real number"
+          end
+
           # Argument validators for tile helpers.
           ASSERTION = {
             id: proc { |name, value| "Argument '#{name}' must be a string" unless value.is_a?(::String) },
             n: proc { |name, value| positive_integer_issue(name, value) },
             nx: proc { |name, value| positive_integer_issue(name, value) },
             ny: proc { |name, value| positive_integer_issue(name, value) },
-            d: proc { |name, value| "Argument '#{name}' must be a number" unless value.is_a?(::Numeric) },
-            dx: proc { |name, value| "Argument '#{name}' must be a number" unless value.is_a?(::Numeric) },
-            dy: proc { |name, value| "Argument '#{name}' must be a number" unless value.is_a?(::Numeric) },
-            o: proc { |name, value| "Argument '#{name}' must be a number" unless value.is_a?(::Numeric) },
-            ox: proc { |name, value| "Argument '#{name}' must be a number" unless value.is_a?(::Numeric) },
-            oy: proc { |name, value| "Argument '#{name}' must be a number" unless value.is_a?(::Numeric) },
+            d: finite,
+            dx: finite,
+            dy: finite,
+            o: finite,
+            ox: finite,
+            oy: finite,
             proc: proc { |name, value| "Argument '#{name}' must be a proc" unless value.nil? || value.is_a?(::Proc) }
           }.freeze
 
