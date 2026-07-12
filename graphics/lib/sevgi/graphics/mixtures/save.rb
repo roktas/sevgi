@@ -10,25 +10,57 @@ module Sevgi
         # Default SVG extension.
         EXT = ".svg"
 
-        # Writes rendered SVG to standard output.
-        # @param kwargs [Hash] render options
-        # @yield [content] optionally transforms rendered content before output
-        # @yieldparam content [String] rendered SVG source
-        # @yieldreturn [String] transformed SVG source
-        # @return [Object] F.out return value
-        def Out(**kwargs, &filter)
-          F.out(self.(**kwargs), &filter)
+        # Change-aware file writer with optional backup support.
+        # @api private
+        class Writer
+          # Writes content when it differs from the destination.
+          # @param path [String] output path
+          # @param content [String] rendered content
+          # @param backup_suffix [String, nil] suffix used for an existing-file backup
+          # @yield [content] optionally normalizes old and new content for change detection
+          # @yieldparam content [String] old or new content
+          # @yieldreturn [String] normalized content
+          # @return [String, nil] expanded path when written, otherwise nil
+          # @raise [SystemCallError] when the destination or backup cannot be created, read, or written
+          def self.call(path, content, backup_suffix: nil, &filter)
+            path = ::File.expand_path(path)
+            output = "#{content.chomp}\n"
+
+            return unless F.changed?(path, output, &filter)
+
+            ::FileUtils.mkdir_p(::File.dirname(path))
+            if backup_suffix && !backup_suffix.empty? && ::File.exist?(path)
+              ::FileUtils.cp(path, "#{path}#{backup_suffix}")
+            end
+
+            path.tap { ::File.write(path, output) }
+          end
         end
 
-        # Saves rendered SVG to a path derived from the caller by default.
+        private_constant :Writer
+
+        # Writes rendered SVG to standard output.
+        # @param kwargs [Hash] render options
+        # @return [nil]
+        # @raise [Sevgi::ArgumentError] when rendering fails
+        def Out(**kwargs)
+          F.out(self.(**kwargs))
+        end
+
+        # Saves rendered SVG when its content differs from the destination.
+        # Relative destinations are expanded before being returned. When a non-empty backup suffix is given, an
+        # existing destination is copied immediately before replacement; unchanged saves leave both files untouched.
         # @param path [String, nil] output path or directory
         # @param default [String, nil] default output path
         # @param backup_suffix [String, nil] suffix used for an existing-file backup
-        # @yield [content] optionally transforms rendered content before output
-        # @yieldparam content [String] rendered SVG source
-        # @yieldreturn [String] transformed SVG source
-        # @return [Object] F.out return value
-        def Save(path = nil, default: nil, backup_suffix: nil, &filter)
+        # @param kwargs [Hash] render options
+        # @yield [content] optionally normalizes old and new content for change detection
+        # @yieldparam content [String] old or new SVG source
+        # @yieldreturn [String] normalized SVG source
+        # @return [String, nil] expanded path when written, otherwise nil
+        # @raise [Sevgi::ArgumentError] when rendering fails
+        # @raise [SystemCallError] when the destination or backup cannot be created, read, or written
+        def Save(path = nil, default: nil, backup_suffix: nil, **kwargs, &filter)
           default ||= F.subext(EXT, caller_locations(1..1).first.path)
 
           if path
@@ -37,21 +69,18 @@ module Sevgi
             default
           end => path
 
-          ::FileUtils.mkdir_p(::File.dirname(path))
-          if backup_suffix && !backup_suffix.empty? && ::File.exist?(path)
-            ::FileUtils.cp(path, "#{path}#{backup_suffix}")
-          end
-
-          Write(path, &filter)
+          Writer.(path, self.(**kwargs), backup_suffix:, &filter)
         end
 
         # Writes rendered SVG to a path.
         # @param path [String] output path
         # @param kwargs [Hash] render options
-        # @yield [content] optionally transforms rendered content before output
-        # @yieldparam content [String] rendered SVG source
-        # @yieldreturn [String] transformed SVG source
-        # @return [Object] F.out return value
+        # @yield [content] optionally normalizes old and new content for change detection
+        # @yieldparam content [String] old or new SVG source
+        # @yieldreturn [String] normalized SVG source
+        # @return [String, nil] expanded path when written, otherwise nil
+        # @raise [Sevgi::ArgumentError] when rendering fails
+        # @raise [SystemCallError] when the destination cannot be read or written
         def Write(path, **kwargs, &filter)
           F.out(self.(**kwargs), path, &filter)
         end
