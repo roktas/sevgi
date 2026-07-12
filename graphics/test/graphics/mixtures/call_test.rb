@@ -202,6 +202,35 @@ module Sevgi
           assert_equal(["public"], doc.children.map { it[:id] })
         end
 
+        def test_call_discovers_promoted_methods
+          drawing = proc { rect(id: "promoted") }
+          modules = [
+            ::Module.new do
+              extend(Graphics::Module)
+              private
+
+              define_method(:item, &drawing)
+
+              public(:item)
+            end,
+            ::Module.new do
+              private
+
+              define_method(:item, &drawing)
+
+              extend(Graphics::Module)
+              public(:item)
+            end
+          ]
+
+          modules.each do |mod|
+            doc = SVG(:minimal)
+            doc.Call(mod)
+
+            assert_equal(["promoted"], doc.children.map { it[:id] })
+          end
+        end
+
         def test_call_runs_redefined_method_once
           verbose = $VERBOSE
 

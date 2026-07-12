@@ -137,7 +137,7 @@ module Sevgi
       def self.callable_names(mod)
         mod.ancestors.reverse_each.flat_map do |ancestor|
           if ancestor.instance_variable_defined?(:@sevgi_callables)
-            ancestor.instance_variable_get(:@sevgi_callables)
+            ancestor.instance_variable_get(:@sevgi_callables) + ancestor.public_instance_methods(false)
           else
             ancestor.public_instance_methods(false)
           end
@@ -168,7 +168,7 @@ module Sevgi
       def method_added(method)
         super
 
-        @sevgi_callables << method if public_method_defined?(method)
+        @sevgi_callables << method
       end
 
       private_class_method :bases, :call, :callable_names, :callables, :context, :extended, :invoke
