@@ -41,6 +41,66 @@ module Sevgi
           %i[_bases _callables].each { refute_respond_to(mod, it) }
         end
 
+        def test_call_preserves_module_method_lookup
+          parent = ::Module.new do
+            extend(Graphics::Module)
+
+            base { base_item }
+
+            def item
+              rect(id: "parent")
+            end
+
+            private
+
+            def base_item
+              rect(id: "base")
+            end
+
+            def inherited_suffix
+              children.size
+            end
+          end
+
+          mod = ::Module.new do
+            extend(Graphics::Module)
+            include(parent)
+
+            def item
+              super
+              raise "private helper missing" unless respond_to?(:inherited_suffix, true)
+
+              helper
+            end
+
+            protected
+
+            def helper
+              rect(id: "child-#{inherited_suffix}")
+            end
+          end
+
+          doc = SVG(:minimal)
+          result = doc.Call(mod)
+
+          assert_equal(%w[base parent child-2], doc.children.map { it[:id] })
+          assert_same(doc.children.last, result)
+          refute_respond_to(doc, :helper)
+          refute_respond_to(doc.class, :item)
+        end
+
+        def test_call_maps_callable_self_back_to_receiver
+          mod = ::Module.new do
+            extend(Graphics::Module)
+
+            def call = self
+          end
+
+          doc = SVG(:minimal)
+
+          assert_same(doc, doc.Call(mod))
+        end
+
         def test_call_runs_bases_and_public_methods
           mod = ::Module.new do
             extend(Graphics::Module)

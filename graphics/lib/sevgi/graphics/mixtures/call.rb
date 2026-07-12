@@ -13,12 +13,61 @@ module Sevgi
     #     base { css(".widget" => { fill: "red" }) }
     #
     #     def call(id)
-    #       rect(id:)
+    #       draw(id)
     #     end
+    #
+    #     private
+    #
+    #     def draw(id) = rect(id:, class: "widget")
     #   end
     #
     #   SVG { Call(Widget, "box") }
     module Module
+      # Ephemeral callable receiver that preserves a module's normal method lookup while forwarding drawing operations
+      # to the current element.
+      # @api private
+      class Context < ::BasicObject
+        # Creates a delegated callable receiver.
+        # @param callable [Module] callable module
+        # @param receiver [Sevgi::Graphics::Element] current drawing element
+        # @return [void]
+        def initialize(callable, receiver)
+          @callable = callable
+          @receiver = receiver
+        end
+
+        # Reports methods available through either callable composition or the drawing element.
+        # @param name [Symbol, String] method name
+        # @param include_private [Boolean] whether private methods count
+        # @return [Boolean]
+        def respond_to?(name, include_private = false) = respond_to_missing?(name, include_private)
+
+        private
+
+        # Reports methods available through callable composition or receiver delegation.
+        # @param name [Symbol, String] method name
+        # @param include_private [Boolean] whether private methods count
+        # @return [Boolean]
+        def respond_to_missing?(name, include_private = false)
+          @callable.public_method_defined?(name) ||
+            (include_private &&
+              (@callable.protected_method_defined?(name) || @callable.private_method_defined?(name))) ||
+            @receiver.respond_to?(name, include_private)
+        end
+
+        # Forwards operations outside the callable module's lookup chain to the drawing element.
+        # @param name [Symbol] missing method name
+        # @param arguments [Array<Object>] positional arguments
+        # @param keywords [Hash] keyword arguments
+        # @param block [Proc, nil] forwarded block
+        # @return [Object] delegated result
+        def method_missing(name, *arguments, **keywords, &block)
+          @receiver.__send__(name, *arguments, **keywords, &block)
+        end
+      end
+
+      private_constant :Context
+
       # Registers argument-independent shared drawing steps. Every invocation runs inherited base blocks parent-first,
       # then locally registered base blocks in registration order, before the module's public drawing methods. The block
       # runs once in the current element context and does not receive the invocation arguments.
@@ -67,9 +116,11 @@ module Sevgi
       #   @raise [Sevgi::ArgumentError] when mod is not a plain module
       def self.call(mod, receiver, ...)
         methods = callables(mod)
-        bases(mod).each { receiver.Within(receiver, &it) }
+        context = context(mod, receiver)
+        bases(mod).each { context.instance_exec(&it) }
 
-        methods.map { it.bind(receiver).call(...) }.last
+        result = methods.map { context.__send__(it.name, ...) }.last
+        result.equal?(context) ? receiver : result
       end
 
       # Returns the methods that should be executed for a callable module.
@@ -94,6 +145,16 @@ module Sevgi
         end
       end
 
+      def self.context(mod, receiver)
+        klass = mod.instance_variable_get(:@sevgi_context)
+        unless klass
+          klass = ::Class.new(Context) { include(mod) }
+          mod.instance_variable_set(:@sevgi_context, klass)
+        end
+
+        klass.new(mod, receiver)
+      end
+
       private
 
       # Tracks newly defined methods as callable drawing candidates.
@@ -106,7 +167,7 @@ module Sevgi
         @sevgi_callables << method if public_method_defined?(method)
       end
 
-      private_class_method :bases, :call, :callable_names, :callables, :extended
+      private_class_method :bases, :call, :callable_names, :callables, :context, :extended
     end
 
     module Mixtures
