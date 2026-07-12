@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "singleton"
 require "sevgi/function"
 
 require_relative "executor/error"
@@ -24,8 +23,6 @@ module Sevgi
   #   result.success? #=> true
   #   result.value    #=> 42
   class Executor
-    include Singleton
-
     private_constant :Scope
 
     # Thread-current key used for the fiber-local executor scope stack.
@@ -34,6 +31,52 @@ module Sevgi
     SOURCE_LINE_MAX = (2 ** 31) - 1
     private_constant :SCOPE_KEY, :SOURCE_LINE_MAX, :Source
 
+    # Owns mutable execution and process-signal state outside the public executor surface.
+    # @api private
+    class State
+      def initialize
+        @signal_count = 0
+        @signal_mutex = Mutex.new
+        @signal_previous = nil
+      end
+
+      def create(scope = nil) = Scope.new(scope).tap { scopes << it }
+      def current = scopes.last
+
+      def restore
+        @signal_mutex.synchronize do
+          next if @signal_count.zero?
+
+          @signal_count -= 1
+          next unless @signal_count.zero?
+
+          Signal.trap("INT", @signal_previous)
+          @signal_previous = nil
+        end
+      end
+
+      def shutdown(scope = nil)
+        return scopes.pop unless scope
+        return scopes.pop if scopes.last.equal?(scope)
+
+        scopes.delete(scope)
+      end
+
+      def trap
+        @signal_mutex.synchronize do
+          @signal_previous = Signal.trap("INT") { Kernel.abort("") } if @signal_count.zero?
+          @signal_count += 1
+        end
+      end
+
+      private
+
+      def scopes = Thread.current[SCOPE_KEY] ||= []
+    end
+
+    STATE = State.new
+    private_constant :STATE, :State
+
     # Loads a script file inside the current executor scope.
     # @param file [String] path to a Sevgi script file
     # @return [Sevgi::Executor::Scope] current internal execution scope
@@ -41,9 +84,9 @@ module Sevgi
     # @note Uses the active executor scope from the current fiber.
     # @api private
     def self.load(file, ...)
-      PanicError.("box stack empty; create a box first") unless instance.current
+      PanicError.("box stack empty; create a box first") unless STATE.current
 
-      instance.current.load(file, ...)
+      STATE.current.load(file, ...)
     end
 
     # Executes Ruby source inside a managed Sevgi script scope.
@@ -93,88 +136,27 @@ module Sevgi
       execute_source(source, require:, receiver:, &block)
     end
 
-    # Removes the current executor scope.
-    # @return [Sevgi::Executor::Scope, nil] removed scope
-    # @api private
-    def self.shutdown
-      instance.shutdown
-    end
-
-    def initialize
-      @signal_count = 0
-      @signal_mutex = Mutex.new
-      @signal_previous = nil
-    end
-
-    # Creates and pushes a new executor scope.
-    # @param scope [Module, nil] existing module scope to reuse
-    # @return [Sevgi::Executor::Scope] created scope
-    # @api private
-    def create(scope = nil) = Scope.new(scope).tap { scopes << it }
-
-    # Returns the active executor scope.
-    # @return [Sevgi::Executor::Scope, nil] active scope, if any
-    # @api private
-    def current = scopes.last
-
-    # Restores the process SIGINT handler when the last active execution ends.
-    # @return [void]
-    # @api private
-    def restore
-      @signal_mutex.synchronize do
-        next if @signal_count.zero?
-
-        @signal_count -= 1
-        next unless @signal_count.zero?
-
-        Signal.trap("INT", @signal_previous)
-        @signal_previous = nil
-      end
-    end
-
-    # Removes the active executor scope.
-    # @param scope [Sevgi::Executor::Scope, nil] exact scope to remove, or nil to pop the current scope
-    # @return [Sevgi::Executor::Scope, nil] removed scope
-    # @api private
-    def shutdown(scope = nil)
-      return scopes.pop unless scope
-      return scopes.pop if scopes.last.equal?(scope)
-
-      scopes.delete(scope)
-    end
-
-    # Installs the process SIGINT handler while one or more executions are active.
-    # @return [void]
-    # @api private
-    def trap
-      @signal_mutex.synchronize do
-        @signal_previous = Signal.trap("INT") { Kernel.abort("") } if @signal_count.zero?
-
-        @signal_count += 1
-      end
-    end
-
     def self.capture_error(source, error)
-      acquired = instance.trap
-      scope = instance.create
+      acquired = STATE.trap
+      scope = STATE.create
       scope.capture(source, error).result
     ensure
-      instance.restore if acquired
-      instance.shutdown(scope) if scope
+      STATE.restore if acquired
+      STATE.shutdown(scope) if scope
     end
 
     def self.execute_source(source, require:, receiver:, &block)
       acquired = false
       return Result.new(value: nil, error: nil, stack: []) if source.string.empty? && require.nil?
 
-      acquired = instance.trap
-      scope = instance.create
+      acquired = STATE.trap
+      scope = STATE.create
       catch(:result) { run_source(scope, source, require, receiver, &block) }
       scope.result
 
     ensure
-      instance.restore if acquired
-      instance.shutdown(scope) if scope
+      STATE.restore if acquired
+      STATE.shutdown(scope) if scope
     end
 
     def self.run_source(scope, source, library, receiver, &block)
@@ -199,11 +181,14 @@ module Sevgi
       ArgumentError.("Executor line must be between 1 and #{SOURCE_LINE_MAX}") unless valid
     end
 
-    private_class_method :capture_error, :execute_source, :run_source, :validate_context!, :validate_source!
-
-    private
-
-    def scopes = Thread.current[SCOPE_KEY] ||= []
+    private_class_method(
+      :capture_error,
+      :execute_source,
+      :load,
+      :run_source,
+      :validate_context!,
+      :validate_source!
+    )
   end
 
 end

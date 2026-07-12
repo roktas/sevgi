@@ -30,10 +30,14 @@ module Sevgi
     PRIVATE_OBJECTS = %w[
       Sevgi::Executor::Scope
       Sevgi::Executor::Source
+      Sevgi::Executor::State
       Sevgi::Geometry::Equation::Quadratic
       Sevgi::Sundries::Export::Renderer
     ]
       .freeze
+    PRIVATE_METHODS = %w[
+      Sevgi::Executor.load
+    ].freeze
     WORKFLOW_EXAMPLES = %w[
       Sevgi::Derender
       Sevgi::Executor
@@ -51,6 +55,17 @@ module Sevgi
       assert_yard_object("Sevgi::Sundries::Grid::Axis::Query")
       assert(Sundries::Grid.const_defined?(:Axis, false))
       assert(Sundries::Grid::Axis.const_defined?(:Query, false))
+    end
+
+    def test_api_private_methods_are_runtime_private
+      exposed = PRIVATE_METHODS.filter_map do |path|
+        object = yard(path)
+        next path unless object&.tag(:api)&.text == "private"
+
+        path if runtime_public?(object)
+      end
+
+      assert_empty(exposed, "Manifested private methods exposed at runtime:\n#{exposed.join("\n")}")
     end
 
     def test_public_manifest_and_private_pages_are_explicit
@@ -259,6 +274,13 @@ module Sevgi
       return owner.private_method_defined?(:initialize) if object.name == :initialize
 
       owner.public_method_defined?(object.name)
+    rescue NameError
+      false
+    end
+
+    def runtime_public?(object)
+      owner = runtime_constant(object.namespace.path)
+      object.scope == :class ? owner.respond_to?(object.name) : owner.public_method_defined?(object.name)
     rescue NameError
       false
     end

@@ -40,7 +40,7 @@ module Sevgi
       files.each do |file|
         location = F.locate(file, start)
 
-        ::Sevgi::Executor.load(location.file)
+        ::Sevgi::Executor.__send__(:load, location.file)
       end
     end
   end

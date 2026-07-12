@@ -24,7 +24,14 @@ module Sevgi
     def test_load_raises_panic_error
       fixture = "#{FIXTURES_DIR}/test_load_shutdown.sevgi"
 
-      assert_raises(PanicError) { Executor.load(fixture) }
+      assert_raises(PanicError) { Executor.__send__(:load, fixture) }
+    end
+
+    def test_executor_exposes_only_execution_entrypoints
+      assert_respond_to(Executor, :execute)
+      assert_respond_to(Executor, :execute_file)
+      %i[instance load shutdown].each { refute_respond_to(Executor, it) }
+      assert_raises(NameError) { Executor::State }
     end
 
     def test_execute_file_reports_nested_load_stack
@@ -220,11 +227,12 @@ module Sevgi
     end
 
     def test_execute_empty_string_preserves_active_scope
-      result = Executor.execute(
+      fixture = "#{FIXTURES_DIR}/test_load_shutdown.sevgi"
+      result = Sevgi.execute(
         <<~RUBY
-          before = Sevgi::Executor.instance.current
-          Sevgi::Executor.execute("")
-          before.equal?(Sevgi::Executor.instance.current)
+          inner = Sevgi::Executor.execute("")
+          Load(#{fixture.dump})
+          inner.success?
         RUBY
       )
 
@@ -232,15 +240,15 @@ module Sevgi
     end
 
     def test_execute_empty_string_preserves_signal_guard
-      executor = Executor.instance
-      executor.send(:trap)
+      previous = Signal.trap("INT", "DEFAULT")
+      handler = proc { }
+      Signal.trap("INT", handler)
 
       begin
-        assert_equal(1, executor.instance_variable_get(:@signal_count))
         Executor.execute("")
-        assert_equal(1, executor.instance_variable_get(:@signal_count))
+        assert_same(handler, Signal.trap("INT", "DEFAULT"))
       ensure
-        executor.send(:restore)
+        Signal.trap("INT", previous)
       end
     end
 
@@ -288,11 +296,12 @@ module Sevgi
     end
 
     def test_execute_require_error_preserves_active_scope
-      result = Executor.execute(
+      fixture = "#{FIXTURES_DIR}/test_load_shutdown.sevgi"
+      result = Sevgi.execute(
         <<~RUBY
-          before = Sevgi::Executor.instance.current
           inner = Sevgi::Executor.execute("1", require: "sevgi_missing_test_library")
-          before.equal?(Sevgi::Executor.instance.current) && inner.error?
+          Load(#{fixture.dump})
+          inner.error?
         RUBY
       )
 
@@ -447,8 +456,7 @@ module Sevgi
       ]
 
       calls.each { assert_raises(Sevgi::ArgumentError, &it) }
-      assert_nil(Executor.instance.current)
-      assert_equal(0, Executor.instance.instance_variable_get(:@signal_count))
+      assert_equal(2, Executor.execute("1 + 1").value)
     end
 
     def test_execute_file_rejects_invalid_invocation
@@ -459,8 +467,7 @@ module Sevgi
       ]
 
       calls.each { assert_raises(Sevgi::ArgumentError, &it) }
-      assert_nil(Executor.instance.current)
-      assert_equal(0, Executor.instance.instance_variable_get(:@signal_count))
+      assert_equal(2, Executor.execute("1 + 1").value)
     end
 
     def test_execute_error_reports_default_source_location
