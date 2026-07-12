@@ -40,7 +40,7 @@ module Sevgi
       # @param page [Integer, String, nil] page selector passed to Inkscape
       # @param css [String, nil] CSS inserted before exporting
       # @return [Sevgi::Function::Shell::Result] command result
-      # @raise [Sevgi::Sundries::Export::ExportError] when format or output extension is unsupported
+      # @raise [Sevgi::Sundries::Export::ExportError] when format, output extension, or CSS insertion is invalid
       # @raise [Sevgi::Error] when Inkscape is missing or the command fails
       # @raise [Errno::ENOENT] when the executable cannot be spawned
       # @see https://inkscape.org/ Inkscape
@@ -59,11 +59,11 @@ module Sevgi
         infile = File.expand_path(infile)
         outfile ||= F.subext(".pdf", infile)
         outfile = File.expand_path(outfile)
-        format = format_for!(format, outfile)
+        format = format_for(format, outfile)
 
         if css
           temp = Tempfile.new(%w[input .svg], File.dirname(infile))
-          ::File.write(temp.path, inject(::File.read(infile), css))
+          ::File.write(temp.path, styled(::File.read(infile), css))
           infile = temp.path
         end
 
@@ -98,7 +98,7 @@ module Sevgi
       # @param id [String, nil] SVG element id to export
       # @param css [String, nil] CSS inserted before exporting
       # @return [Sevgi::Function::Shell::Result] command result
-      # @raise [Sevgi::Sundries::Export::ExportError] when format or output extension is unsupported
+      # @raise [Sevgi::Sundries::Export::ExportError] when format, output extension, or CSS insertion is invalid
       # @raise [Sevgi::Error] when rsvg-convert is missing or the command fails
       # @raise [Errno::ENOENT] when the executable cannot be spawned
       # @see https://gitlab.gnome.org/GNOME/librsvg librsvg
@@ -115,11 +115,11 @@ module Sevgi
         infile = File.expand_path(infile)
         outfile ||= F.subext(".pdf", infile)
         outfile = File.expand_path(outfile)
-        format = format_for!(format, outfile)
+        format = format_for(format, outfile)
 
         if css
           temp = Tempfile.new(%w[input .svg], File.dirname(infile))
-          ::File.write(temp.path, inject(::File.read(infile), css))
+          ::File.write(temp.path, styled(::File.read(infile), css))
           infile = temp.path
         end
 

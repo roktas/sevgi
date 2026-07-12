@@ -49,16 +49,11 @@ module Sevgi
       #   @return [Object] the original output argument
       #   @raise [Sevgi::ArgumentError] when SVG content is not a string or output is blank
       #   @raise [Sevgi::MissingComponentError] when cairo, hexapdf, or rsvg2 is unavailable
-      #   @raise [Sevgi::Sundries::Export::ExportError] when format, SVG parsing, SVG dimensions, or render dimensions
-      #     are invalid
+      #   @raise [Sevgi::Sundries::Export::ExportError] when format, CSS insertion, SVG parsing, SVG dimensions, or
+      #     render dimensions are invalid
       def call(*args, **kwargs, &block) = native!.call(*args, **kwargs, &block)
 
-      # Resolves the export format from an explicit value or output extension.
-      # @param format [Symbol, String, nil] explicit format
-      # @param output [String, #to_s] output path
-      # @return [Symbol] resolved format
-      # @raise [Sevgi::Sundries::Export::ExportError] when the explicit format or output extension is unsupported
-      def format_for!(format, output)
+      def format_for(format, output)
         if format
           format = normalize_format(format)
           ExportError.("Unsupported export format: #{format}") unless AVAILABLE.key?(format)
@@ -72,12 +67,12 @@ module Sevgi
         end
       end
 
-      # Inserts CSS before the closing svg tag.
-      # @param svg [String] SVG source content
-      # @param css [String] CSS source content
-      # @return [String] SVG source with an added style element when a closing svg tag is present
-      # @raise [NoMethodError] when SVG content does not support string substitution
-      def inject(svg, css) = svg.sub("</svg>", "<style>#{css}</style></svg>")
+      def styled(svg, css)
+        output = svg.sub("</svg>", "<style>#{css}</style></svg>")
+        ExportError.("Cannot insert CSS: closing svg tag not found") if output == svg
+
+        output
+      end
 
       def normalize_format(format)
         unless format.is_a?(::String) || format.is_a?(::Symbol)
@@ -87,7 +82,7 @@ module Sevgi
         format.to_sym
       end
 
-      private :normalize_format
+      private :format_for, :normalize_format, :styled
 
       # Replaces exact placeholder text objects in PDF streams.
       # @param infile [String] source PDF file path

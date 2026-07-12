@@ -172,6 +172,18 @@ module Sevgi
           end
         end
 
+        def test_call_rejects_failed_css_insertion
+          Dir.mktmpdir do |dir|
+            output = File.join(dir, "out.png")
+            error = assert_raises(ExportError) do
+              Export.call("<svg>", output, css: "rect { fill: red; }")
+            end
+
+            assert_equal("Cannot insert CSS: closing svg tag not found", error.message)
+            refute_path_exists(output)
+          end
+        end
+
         def test_call_rejects_invalid_target_width
           Dir.mktmpdir do |dir|
             output = File.join(dir, "out.png")
@@ -246,33 +258,16 @@ module Sevgi
           end
         end
 
-        def test_format_for_rejects_missing_extension
-          error = assert_raises(ExportError) { Export.format_for!(nil, "out") }
+        def test_call_rejects_missing_extension
+          error = assert_raises(ExportError) { Export.call(svg(width: 10, height: 10), "out") }
 
           assert_equal("Unrecognized file extension: ", error.message)
         end
 
-        def test_format_for_detects_file_extension
-          assert_equal(:pdf, Export.format_for!(nil, "out.pdf"))
-          assert_equal(:png, Export.format_for!(nil, "out.png"))
-        end
-
-        def test_format_for_uses_explicit_format
-          assert_equal(:png, Export.format_for!("png", "out.pdf"))
-          assert_equal(:pdf, Export.format_for!(:pdf, "out.png"))
-        end
-
-        def test_format_for_rejects_unrecognized_file_extension
-          error = assert_raises(ExportError) { Export.format_for!(nil, "out.webp") }
+        def test_call_rejects_unrecognized_file_extension
+          error = assert_raises(ExportError) { Export.call(svg(width: 10, height: 10), "out.webp") }
 
           assert_equal("Unrecognized file extension: .webp", error.message)
-        end
-
-        def test_inject_adds_style_before_closing_svg
-          assert_equal(
-            "<svg><style>rect { fill: red; }</style></svg>",
-            Export.inject("<svg></svg>", "rect { fill: red; }")
-          )
         end
 
         def test_stamp_returns_false_when_placeholder_is_absent

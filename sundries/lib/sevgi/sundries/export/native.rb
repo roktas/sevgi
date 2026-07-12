@@ -31,18 +31,18 @@ module Sevgi
       # @yieldreturn [String] SVG source to render
       # @return [Object] the original output argument
       # @raise [Sevgi::ArgumentError] when output, CSS, or transformed SVG has an invalid type
-      # @raise [Sevgi::Sundries::Export::ExportError] when format, numeric options, SVG parsing, SVG dimensions, or render dimensions are invalid
+      # @raise [Sevgi::Sundries::Export::ExportError] when format, numeric options, CSS insertion, SVG parsing, SVG dimensions, or render dimensions are invalid
       def call(svg, output, format: nil, width: nil, height: nil, dpi: DEFAULT_DPI, css: nil, &block)
         ArgumentError.("SVG content must be a String") unless svg.is_a?(String)
         original_output = output
         output = output_path(output)
-        format = format_for!(format, output)
+        format = format_for(format, output)
         width = dimension(width, "width")
         height = dimension(height, "height")
         dpi = dimension(dpi, "dpi")
         ArgumentError.("Export CSS must be a String") unless css.nil? || css.is_a?(String)
 
-        svg = inject(svg, css) if css && !css.strip.empty?
+        svg = styled(svg, css) if css && !css.strip.empty?
         svg = block.call(svg) if block
         ArgumentError.("SVG content must be a String") unless svg.is_a?(String)
 

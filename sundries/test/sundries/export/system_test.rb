@@ -219,6 +219,21 @@ module Sevgi
           end
         end
 
+        def test_system_exports_reject_failed_css_insertion
+          Dir.mktmpdir do |dir|
+            infile = File.join(dir, "input.svg")
+            File.write(infile, "<svg>")
+
+            [Export.method(:inkscape), Export.method(:rsvg)].each do |export|
+              error = assert_raises(ExportError) do
+                export.call(infile, css: "rect { fill: red; }")
+              end
+
+              assert_equal("Cannot insert CSS: closing svg tag not found", error.message)
+            end
+          end
+        end
+
         def test_unite_runs_pdfunite_command
           result = capture_sh do
             Export.unite(%w[a.pdf b.pdf], "out.pdf")
