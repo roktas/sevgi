@@ -29,32 +29,16 @@ module Sevgi
       def base(&block)
         ArgumentError.("Block required") unless block
 
-        _bases << block
+        @sevgi_bases << block
         nil
-      end
-
-      # Tracks newly defined methods as callable drawing candidates.
-      # Invocation runs unique methods that are still public, preserving tracked definition order.
-      # @param method [Symbol] method name Ruby reports as added
-      # @return [Array<Symbol>, nil]
-      def method_added(method)
-        super
-
-        _callables << method if public_method_defined?(method)
       end
 
       # Initializes callable module state.
       # @param base [Module] extended module
       # @return [void]
       def self.extended(base)
-        base.instance_exec do
-          @_bases = []
-          @_callables = []
-
-          class << self
-            attr_reader :_bases, :_callables
-          end
-        end
+        base.instance_variable_set(:@sevgi_bases, [])
+        base.instance_variable_set(:@sevgi_callables, base.public_instance_methods(false))
       end
 
       # Returns an owned snapshot of inherited and local base blocks in execution order.
@@ -68,7 +52,7 @@ module Sevgi
           .ancestors
           .reverse_each
           .filter_map do |ancestor|
-            ancestor._bases if ancestor.respond_to?(:_bases)
+            ancestor.instance_variable_get(:@sevgi_bases) if ancestor.instance_variable_defined?(:@sevgi_bases)
           end
           .flatten
       end
@@ -101,16 +85,28 @@ module Sevgi
       end
 
       def self.callable_names(mod)
-        tracked = mod.ancestors.reverse_each.filter_map do |ancestor|
-          ancestor._callables if ancestor.respond_to?(:_callables)
+        mod.ancestors.reverse_each.flat_map do |ancestor|
+          if ancestor.instance_variable_defined?(:@sevgi_callables)
+            ancestor.instance_variable_get(:@sevgi_callables)
+          else
+            ancestor.public_instance_methods(false)
+          end
         end
-
-        return tracked.flatten unless tracked.empty?
-
-        mod.public_instance_methods
       end
 
-      private_class_method :callable_names
+      private
+
+      # Tracks newly defined methods as callable drawing candidates.
+      # Invocation runs unique methods that are still public, preserving tracked definition order.
+      # @param method [Symbol] method name Ruby reports as added
+      # @return [Array<Symbol>, nil]
+      def method_added(method)
+        super
+
+        @sevgi_callables << method if public_method_defined?(method)
+      end
+
+      private_class_method :bases, :call, :callable_names, :callables, :extended
     end
 
     module Mixtures
@@ -124,7 +120,7 @@ module Sevgi
         #   @return [Object, nil] last callable return value
         #   @raise [Sevgi::ArgumentError] when mod is not a plain module
         def Call(mod, ...)
-          Graphics::Module.call(mod, self, ...)
+          Graphics::Module.__send__(:call, mod, self, ...)
         end
 
         private
@@ -135,10 +131,10 @@ module Sevgi
 
           kwargs = kwargs.merge(id: F.demodulize(mod).to_sym) unless kwargs.key?(:id)
 
-          Graphics::Module.bases(mod).each { Within(self, &it) }
+          Graphics::Module.__send__(:bases, mod).each { Within(self, &it) }
 
           public_send(container, **kwargs) do
-            Graphics::Module.callables(mod).each do |method|
+            Graphics::Module.__send__(:callables, mod).each do |method|
               public_send(element) do
                 Within(self, method.name, self, &block)
 

@@ -6,6 +6,41 @@ module Sevgi
   module Graphics
     module Mixtures
       class CallTest < Minitest::Test
+        def test_call_discovers_all_public_entry_points
+          included = ::Module.new do
+            def included_item
+              rect(id: "included")
+            end
+          end
+
+          mod = ::Module.new do
+            def early
+              rect(id: "early")
+            end
+
+            extend(Graphics::Module)
+            include(included)
+
+            def late
+              rect(id: "late")
+            end
+          end
+
+          doc = SVG(:minimal)
+          doc.Call(mod)
+
+          assert_equal(%w[included early late], doc.children.map { it[:id] })
+        end
+
+        def test_callable_module_exposes_only_dsl_surface
+          mod = ::Module.new { extend(Graphics::Module) }
+
+          assert_respond_to(mod, :base)
+          refute_respond_to(mod, :method_added)
+          %i[bases call callables extended].each { refute_respond_to(Graphics::Module, it) }
+          %i[_bases _callables].each { refute_respond_to(mod, it) }
+        end
+
         def test_call_runs_bases_and_public_methods
           mod = ::Module.new do
             extend(Graphics::Module)
