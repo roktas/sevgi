@@ -81,10 +81,13 @@ module Sevgi
       end
 
       # Compares segments by length.
-      # @param other [Sevgi::Geometry::Segment, Array<Numeric>] segment to compare
-      # @return [Integer, nil]
-      # @raise [Sevgi::Geometry::Error] when other cannot be coerced
-      def <=>(other) = length <=> Tuple[Segment, other].length
+      # @param other [Object] segment or two-item length/angle array to compare
+      # @return [Integer, nil] comparison result, or nil when other is not a valid segment value
+      def <=>(other)
+        length <=> Tuple[Segment, other].length
+      rescue Error
+        nil
+      end
 
       # Returns a segment rounded to precision.
       # @param precision [Integer, nil] decimal precision, or nil for the current function default

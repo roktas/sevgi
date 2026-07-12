@@ -183,6 +183,17 @@ module Sevgi
           false
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
+
+      def test_point_comparison_follows_comparable
+        point = Point[1, 2]
+
+        assert_equal(-1, point <=> Point[1, 3])
+        assert_equal(-1, point <=> [2, 0])
+        [[], [1], [1, 2, 3], ["x", 2], Object.new].each { assert_nil(point <=> it) }
+        assert_raises(::ArgumentError) { point < Object.new }
+        assert_equal([Point[0, 3], Point[1, 2]], [point, Point[0, 3]].sort)
+        assert(Point[1, 2].between?(Point[1, 1], Point[1, 3]))
+      end
     end
   end
 end

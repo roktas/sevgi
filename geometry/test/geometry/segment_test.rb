@@ -107,6 +107,17 @@ module Sevgi
         assert(left.eq?(right, precision: 3))
         refute(left.eq?(right, precision: 4))
       end
+
+      def test_segment_comparison_follows_comparable
+        segment = Segment[2, 90]
+
+        assert_equal(0, segment <=> Segment[2, 0])
+        assert_equal(-1, segment <=> [3, 0])
+        [[], [1], [1, 2, 3], ["x", 2], Object.new].each { assert_nil(segment <=> it) }
+        assert_raises(::ArgumentError) { segment < Object.new }
+        assert_equal([Segment[1, 180], segment], [segment, Segment[1, 180]].sort)
+        assert(segment.between?(Segment[1, 0], Segment[3, 0]))
+      end
     end
 
     class LengthAngleTest < Minitest::Test

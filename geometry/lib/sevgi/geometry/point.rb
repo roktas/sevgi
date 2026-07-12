@@ -131,10 +131,13 @@ module Sevgi
       def initialize(x:, y:) = super(x: Real[:x, x], y: Real[:y, y])
 
       # Compares points by x, then y.
-      # @param other [Sevgi::Geometry::Point, Array<Numeric>] point to compare
-      # @return [Integer, nil]
-      # @raise [Sevgi::Geometry::Error] when other cannot be coerced
-      def <=>(other) = deconstruct <=> Tuple[Point, other].deconstruct
+      # @param other [Object] point or two-item coordinate array to compare
+      # @return [Integer, nil] comparison result, or nil when other is not a valid point value
+      def <=>(other)
+        deconstruct <=> Tuple[Point, other].deconstruct
+      rescue Error
+        nil
+      end
 
       # Reports whether this point is at or above another point in screen coordinates.
       # @param other [Sevgi::Geometry::Point, Array<Numeric>] point to compare
