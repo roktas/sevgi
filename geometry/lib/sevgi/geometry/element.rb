@@ -76,7 +76,6 @@ module Sevgi
       # @raise [Sevgi::PanicError] when a subclass does not implement translate
       def translate(_x, _y) = PanicError.("#{self.class}#translate must be implemented")
 
-      # rubocop:disable Metrics/ClassLength
       # Element whose boundary is represented by straight segments.
       class Lined < self
         # Open lined element base class.
@@ -537,7 +536,6 @@ module Sevgi
       end
 
       private_constant :Arced
-      # rubocop:enable Metrics/ClassLength
     end
 
     require_relative "elements/line"

@@ -11,6 +11,10 @@ module Sevgi
     # Native PDF/PNG rendering is loaded lazily so installing `sevgi-sundries` for SVG-only helpers does not require the
     # Cairo, RSVG, or HexaPDF gems. Native export entrypoints raise {Sevgi::MissingComponentError} when those optional
     # gems are unavailable.
+    #
+    # @example Export SVG source to a sized PNG
+    #   svg = Sevgi::Graphics.SVG(:minimal) { circle(cx: 5, cy: 5, r: 4) }.Render
+    #   Sevgi::Sundries::Export.call(svg, "drawing.png", width: 320)
     module Export
       # Supported export format names mapped to file extensions.
       AVAILABLE = (EXTENSIONS = {

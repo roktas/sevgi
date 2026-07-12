@@ -22,10 +22,11 @@ Metrics/AbcSize:
     - 'sundries/lib/sevgi/sundries/export/system.rb'
     - 'toplevel/lib/sevgi/binaries/sevgi.rb'
 
-# Offense count: 1
+# Offense count: 2
 # Configuration parameters: CountComments, Max, CountAsOne.
 Metrics/ClassLength:
   Exclude:
+    - 'geometry/lib/sevgi/geometry/element.rb'
     - 'graphics/lib/sevgi/graphics/mixtures/render.rb'
 
 # Offense count: 9
@@ -39,7 +40,7 @@ Metrics/CyclomaticComplexity:
     - 'sundries/lib/sevgi/sundries/export/native.rb'
     - 'sundries/lib/sevgi/sundries/export/system.rb'
 
-# Offense count: 21
+# Offense count: 26
 # Configuration parameters: CountComments, Max, CountAsOne, AllowedMethods, AllowedPatterns.
 Metrics/MethodLength:
   Exclude:
@@ -49,9 +50,12 @@ Metrics/MethodLength:
     - 'geometry/lib/sevgi/geometry/equation.rb'
     - 'geometry/lib/sevgi/geometry/operation/align.rb'
     - 'graphics/lib/sevgi/graphics/element.rb'
+    - 'graphics/lib/sevgi/graphics/auxiliary/content.rb'
     - 'graphics/lib/sevgi/graphics/mixtures/core.rb'
+    - 'graphics/lib/sevgi/graphics/mixtures/rdf.rb'
     - 'graphics/lib/sevgi/graphics/mixtures/render.rb'
     - 'graphics/lib/sevgi/graphics/mixtures/save.rb'
+    - 'graphics/lib/sevgi/graphics/mixtures/tile.rb'
     - 'sundries/lib/sevgi/sundries/export/native.rb'
     - 'sundries/lib/sevgi/sundries/export/system.rb'
     - 'toplevel/lib/sevgi/binaries/sevgi.rb'

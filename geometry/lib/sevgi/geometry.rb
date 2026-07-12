@@ -18,6 +18,11 @@ module Sevgi
   #
   # Coordinates follow SVG screen conventions: +x points right, +y points down,
   # and positive angles turn clockwise.
+  #
+  # @example Measure and move a line
+  #   line = Sevgi::Geometry::Line.([0, 0], [3, 4])
+  #   line.length                    #=> 5.0
+  #   line.translate(2, 1).starting #=> Point[2.0, 1.0]
   module Geometry
   end
 end

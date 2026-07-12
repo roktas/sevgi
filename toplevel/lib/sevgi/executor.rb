@@ -18,6 +18,11 @@ module Sevgi
   # state. The process SIGINT handler is shared by Ruby, so executor runs guard it
   # with a reference-counted critical section and restore the previous handler
   # after the last active execution finishes.
+  #
+  # @example Execute source and inspect its result
+  #   result = Sevgi::Executor.execute("6 * 7")
+  #   result.success? #=> true
+  #   result.value    #=> 42
   class Executor
     include Singleton
 

@@ -14,6 +14,13 @@ require_relative "graphics/version"
 
 module Sevgi
   # SVG document builder and DSL namespace.
+  #
+  # @example Build and render a minimal SVG document
+  #   drawing = Sevgi::Graphics.SVG(:minimal, width: 10, height: 10) do
+  #     circle cx: 5, cy: 5, r: 4
+  #   end
+  #   drawing.Render #=> "<svg ...>...</svg>\n"
+  # @see https://sevgi.roktas.dev/showcase/ Runnable drawing examples
   module Graphics
     # @overload canvas(arg = Undefined, **kwargs)
     #   Builds a canvas from a paper profile or explicit size.

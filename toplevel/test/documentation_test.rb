@@ -34,6 +34,15 @@ module Sevgi
       Sevgi::Sundries::Export::Renderer
     ]
       .freeze
+    WORKFLOW_EXAMPLES = %w[
+      Sevgi::Derender
+      Sevgi::Executor
+      Sevgi::Geometry
+      Sevgi::Graphics
+      Sevgi::Standard
+      Sevgi::Sundries::Export
+    ]
+      .freeze
 
     def test_api_private_visibility_matches_runtime
       assert_raises(NameError) { Executor::Source }
@@ -80,6 +89,22 @@ module Sevgi
       errors = intended_methods.flat_map { contract_errors(it) }
 
       assert_empty(errors, errors.join("\n"))
+    end
+
+    def test_public_docs_exclude_tool_directives
+      errors = public_objects.filter_map do |object|
+        next unless object.docstring.to_s.match?(/\b(?:rubocop|standard|reek):(?:disable|enable)\b/i)
+
+        object.path
+      end
+
+      assert_empty(errors, "Tool directives in public docs:\n#{errors.join("\n")}")
+    end
+
+    def test_core_workflows_have_examples
+      missing = WORKFLOW_EXAMPLES.reject { yard(it).tags(:example).any? }
+
+      assert_empty(missing, "Core workflows without examples:\n#{missing.join("\n")}")
     end
 
     def test_constant_visibility_matches_documentation
@@ -200,6 +225,13 @@ module Sevgi
       return true unless types.intersect?(GENERIC_RETURNS)
 
       !tag.text.to_s.strip.empty?
+    end
+
+    def public_objects
+      registry
+        .all
+        .reject { effective_private?(it) }
+        .reject { it.type == :method && it.visibility != :public }
     end
 
     def public_constant_path?(path)

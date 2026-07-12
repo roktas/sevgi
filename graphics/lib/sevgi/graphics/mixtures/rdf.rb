@@ -27,8 +27,6 @@ module Sevgi
           metadata { RDFWork(**kwargs, &block) }
         end
 
-        # Use SPDX license codes in underscored form: https://spdx.org/licenses/
-        #
         # Adds Creative Commons BY license metadata.
         # @param kwargs [Hash] RDF work options
         # @yield evaluates additional RDF work metadata
@@ -136,7 +134,6 @@ module Sevgi
           end
         end
 
-        # rubocop:disable Metrics/MethodLength
         # Builds a Creative Commons RDF Work element.
         # @param kwargs [Hash] RDF work options
         # @option kwargs [String] :title work title
@@ -180,7 +177,6 @@ module Sevgi
             end
           end
         end
-        # rubocop:enable Metrics/MethodLength
       end
     end
   end

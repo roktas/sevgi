@@ -209,7 +209,6 @@ module Sevgi
           super
         end
 
-        # rubocop:disable Metrics/MethodLength
         # Renders CSS content.
         # @param renderer [Object] renderer receiving output
         # @param depth [Integer] current render depth
@@ -237,7 +236,6 @@ module Sevgi
 
           renderer.append(depth, "]]>")
         end
-        # rubocop:enable Metrics/MethodLength
 
         private
 

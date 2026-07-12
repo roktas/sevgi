@@ -3,7 +3,6 @@
 module Sevgi
   module Graphics
     module Mixtures
-      # rubocop:disable Metrics/MethodLength
       # DSL helpers for repeated SVG use elements.
       module Tile
         # Prefix used for generated tile CSS classes.
@@ -183,7 +182,6 @@ module Sevgi
 
               ArgumentError.(issue)
             end
-            # rubocop:enable Metrics/MethodLength
           end
 
           # Returns positional tile CSS classes.
