@@ -14,7 +14,10 @@ module Sevgi
           end
 
           def test_horizontal_maps_y_to_constant
-            assert_in_delta(1.0, Equation.horizontal(1.0).y(1))
+            equation = Equation.horizontal(1.0)
+
+            assert_in_delta(1.0, equation.y(1))
+            assert_raises(Error) { equation.x(1) }
           end
 
           def test_horizontal_rejects_invalid_constant

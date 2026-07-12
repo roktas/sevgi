@@ -21,12 +21,13 @@ module Sevgi
           # @param slope [Numeric] line slope
           # @param intercept [Numeric] y-intercept
           # @return [void]
-          # @raise [Sevgi::Geometry::Error] when a coefficient is not a finite Numeric
+          # @raise [Sevgi::Geometry::Error] when a coefficient is not finite Numeric or slope is zero
           def initialize(slope:, intercept:)
             super()
 
             @slope = Real[:slope, slope]
             @intercept = Real[:intercept, intercept]
+            Error.("A diagonal equation requires a non-zero slope") if instance_of?(Diagonal) && @slope.zero?
           end
 
           # Returns an equation rounded to precision.
@@ -144,6 +145,12 @@ module Sevgi
             self.class.new(intercept + (dy || 0.0) - (distance || 0.0))
           end
 
+          # Rejects x lookup because a horizontal equation does not determine one x coordinate.
+          # @param _y [Numeric] y coordinate
+          # @return [void]
+          # @raise [Sevgi::Geometry::Error] always, because x is indeterminate
+          def x(_y) = Error.("x is indeterminate for a horizontal equation")
+
           # Formats the equation for display.
           # @return [String]
           def to_s = "Linear<y = #{F.approx(intercept)}>"
@@ -230,9 +237,10 @@ module Sevgi
           def x(_ = nil) = @x
 
           # Evaluates y for an x coordinate.
-          # @param _ [Numeric, nil] ignored x coordinate
-          # @return [Float] positive infinity because a vertical line has no single y
-          def y(_ = nil) = ::Float::INFINITY
+          # @param _x [Numeric] x coordinate
+          # @return [void]
+          # @raise [Sevgi::Geometry::Error] always, because y is indeterminate
+          def y(_x) = Error.("y is indeterminate for a vertical equation")
 
           alias == eql?
         end

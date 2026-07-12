@@ -13,11 +13,11 @@ module Sevgi
             vequ3
           end
 
-          def test_vertical_maps_x_and_infinite_y
+          def test_vertical_maps_x_and_rejects_y_lookup
             equ = Equation.vertical(1.0)
 
             assert_in_delta(1.0, equ.x(1))
-            assert_equal(Float::INFINITY, equ.y(1))
+            assert_raises(Error) { equ.y(1) }
           end
 
           def test_vertical_rejects_invalid_constant

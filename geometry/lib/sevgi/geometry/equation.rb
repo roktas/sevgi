@@ -10,7 +10,7 @@ module Sevgi
       # @param slope [Numeric] line slope
       # @param intercept [Numeric] y-intercept
       # @return [Sevgi::Geometry::Equation::Linear::Diagonal]
-      # @raise [Sevgi::Geometry::Error] when a coefficient is not a finite Numeric
+      # @raise [Sevgi::Geometry::Error] when a coefficient is not finite Numeric or slope is zero
       def self.diagonal(slope:, intercept:) = Linear::Diagonal.new(slope:, intercept:)
 
       # Builds a horizontal linear equation.
