@@ -26,7 +26,8 @@ module Sevgi
     # Thread-current key used for the fiber-local executor scope stack.
     # @api private
     SCOPE_KEY = :sevgi_executor_scopes
-    private_constant :SCOPE_KEY, :Source
+    SOURCE_LINE_MAX = (2 ** 31) - 1
+    private_constant :SCOPE_KEY, :SOURCE_LINE_MAX, :Source
 
     # Loads a script file inside the current executor scope.
     # @param file [String] path to a Sevgi script file
@@ -49,11 +50,15 @@ module Sevgi
     # @yield optional boot block that installs DSL methods before evaluation
     # @yieldreturn [void]
     # @return [Sevgi::Executor::Result] immutable execution result
+    # @raise [Sevgi::ArgumentError] when source, file, line, required library, or receiver is invalid
     # @note Script and required-library failures are captured in {Sevgi::Executor::Result#error}; inspect
     #   {Sevgi::Executor::Error#cause} for the original exception.
     # @note Reentrant and concurrent calls keep independent scope stacks per fiber. The temporary SIGINT handler remains
     #   process-global while any execution is active.
     def self.execute(string, file: nil, line: nil, require: nil, receiver: nil, &block)
+      validate_source!(string, file, line)
+      validate_context!(require, receiver)
+
       execute_source(Source.new(string:, file:, line:), require:, receiver:, &block)
     end
 
@@ -64,11 +69,15 @@ module Sevgi
     # @yield optional boot block that installs DSL methods before evaluation
     # @yieldreturn [void]
     # @return [Sevgi::Executor::Result] immutable execution result
+    # @raise [Sevgi::ArgumentError] when file, required library, or receiver is invalid
     # @note File-read, script, and required-library failures are captured in {Sevgi::Executor::Result#error}; inspect
     #   {Sevgi::Executor::Result#stack} for nested loads.
     # @note Reentrant and concurrent calls keep independent scope stacks per fiber. The temporary SIGINT handler remains
     #   process-global while any execution is active.
     def self.execute_file(file, require: nil, receiver: nil, &block)
+      ArgumentError.("Executor file must be a String") unless file.is_a?(::String)
+      validate_context!(require, receiver)
+
       source = nil
       begin
         source = Source.load(file)
@@ -170,7 +179,22 @@ module Sevgi
       scope.capture(source, e)
     end
 
-    private_class_method :capture_error, :execute_source, :run_source
+    def self.validate_context!(library, receiver)
+      ArgumentError.("Executor library must be a String or nil") unless library.nil? || library.is_a?(::String)
+
+      valid = (receiver in ::Object) && receiver.respond_to?(:public_send) && receiver.respond_to?(:instance_exec)
+      ArgumentError.("Executor receiver must be an executable Object or nil") unless valid
+    end
+
+    def self.validate_source!(string, file, line)
+      ArgumentError.("Executor source must be a String") unless string.is_a?(::String)
+      ArgumentError.("Executor file must be a String or nil") unless file.nil? || file.is_a?(::String)
+
+      valid = line.nil? || (line.is_a?(::Integer) && line.between?(1, SOURCE_LINE_MAX))
+      ArgumentError.("Executor line must be between 1 and #{SOURCE_LINE_MAX}") unless valid
+    end
+
+    private_class_method :capture_error, :execute_source, :run_source, :validate_context!, :validate_source!
 
     private
 

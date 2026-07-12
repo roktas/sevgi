@@ -11,6 +11,7 @@ module Sevgi
   # @param args [Array] arguments forwarded to {Sevgi::Executor.execute}
   # @param kwargs [Hash] keyword arguments forwarded to {Sevgi::Executor.execute}
   # @return [Sevgi::Executor::Result] immutable execution result
+  # @raise [Sevgi::ArgumentError] when an invocation argument is invalid
   # @note Script and required-library failures are captured in {Sevgi::Executor::Result#error}.
   # @note Reentrant and concurrent calls keep independent executor scope stacks per fiber.
   # @see Sevgi::Executor.execute
@@ -20,6 +21,7 @@ module Sevgi
   # @param args [Array] arguments forwarded to {Sevgi::Executor.execute_file}
   # @param kwargs [Hash] keyword arguments forwarded to {Sevgi::Executor.execute_file}
   # @return [Sevgi::Executor::Result] immutable execution result
+  # @raise [Sevgi::ArgumentError] when an invocation argument is invalid
   # @note File-read, script, and required-library failures are captured in {Sevgi::Executor::Result#error}.
   # @note Reentrant and concurrent calls keep independent executor scope stacks per fiber.
   # @see Sevgi::Executor.execute_file

@@ -435,6 +435,34 @@ module Sevgi
       assert_equal(15, Executor.execute("x = 5\ny = 10\nx + y").value)
     end
 
+    def test_execute_rejects_invalid_invocation
+      calls = [
+        proc { Executor.execute(nil) },
+        proc { Executor.execute("1", file: 1) },
+        proc { Executor.execute("1", line: "1") },
+        proc { Executor.execute("1", line: 0) },
+        proc { Executor.execute("1", line: 2 ** 31) },
+        proc { Executor.execute("1", require: :json) },
+        proc { Executor.execute("1", receiver: BasicObject.new) }
+      ]
+
+      calls.each { assert_raises(Sevgi::ArgumentError, &it) }
+      assert_nil(Executor.instance.current)
+      assert_equal(0, Executor.instance.instance_variable_get(:@signal_count))
+    end
+
+    def test_execute_file_rejects_invalid_invocation
+      calls = [
+        proc { Executor.execute_file(nil) },
+        proc { Executor.execute_file("missing.sevgi", require: :json) },
+        proc { Executor.execute_file("missing.sevgi", receiver: BasicObject.new) }
+      ]
+
+      calls.each { assert_raises(Sevgi::ArgumentError, &it) }
+      assert_nil(Executor.instance.current)
+      assert_equal(0, Executor.instance.instance_variable_get(:@signal_count))
+    end
+
     def test_execute_error_reports_default_source_location
       syntax_error = "de foo\n  invalid syntax here\nend"
 
