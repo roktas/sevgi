@@ -16,33 +16,46 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 - Breaking: replaced callable drawing module `call` block registration with argument-independent `base` blocks;
   inherited bases run parent-first, and modules with one drawing method conventionally name it `call`.
-- Breaking: made bracket and call notation the canonical Geometry constructors, aligned Point and Segment comparison
-  with Ruby `Comparable`, and made malformed or unrelated comparison operands return nil from `<=>`.
+- Breaking: made bracket and call notation the canonical Geometry constructors. Among Data value types, bracket notation
+  is public only for Point, Segment, LengthAngle, Margin, and Paper; use `.new` for Location and result carriers, and
+  `Stay` for traversal stop tokens.
+- Breaking: aligned Point and Segment comparison with Ruby `Comparable`; malformed or unrelated comparison operands now
+  return nil from `<=>`.
 - Breaking: executor entrypoints now return immutable `Executor::Result` values and expose only `execute` and
   `execute_file`; inspect `result.error`, `result.stack`, and `result.value` instead of executor scopes or lifecycle state.
-- Breaking: wrapper attributes and callable arguments use distinct channels, `With` rejects parentless receivers, Canvas
-  requires an explicit paper or width/height pair, and unsupported direct constructors are private; use the documented
-  factories for Content, Geometry lined elements, and Grid query values.
+- Breaking: wrapper attributes and callable arguments use distinct channels, `With` rejects parentless receivers, and
+  unsupported direct constructors are private; use the documented factories for Content, concrete Geometry lined
+  elements, and Grid query values.
+- Breaking: Canvas uses `.new` for explicit fields, `.from_paper(paper, **overrides)` for paper conversion, and
+  `.call`/`Graphics.canvas` for dispatch; the misleading keyword-only `.from_paper(width:, height:)` form was removed.
 - Breaking: `Save`, `Write`, `PNG`, `PDF`, and Sundries native export normalize successful destinations to expanded
   String paths and create missing parent directories; change-aware SVG writes still return nil when unchanged.
 - Breaking: renamed `Derender.evaluate_file_children` to `evaluate_children_file`; decompiled nodes now own immutable
   public state while parser, strategy, and construction plumbing remain private.
-- Expanded exact YARD contracts for top-level DSL words, generated/Data accessors, renderer options, path ownership,
-  whitespace, namespaces, nil behavior, return values, and supported constructor surfaces.
+- Expanded runtime/YARD parity checks and exact contracts for inherited, extended, generated, and dynamic API surfaces,
+  forwarded options, error channels, path ownership, whitespace, namespaces, nil behavior, and return values.
 
 ### Fixed
 
-- Normalized finite Ruby Numeric inputs to SVG number spelling and made wrapper ids, Inkscape pages, duplicate channels,
-  attribute updates, and Geometry length/angle constraints validate consistently before mutation or user callbacks.
+- Normalized numeric slots owned by path, shape, transform, tile, and Inkscape page helpers to finite SVG number spelling;
+  arbitrary user-supplied attributes remain untouched.
+- Made named callable wrapper and symbol ids stable while omitting defaults for anonymous modules, and indexed every
+  rendered id value—including false and numeric values—through its serialized string.
+- Preserved signed Geometry constraint directions, rejected invalid sweep/export channels through Sevgi error families,
+  and validated raw output paths before expansion or rendering.
+- Made callable module configuration copy-owned and freeze-aware, document subclasses inherit their nearest profile, and
+  false executor boot receivers remain explicit rather than defaulting to an internal scope.
 - Made element trees, attributes, identifiers, locator results, document profiles, Derender nodes, shell results, and
   executor results retain owned immutable snapshots where their public contracts promise value semantics.
-- Corrected Shell combined-output separators, nil export density errors, document render-option routing, selected-node
-  namespace/whitespace documentation, and Standard character-data validation.
+- Corrected Shell combined-output separators, nil export density errors, document render-option routing, executor source
+  snapshots, selected-node namespace/whitespace documentation, and Standard character-data validation.
 
 ### Removed
 
 - Removed public executor orchestration, obsolete callable-module hooks, the old public attribute syntax constants, and
   direct construction of abstract or internally wired Content, Element, and Grid query types.
+- Removed accidental public access to abstract Lined factories, internal element-name/export maps, result/location
+  bracket constructors, and direct Stop construction.
 
 ## 0.95.0 - 2026-07-11
 
