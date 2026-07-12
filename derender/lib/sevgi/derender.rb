@@ -25,6 +25,8 @@ module Sevgi
   # evaluation. CSS specialization applies only to unqualified `style` elements in no namespace or the default SVG
   # namespace; the document-root strategy additionally requires an unqualified `svg` at the root of the conversion.
   module Derender
+    private_constant :Attributes, :Elements
+
     # @!method self.decompile(content, id: nil)
     #   Converts SVG/XML content into a derender node.
     #   @param content [String] SVG/XML source content

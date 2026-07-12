@@ -61,6 +61,7 @@ module Sevgi
       end
 
       extend Ident
+      private_constant :Ident
 
       # Returns the SVG element name.
       # @return [Symbol]

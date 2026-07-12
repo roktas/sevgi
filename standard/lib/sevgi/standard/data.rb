@@ -94,6 +94,8 @@ module Sevgi
 
     private_constant :Common
 
+    # SVG attribute registry implementation.
+    # @api private
     module Attribute
       extend Common
       extend self
@@ -103,6 +105,8 @@ module Sevgi
 
     private_constant :Attribute
 
+    # SVG element registry implementation.
+    # @api private
     module Element
       extend Common
       extend self
@@ -112,6 +116,8 @@ module Sevgi
 
     private_constant :Element
 
+    # SVG specification registry implementation.
+    # @api private
     module Specification
       extend List
       extend self

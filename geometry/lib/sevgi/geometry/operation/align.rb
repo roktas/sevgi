@@ -4,6 +4,7 @@ module Sevgi
   module Geometry
     module Operation
       # Alignment operation implementation.
+      # @api private
       module Align
         extend self
 

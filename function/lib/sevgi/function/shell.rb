@@ -286,6 +286,8 @@ module Sevgi
         end
       end
 
+      private_constant :Runner
+
       # @overload sh(*args, &block)
       #   Runs a command and captures stdout, stderr, and exit status.
       #   @param args [Array<String>] command and arguments

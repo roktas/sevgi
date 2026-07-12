@@ -239,7 +239,7 @@ module Sevgi
         end
 
         # Copies the attribute store with recursively independent values.
-        # @param original [Sevgi::Graphics::Attribute::Store] store to copy
+        # @param original [Sevgi::Graphics::Attributes] store to copy
         # @return [void]
         # @raise [Sevgi::ArgumentError] when live stored values became cyclic or invalid
         def initialize_copy(original)
@@ -304,5 +304,6 @@ module Sevgi
 
     # Public alias for the SVG attribute store.
     Attributes = Attribute::Store
+    private_constant :Attribute
   end
 end

@@ -22,6 +22,7 @@ module Sevgi
     PUBLIC_CONSTANTS = %w[
       Sevgi::F
       Sevgi::Geometry::Origin
+      Sevgi::Graphics::Attributes
       Sevgi::Graphics::Document::Profile
       Sevgi::Sundries::Export
     ]
@@ -77,6 +78,19 @@ module Sevgi
 
     def test_public_methods_have_complete_contracts
       errors = intended_methods.flat_map { contract_errors(it) }
+
+      assert_empty(errors, errors.join("\n"))
+    end
+
+    def test_constant_visibility_matches_documentation
+      errors = registry
+        .all
+        .select { %i[class module].include?(it.type) && feature_loaded?(it.file) }
+        .filter_map do |object|
+          expected = effective_private?(object) ? :private : :public
+          actual = public_constant_path?(object.path) ? :public : :private
+          "#{object.path}: documented #{expected}, runtime #{actual}" unless expected == actual
+        end
 
       assert_empty(errors, errors.join("\n"))
     end
@@ -186,6 +200,18 @@ module Sevgi
       return true unless types.intersect?(GENERIC_RETURNS)
 
       !tag.text.to_s.strip.empty?
+    end
+
+    def public_constant_path?(path)
+      path.split("::").reject(&:empty?).inject(::Object) do |owner, name|
+        return false unless owner.is_a?(::Module) && owner.constants(false).include?(name.to_sym)
+
+        owner.const_get(name, false)
+      end
+
+      true
+    rescue NameError
+      false
     end
 
     def runtime_constant(path)

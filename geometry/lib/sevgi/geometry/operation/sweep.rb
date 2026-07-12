@@ -4,6 +4,7 @@ module Sevgi
   module Geometry
     module Operation
       # Sweep operation implementation.
+      # @api private
       module Sweep
         extend self
 
