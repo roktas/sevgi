@@ -343,6 +343,7 @@ module Sevgi
       # @param original [Sevgi::Graphics::Attributes] facade to copy
       # @return [void]
       # @raise [Sevgi::ArgumentError] when stored values became invalid
+      # @api private
       def initialize_copy(original)
         super
         @store = original.store.dup
@@ -362,7 +363,7 @@ module Sevgi
       end
 
       # Returns a recursively owned Hash snapshot including non-rendering metadata.
-      # @return [Hash]
+      # @return [Hash{Symbol => Object}] owned attribute and metadata snapshot
       def to_h = snapshot(@store.to_h)
 
       private
