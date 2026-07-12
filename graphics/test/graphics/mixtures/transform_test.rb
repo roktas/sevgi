@@ -15,13 +15,15 @@ module Sevgi
               .SkewX(10)
               .SkewY(20)
               .Translate(5, 6)
+              .TranslateX(7)
+              .TranslateY(8)
               .Matrix(1, 0, 0, 1, 7, 8)
           end
             .children
             .first
 
           [
-            "rotate(45, 1, 2) scale(2, 3) scale(4) skewX(10) skewY(20) translate(5 6) matrix(1 0 0 1 7 8)",
+            "rotate(45, 1, 2) scale(2, 3) scale(4) skewX(10) skewY(20) translate(5 6) translate(7) translate(0 8) matrix(1 0 0 1 7 8)",
             element[:transform]
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
         end
@@ -38,12 +40,22 @@ module Sevgi
 
         def test_transform_methods_skip_identity_operations
           element = SVG do
-            rect.Rotate(0).SkewX(0).SkewY(0).Translate(0)
+            rect.Rotate(0).SkewX(0).SkewY(0).Translate(0).TranslateX(0).TranslateY(0)
           end
             .children
             .first
 
           assert_nil(element[:transform])
+        end
+
+        def test_axis_translation_helpers_validate_operands
+          element = SVG { rect }.children.first
+
+          ["oops", Complex(1, 2), Float::INFINITY, Float::NAN].each do |value|
+            assert_raises(Sevgi::ArgumentError) { element.TranslateX(value) }
+            assert_raises(Sevgi::ArgumentError) { element.TranslateY(value) }
+            assert_nil(element[:transform])
+          end
         end
 
         def test_transform_methods_validate_arguments

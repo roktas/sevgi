@@ -144,8 +144,8 @@ module Sevgi
           end
         end
 
-        # Appends an SVG translate transform.
-        # @param x [Numeric] x translation
+        # Appends an SVG translate transform. One argument translates only the x axis.
+        # @param x [Numeric] finite x translation
         # @param y [Numeric, nil] y translation
         # @return [Sevgi::Graphics::Element] self
         # @raise [Sevgi::ArgumentError] when a coordinate is not a finite real number
@@ -158,6 +158,20 @@ module Sevgi
             attributes[:"transform#{ATTRIBUTE_UPDATE_SUFFIX}"] = "translate(#{(y ? [x, y] : [x]).join(" ")})"
           end
         end
+
+        # Appends an x-axis SVG translate transform.
+        # @param x [Numeric] finite x translation
+        # @return [Sevgi::Graphics::Element] self
+        # @raise [Sevgi::ArgumentError] when x is not a finite real number
+        # @see #Translate
+        def TranslateX(x) = Translate(x)
+
+        # Appends a y-axis SVG translate transform.
+        # @param y [Numeric] finite y translation
+        # @return [Sevgi::Graphics::Element] self
+        # @raise [Sevgi::ArgumentError] when y is not a finite real number
+        # @see #Translate
+        def TranslateY(y) = Translate(0, y)
       end
     end
   end
