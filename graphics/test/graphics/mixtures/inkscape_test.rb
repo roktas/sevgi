@@ -74,28 +74,82 @@ module Sevgi
         end
 
         def test_pages_yields_page_elements_to_block
-          actual = SVG(:inkscape) do
-            Pages({x: 1, y: 2, width: 3, height: 4}) do |page|
+          doc = SVG(:inkscape)
+          result = doc
+            .Pages(
+              {x: 1, y: 2, width: 3, height: 4, label: "front"},
+              namedview: {id: "views", "data-view": "print"},
+              page: {class: "sheet"}
+            ) do |page|
               page[:class] = "print"
             end
-          end
-            .Render()
 
-          assert_match(%r{<inkscape:page id="page-1" x="1" y="2" width="3" height="4" class="print"/>}, actual)
+          actual = doc.Render()
+
+          assert_same(doc.children.first, result)
+          assert_match(/<sodipodi:namedview id="views" data-view="print">/, actual)
+          assert_match(
+            %r{<inkscape:page id="page-1" class="print" x="1" y="2" width="3" height="4" label="front"/>},
+            actual
+          )
         end
 
         def test_pages_tabular_positions_pages_by_width_and_height
-          actual = SVG(:inkscape) do
-            PagesTabular(rows: 2, cols: 2, width: 10, height: 20, gap: 5)
-          end
-            .Render()
+          doc = SVG(:inkscape)
+          result = doc.PagesTabular(
+            rows: 2,
+            cols: 2,
+            width: 10,
+            height: 20,
+            gap: 5,
+            namedview: {id: "views"},
+            page: {class: "sheet"}
+          )
+          actual = doc.Render()
 
           [
-            /id="pageview-1x1" x="0" y="0"/,
-            /id="pageview-1x2" x="15" y="0"/,
-            /id="pageview-2x1" x="0" y="25"/,
-            /id="pageview-2x2" x="15" y="25"/
+            /<sodipodi:namedview id="views">/,
+            /id="pageview-1x1" class="sheet" x="0" y="0"/,
+            /id="pageview-1x2" class="sheet" x="15" y="0"/,
+            /id="pageview-2x1" class="sheet" x="0" y="25"/,
+            /id="pageview-2x2" class="sheet" x="15" y="25"/,
+            /class="sheet"/
           ].each { |pattern| assert_match(pattern, actual) }
+          assert_same(doc.children.first, result)
+        end
+
+        def test_pages_rejects_invalid_inputs_atomically
+          calls = [
+            proc { |doc| doc.Pages(nil) },
+            proc { |doc| doc.Pages({x: 0, y: 0, width: 1}) },
+            proc { |doc| doc.Pages({x: "0", y: 0, width: 1, height: 1}) },
+            proc { |doc| doc.Pages({x: 0, y: 0, width: 0, height: 1}) },
+            proc { |doc| doc.Pages({:x => 0, :y => 0, :width => 1, :height => 1, :id => "a", "id" => "b"}) },
+            proc { |doc| doc.Pages({x: 0, y: 0, width: 1, height: 1}, namedview: []) },
+            proc { |doc| doc.Pages({x: 0, y: 0, width: 1, height: 1}, page: []) }
+          ]
+
+          calls.each do |call|
+            doc = SVG(:inkscape)
+            assert_raises(ArgumentError) { call.call(doc) }
+            assert_empty(doc.children)
+          end
+        end
+
+        def test_pages_tabular_rejects_invalid_inputs
+          calls = [
+            {rows: 0, cols: 1, width: 1, height: 1, gap: 0},
+            {rows: 1, cols: 1.5, width: 1, height: 1, gap: 0},
+            {rows: 1, cols: 1, width: 0, height: 1, gap: 0},
+            {rows: 1, cols: 1, width: 1, height: Float::INFINITY, gap: 0},
+            {rows: 1, cols: 1, width: 1, height: 1, gap: -1}
+          ]
+
+          calls.each do |arguments|
+            doc = SVG(:inkscape)
+            assert_raises(ArgumentError) { doc.PagesTabular(**arguments) }
+            assert_empty(doc.children)
+          end
         end
 
         def test_template_info_renders_optional_metadata
