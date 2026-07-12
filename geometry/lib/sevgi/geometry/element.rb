@@ -11,7 +11,10 @@ module Sevgi
       #   @param size [Integer, Sevgi::Undefined] segment count for fixed-size elements, or Undefined for variable size
       #   @param open [Boolean] true for an open path, false for a closed path
       #   @return [Class] subclass of {Sevgi::Geometry::Element::Lined}
-      def self.lined(...) = Lined.build(...)
+      # @example Define a custom two-segment open shape
+      #   Path = Sevgi::Geometry::Element.lined(2, open: true)
+      #   Path.([0, 0], [1, 0], [1, 1])
+      def self.lined(...) = Lined.send(:build, ...)
 
       # @overload arced(*args)
       #   Builds an arced element subclass.
@@ -77,14 +80,18 @@ module Sevgi
       # Element whose boundary is represented by straight segments.
       class Lined < self
         # Open lined element base class.
+        # @api private
         Open = Class.new(self) do
           # Draws the element as an SVG polyline.
           # @param node [Object] graphics node receiving the drawing command
           # @return [Object] graphics node command result
           def draw!(node, **) = node.polyline(points: points.map { it.deconstruct.join(",") }, **)
+
+          private :draw!
         end
 
         # Closed lined element base class.
+        # @api private
         Close = Class.new(self) do
           # Creates a closed element from points, appending the first point.
           # @param points [Array<Sevgi::Geometry::Point, Array<Numeric>>] boundary points
@@ -96,17 +103,24 @@ module Sevgi
           # @param node [Object] graphics node receiving the drawing command
           # @return [Object] graphics node command result
           def draw!(node, **) = node.polygon(points: points.map { it.deconstruct.join(",") }, **)
+
+          private :draw!
+
+          private_class_method :new_by_points
         end
 
         # Class methods
 
         # Point shortcut names generated for fixed-size lined elements.
+        # @api private
         SHORTCUTS = ("A".."Z").to_a.freeze
+        private_constant :Close, :Open, :SHORTCUTS
 
         # Builds a concrete lined element class.
         # @param size [Integer, Sevgi::Undefined] segment count for fixed-size elements, or Undefined for variable size
         # @param open [Boolean] true for an open path, false for a closed path
         # @return [Class] lined element subclass
+        # @api private
         def self.build(size = Undefined, open: false)
           Class.new(open ? Open : Close) do
             define_singleton_method(:close?) { !open }
@@ -127,21 +141,21 @@ module Sevgi
         #   @param position [Sevgi::Geometry::Point, Array<Numeric>] starting point
         #   @return [Sevgi::Geometry::Element::Lined]
         #   @raise [Sevgi::Geometry::Error] when segments or position cannot be coerced
-        def self.[](...) = from_segments(...)
+        def self.[](...) = new_by_segments(...)
 
         # @overload call(*points)
         #   Builds an element from points.
         #   @param points [Array<Sevgi::Geometry::Point, Array<Numeric>>] boundary points
         #   @return [Sevgi::Geometry::Element::Lined]
         #   @raise [Sevgi::Geometry::Error] when points cannot be coerced
-        def self.call(...) = from_points(...)
+        def self.call(...) = new_by_points(...)
 
         # @overload from_points(*points)
         #   Builds an element from points.
         #   @param points [Array<Sevgi::Geometry::Point, Array<Numeric>>] boundary points
         #   @return [Sevgi::Geometry::Element::Lined]
         #   @raise [Sevgi::Geometry::Error] when points cannot be coerced
-        def self.from_points(...) = new_by_points(...)
+        def self.from_points(...) = call(...)
 
         # @overload from_segments(*segments, position: Origin)
         #   Builds an element from segments.
@@ -149,7 +163,7 @@ module Sevgi
         #   @param position [Sevgi::Geometry::Point, Array<Numeric>] starting point
         #   @return [Sevgi::Geometry::Element::Lined]
         #   @raise [Sevgi::Geometry::Error] when segments or position cannot be coerced
-        def self.from_segments(...) = new_by_segments(...)
+        def self.from_segments(*segments, position: Origin) = self[*segments, position:]
 
         def self.affine(*points) = new_by_points!(*points)
 
@@ -158,6 +172,7 @@ module Sevgi
         #   @param points [Array<Sevgi::Geometry::Point, Array<Numeric>>] boundary points
         #   @return [Sevgi::Geometry::Element::Lined]
         #   @raise [Sevgi::Geometry::Error] when points cannot be coerced
+        # @api private
         def self.new_by_points(...) = new_by_points!(...)
 
         # Builds an element from an exact point path.
@@ -166,6 +181,7 @@ module Sevgi
         # @param points [Array<Sevgi::Geometry::Point, Array<Numeric>>] exact boundary points
         # @return [Sevgi::Geometry::Element::Lined]
         # @raise [Sevgi::Geometry::Error] when points cannot be coerced or do not satisfy the class path contract
+        # @api private
         def self.new_by_points!(*points)
           new do
             @points = Tuples[Point, *points]
@@ -177,6 +193,7 @@ module Sevgi
         # @param position [Sevgi::Geometry::Point, Array<Numeric>] starting point
         # @return [Sevgi::Geometry::Element::Lined]
         # @raise [Sevgi::Geometry::Error] when segments or position cannot be coerced
+        # @api private
         def self.new_by_segments(*segments, position: Origin)
           new do
             @position = Tuple[Point, position]
@@ -184,7 +201,7 @@ module Sevgi
           end
         end
 
-        private_class_method :affine, :new
+        private_class_method :affine, :build, :new, :new_by_points, :new_by_points!, :new_by_segments
 
         def self.define_line_shortcuts(klass, point_names, open:)
           line_names = point_names.each_cons(2).map(&:join)
@@ -246,7 +263,7 @@ module Sevgi
         #   @param attributes [Hash] drawing attributes
         #   @return [Object] graphics node command result
         def draw(...)
-          approx.draw!(...)
+          approx.send(:draw!, ...)
         end
 
         # Returns immutable element points.

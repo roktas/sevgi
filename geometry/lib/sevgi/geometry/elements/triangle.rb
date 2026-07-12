@@ -9,6 +9,9 @@ module Sevgi
 
     # Closed three-sided element built from non-collinear segments or points. Every construction path rejects
     # degenerate triangles; affine operations retain Triangle when the transformed points remain non-degenerate.
+    # @example Pair mathematical notation with English conveniences
+    #   Triangle[[2, 0], [2, 90]] == Triangle.from_segments([2, 0], [2, 90])
+    #   Triangle.([0, 0], [2, 0], [2, 2]) == Triangle.from_points([0, 0], [2, 0], [2, 2])
     class Triangle < TriangleBase
       # Builds a triangle from two adjacent segments.
       #

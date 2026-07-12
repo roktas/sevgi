@@ -9,6 +9,10 @@ module Sevgi
 
     # Closed four-sided element whose opposite sides are equal and parallel. Every construction path rejects
     # degenerate or unrelated side pairs; affine operations preserve the class while that invariant holds.
+    # @example Pair mathematical notation with English conveniences
+    #   Parallelogram[[2, 0], [2, -90]] == Parallelogram.from_segments([2, 0], [2, -90])
+    #   points = [[0, 0], [2, 0], [2, 2], [0, 2]]
+    #   Parallelogram.(*points) == Parallelogram.from_points(*points)
     class Parallelogram < ParallelogramBase
       # Builds a parallelogram from adjacent horizontal and vertical segments.
       # @param horizontal [Sevgi::Geometry::Segment, Array<Numeric>] horizontal segment

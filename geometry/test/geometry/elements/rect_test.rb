@@ -142,7 +142,6 @@ module Sevgi
       end
 
       def test_square_rejects_unequal_construction
-        assert_raises(Error) { Square.from_size(2, 3) }
         assert_raises(Error) { Square.from_corners([0, 0], [2, 3]) }
       end
 

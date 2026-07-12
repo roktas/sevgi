@@ -16,7 +16,9 @@ module Sevgi
       #   @param position [Sevgi::Geometry::Point, Array<Numeric>] starting point
       #   @return [Sevgi::Geometry::Line]
       #   @raise [Sevgi::Geometry::Error] when position cannot be coerced
-      def self.[](...) = from_length_angle(...)
+      # @example Mathematical notation and English convenience are equivalent
+      #   Line[5, 30] == Line.from_length_angle(5, 30)
+      def self.[](length, angle, position: Origin) = new_by_segments(Segment[length, angle], position:)
 
       # Builds a line from length and angle.
       # @param length [Numeric] line length
@@ -24,7 +26,7 @@ module Sevgi
       # @param position [Sevgi::Geometry::Point, Array<Numeric>] starting point
       # @return [Sevgi::Geometry::Line]
       # @raise [Sevgi::Geometry::Error] when position cannot be coerced
-      def self.from_length_angle(length, angle, position: Origin) = new_by_segments(Segment[length, angle], position:)
+      def self.from_length_angle(length, angle, position: Origin) = self[length, angle, position:]
 
       # @overload from_points(starting, ending)
       #   Builds a line from two endpoints.
@@ -32,7 +34,11 @@ module Sevgi
       #   @param ending [Sevgi::Geometry::Point, Array<Numeric>] ending point
       #   @return [Sevgi::Geometry::Line]
       #   @raise [Sevgi::Geometry::Error] when either point cannot be coerced
-      def self.from_points(...) = new_by_points(...)
+      # @example Mathematical notation and English convenience are equivalent
+      #   Line.([0, 0], [3, 4]) == Line.from_points([0, 0], [3, 4])
+      def self.from_points(...) = call(...)
+
+      private_class_method :from_segments
 
       # Returns the clockwise line angle in degrees.
       # @return [Float]
@@ -66,6 +72,8 @@ module Sevgi
       # @param node [Object] graphics node receiving the drawing command
       # @return [Object] graphics node command result
       def draw!(node, **) = node.LineTo(x1: position.x, y1: position.y, x2: ending.x, y2: ending.y, **)
+
+      private :draw!
 
       # Reports whether a point lies on the finite line segment.
       # @param point [Sevgi::Geometry::Point, Array<Numeric>] point to test

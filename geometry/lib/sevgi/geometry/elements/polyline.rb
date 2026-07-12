@@ -8,6 +8,9 @@ module Sevgi
     private_constant :PolylineBase
 
     # Variable-size open lined element with at least two points.
+    # @example Pair mathematical notation with English conveniences
+    #   Polyline[[2, 0], [1, 90]] == Polyline.from_segments([2, 0], [1, 90])
+    #   Polyline.([0, 0], [2, 0]) == Polyline.from_points([0, 0], [2, 0])
     class Polyline < PolylineBase
       private
 

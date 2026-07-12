@@ -46,6 +46,79 @@ module Sevgi
         assert_respond_to(Element, :lined)
         refute_respond_to(Element, :arced)
         refute_includes(Element.constants(false), :Arced)
+
+        %i[Open Close SHORTCUTS].each { refute_includes(Element::Lined.constants(false), it) }
+        [Line, Rect, Square, Triangle, Parallelogram, Polygon, Polyline].each do |shape|
+          %i[build new_by_points new_by_points! new_by_segments].each { refute_respond_to(shape, it) }
+          refute_includes(shape.public_instance_methods, :draw!)
+        end
+
+        refute_respond_to(Line, :from_segments)
+        refute_respond_to(Rect, :from_points)
+        refute_respond_to(Rect[1, 2], :draw!)
+      end
+
+      def test_lined_constructor_notations_match_english
+        polygon = Polygon.([0, 0], [2, 0], [1, 1])
+        polyline = Polyline.([0, 0], [2, 0], [1, 1])
+
+        [
+          Line[5, 30],
+          Line.from_length_angle(5, 30),
+          Line.([0, 0], [3, 4]),
+          Line.from_points([0, 0], [3, 4]),
+          Rect[3, 4],
+          Rect.from_size(3, 4),
+          Rect.([0, 0], [3, 4]),
+          Rect.from_corners([0, 0], [3, 4]),
+          Square[3],
+          Square.from_size(3),
+          Square.([0, 0], [3, 3]),
+          Square.from_corners([0, 0], [3, 3]),
+          Triangle[[2, 0], [2, 90]],
+          Triangle.from_segments([2, 0], [2, 90]),
+          Triangle.([0, 0], [2, 0], [2, 2]),
+          Triangle.from_points([0, 0], [2, 0], [2, 2]),
+          Parallelogram[[2, 0], [2, -90]],
+          Parallelogram.from_segments([2, 0], [2, -90]),
+          Parallelogram.([0, 0], [2, 0], [2, 2], [0, 2]),
+          Parallelogram.from_points([0, 0], [2, 0], [2, 2], [0, 2]),
+          Polygon[*polygon.segments],
+          Polygon.from_segments(*polygon.segments),
+          polygon,
+          Polygon.from_points(*polygon.points.first(3)),
+          Polyline[*polyline.segments],
+          Polyline.from_segments(*polyline.segments),
+          polyline,
+          Polyline.from_points(*polyline.points)
+        ].each_slice(2) { |notation, english| assert_equal(notation, english) }
+      end
+
+      def test_lined_instance_notations_match_collections
+        triangle = Triangle.([0, 0], [2, 0], [1, 1])
+
+        triangle.lines.each_index { assert_same(triangle.lines[it], triangle[it]) }
+        triangle.points.each_index { assert_same(triangle.points[it], triangle.call(it)) }
+      end
+
+      def test_lined_english_factories_follow_subclasses
+        calls = []
+        klass = Class.new(Polyline) do
+          define_singleton_method(:[]) do |*segments, position: Origin|
+            calls << :segments
+            super(*segments, position:)
+          end
+
+          define_singleton_method(:call) do |*points|
+            calls << :points
+            super(*points)
+          end
+        end
+
+        klass.from_segments([1, 0])
+        klass.from_points([0, 0], [1, 0])
+
+        assert_equal(%i[segments points], calls)
       end
 
       def test_lined_element_equality_is_exact
