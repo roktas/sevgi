@@ -38,7 +38,7 @@ module Sevgi
     #   @return [Sevgi::Graphics::Canvas]
     #   @raise [Sevgi::ArgumentError] when a required field is omitted or a value is invalid
     def canvas(...)
-      Graphics::Canvas.from_paper(...)
+      Graphics::Canvas.call(...)
     end
 
     # @overload document(name)

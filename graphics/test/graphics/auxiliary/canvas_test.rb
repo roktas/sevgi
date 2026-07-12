@@ -67,7 +67,7 @@ module Sevgi
         assert(forms.all? { it.size == Paper.a4 })
 
         explicit = [
-          Canvas.from_paper(width: 3, height: 5),
+          Canvas.new(width: 3, height: 5),
           Canvas.call(width: 3, height: 5),
           Graphics.canvas(width: 3, height: 5)
         ]
@@ -84,10 +84,10 @@ module Sevgi
         [
           -> { Canvas.new },
           -> { Canvas.from_paper },
+          -> { Canvas.from_paper(width: 3, height: 5) },
           -> { Canvas.call },
           -> { Graphics.canvas },
           -> { Canvas.new(width: 3) },
-          -> { Canvas.from_paper(height: 5) },
           -> { Canvas.new(width: 3, height: 5, color: "red") },
           -> { Canvas.from_paper(false) }
         ].each { assert_raises(Sevgi::ArgumentError, &it) }

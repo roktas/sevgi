@@ -32,44 +32,36 @@ module Sevgi
       #   @param margins [Array<Numeric>] margin shorthand values
       #   @return [Sevgi::Graphics::Canvas]
       #   @raise [Sevgi::ArgumentError] when a required field is omitted or a value is invalid
-      def self.call(...) = from_paper(...)
+      def self.call(paper = Undefined, **fields)
+        paper.equal?(Undefined) ? new(**fields) : from_paper(paper, **fields)
+      end
 
       # @overload from_paper(paper, **overrides)
       #   Builds a canvas from a paper profile with optional field overrides.
       #   @param paper [Sevgi::Graphics::Paper, Symbol, String] paper object or registered profile
       #   @param overrides [Hash] canvas field overrides
       #   @return [Sevgi::Graphics::Canvas]
-      #   @raise [Sevgi::ArgumentError] when the paper or an override is invalid
-      # @overload from_paper(width:, height:, unit: "mm", name: :custom, margins: [])
-      #   Builds a canvas from an explicit size.
-      #   @param width [Numeric] canvas width
-      #   @param height [Numeric] canvas height
-      #   @param unit [Symbol, String] SVG unit
-      #   @param name [Symbol, String] paper name
-      #   @param margins [Array<Numeric>] margin shorthand values
-      #   @return [Sevgi::Graphics::Canvas]
-      #   @raise [Sevgi::ArgumentError] when a required field is omitted or a value is invalid
-      def self.from_paper(arg = Undefined, **kwargs)
-        case arg
-        when Undefined
-          new(**kwargs)
-        else
-          new(**paper(arg).to_h, **kwargs)
-        end
+      #   @raise [Sevgi::ArgumentError] when the paper is omitted or invalid, or an override is invalid
+      # @example Override a registered paper profile
+      #   Sevgi::Graphics::Canvas.from_paper(:a4, margins: [10])
+      def self.from_paper(paper = Undefined, **overrides)
+        ArgumentError.("Paper is required") if paper.equal?(Undefined)
+
+        new(**profile(paper).to_h, **overrides)
       end
 
-      def self.paper(arg)
-        case arg
+      def self.profile(paper)
+        case paper
         when Paper
-          arg
+          paper
         when ::Symbol, ::String
-          Paper.fetch(arg)
+          Paper.fetch(paper)
         else
-          ArgumentError.("Paper must be a Paper, Symbol, or String: #{arg}")
+          ArgumentError.("Paper must be a Paper, Symbol, or String: #{paper}")
         end
       end
 
-      private_class_method :paper
+      private_class_method :profile
 
       extend Forwardable
 
