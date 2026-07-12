@@ -99,7 +99,7 @@ module Sevgi
           # Returns generated grid lines.
           # The memoized collection is frozen and must be treated as immutable.
           # @return [Array<Sevgi::Geometry::Line>] frozen lines
-          def lines = @lines ||= lines!.freeze
+          def lines = @lines ||= build.freeze
 
           private
 
@@ -108,23 +108,23 @@ module Sevgi
 
         # Major grid line query.
         class Major < Query
-          # Returns lines at major tick distances.
-          # @return [Array<Sevgi::Geometry::Line>]
-          def lines! = other.ds.map { this.line_at(it) }
+          private
+
+          def build = other.ds.map { this.line_at(it) }
         end
 
         # Midpoint grid line query.
         class Halve < Query
-          # Returns lines at midpoint tick distances.
-          # @return [Array<Sevgi::Geometry::Line>]
-          def lines! = other.hs.map { this.line_at(it) }
+          private
+
+          def build = other.hs.map { this.line_at(it) }
         end
 
         # Minor grid line query.
         class Minor < Query
-          # Returns lines at minor tick distances.
-          # @return [Array<Sevgi::Geometry::Line>]
-          def lines! = other.ms.map { this.line_at(it) }
+          private
+
+          def build = other.ms.map { this.line_at(it) }
         end
       end
 
