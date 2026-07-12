@@ -30,7 +30,8 @@ module Sevgi
             ArgumentError.("Defs attributes must be a Hash") unless attributes.is_a?(::Hash)
             ArgumentError.("Symbol ids must respond to call") if ids && !ids.respond_to?(:call)
 
-            attributes = Attribute.defaults(attributes, id: F.demodulize(@mod).to_sym)
+            defaults = @mod.name ? {id: F.demodulize(@mod.name).to_sym} : {}
+            attributes = Attribute.defaults(attributes, **defaults)
             @args, @kwargs, @block = args, kwargs, block
             @receiver.defs(**attributes).tap { populate(it, methods, ids) }
           end
@@ -64,7 +65,8 @@ module Sevgi
 
         private_constant :Expansion
 
-        # Renders module callables as symbols under defs.
+        # Renders module callables as symbols under defs. Named modules default the defs id to their final constant name;
+        # anonymous modules omit the id unless supplied.
         # @param mod [Module] callable drawing module
         # @param args [Array<Object>] callable arguments
         # Base blocks run once in the defs element before symbols are created. Positional arguments, keyword arguments,

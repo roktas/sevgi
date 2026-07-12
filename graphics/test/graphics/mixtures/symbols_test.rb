@@ -73,6 +73,8 @@ module Sevgi
           actual = SVG(:symbol_test) { Symbols(mod) }.Render()
 
           assert_equal(1, actual.scan("<style>").size)
+          assert_match(/<defs>/, actual)
+          refute_match(/#<Module:0x/, actual)
           assert_operator(actual.index("<defs"), :<, actual.index("<style>"))
           assert_operator(actual.index("<style>"), :<, actual.index("<symbol"))
         end
