@@ -19,6 +19,8 @@ module Sevgi
       def initialize(file:, slug:, dir:)
         super(file: file.dup.freeze, slug: slug.dup.freeze, dir: dir.dup.freeze)
       end
+
+      private_class_method :[]
     end
 
     # Locates one of several candidate files by walking upward from an immutable configuration snapshot. Each call

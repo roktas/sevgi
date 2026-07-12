@@ -3,6 +3,19 @@
 module Sevgi
   module Graphics
     # Paper size and unit profile.
+    # @!parse
+    #   class Paper
+    #     # Creates a paper profile from dimensions and optional metadata.
+    #     # @param width [Numeric] paper width
+    #     # @param height [Numeric] paper height
+    #     # @param unit [Symbol, String] SVG unit
+    #     # @param name [Symbol, String] profile name
+    #     # @return [Sevgi::Graphics::Paper]
+    #     # @raise [Sevgi::ArgumentError] when dimensions, unit, or name are invalid
+    #     # @example Create a custom paper profile with value notation
+    #     #   Sevgi::Graphics::Paper[90, 50, :mm, :card]
+    #     def self.[](width, height, unit = "mm", name = :custom); end
+    #   end
     Paper = Data.define(:width, :height, :unit, :name) do
       include Comparable
 

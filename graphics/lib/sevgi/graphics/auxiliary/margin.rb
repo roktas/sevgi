@@ -3,6 +3,19 @@
 module Sevgi
   module Graphics
     # Four-sided margin with CSS-like shorthand normalization.
+    # @!parse
+    #   class Margin
+    #     # Creates a margin from one to four CSS-like shorthand values.
+    #     # @param top [Numeric, nil] top value or all-sides shorthand
+    #     # @param right [Numeric, nil] right value or horizontal shorthand
+    #     # @param bottom [Numeric, nil] bottom value
+    #     # @param left [Numeric, nil] left value
+    #     # @return [Sevgi::Graphics::Margin]
+    #     # @raise [Sevgi::ArgumentError] when a supplied value is not a finite, non-negative real number
+    #     # @example Create a vertical and horizontal margin
+    #     #   Sevgi::Graphics::Margin[5, 10]
+    #     def self.[](top = nil, right = nil, bottom = nil, left = nil); end
+    #   end
     Margin = Data.define(:top, :right, :bottom, :left) do
       include Comparable
 

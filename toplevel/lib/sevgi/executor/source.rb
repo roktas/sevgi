@@ -26,6 +26,8 @@ module Sevgi
       # @return [void]
       def initialize(string:, file: nil, line: nil) = super(string:, file: file || "sevgi", line: line || 1)
 
+      private_class_method :[]
+
       # Returns the stack key used for this source.
       # @return [String] source file name
       def key = file

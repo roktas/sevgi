@@ -19,6 +19,8 @@ module Sevgi
       # Shell command result.
       # @api private
       Result = Data.define(:args, :out, :err, :exit_code) do
+        private_class_method :[]
+
         # Returns the command string.
         # @return [String]
         def cmd = args.join(" ")
@@ -64,7 +66,7 @@ module Sevgi
             capture(stdin, stdout, stderr, thread, &block)
           end
 
-          Result[args, out, err, status.exitstatus]
+          Result.new(args:, out:, err:, exit_code: status.exitstatus)
         end
 
         private

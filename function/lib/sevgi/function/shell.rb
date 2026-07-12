@@ -67,6 +67,8 @@ module Sevgi
           )
         end
 
+        private_class_method :[]
+
         # Returns captured output with one blank line between non-empty streams.
         # Captured lines are joined with one newline and are not otherwise trimmed.
         # @example Combine standard output and standard error
@@ -114,7 +116,10 @@ module Sevgi
       # Shared process-global SIGINT state for overlapping shell runners.
       # @api private
       module Signals
-        Entry = Data.define(:runner, :pid)
+        Entry = Data.define(:runner, :pid) do
+          private_class_method :[]
+        end
+
         WAKE = "."
 
         private_constant :WAKE

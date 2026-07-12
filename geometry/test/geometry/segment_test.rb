@@ -125,6 +125,7 @@ module Sevgi
         value = LengthAngle.new(length: Rational(3, 2), angle: Rational(61, 2))
 
         assert_equal([1.5, 30.5], value.deconstruct)
+        assert_equal(value, LengthAngle[Rational(3, 2), Rational(61, 2)])
         assert_instance_of(Float, value.length)
         assert_instance_of(Float, value.angle)
       end

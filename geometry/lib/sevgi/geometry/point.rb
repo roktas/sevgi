@@ -77,6 +77,17 @@ module Sevgi
     # Immutable point in SVG/screen coordinates.
     #
     # Use `Point[x, y]` to create a point from two coordinates.
+    # @!parse
+    #   class Point
+    #     # Creates a point from two coordinates.
+    #     # @param x [Numeric] x coordinate
+    #     # @param y [Numeric] y coordinate
+    #     # @return [Sevgi::Geometry::Point]
+    #     # @raise [Sevgi::Geometry::Error] when a coordinate is not a finite Numeric
+    #     # @example Create a point with mathematical notation
+    #     #   Sevgi::Geometry::Point[3, 5]
+    #     def self.[](x, y); end
+    #   end
     Point = Data.define(:x, :y) do
       include Comparable
       include Affinity

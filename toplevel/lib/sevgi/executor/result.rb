@@ -39,6 +39,8 @@ module Sevgi
         super(value:, error:, stack: Array(stack).map { it.dup.freeze }.freeze)
       end
 
+      private_class_method :[]
+
       # Reports whether execution completed without a captured error.
       # @return [Boolean] true when execution succeeded
       def success? = error.nil?

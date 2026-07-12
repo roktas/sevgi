@@ -20,7 +20,18 @@ module Sevgi
     CONTRACT_TAGS = %w[param raise return yield yieldparam yieldreturn].freeze
     GENERIC_RETURNS = %w[Array Hash Object].freeze
     CONSTANT_ALIAS_PREFIXES = %w[Sevgi::F:: Sevgi::SVG::].freeze
-    DATA_CLASS_METHODS = %i[\[\] inspect members new].freeze
+    DATA_CLASS_SURFACES = {
+      "Sevgi::Executor::Result" => %i[members new],
+      "Sevgi::Function::Location" => %i[members new],
+      "Sevgi::Function::Shell::Result" => %i[members new],
+      "Sevgi::Geometry::LengthAngle" => %i[\[\] members new],
+      "Sevgi::Geometry::Point" => %i[\[\] members new],
+      "Sevgi::Geometry::Segment" => %i[\[\] members new],
+      "Sevgi::Graphics::Margin" => %i[\[\] members new],
+      "Sevgi::Graphics::Mixtures::Stop" => %i[members],
+      "Sevgi::Graphics::Paper" => %i[\[\] members new]
+    }.freeze
+    DATA_CLASS_METHODS = DATA_CLASS_SURFACES.values.flatten.uniq.freeze
     DATA_INSTANCE_METHODS = %i[== deconstruct deconstruct_keys eql? hash inspect to_h with].freeze
     EXACT_CONTRACTS = {
       "#SVG" => [[%w[document canvas attributes], ["Sevgi::Graphics::Document::Proto"]]],
@@ -107,6 +118,18 @@ module Sevgi
 
         assert_equal(supported, owner.respond_to?(:new), "#{path}.new support")
         assert_equal(supported, !!documented, "#{path}.new documentation")
+      end
+    end
+
+    def test_data_class_surfaces_are_explicit
+      classes = runtime_modules.select { data_class?(it) }
+
+      assert_equal(DATA_CLASS_SURFACES.keys.sort, classes.map(&:name).sort)
+      classes.each do |owner|
+        expected = DATA_CLASS_SURFACES.fetch(owner.name)
+        %i[\[\] members new].each do |name|
+          assert_equal(expected.include?(name), owner.respond_to?(name), "#{owner.name}.#{name} support")
+        end
       end
     end
 
@@ -268,7 +291,12 @@ module Sevgi
     def data_protocol_method?(entry)
       return false unless data_class?(entry[:target])
 
-      methods = entry[:scope] == :class ? DATA_CLASS_METHODS : DATA_INSTANCE_METHODS
+      methods = if entry[:scope] == :class
+        DATA_CLASS_SURFACES.fetch(entry[:target].name)
+      else
+        DATA_INSTANCE_METHODS
+      end
+
       methods.include?(entry[:name])
     end
 

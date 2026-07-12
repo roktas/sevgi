@@ -6,6 +6,17 @@ module Sevgi
     #
     # `length` is a distance and `angle` is a clockwise angle in degrees.
     # Use `Segment[length, angle]` to create a segment from polar components.
+    # @!parse
+    #   class Segment
+    #     # Creates a segment from polar components.
+    #     # @param length [Numeric] non-negative segment length
+    #     # @param angle [Numeric] clockwise angle in degrees
+    #     # @return [Sevgi::Geometry::Segment]
+    #     # @raise [Sevgi::Geometry::Error] when a component is not finite or length is negative
+    #     # @example Create a segment with mathematical notation
+    #     #   Sevgi::Geometry::Segment[5, 30]
+    #     def self.[](length, angle); end
+    #   end
     Segment = Data.define(:length, :angle) do
       include Comparable
 
@@ -141,6 +152,17 @@ module Sevgi
     #   @return [Float] non-negative target measure
     # @!attribute [r] angle
     #   @return [Float] direction used to derive a segment
+    # @!parse
+    #   class LengthAngle
+    #     # Creates a length-and-angle constraint.
+    #     # @param length [Numeric] finite non-negative target width or height
+    #     # @param angle [Numeric] finite direction in degrees
+    #     # @return [Sevgi::Geometry::LengthAngle]
+    #     # @raise [Sevgi::Geometry::Error] when a component is not finite or length is negative
+    #     # @example Create a constraint with mathematical notation
+    #     #   Sevgi::Geometry::LengthAngle[3, 90]
+    #     def self.[](length, angle); end
+    #   end
     LengthAngle = Data.define(:length, :angle) do
       # Creates a target-measure constraint.
       # @param length [Numeric] finite non-negative target width or height

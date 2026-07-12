@@ -9,7 +9,9 @@ module Sevgi
       #
       # @!attribute [r] value
       #   @return [Object] value returned from traversal
-      Stop = Data.define(:value)
+      Stop = Data.define(:value) do
+        private_class_method :[], :new
+      end
 
       # Internal traversal engine.
       # @api private
@@ -185,7 +187,7 @@ module Sevgi
         #   Wraps a traversal return value as a stop token.
         #   @param value [Object] value returned from traversal
         #   @return [Sevgi::Graphics::Mixtures::Stop]
-        def Stay(...) = Stop.new(...)
+        def Stay(...) = Stop.send(:new, ...)
 
         # Traverses the subtree depth-first.
         # @param depth [Integer] starting depth
