@@ -23,7 +23,7 @@ module Sevgi
         mod, document = normalize(mod, document, block)
         ArgumentError.("Mixture name or block required") if mod == Undefined && !block
 
-        document.mixture(mod) unless mod == Undefined
+        document.send(:mixture, mod) unless mod == Undefined
         include_anonymous(document, &block) if block
       end
 

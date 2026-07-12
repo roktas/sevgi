@@ -87,6 +87,9 @@ module Sevgi
       # @yieldreturn [Object] ignored block result
       # @return [Sevgi::Graphics::Document::Proto] SVG root element
       # @raise [Sevgi::ArgumentError] when the document profile or root XML attributes are invalid
+      # @example Extend a configured class while inheriting its profile
+      #   Card = Class.new(Document::Minimal)
+      #   Document.(Card) { rect(width: 10, height: 5) }
       def self.call(document, canvas = Undefined, **, &block)
         klass = case document
         when ::Class
@@ -155,8 +158,10 @@ module Sevgi
       # @param attributes [Hash, nil, Sevgi::Undefined] default root attributes
       # @param overwrite [Boolean] true to replace an existing profile
       # @return [Class] document class
-      # @raise [Sevgi::ArgumentError] when a name conflicts or metadata is invalid XML, cyclic, or cannot be stringified
+      # @raise [Sevgi::ArgumentError] when overwrite is not Boolean, a name conflicts, or metadata is invalid XML,
+      #   cyclic, or cannot be stringified
       def self.define(name = Undefined, preambles: Undefined, attributes: Undefined, overwrite: false)
+        overwrite = overwrite!(overwrite)
         return anonymous(attributes:, preambles:) if name == Undefined
 
         return lookup(name) if preambles == Undefined && attributes == Undefined
@@ -199,7 +204,13 @@ module Sevgi
           (preambles == Undefined || Profile.new(nil, preambles:).preambles == profile.preambles)
       end
 
-      private_class_method :anonymous, :compatible?, :defaults, :lookup, :reject_conflict
+      def self.overwrite!(value)
+        return value if [true, false].include?(value)
+
+        ArgumentError.("Document overwrite must be true or false")
+      end
+
+      private_class_method :anonymous, :compatible?, :defaults, :lookup, :overwrite!, :reject_conflict
 
       # Process-global document profile registry.
       # @api private
@@ -213,6 +224,7 @@ module Sevgi
           def available = @mutex.synchronize { @available.dup.freeze }
 
           def register(name, klass, profile: nil, overwrite: false)
+            overwrite = Document.send(:overwrite!, overwrite)
             name = Profile.normalize!(name)
             validate!(name, klass, profile)
 
@@ -356,6 +368,7 @@ module Sevgi
         # @return [Sevgi::Graphics::Document::Profile] immutable document profile metadata
         # @raise [Sevgi::ArgumentError] when registration fails or metadata is invalid XML, cyclic, or cannot be stringified
         def document(name, attributes: {}, preambles: nil, register: true, overwrite: false)
+          overwrite = Document.send(:overwrite!, overwrite)
           profile = Profile.new(register ? name : nil, attributes:, preambles:)
           return (@profile = profile) unless register
 
@@ -373,17 +386,19 @@ module Sevgi
           include(mod = ns.const_get(mixture))
           extend(mod::ClassMethods) if defined?(mod::ClassMethods)
         end
+
+        private :document, :mixture
       end
 
       private_constant :DSL
 
       # Default render-time checks.
+      # @api private
       DEFAULTS = {lint: true, validate: true}.freeze
+      private_constant :DEFAULTS
 
       # Base document root element class.
       class Proto < Element
-        public_class_method :new
-
         extend DSL
 
         mixture :Core
@@ -392,9 +407,13 @@ module Sevgi
         mixture :Wrappers
 
         class << self
-          # Returns immutable metadata for this document class.
-          # @return [Sevgi::Graphics::Document::Profile, nil] profile metadata, or nil on the abstract proto class
-          attr_reader :profile
+          # Returns the nearest immutable profile metadata in the class hierarchy.
+          # @return [Sevgi::Graphics::Document::Profile, nil] nearest profile, or nil when no ancestor is configured
+          def profile
+            return @profile if instance_variable_defined?(:@profile)
+
+            superclass.profile if superclass.respond_to?(:profile)
+          end
         end
 
         # Renders this document after its optional pre-render checks.
@@ -414,11 +433,27 @@ module Sevgi
 
         # Returns inherited root attributes for this document class.
         # @return [Hash{Symbol => Object}] inherited root attributes
-        def self.attributes = self == Proto ? {} : {**superclass.attributes, **profile.attributes}
+        # @raise [Sevgi::ArgumentError] when a non-Proto class has no configured ancestor
+        def self.attributes
+          return {} if self == Proto
+
+          ArgumentError.("Document class has no configured profile: #{self}") unless profile
+          return superclass.attributes unless instance_variable_defined?(:@profile)
+
+          {**superclass.attributes, **@profile.attributes}
+        end
 
         # Returns inherited preamble lines for this document class.
         # @return [Array<String>, nil]
-        def self.preambles = self == Proto ? nil : profile.preambles || superclass.preambles
+        # @raise [Sevgi::ArgumentError] when a non-Proto class has no configured ancestor
+        def self.preambles
+          return if self == Proto
+
+          ArgumentError.("Document class has no configured profile: #{self}") unless profile
+          return superclass.preambles unless instance_variable_defined?(:@profile)
+
+          @profile.preambles || superclass.preambles
+        end
       end
 
       require_relative "document/base"

@@ -119,6 +119,49 @@ module Sevgi
         assert_raises(FrozenError) { keys.clear }
       end
 
+      def test_document_classes_inherit_nearest_profile
+        inherited = Class.new(Document::Minimal)
+        nested = Class.new(inherited)
+        anonymous = Graphics.document(attributes: {viewBox: "0 0 2 2"})
+        anonymous_child = Class.new(anonymous)
+
+        [inherited, nested].each do |klass|
+          assert_same(Document::Minimal.profile, klass.profile)
+          assert_equal("<svg/>", SVG(klass).Render())
+        end
+
+        assert_same(anonymous.profile, anonymous_child.profile)
+        assert_equal("<svg viewBox=\"0 0 2 2\"/>", SVG(anonymous_child).Render())
+      end
+
+      def test_document_class_inputs_require_a_profile
+        orphan = Class.new(Document::Proto)
+
+        assert_instance_of(Document::Proto, SVG(Document::Proto))
+        assert_raises(Sevgi::ArgumentError) { SVG(orphan) }
+        assert_raises(Sevgi::ArgumentError) { orphan.root.Render() }
+        assert_raises(Sevgi::ArgumentError) { SVG(String) }
+      end
+
+      def test_document_construction_surface_is_closed
+        [Document::Proto, Document::Base, Document::Minimal].each do |klass|
+          assert_raises(NoMethodError) { klass.new }
+          refute_respond_to(klass, :document)
+          refute_respond_to(klass, :mixture)
+        end
+
+        assert_raises(NameError) { Document::DEFAULTS }
+
+        custom = Class.new(Document::Minimal) do
+          document(
+            :private_document_dsl,
+            attributes: {viewBox: "0 0 3 3"}
+          )
+        end
+
+        assert_equal("<svg viewBox=\"0 0 3 3\"/>", SVG(custom).Render())
+      end
+
       def test_document_exist_reports_registered_profiles
         invalid = Object.new.tap { it.define_singleton_method(:to_sym) { raise "broken" } }
         before = Document.keys
@@ -277,6 +320,29 @@ module Sevgi
 
         assert_same(doc, Graphics.document(:registered_atomic))
         assert_equal({fill: "red"}, doc.attributes[:style])
+      end
+
+      def test_define_rejects_non_boolean_overwrite_atomically
+        name = :registered_boolean_overwrite
+        current = Document.define(name, attributes: {fill: "red"})
+        before = Document.keys
+
+        [nil, 0, "false", :true].each do |overwrite|
+          value = MutableValue.new("blue")
+          error = assert_raises(Sevgi::ArgumentError) do
+            Document.define(name, attributes: {fill: value}, overwrite:)
+          end
+
+          assert_match(/overwrite must be true or false/i, error.message)
+          assert_equal(0, value.calls)
+          assert_equal(before, Document.keys)
+          assert_same(current, Document.fetch(name))
+          assert_equal({fill: "red"}, current.profile.attributes)
+        end
+
+        assert_raises(Sevgi::ArgumentError) do
+          Document.define(attributes: {}, overwrite: "false")
+        end
       end
 
       def test_document_profile_copies_input_attributes
@@ -485,18 +551,6 @@ module Sevgi
           "<svg data-var=\"xxx\"/>",
           SVG(klass).Render()
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
-      end
-
-      def test_class_document_rejects_conflicting_profile
-        profile = Document::Test.profile
-
-        error = assert_raises(ArgumentError) do
-          Document::Test.document(:test, attributes: {"data-var": "conflict"})
-        end
-
-        assert_match(/\btest\b/, error.message)
-        assert_same(profile, Document::Test.profile)
-        assert_equal("<svg data-var=\"xxx\"/>", SVG(Document::Test).Render())
       end
 
       def test_subclass_root_attributes_doesnt_leak
