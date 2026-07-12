@@ -67,6 +67,57 @@ module Sevgi
         end
       end
 
+      def test_locator_owns_configuration_and_results
+        ::Dir.mktmpdir do |dir|
+          start = ::File.join(dir, "child")
+          ::FileUtils.mkdir_p(start)
+          slug = +"target.sevgi"
+          excluded = +::File.join(start, "ignored.sevgi")
+          paths = [slug]
+          excludes = [excluded]
+          locator = Locate.new(paths, start, exclude: excludes)
+          matched = nil
+
+          location = locator.call do |candidate|
+            matched = candidate
+            true
+          end
+
+          slug.clear
+          excluded.clear
+          paths.clear
+          excludes.clear
+          matched.clear
+
+          assert_equal(["target.sevgi"], locator.paths)
+          assert_equal([::File.join(start, "ignored.sevgi")], locator.exclude)
+          assert_equal("target.sevgi", location.slug)
+          assert_equal(::File.join(start, "target.sevgi"), location.file)
+          assert_raises(FrozenError) { locator.paths << "other.sevgi" }
+          assert_raises(FrozenError) { location.slug.clear }
+          [locator, locator.paths, locator.exclude, location, location.file, location.slug, location.dir].each do |
+              value
+            |
+            assert_predicate(value, :frozen?)
+          end
+        end
+      end
+
+      def test_locator_calls_observe_current_filesystem
+        ::Dir.mktmpdir do |dir|
+          file = ::File.join(dir, "target.sevgi")
+          locator = Locate.new("target.sevgi", dir)
+
+          assert_nil(locator.call)
+          ::File.write(file, "")
+          location = locator.call
+          ::FileUtils.rm(file)
+
+          assert_equal(file, location.file)
+          assert_nil(locator.call)
+        end
+      end
+
       def test_locate_excludes_candidates_before_custom_matcher
         ::Dir.mktmpdir do |dir|
           start = ::File.join(dir, "child")

@@ -10,9 +10,19 @@ module Sevgi
     #   @return [String] candidate path that matched
     # @!attribute [r] dir
     #   @return [String] directory where the match was found
-    Location = Data.define(:file, :slug, :dir)
+    Location = Data.define(:file, :slug, :dir) do
+      # Creates an owned immutable location snapshot.
+      # @param file [String] absolute matching file path
+      # @param slug [String] candidate path that matched
+      # @param dir [String] directory where the match was found
+      # @return [void]
+      def initialize(file:, slug:, dir:)
+        super(file: file.dup.freeze, slug: slug.dup.freeze, dir: dir.dup.freeze)
+      end
+    end
 
-    # Locates one of several candidate files by walking upward from a start directory.
+    # Locates one of several candidate files by walking upward from an immutable configuration snapshot. Each call
+    # observes the filesystem again and returns an owned immutable {Location} snapshot.
     class Locate
       # @overload call(paths, start = Dir.pwd, exclude: nil, &block)
       #   Builds a locator and runs it.
@@ -25,16 +35,16 @@ module Sevgi
       #   @return [Sevgi::Function::Location, nil] found location, or nil
       def self.call(*, **, &block) = new(*, **).call(&block)
 
-      # Returns candidate paths.
-      # @return [Array<String>]
+      # Returns the frozen owned candidate paths.
+      # @return [Array<String>] frozen candidate path strings
       attr_reader :paths
 
-      # Returns the absolute start directory.
-      # @return [String]
+      # Returns the frozen absolute start directory.
+      # @return [String] frozen absolute path
       attr_reader :start
 
-      # Returns expanded paths ignored during lookup.
-      # @return [Array<String>, nil]
+      # Returns the frozen owned paths ignored during lookup.
+      # @return [Array<String>, nil] frozen absolute path strings, or nil
       attr_reader :exclude
 
       # Builds an upward file locator.
@@ -43,9 +53,10 @@ module Sevgi
       # @param exclude [Array<String>, String, nil] paths ignored during lookup after absolute expansion
       # @return [void]
       def initialize(paths, start = ::Dir.pwd, exclude: nil)
-        @paths = Array(paths)
-        @start = ::File.expand_path(start)
-        @exclude = [*exclude].map { ::File.expand_path(it) } unless exclude.nil?
+        @paths = Array(paths).map { it.dup.freeze }.freeze
+        @start = ::File.expand_path(start).freeze
+        @exclude = [*exclude].map { ::File.expand_path(it).freeze }.freeze unless exclude.nil?
+        freeze
       end
 
       # Runs the upward lookup.
@@ -64,7 +75,7 @@ module Sevgi
 
           slug, file = found
 
-          return Location[file, slug, here]
+          return Location.new(file:, slug:, dir: here)
         end
       end
 
