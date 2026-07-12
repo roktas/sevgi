@@ -10,10 +10,12 @@ module Sevgi
         # file is replaced. An existing directory target uses the caller-derived default PDF name.
         # @param path [String, #to_path, nil] output path or existing directory
         # @param kwargs [Hash] export options
+        # @option kwargs [String, #to_path, nil] :default caller-derived output name used when path is nil or a directory
         # @yield [svg] transforms SVG source before rendering
         # @yieldparam svg [String] rendered SVG source
         # @yieldreturn [String] transformed SVG source
         # @return [String] expanded output path
+        # @raise [Sevgi::ArgumentError] when a selected path/default is blank or invalid
         # @raise [Sevgi::MissingComponentError] when sevgi/sundries is unavailable
         # @raise [Sevgi::MissingComponentError] when native export gems are unavailable
         # @raise [Sevgi::Sundries::Export::ExportError] when native export fails
@@ -36,10 +38,12 @@ module Sevgi
         # file is replaced. An existing directory target uses the caller-derived default PNG name.
         # @param path [String, #to_path, nil] output path or existing directory
         # @param kwargs [Hash] export options
+        # @option kwargs [String, #to_path, nil] :default caller-derived output name used when path is nil or a directory
         # @yield [svg] transforms SVG source before rendering
         # @yieldparam svg [String] rendered SVG source
         # @yieldreturn [String] transformed SVG source
         # @return [String] expanded output path
+        # @raise [Sevgi::ArgumentError] when a selected path/default is blank or invalid
         # @raise [Sevgi::MissingComponentError] when sevgi/sundries is unavailable
         # @raise [Sevgi::MissingComponentError] when native export gems are unavailable
         # @raise [Sevgi::Sundries::Export::ExportError] when native export fails
@@ -60,15 +64,14 @@ module Sevgi
         private
 
         def Export(path = nil, default: nil, **kwargs, &block)
-          default ||= F.subext(kwargs[:format] ? ".#{kwargs[:format]}" : ".pdf", caller_locations(2..2).first.path)
+          if default.nil?
+            extension = kwargs[:format] ? ".#{kwargs[:format]}" : ".pdf"
+            default = F.subext(extension, caller_locations(2..2).first.path)
+          end
 
-          if path
-            ::File.directory?(path) ? ::File.join(path, ::File.basename(default)) : path
-          else
-            default
-          end => path
+          path = Path.resolve(path, default:, context: "Export")
 
-          Sundries::Export.(call, ::File.expand_path(path), **kwargs, &block)
+          Sundries::Export.(call, path, **kwargs, &block)
         end
       end
     end

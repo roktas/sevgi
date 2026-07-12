@@ -8,6 +8,10 @@ module Sevgi
   module Graphics
     module Mixtures
       class SaveTest < Minitest::Test
+        BrokenPath = Class.new do
+          def to_path = raise "broken path"
+        end
+
         def test_out_writes_rendered_svg_to_stdout
           out, err = capture_io { SVG(:minimal) { rect(id: "one") }.Out() }
 
@@ -112,6 +116,53 @@ module Sevgi
                 assert_nil(writer.call(path))
               end
             end
+          end
+        end
+
+        def test_writers_reject_invalid_raw_paths_before_render
+          invalid = [false, "", " \t", Object.new, BrokenPath.new]
+          document = SVG(:minimal)
+          rendered = false
+
+          document.stub(:call, -> { rendered = true }) do
+            invalid.each do |path|
+              assert_raises(Sevgi::ArgumentError) { document.Save(path) }
+              assert_raises(Sevgi::ArgumentError) { document.Save(nil, default: path) }
+              assert_raises(Sevgi::ArgumentError) { document.Write(path) }
+            end
+
+            assert_raises(Sevgi::ArgumentError) { document.Write(nil) }
+          end
+
+          refute(rendered)
+        end
+
+        def test_save_accepts_pathlike_explicit_defaults
+          Dir.mktmpdir do |dir|
+            Dir.chdir(dir) do
+              document = SVG(:minimal)
+              Dir.mkdir("nested")
+              direct = document.Save(nil, default: Pathname("direct.svg"))
+              nested = document.Save(Pathname("nested"), default: Pathname("named.svg"))
+
+              assert_equal(File.expand_path("direct.svg"), direct)
+              assert_equal(File.expand_path("nested/named.svg"), nested)
+              assert_path_exists(direct)
+              assert_path_exists(nested)
+            end
+          end
+        end
+
+        def test_write_rejects_directories_before_render
+          Dir.mktmpdir do |dir|
+            document = SVG(:minimal)
+            rendered = false
+
+            document.stub(:call, -> { rendered = true }) do
+              assert_raises(Sevgi::ArgumentError) { document.Write(dir) }
+            end
+
+            refute(rendered)
           end
         end
 

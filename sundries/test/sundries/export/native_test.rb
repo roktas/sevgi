@@ -9,6 +9,10 @@ module Sevgi
   module Sundries
     module Export
       class NativeTest < Minitest::Test
+        BrokenPath = Class.new do
+          def to_path = raise "broken path"
+        end
+
         def test_export_error_inherits_sevgi_error
           assert_operator(ExportError, :<, ::Sevgi::Error)
         end
@@ -174,10 +178,22 @@ module Sevgi
           end
         end
 
-        def test_call_rejects_empty_output
-          error = assert_raises(ArgumentError) { Export.call(svg(width: 10, height: 10), " ") }
+        def test_call_rejects_invalid_raw_output_paths
+          [nil, false, "", " \t", Object.new, BrokenPath.new].each do |output|
+            assert_raises(ArgumentError) { Export.call(svg(width: 10, height: 10), output) }
+          end
+        end
 
-          assert_equal("Export output must be provided", error.message)
+        def test_call_rejects_directories_before_render
+          Dir.mktmpdir do |dir|
+            [nil, :png].each do |format|
+              error = assert_raises(ArgumentError) do
+                Export.call(svg(width: 10, height: 10), dir, format:)
+              end
+
+              assert_equal("Export output must name a file", error.message)
+            end
+          end
         end
 
         def test_call_rejects_invalid_dimensions

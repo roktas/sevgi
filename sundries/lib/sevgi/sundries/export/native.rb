@@ -32,7 +32,8 @@ module Sevgi
       # @yieldparam svg [String] SVG source after optional CSS injection
       # @yieldreturn [String] SVG source to render
       # @return [String] expanded output path
-      # @raise [Sevgi::ArgumentError] when output, CSS, or transformed SVG has an invalid type
+      # @raise [Sevgi::ArgumentError] when output is blank, invalid, or a directory, or CSS/transformed SVG has an
+      #   invalid type
       # @raise [Sevgi::Sundries::Export::ExportError] when format, numeric options, CSS insertion, SVG parsing, SVG dimensions, or render dimensions are invalid
       # @raise [SystemCallError] when the output directory or file cannot be created or written
       def call(svg, output, format: nil, width: nil, height: nil, dpi: DEFAULT_DPI, css: nil, &block)
@@ -315,7 +316,9 @@ module Sevgi
           ArgumentError.("Export output must be a String or path-like object") unless path.is_a?(::String)
           ArgumentError.("Export output must be provided") if path.strip.empty?
 
-          ::File.expand_path(path)
+          path = ::File.expand_path(path)
+          ArgumentError.("Export output must name a file") if ::File.directory?(path)
+          path
         rescue ::StandardError => e
           raise if e.is_a?(::Sevgi::ArgumentError)
 

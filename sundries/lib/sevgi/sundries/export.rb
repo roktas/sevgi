@@ -53,7 +53,7 @@ module Sevgi
       #   @yieldparam svg [String] SVG source after optional CSS injection
       #   @yieldreturn [String] SVG source to render
       #   @return [String] expanded output path
-      #   @raise [Sevgi::ArgumentError] when SVG content is not a string or output is blank
+      #   @raise [Sevgi::ArgumentError] when SVG content is not a string or output is blank, invalid, or a directory
       #   @raise [Sevgi::MissingComponentError] when cairo, hexapdf, or rsvg2 is unavailable
       #   @raise [Sevgi::Sundries::Export::ExportError] when format, CSS insertion, SVG parsing, SVG dimensions, or
       #     render dimensions are invalid

@@ -8,6 +8,10 @@ module Sevgi
   module Graphics
     module Mixtures
       class ExportTest < Minitest::Test
+        BrokenPath = Class.new do
+          def to_path = raise "broken path"
+        end
+
         def test_png_delegates_to_sundries_export
           require "sevgi/sundries"
 
@@ -104,6 +108,64 @@ module Sevgi
               assert_equal([expected], calls)
             end
           end
+        end
+
+        def test_exports_reject_invalid_raw_paths_before_render
+          require "sevgi/sundries"
+
+          invalid = [false, "", " \t", Object.new, BrokenPath.new]
+          document = SVG(:minimal)
+          rendered = false
+          exported = false
+          exporter = proc { exported = true }
+
+          document.stub(:call, -> { rendered = true }) do
+            Sundries::Export.stub(:call, exporter) do
+              invalid.each do |path|
+                assert_raises(Sevgi::ArgumentError) { document.PDF(path) }
+                assert_raises(Sevgi::ArgumentError) { document.PNG(path) }
+                assert_raises(Sevgi::ArgumentError) { document.PDF(nil, default: path) }
+                assert_raises(Sevgi::ArgumentError) { document.PNG(nil, default: path) }
+              end
+            end
+          end
+
+          refute(rendered)
+          refute(exported)
+        end
+
+        def test_exports_accept_pathlike_explicit_defaults
+          require "sevgi/sundries"
+
+          Dir.mktmpdir do |dir|
+            Dir.chdir(dir) do
+              Dir.mkdir("nested")
+              outputs = Sundries::Export.stub(:call, -> (_svg, output, **) { output }) do
+                document = SVG(:minimal)
+                [
+                  document.PDF(nil, default: Pathname("direct.pdf")),
+                  document.PNG(Pathname("nested"), default: Pathname("named.png"))
+                ]
+              end
+
+              assert_equal(
+                [File.expand_path("direct.pdf"), File.expand_path("nested/named.png")],
+                outputs
+              )
+            end
+          end
+        end
+
+        def test_exports_derive_defaults_only_for_nil_paths
+          require "sevgi/sundries"
+
+          outputs = Sundries::Export.stub(:call, -> (_svg, output, **) { output }) do
+            document = SVG(:minimal)
+            [document.PDF(nil), document.PNG(nil)]
+          end
+
+          assert_equal(%w[export_test.pdf export_test.png], outputs.map { File.basename(it) })
+          assert(outputs.all? { it.is_a?(String) && File.absolute_path?(it) })
         end
 
         def test_export_propagates_file_failures
