@@ -544,6 +544,27 @@ module Sevgi
         assert_equal("<svg/>", SVG(:explicit_empty).Render())
       end
 
+      def test_document_call_renders_without_positionals
+        document = SVG(:minimal) { rect(width: 3) }
+
+        assert_equal("<svg>\n  <rect width=\"3\"/>\n</svg>", document.call)
+        assert_raises(::ArgumentError) { document.call(:unused) }
+      end
+
+      def test_document_call_separates_option_channels
+        checks = nil
+        klass = Graphics.document
+        klass.class_eval do
+          define_method(:PreRender) { |**options| checks = options }
+        end
+
+        document = SVG(klass) { rect }
+
+        assert_match(%r{<rect/>}, document.call(lint: false, style: :inline))
+        assert_equal({lint: false, validate: true}, checks)
+        assert_raises(Sevgi::ArgumentError) { document.call(unknown: true) }
+      end
+
       private
 
       def concurrent_documents(name)

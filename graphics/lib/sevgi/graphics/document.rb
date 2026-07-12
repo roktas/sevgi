@@ -386,18 +386,19 @@ module Sevgi
           attr_reader :profile
         end
 
-        # @overload call(*objects, **options)
-        #   Renders the document.
-        #   @param objects [Array<Object>] optional renderer arguments
-        #   @param options [Hash] render options
-        #   @return [String] SVG document source
-        #   @raise [Sevgi::ArgumentError] when renderer options or XML-bound values are invalid
-        def call(*, **)
-          options = DEFAULTS.merge(**)
-
-          self.PreRender(*, **options) if respond_to?(:PreRender)
+        # Renders this document after its optional pre-render checks.
+        # @example Render a document directly with separate check and renderer options
+        #   document = Sevgi::Graphics.SVG(:minimal) { rect(width: 3) }
+        #   document.call(lint: false, style: :inline)
+        # @param options [Hash] `lint` and `validate` check switches plus renderer options accepted by
+        #   {Sevgi::Graphics::Mixtures::Render#Render}
+        # @return [String] SVG document source
+        # @raise [Sevgi::ArgumentError] when an option or XML-bound value is invalid
+        def call(**options)
+          checks = DEFAULTS.merge(options.select { |key, _| DEFAULTS.key?(key) })
+          self.PreRender(**checks) if respond_to?(:PreRender)
           render_options = options.reject { |key, _| DEFAULTS.key?(key) }
-          self.Render(*, **render_options)
+          self.Render(**render_options)
         end
 
         # Returns inherited root attributes for this document class.
