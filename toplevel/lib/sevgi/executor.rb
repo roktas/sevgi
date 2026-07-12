@@ -4,6 +4,7 @@ require "singleton"
 require "sevgi/function"
 
 require_relative "executor/error"
+require_relative "executor/result"
 require_relative "executor/scope"
 require_relative "executor/source"
 
@@ -29,7 +30,7 @@ module Sevgi
 
     # Loads a script file inside the current executor scope.
     # @param file [String] path to a Sevgi script file
-    # @return [Sevgi::Executor::Scope] current execution scope
+    # @return [Sevgi::Executor::Scope] current internal execution scope
     # @raise [Sevgi::PanicError] when there is no active executor scope
     # @note Uses the active executor scope from the current fiber.
     # @api private
@@ -47,8 +48,9 @@ module Sevgi
     # @param receiver [Object, nil] receiver used while booting the DSL
     # @yield optional boot block that installs DSL methods before evaluation
     # @yieldreturn [void]
-    # @return [Sevgi::Executor::Scope, nil] execution scope, or nil for empty source
-    # @note Required-library load failures are captured as {Sevgi::Executor::Error} on the returned scope.
+    # @return [Sevgi::Executor::Result] immutable execution result
+    # @note Script and required-library failures are captured in {Sevgi::Executor::Result#error}; inspect
+    #   {Sevgi::Executor::Error#cause} for the original exception.
     # @note Reentrant and concurrent calls keep independent scope stacks per fiber. The temporary SIGINT handler remains
     #   process-global while any execution is active.
     def self.execute(string, file: nil, line: nil, require: nil, receiver: nil, &block)
@@ -61,8 +63,9 @@ module Sevgi
     # @param receiver [Object, nil] receiver used while booting the DSL
     # @yield optional boot block that installs DSL methods before evaluation
     # @yieldreturn [void]
-    # @return [Sevgi::Executor::Scope, nil] execution scope, or nil for an empty file
-    # @note File-read and required-library load failures are captured as {Sevgi::Executor::Error} on the returned scope.
+    # @return [Sevgi::Executor::Result] immutable execution result
+    # @note File-read, script, and required-library failures are captured in {Sevgi::Executor::Result#error}; inspect
+    #   {Sevgi::Executor::Result#stack} for nested loads.
     # @note Reentrant and concurrent calls keep independent scope stacks per fiber. The temporary SIGINT handler remains
     #   process-global while any execution is active.
     def self.execute_file(file, require: nil, receiver: nil, &block)
@@ -140,7 +143,7 @@ module Sevgi
     def self.capture_error(source, error)
       acquired = instance.trap
       scope = instance.create
-      scope.capture(source, error)
+      scope.capture(source, error).result
     ensure
       instance.restore if acquired
       instance.shutdown(scope) if scope
@@ -148,11 +151,12 @@ module Sevgi
 
     def self.execute_source(source, require:, receiver:, &block)
       acquired = false
-      return if source.string.empty? && require.nil?
+      return Result.new(value: nil, error: nil, stack: []) if source.string.empty? && require.nil?
 
       acquired = instance.trap
       scope = instance.create
       catch(:result) { run_source(scope, source, require, receiver, &block) }
+      scope.result
 
     ensure
       instance.restore if acquired

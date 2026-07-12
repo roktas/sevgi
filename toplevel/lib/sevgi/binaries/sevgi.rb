@@ -82,7 +82,7 @@ module Sevgi
       def die(error, _file)
         warn(error.message)
         warn("")
-        error.backtrace!.each { warn("  #{it}") }
+        error.load_backtrace.each { warn("  #{it}") }
 
         exit(1)
       end

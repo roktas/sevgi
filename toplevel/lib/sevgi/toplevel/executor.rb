@@ -10,8 +10,8 @@ module Sevgi
   # Executes Sevgi script source with the full top-level DSL installed.
   # @param args [Array] arguments forwarded to {Sevgi::Executor.execute}
   # @param kwargs [Hash] keyword arguments forwarded to {Sevgi::Executor.execute}
-  # @return [Sevgi::Executor::Scope, nil] execution result, or nil for empty source
-  # @note Required-library load failures are captured as {Sevgi::Executor::Error} on the returned scope.
+  # @return [Sevgi::Executor::Result] immutable execution result
+  # @note Script and required-library failures are captured in {Sevgi::Executor::Result#error}.
   # @note Reentrant and concurrent calls keep independent executor scope stacks per fiber.
   # @see Sevgi::Executor.execute
   def self.execute(*args, **kwargs) = Executor.execute(*args, **kwargs, &BootBlock)
@@ -19,8 +19,8 @@ module Sevgi
   # Executes a Sevgi script file with the full top-level DSL installed.
   # @param args [Array] arguments forwarded to {Sevgi::Executor.execute_file}
   # @param kwargs [Hash] keyword arguments forwarded to {Sevgi::Executor.execute_file}
-  # @return [Sevgi::Executor::Scope, nil] execution result, or nil for an empty file
-  # @note File-read and required-library load failures are captured as {Sevgi::Executor::Error} on the returned scope.
+  # @return [Sevgi::Executor::Result] immutable execution result
+  # @note File-read, script, and required-library failures are captured in {Sevgi::Executor::Result#error}.
   # @note Reentrant and concurrent calls keep independent executor scope stacks per fiber.
   # @see Sevgi::Executor.execute_file
   def self.execute_file(*args, **kwargs) = Executor.execute_file(*args, **kwargs, &BootBlock)

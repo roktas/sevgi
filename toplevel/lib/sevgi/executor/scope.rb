@@ -13,7 +13,7 @@ module Sevgi
       # @!attribute [r] recent
       #   @return [Object, nil] last expression result from the executed source
       # @!attribute [r] error
-      #   @return [Sevgi::Executor::Error, nil] captured execution error
+      #   @return [Exception, nil] captured execution error
       attr_reader :scope, :recent, :error
 
       # Creates a script execution scope.
@@ -54,7 +54,7 @@ module Sevgi
       # @api private
       def capture(source, error)
         push(source)
-        @error = Executor::Error.new(error, self)
+        @error = error
         self
       end
 
@@ -76,6 +76,16 @@ module Sevgi
       # @return [Array<String>] source file keys in load order
       # @note The stack is owned by this scope and is not shared with concurrent executions.
       def stack = @stack.keys
+
+      # Builds the immutable public result for this scope.
+      # @return [Sevgi::Executor::Result] execution result snapshot
+      # @api private
+      def result
+        sources = stack.freeze
+        error = Executor::Error.new(@error, sources) if @error
+
+        Result.new(value: recent, error:, stack: sources)
+      end
 
       # Returns the most recently pushed source.
       # @return [Sevgi::Executor::Source, nil] most recent source object
@@ -123,7 +133,7 @@ module Sevgi
         @recent = run(source, receiver, &boot)
         # rubocop:disable Lint/RescueException
       rescue Exception => e
-        @error = Executor::Error.new(e, self)
+        @error = e
         throw(:result, self)
         # rubocop:enable Lint/RescueException
       ensure

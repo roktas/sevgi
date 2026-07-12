@@ -8,31 +8,23 @@ module Sevgi
 
     # Wraps an exception raised while executing Sevgi script source.
     class Error < ::Sevgi::Error
-      # Returns the original script exception.
-      # @return [Exception]
-      attr_reader :error
-
-      # Returns the executor scope active when the error was captured.
-      # @return [Sevgi::Executor::Scope]
-      attr_reader :scope
-
       # Builds an executor error wrapper.
       # @param error [Exception] original exception
-      # @param scope [Sevgi::Executor::Scope] executor scope active at failure time
+      # @param stack [Array<String>] source files active at failure time
       # @return [void]
-      def initialize(error, scope)
-        @error = error
-        @scope = scope
+      def initialize(error, stack)
+        @cause = error
+        @stack = stack.dup.freeze
 
         super(error.message)
       end
 
-      # Returns backtrace entries that belong to the Sevgi load stack.
+      # Returns backtrace entries that belong to the captured Sevgi load stack.
       # @return [Array<String>] filtered backtrace lines relative to the current directory
-      def backtrace!
-        sources = stack.map { ::File.expand_path(it) }
+      def load_backtrace
+        sources = @stack.map { ::File.expand_path(it) }
 
-        error
+        cause
           .backtrace
           .select { sources.include?(::File.expand_path(it.split(":", 2).first)) }
           .map { |line| line.delete_prefix("#{::Dir.pwd}/") }
@@ -40,11 +32,7 @@ module Sevgi
 
       # Returns the original exception as the wrapped cause.
       # @return [Exception]
-      def cause = error
-
-      # Returns the script load stack active at failure time.
-      # @return [Array<String>] script file names in load order
-      def stack = scope.stack
+      attr_reader :cause
     end
   end
 end

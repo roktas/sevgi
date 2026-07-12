@@ -26,7 +26,7 @@ module Sevgi
           result = Object.new.extend(::FileUtils).sevgi(File.join(dir, "drawing"), "left", name: "grid")
 
           refute(result.error?, result.error&.message)
-          assert_includes(result.recent.(), ">grid<")
+          assert_includes(result.value.(), ">grid<")
         end
       end
     end

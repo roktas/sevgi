@@ -14,7 +14,7 @@ module FileUtils
   # @param file [String] Sevgi script file, with or without `.sevgi` extension
   # @param args [Array] positional arguments exposed to the script as `ARGA`
   # @param kwargs [Hash] keyword arguments exposed to the script as `ARGH`
-  # @return [Sevgi::Executor::Scope, nil] execution scope, or nil for an empty file
+  # @return [Sevgi::Executor::Result] immutable execution result
   # @raise [Sevgi::ArgumentError] when the script file cannot be found
   # @see Sevgi::Executor.execute_file
   def sevgi(file, *args, **kwargs)

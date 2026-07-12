@@ -13,7 +13,7 @@ module Sevgi
     def test_executor_entrypoint_loads_standalone
       root = ::File.expand_path("../..", __dir__)
       load_paths = %w[function toplevel].map { ::File.join(root, it, "lib") }
-      command = "require \"sevgi/executor\"; abort unless Sevgi::Executor.execute(\"1 + 1\").recent == 2"
+      command = "require \"sevgi/executor\"; abort unless Sevgi::Executor.execute(\"1 + 1\").value == 2"
       args = [::RbConfig.ruby, "--disable-gems", *load_paths.flat_map { ["-I", it] }, "-e", command]
 
       output, error, status = ::Open3.capture3(*args)
@@ -52,7 +52,7 @@ module Sevgi
         .zip(
           result
             .error
-            .backtrace!
+            .load_backtrace
             .map { it.split(":")[0..1].join(":") }
             .each
         ) do |expected, actual|
@@ -75,7 +75,7 @@ module Sevgi
       )
       assert_equal(
         ["#{FIXTURES_DIR}/test_load_after.sevgi:4"].map { it.delete_prefix("#{Dir.pwd}/") },
-        result.error.backtrace!.map { it.split(":")[0..1].join(":") }
+        result.error.load_backtrace.map { it.split(":")[0..1].join(":") }
       )
     end
 
@@ -92,14 +92,14 @@ module Sevgi
         ],
         result.stack
       )
-      assert_instance_of(Executor::CycleError, result.error.error)
+      assert_instance_of(Executor::CycleError, result.error.cause)
       assert_match(/Recursive Sevgi load/, result.error.message)
       assert_equal(
         [
           "#{FIXTURES_DIR}/test_load_recursive_inner.sevgi:3",
           "#{FIXTURES_DIR}/test_load_recursive_outer.sevgi:6"
         ].map { it.delete_prefix("#{Dir.pwd}/") },
-        result.error.backtrace!.map { it.split(":")[0..1].join(":") }
+        result.error.load_backtrace.map { it.split(":")[0..1].join(":") }
       )
     end
 
@@ -108,7 +108,7 @@ module Sevgi
 
       result = Sevgi.execute_file(fixture)
 
-      assert_equal(2, result.recent)
+      assert_equal(2, result.value)
       assert_equal(
         [
           fixture,
@@ -125,7 +125,7 @@ module Sevgi
 
       assert(result.error?)
       assert_instance_of(Executor::Error, result.error)
-      assert_instance_of(::Errno::ENOENT, result.error.error)
+      assert_instance_of(::Errno::ENOENT, result.error.cause)
       assert_equal([missing], result.stack)
     end
 
@@ -134,7 +134,7 @@ module Sevgi
 
       assert(result.error?)
       assert_instance_of(Executor::Error, result.error)
-      assert_instance_of(::LoadError, result.error.error)
+      assert_instance_of(::LoadError, result.error.cause)
       assert_match(/sevgi_missing_test_library/, result.error.message)
       assert_equal(["script.sevgi"], result.stack)
     end
@@ -147,7 +147,7 @@ module Sevgi
         result = Executor.execute("1", file: "script.sevgi", require: library.delete_suffix(".rb"))
 
         assert(result.error?)
-        assert_instance_of(::LoadError, result.error.error)
+        assert_instance_of(::LoadError, result.error.cause)
         assert_match(/sevgi_missing_nested_dependency/, result.error.message)
         refute_match(/outer/, result.error.message)
         assert_equal(["script.sevgi"], result.stack)
@@ -161,7 +161,7 @@ module Sevgi
 
         result = Sevgi.execute_file(file)
 
-        assert_instance_of(Executor::CycleError, result.error.error)
+        assert_instance_of(Executor::CycleError, result.error.cause)
         assert_match(/Recursive Sevgi load/, result.error.message)
         assert_equal([file], result.stack)
       end
@@ -176,7 +176,7 @@ module Sevgi
 
         result = Sevgi.execute_file(first)
 
-        assert_instance_of(Executor::CycleError, result.error.error)
+        assert_instance_of(Executor::CycleError, result.error.cause)
         assert_equal([first, second], result.stack)
         assert_includes(result.error.message, first)
       end
@@ -191,7 +191,7 @@ module Sevgi
 
         result = Sevgi.execute_file(real)
 
-        assert_instance_of(Executor::CycleError, result.error.error)
+        assert_instance_of(Executor::CycleError, result.error.cause)
         assert_equal([real, alias_file], result.stack)
       end
     end
@@ -228,7 +228,7 @@ module Sevgi
         RUBY
       )
 
-      assert_equal(true, result.recent)
+      assert_equal(true, result.value)
     end
 
     def test_execute_empty_string_preserves_signal_guard
@@ -247,8 +247,8 @@ module Sevgi
     def test_execute_empty_string_processes_required_library
       result = Executor.execute("", require: "json")
 
-      assert_equal("Sevgi::Executor::Scope", result.class.name)
-      assert_nil(result.recent)
+      assert_instance_of(Executor::Result, result)
+      assert_nil(result.value)
       refute(result.error?)
     end
 
@@ -273,17 +273,17 @@ module Sevgi
         false,
         Object.const_defined?(:F, false),
         "<svg width=\"3.0mm\" height=\"5.0mm\" viewBox=\"0 0 3 5\"/>",
-        result.recent[0],
+        result.value[0],
         "cats",
-        result.recent[1],
+        result.value[1],
         true,
-        result.recent[2],
+        result.value[2],
         true,
-        result.recent[3],
+        result.value[3],
         Geometry::Origin,
-        result.recent[4],
+        result.value[4],
         Sundries::Export,
-        result.recent[5]
+        result.value[5]
       ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
     end
 
@@ -296,7 +296,7 @@ module Sevgi
         RUBY
       )
 
-      assert_equal(true, result.recent)
+      assert_equal(true, result.value)
     end
 
     def test_execute_isolates_main_constant
@@ -321,7 +321,7 @@ module Sevgi
       )
 
       assert(result.error?)
-      assert_instance_of(ArgumentError, result.error.error)
+      assert_instance_of(ArgumentError, result.error.cause)
       assert_match(/\bexecutor_test_conflict\b/, result.error.message)
     end
 
@@ -374,7 +374,7 @@ module Sevgi
         extend(Module.new { def foobar = "default" })
       end
 
-      assert_equal("default", result.recent)
+      assert_equal("default", result.value)
       refute_respond_to(self, :foobar)
     end
 
@@ -384,7 +384,7 @@ module Sevgi
         include(Module.new { def foobar = "toplevel" })
       end
 
-      assert_equal("toplevel", result.recent)
+      assert_equal("toplevel", result.value)
       assert_respond_to(self, :foobar)
     ensure
       method(:foobar).owner.send(:undef_method, :foobar)
@@ -409,12 +409,30 @@ module Sevgi
       refute(respond_to?(:isolated_method), "Method should not leak to global scope")
     end
 
-    def test_execute_returns_nil_for_empty_string
-      assert_nil(Executor.execute(""))
+    def test_execute_returns_success_for_empty_string
+      result = Executor.execute("")
+
+      assert_instance_of(Executor::Result, result)
+      assert_predicate(result, :frozen?)
+      assert_predicate(result, :success?)
+      refute_predicate(result, :error?)
+      assert_nil(result.value)
+      assert_nil(result.error)
+      assert_empty(result.stack)
+      assert_predicate(result.stack, :frozen?)
+    end
+
+    def test_execute_returns_failure_status
+      result = Executor.execute("missing", file: "script.sevgi")
+
+      refute_predicate(result, :success?)
+      assert_predicate(result, :error?)
+      assert_instance_of(NameError, result.error.cause)
+      assert_equal(["script.sevgi"], result.stack)
     end
 
     def test_execute_returns_last_expression
-      assert_equal(15, Executor.execute("x = 5\ny = 10\nx + y").recent)
+      assert_equal(15, Executor.execute("x = 5\ny = 10\nx + y").value)
     end
 
     def test_execute_error_reports_default_source_location
@@ -442,7 +460,7 @@ module Sevgi
 
       assert_equal(label, actual)
       assert_nil(error)
-      assert_equal(label, scope.recent)
+      assert_equal(label, scope.value)
       assert_equal([paths[:outer], paths[:inner]], scope.stack)
     end
 
