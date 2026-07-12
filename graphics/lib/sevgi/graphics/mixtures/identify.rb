@@ -73,7 +73,7 @@ module Sevgi
             next unless element.attributes.has?(:id)
 
             id = element.attributes.delete(:id)
-            metadata = :"#{ATTRIBUTE_INTERNAL_PREFIX}id"
+            metadata = :"#{Attributes::META_PREFIX}id"
             element[metadata] = id unless element.attributes.has?(metadata)
           end
         end

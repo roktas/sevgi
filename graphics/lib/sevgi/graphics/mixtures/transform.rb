@@ -29,7 +29,7 @@ module Sevgi
         # @return [Sevgi::Graphics::Element] self
         def Flip
           tap do
-            attributes[:"transform#{ATTRIBUTE_UPDATE_SUFFIX}"] = "scale(-1, -1)"
+            attributes[:"transform#{Attributes::UPDATE_SUFFIX}"] = "scale(-1, -1)"
           end
         end
 
@@ -37,7 +37,7 @@ module Sevgi
         # @return [Sevgi::Graphics::Element] self
         def FlipX
           tap do
-            attributes[:"transform#{ATTRIBUTE_UPDATE_SUFFIX}"] = "scale(-1, 1)"
+            attributes[:"transform#{Attributes::UPDATE_SUFFIX}"] = "scale(-1, 1)"
           end
         end
 
@@ -45,7 +45,7 @@ module Sevgi
         # @return [Sevgi::Graphics::Element] self
         def FlipY
           tap do
-            attributes[:"transform#{ATTRIBUTE_UPDATE_SUFFIX}"] = "scale(1, -1)"
+            attributes[:"transform#{Attributes::UPDATE_SUFFIX}"] = "scale(1, -1)"
           end
         end
 
@@ -58,7 +58,7 @@ module Sevgi
             ArgumentError.("Incorrect transform matrix (six values required): #{values}") if values.size != 6
             values = Scalar.numbers(values, context: "matrix")
 
-            attributes[:"transform#{ATTRIBUTE_UPDATE_SUFFIX}"] = "matrix(#{values.join(" ")})"
+            attributes[:"transform#{Attributes::UPDATE_SUFFIX}"] = "matrix(#{values.join(" ")})"
           end
         end
 
@@ -78,7 +78,7 @@ module Sevgi
 
             next if angle.zero?
 
-            attributes[:"transform#{ATTRIBUTE_UPDATE_SUFFIX}"] = "rotate(#{[angle, *origin].join(", ")})"
+            attributes[:"transform#{Attributes::UPDATE_SUFFIX}"] = "rotate(#{[angle, *origin].join(", ")})"
           end
         end
 
@@ -103,7 +103,7 @@ module Sevgi
           tap do
             x = Scalar.number(x, context: "scale", field: :x)
             y = Scalar.number(y, context: "scale", field: :y) unless y.nil?
-            attributes[:"transform#{ATTRIBUTE_UPDATE_SUFFIX}"] = "scale(#{(y.nil? ? [x] : [x, y]).join(", ")})"
+            attributes[:"transform#{Attributes::UPDATE_SUFFIX}"] = "scale(#{(y.nil? ? [x] : [x, y]).join(", ")})"
           end
         end
 
@@ -127,7 +127,7 @@ module Sevgi
             angle = Scalar.number(a, context: "skew", field: :x)
             next if angle.zero?
 
-            attributes[:"transform#{ATTRIBUTE_UPDATE_SUFFIX}"] = "skewX(#{angle})"
+            attributes[:"transform#{Attributes::UPDATE_SUFFIX}"] = "skewX(#{angle})"
           end
         end
 
@@ -140,7 +140,7 @@ module Sevgi
             angle = Scalar.number(a, context: "skew", field: :y)
             next if angle.zero?
 
-            attributes[:"transform#{ATTRIBUTE_UPDATE_SUFFIX}"] = "skewY(#{angle})"
+            attributes[:"transform#{Attributes::UPDATE_SUFFIX}"] = "skewY(#{angle})"
           end
         end
 
@@ -155,7 +155,7 @@ module Sevgi
             dy = Scalar.number(y, context: "translation", field: :y) unless y.nil?
             next if dx.zero? && (dy.nil? || dy.zero?)
 
-            attributes[:"transform#{ATTRIBUTE_UPDATE_SUFFIX}"] = "translate(#{(dy.nil? ? [dx] : [dx, dy]).join(" ")})"
+            attributes[:"transform#{Attributes::UPDATE_SUFFIX}"] = "translate(#{(dy.nil? ? [dx] : [dx, dy]).join(" ")})"
           end
         end
 

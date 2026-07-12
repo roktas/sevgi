@@ -34,8 +34,8 @@ module Sevgi
         def test_duplicate_can_produce_new_id_attribute
           doc = SVG do
             line(id: "original", "data-var": "main var").Duplicate() do |element|
-              if element[:"#{ATTRIBUTE_INTERNAL_PREFIX}id"]
-                element[:id] = "#{element[:"#{ATTRIBUTE_INTERNAL_PREFIX}id"]}-copy"
+              if element[:"#{Attributes::META_PREFIX}id"]
+                element[:id] = "#{element[:"#{Attributes::META_PREFIX}id"]}-copy"
               end
             end
           end
@@ -225,7 +225,7 @@ module Sevgi
             end
 
             copy = original.Duplicate() do |element|
-              id = element[:"#{ATTRIBUTE_INTERNAL_PREFIX}id"]
+              id = element[:"#{Attributes::META_PREFIX}id"]
               element[:id] = "#{id}-copy" if id
             end
 

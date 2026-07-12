@@ -99,7 +99,7 @@ module Sevgi
             element.Traverse() do |node|
               if node.attributes.has?(:id)
                 id = node.attributes.delete(:id)
-                metadata = :"#{ATTRIBUTE_INTERNAL_PREFIX}id"
+                metadata = :"#{Attributes::META_PREFIX}id"
                 node[metadata] = id unless node.attributes.has?(metadata)
               end
 

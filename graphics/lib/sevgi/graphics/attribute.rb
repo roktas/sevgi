@@ -4,12 +4,16 @@
 
 module Sevgi
   module Graphics
-    # Prefix for supported non-rendering element metadata.
-    # Names beginning with this prefix remain available through the attribute store but are omitted from SVG output.
-    ATTRIBUTE_INTERNAL_PREFIX = "-"
+    # Mutable facade for SVG attributes and non-rendering element metadata.
+    class Attributes
+      # Prefix marking supported non-rendering metadata names. Prefixed entries remain available through the facade but
+      # are omitted from SVG output.
+      META_PREFIX = "-"
 
-    # Attribute suffix that merges new values into an existing attribute.
-    ATTRIBUTE_UPDATE_SUFFIX = "+"
+      # Suffix requesting an update of an existing value. String and Symbol values are space-joined, Arrays are
+      # concatenated, and Hashes are merged. When the attribute is absent, assignment uses normal replacement behavior.
+      UPDATE_SUFFIX = "+"
+    end
 
     # Attribute name normalization helpers.
     # @api private
@@ -21,7 +25,7 @@ module Sevgi
         # @param given [String, Symbol] attribute name
         # @return [Boolean]
         def internal?(given)
-          (@internal ||= {})[given] ||= key(given).start_with?(ATTRIBUTE_INTERNAL_PREFIX)
+          (@internal ||= {})[given] ||= key(given).start_with?(Attributes::META_PREFIX)
         end
 
         # Returns the normalized attribute id.
@@ -29,7 +33,7 @@ module Sevgi
         # @return [Symbol]
         def id(given)
           (@id ||= {})[given] ||= begin
-            name = updateable?(given) ? key(given).delete_suffix(ATTRIBUTE_UPDATE_SUFFIX) : key(given)
+            name = updateable?(given) ? key(given).delete_suffix(Attributes::UPDATE_SUFFIX) : key(given)
             XML.name(name, context: "XML attribute name") unless internal?(given)
             name.to_sym
           end
@@ -39,7 +43,7 @@ module Sevgi
         # @param given [String, Symbol] attribute name
         # @return [Boolean]
         def updateable?(given)
-          (@updateable ||= {})[given] ||= key(given).end_with?(ATTRIBUTE_UPDATE_SUFFIX)
+          (@updateable ||= {})[given] ||= key(given).end_with?(Attributes::UPDATE_SUFFIX)
         end
 
         private
@@ -185,18 +189,10 @@ module Sevgi
         # @raise [Sevgi::ArgumentError] when input is not a Hash or a name/value is invalid, cyclic, colliding, or cannot
         #   be converted
         def import(attributes)
-          ArgumentError.("Attributes must be imported from a Hash") unless attributes.is_a?(::Hash)
+          updated = @store.dup
+          entries(attributes).each { |entry| assign(updated, *entry) }
 
-          hash = attributes.each_with_object({}) do |(key, value), captured|
-            next if value.nil?
-
-            id = Attribute.id(key)
-            ArgumentError.("Attribute names collide after normalization: #{id}") if captured.key?(id)
-
-            captured[id] = Attribute.capture(value, normalize_keys: value.is_a?(::Hash))
-          end
-
-          @store.merge!(hash)
+          @store.replace(updated)
         end
 
         # Returns a stored attribute value for the public facade.
@@ -219,7 +215,7 @@ module Sevgi
 
           id = Attribute.id(key)
           value = Attribute.capture(value, normalize_keys: value.is_a?(::Hash))
-          @store[id] = @store.key?(id) && Attribute.updateable?(key) ? update(id, value) : value
+          @store[id] = @store.key?(id) && Attribute.updateable?(key) ? update(@store[id], value) : value
         end
 
         # Deletes an attribute by normalized key.
@@ -286,12 +282,32 @@ module Sevgi
         UPDATER = {
           ::String => proc { |old_value, new_value| [old_value, new_value].reject(&:empty?).join(" ") },
           ::Symbol => proc { |old_value, new_value| [old_value, new_value].reject(&:empty?).join(" ").to_sym },
-          ::Array => proc { |old_value, new_value| [old_value, new_value] },
-          ::Hash => proc { |old_value, new_value| old_value.merge(new_value.transform_keys(&:to_sym)) }
+          ::Array => proc { |old_value, new_value| old_value + new_value },
+          ::Hash => proc { |old_value, new_value| old_value.merge(new_value) }
         }.freeze
 
-        def update(id, new_value)
-          (old_value = @store[id]).nil? ? new_value : UPDATER[new_value.class].call(*sanitized(old_value, new_value))
+        def assign(store, key, id, value)
+          store[id] = store.key?(id) && Attribute.updateable?(key) ? update(store[id], value) : value
+        end
+
+        def entries(attributes)
+          ArgumentError.("Attributes must be imported from a Hash") unless attributes.is_a?(::Hash)
+
+          identities = {}
+          attributes.filter_map do |key, value|
+            next if value.nil?
+
+            id = Attribute.id(key)
+            ArgumentError.("Attribute names collide after normalization: #{id}") if identities.key?(id)
+
+            identities[id] = true
+            value = Attribute.capture(value, normalize_keys: value.is_a?(::Hash))
+            [key, id, value]
+          end
+        end
+
+        def update(old_value, new_value)
+          UPDATER[new_value.class].call(*sanitized(old_value, new_value))
         end
 
         def sanitized(old_value, new_value)
@@ -310,11 +326,11 @@ module Sevgi
       end
     end
 
-    # Mutable facade for SVG attributes and non-rendering element metadata.
-    #
-    # Names beginning with {ATTRIBUTE_INTERNAL_PREFIX} can be read, assigned, deleted, merged, and copied like ordinary
+    # Names beginning with {META_PREFIX} can be read, assigned, deleted, merged, and copied like ordinary
     # attributes. They appear in {#to_h}, but public SVG attribute enumeration and rendered XML omit them. All values
-    # entering or leaving this facade are recursively owned snapshots.
+    # entering or leaving this facade are recursively owned snapshots. Appending {UPDATE_SUFFIX} to a name requests a
+    # same-family update: Strings and Symbols are space-joined, Arrays are concatenated, and Hashes are merged. An update
+    # to an absent name behaves as replacement, and nil assignments are ignored.
     #
     # @example Inspect and update element attributes
     #   element = SVG { rect(id: "copy", "-source": "original") }.children.first
@@ -336,11 +352,12 @@ module Sevgi
       # @raise [Sevgi::ArgumentError] when key is not a valid attribute name
       def [](key) = snapshot(@store[key])
 
-      # Assigns a recursively owned attribute value.
-      # @param key [String, Symbol] attribute key
+      # Assigns or updates a recursively owned attribute value.
+      # @param key [String, Symbol] attribute key, optionally ending in {UPDATE_SUFFIX}
       # @param value [Object, nil] attribute value; nil is ignored
-      # @return [Object, nil] recursively owned stored snapshot or nil
-      # @raise [Sevgi::ArgumentError] when the name, value, or update operation is invalid
+      # @return [Object, nil] recursively owned resulting value or nil when absent
+      # @raise [Sevgi::ArgumentError] when the name or value is invalid, or an existing update uses incompatible or
+      #   unsupported value families
       def []=(key, value)
         @store[key] = value
         snapshot(@store[key])
@@ -372,10 +389,11 @@ module Sevgi
       # @return [Array<Symbol>] frozen name snapshot
       def keys = @store.list.freeze
 
-      # Atomically merges recursively owned attributes.
-      # @param attributes [Hash] attributes and non-rendering metadata to merge
+      # Atomically assigns or updates recursively owned attributes.
+      # @param attributes [Hash] attributes and non-rendering metadata; names may end in {UPDATE_SUFFIX}
       # @return [Sevgi::Graphics::Attributes] self
-      # @raise [Sevgi::ArgumentError] when input is not a Hash or contains an invalid name or value
+      # @raise [Sevgi::ArgumentError] when input is not a Hash, names collide, a name or value is invalid, or an existing
+      #   update uses incompatible or unsupported value families
       def merge!(attributes)
         @store.import(attributes)
         self

@@ -77,17 +77,66 @@ module Sevgi
       end
 
       def test_update_suffix_merges_values
-        attributes = Attributes.new(class: "primary", style: {stroke: "red"})
+        attributes = Attributes.new(
+          class: ["primary"],
+          style: {stroke: "red"},
+          transform: "translate(1 2)"
+        )
 
-        attributes[:"class+"] = "selected"
+        attributes[:"class+"] = ["selected"]
+        attributes[:"class+"] = ["interactive"]
         attributes[:"style+"] = {"stroke-width" => 2}
+        attributes.merge!("style+": {fill: "blue"}, "transform+": "scale(2)")
+        attributes[:"transform+"] = "rotate(45)"
+        attributes[:"class+"] = nil
 
         [
-          "primary selected",
+          %w[primary selected interactive],
           attributes[:class],
-          {stroke: "red", "stroke-width": 2},
-          attributes[:style]
+          {stroke: "red", "stroke-width": 2, fill: "blue"},
+          attributes[:style],
+          "translate(1 2) scale(2) rotate(45)",
+          attributes[:transform]
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+
+        rendered = render_attributes(attributes)
+        assert_includes(rendered, "class=\"primary selected interactive\"")
+        assert_includes(rendered, "style=\"stroke:red; stroke-width:2; fill:blue\"")
+        assert_includes(rendered, "transform=\"translate(1 2) scale(2) rotate(45)\"")
+      end
+
+      def test_update_suffix_defines_value_families
+        attributes = Attributes.new(text: "first", token: :first, list: [1], map: {first: 1})
+
+        attributes[:"text+"] = "second"
+        attributes[:"token+"] = :second
+        attributes[:"list+"] = [2]
+        attributes[:"list+"] = [3]
+        attributes[:"map+"] = {second: 2}
+        attributes[:"map+"] = {third: 3}
+
+        assert_equal("first second", attributes[:text])
+        assert_equal(:"first second", attributes[:token])
+        assert_equal([1, 2, 3], attributes[:list])
+        assert_equal({first: 1, second: 2, third: 3}, attributes[:map])
+
+        attributes[:list] = ["replacement"]
+        assert_equal(["replacement"], attributes[:list])
+      end
+
+      def test_update_suffix_rejects_invalid_merges_atomically
+        attributes = Attributes.new(class: ["base"], count: 1)
+
+        assert_raises(ArgumentError) { attributes[:"class+"] = "other" }
+        assert_raises(ArgumentError) { attributes[:"count+"] = 2 }
+        assert_raises(ArgumentError) { attributes.merge!("class+": ["other"], "count+": 2) }
+
+        assert_equal({class: ["base"], count: 1}, attributes.to_h)
+      end
+
+      def test_attribute_syntax_constants_are_public
+        assert_equal("-", Attributes::META_PREFIX)
+        assert_equal("+", Attributes::UPDATE_SUFFIX)
       end
 
       def test_merge_bang_is_atomic_and_returns_self
