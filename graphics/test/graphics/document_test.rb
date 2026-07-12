@@ -107,28 +107,41 @@ module Sevgi
         end
       end
 
-      def test_profile_is_public_and_registry_is_snapshot_owned
-        profile = Document::Minimal.profile
-        available = Document::Profile.available
+      def test_profile_and_document_lookup_are_distinct
+        profile = Document.profile(:minimal)
+        keys = Document.keys
 
         assert_instance_of(Document::Profile, profile)
-        assert_same(Document::Minimal, available[:minimal])
-        assert_raises(FrozenError) { available.clear }
-        assert_same(Document::Minimal, Document::Profile[:minimal])
+        assert_same(Document::Minimal, Document.fetch(:minimal))
+        assert_same(profile, Document::Minimal.profile)
+        assert_includes(keys, :minimal)
+        assert_predicate(keys, :frozen?)
+        assert_raises(FrozenError) { keys.clear }
       end
 
       def test_profile_registry_is_not_public
-        before = Document::Profile.available
+        before = Document.keys
 
         refute_respond_to(Document::Profile, :register)
         assert_raises(NoMethodError) { Document::Profile.register(:broken, String) }
-        assert_equal(before, Document::Profile.available)
+        assert_equal(before, Document.keys)
         assert_raises(ArgumentError) { SVG(:broken) }
+      end
+
+      def test_profile_has_complete_value_semantics
+        profile = Document::Profile.new(:value_profile, attributes: {viewBox: [0, 0, 1, 1]}, preambles: ["header"])
+        equivalent = Document::Profile.new(:value_profile, attributes: {viewBox: [0, 0, 1, 1]}, preambles: ["header"])
+
+        assert_equal(profile, equivalent)
+        assert(profile.eql?(equivalent))
+        assert_equal(profile.hash, equivalent.hash)
+        assert_equal(:found, {profile => :found}[equivalent])
+        assert_predicate(profile, :frozen?)
       end
 
       def test_profile_registry_rejects_invalid_classes
         registry = Document.const_get(:Registry, false)
-        before = Document::Profile.available
+        before = Document.keys
         invalid = [
           [String, nil],
           [Class.new(Document::Proto), nil],
@@ -138,20 +151,20 @@ module Sevgi
 
         invalid.each do |klass, profile|
           assert_raises(ArgumentError) { registry.register(:broken, klass, profile:) }
-          assert_equal(before, Document::Profile.available)
+          assert_equal(before, Document.keys)
         end
       end
 
       def test_profile_registry_rejects_invalid_names
         registry = Document.const_get(:Registry, false)
-        before = Document::Profile.available
+        before = Document.keys
         raising = Object.new.tap { it.define_singleton_method(:to_sym) { raise "conversion failed" } }
         wrong = Object.new.tap { it.define_singleton_method(:to_sym) { "broken" } }
 
         [Object.new, raising, wrong].each do |name|
           assert_nil(Document::Profile.normalize(name))
           assert_raises(ArgumentError) { registry.register(name, Document::Minimal) }
-          assert_equal(before, Document::Profile.available)
+          assert_equal(before, Document.keys)
         end
       end
 
@@ -307,7 +320,7 @@ module Sevgi
         hash[:self] = hash
         array = []
         array << array
-        before = Document::Profile.available
+        before = Document.keys
         operations = [
           -> { Document::Profile.new(nil, attributes: hash) },
           -> { Graphics.document(attributes: hash) },
@@ -320,7 +333,7 @@ module Sevgi
         operations.each do |operation|
           error = assert_raises(Sevgi::ArgumentError, &operation)
           assert_match(/cyclic document profile metadata/i, error.message)
-          assert_equal(before, Document::Profile.available)
+          assert_equal(before, Document.keys)
         end
 
         assert_same(current, Graphics.document(:registered_cycle_safe))
@@ -328,7 +341,7 @@ module Sevgi
       end
 
       def test_document_validates_profile_metadata_shape
-        before = Document::Profile.available
+        before = Document.keys
         cyclic = []
         cyclic << cyclic
         invalid = [
@@ -346,20 +359,20 @@ module Sevgi
             Graphics.document(:registered_invalid_metadata, **metadata)
           end
 
-          assert_equal(before, Document::Profile.available)
+          assert_equal(before, Document.keys)
         end
       end
 
       def test_document_rejects_invalid_preamble_without_coercion
         preamble = MutableValue.new("header")
-        before = Document::Profile.available
+        before = Document.keys
 
         assert_raises(Sevgi::ArgumentError) do
           Graphics.document(:registered_invalid_preamble, preambles: [preamble])
         end
 
         assert_equal(0, preamble.calls)
-        assert_equal(before, Document::Profile.available)
+        assert_equal(before, Document.keys)
       end
 
       def test_document_owns_mutable_profile_values
@@ -396,7 +409,7 @@ module Sevgi
       def test_document_rejects_value_stringification_errors
         raising = Object.new.tap { it.define_singleton_method(:to_s) { raise "broken" } }
         wrong = Object.new.tap { it.define_singleton_method(:to_s) { Object.new } }
-        before = Document::Profile.available
+        before = Document.keys
 
         [raising, wrong].each do |value|
           error = assert_raises(Sevgi::ArgumentError) do
@@ -404,7 +417,7 @@ module Sevgi
           end
 
           assert_match(/profile metadata (?:cannot be|stringification)/i, error.message)
-          assert_equal(before, Document::Profile.available)
+          assert_equal(before, Document.keys)
         end
 
         left = MutableValue.new("same")
@@ -414,12 +427,12 @@ module Sevgi
         end
 
         assert_match(/metadata keys collide after stringification/i, error.message)
-        assert_equal(before, Document::Profile.available)
+        assert_equal(before, Document.keys)
       end
 
       def test_document_rejects_invalid_xml_metadata
         current = Graphics.document(:registered_xml_safe, attributes: {fill: "red"})
-        before = Document::Profile.available
+        before = Document.keys
         operations = [
           -> { Graphics.document(:registered_xml_value, attributes: {fill: "illegal\0value"}) },
           -> { Graphics.document(:registered_xml_name, attributes: {"bad name" => "value"}) },
@@ -432,7 +445,7 @@ module Sevgi
           error = assert_raises(Sevgi::ArgumentError, &operation)
 
           assert_match(/document profile metadata|document profile attribute name/i, error.message)
-          assert_equal(before, Document::Profile.available)
+          assert_equal(before, Document.keys)
         end
 
         assert_same(current, Graphics.document(:registered_xml_safe))

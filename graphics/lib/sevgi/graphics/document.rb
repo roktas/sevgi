@@ -92,7 +92,7 @@ module Sevgi
         when ::Class
           document if document <= Proto
         else
-          Profile[document]
+          fetch(document)
         end
 
         ArgumentError.("Unknown document profile: #{document}") unless klass
@@ -113,6 +113,28 @@ module Sevgi
 
       private_class_method :canvas_attributes
 
+      # Returns a registered document class by profile name.
+      # @param name [Symbol, String] profile name
+      # @return [Class] registered subclass of {Sevgi::Graphics::Document::Proto}
+      # @raise [Sevgi::ArgumentError] when name is invalid or unknown
+      # @example Look up a document class and its metadata
+      #   klass = Document.fetch(:minimal)
+      #   Document.profile(:minimal) # => klass.profile
+      def self.fetch(name)
+        name = Profile.normalize!(name)
+        Registry[name] || ArgumentError.("Unknown document profile: #{name}")
+      end
+
+      # Returns registered document profile names.
+      # @return [Array<Symbol>] frozen name snapshot
+      def self.keys = Registry.available.keys.freeze
+
+      # Returns immutable metadata for a registered document profile.
+      # @param name [Symbol, String] profile name
+      # @return [Sevgi::Graphics::Document::Profile] registered profile metadata
+      # @raise [Sevgi::ArgumentError] when name is invalid or unknown
+      def self.profile(name) = fetch(name).profile
+
       # Defines or returns a document profile class.
       # Profile metadata is captured before class or thread-atomic registry mutation. Mutable non-container attribute
       # values are stringified once during capture. Successful named definitions return the canonical class stored by
@@ -130,7 +152,7 @@ module Sevgi
 
         name = Profile.normalize!(name)
 
-        if (current = Profile[name])
+        if (current = Registry[name])
           reject_conflict(name, current, attributes:, preambles:) unless overwrite
           return current unless overwrite
         end
@@ -146,8 +168,7 @@ module Sevgi
       end
 
       def self.lookup(name)
-        name = Profile.normalize!(name)
-        Profile[name] || ArgumentError.("Unknown document profile: #{name}")
+        fetch(name)
       end
 
       def self.defaults(attributes:, preambles:)
@@ -198,6 +219,7 @@ module Sevgi
               return current unless overwrite
             end
 
+            klass.instance_variable_set(:@profile, profile)
             @available[name] = klass
           end
 
@@ -220,15 +242,6 @@ module Sevgi
       # stringified once during construction.
       # @see Sevgi::Graphics.document
       class Profile
-        # Returns a thread-coherent immutable snapshot of registered profile classes.
-        # @return [Hash<Symbol, Class>]
-        def self.available = Registry.available
-
-        # Returns a profile class by name from the process-global registry.
-        # @param name [Object] profile name
-        # @return [Class, nil]
-        def self.[](name) = (name = normalize(name)) && Registry[name]
-
         # Normalizes a profile name.
         # @param name [Object] profile name
         # @return [Symbol, nil]
@@ -259,12 +272,17 @@ module Sevgi
           validate_attributes!(attributes)
           @attributes = Snapshot.capture(attributes || {})
           @preambles = capture_preambles(preambles)
+          freeze
         end
 
         # Reports strict profile equality.
         # @param other [Object] object to compare
         # @return [Boolean]
-        def ==(other) = self.class == other.class && deconstruct == other.deconstruct
+        def eql?(other) = self.class == other.class && deconstruct == other.deconstruct
+
+        # Returns a hash compatible with strict equality.
+        # @return [Integer]
+        def hash = [self.class, name, @attributes, @preambles].hash
 
         # Returns default root attributes.
         # @return [Hash] mutation-isolated attribute snapshot
@@ -277,6 +295,8 @@ module Sevgi
         # Returns preamble lines.
         # @return [Array<String>, nil] mutation-isolated preamble snapshot
         def preambles = Snapshot.copy(@preambles)
+
+        alias == eql?
 
         private
 
@@ -316,9 +336,6 @@ module Sevgi
       # Class-level DSL used while defining document classes.
       # @api private
       module DSL
-        # @return [Sevgi::Graphics::Document::Profile] immutable document profile metadata
-        attr_reader :profile
-
         # Sets document profile metadata on a class.
         # @param name [Object] profile name
         # @param attributes [Hash, nil] default root attributes
@@ -329,8 +346,11 @@ module Sevgi
         # @raise [Sevgi::ArgumentError] when registration fails or metadata is invalid XML, cyclic, or cannot be stringified
         def document(name, attributes: {}, preambles: nil, register: true, overwrite: false)
           profile = Profile.new(register ? name : nil, attributes:, preambles:)
-          Registry.register(name, self, profile:, overwrite:) if register
-          @profile = profile
+          return (@profile = profile) unless register
+
+          registered = Registry.register(name, self, profile:, overwrite:)
+          @profile = profile unless registered.equal?(self)
+          @profile
         end
 
         # Includes a graphics mixture into the document class.
@@ -359,6 +379,12 @@ module Sevgi
         mixture :Polyfills
         mixture :Render
         mixture :Wrappers
+
+        class << self
+          # Returns immutable metadata for this document class.
+          # @return [Sevgi::Graphics::Document::Profile, nil] profile metadata, or nil on the abstract proto class
+          attr_reader :profile
+        end
 
         # @overload call(*objects, **options)
         #   Renders the document.

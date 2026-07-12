@@ -48,6 +48,13 @@ module Sevgi
     #   @return [Class] anonymous document class
     #   @raise [Sevgi::ArgumentError] when metadata is invalid XML, cyclic, or cannot be stringified
     # @return [Class] document class
+    # @example Define, look up, and inspect a named document
+    #   document(:card, attributes: {viewBox: "0 0 100 60"})
+    #   Document.fetch(:card)             # => the registered document class
+    #   Document.profile(:card).attributes # => {"viewBox" => "0 0 100 60"}
+    # @example Define an anonymous document without changing the registry
+    #   klass = document(attributes: {viewBox: "0 0 10 10"})
+    #   klass.profile.name # => nil
     def document(name = Undefined, preambles: Undefined, attributes: Undefined)
       Graphics::Document.define(name, preambles:, attributes:)
     end
