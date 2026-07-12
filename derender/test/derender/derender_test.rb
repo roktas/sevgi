@@ -136,6 +136,7 @@ module Sevgi
 
         assert_equal(expected, actual)
         assert_equal(%i[line line], returned.map(&:name))
+        assert_predicate(returned, :frozen?)
       end
 
       def test_evaluate_children_treats_kernel_names_as_elements
@@ -229,7 +230,7 @@ module Sevgi
         end
       end
 
-      def test_evaluate_file_children_appends_selected_children
+      def test_evaluate_children_file_appends_selected_children
         Dir.mktmpdir do |dir|
           file = ::File.join(dir, "source.svg")
           ::File.write(
@@ -244,7 +245,7 @@ module Sevgi
           )
 
           target = SVG(:minimal)
-          returned = Derender.evaluate_file_children(file, target, id: "xxx")
+          returned = Derender.evaluate_children_file(file, target, id: "xxx")
           actual = target.Render()
 
           expected = <<~SVG
@@ -257,6 +258,7 @@ module Sevgi
 
           assert_equal(expected, actual)
           assert_equal(%i[line line], returned.map(&:name))
+          assert_predicate(returned, :frozen?)
         end
       end
 

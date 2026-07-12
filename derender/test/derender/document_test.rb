@@ -18,7 +18,7 @@ module Sevgi
         SVG
           .chomp
 
-        actual = Derender::Document.declaration(svg)
+        actual = Document.declaration(svg)
         expected = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>"
 
         assert_equal(expected, actual)
@@ -27,7 +27,7 @@ module Sevgi
       def test_pres_excludes_nil_without_xml_declaration
         svg = "<!-- comment --><?app value=\"true\"?><svg/>"
 
-        actual = Derender::Document.new(svg).pres
+        actual = Document.new(svg).pres
 
         assert_equal(["<!-- comment -->", "<?app value=\"true\"?>"], actual)
         assert(actual.all?(String))
@@ -36,7 +36,7 @@ module Sevgi
       def test_declaration_stops_at_xml_token_boundary
         svg = "<?xml version=\"1.0\"?><svg/>"
 
-        actual = Derender::Document.declaration(svg)
+        actual = Document.declaration(svg)
 
         assert_equal("<?xml version=\"1.0\"?>", actual)
       end
@@ -49,7 +49,7 @@ module Sevgi
         SVG
           .chomp
 
-        actual = Derender::Document.new(svg).decompile("a\"'b").attributes
+        actual = Document.new(svg).decompile("a\"'b").attributes
 
         assert_equal({"id" => "a\"'b"}, actual)
       end
@@ -59,11 +59,11 @@ module Sevgi
           file = ::File.join(dir, "changed.svg")
           ::File.write(file, "<svg id=\"root\"/>")
 
-          assert_equal({"id" => "root"}, Derender::Document.load_file(file).decompile.attributes)
+          assert_equal({"id" => "root"}, Document.load_file(file).decompile.attributes)
 
           ::File.write(file, "<svg id=\"updated\"/>")
 
-          assert_equal({"id" => "updated"}, Derender::Document.load_file(file).decompile.attributes)
+          assert_equal({"id" => "updated"}, Document.load_file(file).decompile.attributes)
         end
       end
 
@@ -71,10 +71,10 @@ module Sevgi
         Dir.mktmpdir do |dir|
           file = ::File.join(dir, "isolated.svg")
           ::File.write(file, "<svg id=\"root\"/>")
-          first = Derender::Document.load_file(file)
+          first = Document.load_file(file)
           first.doc.root["id"] = "mutated"
 
-          actual = Derender::Document.load_file(file).decompile.attributes
+          actual = Document.load_file(file).decompile.attributes
 
           assert_equal({"id" => "root"}, actual)
         end
@@ -85,7 +85,7 @@ module Sevgi
           file = ::File.join(dir, "drawing.svg")
           ::File.write(file, "<svg id=\"root\"/>")
 
-          actual = Derender::Document.load_file(::File.join(dir, "drawing")).decompile("root")
+          actual = Document.load_file(::File.join(dir, "drawing")).decompile("root")
 
           assert_equal({"id" => "root"}, actual.attributes)
         end
@@ -93,7 +93,7 @@ module Sevgi
 
       def test_new_wraps_malformed_xml_as_argument_error
         error = assert_raises(ArgumentError) do
-          Derender::Document.new("<svg><g></svg>")
+          Document.new("<svg><g></svg>")
         end
 
         assert_match(/Malformed XML/, error.message)
@@ -102,7 +102,7 @@ module Sevgi
 
       def test_decompile_rejects_comment_only_document
         error = assert_raises(ArgumentError) do
-          Derender::Document.new("<!-- no root -->").decompile
+          Document.new("<!-- no root -->").decompile
         end
 
         assert_match(/\A(?:Malformed XML|XML document has no root element)/, error.message)
@@ -111,9 +111,9 @@ module Sevgi
       def test_decompile_rejects_rootless_document
         rootless = Nokogiri::XML::Document.new
 
-        Derender::Document.stub(:parse, rootless) do
+        Document.stub(:parse, rootless) do
           error = assert_raises(ArgumentError) do
-            Derender::Document.new("<svg/>").decompile
+            Document.new("<svg/>").decompile
           end
 
           assert_equal("XML document has no root element", error.message)
@@ -133,7 +133,7 @@ module Sevgi
         SVG
           .chomp
 
-        actual = Derender::Document.new(svg).pres
+        actual = Document.new(svg).pres
 
         expected = [
           "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>",

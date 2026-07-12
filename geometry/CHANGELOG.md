@@ -9,6 +9,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 - Breaking: replaced callable drawing module `call` block registration with argument-independent `base` blocks;
   inherited bases run parent-first, and modules with one drawing method conventionally name it `call`.
+- Breaking: renamed `Derender.evaluate_file_children` to `evaluate_children_file`; decompiled nodes now own immutable
+  public state while parser, strategy, and construction plumbing remain private.
 
 ## 0.95.0 - 2026-07-11
 

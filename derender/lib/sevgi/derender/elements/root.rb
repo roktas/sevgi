@@ -29,9 +29,6 @@ module Sevgi
         # @return [String]
         def element = "SVG"
 
-        # Returns root attributes merged with namespace declarations.
-        # @return [Hash{String => String}] attributes and namespaces
-        def attributes! = {**attributes, **namespaces}
       end
     end
   end

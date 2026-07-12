@@ -5,6 +5,7 @@ require "nokogiri"
 module Sevgi
   module Derender
     # Parsed SVG/XML document wrapper used by the derender pipeline.
+    # @api private
     class Document
       # Loads and parses an SVG/XML file.
       #
@@ -81,7 +82,7 @@ module Sevgi
 
         ArgumentError.("XML document has no root element") unless element
 
-        Node.new(element, pres, namespaces: namespace_scope(element))
+        Node.send(:new, element, pres, namespaces: namespace_scope(element))
       end
 
       # Returns XML declaration and pre-root nodes preserved for root decompilation. The result contains only String

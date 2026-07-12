@@ -18,7 +18,7 @@ module Sevgi
       #   SVG/XML content is treated as data and is not evaluated as Ruby source.
       #   @param file [String] source SVG/XML file
       #   @param id [String, Symbol] source node id
-      #   @return [Array<Sevgi::Graphics::Element>] included children
+      #   @return [Array<Sevgi::Graphics::Element>] immutable included-child snapshot
       #   @raise [Sevgi::ArgumentError] when the file is absent or XML content is malformed, rootless, or lacks the id
       #   @raise [Sevgi::MissingComponentError] when sevgi/derender is unavailable
       module Include
@@ -41,11 +41,11 @@ module Sevgi
         # SVG/XML file content is treated as data and is not evaluated as Ruby source.
         # @param file [String] source SVG/XML file
         # @param id [String, Symbol] source node id
-        # @return [Array<Sevgi::Graphics::Element>] included children
+        # @return [Array<Sevgi::Graphics::Element>] immutable included-child snapshot
         # @raise [Sevgi::ArgumentError] when the file cannot be found, file content is malformed or rootless, or the id is
         #   absent
         # @raise [Sevgi::MissingComponentError] when sevgi/derender is unavailable
-        def IncludeChildren(file, id) = Derender.evaluate_file_children(file, self, id:)
+        def IncludeChildren(file, id) = Derender.evaluate_children_file(file, self, id:)
       rescue ::LoadError => e
         raise unless e.path == "sevgi/derender"
 

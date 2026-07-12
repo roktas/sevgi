@@ -10,7 +10,7 @@ module Sevgi
         # @return [Array<String>] unformatted Ruby source lines
         def decompile(*)
           if children.any?
-            children.one? && children.first.node.text? ? Array(leaf(has_attributes: attributes.any?)) : tree
+            children.one? && children.first.send(:text?) ? Array(leaf(has_attributes: attributes.any?)) : tree
           else
             Array(leaf(has_content: false))
           end
@@ -19,7 +19,7 @@ module Sevgi
         private
 
         def leaf(has_content: true, has_attributes: true)
-          attributes = attributes!
+          attributes = all_attributes
           args = []
           args << Ruby.literal(content) if has_content
           args << Attributes.decompile(attributes) if has_attributes && attributes.any?
@@ -40,7 +40,7 @@ module Sevgi
         def tree
           [
             "#{leaf(has_content: false)} do",
-            *children.map(&:decompile).flatten,
+            *children.map { it.send(:decompile) }.flatten,
             "end"
           ]
         end

@@ -24,92 +24,29 @@ module Sevgi
   # declarations, qualified attributes, significant text, and nested `svg` elements survive source generation and direct
   # evaluation. CSS specialization applies only to unqualified `style` elements in no namespace or the default SVG
   # namespace; the document-root strategy additionally requires an unqualified `svg` at the root of the conversion.
+  #
+  # @example Inspect, select, and convert an immutable result
+  #   result = Sevgi::Derender.decompile('<svg><rect id="mark" width="10"/></svg>')
+  #   mark = result.find("mark")
+  #   mark.attributes #=> {"id"=>"mark", "width"=>"10"}
+  #   mark.derender   #=> "rect id: \"mark\", width: 10\n"
   module Derender
-    private_constant :Attributes, :Elements
+    private_constant :Attributes, :Document, :Elements
 
-    # @!method self.decompile(content, id: nil)
-    #   Converts SVG/XML content into a derender node.
-    #   @param content [String] SVG/XML source content
-    #   @param id [String, nil] optional SVG id selecting a node inside the source
-    #   @return [Sevgi::Derender::Node] selected node in the derender tree
-    #   @raise [Sevgi::ArgumentError] when content is malformed or rootless, or when the id is absent
-    # @!method self.decompile_file(file, id: nil)
-    #   Converts an SVG/XML file into a derender node.
-    #   @param file [String] path to the source SVG/XML file
-    #   @param id [String, nil] optional SVG id selecting a node inside the source
-    #   @return [Sevgi::Derender::Node] selected node in the derender tree
-    #   @raise [Sevgi::ArgumentError] when the file cannot be found, file content is malformed or rootless, or the id is
-    #     absent
-    # @!method self.derender(content, id: nil)
-    #   Converts SVG/XML content into Sevgi DSL Ruby source.
-    #   @param content [String] SVG/XML source content
-    #   @param id [String, nil] optional SVG id selecting a node inside the source
-    #   @return [String] formatted Sevgi DSL source
-    #   @raise [Sevgi::ArgumentError] when content is malformed or rootless, or when the id is absent
-    #   @raise [Sevgi::PanicError] when generated Ruby source cannot be formatted
-    #   @note Namespace-aware dispatch preserves ordinary foreign/qualified nodes and nested SVG elements.
-    #   @note Unsafe bare Ruby names are emitted through the explicit `Element` DSL word.
-    # @!method self.derender_file(file, id: nil)
-    #   Converts an SVG/XML file into Sevgi DSL Ruby source.
-    #   @param file [String] path to the source SVG/XML file
-    #   @param id [String, nil] optional SVG id selecting a node inside the source
-    #   @return [String] formatted Sevgi DSL source
-    #   @raise [Sevgi::ArgumentError] when the file cannot be found, file content is malformed or rootless, or the id is
-    #     absent
-    #   @raise [Sevgi::PanicError] when generated Ruby source cannot be formatted
-    #   @note Namespace-aware dispatch preserves ordinary foreign/qualified nodes and nested SVG elements.
-    #   @note Unsafe bare Ruby names are emitted through the explicit `Element` DSL word.
-    # @!method self.evaluate(content, element, id: nil)
-    #   Evaluates SVG/XML content under a graphics element, including the selected node.
-    #   @param content [String] SVG/XML source content
-    #   @param element [Sevgi::Graphics::Element] target graphics element
-    #   @param id [String, nil] optional SVG id selecting a node inside the source
-    #   @return [Sevgi::Graphics::Element, nil] included selected/root graphics element, or nil when the selected node
-    #     produces no graphics output
-    #   @raise [Sevgi::ArgumentError] when content is malformed or rootless, or when the id is absent
-    #   @note Namespace-aware dispatch preserves ordinary foreign/qualified nodes and nested SVG elements.
-    # @!method self.evaluate_children(content, element, id: nil)
-    #   Evaluates only the selected node's children under a graphics element.
-    #   @param content [String] SVG/XML source content
-    #   @param element [Sevgi::Graphics::Element] target graphics element
-    #   @param id [String, nil] optional SVG id selecting a node inside the source
-    #   @return [Array<Sevgi::Graphics::Element>] included child graphics elements
-    #   @raise [Sevgi::ArgumentError] when content is malformed or rootless, or when the id is absent
-    #   @note Namespace-aware dispatch preserves ordinary foreign/qualified nodes and nested SVG elements.
-    # @!method self.evaluate_file(file, element, id: nil)
-    #   Evaluates an SVG/XML file under a graphics element, including the selected node.
-    #   @param file [String] path to the source SVG/XML file
-    #   @param element [Sevgi::Graphics::Element] target graphics element
-    #   @param id [String, nil] optional SVG id selecting a node inside the source
-    #   @return [Sevgi::Graphics::Element, nil] included selected/root graphics element, or nil when the selected node
-    #     produces no graphics output
-    #   @raise [Sevgi::ArgumentError] when the file cannot be found, file content is malformed or rootless, or the id is
-    #     absent
-    #   @note Namespace-aware dispatch preserves ordinary foreign/qualified nodes and nested SVG elements.
-    # @!method self.evaluate_file_children(file, element, id: nil)
-    #   Evaluates only the selected node's children from an SVG/XML file under a graphics element.
-    #   @param file [String] path to the source SVG/XML file
-    #   @param element [Sevgi::Graphics::Element] target graphics element
-    #   @param id [String, nil] optional SVG id selecting a node inside the source
-    #   @return [Array<Sevgi::Graphics::Element>] included child graphics elements
-    #   @raise [Sevgi::ArgumentError] when the file cannot be found, file content is malformed or rootless, or the id is
-    #     absent
-    #   @note Namespace-aware dispatch preserves ordinary foreign/qualified nodes and nested SVG elements.
-
-    # Converts SVG/XML content into a derender node.
+    # Converts SVG/XML content into an immutable derender result.
     # @param content [String] SVG/XML source content
     # @param id [String, nil] optional SVG id selecting a node inside the source
-    # @return [Sevgi::Derender::Node] selected node in the derender tree
+    # @return [Sevgi::Derender::Node] owned immutable selected node
     # @raise [Sevgi::ArgumentError] when content is malformed or rootless, or when the id is absent
-    def decompile(content, id: nil) = Document.new(content).decompile(id)
+    def self.decompile(content, id: nil) = Document.new(content).decompile(id)
 
-    # Converts an SVG/XML file into a derender node.
+    # Converts an SVG/XML file into an immutable derender result.
     # @param file [String] path to the source SVG/XML file
     # @param id [String, nil] optional SVG id selecting a node inside the source
-    # @return [Sevgi::Derender::Node] selected node in the derender tree
+    # @return [Sevgi::Derender::Node] owned immutable selected node
     # @raise [Sevgi::ArgumentError] when the file cannot be found, file content is malformed or rootless, or the id is
     #   absent
-    def decompile_file(file, id: nil) = Document.load_file(file).decompile(id)
+    def self.decompile_file(file, id: nil) = Document.load_file(file).decompile(id)
 
     # Converts SVG/XML content into Sevgi DSL Ruby source.
     # @param content [String] SVG/XML source content
@@ -119,7 +56,7 @@ module Sevgi
     # @raise [Sevgi::PanicError] when generated Ruby source cannot be formatted
     # @note Namespace-aware dispatch preserves ordinary foreign/qualified nodes and nested SVG elements.
     # @note Unsafe bare Ruby names are emitted through the explicit `Element` DSL word.
-    def derender(content, id: nil) = Document.new(content).decompile(id).derender
+    def self.derender(content, id: nil) = Document.new(content).decompile(id).derender
 
     # Converts an SVG/XML file into Sevgi DSL Ruby source.
     # @param file [String] path to the source SVG/XML file
@@ -130,7 +67,7 @@ module Sevgi
     # @raise [Sevgi::PanicError] when generated Ruby source cannot be formatted
     # @note Namespace-aware dispatch preserves ordinary foreign/qualified nodes and nested SVG elements.
     # @note Unsafe bare Ruby names are emitted through the explicit `Element` DSL word.
-    def derender_file(file, id: nil) = Document.load_file(file).decompile(id).derender
+    def self.derender_file(file, id: nil) = Document.load_file(file).decompile(id).derender
 
     # Evaluates SVG/XML content under a graphics element, including the selected node.
     # @param content [String] SVG/XML source content
@@ -140,16 +77,18 @@ module Sevgi
     #   produces no graphics output
     # @raise [Sevgi::ArgumentError] when content is malformed or rootless, or when the id is absent
     # @note Namespace-aware dispatch preserves ordinary foreign/qualified nodes and nested SVG elements.
-    def evaluate(content, element, id: nil) = Document.new(content).decompile(id).evaluate(element)
+    def self.evaluate(content, element, id: nil) = Document.new(content).decompile(id).evaluate(element)
 
     # Evaluates only the selected node's children under a graphics element.
     # @param content [String] SVG/XML source content
     # @param element [Sevgi::Graphics::Element] target graphics element
     # @param id [String, nil] optional SVG id selecting a node inside the source
-    # @return [Array<Sevgi::Graphics::Element>] included child graphics elements
+    # @return [Array<Sevgi::Graphics::Element>] immutable included-child snapshot
     # @raise [Sevgi::ArgumentError] when content is malformed or rootless, or when the id is absent
     # @note Namespace-aware dispatch preserves ordinary foreign/qualified nodes and nested SVG elements.
-    def evaluate_children(content, element, id: nil) = Document.new(content).decompile(id).evaluate_children(element)
+    def self.evaluate_children(content, element, id: nil)
+      Document.new(content).decompile(id).evaluate_children(element)
+    end
 
     # Evaluates an SVG/XML file under a graphics element, including the selected node.
     # @param file [String] path to the source SVG/XML file
@@ -160,20 +99,18 @@ module Sevgi
     # @raise [Sevgi::ArgumentError] when the file cannot be found, file content is malformed or rootless, or the id is
     #   absent
     # @note Namespace-aware dispatch preserves ordinary foreign/qualified nodes and nested SVG elements.
-    def evaluate_file(file, element, id: nil) = Document.load_file(file).decompile(id).evaluate(element)
+    def self.evaluate_file(file, element, id: nil) = Document.load_file(file).decompile(id).evaluate(element)
 
     # Evaluates only the selected node's children from an SVG/XML file under a graphics element.
     # @param file [String] path to the source SVG/XML file
     # @param element [Sevgi::Graphics::Element] target graphics element
     # @param id [String, nil] optional SVG id selecting a node inside the source
-    # @return [Array<Sevgi::Graphics::Element>] included child graphics elements
+    # @return [Array<Sevgi::Graphics::Element>] immutable included-child snapshot
     # @raise [Sevgi::ArgumentError] when the file cannot be found, file content is malformed or rootless, or the id is
     #   absent
     # @note Namespace-aware dispatch preserves ordinary foreign/qualified nodes and nested SVG elements.
-    def evaluate_file_children(file, element, id: nil)
+    def self.evaluate_children_file(file, element, id: nil)
       Document.load_file(file).decompile(id).evaluate_children(element)
     end
-
-    extend self
   end
 end

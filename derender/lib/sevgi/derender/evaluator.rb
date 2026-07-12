@@ -14,7 +14,7 @@ module Sevgi
       # @param node [Sevgi::Derender::Node] derender node
       # @return [Sevgi::Graphics::Element, nil] included element, or nil when the node does not produce graphics output
       def append(node)
-        case node.type
+        case node.send(:type)
         when :CSS
           append_css(node)
         when :Text
@@ -29,7 +29,7 @@ module Sevgi
       attr_reader :parent
 
       def append_css(node)
-        return unless (hash = Css.to_h(node.node.content))
+        return unless (hash = Css.to_h(node.content))
 
         build(:style, Graphics::Content.css(hash), type: "text/css", **node.attributes)
       end
@@ -37,13 +37,13 @@ module Sevgi
       def append_element(node)
         contents = contents(node)
 
-        build(node.name, *contents, **node.attributes!).tap do |element|
+        build(node.name, *contents, **node.send(:all_attributes)).tap do |element|
           node.children.each { self.class.new(element).append(it) } if contents.empty?
         end
       end
 
       def contents(node)
-        node.children.one? && node.children.first.node.text? ? [node.content] : []
+        node.children.one? && node.children.first.send(:text?) ? [node.content] : []
       end
 
       def build(name, *contents, **attributes)
