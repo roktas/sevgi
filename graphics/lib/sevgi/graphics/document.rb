@@ -161,17 +161,14 @@ module Sevgi
       # @raise [Sevgi::ArgumentError] when overwrite is not Boolean, a name conflicts, or metadata is invalid XML,
       #   cyclic, or cannot be stringified
       def self.define(name = Undefined, preambles: Undefined, attributes: Undefined, overwrite: false)
-        overwrite = overwrite!(overwrite)
+        overwrite!(overwrite)
         return anonymous(attributes:, preambles:) if name == Undefined
 
         return lookup(name) if preambles == Undefined && attributes == Undefined
 
         name = Profile.normalize!(name)
-
-        if (current = Registry[name])
-          reject_conflict(name, current, attributes:, preambles:) unless overwrite
-          return current unless overwrite
-        end
+        current = reuse(name, attributes:, preambles:, overwrite:)
+        return current if current
 
         attributes, preambles = defaults(attributes:, preambles:)
         Class.new(Base) { document(name, preambles:, attributes:, overwrite:) }
@@ -204,13 +201,20 @@ module Sevgi
           (preambles == Undefined || Profile.new(nil, preambles:).preambles == profile.preambles)
       end
 
+      def self.reuse(name, attributes:, preambles:, overwrite:)
+        return unless (current = Registry[name])
+
+        reject_conflict(name, current, attributes:, preambles:) unless overwrite
+        current unless overwrite
+      end
+
       def self.overwrite!(value)
         return value if [true, false].include?(value)
 
         ArgumentError.("Document overwrite must be true or false")
       end
 
-      private_class_method :anonymous, :compatible?, :defaults, :lookup, :overwrite!, :reject_conflict
+      private_class_method :anonymous, :compatible?, :defaults, :lookup, :overwrite!, :reject_conflict, :reuse
 
       # Process-global document profile registry.
       # @api private
@@ -406,14 +410,12 @@ module Sevgi
         mixture :Render
         mixture :Wrappers
 
-        class << self
-          # Returns the nearest immutable profile metadata in the class hierarchy.
-          # @return [Sevgi::Graphics::Document::Profile, nil] nearest profile, or nil when no ancestor is configured
-          def profile
-            return @profile if instance_variable_defined?(:@profile)
+        # Returns the nearest immutable profile metadata in the class hierarchy.
+        # @return [Sevgi::Graphics::Document::Profile, nil] nearest profile, or nil when no ancestor is configured
+        def self.profile
+          return @profile if instance_variable_defined?(:@profile)
 
-            superclass.profile if superclass.respond_to?(:profile)
-          end
+          superclass.profile if superclass.respond_to?(:profile)
         end
 
         # Renders this document after its optional pre-render checks.

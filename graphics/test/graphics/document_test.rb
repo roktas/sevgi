@@ -327,7 +327,7 @@ module Sevgi
         current = Document.define(name, attributes: {fill: "red"})
         before = Document.keys
 
-        [nil, 0, "false", :true].each do |overwrite|
+        [nil, 0, "false", :enabled].each do |overwrite|
           value = MutableValue.new("blue")
           error = assert_raises(Sevgi::ArgumentError) do
             Document.define(name, attributes: {fill: value}, overwrite:)
