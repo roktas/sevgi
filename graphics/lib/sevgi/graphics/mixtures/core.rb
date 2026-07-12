@@ -237,10 +237,15 @@ module Sevgi
         # @yieldreturn [Object] ignored block result
         # @return [Sevgi::Graphics::Element] self
         # @raise [Sevgi::ArgumentError] when no block is given
+        # @raise [Sevgi::ArgumentError] when receiver is not an element or has no parent
         def With(*args, receiver: self, **kwargs, &block)
           ArgumentError.("Block required") unless block
+          ArgumentError.("Receiver must be an element") unless receiver.is_a?(Element)
 
-          tap { receiver.parent.instance_exec(*args, **kwargs, &block) }
+          parent = receiver.parent
+          ArgumentError.("Receiver has no parent") unless parent
+
+          tap { parent.instance_exec(*args, **kwargs, &block) }
         end
 
         # Evaluates a block in this element context.

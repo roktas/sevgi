@@ -475,6 +475,27 @@ module Sevgi
           assert_equal(["value", true], received)
         end
 
+        def test_with_rejects_parentless_receiver
+          root = SVG(id: "root")
+          detached = root.g(id: "detached").tap(&:Orphan)
+
+          [root, detached].each do |receiver|
+            error = assert_raises(ArgumentError) { receiver.With() { flunk } }
+
+            assert_equal("Receiver has no parent", error.message)
+          end
+        end
+
+        def test_with_rejects_invalid_receiver
+          element = SVG(id: "root").g
+
+          [nil, false].each do |receiver|
+            error = assert_raises(ArgumentError) { element.With(receiver:) { flunk } }
+
+            assert_equal("Receiver must be an element", error.message)
+          end
+        end
+
         def test_within_executes_block_in_element_context
           doc = SVG(id: "main") do
             g(id: "group").Within() { line(id: "child") }
