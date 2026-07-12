@@ -24,15 +24,31 @@ module Sevgi
         invalid(context, field, value)
       end
 
-      # Validates and preserves one finite real value.
+      # Converts one finite real value to an SVG number.
       # @param value [Numeric] value to validate
       # @param context [String] error context
       # @param field [Symbol, Integer] field name or position
-      # @return [Numeric] original value
+      # @param positive [Boolean] require a strictly positive value
+      # @param nonnegative [Boolean] require a non-negative value
+      # @return [Integer, Float] normalized number with integral values represented as Integer
       # @raise [Sevgi::ArgumentError] when value is not a finite real number
-      def self.validate(value, context:, field:)
-        finite(value, context:, field:)
-        value
+      def self.number(value, context:, field:, positive: false, nonnegative: false)
+        if value.is_a?(::Integer)
+          invalid(context, field, value) unless valid?(value, positive:, nonnegative:)
+          return value
+        end
+
+        value = finite(value, context:, field:, positive:, nonnegative:)
+        value == value.to_i ? value.to_i : value
+      end
+
+      # Converts indexed finite real values to SVG numbers.
+      # @param values [Array<Numeric>] values to normalize
+      # @param context [String] error context
+      # @return [Array<(Integer, Float)>] normalized SVG numbers
+      # @raise [Sevgi::ArgumentError] when a value is not a finite real number
+      def self.numbers(values, context:)
+        values.each_with_index.map { |value, index| number(value, context:, field: index) }
       end
 
       def self.real?(value) = value.is_a?(::Numeric) && !value.is_a?(::Complex)

@@ -50,17 +50,17 @@ module Sevgi
         end
 
         # Builds a relative line path from angle and length.
-        # @param angle [Numeric] finite angle in degrees
-        # @param length [Numeric] finite line length
-        # @param x [Numeric] finite starting x coordinate
-        # @param y [Numeric] finite starting y coordinate
+        # @param angle [Numeric] finite angle in degrees, normalized before calculation
+        # @param length [Numeric] finite line length, normalized before calculation
+        # @param x [Numeric] finite starting x coordinate, normalized to an SVG number
+        # @param y [Numeric] finite starting y coordinate, normalized to an SVG number
         # @return [Sevgi::Graphics::Element] path element
         # @raise [Sevgi::ArgumentError] when an operand is not a finite real number
         def LineBy(angle:, length:, x: 0, y: 0, **)
-          Scalar.validate(angle, context: "relative line", field: :angle)
-          Scalar.validate(length, context: "relative line", field: :length)
-          Scalar.validate(x, context: "relative line", field: :x)
-          Scalar.validate(y, context: "relative line", field: :y)
+          angle = Scalar.number(angle, context: "relative line", field: :angle)
+          length = Scalar.number(length, context: "relative line", field: :length)
+          x = Scalar.number(x, context: "relative line", field: :x)
+          y = Scalar.number(y, context: "relative line", field: :y)
 
           dx = length * ::Math.cos(angle.to_f / 180 * ::Math::PI)
           dy = length * ::Math.sin(angle.to_f / 180 * ::Math::PI)

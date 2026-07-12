@@ -117,7 +117,7 @@ module Sevgi
           # @return [Array<Hash{Symbol => Object}>] page attribute hashes
           # @raise [Sevgi::ArgumentError] when a count, dimension, or gap is invalid
           def self.tabular(rows:, cols:, width:, height:, gap:)
-            validate_grid(rows:, cols:, width:, height:, gap:)
+            width, height, gap = normalize_grid(rows:, cols:, width:, height:, gap:)
 
             rows.times.flat_map do |row|
               cols.times.map do |col|
@@ -136,9 +136,9 @@ module Sevgi
           def self.normalize(attributes, defaults, index)
             ArgumentError.("Page #{index + 1} must be a Hash") unless attributes.is_a?(::Hash)
             attributes = defaults.merge(attributes)
-            %i[x y].each { Scalar.validate(value(attributes, it, index), context: "page", field: it) }
+            %i[x y].each { number(attributes, it, index) }
             %i[width height].each do |field|
-              Scalar.finite(value(attributes, field, index), context: "page", field:, positive: true)
+              number(attributes, field, index, positive: true)
             end
 
             identify(attributes, index)
@@ -167,23 +167,33 @@ module Sevgi
             end
           end
 
-          # Validates page-grid arguments.
-          # @return [void]
+          # Validates and normalizes page-grid arguments.
+          # @return [Array<(Integer, Float)>] normalized width, height, and gap
           # @raise [Sevgi::ArgumentError] when a count, dimension, or gap is invalid
           # @api private
-          def self.validate_grid(rows:, cols:, width:, height:, gap:)
+          def self.normalize_grid(rows:, cols:, width:, height:, gap:)
             {rows:, cols:}.each do |field, count|
               unless count.is_a?(::Integer) && count.positive?
                 ArgumentError.("Page #{field} must be a positive Integer")
               end
             end
 
-            Scalar.finite(width, context: "page", field: :width, positive: true)
-            Scalar.finite(height, context: "page", field: :height, positive: true)
-            Scalar.finite(gap, context: "page", field: :gap, nonnegative: true)
+            [
+              Scalar.number(width, context: "page", field: :width, positive: true),
+              Scalar.number(height, context: "page", field: :height, positive: true),
+              Scalar.number(gap, context: "page", field: :gap, nonnegative: true)
+            ]
           end
 
-          private_class_method :identify, :normalize, :validate_grid, :value
+          # Replaces one page field with its normalized SVG number.
+          # @return [Integer, Float] normalized number
+          # @api private
+          def self.number(attributes, field, index, **range)
+            key = attributes.key?(field) ? field : field.to_s
+            attributes[key] = Scalar.number(value(attributes, field, index), context: "page", field:, **range)
+          end
+
+          private_class_method :identify, :normalize, :normalize_grid, :number, :value
         end
 
         private_constant :Pagination
@@ -195,7 +205,7 @@ module Sevgi
         #     namedview: {id: "views"},
         #     page: {class: "print"}
         #   )
-        # @param pages [Array<Hash>] page attribute hashes
+        # @param pages [Array<Hash>] page attribute hashes; numeric page fields are normalized to SVG numbers
         # @param namedview [Hash] attributes shared by the namedview element
         # @param page [Hash] default attributes merged into every page
         # @yield [page] customizes each generated page element
@@ -213,9 +223,9 @@ module Sevgi
         #   )
         # @param rows [Integer] number of rows
         # @param cols [Integer] number of columns
-        # @param width [Numeric] page width
-        # @param height [Numeric] page height
-        # @param gap [Numeric] gap between pages
+        # @param width [Numeric] finite positive page width, normalized to an SVG number
+        # @param height [Numeric] finite positive page height, normalized to an SVG number
+        # @param gap [Numeric] finite non-negative gap, normalized to an SVG number
         # @param namedview [Hash] attributes shared by the namedview element
         # @param page [Hash] default attributes merged into every page
         # @yield [page] customizes each generated page element

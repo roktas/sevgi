@@ -17,6 +17,7 @@ group :sevgi do
 end
 
 group :test, :development do
+  gem "bigdecimal"
   gem "bundler", "~> 4.0"
   gem "cairo"
   gem "hexapdf", "~> 1.5"

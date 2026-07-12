@@ -11,11 +11,11 @@ module Sevgi
         # Builds a two-dimensional tile grid.
         # @param id [String] referenced template id
         # @param nx [Integer] number of columns
-        # @param dx [Numeric] finite horizontal spacing
-        # @param ox [Numeric] finite horizontal offset
+        # @param dx [Numeric] finite horizontal spacing, normalized before coordinates are rendered
+        # @param ox [Numeric] finite horizontal offset, normalized before coordinates are rendered
         # @param ny [Integer] number of rows
-        # @param dy [Numeric] finite vertical spacing
-        # @param oy [Numeric] finite vertical offset
+        # @param dy [Numeric] finite vertical spacing, normalized before coordinates are rendered
+        # @param oy [Numeric] finite vertical offset, normalized before coordinates are rendered
         # @param proc [Proc, nil] optional coordinate/customization proc
         # @yield evaluates the template drawing DSL in a generated group
         # @yieldreturn [Object] ignored block result
@@ -32,7 +32,9 @@ module Sevgi
           proc: nil,
           &block
         )
-          Helper.assert(id:, nx:, dx:, ox:, ny:, dy:, oy:, proc:)
+          id, nx, dx, ox, ny, dy, oy, proc = Helper
+            .normalize(id:, nx:, dx:, ox:, ny:, dy:, oy:, proc:)
+            .values_at(:id, :nx, :dx, :ox, :ny, :dy, :oy, :proc)
 
           href, coords = id, proc do |x, y|
             # rubocop:disable Style/NestedTernaryOperator
@@ -54,7 +56,10 @@ module Sevgi
                   id: [href, y + 1, x + 1].join("-"),
                   href: "##{href}",
                   class: [*rs, *cs].join(" "),
-                  **coords.((x * dx) + ox, (y * dy) + oy)
+                  **coords.(
+                    Scalar.number((x * dx) + ox, context: "tile", field: :x),
+                    Scalar.number((y * dy) + oy, context: "tile", field: :y)
+                  )
                 )
                 proc&.call(element, x:, y:, nx:, ny:)
               end
@@ -65,15 +70,15 @@ module Sevgi
         # Builds a one-dimensional horizontal tile row.
         # @param id [String] referenced template id
         # @param n [Integer] number of instances
-        # @param d [Numeric] finite horizontal spacing
-        # @param o [Numeric] finite horizontal offset
+        # @param d [Numeric] finite horizontal spacing, normalized before coordinates are rendered
+        # @param o [Numeric] finite horizontal offset, normalized before coordinates are rendered
         # @param proc [Proc, nil] optional coordinate/customization proc
         # @yield evaluates the template drawing DSL in a generated group
         # @yieldreturn [Object] ignored block result
         # @return [Sevgi::Graphics::Element] self
         # @raise [Sevgi::ArgumentError] when a required tile argument is missing or invalid
         def TileX(id = Undefined, n: Undefined, d: Undefined, o: 0, proc: nil, &block)
-          Helper.assert(id:, n:, d:, o:, proc:)
+          id, n, d, o, proc = Helper.normalize(id:, n:, d:, o:, proc:).values_at(:id, :n, :d, :o, :proc)
 
           href, coords = id, proc do |x|
             # for pretty kwargs handling
@@ -90,7 +95,7 @@ module Sevgi
                 id: [href, x + 1].join("-"),
                 href: "##{href}",
                 class: cs.join(" "),
-                **coords.((x * d) + o)
+                **coords.(Scalar.number((x * d) + o, context: "tile", field: :x))
               )
               proc&.call(element, x:, n:)
             end
@@ -100,15 +105,15 @@ module Sevgi
         # Builds a one-dimensional vertical tile column.
         # @param id [String] referenced template id
         # @param n [Integer] number of instances
-        # @param d [Numeric] finite vertical spacing
-        # @param o [Numeric] finite vertical offset
+        # @param d [Numeric] finite vertical spacing, normalized before coordinates are rendered
+        # @param o [Numeric] finite vertical offset, normalized before coordinates are rendered
         # @param proc [Proc, nil] optional coordinate/customization proc
         # @yield evaluates the template drawing DSL in a generated group
         # @yieldreturn [Object] ignored block result
         # @return [Sevgi::Graphics::Element] self
         # @raise [Sevgi::ArgumentError] when a required tile argument is missing or invalid
         def TileY(id = Undefined, n: Undefined, d: Undefined, o: 0, proc: nil, &block)
-          Helper.assert(id:, n:, d:, o:, proc:)
+          id, n, d, o, proc = Helper.normalize(id:, n:, d:, o:, proc:).values_at(:id, :n, :d, :o, :proc)
 
           href, coords = id, proc do |y|
             # for pretty kwargs handling
@@ -125,7 +130,7 @@ module Sevgi
                 id: [href, y + 1].join("-"),
                 href: "##{href}",
                 class: rs.join(" "),
-                **coords.((y * d) + o)
+                **coords.(Scalar.number((y * d) + o, context: "tile", field: :y))
               )
               proc&.call(element, y:, n:)
             end
@@ -137,12 +142,7 @@ module Sevgi
         module Helper
           extend self
 
-          finite = proc do |name, value|
-            Scalar.validate(value, context: "tile", field: name)
-            nil
-          rescue ::Sevgi::ArgumentError
-            "Argument '#{name}' must be a finite real number"
-          end
+          FINITE = %i[d dx dy o ox oy].freeze
 
           # Argument validators for tile helpers.
           ASSERTION = {
@@ -150,12 +150,6 @@ module Sevgi
             n: proc { |name, value| positive_integer_issue(name, value) },
             nx: proc { |name, value| positive_integer_issue(name, value) },
             ny: proc { |name, value| positive_integer_issue(name, value) },
-            d: finite,
-            dx: finite,
-            dy: finite,
-            o: finite,
-            ox: finite,
-            oy: finite,
             proc: proc { |name, value| "Argument '#{name}' must be a proc" unless value.nil? || value.is_a?(::Proc) }
           }.freeze
 
@@ -167,21 +161,29 @@ module Sevgi
             "Argument '#{name}' must be a positive integer" unless value.is_a?(::Integer) && value.positive?
           end
 
-          # Validates tile arguments.
+          # Validates and normalizes tile arguments.
           # @param kwargs [Hash] tile arguments
-          # @return [nil]
+          # @return [Hash] independent arguments with spacing and offsets normalized to SVG numbers
           # @raise [Sevgi::ArgumentError] when an argument is missing or invalid
-          def assert(**kwargs)
-            kwargs.each do |name, value|
-              issue = "Argument '#{name}' required" if value == Undefined
-
-              unless issue
-                next unless (assertion = ASSERTION[name])
-                next unless (issue = assertion.call(name, value))
-              end
-
-              ArgumentError.(issue)
+          def normalize(**kwargs)
+            kwargs.to_h do |name, value|
+              ArgumentError.("Argument '#{name}' required") if value == Undefined
+              [name, normalize_value(name, value)]
             end
+          end
+
+          def normalize_value(name, value)
+            return number(name, value) if FINITE.include?(name)
+            return value unless (assertion = ASSERTION[name])
+            return value unless (issue = assertion.call(name, value))
+
+            ArgumentError.(issue)
+          end
+
+          def number(name, value)
+            Scalar.number(value, context: "tile", field: name)
+          rescue ::Sevgi::ArgumentError
+            ArgumentError.("Argument '#{name}' must be a finite real number")
           end
 
           # Returns positional tile CSS classes.
@@ -196,6 +198,8 @@ module Sevgi
               classes << "#{PREFIX}-#{as}-last" if index + 1 == upper
             end
           end
+
+          private :normalize_value, :number
         end
 
         private_constant :Helper

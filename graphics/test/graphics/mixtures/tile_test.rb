@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "../../test_helper"
+require "bigdecimal"
 
 module Sevgi
   module Graphics
@@ -109,6 +110,26 @@ module Sevgi
             .Render()
 
           assert_equal(expected, actual)
+        end
+
+        def test_tile_renders_normalized_svg_numbers
+          actual = SVG(DOC) do
+            rect(id: "rect")
+            Tile(
+              "rect",
+              nx: 2,
+              dx: Rational(1, 2),
+              ox: BigDecimal("0.5"),
+              ny: 2,
+              dy: BigDecimal("1.5"),
+              oy: Rational(1, 2)
+            )
+          end
+            .Render()
+
+          assert_match(/id="rect-1-2"[^>]* x="1"/, actual)
+          assert_match(/id="rect-2-1"[^>]* y="2"/, actual)
+          refute_match(%r{(?:1/2|0\.\d+e\d+)}, actual)
         end
 
         def test_tile_reuses_existing_element

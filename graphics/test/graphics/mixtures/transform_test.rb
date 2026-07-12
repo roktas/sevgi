@@ -1,11 +1,21 @@
 # frozen_string_literal: true
 
 require_relative "../../test_helper"
+require "bigdecimal"
 
 module Sevgi
   module Graphics
     module Mixtures
       class TransformTest < Minitest::Test
+        Number = Class.new(::Numeric) do
+          def initialize(value)
+            super()
+            @value = value
+          end
+
+          def to_f = @value.to_f
+        end
+
         def test_transform_methods_append_operations
           element = SVG do
             rect
@@ -36,6 +46,26 @@ module Sevgi
             .first
 
           assert_equal("scale(0) matrix(0 0 0 0 0 0)", element[:transform])
+        end
+
+        def test_transforms_render_normalized_svg_numbers
+          element = SVG do
+            rect
+              .Rotate(Rational(1, 2), BigDecimal("1"), Number.new(2))
+              .Scale(BigDecimal("1.5"), Rational(2, 1))
+              .SkewX(Rational(1, 2))
+              .SkewY(BigDecimal("1.5"))
+              .Translate(Number.new(2), Rational(1, 2))
+              .Matrix(9_007_199_254_740_993, 0.0, Rational(1, 2), BigDecimal("1.5"), Number.new(2), 0)
+          end
+            .children
+            .first
+
+          assert_equal(
+            "rotate(0.5, 1, 2) scale(1.5, 2) skewX(0.5) skewY(1.5) " \
+              "translate(2 0.5) matrix(9007199254740993 0 0.5 1.5 2 0)",
+            element[:transform]
+          )
         end
 
         def test_transform_methods_skip_identity_operations
@@ -110,7 +140,7 @@ module Sevgi
             .children
             .first
 
-          assert_equal("translate(5.0 15.0)", element[:transform])
+          assert_equal("translate(5 15)", element[:transform])
         end
 
         def test_flip_y_scales_y_axis_by_negative_one

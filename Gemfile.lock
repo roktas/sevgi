@@ -63,6 +63,7 @@ GEM
       public_suffix (>= 2.0.2, < 8.0)
     ansi (1.6.0)
     ast (2.4.3)
+    bigdecimal (4.1.2)
     builder (3.3.0)
     cairo (1.18.5)
       pkg-config (>= 1.2.2)
@@ -218,6 +219,7 @@ PLATFORMS
   x86_64-linux-musl
 
 DEPENDENCIES
+  bigdecimal
   bundler (~> 4.0)
   cairo
   hexapdf (~> 1.5)
@@ -247,6 +249,7 @@ CHECKSUMS
   addressable (2.9.0) sha256=7fdf6ac3660f7f4e867a0838be3f6cf722ace541dd97767fa42bc6cfa980c7af
   ansi (1.6.0) sha256=ac9ea0c0ea8d32fb4e271348e609963ac78882f34b73836c2a02b3622e666658
   ast (2.4.3) sha256=954615157c1d6a382bc27d690d973195e79db7f55e9765ac7c481c60bdb4d383
+  bigdecimal (4.1.2) sha256=53d217666027eab4280346fba98e7d5b66baaae1b9c3c1c0ffe89d48188a3fbd
   builder (3.3.0) sha256=497918d2f9dca528fdca4b88d84e4ef4387256d984b8154e9d5d3fe5a9c8835f
   bundler (4.0.11) sha256=5bcec0fb78302e48d02ee46f10ee6e6942be647ba5b44a6d1ddfda9a240ce785
   cairo (1.18.5) sha256=e57356141c91748061b10260e185735bd6e2288ab81ab300a6de3adfa270a623

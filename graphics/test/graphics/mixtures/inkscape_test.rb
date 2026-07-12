@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "../../test_helper"
+require "bigdecimal"
 
 module Sevgi
   module Graphics
@@ -116,6 +117,30 @@ module Sevgi
             /class="sheet"/
           ].each { |pattern| assert_match(pattern, actual) }
           assert_same(doc.children.first, result)
+        end
+
+        def test_pages_render_normalized_svg_numbers
+          doc = SVG(:inkscape)
+          doc.Pages(
+            {
+              x: Rational(1, 2),
+              y: BigDecimal("1.5"),
+              width: Rational(2, 1),
+              height: BigDecimal("3")
+            }
+          )
+          doc.PagesTabular(
+            rows: 1,
+            cols: 2,
+            width: Rational(3, 2),
+            height: BigDecimal("2"),
+            gap: Rational(1, 2)
+          )
+
+          actual = doc.Render()
+          assert_match(/x="0.5" y="1.5" width="2" height="3"/, actual)
+          assert_match(/id="pageview-1x2" x="2" y="0" width="1.5" height="2"/, actual)
+          refute_match(%r{(?:1/2|0\.\d+e\d+)}, actual)
         end
 
         def test_pages_rejects_invalid_inputs_atomically

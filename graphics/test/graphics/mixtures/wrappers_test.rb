@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "../../test_helper"
+require "bigdecimal"
 
 module Sevgi
   module Graphics
@@ -44,6 +45,21 @@ module Sevgi
             assert_raises(Sevgi::ArgumentError) { document.LineBy(**arguments) }
             assert_empty(document.children)
           end
+        end
+
+        def test_line_by_renders_normalized_svg_numbers
+          actual = SVG(DOC) do
+            LineBy(
+              angle: Rational(0, 1),
+              length: BigDecimal("2"),
+              x: Rational(1, 2),
+              y: BigDecimal("1.5")
+            )
+          end
+            .Render()
+
+          assert_match(/d="M 0.5 1.5 l 2.0 0.0"/, actual)
+          refute_match(%r{(?:1/2|0\.\d+e\d+)}, actual)
         end
 
         def test_shape_and_symbol_wrappers_build_elements
