@@ -29,6 +29,22 @@ module Sevgi
             node.lines
           )
         end
+
+        def test_hatch_preserves_geometry_error_channels
+          node = Node.new
+
+          assert_raises(Geometry::Operation::OperationInapplicableError) do
+            node.Hatch(Object.new, angle: 0, step: 1)
+          end
+
+          assert_raises(Geometry::Error) do
+            node.Hatch(Geometry::Rect[2, 4], angle: 0, step: 0)
+          end
+
+          assert_raises(Geometry::Operation::OperationError) do
+            node.Hatch(Geometry::Polyline.([0, 0], [1, 0]), angle: 0, step: 1)
+          end
+        end
       end
     end
   end

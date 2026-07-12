@@ -177,6 +177,24 @@ module Sevgi
             Sundries::Export.stub(:call, failure) { SVG(:minimal).PDF("out.pdf") }
           end
         end
+
+        def test_exports_reject_unknown_options_before_render
+          require "sevgi/sundries"
+
+          document = SVG(:minimal)
+          rendered = false
+          exported = false
+
+          document.stub(:call, -> { rendered = true }) do
+            Sundries::Export.stub(:call, -> (*) { exported = true }) do
+              assert_raises(Sevgi::ArgumentError) { document.PDF("out.pdf", typo: true) }
+              assert_raises(Sevgi::ArgumentError) { document.PNG("out.png", typo: true) }
+            end
+          end
+
+          refute(rendered)
+          refute(exported)
+        end
       end
     end
   end

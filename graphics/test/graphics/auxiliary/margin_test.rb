@@ -18,6 +18,13 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
+      def test_margin_adjust_rejects_invalid_results
+        margin = Margin[1, 2, 3, 4]
+
+        assert_raises(Sevgi::ArgumentError) { margin.adjust(-3, 0) }
+        assert_raises(Sevgi::ArgumentError) { margin.adjust(0, Float::INFINITY) }
+      end
+
       def test_margin_comparison_rejects_incompatible_objects
         smaller = Margin[1, 2, 3, 4]
         larger = Margin[5, 6, 7, 8]

@@ -424,8 +424,11 @@ module Sevgi
         #   document.call(lint: false, style: :inline)
         # @param options [Hash] `lint` and `validate` check switches plus renderer options accepted by
         #   {Sevgi::Graphics::Mixtures::Render#Render}
+        # @option options [Boolean] :lint (true) run document lint checks
+        # @option options [Boolean] :validate (true) run SVG standard validation
         # @return [String] SVG document source
         # @raise [Sevgi::ArgumentError] when an option or XML-bound value is invalid
+        # @see Sevgi::Graphics::Mixtures::Render#Render
         def call(**options)
           checks = DEFAULTS.merge(options.select { |key, _| DEFAULTS.key?(key) })
           self.PreRender(**checks) if respond_to?(:PreRender)

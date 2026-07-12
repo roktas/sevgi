@@ -21,6 +21,8 @@ module Sevgi
 
         # Runs pre-render validation and lint checks.
         # @param options [Hash] pre-render options
+        # @option options [Boolean] :validate run SVG standard validation
+        # @option options [Boolean] :lint run document lint checks
         # @return [void]
         # @raise [Sevgi::ValidationError] when validation fails
         # @raise [Sevgi::Graphics::LintError] when linting fails

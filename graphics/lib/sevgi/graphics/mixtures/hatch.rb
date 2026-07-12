@@ -14,13 +14,16 @@ module Sevgi
         end
 
         # Draws hatch lines swept through a geometry element.
-        # @param element [Object] geometry element responding to position
+        # @param element [Sevgi::Geometry::Element::Lined] lined geometry element to sweep
         # @param angle [Numeric] hatch angle in degrees
         # @param step [Numeric] distance between hatch lines
-        # @param initial [Object, nil] initial point for the sweep
+        # @param initial [Sevgi::Geometry::Point, Array<Numeric>, nil] initial sweep point, or nil for element.position
         # @param kwargs [Hash] SVG attributes passed to each draw call
         # @return [Array<Sevgi::Graphics::Element>] rendered line elements
         # @raise [Sevgi::MissingComponentError] when sevgi/geometry is unavailable
+        # @raise [Sevgi::Geometry::Operation::OperationInapplicableError] when element is not sweepable
+        # @raise [Sevgi::Geometry::Error] when initial, angle, or step is invalid
+        # @raise [Sevgi::Geometry::Operation::OperationError] when no hatch lines are found or iteration reaches the limit
         def Hatch(element, angle:, step:, initial: nil, **kwargs)
           begin
             require "sevgi/geometry"
@@ -31,7 +34,8 @@ module Sevgi
             MissingComponentError.("sevgi/geometry")
           end
 
-          Draw(Geometry::Operation.sweep!(element, initial: initial || element.position, angle:, step:), **kwargs)
+          initial = element.position if initial.nil? && element.is_a?(Geometry::Element::Lined)
+          Draw(Geometry::Operation.sweep!(element, initial:, angle:, step:), **kwargs)
         end
       end
     end

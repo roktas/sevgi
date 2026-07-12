@@ -51,6 +51,7 @@ module Sevgi
       # @param h [Numeric] horizontal addition
       # @param v [Numeric] vertical addition
       # @return [Sevgi::Graphics::Margin]
+      # @raise [Sevgi::ArgumentError] when the adjusted margin is negative or not finite
       def adjust(h, v) = self.class[top + v, right + h, bottom + v, left + h]
 
       # Reports strict margin equality.

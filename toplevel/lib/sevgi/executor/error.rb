@@ -6,11 +6,13 @@ module Sevgi
     class CycleError < ::Sevgi::Error
     end
 
-    # Wraps an exception raised while executing Sevgi script source.
+    # Wraps an exception raised while executing Sevgi script source. Its visited source snapshot records every source in
+    # load order; it is not the active load stack at the instant of failure.
     class Error < ::Sevgi::Error
       # Builds an executor error wrapper.
       # @param error [Exception] original exception
-      # @param stack [Array<String>] visited source file keys; the Array and its String entries are copied and frozen
+      # @param stack [Array<String>] source file keys visited in load order; the Array and its String entries are copied
+      #   and frozen
       # @return [void]
       def initialize(error, stack)
         @cause = error
@@ -19,7 +21,7 @@ module Sevgi
         super(error.message)
       end
 
-      # Returns backtrace entries that belong to the captured Sevgi load stack.
+      # Returns backtrace entries that belong to the visited Sevgi source set.
       # @return [Array<String>] filtered backtrace lines relative to the current directory, or an empty Array when the
       #   original exception has no backtrace
       def load_backtrace

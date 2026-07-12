@@ -39,6 +39,20 @@ module Sevgi
       "Sevgi::Toplevel#Paper!" => [[%w[width height name unit], %w[Symbol String]]],
       "Sevgi::Geometry::Segment.horizontal" => [[%w[length], ["Sevgi::Geometry::Segment"]]],
       "Sevgi::Geometry::Segment.vertical" => [[%w[length], ["Sevgi::Geometry::Segment"]]],
+      "Sevgi::Geometry::LengthAngle.[]" => [[%w[length angle], ["Sevgi::Geometry::LengthAngle"]]],
+      "Sevgi::Geometry::Point.[]" => [[%w[x y], ["Sevgi::Geometry::Point"]]],
+      "Sevgi::Geometry::Segment.[]" => [[%w[length angle], ["Sevgi::Geometry::Segment"]]],
+      "Sevgi::Graphics::Margin.[]" => [[%w[top right bottom left], ["Sevgi::Graphics::Margin"]]],
+      "Sevgi::Graphics::Margin#adjust" => [[%w[h v], ["Sevgi::Graphics::Margin"]]],
+      "Sevgi::Graphics::Mixtures::Export#PDF" => [[%w[path kwargs], ["String"]]],
+      "Sevgi::Graphics::Mixtures::Export#PNG" => [[%w[path kwargs], ["String"]]],
+      "Sevgi::Graphics::Mixtures::Hatch#Hatch" => [
+        [%w[element angle step initial kwargs], ["Array<Sevgi::Graphics::Element>"]]
+      ],
+      "Sevgi::Graphics::Mixtures::Save#Out" => [[%w[kwargs], ["nil"]]],
+      "Sevgi::Graphics::Mixtures::Save#Save" => [[%w[path default backup_suffix kwargs], %w[String nil]]],
+      "Sevgi::Graphics::Mixtures::Save#Write" => [[%w[path kwargs], %w[String nil]]],
+      "Sevgi::Graphics::Paper.[]" => [[%w[width height unit name], ["Sevgi::Graphics::Paper"]]],
       "Sevgi::Graphics::Mixtures::Render#Render" => [[%w[options], ["String"]]],
       "Sevgi::Derender::Node#content" => [[[], ["String"]]],
       "Sevgi::Derender::Node#namespaces" => [[[], ["Hash{String => String}"]]],
@@ -46,6 +60,66 @@ module Sevgi
       "Sevgi::Executor::Result#value" => [[[], %w[Object nil]]],
       "Sevgi::Executor::Result#error" => [[[], ["Sevgi::Executor::Error", "nil"]]],
       "Sevgi::Executor::Result#stack" => [[[], ["Array<String>"]]]
+    }.freeze
+    SEMANTICS = {
+      "Sevgi::Executor::Error" => {
+        phrases: ["visited source", "not the active load stack"]
+      },
+      "Sevgi::Graphics::Margin#adjust" => {
+        raises: ["Sevgi::ArgumentError"]
+      },
+      "Sevgi::Graphics::Mixtures::Export#PDF" => {
+        options: {
+          "css" => %w[String nil],
+          "default" => ["String", "#to_path", "nil"],
+          "dpi" => ["Numeric"],
+          "height" => %w[Numeric nil],
+          "width" => %w[Numeric nil]
+        },
+        raises: [
+          "Sevgi::ArgumentError",
+          "Sevgi::MissingComponentError",
+          "Sevgi::MissingComponentError",
+          "Sevgi::Sundries::Export::ExportError",
+          "SystemCallError"
+        ]
+      },
+      "Sevgi::Graphics::Mixtures::Export#PNG" => {
+        options: {
+          "css" => %w[String nil],
+          "default" => ["String", "#to_path", "nil"],
+          "dpi" => ["Numeric"],
+          "height" => %w[Numeric nil],
+          "width" => %w[Numeric nil]
+        },
+        raises: [
+          "Sevgi::ArgumentError",
+          "Sevgi::MissingComponentError",
+          "Sevgi::MissingComponentError",
+          "Sevgi::Sundries::Export::ExportError",
+          "SystemCallError"
+        ]
+      },
+      "Sevgi::Graphics::Mixtures::Hatch#Hatch" => {
+        raises: [
+          "Sevgi::MissingComponentError",
+          "Sevgi::Geometry::Operation::OperationInapplicableError",
+          "Sevgi::Geometry::Error",
+          "Sevgi::Geometry::Operation::OperationError"
+        ]
+      },
+      "Sevgi::Graphics::Mixtures::Save#Out" => {
+        raises: ["Sevgi::ArgumentError"],
+        sees: ["Sevgi::Graphics::Document::Proto#call"]
+      },
+      "Sevgi::Graphics::Mixtures::Save#Save" => {
+        raises: ["Sevgi::ArgumentError", "SystemCallError"],
+        sees: ["Sevgi::Graphics::Document::Proto#call"]
+      },
+      "Sevgi::Graphics::Mixtures::Save#Write" => {
+        raises: ["Sevgi::ArgumentError", "SystemCallError"],
+        sees: ["Sevgi::Graphics::Document::Proto#call"]
+      }
     }.freeze
     PUBLIC_CONSTANTS = %w[
       Sevgi::F
@@ -186,6 +260,19 @@ module Sevgi
         end
 
         assert_equal(expected, actual, path)
+      end
+    end
+
+    def test_semantic_contracts_are_exact
+      SEMANTICS.each do |path, contract|
+        object = yard(path)
+        contract.each do |facet, expected|
+          if facet == :phrases
+            expected.each { assert_includes(object.docstring.to_s, it, path) }
+          else
+            assert_equal(expected, semantic_value(object, facet), "#{path} #{facet}")
+          end
+        end
       end
     end
 
@@ -446,6 +533,17 @@ module Sevgi
       %i[public protected private].find { owner.public_send("#{it}_method_defined?", object.name) }
     rescue NameError
       nil
+    end
+
+    def semantic_value(object, facet)
+      case facet
+      when :options
+        object.tags(:option).to_h { [it.pair.name.delete_prefix(":"), it.pair.types || []] }
+      when :raises
+        object.tags(:raise).flat_map { it.types || [] }
+      when :sees
+        object.tags(:see).map(&:name)
+      end
     end
 
     def visibility_error(object)

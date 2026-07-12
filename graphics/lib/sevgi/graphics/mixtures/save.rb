@@ -39,9 +39,10 @@ module Sevgi
         private_constant :Writer
 
         # Writes rendered SVG to standard output.
-        # @param kwargs [Hash] render options
+        # @param kwargs [Hash] pre-render and renderer options accepted by {Sevgi::Graphics::Document::Proto#call}
         # @return [nil]
         # @raise [Sevgi::ArgumentError] when rendering fails
+        # @see Sevgi::Graphics::Document::Proto#call
         def Out(**kwargs)
           F.out(self.(**kwargs))
         end
@@ -56,13 +57,14 @@ module Sevgi
         # @param path [String, #to_path, nil] output path or existing directory
         # @param default [String, #to_path, nil] default output path
         # @param backup_suffix [String, nil] suffix used for an existing-file backup
-        # @param kwargs [Hash] render options
+        # @param kwargs [Hash] pre-render and renderer options accepted by {Sevgi::Graphics::Document::Proto#call}
         # @yield [content] optionally normalizes old and new content for change detection
         # @yieldparam content [String] old or new SVG source
         # @yieldreturn [String] normalized SVG source
         # @return [String, nil] expanded path when written, or nil when unchanged
         # @raise [Sevgi::ArgumentError] when a selected path/default is blank or invalid, or rendering fails
         # @raise [SystemCallError] when the destination or backup cannot be created, read, or written
+        # @see Sevgi::Graphics::Document::Proto#call
         def Save(path = nil, default: nil, backup_suffix: nil, **kwargs, &filter)
           default = F.subext(EXT, caller_locations(1..1).first.path) if default.nil?
           path = Path.resolve(path, default:, context: "Save")
@@ -74,13 +76,14 @@ module Sevgi
         # Missing parent directories are created. Unlike {#Save}, a directory is not treated as a request for a default
         # file name.
         # @param path [String, #to_path] output file path
-        # @param kwargs [Hash] render options
+        # @param kwargs [Hash] pre-render and renderer options accepted by {Sevgi::Graphics::Document::Proto#call}
         # @yield [content] optionally normalizes old and new content for change detection
         # @yieldparam content [String] old or new SVG source
         # @yieldreturn [String] normalized SVG source
         # @return [String, nil] expanded path when written, or nil when unchanged
         # @raise [Sevgi::ArgumentError] when path is blank, invalid, or an existing directory, or rendering fails
         # @raise [SystemCallError] when the destination cannot be read or written
+        # @see Sevgi::Graphics::Document::Proto#call
         def Write(path, **kwargs, &filter)
           path = Path.(path, context: "Write path")
           ArgumentError.("Write path must name a file") if ::File.directory?(path)
