@@ -30,7 +30,7 @@ module Sevgi
             ArgumentError.("Defs attributes must be a Hash") unless attributes.is_a?(::Hash)
             ArgumentError.("Symbol ids must respond to call") if ids && !ids.respond_to?(:call)
 
-            attributes = attributes.merge(id: F.demodulize(@mod).to_sym) unless attributes.key?(:id)
+            attributes = Attribute.defaults(attributes, id: F.demodulize(@mod).to_sym)
             @args, @kwargs, @block = args, kwargs, block
             @receiver.defs(**attributes).tap { populate(it, methods, ids) }
           end
@@ -69,7 +69,7 @@ module Sevgi
         # @param args [Array<Object>] callable arguments
         # Base blocks run once in the defs element before symbols are created. Positional arguments, keyword arguments,
         # and the block are forwarded to each callable.
-        # @param attributes [Hash] defs attributes
+        # @param attributes [Hash] defs attributes; String and Symbol names are normalized and must not collide
         # @param ids [#call, nil] optional callable mapping each method name to a symbol id
         # @param kwargs [Hash] callable keyword arguments
         # @yield forwarded to each callable

@@ -25,7 +25,7 @@ module Sevgi
         # Renders a callable module inside a group.
         # @param mod [Module] callable drawing module
         # @param args [Array<Object>] callable arguments
-        # @param attributes [Hash] group attributes
+        # @param attributes [Hash] group attributes; String and Symbol names are normalized and must not collide
         # @param kwargs [Hash] callable keyword arguments
         # @yield forwards customization to the callable module
         # @yieldreturn [Object] callable customization result
@@ -34,14 +34,14 @@ module Sevgi
         def Group(mod, *args, attributes: {}, **kwargs, &block)
           Graphics::Module.__send__(:callables, mod)
           ArgumentError.("Group attributes must be a Hash") unless attributes.is_a?(::Hash)
-          attributes = attributes.merge(id: F.demodulize(mod).to_sym) unless attributes.key?(:id)
+          attributes = Attribute.defaults(attributes, id: F.demodulize(mod).to_sym)
           g(**attributes) { Call(mod, *args, **kwargs, &block) }
         end
 
         # Renders a callable module inside an Inkscape layer.
         # @param mod [Module] callable drawing module
         # @param args [Array<Object>] callable arguments
-        # @param attributes [Hash] layer attributes
+        # @param attributes [Hash] layer attributes; String and Symbol names are normalized and must not collide
         # @param kwargs [Hash] callable keyword arguments
         # @yield forwards customization to the callable module
         # @yieldreturn [Object] callable customization result
@@ -50,14 +50,14 @@ module Sevgi
         def Layer(mod, *args, attributes: {}, **kwargs, &block)
           Graphics::Module.__send__(:callables, mod)
           ArgumentError.("Layer attributes must be a Hash") unless attributes.is_a?(::Hash)
-          attributes = attributes.merge(id: F.demodulize(mod).to_sym) unless attributes.key?(:id)
+          attributes = Attribute.defaults(attributes, id: F.demodulize(mod).to_sym)
           layer(**attributes) { Call(mod, *args, **kwargs, &block) }
         end
 
         # Renders a callable module inside an insensitive Inkscape layer.
         # @param mod [Module] callable drawing module
         # @param args [Array<Object>] callable arguments
-        # @param attributes [Hash] layer attributes
+        # @param attributes [Hash] layer attributes; String and Symbol names are normalized and must not collide
         # @param kwargs [Hash] callable keyword arguments
         # @yield forwards customization to the callable module
         # @yieldreturn [Object] callable customization result
@@ -66,7 +66,7 @@ module Sevgi
         def Layer!(mod, *args, attributes: {}, **kwargs, &block)
           Graphics::Module.__send__(:callables, mod)
           ArgumentError.("Layer attributes must be a Hash") unless attributes.is_a?(::Hash)
-          attributes = attributes.merge(id: F.demodulize(mod).to_sym) unless attributes.key?(:id)
+          attributes = Attribute.defaults(attributes, id: F.demodulize(mod).to_sym)
           layer!(**attributes) { Call(mod, *args, **kwargs, &block) }
         end
 
@@ -101,16 +101,25 @@ module Sevgi
           # @return [Sevgi::Graphics::Element] namedview element
           # @raise [Sevgi::ArgumentError] when an attribute channel or page is invalid
           def self.call(context, pages, namedview:, page:, &block)
-            ArgumentError.("Namedview attributes must be a Hash") unless namedview.is_a?(::Hash)
-            ArgumentError.("Page attributes must be a Hash") unless page.is_a?(::Hash)
+            namedview, page = channels(namedview, page)
             pages = pages.each_with_index.map { |attributes, index| normalize(attributes, page, index) }
 
-            context.Element(:"sodipodi:namedview", id: "namedview", **namedview) do
+            context.Element(:"sodipodi:namedview", **namedview) do
               pages.each do |attributes|
                 element = Element(:"inkscape:page", **attributes)
                 block&.call(element)
               end
             end
+          end
+
+          # Validates and normalizes the namedview and page-default channels.
+          # @return [Array<Hash>] normalized namedview attributes and page defaults
+          # @raise [Sevgi::ArgumentError] when either channel is not a Hash or has invalid attributes
+          # @api private
+          def self.channels(namedview, page)
+            ArgumentError.("Namedview attributes must be a Hash") unless namedview.is_a?(::Hash)
+            ArgumentError.("Page attributes must be a Hash") unless page.is_a?(::Hash)
+            [Attribute.defaults(namedview, id: "namedview"), Attribute.normalize(page)]
           end
 
           # Generates validated attributes for a rectangular page grid.
@@ -135,7 +144,7 @@ module Sevgi
           # @api private
           def self.normalize(attributes, defaults, index)
             ArgumentError.("Page #{index + 1} must be a Hash") unless attributes.is_a?(::Hash)
-            attributes = defaults.merge(attributes)
+            attributes = defaults.merge(Attribute.normalize(attributes))
             %i[x y].each { number(attributes, it, index) }
             %i[width height].each do |field|
               number(attributes, field, index, positive: true)
@@ -149,11 +158,7 @@ module Sevgi
           # @raise [Sevgi::ArgumentError] when String and Symbol ids collide
           # @api private
           def self.identify(attributes, index)
-            if attributes.key?(:id) && attributes.key?("id")
-              ArgumentError.("Page #{index + 1} has colliding id attributes")
-            end
-
-            id = attributes.delete(:id) || attributes.delete("id") || "page-#{index + 1}"
+            id = attributes.key?(:id) ? attributes.delete(:id) : "page-#{index + 1}"
             {id:}.merge(attributes)
           end
 
@@ -193,7 +198,7 @@ module Sevgi
             attributes[key] = Scalar.number(value(attributes, field, index), context: "page", field:, **range)
           end
 
-          private_class_method :identify, :normalize, :normalize_grid, :number, :value
+          private_class_method :channels, :identify, :normalize, :normalize_grid, :number, :value
         end
 
         private_constant :Pagination
@@ -206,8 +211,8 @@ module Sevgi
         #     page: {class: "print"}
         #   )
         # @param pages [Array<Hash>] page attribute hashes; numeric page fields are normalized to SVG numbers
-        # @param namedview [Hash] attributes shared by the namedview element
-        # @param page [Hash] default attributes merged into every page
+        # @param namedview [Hash] namedview attributes; String and Symbol names are normalized and must not collide
+        # @param page [Hash] page defaults; normalized page attributes override these defaults by name
         # @yield [page] customizes each generated page element
         # @yieldparam page [Sevgi::Graphics::Element] generated page element
         # @yieldreturn [Object] ignored customization result
@@ -226,8 +231,8 @@ module Sevgi
         # @param width [Numeric] finite positive page width, normalized to an SVG number
         # @param height [Numeric] finite positive page height, normalized to an SVG number
         # @param gap [Numeric] finite non-negative gap, normalized to an SVG number
-        # @param namedview [Hash] attributes shared by the namedview element
-        # @param page [Hash] default attributes merged into every page
+        # @param namedview [Hash] namedview attributes; String and Symbol names are normalized and must not collide
+        # @param page [Hash] page defaults; normalized page attributes override these defaults by name
         # @yield [page] customizes each generated page element
         # @yieldparam page [Sevgi::Graphics::Element] generated page element
         # @yieldreturn [Object] ignored customization result

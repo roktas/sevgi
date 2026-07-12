@@ -106,6 +106,22 @@ module Sevgi
           assert_equal("mapped-icon", result.children.last[:id])
           assert_equal("argument-keyword-block", result.children.last.children.last[:id])
         end
+
+        def test_symbols_normalizes_explicit_id
+          doc = SVG(:inkscape)
+          result = doc.Symbols(IconSet, attributes: {"id" => "icons"})
+
+          assert_equal("icons", result[:id])
+          assert_same(result, doc.children.first)
+        end
+
+        def test_symbols_rejects_colliding_ids_atomically
+          doc = SVG(:inkscape)
+          attributes = {:id => "symbol", "id" => "string"}
+
+          assert_raises(Sevgi::ArgumentError) { doc.Symbols(IconSet, attributes:) }
+          assert_empty(doc.children)
+        end
       end
     end
   end

@@ -74,6 +74,26 @@ module Sevgi
           assert_equal("true", results.last["sodipodi:insensitive"])
         end
 
+        def test_wrappers_normalize_explicit_ids
+          doc = SVG(:inkscape)
+          results = %i[Group Layer Layer!].map do |wrapper|
+            doc.public_send(wrapper, Widget, wrapper, attributes: {"id" => "#{wrapper}-id"})
+          end
+
+          assert_equal(%w[Group-id Layer-id Layer!-id], results.map { it[:id] })
+          assert_equal(results.map { it[:id] }, doc.children.map { it[:id] })
+        end
+
+        def test_wrappers_reject_colliding_ids_atomically
+          %i[Group Layer Layer!].each do |wrapper|
+            doc = SVG(:inkscape)
+            attributes = {:id => "symbol", "id" => "string"}
+
+            assert_raises(Sevgi::ArgumentError) { doc.public_send(wrapper, Widget, "child", attributes:) }
+            assert_empty(doc.children)
+          end
+        end
+
         def test_pages_yields_page_elements_to_block
           doc = SVG(:inkscape)
           result = doc
@@ -141,6 +161,38 @@ module Sevgi
           assert_match(/x="0.5" y="1.5" width="2" height="3"/, actual)
           assert_match(/id="pageview-1x2" x="2" y="0" width="1.5" height="2"/, actual)
           refute_match(%r{(?:1/2|0\.\d+e\d+)}, actual)
+        end
+
+        def test_pages_normalize_attribute_channels
+          doc = SVG(:inkscape)
+          view = doc.Pages(
+            {"id" => "page", "x" => 0, "y" => 0, "width" => 1, "height" => 2},
+            namedview: {"id" => "views"},
+            page: {"id" => "default", "class" => "sheet"}
+          )
+
+          assert_equal("views", view[:id])
+          assert_equal("page", view.children.first[:id])
+          assert_equal("sheet", view.children.first[:class])
+        end
+
+        def test_pages_reject_key_collisions_atomically
+          calls = [
+            proc { |doc| doc.Pages({x: 0, y: 0, width: 1, height: 2}, namedview: {:id => "a", "id" => "b"}) },
+            proc { |doc| doc.Pages({:id => "a", "id" => "b", :x => 0, :y => 0, :width => 1, :height => 2}) },
+            proc do |doc|
+              doc.Pages(
+                {x: 0, y: 0, width: 1, height: 2},
+                page: {:class => "a", "class" => "b"}
+              )
+            end
+          ]
+
+          calls.each do |call|
+            doc = SVG(:inkscape)
+            assert_raises(Sevgi::ArgumentError) { call.call(doc) }
+            assert_empty(doc.children)
+          end
         end
 
         def test_pages_rejects_invalid_inputs_atomically

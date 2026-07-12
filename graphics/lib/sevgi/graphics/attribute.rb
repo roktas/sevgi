@@ -126,6 +126,25 @@ module Sevgi
       # @api private
       def self.capture(value, normalize_keys: false) = Snapshot.capture(value, normalize_keys:)
 
+      # Returns normalized owned attributes with defaults for absent names.
+      # @param attributes [Hash] source attributes
+      # @param defaults [Hash] values inserted only when their normalized names are absent
+      # @return [Hash{Symbol => Object}] normalized owned attributes
+      # @raise [Sevgi::ArgumentError] when input contains an invalid, colliding, or unsupported attribute
+      # @api private
+      def self.defaults(attributes, **defaults)
+        attributes = Attributes.new(attributes)
+        defaults.each { |name, value| attributes[name] = value unless attributes.has?(name) }
+        attributes.to_h
+      end
+
+      # Returns normalized owned attributes.
+      # @param attributes [Hash] source attributes
+      # @return [Hash{Symbol => Object}] normalized owned attributes
+      # @raise [Sevgi::ArgumentError] when input contains an invalid, colliding, or unsupported attribute
+      # @api private
+      def self.normalize(attributes) = Attributes.new(attributes).to_h
+
       # Returns the text form used for an XML attribute value before escaping.
       # @param value [Object] attribute value
       # @return [String]
