@@ -510,6 +510,45 @@ module Sevgi
       assert_predicate(result.stack.first, :frozen?)
     end
 
+    def test_executor_error_handles_absent_backtraces
+      [nil, []].each do |backtrace|
+        cause = RuntimeError.new("boom")
+        cause.set_backtrace(backtrace) if backtrace
+        error = Executor::Error.new(cause, ["script.sevgi"])
+
+        assert_same(cause, error.cause)
+        assert_equal([], error.load_backtrace)
+      end
+    end
+
+    def test_executor_error_owns_source_stack
+      relative = +"relative.sevgi"
+      absolute = +File.expand_path("absolute.sevgi")
+      stack = [relative, absolute]
+      cause = RuntimeError.new("boom")
+      cause.set_backtrace(
+        [
+          "relative.sevgi:3:in 'draw'",
+          "#{absolute}:4:in 'render'",
+          "other.rb:5:in 'ignore'"
+        ]
+      )
+      error = Executor::Error.new(cause, stack)
+
+      relative.replace("changed.sevgi")
+      absolute.replace("changed-too.sevgi")
+      stack.clear
+
+      assert_equal(
+        ["relative.sevgi:3:in 'draw'", "absolute.sevgi:4:in 'render'"],
+        error.load_backtrace
+      )
+
+      owned = error.instance_variable_get(:@stack)
+      assert_predicate(owned, :frozen?)
+      assert(owned.all?(&:frozen?))
+    end
+
     def test_execute_returns_failure_status
       result = Executor.execute("missing", file: "script.sevgi")
 
