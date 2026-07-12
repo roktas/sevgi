@@ -460,12 +460,52 @@ module Sevgi
           assert_equal(%w[group sibling], doc.children.map { it[:id] })
         end
 
+        def test_with_forwards_block_arguments
+          context = nil
+          received = nil
+          doc = SVG(id: "main")
+          group = doc.g(id: "group")
+
+          group.With("value", enabled: true) do |value, enabled:|
+            context = self
+            received = [value, enabled]
+          end
+
+          assert_same(doc, context)
+          assert_equal(["value", true], received)
+        end
+
         def test_within_executes_block_in_element_context
           doc = SVG(id: "main") do
             g(id: "group").Within() { line(id: "child") }
           end
 
           assert_equal(["child"], doc.children.first.children.map { it[:id] })
+        end
+
+        def test_within_selects_receiver_explicitly
+          contexts = []
+          received = nil
+          element = SVG(id: "main")
+
+          element.Within("value", enabled: true, receiver: false) do |value, enabled:|
+            contexts << self
+            received = [value, enabled]
+          end
+
+          element.Within(receiver: nil) { contexts << self }
+
+          assert_equal([false, nil], contexts)
+          assert_equal(["value", true], received)
+        end
+
+        def test_with_and_within_require_blocks
+          element = SVG(id: "main")
+
+          [
+            proc { element.With() },
+            proc { element.Within() }
+          ].each { assert_raises(ArgumentError, &it) }
         end
       end
     end

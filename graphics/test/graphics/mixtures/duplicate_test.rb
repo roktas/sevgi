@@ -108,7 +108,7 @@ module Sevgi
             group2 = group1.Duplicate()
             ids[:group2] = group2.object_id
 
-            Within(group2) do
+            Within(receiver: group2) do
               ids[:element3] = line.object_id
             end
           end

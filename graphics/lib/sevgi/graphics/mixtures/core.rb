@@ -226,23 +226,39 @@ module Sevgi
         end
 
         # Evaluates a block in the parent element context.
-        # @param args [Array<Object>] optional receiver override followed by block arguments
+        # @example Add a sibling while forwarding its id
+        #   root = SVG(id: "root")
+        #   child = root.g(id: "child")
+        #   child.With("sibling") { |id| line(id:) }
+        # @param args [Array<Object>] positional arguments passed to the block
+        # @param receiver [Sevgi::Graphics::Element] element whose parent becomes the block receiver
         # @param kwargs [Hash] keyword arguments passed to the block
-        # @yield evaluates in the selected receiver's parent context
+        # @yield [*args, **kwargs] evaluates in the selected element's parent context
         # @yieldreturn [Object] ignored block result
         # @return [Sevgi::Graphics::Element] self
-        def With(*args, **kwargs, &block)
-          tap { (args.shift || self).parent.instance_exec(*args, **kwargs, &block) }
+        # @raise [Sevgi::ArgumentError] when no block is given
+        def With(*args, receiver: self, **kwargs, &block)
+          ArgumentError.("Block required") unless block
+
+          tap { receiver.parent.instance_exec(*args, **kwargs, &block) }
         end
 
         # Evaluates a block in this element context.
-        # @param args [Array<Object>] optional receiver override followed by block arguments
+        # @example Select a receiver without consuming the block argument
+        #   target = SVG(id: "target")
+        #   source = SVG(id: "source")
+        #   source.Within("child", receiver: target) { |id| g(id:) }
+        # @param args [Array<Object>] positional arguments passed to the block
+        # @param receiver [Object] block receiver
         # @param kwargs [Hash] keyword arguments passed to the block
-        # @yield evaluates in the selected receiver context
+        # @yield [*args, **kwargs] evaluates in the selected receiver context
         # @yieldreturn [Object] ignored block result
         # @return [Sevgi::Graphics::Element] self
-        def Within(*args, **kwargs, &block)
-          tap { (args.shift || self).instance_exec(*args, **kwargs, &block) }
+        # @raise [Sevgi::ArgumentError] when no block is given
+        def Within(*args, receiver: self, **kwargs, &block)
+          ArgumentError.("Block required") unless block
+
+          tap { receiver.instance_exec(*args, **kwargs, &block) }
         end
 
         # Appends an element as a child.
