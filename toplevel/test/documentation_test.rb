@@ -164,6 +164,28 @@ module Sevgi
     ]
       .freeze
 
+    def self.registry
+      return @registry if @registry
+
+      silence_warnings do
+        require "yard"
+
+        YARD::Registry.clear
+        YARD::Parser::SourceParser.parse(LIB_FILES)
+        @registry = YARD::Registry
+      end
+    end
+
+    def self.silence_warnings
+      verbose = $VERBOSE
+      $VERBOSE = nil
+      yield
+    ensure
+      $VERBOSE = verbose
+    end
+
+    private_class_method :registry, :silence_warnings
+
     def test_api_private_visibility_matches_runtime
       assert_raises(NameError) { Executor::Source }
 
@@ -687,23 +709,7 @@ module Sevgi
     end
 
     def registry
-      return @registry if @registry
-
-      silence_warnings do
-        require "yard"
-
-        YARD::Registry.clear
-        YARD::Parser::SourceParser.parse(LIB_FILES)
-        @registry = YARD::Registry
-      end
-    end
-
-    def silence_warnings
-      verbose = $VERBOSE
-      $VERBOSE = nil
-      yield
-    ensure
-      $VERBOSE = verbose
+      self.class.send(:registry)
     end
 
   end
