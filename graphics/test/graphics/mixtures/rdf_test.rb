@@ -18,6 +18,17 @@ module Sevgi
           assert_match(%r{creativecommons.org/publicdomain/zero/1.0/}, actual)
         end
 
+        def test_license_cc_by_renders_attribution_resource
+          actual = SVG(:inkscape) do
+            License_CC_BY(title: "Demo", creator: "Author")
+          end
+            .Render()
+
+          assert_match(%r{<dc:title>Demo</dc:title>}, actual)
+          assert_match(%r{<dc:creator>Author</dc:creator>}, actual)
+          assert_match(%r{<cc:license rdf:resource="https://creativecommons.org/licenses/by/4.0/"/>}, actual)
+        end
+
         def test_rdf_requires_block
           error = assert_raises(ArgumentError) do
             SVG(:inkscape) { RDF() }

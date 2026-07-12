@@ -29,6 +29,17 @@ module Sevgi
 
         # Use SPDX license codes in underscored form: https://spdx.org/licenses/
         #
+        # Adds Creative Commons BY license metadata.
+        # @param kwargs [Hash] RDF work options
+        # @yield evaluates additional RDF work metadata
+        # @yieldreturn [Object] ignored block result
+        # @return [Sevgi::Graphics::Element] metadata element
+        # @raise [Sevgi::ArgumentError] when an option is unknown
+        # @see #RDFWork
+        def License_CC_BY(**kwargs, &block)
+          License(**kwargs, license: "https://creativecommons.org/licenses/by/4.0/", &block)
+        end
+
         # Adds Creative Commons BY-SA license metadata.
         # @param kwargs [Hash] RDF work options
         # @yield evaluates additional RDF work metadata
