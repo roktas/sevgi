@@ -4,7 +4,8 @@
 
 module Sevgi
   module Graphics
-    # Internal store syntax; not part of the SVG DSL command surface.
+    # Prefix for supported non-rendering element metadata.
+    # Names beginning with this prefix remain available through the attribute store but are omitted from SVG output.
     ATTRIBUTE_INTERNAL_PREFIX = "-"
 
     # Attribute suffix that merges new values into an existing attribute.
@@ -144,7 +145,16 @@ module Sevgi
         XML.text(text, context: "XML attribute value")
       end
 
-      # Mutable SVG attribute store with Sevgi update syntax.
+      # Mutable SVG attribute and non-rendering metadata store with Sevgi update syntax.
+      #
+      # Names beginning with {ATTRIBUTE_INTERNAL_PREFIX} can be read, assigned, deleted, and copied like ordinary
+      # attributes. They appear in {#to_h}, but {#list}, {#export}, and rendered XML omit them.
+      #
+      # @example Attach non-rendering source metadata
+      #   attributes = Sevgi::Graphics::Attributes.new(id: "copy", "-source": "original")
+      #   attributes[:"-source"] # => "original"
+      #   attributes.to_h        # => { id: "copy", :"-source" => "original" }
+      #   attributes.export      # => { id: "copy" }
       class Store
         # Creates an attribute store from recursively owned snapshots. Mutable non-container leaves are stringified
         # once; later caller mutation cannot change the store.
@@ -210,7 +220,7 @@ module Sevgi
           @store.delete(Attribute.id(key))
         end
 
-        # Returns public attributes ready for rendering. Nested values remain live store values.
+        # Returns rendering attributes, excluding non-rendering metadata. Nested values remain live store values.
         # @return [Hash] shallow attribute view
         def export
           hash = @store.reject { |id, _| Attribute.internal?(id) }
@@ -239,14 +249,14 @@ module Sevgi
           super
         end
 
-        # Returns public attribute names.
+        # Returns rendering attribute names, excluding non-rendering metadata.
         # @return [Array<Symbol>]
         def list
           export.keys
         end
 
-        # Returns the live internal attribute Hash. Mutating it intentionally mutates this store; rendering revalidates
-        # names and values.
+        # Returns the live attribute and metadata Hash. Mutating it intentionally mutates this store; rendering
+        # revalidates rendering names and all values.
         # @return [Hash] live internal store
         def to_h
           @store

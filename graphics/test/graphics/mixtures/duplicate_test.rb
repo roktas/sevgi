@@ -43,6 +43,26 @@ module Sevgi
           assert_equal("original-copy", doc.children[1][:id])
         end
 
+        def test_duplicate_preserves_existing_source_ids
+          original = copy = nil
+          SVG do
+            original = g(id: "visible", "-id": "source") do
+              line(id: "child-visible", "-id": "child-source")
+            end
+
+            copy = original.Duplicate() do |element|
+              element[:id] = "#{element[:"-id"]}-copy"
+            end
+          end
+
+          assert_equal(%w[visible source], [original[:id], original[:"-id"]])
+          assert_equal(%w[source source-copy], copy.attributes.to_h.values_at(:"-id", :id))
+          assert_equal(
+            %w[child-source child-source-copy],
+            copy.children.first.attributes.to_h.values_at(:"-id", :id)
+          )
+        end
+
         def test_duplicate_doesnt_create_a_shallow_copy_of_children
           group1, group2 = Array.new(2)
 

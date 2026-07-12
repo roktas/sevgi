@@ -6,9 +6,9 @@ module Sevgi
       # DSL helpers for duplicating independent element subtrees.
       module Duplicate
         # Duplicates an element subtree as an independent tree and optionally translates it.
-        # Copied elements receive new child arrays, attribute stores, and content arrays. Public `id` attributes are
-        # moved to an internal `-id` attribute before the optional block runs, allowing the block to derive replacement
-        # ids without rendering duplicate public ids.
+        # Copied elements receive new child arrays, attribute stores, and content arrays. Visible `id` attributes are
+        # moved to non-rendering `-id` metadata before the optional block runs, allowing the block to derive replacement
+        # ids without rendering duplicates. A pre-existing `-id` takes precedence over the visible id.
         # @param dx [Numeric, nil] x translation
         # @param dy [Numeric, nil] y translation
         # @param parent [Sevgi::Graphics::Element, nil] parent for the duplicated subtree
@@ -18,6 +18,11 @@ module Sevgi
         # @return [Sevgi::Graphics::Element] duplicated element
         # @raise [Sevgi::ArgumentError] when the target parent has a different element class
         # @raise [Sevgi::ArgumentError] when copied attributes or contents contain cyclic payloads
+        # @example Remap source ids on a duplicate
+        #   source = SVG { rect(id: "shape") }.children.first
+        #   copy = source.Duplicate do |node|
+        #     node[:id] = "#{node[:"-id"]}-copy" if node[:"-id"]
+        #   end
         def Duplicate(dx: nil, dy: nil, parent: nil, &block)
           duplicated = Subtree.copy(self)
           Subtree.prepare(duplicated, &block)
@@ -67,8 +72,12 @@ module Sevgi
           # @api private
           def self.prepare(element, &block)
             element.Traverse() do |node|
-              id = node.attributes.delete(:id)
-              node[:"#{ATTRIBUTE_INTERNAL_PREFIX}id"] = id if id
+              if node.attributes.has?(:id)
+                id = node.attributes.delete(:id)
+                metadata = :"#{ATTRIBUTE_INTERNAL_PREFIX}id"
+                node[metadata] = id unless node.attributes.has?(metadata)
+              end
+
               block&.call(node)
             end
           end

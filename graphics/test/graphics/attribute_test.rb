@@ -21,15 +21,29 @@ module Sevgi
 
       private_constant :MutableValue
 
-      def test_export_hides_internal_attributes
-        attributes = Attributes.new(id: "visible", "-id": "hidden")
+      def test_non_rendering_metadata_follows_store_semantics
+        attributes = Attributes.new(id: "visible", "-source": ["original"])
+        attributes[:"-note"] = "private"
+        copy = attributes.dup
+        copy[:"-source"] << "copy"
 
         [
+          ["original"],
+          attributes[:"-source"],
+          %w[original copy],
+          copy[:"-source"],
           {id: "visible"},
           attributes.export,
           [:id],
-          attributes.list
+          attributes.list,
+          {id: "visible", "-source": ["original"], "-note": "private"},
+          attributes.to_h,
+          ["id=\"visible\""],
+          attributes.to_xml_lines
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+
+        assert_equal(["original"], attributes.delete(:"-source"))
+        assert_nil(attributes[:"-source"])
       end
 
       def test_import_doesnt_mutate_nested_hash

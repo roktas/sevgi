@@ -48,7 +48,9 @@ module Sevgi
 
         def test_disidentify_hides_visible_ids
           doc = SVG(:minimal) do
-            g(id: "group") { line(id: "line") }
+            g(id: "group", "-id": "group-source") do
+              line(id: "line", "-id": "line-source")
+            end
           end
 
           doc.Disidentify()
@@ -59,9 +61,9 @@ module Sevgi
           assert_nil(line[:id])
 
           [
-            "group",
+            "group-source",
             group[:"-id"],
-            "line",
+            "line-source",
             line[:"-id"]
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
 

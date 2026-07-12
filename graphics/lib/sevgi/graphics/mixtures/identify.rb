@@ -58,13 +58,20 @@ module Sevgi
           end
         end
 
-        # Moves visible id attributes to Sevgi-internal id storage.
+        # Moves visible id attributes to non-rendering `-id` metadata throughout the subtree.
+        # A pre-existing `-id` takes precedence over the visible id.
         # @return [Sevgi::Graphics::Element] self
+        # @example Hide ids while retaining their source identity
+        #   document = SVG { rect(id: "source-id") }
+        #   document.Disidentify
+        #   document.children.first[:"-id"] # => "source-id"
         def Disidentify
           Traverse do |element|
-            next unless element[:id]
+            next unless element.attributes.has?(:id)
 
-            element[:"#{ATTRIBUTE_INTERNAL_PREFIX}id"] = element.attributes.delete(:id)
+            id = element.attributes.delete(:id)
+            metadata = :"#{ATTRIBUTE_INTERNAL_PREFIX}id"
+            element[metadata] = id unless element.attributes.has?(metadata)
           end
         end
 
