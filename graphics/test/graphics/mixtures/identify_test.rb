@@ -28,10 +28,15 @@ module Sevgi
 
         def test_identifiers_use_serialized_id_values
           doc = SVG(:minimal) do
+            text(id: nil)
             g(id: :same)
             rect(id: "same")
-            circle(id: 1)
-            path(id: "1")
+            circle(id: false)
+            path(id: "false")
+            line(id: 0)
+            ellipse(id: "0")
+            polyline(id: "")
+            polygon(id: "")
           end
 
           identifiers = doc.Identifiers()
@@ -42,8 +47,16 @@ module Sevgi
             %i[g rect],
             identifiers.collision["same"].map(&:name),
             %i[circle path],
-            identifiers.collision["1"].map(&:name)
+            identifiers.collision["false"].map(&:name),
+            %i[line ellipse],
+            identifiers.collision["0"].map(&:name),
+            %i[polyline polygon],
+            identifiers.collision[""].map(&:name)
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+
+          refute(doc.children.first.attributes.has?(:id))
+          refute_includes(identifiers.namespace, "nil")
+          assert_nil(identifiers[nil])
         end
 
         def test_identifiers_are_immutable_snapshots
@@ -74,21 +87,25 @@ module Sevgi
           doc = SVG(:minimal) do
             g(id: "group", "-id": "group-source") do
               line(id: "line", "-id": "line-source")
+              circle(id: false)
             end
           end
 
           doc.Disidentify()
           group = doc.children.first
-          line = group.children.first
+          line, circle = group.children
 
           assert_nil(group[:id])
           assert_nil(line[:id])
+          assert_nil(circle[:id])
 
           [
             "group-source",
             group[:"-id"],
             "line-source",
-            line[:"-id"]
+            line[:"-id"],
+            false,
+            circle[:"-id"]
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
 
           refute_match(/\bid=/, doc.Render())

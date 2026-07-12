@@ -23,15 +23,17 @@ module Sevgi
         end
 
         def test_lint_rejects_serialized_duplicate_ids
-          error = assert_raises(LintError) do
-            SVG(:minimal) do
-              rect(id: :same)
-              circle(id: "same")
+          [[:same, "same"], [false, "false"], [0, "0"], ["", ""]].each do |first, second|
+            error = assert_raises(LintError) do
+              SVG(:minimal) do
+                rect(id: first)
+                circle(id: second)
+              end
+                .()
             end
-              .()
-          end
 
-          assert_match(/\bsame\b/, error.message)
+            assert_includes(error.message, first.to_s)
+          end
         end
 
         def test_lint_can_be_disabled_for_call

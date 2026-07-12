@@ -5,16 +5,17 @@ module Sevgi
     module Mixtures
       # DSL helpers for collecting and hiding SVG ids.
       module Identify
-        # Immutable snapshot of element ids under a subtree. Keys and containers are owned by the index; values retain
-        # references to the elements present when the snapshot is built. Later tree changes require a new index.
+        # Immutable snapshot of every rendered element id under a subtree. Keys are the serialized id values, including
+        # `"false"` and the empty String. Keys and containers are owned by the index; values retain references to the
+        # elements present when the snapshot is built. Later tree changes require a new index.
         class Identifiers
           # @return [Sevgi::Graphics::Element] indexed root element
           attr_reader :element
 
-          # @return [Hash<String, Sevgi::Graphics::Element>] frozen id namespace snapshot
+          # @return [Hash<String, Sevgi::Graphics::Element>] frozen namespace keyed by serialized rendered ids
           attr_reader :namespace
 
-          # @return [Hash<String, Array<Sevgi::Graphics::Element>>] frozen duplicate id groups and arrays
+          # @return [Hash<String, Array<Sevgi::Graphics::Element>>] frozen duplicate groups keyed by serialized ids
           attr_reader :collision
 
           # Builds an id index for an element subtree.
@@ -40,7 +41,7 @@ module Sevgi
 
           # Returns the first element registered for an id in the snapshot.
           # Duplicate entries are available through {#collision}.
-          # @param id [String] serialized SVG id
+          # @param id [String] serialized rendered SVG id
           # @return [Sevgi::Graphics::Element, nil]
           def [](id) = @namespace[id]
 
@@ -48,8 +49,9 @@ module Sevgi
 
           def build
             element.Traverse() do |element|
-              next unless (value = element[:id])
+              next unless element.attributes.has?(:id)
 
+              value = element[:id]
               id = Attribute.xml_text(value).dup.freeze
 
               if @namespace.key?(id)
