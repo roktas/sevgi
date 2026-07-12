@@ -129,9 +129,21 @@ module Sevgi
     # Immutable length/angle constraint used when a full segment is not implied.
     #
     # @!attribute [r] length
-    #   @return [Numeric] target measure
+    #   @return [Float] non-negative target measure
     # @!attribute [r] angle
-    #   @return [Numeric] direction used to derive a segment
-    LengthAngle = Data.define(:length, :angle)
+    #   @return [Float] direction used to derive a segment
+    LengthAngle = Data.define(:length, :angle) do
+      # Creates a target-measure constraint.
+      # @param length [Numeric] finite non-negative target width or height
+      # @param angle [Numeric] finite direction in degrees
+      # @return [void]
+      # @raise [Sevgi::Geometry::Error] when a component is not finite or length is negative
+      def initialize(length:, angle:)
+        length = Real[:length, length]
+        Error.("LengthAngle length cannot be negative") if length.negative?
+
+        super(length:, angle: Real[:angle, angle])
+      end
+    end
   end
 end

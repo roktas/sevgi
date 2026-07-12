@@ -108,5 +108,27 @@ module Sevgi
         refute(left.eq?(right, precision: 4))
       end
     end
+
+    class LengthAngleTest < Minitest::Test
+      def test_length_angle_normalizes_components
+        value = LengthAngle.new(length: Rational(3, 2), angle: Rational(61, 2))
+
+        assert_equal([1.5, 30.5], value.deconstruct)
+        assert_instance_of(Float, value.length)
+        assert_instance_of(Float, value.angle)
+      end
+
+      def test_length_angle_rejects_invalid_components
+        invalid = ["1", Object.new, Complex(1, 2), Float::INFINITY, Float::NAN]
+
+        invalid.each do |value|
+          assert_raises(Error) { LengthAngle.new(length: value, angle: 0) }
+          assert_raises(Error) { LengthAngle.new(length: 1, angle: value) }
+        end
+
+        assert_raises(Error) { LengthAngle.new(length: -1, angle: 0) }
+        assert_raises(Error) { LengthAngle[-1, 0] }
+      end
+    end
   end
 end

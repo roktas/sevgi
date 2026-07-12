@@ -85,6 +85,30 @@ module Sevgi
           assert_match(message, error.message)
         end
       end
+
+      def test_parallelogram_constraint_forms_share_errors
+        factories = [
+          -> (constraint) { Parallelogram.new_by_height(horizontal: [4, 0], tallness: constraint) },
+          -> (constraint) { Parallelogram.new_by_width(vertical: [3, 90], wideness: constraint) }
+        ]
+        malformed = [
+          [-1, 90],
+          [Float::INFINITY, 90],
+          [3, Float::NAN],
+          ["3", 90]
+        ]
+
+        malformed.each do |constraint|
+          carrier_error = assert_raises(Error) do
+            LengthAngle.new(length: constraint[0], angle: constraint[1])
+          end
+
+          factories.each do |factory|
+            array_error = assert_raises(Error) { factory.call(constraint) }
+            assert_equal(carrier_error.message, array_error.message)
+          end
+        end
+      end
     end
   end
 end
