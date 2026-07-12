@@ -18,6 +18,14 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
+      def test_margin_comparison_rejects_incompatible_objects
+        smaller = Margin[1, 2, 3, 4]
+        larger = Margin[5, 6, 7, 8]
+
+        assert_nil(smaller <=> Object.new)
+        assert_equal([smaller, larger], [larger, smaller].sort)
+      end
+
       def test_margin_expands_css_like_values
         [
           [0.0, 0.0, 0.0, 0.0],

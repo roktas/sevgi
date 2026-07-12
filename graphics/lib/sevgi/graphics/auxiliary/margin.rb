@@ -28,9 +28,11 @@ module Sevgi
       end
 
       # Compares margins by top, right, bottom, then left.
-      # @param other [Sevgi::Graphics::Margin] margin to compare
-      # @return [Integer, nil]
-      def <=>(other) = deconstruct <=> other.deconstruct
+      # @param other [Object] margin to compare
+      # @return [Integer, nil] comparison result, or nil for a non-Margin operand
+      def <=>(other)
+        deconstruct <=> other.deconstruct if other.is_a?(self.class)
+      end
 
       # Returns a margin inflated horizontally and vertically.
       # @param h [Numeric] horizontal addition
