@@ -76,12 +76,35 @@ module Sevgi
 
         def test_wrappers_normalize_explicit_ids
           doc = SVG(:inkscape)
-          results = %i[Group Layer Layer!].map do |wrapper|
-            doc.public_send(wrapper, Widget, wrapper, attributes: {"id" => "#{wrapper}-id"})
+          results = %i[Group Layer Layer!].product(%i[string symbol]).map do |wrapper, key|
+            attributes = {(key == :string ? "id" : :id) => "#{wrapper}-#{key}"}
+            doc.public_send(wrapper, Widget, wrapper, attributes:)
           end
 
-          assert_equal(%w[Group-id Layer-id Layer!-id], results.map { it[:id] })
+          assert_equal(
+            %w[Group-string Group-symbol Layer-string Layer-symbol Layer!-string Layer!-symbol],
+            results.map { it[:id] }
+          )
           assert_equal(results.map { it[:id] }, doc.children.map { it[:id] })
+        end
+
+        def test_anonymous_wrappers_omit_default_ids
+          drawing = ::Module.new do
+            extend(Graphics::Module)
+
+            def call
+              rect
+            end
+          end
+
+          modules = [drawing, drawing.dup]
+          doc = SVG(:inkscape)
+          wrappers = %i[Group Layer Layer!]
+
+          results = wrappers.product(modules).map { |wrapper, mod| doc.public_send(wrapper, mod) }
+
+          results.each { refute(it.has?(:id)) }
+          refute_match(/#<Module:0x/, doc.Render())
         end
 
         def test_wrappers_reject_colliding_ids_atomically
