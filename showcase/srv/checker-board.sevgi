@@ -27,7 +27,7 @@ module CheckerBoard
     ".dark.piece" => { fill: "#333" }
   }.freeze
 
-  before do # Draw the board.
+  base do # Draw the board.
     css STYLE
 
     square class: "board-frame", length: SIZE

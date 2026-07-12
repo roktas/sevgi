@@ -6,14 +6,12 @@ module Sevgi
   module Graphics
     module Mixtures
       class CallTest < Minitest::Test
-        def test_call_runs_hooks_and_public_methods
+        def test_call_runs_bases_and_public_methods
           mod = ::Module.new do
             extend(Graphics::Module)
 
-            before { rect(id: "before-1") }
-            before { rect(id: "before-2") }
-            after { rect(id: "after-1") }
-            after { rect(id: "after-2") }
+            base { rect(id: "base-1") }
+            base { rect(id: "base-2") }
 
             def call(id)
               rect(id:)
@@ -24,18 +22,63 @@ module Sevgi
           result = doc.Call(mod, "main")
 
           [
-            %w[before-1 before-2 main after-1 after-2],
+            %w[base-1 base-2 main],
             doc.children.map { it[:id] },
             "main",
             result[:id]
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
         end
 
-        def test_hooks_require_blocks
+        def test_base_requires_block
           mod = ::Module.new { extend(Graphics::Module) }
 
-          assert_raises(ArgumentError) { mod.before }
-          assert_raises(ArgumentError) { mod.after }
+          assert_raises(ArgumentError) { mod.base }
+        end
+
+        def test_call_runs_base_without_public_methods
+          mod = ::Module.new do
+            extend(Graphics::Module)
+
+            base { rect(id: "base") }
+          end
+
+          doc = SVG(:minimal)
+
+          assert_nil(doc.Call(mod))
+          assert_equal(["base"], doc.children.map { it[:id] })
+        end
+
+        def test_call_runs_diamond_base_once
+          foundation = ::Module.new do
+            extend(Graphics::Module)
+
+            base { rect(id: "base") }
+          end
+
+          left = ::Module.new do
+            extend(Graphics::Module)
+            include(foundation)
+          end
+
+          right = ::Module.new do
+            extend(Graphics::Module)
+            include(foundation)
+          end
+
+          mod = ::Module.new do
+            extend(Graphics::Module)
+            include(left)
+            include(right)
+
+            def call
+              rect(id: "call")
+            end
+          end
+
+          doc = SVG(:minimal)
+          doc.Call(mod)
+
+          assert_equal(%w[base call], doc.children.map { it[:id] })
         end
 
         def test_call_skips_non_public_methods
@@ -113,6 +156,8 @@ module Sevgi
           parent = ::Module.new do
             extend(Graphics::Module)
 
+            base { rect(id: "parent-base") }
+
             def parent_item
               rect(id: "parent")
             end
@@ -122,6 +167,8 @@ module Sevgi
             extend(Graphics::Module)
             include(parent)
 
+            base { rect(id: "child-base") }
+
             def child_item
               rect(id: "child")
             end
@@ -130,7 +177,7 @@ module Sevgi
           doc = SVG(:minimal)
           doc.Call(child)
 
-          assert_equal(%w[parent child], doc.children.map { it[:id] })
+          assert_equal(%w[parent-base child-base parent child], doc.children.map { it[:id] })
         end
 
         def test_call_preserves_definition_order

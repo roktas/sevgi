@@ -7,8 +7,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Changed
 
-- Breaking: replaced callable drawing module `call` hook registration with explicit `before` and `after` hooks; modules
-  with one drawing method now conventionally name it `call`.
+- Breaking: replaced callable drawing module `call` block registration with argument-independent `base` blocks;
+  inherited bases run parent-first, and modules with one drawing method conventionally name it `call`.
 
 ## 0.95.0 - 2026-07-11
 

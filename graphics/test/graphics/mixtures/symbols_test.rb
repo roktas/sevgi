@@ -59,6 +59,22 @@ module Sevgi
 
           assert_match(/<symbol id="custom-first_icon">/, actual)
         end
+
+        def test_symbols_renders_base_once_before_defs
+          mod = ::Module.new do
+            extend(Graphics::Module)
+
+            base { style(".shared {}") }
+
+            def first = rect
+            def second = circle
+          end
+
+          actual = SVG(:symbol_test) { Symbols(mod) }.Render()
+
+          assert_equal(1, actual.scan("<style>").size)
+          assert_operator(actual.index("<style>"), :<, actual.index("<defs"))
+        end
       end
     end
   end

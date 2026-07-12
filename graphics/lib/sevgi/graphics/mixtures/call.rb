@@ -5,44 +5,31 @@ module Sevgi
     # Callable drawing module support.
     # Extend a plain Ruby module with this API to make its public instance methods callable drawing steps. Name the
     # method `call` when the module has a single drawing step; use descriptive method names when it has multiple steps.
+    # Base blocks add argument-independent shared SVG content once per invocation before the public drawing methods.
     # @example Define and call a drawing module
     #   Widget = Module.new do
     #     extend Sevgi::Graphics::Module
     #
-    #     before { css(".widget" => { fill: "red" }) }
+    #     base { css(".widget" => { fill: "red" }) }
     #
     #     def call(id)
     #       rect(id:)
     #     end
-    #
-    #     after { circle(r: 1) }
     #   end
     #
     #   SVG { Call(Widget, "box") }
     module Module
-      # Registers drawing steps to run after the module's public drawing methods.
+      # Registers argument-independent shared drawing steps. Every invocation runs inherited base blocks parent-first,
+      # then locally registered base blocks in registration order, before the module's public drawing methods. The block
+      # runs once in the current element context and does not receive the invocation arguments.
       # @yield evaluates the drawing DSL in the current element context
       # @yieldreturn [Object] ignored block result
       # @return [void]
       # @raise [Sevgi::ArgumentError] when no block is given
-      # @see #before
-      def after(&block)
+      def base(&block)
         ArgumentError.("Block required") unless block
 
-        _afters << block
-        nil
-      end
-
-      # Registers drawing steps to run before the module's public drawing methods.
-      # @yield evaluates the drawing DSL in the current element context
-      # @yieldreturn [Object] ignored block result
-      # @return [void]
-      # @raise [Sevgi::ArgumentError] when no block is given
-      # @see #after
-      def before(&block)
-        ArgumentError.("Block required") unless block
-
-        _befores << block
+        _bases << block
         nil
       end
 
@@ -61,18 +48,33 @@ module Sevgi
       # @return [void]
       def self.extended(base)
         base.instance_exec do
+          @_bases = []
           @_callables = []
-          @_befores = []
-          @_afters = []
 
           class << self
-            attr_reader :_callables, :_befores, :_afters
+            attr_reader :_bases, :_callables
           end
         end
       end
 
+      # Returns an owned snapshot of inherited and local base blocks in execution order.
+      # @param mod [Module] callable module
+      # @return [Array<Proc>] parent-first base blocks followed by local base blocks
+      # @raise [Sevgi::ArgumentError] when mod is not a plain module
+      def self.bases(mod)
+        ArgumentError.("Must be a module: #{mod}") unless mod.instance_of?(::Module)
+
+        mod
+          .ancestors
+          .reverse_each
+          .filter_map do |ancestor|
+            ancestor._bases if ancestor.respond_to?(:_bases)
+          end
+          .flatten
+      end
+
       # @overload call(mod, receiver, *args, **kwargs)
-      #   Runs module hooks and callables against a receiver.
+      #   Runs module bases and callables against a receiver.
       #   @param mod [Module] callable module
       #   @param receiver [Sevgi::Graphics::Element] receiver element
       #   @param args [Array<Object>] callable arguments
@@ -80,11 +82,10 @@ module Sevgi
       #   @return [Object, nil] last callable return value
       #   @raise [Sevgi::ArgumentError] when mod is not a plain module
       def self.call(mod, receiver, ...)
-        mod._befores.each { receiver.Within(receiver, &it) } if mod.respond_to?(:_befores) && mod._befores
-        # return last callable return value
-        callables(mod).map { it.bind(receiver).call(...) }.last.tap do
-          mod._afters.each { receiver.Within(receiver, &it) } if mod.respond_to?(:_afters) && mod._afters
-        end
+        methods = callables(mod)
+        bases(mod).each { receiver.Within(receiver, &it) }
+
+        methods.map { it.bind(receiver).call(...) }.last
       end
 
       # Returns the methods that should be executed for a callable module.
@@ -134,7 +135,7 @@ module Sevgi
 
           kwargs = kwargs.merge(id: F.demodulize(mod).to_sym) unless kwargs.key?(:id)
 
-          mod._befores.each { Within(self, &it) } if mod.respond_to?(:_befores) && mod._befores
+          Graphics::Module.bases(mod).each { Within(self, &it) }
 
           public_send(container, **kwargs) do
             Graphics::Module.callables(mod).each do |method|
@@ -145,8 +146,6 @@ module Sevgi
               end
             end
           end
-
-          mod._afters.each { Within(self, &it) } if mod.respond_to?(:_afters) && mod._afters
 
           self
         end

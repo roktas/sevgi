@@ -17,9 +17,9 @@ A script usually has three parts:
 The checker-board example shows the pattern clearly: a regular Ruby hash stores the piece positions, while a callable
 drawing module groups receiver-free DSL steps that the `SVG` block invokes with `Call`.
 
-Callable drawing modules use `before` and `after` blocks for steps surrounding their public drawing methods. Name the
-drawing method `call` when a module has only one; use descriptive method names when each of several methods represents a
-separate drawing step.
+Callable drawing modules use `base` blocks for argument-independent SVG shared by their public drawing methods. Each
+invocation runs inherited bases parent-first, then local bases in registration order. Name the drawing method `call` when
+a module has only one; use descriptive method names when each of several methods represents a separate drawing step.
 
 {{ tabs(base="checker-board", dir="../showcase") }}
 
