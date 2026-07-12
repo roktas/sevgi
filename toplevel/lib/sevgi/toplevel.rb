@@ -8,20 +8,16 @@ module Sevgi
   #
   # @see Sevgi
   module Toplevel
-    @constants = {}
+    @promotions = {}
 
     class << self
-      # Returns an immutable snapshot of promoted constants.
-      # @return [Hash<Symbol, Object>]
-      def constants = @constants.dup.freeze
-
       private
 
       def inject(base)
         return if base.instance_variable_defined?("@_toplevel_injected_")
 
         if base.is_a?(::Module)
-          @constants.each do |name, constant|
+          @promotions.each do |name, constant|
             base.const_set(name, constant) unless base.const_defined?(name, false)
           end
         end
@@ -30,7 +26,7 @@ module Sevgi
       end
 
       def promote(constant, symbol = Undefined)
-        @constants[Undefined.default(symbol, constant.to_s.split("::").last.to_sym)] = constant
+        @promotions[Undefined.default(symbol, constant.to_s.split("::").last.to_sym)] = constant
       end
     end
 
