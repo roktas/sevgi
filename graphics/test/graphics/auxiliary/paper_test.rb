@@ -5,24 +5,23 @@ require_relative "../../test_helper"
 module Sevgi
   module Graphics
     class PaperTest < Minitest::Test
-      def test_define_allows_profile_overwrite
-        _, stderr = capture_io do
-          Paper.define(:paper_test_card, width: 3, height: 5)
-          Paper.define(:paper_test_card, width: 7, height: 11)
-        end
+      def test_define_requires_explicit_overwrite
+        name = :paper_test_card
+        Paper.define(name, width: 3, height: 5)
 
-        assert_empty(stderr)
+        assert_raises(Sevgi::ArgumentError) { Paper.define(name, width: 7, height: 11) }
+        Paper.define(name, width: 7, height: 11, overwrite: true)
         assert_equal([7.0, 11.0, :mm, :paper_test_card], Paper.paper_test_card.deconstruct)
       end
 
-      def test_define_can_preserve_matching_profile
+      def test_define_is_idempotent_by_default
         name = :paper_test_preserve
         original = Paper.define(name, width: 3, height: 5)
-        matching = Paper.define(name, width: 3, height: 5, overwrite: false)
+        matching = Paper.define(name, width: 3, height: 5)
 
         assert_same(original, matching)
         assert_raises(Sevgi::ArgumentError) do
-          Paper.define(name, width: 7, height: 11, overwrite: false)
+          Paper.define(name, width: 7, height: 11)
         end
 
         assert_raises(Sevgi::ArgumentError) do

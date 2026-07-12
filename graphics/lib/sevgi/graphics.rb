@@ -85,7 +85,7 @@ module Sevgi
     # @return [Symbol, String] original profile name
     # @raise [Sevgi::ArgumentError] when the profile is invalid or the profile name is reserved
     def paper!(width, height, name = :custom, unit: "mm")
-      name.tap { Graphics::Paper.define(name, width:, height:, unit:) }
+      name.tap { Graphics::Paper.define(name, width:, height:, unit:, overwrite: true) }
     end
 
     # Builds an SVG root document.

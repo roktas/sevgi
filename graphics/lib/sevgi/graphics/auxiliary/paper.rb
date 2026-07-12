@@ -72,9 +72,8 @@ module Sevgi
       end
 
       # Defines a named paper profile after complete validation. Registration is process-global and thread-atomic.
-      # Existing profiles are replaced by default; with `overwrite: false`, identical definitions return the canonical
-      # profile and conflicting definitions raise. Names that are not Ruby call syntax remain accessible through
-      # `public_send`.
+      # Identical definitions return the canonical profile and conflicting definitions raise unless replacement is
+      # explicitly requested. Names that are not Ruby call syntax remain accessible through `public_send`.
       # @param name [Symbol, String] profile name
       # @param overwrite [Boolean] true to replace an existing profile
       # @param spec [Hash] paper dimensions and unit
@@ -84,7 +83,11 @@ module Sevgi
       # @return [Sevgi::Graphics::Paper]
       # @raise [Sevgi::ArgumentError] when the name, dimensions, unit, overwrite flag, or options are reserved or invalid,
       #   or a non-bang definition conflicts with the registered profile
-      def self.define(name, overwrite: true, **spec)
+      # @example Define or reuse a matching profile
+      #   Paper.define(:card, width: 90, height: 50)
+      # @example Replace a profile explicitly
+      #   Paper.define(:card, width: 100, height: 60, overwrite: true)
+      def self.define(name, overwrite: false, **spec)
         name = normalize!(:name, name)
         ArgumentError.("Paper name is reserved: #{name}") if reserved?(name)
         overwrite = overwrite!(overwrite)
