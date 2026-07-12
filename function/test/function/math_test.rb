@@ -110,6 +110,52 @@ module Sevgi
           ].each_slice(2) { |expected, actual| assert_equal(expected, Function.approx(actual)) }
         end
 
+        def test_numeric_helpers_reject_non_finite_real_operands
+          invalid = ["oops", Complex(1, 0), Complex(1, 2), Float::NAN, Float::INFINITY]
+          unary = %i[acos acot approx asin atan cos cot sin tan to_degrees to_radians zero?]
+
+          invalid.product(unary).each do |value, method|
+            assert_raises(Sevgi::ArgumentError) { Function.public_send(method, value) }
+          end
+
+          invalid.each do |value|
+            assert_raises(Sevgi::ArgumentError) { Function.atan2(value, 1) }
+            assert_raises(Sevgi::ArgumentError) { Function.atan2(1, value) }
+            assert_raises(Sevgi::ArgumentError) { Function.round(value, nil) }
+
+            %i[eq? ge? gt? le? lt?].each do |method|
+              assert_raises(Sevgi::ArgumentError) { Function.public_send(method, value, 1) }
+              assert_raises(Sevgi::ArgumentError) { Function.public_send(method, 1, value) }
+            end
+          end
+        end
+
+        def test_inverse_trig_preserves_native_domain_errors
+          assert_raises(::Math::DomainError) { Function.acos(2) }
+          assert_raises(::Math::DomainError) { Function.asin(-2) }
+        end
+
+        def test_precision_rejects_invalid_values_at_boundary
+          invalid = ["2", 2.0, Object.new]
+
+          invalid.each do |value|
+            assert_raises(Sevgi::ArgumentError) { Function::Math.precision = value }
+            assert_raises(Sevgi::ArgumentError) { Function.approx(1.25, value) }
+            assert_raises(Sevgi::ArgumentError) { Function.round(1.25, value) }
+            assert_raises(Sevgi::ArgumentError) { Function.eq?(1, 1, precision: value) }
+
+            ran = false
+            assert_raises(Sevgi::ArgumentError) { Function.with_precision(value) { ran = true } }
+            refute(ran)
+            assert_equal(Function::Math::PRECISION, Function::Math.precision)
+          end
+        end
+
+        def test_precision_accepts_negative_integer
+          assert_equal(120, Function.approx(123, -1))
+          assert_equal(-1, Function.with_precision(-1) { Function::Math.precision })
+        end
+
         def test_with_precision_requires_block
           error = assert_raises(ArgumentError) { Function.with_precision(8) }
 
