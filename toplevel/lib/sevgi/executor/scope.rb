@@ -35,7 +35,7 @@ module Sevgi
 
       # Executes one source object in this scope.
       # @param source [Sevgi::Executor::Source] source to evaluate
-      # @param receiver [Object, nil] receiver used while booting the DSL
+      # @param receiver [Object, nil] explicit boot receiver, or nil to use the isolated scope module
       # @yield optional boot block that installs DSL methods before evaluation
       # @yieldreturn [void]
       # @return [Sevgi::Executor::Scope] self, with recent or error populated
@@ -97,7 +97,8 @@ module Sevgi
       def boot(receiver, &boot)
         return unless boot
 
-        (receiver ||= scope).public_send(receiver.is_a?(::Module) ? :module_exec : :instance_exec, &boot)
+        receiver = scope if receiver.nil?
+        receiver.public_send(receiver.is_a?(::Module) ? :module_exec : :instance_exec, &boot)
       end
 
       def evaluate(source)

@@ -387,6 +387,73 @@ module Sevgi
       refute_respond_to(self, :foobar)
     end
 
+    def test_execute_preserves_explicit_boot_receivers
+      object = Object.new
+      mod = Module.new
+
+      [nil, false, object, mod].each do |receiver|
+        seen = nil
+        result = Executor.execute("1", receiver:) { seen = self }
+
+        assert_equal(1, result.value)
+        if receiver.nil?
+          assert_instance_of(Module, seen)
+          assert_equal("Sevgi::Main", seen.name)
+        else
+          assert_same(receiver, seen)
+        end
+      end
+    end
+
+    def test_execute_isolates_nested_boot_receivers
+      outer = Object.new
+      inner = false
+      seen = []
+
+      result = Executor.execute("42", receiver: outer) do
+        seen << self
+        nested = Executor.execute("6 * 7", receiver: inner) { seen << self }
+        seen << nested.value
+      end
+
+      assert_equal(42, result.value)
+      assert_same(outer, seen[0])
+      assert_same(inner, seen[1])
+      assert_equal(42, seen[2])
+    end
+
+    def test_execute_isolates_concurrent_boot_receivers
+      receivers = [Object.new, false, Module.new]
+      ready = Queue.new
+      release = Queue.new
+
+      results = receivers.map do |receiver|
+        Thread.new do
+          seen = nil
+          result = Executor.execute("1", receiver:) do
+            seen = self
+            ready << true
+            release.pop
+          end
+
+          [receiver, seen, result.value]
+        end
+      end
+
+      receivers.size.times { ready.pop }
+      receivers.size.times { release << true }
+
+      results.each do |thread|
+        receiver, seen, value = thread.value
+        assert_same(receiver, seen)
+        assert_equal(1, value)
+      end
+
+    ensure
+      receivers&.size&.times { release << true } if release
+      results&.each(&:join)
+    end
+
     def test_execute_boots_toplevel_receiver
       refute_respond_to(self, :foobar)
       result = Executor.execute("module A; foobar; end", receiver: TOPLEVEL_BINDING.receiver) do

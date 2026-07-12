@@ -95,7 +95,8 @@ module Sevgi
     # @param file [String, nil] source file name used for errors and backtraces
     # @param line [Integer, nil] starting source line used for errors and backtraces
     # @param require [String, nil] optional Ruby library to require before execution
-    # @param receiver [Object, nil] receiver used while booting the DSL
+    # @param receiver [Object, nil] receiver used verbatim while booting the DSL; nil selects the isolated execution
+    #   module, while false and other executable objects remain explicit receivers
     # @yield optional boot block that installs DSL methods before evaluation
     # @yieldreturn [void]
     # @return [Sevgi::Executor::Result] immutable execution result
@@ -114,7 +115,8 @@ module Sevgi
     # Executes a file inside a managed Sevgi script scope.
     # @param file [String] source file to read and execute
     # @param require [String, nil] optional Ruby library to require before execution
-    # @param receiver [Object, nil] receiver used while booting the DSL
+    # @param receiver [Object, nil] receiver used verbatim while booting the DSL; nil selects the isolated execution
+    #   module, while false and other executable objects remain explicit receivers
     # @yield optional boot block that installs DSL methods before evaluation
     # @yieldreturn [void]
     # @return [Sevgi::Executor::Result] immutable execution result
