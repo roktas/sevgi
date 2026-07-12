@@ -19,6 +19,20 @@ module Sevgi
       .freeze
     CONTRACT_TAGS = %w[param raise return yield yieldparam yieldreturn].freeze
     GENERIC_RETURNS = %w[Array Hash Object].freeze
+    EXACT_CONTRACTS = {
+      "#SVG" => [[%w[document canvas attributes], ["Sevgi::Graphics::Document::Proto"]]],
+      "Sevgi::Toplevel#Paper" => [[%w[width height name unit], %w[Symbol String]]],
+      "Sevgi::Toplevel#Paper!" => [[%w[width height name unit], %w[Symbol String]]],
+      "Sevgi::Geometry::Segment.horizontal" => [[%w[length], ["Sevgi::Geometry::Segment"]]],
+      "Sevgi::Geometry::Segment.vertical" => [[%w[length], ["Sevgi::Geometry::Segment"]]],
+      "Sevgi::Graphics::Mixtures::Render#Render" => [[%w[options], ["String"]]],
+      "Sevgi::Derender::Node#content" => [[[], ["String"]]],
+      "Sevgi::Derender::Node#namespaces" => [[[], ["Hash{String => String}"]]],
+      "Sevgi::Derender::Node#find" => [[%w[arg by], ["Sevgi::Derender::Node", "nil"]]],
+      "Sevgi::Executor::Result#value" => [[[], %w[Object nil]]],
+      "Sevgi::Executor::Result#error" => [[[], ["Sevgi::Executor::Error", "nil"]]],
+      "Sevgi::Executor::Result#stack" => [[[], ["Array<String>"]]]
+    }.freeze
     PUBLIC_CONSTANTS = %w[
       Sevgi::F
       Sevgi::Geometry::Origin
@@ -135,6 +149,18 @@ module Sevgi
       errors = intended_methods.flat_map { contract_errors(it) }
 
       assert_empty(errors, errors.join("\n"))
+    end
+
+    def test_high_value_contracts_are_exact
+      EXACT_CONTRACTS.each do |path, expected|
+        object = yard(path)
+        actual = contract_sources(object).map do |source|
+          returns = source.tags(:return).flat_map { it.types || [] }.uniq
+          [expected_params(source), returns]
+        end
+
+        assert_equal(expected, actual, path)
+      end
     end
 
     def test_public_docs_exclude_tool_directives

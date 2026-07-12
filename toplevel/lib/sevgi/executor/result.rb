@@ -23,13 +23,20 @@ module Sevgi
     # @see Executor.execute
     # @see Executor.execute_file
     Result = Data.define(:value, :error, :stack) do
+      # @!attribute [r] value
+      #   @return [Object, nil] last value produced, or nil when no value was produced
+      # @!attribute [r] error
+      #   @return [Sevgi::Executor::Error, nil] captured failure, or nil after successful execution
+      # @!attribute [r] stack
+      #   @return [Array<String>] frozen owned source-path snapshot in load order
+
       # Creates an execution result.
       # @param value [Object, nil] last value produced before execution finished
       # @param error [Sevgi::Executor::Error, nil] captured execution failure
       # @param stack [Array<String>] source files visited in load order
       # @return [void]
       def initialize(value:, error:, stack:)
-        super(value:, error:, stack: Array(stack).dup.freeze)
+        super(value:, error:, stack: Array(stack).map { it.dup.freeze }.freeze)
       end
 
       # Reports whether execution completed without a captured error.

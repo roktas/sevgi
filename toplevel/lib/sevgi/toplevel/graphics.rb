@@ -27,9 +27,9 @@ module Sevgi
     #   Defines or validates a named paper profile for DSL use.
     #   @param width [Numeric] paper width
     #   @param height [Numeric] paper height
-    #   @param name [Symbol] paper profile name
+    #   @param name [Symbol, String] paper profile name
     #   @param unit [String, Symbol] size unit
-    #   @return [Symbol] the paper profile name
+    #   @return [Symbol, String] the original paper profile name
     #   @raise [Sevgi::ArgumentError] when the profile is invalid or an existing profile differs
     #   @see Sevgi::Graphics#paper
     def Paper(...) = Graphics.paper(...)
@@ -38,9 +38,9 @@ module Sevgi
     #   Defines or overwrites a named paper profile for DSL use.
     #   @param width [Numeric] paper width
     #   @param height [Numeric] paper height
-    #   @param name [Symbol] paper profile name
+    #   @param name [Symbol, String] paper profile name
     #   @param unit [String, Symbol] size unit
-    #   @return [Symbol] the paper profile name
+    #   @return [Symbol, String] the original paper profile name
     #   @raise [Sevgi::ArgumentError] when the profile is invalid or the paper name is reserved
     #   @see Sevgi::Graphics#paper!
     def Paper!(...) = Graphics.paper!(...)

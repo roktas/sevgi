@@ -356,6 +356,10 @@ module Sevgi
         #   content is XML-escaped unless a verbatim content object is used. SVG `style` elements use block content;
         #   same-named elements under a foreign default namespace retain ordinary inline text formatting.
         #   @param options [Hash] renderer options
+        #   @option options [String] :indent ("  ") XML-whitespace indentation unit
+        #   @option options [Integer] :linelength (140) non-negative line length that switches hybrid attributes to block
+        #     style
+        #   @option options [Symbol] :style (:hybrid) attribute layout: `:hybrid`, `:inline`, or `:block`
         #   @return [String] SVG source
         #   @raise [Sevgi::ArgumentError] when options, preambles, names, attributes, or content are invalid XML
         def Render(**) = Renderer.(self, **)

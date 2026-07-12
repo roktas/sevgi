@@ -84,16 +84,18 @@ module Sevgi
       # @return [Array<Sevgi::Derender::Node>] owned child snapshot
       attr_reader :children
 
-      # Returns immutable text content.
-      # @return [String] owned text content
+      # Returns immutable normalized text content. `xml:space="preserve"` and single-line mixed text retain their exact
+      # text. Other text trims surrounding whitespace; multiline mixed text removes only its outer indentation lines.
+      # @return [String] frozen owned text snapshot
       attr_reader :content
 
       # Returns the immutable qualified element name.
       # @return [String] owned element name
       attr_reader :name
 
-      # Returns immutable namespace declarations.
-      # @return [Hash{String => String}] owned namespace snapshot
+      # Returns immutable namespace declarations emitted for this node. A conversion root owns its local declarations;
+      # a separately selected node owns all declarations in scope; descendant snapshots own their local declarations.
+      # @return [Hash{String => String}] frozen owned namespace snapshot
       attr_reader :namespaces
 
       # Builds an owned derender result.
@@ -137,7 +139,7 @@ module Sevgi
       # @return [Array<Sevgi::Graphics::Element>] immutable included-child snapshot
       def evaluate_children(element) = children.filter_map { it.evaluate(element) }.freeze
 
-      # Finds the first descendant whose attribute matches a value.
+      # Finds this node or the first descendant whose attribute matches a value.
       # @param arg [String] attribute value to find
       # @param by [String] attribute name used for lookup
       # @return [Sevgi::Derender::Node, nil] matching immutable node, or nil

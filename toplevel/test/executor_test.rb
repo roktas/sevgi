@@ -431,6 +431,18 @@ module Sevgi
       assert_predicate(result.stack, :frozen?)
     end
 
+    def test_result_owns_source_stack
+      source = +"drawing.sevgi"
+      stack = [source]
+      result = Executor::Result.new(value: nil, error: nil, stack:)
+
+      source.clear
+      stack.clear
+
+      assert_equal(["drawing.sevgi"], result.stack)
+      assert_predicate(result.stack.first, :frozen?)
+    end
+
     def test_execute_returns_failure_status
       result = Executor.execute("missing", file: "script.sevgi")
 

@@ -56,9 +56,15 @@ module Sevgi
       def self.upward(length) = self[length, -90.0]
 
       class << self
-        # @return [Sevgi::Geometry::Segment]
+        # @overload horizontal(length)
+        #   Returns a rightward segment.
+        #   @param length [Numeric] segment length
+        #   @return [Sevgi::Geometry::Segment]
         alias_method :horizontal, :rightward
-        # @return [Sevgi::Geometry::Segment]
+        # @overload vertical(length)
+        #   Returns a downward segment.
+        #   @param length [Numeric] segment length
+        #   @return [Sevgi::Geometry::Segment]
         alias_method :vertical, :downward
       end
 
