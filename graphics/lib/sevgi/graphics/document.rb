@@ -125,6 +125,17 @@ module Sevgi
         Registry[name] || ArgumentError.("Unknown document profile: #{name}")
       end
 
+      # Reports whether a normalizable document profile name is registered.
+      # Invalid converters return false and do not change the registry.
+      # @example Check a built-in profile
+      #   Document.exist?(:minimal) # => true
+      # @param name [Object] profile name
+      # @return [Boolean]
+      def self.exist?(name)
+        name = Profile.normalize(name)
+        name ? !Registry[name].nil? : false
+      end
+
       # Returns registered document profile names.
       # @return [Array<Symbol>] frozen name snapshot
       def self.keys = Registry.available.keys.freeze

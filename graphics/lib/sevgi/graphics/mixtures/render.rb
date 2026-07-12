@@ -10,6 +10,7 @@ module Sevgi
         class Renderer
           # Default renderer options.
           DEFAULTS = {indent: "  ", linelength: 140, style: :hybrid}.freeze
+          STYLES = %i[hybrid inline block].freeze
           SVG_NAMESPACE = "http://www.w3.org/2000/svg"
 
           # Attribute rendering strategies.
@@ -78,7 +79,13 @@ module Sevgi
           ELEMENTS_WITH_BLOCK_CONTENT = %i[style].freeze
           SEPARATOR = "\n"
 
-          private_constant :ELEMENTS_WITH_INLINE_CONTENT, :ELEMENTS_WITH_BLOCK_CONTENT, :SEPARATOR, :SVG_NAMESPACE
+          private_constant(
+            :ELEMENTS_WITH_INLINE_CONTENT,
+            :ELEMENTS_WITH_BLOCK_CONTENT,
+            :SEPARATOR,
+            :STYLES,
+            :SVG_NAMESPACE
+          )
 
           # @return [Sevgi::Graphics::Element] root element
           attr_reader :root
@@ -165,7 +172,7 @@ module Sevgi
           #   @raise [Sevgi::ArgumentError] when an option is unknown, malformed, missing, or unsupported
           def initialize(root, **)
             @root = root
-            @options = DEFAULTS.merge(**)
+            @options = self.class.send(:validate, **)
             @output = []
             @inlines = Inlines.new
 
@@ -186,6 +193,29 @@ module Sevgi
           # @return [String] SVG fragment source
           # @raise [Sevgi::ArgumentError] when options, names, attributes, or content are invalid XML
           def self.fragment(root, **options) = new(root, **options).call
+
+          def self.validate(**options)
+            options = DEFAULTS.merge(options)
+            unknown = options.keys - DEFAULTS.keys
+            ArgumentError.("Unknown renderer options: #{unknown.join(", ")}") unless unknown.empty?
+
+            indent = options[:indent]
+            unless indent.is_a?(::String) && /\A[\t\n\r ]*\z/.match?(indent)
+              ArgumentError.("Renderer indent must contain only XML whitespace")
+            end
+
+            options[:indent] = XML.text(indent, context: "Renderer indent")
+            linelength = options[:linelength]
+            unless linelength.is_a?(::Integer) && linelength >= 0
+              ArgumentError.("Renderer linelength must be a non-negative Integer")
+            end
+
+            ArgumentError.("Unrecognized style: #{options[:style]}") unless STYLES.include?(options[:style])
+
+            options.freeze
+          end
+
+          private_class_method :validate
 
           # Appends rendered lines to the output buffer.
           # @param depth [Integer, nil] indentation depth
@@ -236,9 +266,6 @@ module Sevgi
           end
 
           def build
-            validate_options!
-            ArgumentError.("Missing style") unless options[:style]
-
             case options[:style]
             when :hybrid
               extend(Attributes::Hybrid)
@@ -246,8 +273,6 @@ module Sevgi
               extend(Attributes::Inline)
             when :block
               extend(Attributes::Block)
-            else
-              ArgumentError.("Unrecognized style: #{options[:style]}")
             end
 
             unclosed
@@ -330,21 +355,6 @@ module Sevgi
 
           def unclosed = @closed = false
 
-          def validate_options!
-            unknown = options.keys - DEFAULTS.keys
-            ArgumentError.("Unknown renderer options: #{unknown.join(", ")}") unless unknown.empty?
-
-            indent = options[:indent]
-            unless indent.is_a?(::String) && /\A[\t\n\r ]*\z/.match?(indent)
-              ArgumentError.("Renderer indent must contain only XML whitespace")
-            end
-
-            options[:indent] = XML.text(indent, context: "Renderer indent")
-            linelength = options[:linelength]
-            return if linelength.is_a?(::Integer) && linelength >= 0
-
-            ArgumentError.("Renderer linelength must be a non-negative Integer")
-          end
         end
 
         private_constant :Renderer
@@ -367,14 +377,22 @@ module Sevgi
         # Renders only this element's children.
         # Child render output omits document preambles and preserves each child's text whitespace and inline
         # mixed-content formatting.
+        # @example Render child fragments with block-style attributes
+        #   SVG(:minimal) { rect(id: "one") }.RenderChildren(style: :block, indent: "\t")
         # @param separator [String] separator between child documents
+        # @param options [Hash] renderer options applied to every child fragment
+        # @option options [String] :indent ("  ") XML-whitespace indentation unit
+        # @option options [Integer] :linelength (140) non-negative line length that switches hybrid attributes to block
+        #   style
+        # @option options [Symbol] :style (:hybrid) attribute layout: `:hybrid`, `:inline`, or `:block`
         # @return [String] rendered child fragments
-        # @raise [Sevgi::ArgumentError] when separator or rendered child data is not valid XML text
-        def RenderChildren(separator = "\n\n")
+        # @raise [Sevgi::ArgumentError] when separator, options, or rendered child data is invalid
+        def RenderChildren(separator = "\n\n", **options)
           ArgumentError.("SVG fragment separator must be a String") unless separator.is_a?(::String)
 
           separator = XML.text(separator, context: "SVG fragment separator")
-          children.map { Renderer.fragment(it) }.join(separator)
+          Renderer.send(:validate, **options)
+          children.map { Renderer.fragment(it, **options) }.join(separator)
         end
       end
     end

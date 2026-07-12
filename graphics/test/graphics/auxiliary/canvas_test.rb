@@ -31,6 +31,19 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
+      def test_canvas_has_structural_value_semantics
+        canvas = Canvas.from_paper(:a4, margins: [3, 5])
+        equivalent = Canvas.new(**Paper.a4.to_h, margins: [3, 5])
+        different = equivalent.with(margins: [3, 6])
+
+        assert_equal(canvas, equivalent)
+        assert(canvas.eql?(equivalent))
+        refute_equal(canvas, different)
+        refute(canvas.eql?(Object.new))
+        assert_equal(canvas.hash, equivalent.hash)
+        assert_equal(:found, {canvas => :found}[equivalent])
+      end
+
       def test_canvas_accepts_paper_profile_object
         canvas = Canvas.from_paper(Paper.a4, margins: [3, 5])
 

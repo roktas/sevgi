@@ -119,6 +119,18 @@ module Sevgi
         assert_raises(FrozenError) { keys.clear }
       end
 
+      def test_document_exist_reports_registered_profiles
+        invalid = Object.new.tap { it.define_singleton_method(:to_sym) { raise "broken" } }
+        before = Document.keys
+
+        assert(Document.exist?(:minimal))
+        assert(Document.exist?("minimal"))
+        refute(Document.exist?(:missing))
+        refute(Document.exist?(Object.new))
+        refute(Document.exist?(invalid))
+        assert_equal(before, Document.keys)
+      end
+
       def test_profile_registry_is_not_public
         before = Document.keys
 

@@ -326,6 +326,14 @@ module Sevgi
           end
         end
 
+        def test_render_children_validates_options_when_empty
+          document = SVG(DOC)
+
+          [{style: :unknown}, {indent: "text"}, {linelength: -1}, {unknown: true}].each do |options|
+            assert_raises(Sevgi::ArgumentError) { document.RenderChildren(**options) }
+          end
+        end
+
         def test_render_children_joins_top_level_children
           doc = SVG(DOC) do
             rect(id: "one")
@@ -333,6 +341,30 @@ module Sevgi
           end
 
           assert_render("<rect id=\"one\"/>\n\n<circle id=\"two\"/>", doc.RenderChildren(), fragment: true)
+        end
+
+        def test_render_children_forwards_renderer_options
+          doc = SVG(DOC) do
+            g(id: "one") { rect(id: "child") }
+            circle(id: "two")
+          end
+
+          actual = doc.RenderChildren("\n", style: :block, indent: "\t", linelength: 0)
+          expected = <<~SVG
+            <g
+            \tid="one"
+            >
+            \t<rect
+            \t\tid="child"
+            \t/>
+            </g>
+            <circle
+            \tid="two"
+            />
+          SVG
+            .chomp
+
+          assert_render(expected, actual, fragment: true)
         end
 
         def test_render_children_validates_separator
