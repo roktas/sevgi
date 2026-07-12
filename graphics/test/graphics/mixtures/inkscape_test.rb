@@ -14,6 +14,16 @@ module Sevgi
           end
         end
 
+        Forwarding = ::Module.new do
+          extend(Graphics::Module)
+
+          base { rect(id: "base") }
+
+          def call(value, keyword:, &block)
+            rect(id: "#{value}-#{keyword}-#{block.call}")
+          end
+        end
+
         def test_layer_and_symbol_bang_render_inkscape_elements
           actual = SVG(:inkscape) do
             layer(id: "layer1") { rect(id: "rect") }
@@ -38,6 +48,29 @@ module Sevgi
             %r{<g id="Widget" inkscape:groupmode="layer">\n    <rect id="layered"/>\n  </g>},
             %r{<g id="Widget" inkscape:groupmode="layer" sodipodi:insensitive="true">\n    <rect id="locked"/>\n  </g>}
           ].each { |pattern| assert_match(pattern, actual) }
+        end
+
+        def test_callable_wrappers_separate_and_forward_channels
+          doc = SVG(:inkscape)
+          wrappers = %i[Group Layer Layer!]
+          results = wrappers.map do |wrapper|
+            doc
+              .public_send(
+                wrapper,
+                Forwarding,
+                wrapper,
+                keyword: "keyword",
+                attributes: {id: wrapper, class: "container"}
+              ) { "block" }
+          end
+
+          results.each_with_index do |container, index|
+            assert_same(doc.children[index], container)
+            assert_equal("container", container[:class])
+            assert_equal(["base", "#{wrappers[index]}-keyword-block"], container.children.map { it[:id] })
+          end
+
+          assert_equal("true", results.last["sodipodi:insensitive"])
         end
 
         def test_pages_yields_page_elements_to_block

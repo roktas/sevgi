@@ -25,40 +25,49 @@ module Sevgi
         # Renders a callable module inside a group.
         # @param mod [Module] callable drawing module
         # @param args [Array<Object>] callable arguments
-        # @param kwargs [Hash] group attributes
+        # @param attributes [Hash] group attributes
+        # @param kwargs [Hash] callable keyword arguments
         # @yield forwards customization to the callable module
         # @yieldreturn [Object] callable customization result
         # @return [Sevgi::Graphics::Element] group element
-        # @raise [Sevgi::ArgumentError] when mod is not a plain module
-        def Group(mod, *args, **kwargs, &block)
-          kwargs = kwargs.merge(id: F.demodulize(mod).to_sym) unless kwargs.key?(:id)
-          g(**kwargs) { Call(mod, *args, &block) }
+        # @raise [Sevgi::ArgumentError] when mod is not a plain module or attributes is not a Hash
+        def Group(mod, *args, attributes: {}, **kwargs, &block)
+          Graphics::Module.__send__(:callables, mod)
+          ArgumentError.("Group attributes must be a Hash") unless attributes.is_a?(::Hash)
+          attributes = attributes.merge(id: F.demodulize(mod).to_sym) unless attributes.key?(:id)
+          g(**attributes) { Call(mod, *args, **kwargs, &block) }
         end
 
         # Renders a callable module inside an Inkscape layer.
         # @param mod [Module] callable drawing module
         # @param args [Array<Object>] callable arguments
-        # @param kwargs [Hash] layer attributes
+        # @param attributes [Hash] layer attributes
+        # @param kwargs [Hash] callable keyword arguments
         # @yield forwards customization to the callable module
         # @yieldreturn [Object] callable customization result
         # @return [Sevgi::Graphics::Element] layer element
-        # @raise [Sevgi::ArgumentError] when mod is not a plain module
-        def Layer(mod, *args, **kwargs, &block)
-          kwargs = kwargs.merge(id: F.demodulize(mod).to_sym) unless kwargs.key?(:id)
-          layer(**kwargs) { Call(mod, *args, &block) }
+        # @raise [Sevgi::ArgumentError] when mod is not a plain module or attributes is not a Hash
+        def Layer(mod, *args, attributes: {}, **kwargs, &block)
+          Graphics::Module.__send__(:callables, mod)
+          ArgumentError.("Layer attributes must be a Hash") unless attributes.is_a?(::Hash)
+          attributes = attributes.merge(id: F.demodulize(mod).to_sym) unless attributes.key?(:id)
+          layer(**attributes) { Call(mod, *args, **kwargs, &block) }
         end
 
         # Renders a callable module inside an insensitive Inkscape layer.
         # @param mod [Module] callable drawing module
         # @param args [Array<Object>] callable arguments
-        # @param kwargs [Hash] layer attributes
+        # @param attributes [Hash] layer attributes
+        # @param kwargs [Hash] callable keyword arguments
         # @yield forwards customization to the callable module
         # @yieldreturn [Object] callable customization result
         # @return [Sevgi::Graphics::Element] layer element
-        # @raise [Sevgi::ArgumentError] when mod is not a plain module
-        def Layer!(mod, *args, **kwargs, &block)
-          kwargs = kwargs.merge(id: F.demodulize(mod).to_sym) unless kwargs.key?(:id)
-          layer!(**kwargs) { Call(mod, *args, &block) }
+        # @raise [Sevgi::ArgumentError] when mod is not a plain module or attributes is not a Hash
+        def Layer!(mod, *args, attributes: {}, **kwargs, &block)
+          Graphics::Module.__send__(:callables, mod)
+          ArgumentError.("Layer attributes must be a Hash") unless attributes.is_a?(::Hash)
+          attributes = attributes.merge(id: F.demodulize(mod).to_sym) unless attributes.key?(:id)
+          layer!(**attributes) { Call(mod, *args, **kwargs, &block) }
         end
 
         # @overload layer(**attributes)

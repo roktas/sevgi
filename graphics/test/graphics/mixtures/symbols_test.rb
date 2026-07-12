@@ -53,14 +53,14 @@ module Sevgi
 
         def test_symbols_allows_custom_id_mapping
           actual = SVG(:symbol_test) do
-            Symbols(IconSet) { |name| "custom-#{name}" }
+            Symbols(IconSet, ids: -> (name) { "custom-#{name}" })
           end
             .Render()
 
           assert_match(/<symbol id="custom-first_icon">/, actual)
         end
 
-        def test_symbols_renders_base_once_before_defs
+        def test_symbols_renders_base_once_inside_defs
           mod = ::Module.new do
             extend(Graphics::Module)
 
@@ -73,7 +73,38 @@ module Sevgi
           actual = SVG(:symbol_test) { Symbols(mod) }.Render()
 
           assert_equal(1, actual.scan("<style>").size)
-          assert_operator(actual.index("<style>"), :<, actual.index("<defs"))
+          assert_operator(actual.index("<defs"), :<, actual.index("<style>"))
+          assert_operator(actual.index("<style>"), :<, actual.index("<symbol"))
+        end
+
+        def test_symbols_separates_and_forwards_channels
+          mod = ::Module.new do
+            extend(Graphics::Module)
+
+            base { style(".shared {}") }
+
+            def icon(value, keyword:, &block)
+              rect(id: "#{value}-#{keyword}-#{block.call}")
+            end
+          end
+
+          result = nil
+          doc = SVG(:symbol_test) do
+            result = Symbols(
+              mod,
+              "argument",
+              keyword: "keyword",
+              attributes: {id: "catalog", class: "symbols"},
+              ids: -> (name) { "mapped-#{name}" }
+            ) { "block" }
+          end
+
+          assert_same(doc.children.first, result)
+          assert_equal("catalog", result[:id])
+          assert_equal("symbols", result[:class])
+          assert_equal(%i[style symbol], result.children.map(&:name))
+          assert_equal("mapped-icon", result.children.last[:id])
+          assert_equal("argument-keyword-block", result.children.last.children.last[:id])
         end
       end
     end

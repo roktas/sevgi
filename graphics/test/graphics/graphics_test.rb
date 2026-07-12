@@ -62,7 +62,7 @@ module Sevgi
 
       def test_mixtures_keep_private_surface_small
         expected = [
-          [:Call, [:CallWithin], []],
+          [:Call, [], []],
           [:Core, [], []],
           [:Duplicate, [], []],
           [:Export, [:Export], []],

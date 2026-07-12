@@ -119,8 +119,7 @@ module Sevgi
         context = context(mod, receiver)
         bases(mod).each { context.instance_exec(&it) }
 
-        result = methods.map { context.__send__(it.name, ...) }.last
-        result.equal?(context) ? receiver : result
+        invoke(context, receiver, methods, ...)
       end
 
       # Returns the methods that should be executed for a callable module.
@@ -155,6 +154,11 @@ module Sevgi
         klass.new(mod, receiver)
       end
 
+      def self.invoke(context, receiver, methods, ...)
+        result = methods.map { context.__send__(it.name, ...) }.last
+        result.equal?(context) ? receiver : result
+      end
+
       private
 
       # Tracks newly defined methods as callable drawing candidates.
@@ -167,7 +171,7 @@ module Sevgi
         @sevgi_callables << method if public_method_defined?(method)
       end
 
-      private_class_method :bases, :call, :callable_names, :callables, :context, :extended
+      private_class_method :bases, :call, :callable_names, :callables, :context, :extended, :invoke
     end
 
     module Mixtures
@@ -184,29 +188,6 @@ module Sevgi
           Graphics::Module.__send__(:call, mod, self, ...)
         end
 
-        private
-
-        # rubocop:disable Metrics/MethodLength
-        def CallWithin(mod, container, element, *args, **kwargs, &block)
-          ArgumentError.("Must be a module: #{mod}") unless mod.instance_of?(::Module)
-
-          kwargs = kwargs.merge(id: F.demodulize(mod).to_sym) unless kwargs.key?(:id)
-
-          Graphics::Module.__send__(:bases, mod).each { Within(self, &it) }
-
-          public_send(container, **kwargs) do
-            Graphics::Module.__send__(:callables, mod).each do |method|
-              public_send(element) do
-                Within(self, method.name, self, &block)
-
-                method.bind(self).call(*args)
-              end
-            end
-          end
-
-          self
-        end
-        # rubocop:enable Metrics/MethodLength
       end
     end
   end
