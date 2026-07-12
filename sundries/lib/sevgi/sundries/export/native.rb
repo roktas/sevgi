@@ -20,7 +20,9 @@ module Sevgi
 
       # Exports SVG source to a PDF or PNG file using librsvg and Cairo.
       # @param svg [String] SVG source content
-      # @param output [String, #to_s] output file path
+      # Relative paths are expanded, missing parent directories are created after all render inputs validate, and an
+      # existing output file is replaced. Directory paths are not expanded to a default file name.
+      # @param output [String, #to_path] output file path
       # @param format [Symbol, String, nil] explicit output format, or nil to infer from output extension
       # @param width [Numeric, nil] finite positive target width in output pixels for PNG, or CSS pixels before PDF point conversion
       # @param height [Numeric, nil] finite positive target height in output pixels for PNG, or CSS pixels before PDF point conversion
@@ -29,12 +31,12 @@ module Sevgi
       # @yield [svg] optional source transformation applied before rendering
       # @yieldparam svg [String] SVG source after optional CSS injection
       # @yieldreturn [String] SVG source to render
-      # @return [Object] the original output argument
+      # @return [String] expanded output path
       # @raise [Sevgi::ArgumentError] when output, CSS, or transformed SVG has an invalid type
       # @raise [Sevgi::Sundries::Export::ExportError] when format, numeric options, CSS insertion, SVG parsing, SVG dimensions, or render dimensions are invalid
+      # @raise [SystemCallError] when the output directory or file cannot be created or written
       def call(svg, output, format: nil, width: nil, height: nil, dpi: DEFAULT_DPI, css: nil, &block)
         ArgumentError.("SVG content must be a String") unless svg.is_a?(String)
-        original_output = output
         output = output_path(output)
         format = format_for(format, output)
         width = dimension(width, "width")
@@ -62,6 +64,7 @@ module Sevgi
           tw, th = target_size(iw, ih, width, height)
           ExportError.("Invalid export dimensions") unless target_size?(format, tw, th)
 
+          ::FileUtils.mkdir_p(::File.dirname(output))
           renderer.call(
             handle: handle,
             output: output,
@@ -75,7 +78,7 @@ module Sevgi
           ExportError.("Render error: #{e.message}")
         end
 
-        original_output
+        output
       end
 
       # Replaces exact placeholder text objects in PDF streams.
@@ -308,15 +311,15 @@ module Sevgi
         def output_path(output)
           ArgumentError.("Export output must be provided") if output.nil?
 
-          path = output.to_s
-          ArgumentError.("Export output must be a String-like path") unless path.is_a?(::String)
+          path = output.respond_to?(:to_path) ? output.to_path : output
+          ArgumentError.("Export output must be a String or path-like object") unless path.is_a?(::String)
           ArgumentError.("Export output must be provided") if path.strip.empty?
 
-          path
+          ::File.expand_path(path)
         rescue ::StandardError => e
           raise if e.is_a?(::Sevgi::ArgumentError)
 
-          ArgumentError.("Export output must be a String-like path: #{e.message}")
+          ArgumentError.("Export output must be a String or path-like object: #{e.message}")
         end
 
         def dimension(value, field, optional: true)

@@ -70,6 +70,16 @@ module Sevgi
           end
         end
 
+        def test_save_uses_default_name_for_directory
+          Dir.mktmpdir do |dir|
+            result = SVG(:minimal).Save(dir)
+            expected = File.join(dir, "save_test.svg")
+
+            assert_equal(expected, result)
+            assert_path_exists(expected)
+          end
+        end
+
         def test_write_writes_rendered_svg_to_path
           Dir.mktmpdir do |dir|
             path = File.join(dir, "out.svg")
@@ -82,6 +92,38 @@ module Sevgi
               "<svg>\n  <rect id=\"one\"/>\n</svg>\n",
               File.read(path)
             ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+          end
+        end
+
+        def test_writers_normalize_paths_and_create_parents
+          Dir.mktmpdir do |dir|
+            Dir.chdir(dir) do
+              document = SVG(:minimal) { rect(id: "one") }
+              paths = [
+                [-> (path) { document.Save(path) }, Pathname("save/out.svg")],
+                [-> (path) { document.Write(path) }, Pathname("write/out.svg")]
+              ]
+
+              paths.each do |writer, path|
+                expected = File.expand_path(path)
+
+                assert_equal(expected, writer.call(path))
+                assert_path_exists(expected)
+                assert_nil(writer.call(path))
+              end
+            end
+          end
+        end
+
+        def test_writers_propagate_file_failures
+          Dir.mktmpdir do |dir|
+            blocker = File.join(dir, "blocker")
+            File.write(blocker, "file")
+            path = File.join(blocker, "out.svg")
+            document = SVG(:minimal)
+
+            assert_raises(SystemCallError) { document.Save(path) }
+            assert_raises(SystemCallError) { document.Write(path) }
           end
         end
       end

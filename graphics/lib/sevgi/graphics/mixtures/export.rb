@@ -6,15 +6,18 @@ module Sevgi
       # DSL helpers for native SVG export formats.
       module Export
         # Exports the document as PDF.
-        # @param path [String, nil] output path or directory
+        # Relative paths are expanded, missing parent directories are created after export validation, and an existing
+        # file is replaced. An existing directory target uses the caller-derived default PDF name.
+        # @param path [String, #to_path, nil] output path or existing directory
         # @param kwargs [Hash] export options
         # @yield [svg] transforms SVG source before rendering
         # @yieldparam svg [String] rendered SVG source
         # @yieldreturn [String] transformed SVG source
-        # @return [String] output path
+        # @return [String] expanded output path
         # @raise [Sevgi::MissingComponentError] when sevgi/sundries is unavailable
         # @raise [Sevgi::MissingComponentError] when native export gems are unavailable
         # @raise [Sevgi::Sundries::Export::ExportError] when native export fails
+        # @raise [SystemCallError] when the output directory or file cannot be created or written
         def PDF(path = nil, **kwargs, &block)
           begin
             require "sevgi/sundries"
@@ -29,15 +32,18 @@ module Sevgi
         end
 
         # Exports the document as PNG.
-        # @param path [String, nil] output path or directory
+        # Relative paths are expanded, missing parent directories are created after export validation, and an existing
+        # file is replaced. An existing directory target uses the caller-derived default PNG name.
+        # @param path [String, #to_path, nil] output path or existing directory
         # @param kwargs [Hash] export options
         # @yield [svg] transforms SVG source before rendering
         # @yieldparam svg [String] rendered SVG source
         # @yieldreturn [String] transformed SVG source
-        # @return [String] output path
+        # @return [String] expanded output path
         # @raise [Sevgi::MissingComponentError] when sevgi/sundries is unavailable
         # @raise [Sevgi::MissingComponentError] when native export gems are unavailable
         # @raise [Sevgi::Sundries::Export::ExportError] when native export fails
+        # @raise [SystemCallError] when the output directory or file cannot be created or written
         def PNG(path = nil, **kwargs, &block)
           begin
             require "sevgi/sundries"
@@ -62,9 +68,7 @@ module Sevgi
             default
           end => path
 
-          ::FileUtils.mkdir_p(::File.dirname(path))
-
-          Sundries::Export.(call, path, **kwargs, &block)
+          Sundries::Export.(call, ::File.expand_path(path), **kwargs, &block)
         end
       end
     end

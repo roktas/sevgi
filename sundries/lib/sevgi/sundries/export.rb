@@ -41,7 +41,9 @@ module Sevgi
       # @overload call(svg, output, format: nil, width: nil, height: nil, dpi: DEFAULT_DPI, css: nil)
       #   Exports SVG source to a PDF or PNG file using the optional native export gems.
       #   @param svg [String] SVG source content
-      #   @param output [String, #to_s] output file path
+      #   Relative paths are expanded, missing parent directories are created after all render inputs validate, and an
+      #   existing output file is replaced. Directory paths are not expanded to a default file name.
+      #   @param output [String, #to_path] output file path
       #   @param format [Symbol, String, nil] explicit output format, or nil to infer from output extension
       #   @param width [Numeric, nil] target width in output pixels for PNG, or CSS pixels before PDF point conversion
       #   @param height [Numeric, nil] target height in output pixels for PNG, or CSS pixels before PDF point conversion
@@ -50,11 +52,12 @@ module Sevgi
       #   @yield [svg] optional source transformation applied before rendering
       #   @yieldparam svg [String] SVG source after optional CSS injection
       #   @yieldreturn [String] SVG source to render
-      #   @return [Object] the original output argument
+      #   @return [String] expanded output path
       #   @raise [Sevgi::ArgumentError] when SVG content is not a string or output is blank
       #   @raise [Sevgi::MissingComponentError] when cairo, hexapdf, or rsvg2 is unavailable
       #   @raise [Sevgi::Sundries::Export::ExportError] when format, CSS insertion, SVG parsing, SVG dimensions, or
       #     render dimensions are invalid
+      #   @raise [SystemCallError] when the output directory or file cannot be created or written
       def call(*args, **kwargs, &block) = native!.call(*args, **kwargs, &block)
 
       def format_for(format, output)

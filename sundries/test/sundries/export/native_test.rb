@@ -13,11 +13,37 @@ module Sevgi
           assert_operator(ExportError, :<, ::Sevgi::Error)
         end
 
-        def test_call_returns_output_argument
+        def test_call_returns_expanded_output_path
           Dir.mktmpdir do |dir|
             output = File.join(dir, "out.png")
+            File.write(output, "old")
 
             assert_equal(output, Export.call(svg(width: 10, height: 10), output))
+            refute_equal("old", File.binread(output))
+          end
+        end
+
+        def test_call_accepts_pathlike_output_and_creates_parent
+          Dir.mktmpdir do |dir|
+            Dir.chdir(dir) do
+              output = Pathname("nested/out.png")
+              expected = File.expand_path(output)
+              result = Export.call(svg(width: 10, height: 10), output)
+
+              assert_equal(expected, result)
+              assert_instance_of(String, result)
+              assert_path_exists(expected)
+            end
+          end
+        end
+
+        def test_call_validates_before_creating_parent
+          Dir.mktmpdir do |dir|
+            parent = File.join(dir, "nested")
+            output = File.join(parent, "out.png")
+
+            assert_raises(ExportError) { Export.call("<svg>", output) }
+            refute_path_exists(parent)
           end
         end
 
@@ -246,9 +272,7 @@ module Sevgi
             assert_raises(ExportError) { Export.call(svg(width: 10, height: 10), output, format: Object.new) }
             assert_raises(ArgumentError) { Export.call(svg(width: 10, height: 10), output, css: Object.new) }
 
-            invalid_output = Object.new
-            invalid_output.define_singleton_method(:to_s) { raise "path failed" }
-            assert_raises(ArgumentError) { Export.call(svg(width: 10, height: 10), invalid_output) }
+            assert_raises(ArgumentError) { Export.call(svg(width: 10, height: 10), Object.new) }
           end
         end
 
