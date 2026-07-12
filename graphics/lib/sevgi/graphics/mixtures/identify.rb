@@ -5,15 +5,16 @@ module Sevgi
     module Mixtures
       # DSL helpers for collecting and hiding SVG ids.
       module Identify
-        # Index of element ids under a subtree.
+        # Immutable snapshot of element ids under a subtree. Keys and containers are owned by the index; values retain
+        # references to the elements present when the snapshot is built. Later tree changes require a new index.
         class Identifiers
           # @return [Sevgi::Graphics::Element] indexed root element
           attr_reader :element
 
-          # @return [Hash<String, Sevgi::Graphics::Element>] id namespace
+          # @return [Hash<String, Sevgi::Graphics::Element>] frozen id namespace snapshot
           attr_reader :namespace
 
-          # @return [Hash<String, Array<Sevgi::Graphics::Element>>] duplicate id groups
+          # @return [Hash<String, Array<Sevgi::Graphics::Element>>] frozen duplicate id groups and arrays
           attr_reader :collision
 
           # Builds an id index for an element subtree.
@@ -25,6 +26,10 @@ module Sevgi
             @collision = {}
 
             build
+            @namespace.freeze
+            @collision.each_value(&:freeze)
+            @collision.freeze
+            freeze
           end
 
           # Reports whether duplicate ids were found.
@@ -33,13 +38,11 @@ module Sevgi
             !@collision.empty?
           end
 
-          # @overload [](id)
-          #   Returns the element registered for an id.
-          #   @param id [String] SVG id
-          #   @return [Sevgi::Graphics::Element, nil]
-          def [](*)
-            @namespace[*]
-          end
+          # Returns the first element registered for an id in the snapshot.
+          # Duplicate entries are available through {#collision}.
+          # @param id [String] serialized SVG id
+          # @return [Sevgi::Graphics::Element, nil]
+          def [](id) = @namespace[id]
 
           private
 
@@ -47,7 +50,7 @@ module Sevgi
             element.Traverse() do |element|
               next unless (value = element[:id])
 
-              id = Attribute.xml_text(value)
+              id = Attribute.xml_text(value).dup.freeze
 
               if @namespace.key?(id)
                 (@collision[id] ||= [@namespace[id]]) << element
@@ -75,8 +78,9 @@ module Sevgi
           end
         end
 
-        # Builds an id index for this element subtree.
-        # @return [Sevgi::Graphics::Mixtures::Identify::Identifiers]
+        # Builds an immutable id index snapshot for the current element subtree.
+        # Rebuild the index to observe later id or tree changes.
+        # @return [Sevgi::Graphics::Mixtures::Identify::Identifiers] new snapshot retaining indexed element references
         def Identifiers = Identifiers.new(self)
       end
     end

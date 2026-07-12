@@ -46,6 +46,30 @@ module Sevgi
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
         end
 
+        def test_identifiers_are_immutable_snapshots
+          doc = SVG(:minimal) do
+            g(id: "same")
+            rect(id: "same")
+          end
+
+          identifiers = doc.Identifiers()
+
+          assert_raises(FrozenError) { identifiers.namespace.clear }
+          assert_raises(FrozenError) { identifiers.collision.clear }
+          assert_raises(FrozenError) { identifiers.collision["same"] << doc }
+          assert_raises(::ArgumentError) { identifiers["same", "other"] }
+
+          first = identifiers["same"]
+          first[:id] = "changed"
+          doc.circle(id: "later")
+
+          assert_same(first, identifiers["same"])
+          assert_nil(identifiers["changed"])
+          assert_nil(identifiers["later"])
+          assert_same(first, doc.Identifiers()["changed"])
+          assert_predicate(identifiers.namespace.keys.first, :frozen?)
+        end
+
         def test_disidentify_hides_visible_ids
           doc = SVG(:minimal) do
             g(id: "group", "-id": "group-source") do
