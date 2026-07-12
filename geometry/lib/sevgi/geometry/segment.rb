@@ -121,7 +121,12 @@ module Sevgi
       def y = length * F.sin(angle)
     end
 
-    # Lightweight polar value used where a plain length/angle tuple is enough.
-    Polar = Data.define(:length, :angle)
+    # Immutable length/angle constraint used when a full segment is not implied.
+    #
+    # @!attribute [r] length
+    #   @return [Numeric] target measure
+    # @!attribute [r] angle
+    #   @return [Numeric] direction used to derive a segment
+    LengthAngle = Data.define(:length, :angle)
   end
 end
