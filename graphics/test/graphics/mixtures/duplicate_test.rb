@@ -272,8 +272,47 @@ module Sevgi
             "translate(0 4)",
             source.Duplicate(dy: 4)[:transform],
             "translate(3 4)",
-            source.Duplicate(dx: 3, dy: 4)[:transform]
+            source.Duplicate(dx: 3, dy: 4)[:transform],
+            "translate(0.5 1.5)",
+            source.Duplicate(dx: Rational(1, 2), dy: Rational(3, 2))[:transform]
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+        end
+
+        def test_duplicate_validates_before_customization
+          source = SVG { rect }.children.first
+          calls = 0
+          invalid = [false, "1", Complex(1, 2), Float::INFINITY, Float::NAN]
+
+          %i[dx dy].product(invalid).each do |field, value|
+            assert_raises(Sevgi::ArgumentError) do
+              source.Duplicate(**{field => value}) { calls += 1 }
+            end
+          end
+
+          [false, Object.new, SVG(:inkscape)].each do |parent|
+            assert_raises(Sevgi::ArgumentError) { source.Duplicate(parent:) { calls += 1 } }
+          end
+
+          [nil, false].each do |value|
+            assert_raises(Sevgi::ArgumentError) { source.DuplicateX(value) { calls += 1 } }
+            assert_raises(Sevgi::ArgumentError) { source.DuplicateY(value) { calls += 1 } }
+          end
+
+          assert_equal(0, calls)
+          assert_equal([source], source.parent.children)
+        end
+
+        def test_duplicate_nil_is_the_only_omission
+          source = SVG { rect }.children.first
+          target = source.parent.g
+
+          sibling = source.Duplicate(dx: nil, dy: nil, parent: nil)
+          attached = source.Duplicate(dx: 0, dy: 0, parent: target)
+
+          assert_nil(sibling[:transform])
+          assert_same(source.parent, sibling.parent)
+          assert_nil(attached[:transform])
+          assert_same(target, attached.parent)
         end
 
         def test_duplicate_copies_content_containers
