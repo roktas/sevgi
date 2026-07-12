@@ -2,10 +2,13 @@
 
 module Sevgi
   module Graphics
-    # Renderable text-like content inside an SVG element. Content owns an immutable deep snapshot: strings and containers
+    # Abstract base for renderable text-like content inside an SVG element. Use {.cdata}, {.css}, {.encoded}, or
+    # {.verbatim} to construct a concrete content object. Content owns an immutable deep snapshot: strings and containers
     # are copied, mutable leaf objects are stringified once during construction, and {#content} returns caller-owned
     # copies. Later mutations cannot change rendering or invalidate the construction-time XML checks.
     class Content
+      private_class_method :new
+
       # Immutable payload capture and caller-owned copy helpers.
       # @api private
       module Snapshot
@@ -167,6 +170,8 @@ module Sevgi
       # construction; embedded terminators are split during rendering.
       # @see Content.cdata
       class CData < Content
+        public_class_method :new
+
         # Renders CDATA content.
         # Embedded `]]>` terminators are split across adjacent CDATA sections so the output remains valid XML.
         # @param renderer [Object] renderer receiving output
@@ -189,6 +194,8 @@ module Sevgi
       # selectors, property names, and values are stringified once, and embedded CDATA terminators are split safely.
       # @see Content.css
       class CSS < Content
+        public_class_method :new
+
         # Creates CSS content.
         # @param content [Hash] CSS rules
         # @return [void]
@@ -249,6 +256,8 @@ module Sevgi
       # construction, before XML escaping.
       # @see Content.encoded
       class Encoded < Content
+        public_class_method :new
+
         # Returns XML text-encoded content.
         # @return [String]
         def to_s = XML.text(payload).encode(xml: :text)
@@ -265,6 +274,8 @@ module Sevgi
       # points, not well-formed markup supplied by the caller.
       # @see Content.verbatim
       class Verbatim < Content
+        public_class_method :new
+
         # Returns validated verbatim content.
         # @return [String]
         def to_s = XML.text(payload)

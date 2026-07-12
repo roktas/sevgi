@@ -5,6 +5,10 @@ require_relative "../test_helper"
 module Sevgi
   module Geometry
     class EquationTest < Minitest::Test
+      def test_abstract_equation_cannot_be_constructed
+        assert_raises(NoMethodError) { Equation.new }
+      end
+
       def test_rect_intersection_returns_boundary_points
         rect = Rect[2, 7]
 
@@ -91,7 +95,7 @@ module Sevgi
       end
 
       def test_unknown_equation_intersection_raises_panic_error
-        custom = Class.new(Equation).new
+        custom = Class.new(Equation).allocate
         error = assert_raises(PanicError) { Equation.horizontal(1).intersect(custom) }
 
         assert_match(/Intersection not implemented/, error.message)

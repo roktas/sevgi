@@ -2,8 +2,10 @@
 
 module Sevgi
   module Geometry
-    # Base class for geometric elements.
+    # Abstract base class for geometric elements. Construct concrete shapes through their class factories.
     class Element
+      private_class_method :new
+
       # @overload lined(size = Undefined, open: false)
       #   Builds a lined element subclass.
       #   @param size [Integer, Sevgi::Undefined] segment count for fixed-size elements, or Undefined for variable size

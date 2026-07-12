@@ -5,6 +5,10 @@ require_relative "../test_helper"
 module Sevgi
   module Geometry
     class ElementTest < Minitest::Test
+      def test_abstract_element_cannot_be_constructed
+        assert_raises(NoMethodError) { Element.new }
+      end
+
       def test_lined_element_copies_constructor_inputs
         point = [0, 0]
         segment = [2, 0]

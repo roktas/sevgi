@@ -45,8 +45,8 @@ module Sevgi
         assert_equal(expected, actual)
       end
 
-      def test_base_content_render_raises_panic_error
-        assert_raises(PanicError) { Content.new("text").render(Object.new, 0) }
+      def test_abstract_content_cannot_be_constructed
+        assert_raises(NoMethodError) { Content.new("text") }
       end
 
       def test_encoded_and_verbatim_content_differ
@@ -116,7 +116,7 @@ module Sevgi
         value = +"value"
         object = MutableText.new("object")
         payload = {key => [value, {token: object}]}
-        contents = [Content.new(payload), Content.cdata(payload), Content.encoded(payload), Content.verbatim(payload)]
+        contents = [Content.cdata(payload), Content.encoded(payload), Content.verbatim(payload)]
         expected = {["key"] => ["value", {token: "object"}]}
 
         key << "caller"
@@ -135,7 +135,7 @@ module Sevgi
           assert_equal(expected, content.content)
         end
 
-        assert_equal(4, object.calls)
+        assert_equal(3, object.calls)
       end
 
       def test_css_owns_stringified_rules
@@ -179,7 +179,7 @@ module Sevgi
         hash[:self] = hash
 
         [array, hash].each do |value|
-          [Content, Content::CData, Content::Encoded, Content::Verbatim].each do |klass|
+          [Content::CData, Content::Encoded, Content::Verbatim].each do |klass|
             assert_raises(Sevgi::ArgumentError) { klass.new(value) }
           end
         end
@@ -195,7 +195,7 @@ module Sevgi
         right = MutableText.new("same")
         payload = {left => "left", right => "right"}
 
-        [Content, Content::CData, Content::Encoded, Content::Verbatim].each do |klass|
+        [Content::CData, Content::Encoded, Content::Verbatim].each do |klass|
           assert_raises(Sevgi::ArgumentError) { klass.new(payload) }
         end
 
@@ -225,7 +225,6 @@ module Sevgi
 
       def invalid_content_operations(value)
         [
-          -> { Content.new(value) },
           -> { Content.encoded(value) },
           -> { Content.verbatim(value) },
           -> { Content.cdata(value) },

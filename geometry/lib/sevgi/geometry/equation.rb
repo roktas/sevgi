@@ -2,8 +2,10 @@
 
 module Sevgi
   module Geometry
-    # Base class for geometric equations that can intersect with each other.
+    # Abstract base class for geometric equations. Construct linear equations through the class factories below.
     class Equation
+      private_class_method :new
+
       # Builds a non-axis-aligned linear equation.
       # @param slope [Numeric] line slope
       # @param intercept [Numeric] y-intercept

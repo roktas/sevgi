@@ -7,6 +7,8 @@ module Sevgi
       class Linear < Equation
         # Non-axis-aligned linear equation in `y = slope * x + intercept` form.
         class Diagonal < Linear
+          public_class_method :new
+
           # Returns the line slope.
           # @return [Float]
           attr_reader :slope
@@ -116,6 +118,8 @@ module Sevgi
 
         # Horizontal linear equation in `y = c` form.
         class Horizontal < Diagonal
+          public_class_method :new
+
           # Creates a horizontal equation.
           # @param c [Numeric] y coordinate
           # @return [void]
@@ -147,6 +151,8 @@ module Sevgi
 
         # Vertical linear equation in `x = c` form.
         class Vertical < Linear
+          public_class_method :new
+
           # Creates a vertical equation.
           # @param c [Numeric] x coordinate
           # @return [void]
