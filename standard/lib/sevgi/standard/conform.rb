@@ -38,6 +38,7 @@ module Sevgi
       # @param elements [Array<String, Symbol>, String, Symbol, nil] child element names
       # @return [Boolean] true when the usage conforms
       # @raise [Sevgi::ArgumentError] when any name is not a valid public name
+      # @raise [Sevgi::ArgumentError] when cdata is not a String or nil
       # @raise [Sevgi::ValidationError] when the usage violates the standard data
       def call(attributes: nil, cdata: nil, elements: nil)
         if attributes
@@ -60,12 +61,14 @@ module Sevgi
       # @param elements [Array<String, Symbol>, nil] child element names
       # @return [Boolean] true when the usage conforms or the element is ignored
       # @raise [Sevgi::ArgumentError] when any name is not a valid public name
+      # @raise [Sevgi::ArgumentError] when cdata is not a String or nil
       # @raise [Sevgi::ValidationError] when the usage violates the standard data
       # @raise [Sevgi::PanicError] when the standard data refers to an invalid model
       def self.call(element, attributes: nil, cdata: nil, elements: nil)
         element = Name.normalize!(element, context: "element")
         attributes = Name.list!(attributes, context: "attribute")
         elements = Name.list!(elements, context: "element") || []
+        cdata = normalize_cdata(cdata)
 
         Element.ignore?(element) or
           validate(element, attributes:, elements:, cdata:)
@@ -86,7 +89,15 @@ module Sevgi
         }
       end
 
-      private_class_method :arguments, :validate
+      def self.normalize_cdata(cdata)
+        unless cdata.nil? || cdata.is_a?(::String)
+          ArgumentError.("Character data must be a String or nil: #{cdata.inspect}")
+        end
+
+        cdata unless cdata == ""
+      end
+
+      private_class_method :arguments, :normalize_cdata, :validate
     end
 
     private_constant :Conform, :Model

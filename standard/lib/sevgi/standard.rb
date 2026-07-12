@@ -40,8 +40,10 @@ module Sevgi
     #   @return [Boolean] true when the usage conforms
     #   @raise [Sevgi::ArgumentError] when any name is not a String or Symbol
     #   @raise [Sevgi::ArgumentError] when any name is not a valid SVG-style name
+    #   @raise [Sevgi::ArgumentError] when cdata is not a String or nil
     #   @raise [Sevgi::ValidationError] when the usage violates the standard data
     #   @raise [Sevgi::PanicError] when the standard data refers to an invalid model
+    #   @note Empty character data is treated as absent.
     def conform(...) = Conform.(...)
 
     # @overload elements(*groups)

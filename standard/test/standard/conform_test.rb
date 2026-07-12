@@ -74,6 +74,25 @@ module Sevgi
         assert_equal("text: Element(s) not allowed: 'rect'", error.message)
       end
 
+      def test_conform_treats_empty_cdata_as_absent
+        [nil, ""].each do |cdata|
+          assert(Conform.(:rect, cdata:))
+          assert(Conform.(:title, cdata:))
+        end
+
+        assert(Conform.(:title, cdata: "Name"))
+        assert_raises(UnallowedCDataError) { Conform.(:rect, cdata: "Name") }
+      end
+
+      def test_conform_rejects_invalid_cdata_before_models
+        [false, 0, Object.new].each do |cdata|
+          assert_raises(ArgumentError) { Conform.(:rect, cdata:) }
+          assert_raises(ArgumentError) { Conform.(:title, cdata:) }
+        end
+
+        assert_raises(ArgumentError) { Conform.("custom:node", cdata: false) }
+      end
+
       def test_conform_ignores_foreign_namespace_members
         assert(
           Conform.(
