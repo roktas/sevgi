@@ -67,9 +67,20 @@ module Sevgi
           )
         end
 
-        # Returns stdout, a separator, and stderr as one string.
-        # @return [String]
-        def all = [*outs, "\n\n", *errs].join("\n").strip
+        # Returns captured output with one blank line between non-empty streams.
+        # Captured lines are joined with one newline and are not otherwise trimmed.
+        # @example Combine standard output and standard error
+        #   result = Sevgi::Function::Shell::Result.new(
+        #     args: ["tool"], outs: ["output"], errs: ["warning"], exit_code: 0, signal: nil
+        #   )
+        #   result.all # => "output\n\nwarning"
+        # @return [String] combined output, or an empty string when neither stream contains lines
+        def all
+          return err if outs.empty?
+          return out if errs.empty?
+
+          "#{out}\n\n#{err}"
+        end
 
         # Returns the command as a shell-like display string.
         # @return [String]

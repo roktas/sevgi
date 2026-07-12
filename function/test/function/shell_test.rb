@@ -198,6 +198,20 @@ module Sevgi
           end
         end
 
+        def test_result_all_combines_streams
+          [
+            [[], [], ""],
+            [%w[out next], [], "out\nnext"],
+            [[], %w[err next], "err\nnext"],
+            [["out"], ["err"], "out\n\nerr"],
+            [[""], [" err "], "\n\n err "]
+          ].each do |outs, errs, expected|
+            result = Result.new(args: [], outs:, errs:, exit_code: 0, signal: nil)
+
+            assert_equal(expected, result.all)
+          end
+        end
+
         def test_sh_closes_stdin_without_input
           result = Timeout.timeout(2) do
             Function.sh(RbConfig.ruby, "-e", "puts STDIN.read.empty?")
