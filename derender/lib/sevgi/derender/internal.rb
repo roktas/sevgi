@@ -198,13 +198,17 @@ module Sevgi
       private
 
       def receiver_collision?(name)
-        return false if Graphics::Element.send(:element_method?, name)
+        documents = [Graphics::Document::Proto]
+        documents.concat(Graphics::Document.keys.map { Graphics::Document.fetch(it) })
 
-        document = Graphics::Document.const_get(:Base, false)
+        documents.uniq.any? { effective_collision?(it, name) }
+      end
 
-        document.ancestors.any? do |ancestor|
-          ancestor.method_defined?(name, false) || ancestor.private_method_defined?(name, false)
-        end
+      def effective_collision?(document, name)
+        return false unless document.method_defined?(name) || document.private_method_defined?(name)
+
+        method = document.instance_method(name)
+        method.owner != Graphics::Element || !Graphics::Element.send(:element_method?, name)
       end
 
       extend self

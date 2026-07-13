@@ -87,6 +87,29 @@ module Sevgi
         assert_equal("xxx", actual[:id])
       end
 
+      def test_generated_source_avoids_effective_document_collision
+        SVG(:minimal) { rect }
+        Graphics::Document::Base.define_method(:rect) { :collision }
+        xml = "<rect id=\"mark\"/>"
+        source = Derender.derender(xml)
+        generated_parent = SVG(:minimal)
+        direct_parent = SVG(:minimal)
+
+        generated = generated_parent.instance_eval(source, "generated.sevgi")
+        direct = Derender.evaluate(xml, direct_parent)
+
+        assert_includes(source, "Element(:\"rect\"")
+        assert_same(generated_parent.children.first, generated)
+        assert_same(direct_parent.children.first, direct)
+        assert_equal(direct_parent.Render(), generated_parent.Render())
+      ensure
+        if Graphics::Document::Base.method_defined?(:rect, false)
+          Graphics::Document::Base.remove_method(:rect)
+        end
+
+        Graphics::Element.remove_method(:rect) if Graphics::Element.method_defined?(:rect, false)
+      end
+
       def test_evaluate_accepts_a_raw_graphics_element_parent
         target = Graphics::Element.root
 

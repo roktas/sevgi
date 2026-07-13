@@ -151,6 +151,41 @@ module Sevgi
       ensure
         Element.remove_method(:rect) if Element.method_defined?(:rect)
       end
+
+      def test_bare_element_rejects_effective_document_methods
+        [Graphics::Document::Base, Graphics::Document::Inkscape].each do |document|
+          [false, true].each do |cached|
+            %i[public protected private].each do |visibility|
+              assert_document_collision(document, visibility, cached)
+            end
+          end
+        end
+      end
+
+      def test_bare_element_checks_registered_custom_documents
+        document = Graphics::Document.define(:derender_collision_profile, attributes: {})
+        document.define_method(:rect) { :collision }
+
+        refute(Ruby.bare_element?(:rect))
+      ensure
+        document&.remove_method(:rect)
+      end
+
+      private
+
+      def assert_document_collision(document, visibility, cached)
+        SVG(:minimal) { rect } if cached
+        document.define_method(:rect) { :collision }
+        document.send(visibility, :rect)
+
+        refute(Ruby.bare_element?(:rect), "#{document} #{visibility} cached=#{cached}")
+      ensure
+        if document.method_defined?(:rect, false) || document.private_method_defined?(:rect, false)
+          document.remove_method(:rect)
+        end
+
+        Graphics::Element.remove_method(:rect) if Graphics::Element.method_defined?(:rect, false)
+      end
     end
 
     class RubyTest < Minitest::Test
