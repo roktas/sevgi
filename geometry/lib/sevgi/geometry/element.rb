@@ -11,6 +11,7 @@ module Sevgi
       #   @param size [Integer, Sevgi::Undefined] segment count for fixed-size elements, or Undefined for variable size
       #   @param open [Boolean] true for an open path, false for a closed path
       #   @return [Class] subclass of {Sevgi::Geometry::Element::Lined}
+      #   @raise [Sevgi::Geometry::Error] when size is not Undefined or a positive Integer, or open is not Boolean
       # @example Define a custom two-segment open shape
       #   Path = Sevgi::Geometry::Element.lined(2, open: true)
       #   Path.([0, 0], [1, 0], [1, 1])
@@ -122,16 +123,27 @@ module Sevgi
           # @param size [Integer, Sevgi::Undefined] segment count for fixed-size elements, or Undefined for variable size
           # @param open [Boolean] true for an open path, false for a closed path
           # @return [Class] lined element subclass
+          # @raise [Sevgi::Geometry::Error] when size is not Undefined or a positive Integer, or open is not Boolean
           # @api private
           def build(size = Undefined, open: false)
+            validate_factory(size, open)
+
             klass = Class.new(open ? Open : Close)
             klass.define_singleton_method(:close?) { !open }
-            klass.define_singleton_method(:poly?) { size == Undefined }
+            klass.define_singleton_method(:poly?) { size.equal?(Undefined) }
             klass.define_singleton_method(:size) { size }
-            define_shortcuts(klass, size, open:) unless size == Undefined
+            define_shortcuts(klass, size, open:) unless size.equal?(Undefined)
             klass.public_class_method(:[], :call, :from_points, :from_segments)
             klass.private_class_method(:close?, :poly?, :size)
             klass
+          end
+
+          def validate_factory(size, open)
+            unless size.equal?(Undefined) || (size.is_a?(::Integer) && size.positive?)
+              Error.("Lined segment count must be a positive Integer or Undefined")
+            end
+
+            Error.("Lined open flag must be Boolean") unless open.equal?(true) || open.equal?(false)
           end
 
           # @overload [](*segments, position: Origin)

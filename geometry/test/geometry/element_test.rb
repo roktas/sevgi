@@ -64,6 +64,33 @@ module Sevgi
         refute_respond_to(Rect[1, 2], :draw!)
       end
 
+      def test_lined_factory_builds_constructible_open_and_closed_classes
+        shapes = [
+          Element.lined.([0, 0], [1, 0], [0, 1]),
+          Element.lined(open: true).([0, 0], [1, 0]),
+          Element.lined(2).([0, 0], [1, 0]),
+          Element.lined(2, open: true).([0, 0], [1, 0], [1, 1]),
+          Element.lined(27, open: true).(*Array.new(28) { [it, 0] })
+        ]
+
+        assert_equal([4, 2, 3, 3, 28], shapes.map { it.points.size })
+        assert_equal([3, 1, 2, 2, 27], shapes.map { it.segments.size })
+      end
+
+      def test_lined_factory_rejects_invalid_class_invariants
+        [nil, false, 0, -1, 1.5, "2"].each do |size|
+          error = assert_raises(Error) { Element.lined(size) }
+
+          assert_match(/segment count/i, error.message)
+        end
+
+        [nil, 0, "false", :yes].each do |open|
+          error = assert_raises(Error) { Element.lined(1, open:) }
+
+          assert_match(/open flag/i, error.message)
+        end
+      end
+
       def test_lined_constructor_notations_match_english
         polygon = Polygon.([0, 0], [2, 0], [1, 1])
         polyline = Polyline.([0, 0], [2, 0], [1, 1])
