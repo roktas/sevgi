@@ -125,6 +125,26 @@ module Sevgi
         assert_match(/Must be an equation/, error.message)
       end
 
+      def test_element_intersection_rejects_non_equation
+        error = assert_raises(Error) { Rect[2, 2].intersection(Object.new) }
+
+        assert_match(/Must be an equation/, error.message)
+      end
+
+      def test_element_intersection_accepts_custom_equation
+        custom = Class.new(Equation) do
+          public_class_method(:new)
+
+          def intersect(other)
+            raise "unexpected operand" unless other.is_a?(Equation)
+
+            []
+          end
+        end
+
+        assert_empty(Rect[2, 2].intersection(custom.new))
+      end
+
       def test_equation_wraps_invalid_numeric_conversion
         numeric = Class.new(Numeric) { def to_f = raise "conversion failed" }.new
         error = assert_raises(Error) { Equation.diagonal(slope: Complex(1, 2), intercept: 0) }

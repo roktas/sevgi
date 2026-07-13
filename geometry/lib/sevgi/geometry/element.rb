@@ -410,6 +410,8 @@ module Sevgi
         # @raise [Sevgi::Geometry::Error] when equation is not an equation
         # @raise [Sevgi::PanicError] when the equation combination is not implemented
         def intersection(equation, precision: nil)
+          Error.("Must be an equation: #{equation}") unless equation.is_a?(Equation)
+
           points = equations.flat_map do |candidate|
             equation.intersect(candidate).select { |point| boundary_point?(point, precision) }
           end

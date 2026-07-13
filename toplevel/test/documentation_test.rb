@@ -129,6 +129,9 @@ module Sevgi
         raises: ["Sevgi::ArgumentError", "Sevgi::ValidationError", "Sevgi::Graphics::LintError", "SystemCallError"],
         sees: ["Sevgi::Graphics::Document::Proto#call"]
       },
+      "Sevgi::Geometry::Element::Lined#intersection" => {
+        raises: ["Sevgi::Geometry::Error", "Sevgi::PanicError"]
+      },
       "Sevgi::Graphics::Document::Proto#call" => {
         raises: ["Sevgi::ArgumentError", "Sevgi::ValidationError", "Sevgi::Graphics::LintError"]
       },
