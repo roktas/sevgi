@@ -148,6 +148,33 @@ module Sevgi
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
         end
 
+        def test_arguments_parse_applies_hashes_in_order
+          first = {id: "mark", class: "base", style: {fill: "red"}, omitted: nil}
+          second = {"id" => "latest", "class+" => "hot", "style+" => {stroke: "blue"}}
+
+          parsed = Dispatch.parse(:rect, first, "encoded", second, Content.verbatim("verbatim"), hidden: nil)
+
+          assert_equal(
+            {id: "latest", class: "base hot", style: {fill: "red", stroke: "blue"}},
+            parsed[:attributes]
+          )
+          assert_equal(%w[encoded verbatim], parsed[:contents].map(&:to_s))
+          assert_instance_of(Content::Encoded, parsed[:contents].first)
+          assert_instance_of(Content::Verbatim, parsed[:contents].last)
+
+          first[:style][:fill] = "changed"
+          second["style+"][:stroke] = "changed"
+          assert_equal({fill: "red", stroke: "blue"}, parsed[:attributes][:style])
+        end
+
+        def test_arguments_parse_rejects_collisions_within_one_hash
+          error = assert_raises(ArgumentError) do
+            Dispatch.parse(:rect, {fill: "red"}, {"class" => "a", :class => "b"})
+          end
+
+          assert_match(/collide/i, error.message)
+        end
+
         def test_arguments_parse_preserves_content_objects
           parsed = Dispatch.parse(:svg, Content.verbatim("bar & baz"))
 
@@ -308,6 +335,21 @@ module Sevgi
           child = subclass.root { marker }.children.first
 
           assert_instance_of(subclass, child)
+        end
+
+        def test_dynamic_methods_apply_multiple_attribute_hashes
+          first = {id: "mark", class: "base"}
+          root = Element.root
+
+          initial = root.rect(first, "encoded", {"class+" => "hot"}, Content.verbatim("verbatim"), style: {fill: "red"})
+          cached = root.rect({style: {fill: "blue"}}, {"style+" => {stroke: "black"}}, hidden: nil)
+
+          assert_equal({id: "mark", class: "base hot", style: {fill: "red"}}, initial.attributes.to_h)
+          assert_equal(%w[encoded verbatim], initial.contents.map(&:to_s))
+          assert_equal({style: {fill: "blue", stroke: "black"}}, cached.attributes.to_h)
+
+          first[:id] = "changed"
+          assert_equal("mark", initial.attributes[:id])
         end
 
         def test_subclass_method_missing_caching_affects_parent

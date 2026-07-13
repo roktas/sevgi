@@ -9,9 +9,14 @@ module Sevgi
     #   With Standard loaded, the name must be known; standalone Graphics accepts any valid XML name.
     #   @param name [Object] candidate element name
     #   @return [Boolean]
+    #
+    # Dynamic SVG element methods accept text, content objects, and any number of attribute Hashes in one call. Hashes
+    # are applied from left to right; later values replace earlier values unless their names use the `+` update suffix.
     class Element
       # Builds an element node.
       # @param name [Symbol, String] SVG element name
+      # @param arguments [Array<Hash, String, Sevgi::Graphics::Content>] ordered content and attribute channels; every
+      #   Hash is applied through {Sevgi::Graphics::Attributes} from left to right
       # @param parent [Sevgi::Graphics::Element] parent element
       # @yield evaluates the drawing DSL in the new element
       # @yieldreturn [Object] ignored block result
@@ -19,14 +24,18 @@ module Sevgi
       # @raise [Sevgi::ArgumentError] when an argument cannot be parsed as attributes or content
       # @raise [Sevgi::ArgumentError] when the parent has a different concrete element class
       # @raise [Sevgi::ArgumentError] when the element name or an attribute is not valid XML
-      def self.element(name, *, parent:, &block) = new(name, **Dispatch.parse(name, *), parent:, &block)
+      def self.element(name, *arguments, parent:, &block)
+        validate_parent_class(self, parent)
+        new(name, **Dispatch.parse(name, *arguments), parent:, &block)
+      end
 
       # Builds an SVG root element.
+      # @param arguments [Array<Hash, String, Sevgi::Graphics::Content>] ordered content and attribute channels
       # @yield evaluates the drawing DSL in the root element
       # @yieldreturn [Object] ignored block result
       # @return [Sevgi::Graphics::Element]
       # @raise [Sevgi::ArgumentError] when a root attribute is not valid XML
-      def self.root(*, &block) = element(:svg, *, parent: RootParent, &block)
+      def self.root(*arguments, &block) = element(:svg, *arguments, parent: RootParent, &block)
 
       # Reports whether an element is the root element.
       # @param element [Sevgi::Graphics::Element] element to test
@@ -57,9 +66,13 @@ module Sevgi
         def tree_parent(element) = element.instance_variable_get(:@parent)
 
         def validate_parent(element, parent)
-          return if parent.equal?(RootParent) || element.instance_of?(parent.class)
+          validate_parent_class(element.class, parent)
+        end
 
-          ArgumentError.("Element type does not match the parent type: #{element.class}")
+        def validate_parent_class(element_class, parent)
+          return if parent.equal?(RootParent) || parent.instance_of?(element_class)
+
+          ArgumentError.("Element type does not match the parent type: #{element_class}")
         end
       end
 
@@ -166,13 +179,15 @@ module Sevgi
 
       # Dispatches SVG element DSL calls and caches valid element methods.
       # @param name [Symbol] missing method name
+      # @param arguments [Array<Hash, String, Sevgi::Graphics::Content>] ordered content and attribute channels; later
+      #   Hashes replace or update attributes assigned by earlier Hashes
       # @yield evaluates the drawing DSL in the dispatched child element
       # @yieldreturn [Object] ignored block result
       # @return [Sevgi::Graphics::Element]
       # @raise [NameError] when the name is not a valid SVG element
       # @raise [Sevgi::ArgumentError] when an argument cannot be parsed as attributes or content
-      def method_missing(name, *, &block)
-        Element.valid?(tag = Element.send(:id, name)) ? Dispatch.(self, name, tag, *, &block) : super
+      def method_missing(name, *arguments, &block)
+        Element.valid?(tag = Element.send(:id, name)) ? Dispatch.(self, name, tag, *arguments, &block) : super
       end
 
       # Reports whether a missing method can dispatch to an SVG element.
@@ -212,16 +227,16 @@ module Sevgi
 
         # Parses element DSL arguments.
         # @param name [Symbol] SVG element name
-        # @param args [Array<Object>] positional DSL arguments
+        # @param args [Array<Object>] positional DSL arguments; Hashes are imported from left to right
         # @return [Hash] parsed :attributes and :contents
         # @raise [Sevgi::ArgumentError] when an argument is not a Hash, String, or Content
         def parse(name, *args)
-          attributes, contents = {}, []
+          attributes, contents = Attributes.new, []
 
           args.each do |arg|
             case arg
             when ::Hash
-              attributes = arg
+              attributes.merge!(arg)
             when ::String
               contents << Content.encoded(arg)
             when Content
@@ -231,7 +246,7 @@ module Sevgi
             end
           end
 
-          {attributes:, contents:}
+          {attributes: attributes.to_h, contents:}
         end
       end
 
