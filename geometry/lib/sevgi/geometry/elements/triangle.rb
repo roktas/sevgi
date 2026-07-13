@@ -38,6 +38,9 @@ module Sevgi
     #   @return [Sevgi::Geometry::Line] side from B to C
     # @!attribute [r] CA
     #   @return [Sevgi::Geometry::Line] side from C to A
+    # @!method perimeter
+    #   Returns the closed path perimeter.
+    #   @return [Float]
     # @example Pair mathematical notation with English conveniences
     #   Triangle[[2, 0], [2, 90]] == Triangle.from_segments([2, 0], [2, 90])
     #   Triangle.([0, 0], [2, 0], [2, 2]) == Triangle.from_points([0, 0], [2, 0], [2, 2])

@@ -134,6 +134,36 @@ module Sevgi
         triangle.points.each_index { assert_same(triangle.points[it], triangle.call(it)) }
       end
 
+      def test_lined_path_length_and_closed_perimeter
+        open = Element.lined(2, open: true).([0, 0], [3, 0], [3, 4])
+        closed = Element.lined(3).([0, 0], [3, 0], [3, 4])
+        polyline = Polyline.([0, 0], [3, 0], [3, 4])
+        polygon = Polygon.([0, 0], [3, 0], [3, 4])
+        triangle = Triangle.([0, 0], [3, 0], [3, 4])
+        parallelogram = Parallelogram.([0, 0], [3, 0], [3, 4], [0, 4])
+        rect = Rect[3, 4]
+        line = Line.from_points([0, 0], [3, 4])
+
+        lengths = {
+          open => 7.0,
+          closed => 12.0,
+          polyline => 7.0,
+          polygon => 12.0,
+          triangle => 12.0,
+          parallelogram => 14.0,
+          rect => 14.0,
+          line => 5.0
+        }
+        lengths.each { |shape, expected| assert_equal(expected, shape.length) }
+
+        [closed, polygon, triangle, parallelogram, rect].each { assert_equal(it.length, it.perimeter) }
+        [open, polyline, line].each { refute_respond_to(it, :perimeter) }
+        assert_equal(0.0, Line[0, 0].length)
+        diagonal = Line.from_points([0, 0], [1, 1])
+        F.with_precision(0) { assert_equal(::Math.sqrt(2), diagonal.length) }
+        assert_equal(20.0, Square[5].length)
+      end
+
       def test_lined_index_errors_name_the_missing_member
         rect = Rect[2, 3]
 

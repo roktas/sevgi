@@ -30,6 +30,9 @@ module Sevgi
     #   @param points [Array<Sevgi::Geometry::Point, Array<Numeric>>] boundary points without a repeated closing point
     #   @return [Sevgi::Geometry::Polygon]
     #   @raise [Sevgi::Geometry::Error] when inputs cannot be coerced or do not form a polygon
+    # @!method perimeter
+    #   Returns the closed path perimeter.
+    #   @return [Float]
     # @example Pair point notation with its English convenience
     #   points = [[0, 0], [2, 0], [1, 1]]
     #   segments = Polygon.(*points).segments

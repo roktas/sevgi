@@ -26,6 +26,9 @@ module Sevgi
     #   @return [Sevgi::Geometry::Line] bottom side
     # @!attribute [r] DA
     #   @return [Sevgi::Geometry::Line] left side
+    # @!method perimeter
+    #   Returns the closed path perimeter.
+    #   @return [Float]
     class Rect < RectBase
       # @overload [](width, height, position: Origin)
       #   Builds a rectangle from size and top-left position.
@@ -209,13 +212,11 @@ module Sevgi
       end
     end
 
-    # Rectangle with equal width and height.
+    # Rectangle with equal width and height. Use {#width} or {#height} for its side length; inherited
+    # {Element::Lined#length} returns the complete path length.
     # @example Construct the same square from opposite corners
     #   Square.([0, 0], [5, 5]) == Square.from_corners([0, 0], [5, 5])
     class Square < Rect
-      # @return [Float] side length
-      alias length width
-
       # Builds a square from side length and top-left position.
       # @param length [Numeric] side length
       # @param position [Sevgi::Geometry::Point, Array<Numeric>] top-left position

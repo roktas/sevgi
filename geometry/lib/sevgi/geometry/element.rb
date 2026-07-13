@@ -8,6 +8,7 @@ module Sevgi
 
       # @overload lined(size = Undefined, open: false)
       #   Builds a lined element subclass.
+      #   Instances expose total path `length`; closed classes additionally expose `perimeter`.
       #   @param size [Integer, Sevgi::Undefined] segment count for fixed-size elements, or Undefined for variable size
       #   @param open [Boolean] true for an open path, false for a closed path
       #   @return [Class] subclass of {Sevgi::Geometry::Element::Lined}
@@ -98,6 +99,10 @@ module Sevgi
           # @return [Sevgi::Geometry::Element::Lined]
           # @raise [Sevgi::Geometry::Error] when any point cannot be coerced
           def self.new_by_points(*points) = super(*points, points.first)
+
+          # Returns the closed path perimeter.
+          # @return [Float]
+          def perimeter = length
 
           # Draws the element as an SVG polygon.
           # @param node [Object] graphics node receiving the drawing command
@@ -445,9 +450,9 @@ module Sevgi
             .freeze
         end
 
-        # Returns the sum of segment lengths.
+        # Returns the total path length.
         # @return [Float]
-        def perimeter = @perimeter ||= segments.sum(&:length)
+        def length = @length ||= segments.sum(&:length)
 
         # Returns the last segment.
         # @return [Sevgi::Geometry::Segment]

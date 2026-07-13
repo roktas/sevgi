@@ -134,7 +134,7 @@ module Sevgi
           square.width,
           5.0,
           square.height,
-          5.0,
+          20.0,
           square.length,
           Point[1, 2],
           square.position

@@ -67,10 +67,6 @@ module Sevgi
       # @raise [Sevgi::Geometry::Error] when point cannot be coerced
       def left?(point) = F.lt?(side(point), 0.0)
 
-      # Returns the line segment length.
-      # @return [Float]
-      def length = head.length
-
       # Reports whether a point is right of the directed line from {#starting} to {#ending} in screen coordinates.
       # Points on the infinite line are on neither side. A zero-length line has no direction and returns false.
       # @param point [Sevgi::Geometry::Point, Array<Numeric>] point to test

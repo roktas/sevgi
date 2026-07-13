@@ -42,6 +42,9 @@ module Sevgi
     #   @return [Sevgi::Geometry::Line] side from C to D
     # @!attribute [r] DA
     #   @return [Sevgi::Geometry::Line] side from D to A
+    # @!method perimeter
+    #   Returns the closed path perimeter.
+    #   @return [Float]
     # @example Pair mathematical notation with English conveniences
     #   Parallelogram[[2, 0], [2, -90]] == Parallelogram.from_segments([2, 0], [2, -90])
     #   points = [[0, 0], [2, 0], [2, 2], [0, 2]]
