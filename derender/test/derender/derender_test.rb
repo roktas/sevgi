@@ -282,7 +282,7 @@ module Sevgi
             <clip-path xlink:href="#clip">
               <text xml:space="preserve">  spaced  </text>
             </clip-path>
-            <style type="text/css">
+            <style>
               <![CDATA[
                 .mark {
                   fill: red;
@@ -294,6 +294,62 @@ module Sevgi
           .chomp
 
         assert_equal(expected, actual)
+      end
+
+      def test_css_source_and_direct_evaluation_preserve_style_semantics
+        styles = [
+          ".mark { fill: red; }",
+          "@media print { .mark { fill: black; } }",
+          "@supports (display: grid) { .mark { display: grid; } }",
+          "@keyframes pulse { from { opacity: 0; } to { opacity: 1; } }",
+          ".mark { display: -webkit-box; display: grid; }",
+          ".mark { --Tone: red; fill: var(--Tone); }",
+          ".mark { malformed }",
+          ""
+        ]
+
+        styles.each do |style|
+          xml = "<svg><g id=\"before\"/><style data-role=\"theme\">#{style}</style><g id=\"after\"/></svg>"
+          generated = instance_eval(Derender.derender(xml), "generated.sevgi").Render()
+          evaluated = Derender.evaluate(xml, SVG(:minimal)).Render()
+          generated = Nokogiri::XML(generated)
+          evaluated = Nokogiri::XML(evaluated)
+
+          assert_equal(%w[g style g], generated.root.element_children.map(&:name))
+          assert_equal(%w[g style g], evaluated.root.element_children.map(&:name))
+          assert_equal(
+            generated.at_css("style").attributes.transform_values(&:value),
+            evaluated.at_css("style").attributes.transform_values(&:value)
+          )
+          assert_equal(generated.at_css("style").text, evaluated.at_css("style").text)
+
+          assert_css_fallback(style, generated) unless Css.rules(style)
+        end
+      end
+
+      def test_inline_style_source_and_direct_evaluation_preserve_declarations
+        styles = [
+          "fill: red; display: none",
+          "display: -webkit-box; display: grid",
+          "--Tone: red; fill: var(--Tone)",
+          "malformed",
+          ""
+        ]
+
+        styles.each do |style|
+          xml = "<svg><rect id=\"mark\" style=\"#{style}\"/></svg>"
+          generated = instance_eval(Derender.derender(xml), "generated.sevgi").Render()
+          evaluated = Derender.evaluate(xml, SVG(:minimal)).Render()
+          generated_style = Nokogiri::XML(generated).at_css("rect")["style"]
+          evaluated_style = Nokogiri::XML(evaluated).at_css("rect")["style"]
+
+          assert_equal(generated_style, evaluated_style)
+          if Css.declarations(style)
+            assert_equal(Css.to_h!(style), Css.to_h!(generated_style))
+          else
+            assert_equal(style, generated_style)
+          end
+        end
       end
 
       def test_derender_selected_node_preserves_namespace_scope
@@ -429,6 +485,11 @@ module Sevgi
       end
 
       private
+
+      def assert_css_fallback(style, document)
+        assert_equal(style, document.at_css("style").text.strip)
+        assert_equal(%w[before style after], document.root.element_children.map { it["id"] || it.name })
+      end
 
       def assert_xml_tree_equal(expected, actual)
         expected = Nokogiri::XML(expected, &:strict).root

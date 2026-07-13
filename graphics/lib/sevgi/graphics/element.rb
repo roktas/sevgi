@@ -33,6 +33,10 @@ module Sevgi
       # @return [Boolean]
       def self.root?(element) = Element.send(:tree_parent, element).equal?(RootParent)
 
+      def self.element_method?(name) = Dispatch.cached?(name)
+
+      private_class_method :element_method?
+
       class << self
         private
 
@@ -197,10 +201,14 @@ module Sevgi
             Element.class_exec do
               define_method(method) { |*args, &block| self.class.element(tag, *args, parent: self, &block) }
             end
+
+            (@methods ||= {})[method] = true
           end
 
           element.public_send(method, *, &)
         end
+
+        def cached?(method) = @methods&.key?(method) || false
 
         # Parses element DSL arguments.
         # @param name [Symbol] SVG element name

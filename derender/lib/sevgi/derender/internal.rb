@@ -27,6 +27,30 @@ module Sevgi
         hash ? hash.fetch("*", {}) : {}
       end
 
+      # Returns CSS rules only when Hash conversion preserves the source declarations.
+      # @param css_string [String] CSS rule source
+      # @return [Hash, nil] losslessly representable rules, or nil
+      def rules(css_string)
+        parsed = to_h(css_string)
+        sourced = source_rules(css_string)
+
+        parsed if parsed == sourced
+      rescue ::StandardError
+        nil
+      end
+
+      # Returns inline declarations only when Hash conversion preserves the source declarations.
+      # @param style_string [String] inline CSS declaration source
+      # @return [Hash, nil] losslessly representable declarations, or nil
+      def declarations(style_string)
+        parsed = to_h!(style_string)
+        sourced = source_declarations(style_string)
+
+        parsed if parsed == sourced
+      rescue ::StandardError
+        nil
+      end
+
       # Converts a CSS key into a Ruby hash key.
       # @param arg [String] CSS key
       # @return [String] Ruby hash key source
@@ -42,6 +66,47 @@ module Sevgi
       # @param arg [String] CSS value
       # @return [String] Ruby literal or numeric source
       def to_value(arg) = (arg.to_f.to_s == arg) || (arg.to_i.to_s == arg) ? arg : arg.inspect
+
+      private
+
+      def source_declarations(source)
+        declarations = source.split(";", -1).map(&:strip).reject(&:empty?)
+        pairs = declarations.map { source_declaration(it) }
+        return if pairs.any?(&:nil?)
+        return unless pairs.map(&:first).uniq.size == pairs.size
+
+        pairs.to_h
+      end
+
+      def source_declaration(source)
+        key, value = source.split(":", 2).map(&:strip)
+
+        [key, value] if key && value && !key.empty? && !value.empty?
+      end
+
+      def source_rules(source)
+        source = source.dup
+        rules = {}
+
+        until source.strip.empty?
+          selector, declarations, source = source_rule(source)
+          return unless selector && !rules.key?(selector)
+
+          rules[selector] = declarations
+        end
+
+        rules
+      end
+
+      def source_rule(source)
+        match = /\A\s*([^{}]+?)\s*\{([^{}]*)\}\s*/m.match(source)
+        return [nil, nil, source] unless match
+
+        selector = match[1].strip
+        declarations = source_declarations(match[2])
+        selector = nil if selector.empty? || selector.start_with?("@") || declarations.nil?
+        [selector, declarations, match.post_match]
+      end
 
       extend self
     end
@@ -133,6 +198,8 @@ module Sevgi
       private
 
       def receiver_collision?(name)
+        return false if Graphics::Element.send(:element_method?, name)
+
         document = Graphics::Document.const_get(:Base, false)
 
         document.ancestors.any? do |ancestor|

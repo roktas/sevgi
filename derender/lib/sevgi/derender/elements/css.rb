@@ -9,20 +9,27 @@ module Sevgi
         # Converts a style node into unformatted Sevgi DSL lines.
         # @return [Array<String>] unformatted Ruby source lines
         def decompile(*)
-          return [] unless (lines = css_lines)
+          return raw_style unless (lines = css_lines)
 
           [
             "css({",
             *lines,
-            "})",
+            "}, #{css_attributes})",
             ""
           ]
         end
 
         private
 
+        def css_attributes
+          attributes = all_attributes
+          source = Attributes.decompile(attributes)
+
+          attributes.key?("type") ? source : [source, "type: nil"].reject(&:empty?).join(", ")
+        end
+
         def css_lines
-          return unless (hash = Css.to_h(node.content))
+          return unless (hash = Css.rules(node.content))
 
           hash
             .map do |selector, declarations|
@@ -33,6 +40,13 @@ module Sevgi
               ]
             end
             .flatten
+        end
+
+        def raw_style
+          arguments = ["Sevgi::Graphics::Content.cdata(#{Ruby.literal(node.content)})"]
+          arguments << Attributes.decompile(all_attributes) if all_attributes.any?
+
+          ["style #{arguments.join(", ")}", ""]
         end
       end
     end

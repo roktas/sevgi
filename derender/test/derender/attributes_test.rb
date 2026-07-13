@@ -40,6 +40,16 @@ module Sevgi
         assert_equal("style: {}", actual)
       end
 
+      def test_style_attribute_preserves_lossy_declarations_as_source
+        [
+          "display: -webkit-box; display: grid",
+          "--Tone: red; color: var(--Tone)",
+          "malformed"
+        ].each do |style|
+          assert_equal("style: #{style.inspect}", Attributes.decompile("style" => style))
+        end
+      end
+
       def test_decompile_doesnt_mutate_input_hash
         hash = {"style" => "color: red", "id" => "root", "class" => "main"}
 

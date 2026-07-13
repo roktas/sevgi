@@ -29,17 +29,29 @@ module Sevgi
       attr_reader :parent
 
       def append_css(node)
-        return unless (hash = Css.to_h(node.content))
+        content = if (hash = Css.rules(node.content))
+          Graphics::Content.css(hash)
+        else
+          Graphics::Content.cdata(node.content)
+        end
 
-        build(:style, Graphics::Content.css(hash), type: "text/css", **node.attributes)
+        build(:style, content, **node.send(:all_attributes))
       end
 
       def append_element(node)
         contents = contents(node)
 
-        build(node.name, *contents, **node.send(:all_attributes)).tap do |element|
+        build(node.name, *contents, **attributes(node)).tap do |element|
           node.children.each { self.class.new(element).append(it) } if contents.empty?
         end
+      end
+
+      def attributes(node)
+        attributes = node.send(:all_attributes)
+        return attributes unless (style = attributes["style"])
+        return attributes unless (declarations = Css.declarations(style))
+
+        {**attributes, "style" => declarations}
       end
 
       def contents(node)

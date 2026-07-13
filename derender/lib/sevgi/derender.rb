@@ -24,12 +24,17 @@ module Sevgi
   # declarations, qualified attributes, significant text, and nested `svg` elements survive source generation and direct
   # evaluation. CSS specialization applies only to unqualified `style` elements in no namespace or the default SVG
   # namespace; the document-root strategy additionally requires an unqualified `svg` at the root of the conversion.
+  # Simple CSS rules use the readable `css({...})` DSL form. At-rules, duplicate declarations, and other CSS that cannot
+  # be represented losslessly as a Hash remain owned raw style content.
   #
   # @example Inspect, select, and convert an immutable result
   #   result = Sevgi::Derender.decompile('<svg><rect id="mark" width="10"/></svg>')
   #   mark = result.find("mark")
   #   mark.attributes #=> {"id"=>"mark", "width"=>"10"}
   #   mark.derender   #=> "rect id: \"mark\", width: 10\n"
+  # @example Preserve an at-rule as raw style content
+  #   Sevgi::Derender.derender("<style>@media print { rect { fill: black; } }</style>")
+  #   #=> "style Sevgi::Graphics::Content.cdata(\"@media print { rect { fill: black; } }\")\n"
   module Derender
     private_constant :Attributes, :Document, :Elements
 

@@ -73,6 +73,28 @@ module Sevgi
         assert_equal(expected, actual)
       end
 
+      def test_rules_accepts_only_lossless_hash_conversions
+        assert_equal({".mark" => {"fill" => "red"}}, Css.rules(".mark { fill: red; }"))
+
+        [
+          "@media print { .mark { fill: black; } }",
+          ".mark { display: block; display: grid; }",
+          ".mark { --Tone: red; }",
+          ".mark { malformed }"
+        ].each { assert_nil(Css.rules(it)) }
+      end
+
+      def test_declarations_accepts_only_lossless_hash_conversions
+        assert_equal({"fill" => "red"}, Css.declarations("fill: red"))
+        assert_equal({}, Css.declarations(""))
+
+        [
+          "display: block; display: grid",
+          "--Tone: red",
+          "malformed"
+        ].each { assert_nil(Css.declarations(it)) }
+      end
+
       def test_to_key_keeps_plain_key
         %w[
           foo
@@ -112,6 +134,12 @@ module Sevgi
 
           assert_equal(expected, actual)
         end
+      end
+
+      def test_bare_element_ignores_cached_element_dispatch_methods
+        SVG(:minimal) { rect }
+
+        assert(Ruby.bare_element?(:rect))
       end
     end
 
