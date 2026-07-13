@@ -61,17 +61,6 @@ module Sevgi
       #     # @raise [Sevgi::Geometry::Error] when initial, angle, step, or limit is invalid
       #     # @raise [Sevgi::Geometry::Operation::OperationError] when no lines are found or iteration reaches the limit
       #     def sweep!(element, initial:, angle:, step:, limit: Sweep::LIMIT); end
-      #
-      #     # Sweeps parallel lines in one signed direction from an equation.
-      #     # @param element [Sevgi::Geometry::Element::Lined] element to intersect
-      #     # @param equation [Sevgi::Geometry::Equation] initial sweep equation
-      #     # @param step [Numeric] signed distance between sweep lines
-      #     # @param limit [Integer] maximum iterations
-      #     # @return [Array<Sevgi::Geometry::Line>] generated sweep lines
-      #     # @raise [Sevgi::Geometry::Operation::OperationInapplicableError] when element is not sweepable
-      #     # @raise [Sevgi::Geometry::Error] when step or limit is invalid
-      #     # @raise [Sevgi::Geometry::Operation::OperationError] when iteration reaches the limit
-      #     def unisweep(element, equation, step, limit: Sweep::LIMIT); end
       #   end
       # Registers one or more public operation methods.
       # @api private

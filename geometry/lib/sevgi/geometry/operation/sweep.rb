@@ -90,6 +90,8 @@ module Sevgi
           OperationError.("Loop limit reached: #{limit}")
         end
 
+        private :unisweep
+
         # Reports whether the sweep handler can operate on an element.
         # @api private
         # @param element [Object] candidate element
@@ -143,7 +145,7 @@ module Sevgi
         end
       end
 
-      register(Sweep, :sweep, :sweep!, :unisweep)
+      register(Sweep, :sweep, :sweep!)
 
       private_constant :Sweep
     end

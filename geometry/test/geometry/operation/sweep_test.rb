@@ -8,11 +8,10 @@ module Sevgi
       class SweepTest < Minitest::Test
         include Fixtures
 
-        def test_sweep_unisweep_returns_parallel_lines
+        def test_sweep_returns_parallel_lines
           rect = Rect[2, 4]
-          equ = Equation.diagonal(slope: 1.0, intercept: 4.0)
 
-          lines = Operation.unisweep(rect, equ, ::Math.sqrt(2.0))
+          lines = Operation.sweep(rect, initial: [0, 4], angle: 45, step: ::Math.sqrt(2.0))
 
           [
             2,
@@ -24,35 +23,32 @@ module Sevgi
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
         end
 
-        def test_sweep_unisweep_failure_because_of_intercept
+        def test_sweep_returns_empty_outside_element
           rect = Rect[2, 4]
-          equ = Equation.diagonal(slope: 1.0, intercept: -4.0)
 
-          lines = Operation.unisweep(rect, equ, ::Math.sqrt(2.0))
+          lines = Operation.sweep(rect, initial: [0, -4], angle: 45, step: 10)
 
           assert(lines.empty?)
         end
 
-        def test_sweep_unisweep_returns_empty_for_negative_step
+        def test_sweep_signed_step_preserves_covered_lines
           rect = Rect[2, 4]
-          equ = Equation.diagonal(slope: 1.0, intercept: 4.0)
 
-          lines = Operation.unisweep(rect, equ, -::Math.sqrt(2.0))
+          positive = Operation.sweep(rect, initial: [0, 2], angle: 0, step: 10)
+          negative = Operation.sweep(rect, initial: [0, 2], angle: 0, step: -10)
 
-          assert(lines.empty?)
+          assert_equal(line_points(positive), line_points(negative))
         end
 
-        def test_sweep_unisweep_failure_because_of_limit
+        def test_sweep_fails_at_iteration_limit
           rect = Rect[2, 4]
-          equ = Equation.diagonal(slope: 1.0, intercept: 4.0)
-
           limit = 5
 
-          lines = Operation.unisweep(rect, equ, ::Math.sqrt(2.0), limit:)
+          lines = Operation.sweep(rect, initial: [0, 4], angle: 45, step: ::Math.sqrt(2.0), limit:)
           assert_equal(2, lines.size)
 
           assert_raises(OperationError) do
-            Operation.unisweep(rect, equ, ::Math.sqrt(2.0), limit: limit - 1)
+            Operation.sweep(rect, initial: [0, 4], angle: 45, step: ::Math.sqrt(2.0), limit: limit - 1)
           end
         end
 
@@ -61,7 +57,7 @@ module Sevgi
           angles = [angle = 90.0 - angle345, -angle]
           steps = [step = 0.1, -step]
           nsteps = (length345 / step).to_i
-          # +1 for each unisweep, +2 in total
+          # One terminating iteration per direction.
           limit = nsteps + 2
           expected = nsteps - 1
 
@@ -85,7 +81,7 @@ module Sevgi
         end
 
         def test_sweep_concave_returns_all_spans
-          lines = Operation.unisweep(concave_u, Equation.horizontal(2), 10)
+          lines = Operation.sweep(concave_u, initial: [0, 2], angle: 0, step: 10)
 
           assert_equal(
             [
@@ -104,20 +100,21 @@ module Sevgi
           ]
 
           [points, points.reverse].each do |path|
-            assert_equal(expected, line_points(Operation.unisweep(Polygon.(*path), Equation.horizontal(2), 10)))
+            lines = Operation.sweep(Polygon.(*path), initial: [0, 2], angle: 0, step: 10)
+            assert_equal(expected, line_points(lines))
           end
         end
 
         def test_sweep_l_shape_returns_inner_span
           polygon = Polygon.([0, 0], [3, 0], [3, 1], [1, 1], [1, 3], [0, 3])
-          lines = Operation.unisweep(polygon, Equation.horizontal(2), 10)
+          lines = Operation.sweep(polygon, initial: [0, 2], angle: 0, step: 10)
 
           assert_equal([[[0.0, 2.0], [1.0, 2.0]]], line_spans(lines))
         end
 
         def test_sweep_skips_tangent_vertex
           triangle = Polygon.([0, 0], [2, 2], [4, 0])
-          lines = Operation.unisweep(triangle, Equation.horizontal(2), 10)
+          lines = Operation.sweep(triangle, initial: [0, 2], angle: 0, step: 10)
 
           assert_empty(lines)
         end
@@ -125,28 +122,26 @@ module Sevgi
         def test_sweep_open_polyline_has_no_interiors
           polyline = Polyline.([0, 0], [2, 2], [4, 0])
 
-          assert_empty(Operation.unisweep(polyline, Equation.horizontal(1), 10))
+          assert_empty(Operation.sweep(polyline, initial: [0, 1], angle: 0, step: 10))
           assert_raises(OperationError) do
             Operation.sweep!(polyline, initial: [2, 1], angle: 0, step: 1)
           end
         end
 
         def test_sweep_rejects_invalid_progress_arguments
-          equation = Equation.horizontal(0)
-
           [
             /step/,
             -> { Operation.sweep(rect345, initial: [0, 0], angle: 0, step: 0) },
             /step/,
-            -> { Operation.unisweep(rect345, equation, Float::NAN) },
+            -> { Operation.sweep(rect345, initial: [0, 0], angle: 0, step: Float::NAN) },
             /step/,
-            -> { Operation.unisweep(rect345, equation, Float::INFINITY) },
+            -> { Operation.sweep(rect345, initial: [0, 0], angle: 0, step: Float::INFINITY) },
             /limit/,
-            -> { Operation.unisweep(rect345, equation, 1, limit: 0) },
+            -> { Operation.sweep(rect345, initial: [0, 0], angle: 0, step: 1, limit: 0) },
             /limit/,
-            -> { Operation.unisweep(rect345, equation, 1, limit: -1) },
+            -> { Operation.sweep(rect345, initial: [0, 0], angle: 0, step: 1, limit: -1) },
             /limit/,
-            -> { Operation.unisweep(rect345, equation, 1, limit: 1.0) }
+            -> { Operation.sweep(rect345, initial: [0, 0], angle: 0, step: 1, limit: 1.0) }
           ].each_slice(2) do |message, operation|
             error = assert_raises(Error, &operation)
 
@@ -158,12 +153,12 @@ module Sevgi
         def test_sweep_self_crossing_open_polyline_has_no_interiors
           polyline = Polyline.([0, 0], [2, 2], [0, 2], [2, 0])
 
-          assert_empty(Operation.unisweep(polyline, Equation.horizontal(1), 10))
+          assert_empty(Operation.sweep(polyline, initial: [0, 1], angle: 0, step: 10))
         end
 
         def test_sweep_keeps_vertex_crossing_span
           diamond = Polygon.([1, 0], [2, 1], [1, 2], [0, 1])
-          lines = Operation.unisweep(diamond, Equation.horizontal(1), 10)
+          lines = Operation.sweep(diamond, initial: [0, 1], angle: 0, step: 10)
 
           assert_equal([[[0.0, 1.0], [2.0, 1.0]]], line_spans(lines))
         end

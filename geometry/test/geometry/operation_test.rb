@@ -11,16 +11,18 @@ module Sevgi
           alignment
           sweep
           sweep!
-          unisweep
         ].each do |operation|
           assert_respond_to(Operation, operation)
         end
+
+        refute_respond_to(Operation, :unisweep)
       end
 
       def test_operation_hides_registration_surface
         refute_respond_to(Operation, :register)
         refute_includes(Operation.constants(false), :Align)
         refute_includes(Operation.constants(false), :Sweep)
+        refute_respond_to(Operation.const_get(:Sweep, false), :unisweep)
       end
 
       def test_inapplicable_operation_error_is_clear
