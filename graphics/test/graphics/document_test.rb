@@ -185,13 +185,74 @@ module Sevgi
 
       def test_profile_has_complete_value_semantics
         profile = Document::Profile.new(:value_profile, attributes: {viewBox: [0, 0, 1, 1]}, preambles: ["header"])
-        equivalent = Document::Profile.new(:value_profile, attributes: {viewBox: [0, 0, 1, 1]}, preambles: ["header"])
+        equivalent = Document::Profile.new(
+          :value_profile,
+          attributes: {"viewBox" => [0, 0, 1, 1], :omitted => nil},
+          preambles: ["header"]
+        )
 
         assert_equal(profile, equivalent)
         assert(profile.eql?(equivalent))
         assert_equal(profile.hash, equivalent.hash)
         assert_equal(:found, {profile => :found}[equivalent])
         assert_predicate(profile, :frozen?)
+        assert_equal({viewBox: [0, 0, 1, 1]}, equivalent.attributes)
+      end
+
+      def test_profile_canonicalizes_nested_attributes
+        profile = Document::Profile.new(
+          nil,
+          attributes: {
+            "style" => {"fill" => "red"},
+            "viewBox" => [0, 0, 10, 10],
+            :omitted => nil
+          }
+        )
+
+        assert_equal(
+          {style: {fill: "red"}, viewBox: [0, 0, 10, 10]},
+          profile.attributes
+        )
+      end
+
+      def test_profile_updates_inherited_attributes
+        base = Graphics.document(
+          :registered_update_base,
+          attributes: {class: "base", style: {fill: "red"}}
+        )
+        child = Class.new(base) do
+          document(
+            :registered_update_child,
+            attributes: {"class+" => "child", "style+" => {"stroke" => "blue"}}
+          )
+        end
+
+        assert_equal(
+          {class: "base child", style: {fill: "red", stroke: "blue"}},
+          child.attributes
+        )
+        assert_equal(
+          {"class+": "child", "style+": {stroke: "blue"}},
+          child.profile.attributes
+        )
+        assert_equal(
+          {class: "base child", style: {fill: "red", stroke: "blue"}},
+          SVG(child).attributes.to_h
+        )
+      end
+
+      def test_profile_rejects_incompatible_inherited_update
+        name = :registered_invalid_update
+        base = Graphics.document(:registered_update_type, attributes: {class: "base"})
+        before = Document.keys
+
+        error = assert_raises(Sevgi::ArgumentError) do
+          Class.new(base) { document(name, attributes: {"class+" => [:child]}) }
+        end
+
+        assert_match(/incompatible/i, error.message)
+        refute(Document.exist?(name))
+        assert_equal(before, Document.keys)
       end
 
       def test_profile_registry_rejects_invalid_classes
@@ -250,7 +311,7 @@ module Sevgi
 
       def test_named_document_preserves_existing_profile
         doc = Graphics.document(:registered_safe, attributes: {"data-var": "safe"})
-        again = Graphics.document(:registered_safe, attributes: {"data-var": "safe"})
+        again = Graphics.document(:registered_safe, attributes: {"data-var" => "safe"})
 
         assert_same(doc, again)
       end
@@ -424,6 +485,7 @@ module Sevgi
         cyclic << cyclic
         invalid = [
           {attributes: []},
+          {attributes: false},
           {attributes: "fill"},
           {attributes: {Object.new => "red"}},
           {attributes: {"fill" => "red", :fill => "blue"}},
@@ -439,6 +501,19 @@ module Sevgi
 
           assert_equal(before, Document.keys)
         end
+      end
+
+      def test_nested_attribute_collision_never_registers
+        name = :registered_nested_collision
+        before = Document.keys
+
+        error = assert_raises(Sevgi::ArgumentError) do
+          Graphics.document(name, attributes: {style: {"fill" => "red", :fill => "blue"}})
+        end
+
+        assert_match(/collide/i, error.message)
+        refute(Document.exist?(name))
+        assert_equal(before, Document.keys)
       end
 
       def test_document_rejects_invalid_preamble_without_coercion
@@ -522,7 +597,7 @@ module Sevgi
         operations.each do |operation|
           error = assert_raises(Sevgi::ArgumentError, &operation)
 
-          assert_match(/document profile metadata|document profile attribute name/i, error.message)
+          assert_match(/document profile metadata|document profile attribute name|xml attribute name/i, error.message)
           assert_equal(before, Document.keys)
         end
 

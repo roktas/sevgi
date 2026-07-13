@@ -151,8 +151,9 @@ module Sevgi
 
       # Defines or returns a document profile class.
       # Profile metadata is captured before class or thread-atomic registry mutation. Mutable non-container attribute
-      # values are stringified once during capture. Successful named definitions return the canonical class stored by
-      # the registry, including when identical definitions race.
+      # values are stringified once, attribute names and nested Hash keys are normalized, and nil attributes are omitted
+      # during capture. Successful named definitions return the canonical class stored by the registry, including when
+      # identical definitions race.
       # @param name [Symbol, String, Sevgi::Undefined] profile name, or Undefined for an anonymous profile
       # @param preambles [Array<String>, nil, Sevgi::Undefined] document preamble lines
       # @param attributes [Hash, nil, Sevgi::Undefined] default root attributes
@@ -268,7 +269,8 @@ module Sevgi
 
       # Immutable, read-only document profile metadata exposed by document classes. Process-global lookup and registration
       # are thread-atomic. Metadata containers and strings are captured recursively; other mutable attribute values are
-      # stringified once during construction.
+      # stringified once during construction. Attribute names and nested Hash keys are normalized to Symbols, nil values
+      # are omitted, and update-suffix intent is retained for inheritance.
       # @see Sevgi::Graphics.document
       class Profile
         # Normalizes a profile name.
@@ -298,8 +300,7 @@ module Sevgi
         # @raise [Sevgi::ArgumentError] when name or metadata is invalid XML, cyclic, or cannot be stringified
         def initialize(name, attributes: nil, preambles: nil)
           @name = name.nil? ? nil : self.class.normalize!(name)
-          validate_attributes!(attributes)
-          @attributes = Snapshot.capture(attributes || {})
+          @attributes = capture_attributes(attributes)
           @preambles = capture_preambles(preambles)
           freeze
         end
@@ -313,8 +314,10 @@ module Sevgi
         # @return [Integer]
         def hash = [self.class, name, @attributes, @preambles].hash
 
-        # Returns default root attributes.
-        # @return [Hash] mutation-isolated attribute snapshot
+        # Returns canonical default root attributes for this profile.
+        # Names and nested Hash keys are Symbols, nil attributes are omitted, and update suffixes remain explicit for
+        # application by a document class.
+        # @return [Hash{Symbol => Object}] mutation-isolated attribute snapshot
         def attributes = Snapshot.copy(@attributes)
 
         # Returns profile components.
@@ -329,26 +332,31 @@ module Sevgi
 
         private
 
-        def validate_attributes!(attributes)
-          return if attributes.nil?
-
-          ArgumentError.("Document profile attributes must be a Hash") unless attributes.is_a?(::Hash)
-
-          normalized = {}
-          attributes.each_key do |key|
-            id = normalize_attribute!(key)
-            ArgumentError.("Document profile attribute names collide after normalization: #{id}") if normalized.key?(id)
-
-            normalized[id] = true
+        def capture_attribute(key, value, identities)
+          update = Attribute.updateable?(key)
+          id = Attribute.id(key)
+          if identities.key?(id)
+            ArgumentError.("Document profile attribute names collide after normalization: #{id}")
           end
+
+          identities[id] = true
+          key = update ? :"#{id}#{Attributes::UPDATE_SUFFIX}" : id
+          value = Snapshot.capture(value)
+          [key, Attribute.capture(value, normalize_keys: value.is_a?(::Hash))]
         end
 
-        def normalize_attribute!(key)
-          if key.is_a?(::String) || key.is_a?(::Symbol)
-            return XML.name(key, context: "Document profile attribute name").to_sym
+        def capture_attributes(attributes)
+          attributes = {} if attributes.nil?
+          ArgumentError.("Document profile attributes must be a Hash") unless attributes.is_a?(::Hash)
+
+          identities = {}
+          captured = attributes.filter_map do |key, value|
+            next if value.nil?
+
+            capture_attribute(key, value, identities)
           end
 
-          ArgumentError.("Document profile attribute names must be Strings or Symbols")
+          Snapshot.capture(captured.to_h)
         end
 
         def capture_preambles(preambles)
@@ -376,6 +384,7 @@ module Sevgi
         def document(name, attributes: {}, preambles: nil, register: true, overwrite: false)
           overwrite = Document.send(:overwrite!, overwrite)
           profile = Profile.new(register ? name : nil, attributes:, preambles:)
+          Attributes.new(superclass.attributes).merge!(profile.attributes)
           return (@profile = profile) unless register
 
           registered = Registry.register(name, self, profile:, overwrite:)
@@ -438,8 +447,9 @@ module Sevgi
           self.Render(**render_options)
         end
 
-        # Returns inherited root attributes for this document class.
-        # @return [Hash{Symbol => Object}] inherited root attributes
+        # Returns effective inherited root attributes for this document class.
+        # Profile update suffixes are applied from the oldest configured ancestor to this class.
+        # @return [Hash{Symbol => Object}] inherited root attributes without update suffixes
         # @raise [Sevgi::ArgumentError] when a non-Proto class has no configured ancestor
         def self.attributes
           return {} if self == Proto
@@ -447,7 +457,7 @@ module Sevgi
           ArgumentError.("Document class has no configured profile: #{self}") unless profile
           return superclass.attributes unless instance_variable_defined?(:@profile)
 
-          {**superclass.attributes, **@profile.attributes}
+          Attributes.new(superclass.attributes).tap { it.merge!(@profile.attributes) }.to_h
         end
 
         # Returns inherited preamble lines for this document class.

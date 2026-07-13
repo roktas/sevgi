@@ -50,8 +50,10 @@ module Sevgi
     #   Looks up a named profile when both definition keywords are omitted. Supplying `preambles:` or `attributes:`
     #   defines a named profile, or returns an existing profile when every explicitly supplied field matches. Omitted
     #   fields are ignored during existing-profile comparison. Profile containers and strings are copied into the
-    #   process-global, thread-atomic registry; mutable non-container attribute values are stringified once before
-    #   registration. Concurrent identical definitions return the same canonical registered class.
+    #   process-global, thread-atomic registry; attribute names and nested Hash keys are normalized, nil attributes are
+    #   omitted, update suffixes are retained for document-class inheritance, and mutable non-container values are
+    #   stringified once before registration. Concurrent identical definitions return the same canonical registered
+    #   class.
     #   @param name [Symbol, String] profile name
     #   @param preambles [Array<String>, nil, Sevgi::Undefined] document preamble lines
     #   @param attributes [Hash, nil, Sevgi::Undefined] default root attributes; nil means an empty Hash
@@ -67,7 +69,7 @@ module Sevgi
     # @example Define, look up, and inspect a named document
     #   document(:card, attributes: {viewBox: "0 0 100 60"})
     #   Document.fetch(:card)             # => the registered document class
-    #   Document.profile(:card).attributes # => {"viewBox" => "0 0 100 60"}
+    #   Document.profile(:card).attributes # => {viewBox: "0 0 100 60"}
     # @example Define an anonymous document without changing the registry
     #   klass = document(attributes: {viewBox: "0 0 10 10"})
     #   klass.profile.name # => nil
