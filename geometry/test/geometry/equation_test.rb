@@ -38,6 +38,17 @@ module Sevgi
         refute_includes(Equation.constants(false), :Quadratic)
       end
 
+      def test_linear_equations_are_unoriented
+        [
+          Equation.horizontal(1),
+          Equation.vertical(1),
+          Equation.diagonal(slope: 1, intercept: 0)
+        ].each do |equation|
+          refute_respond_to(equation, :left?)
+          refute_respond_to(equation, :right?)
+        end
+      end
+
       def test_intersection_precision_controls_result_rounding
         triangle = Triangle[Segment[2, 0], Segment[1, 150]]
         equ = Equation.vertical(1.2)

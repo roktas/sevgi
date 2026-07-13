@@ -88,6 +88,60 @@ module Sevgi
         refute(line345.over?(Point[1.0, 3.0]))
       end
 
+      def test_line_sides_follow_directed_screen_coordinates
+        {
+          0 => [0, -1],
+          45 => [1, -1],
+          90 => [1, 0],
+          135 => [1, 1],
+          180 => [0, 1],
+          -135 => [-1, 1],
+          -90 => [-1, 0],
+          -45 => [-1, -1]
+        }.each do |angle, left|
+          forward = Line[2, angle]
+          reverse = Line.from_points(forward.ending, forward.starting)
+
+          assert(forward.left?(left), "expected #{left} left of #{angle} degrees")
+          refute(forward.right?(left))
+          refute(reverse.left?(left))
+          assert(reverse.right?(left), "expected #{left} right after reversing #{angle} degrees")
+
+          [forward.starting, forward.ending, Segment[4, angle].ending(Origin)].each do |point|
+            refute(forward.left?(point))
+            refute(forward.right?(point))
+          end
+        end
+      end
+
+      def test_line_sides_follow_translation_and_shift_direction
+        line = Line.from_points([10, 20], [13, 24])
+        reverse = Line.from_points(line.ending, line.starting)
+
+        assert(line.left?([14, 17]))
+        assert(line.right?([6, 23]))
+        assert(reverse.right?([14, 17]))
+        assert(reverse.left?([6, 23]))
+        assert(line.left?(line.shift(2).starting))
+        assert(reverse.left?(reverse.shift(2).starting))
+      end
+
+      def test_zero_length_line_has_no_sides
+        line = Line[0, 0, position: [3, 4]]
+
+        [[3, 4], [0, 0], [10, -10]].each do |point|
+          refute(line.left?(point))
+          refute(line.right?(point))
+        end
+      end
+
+      def test_line_side_predicates_reject_invalid_points
+        [nil, false, "0,0", Object.new].each do |point|
+          assert_raises(Error) { line345.left?(point) }
+          assert_raises(Error) { line345.right?(point) }
+        end
+      end
+
       def test_line_shift_matches_equation_offset
         [
           Line[5, 0],

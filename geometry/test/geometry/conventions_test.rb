@@ -31,16 +31,21 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
-      def test_shift_uses_signed_perpendicular_offset
+      def test_shift_uses_directed_and_canonical_perpendicular_offsets
+        forward = Line[5, 30]
+        reverse = Line.from_points(forward.ending, forward.starting)
+
         [
           Equation.horizontal(-3.0),
           Line[5, 0].shift(3).equation.approx,
           Equation.vertical(3.0),
           Line[5, 90].shift(3).equation.approx,
-          Line[5, 30].equation.shift(3).approx,
-          Line[5, 30].shift(3).equation.approx,
+          forward.equation.shift(3).approx,
+          forward.shift(3).equation.approx,
           Line[5, -45].equation.shift(3).approx,
-          Line[5, -45].shift(3).equation.approx
+          Line[5, -45].shift(3).equation.approx,
+          reverse.equation.shift(-3).approx,
+          reverse.shift(3).equation.approx
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 

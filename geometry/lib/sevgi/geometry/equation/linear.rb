@@ -3,7 +3,11 @@
 module Sevgi
   module Geometry
     class Equation
-      # Base class for linear equations.
+      # Base class for unoriented linear equations.
+      #
+      # An equation has no ordered endpoints, so it does not define intrinsic left and right sides. Signed shifts use a
+      # canonical direction only to select a normal: increasing x for non-vertical equations and increasing y for
+      # vertical equations. Positive distance moves to screen-left of that canonical direction.
       class Linear < Equation
         def shift_values(distance, dx, dy)
           [[:distance, distance], [:dx, dx], [:dy, dy]].map do |field, value|
@@ -54,16 +58,6 @@ module Sevgi
           # @return [Integer]
           def hash = [self.class, slope, intercept].hash
 
-          # Reports whether a point is on the left side of the line in screen coordinates.
-          # @param point [Sevgi::Geometry::Point, Array<Numeric>] point to test
-          # @return [Boolean]
-          # @raise [Sevgi::Geometry::Error] when point cannot be coerced
-          def left?(point)
-            point = Tuple[Point, point]
-
-            F.gt?(point.y, y(point.x))
-          end
-
           # Reports whether a point is on the line.
           # @param point [Sevgi::Geometry::Point, Array<Numeric>] point to test
           # @return [Boolean]
@@ -74,17 +68,8 @@ module Sevgi
             F.eq?(point.y, y(point.x))
           end
 
-          # Reports whether a point is on the right side of the line in screen coordinates.
-          # @param point [Sevgi::Geometry::Point, Array<Numeric>] point to test
-          # @return [Boolean]
-          # @raise [Sevgi::Geometry::Error] when point cannot be coerced
-          def right?(point)
-            point = Tuple[Point, point]
-
-            F.lt?(point.y, y(point.x))
-          end
-
           # Returns a parallel equation shifted by a signed perpendicular offset.
+          # Positive distance moves to screen-left of the equation's canonical increasing-x direction.
           # @param distance [Numeric, nil] signed perpendicular offset
           # @param dx [Numeric, nil] explicit x translation
           # @param dy [Numeric, nil] explicit y translation
@@ -193,16 +178,6 @@ module Sevgi
           # @return [Integer]
           def hash = [self.class, x].hash
 
-          # Reports whether a point is on the left side of the line.
-          # @param point [Sevgi::Geometry::Point, Array<Numeric>] point to test
-          # @return [Boolean]
-          # @raise [Sevgi::Geometry::Error] when point cannot be coerced
-          def left?(point)
-            point = Tuple[Point, point]
-
-            F.lt?(point.x, x(point.y))
-          end
-
           # Reports whether a point is on the line.
           # @param point [Sevgi::Geometry::Point, Array<Numeric>] point to test
           # @return [Boolean]
@@ -211,16 +186,6 @@ module Sevgi
             point = Tuple[Point, point]
 
             F.eq?(point.x, x(point.y))
-          end
-
-          # Reports whether a point is on the right side of the line.
-          # @param point [Sevgi::Geometry::Point, Array<Numeric>] point to test
-          # @return [Boolean]
-          # @raise [Sevgi::Geometry::Error] when point cannot be coerced
-          def right?(point)
-            point = Tuple[Point, point]
-
-            F.gt?(point.x, x(point.y))
           end
 
           # Returns a parallel vertical equation shifted by offsets.

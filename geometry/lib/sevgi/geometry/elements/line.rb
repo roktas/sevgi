@@ -60,21 +60,23 @@ module Sevgi
       # @return [Sevgi::Geometry::Point]
       def ending = points.last
 
-      # Reports whether a point is left of the line equation.
+      # Reports whether a point is left of the directed line from {#starting} to {#ending} in screen coordinates.
+      # Points on the infinite line are on neither side. A zero-length line has no direction and returns false.
       # @param point [Sevgi::Geometry::Point, Array<Numeric>] point to test
       # @return [Boolean]
       # @raise [Sevgi::Geometry::Error] when point cannot be coerced
-      def left?(point) = equation.left?(point)
+      def left?(point) = F.lt?(side(point), 0.0)
 
       # Returns the line segment length.
       # @return [Float]
       def length = head.length
 
-      # Reports whether a point is right of the line equation.
+      # Reports whether a point is right of the directed line from {#starting} to {#ending} in screen coordinates.
+      # Points on the infinite line are on neither side. A zero-length line has no direction and returns false.
       # @param point [Sevgi::Geometry::Point, Array<Numeric>] point to test
       # @return [Boolean]
       # @raise [Sevgi::Geometry::Error] when point cannot be coerced
-      def right?(point) = equation.right?(point)
+      def right?(point) = F.gt?(side(point), 0.0)
 
       # Returns the starting point.
       # @return [Sevgi::Geometry::Point]
@@ -98,6 +100,8 @@ module Sevgi
       end
 
       # Returns a parallel line shifted by a signed perpendicular offset.
+      # Positive distance moves to the directed line's left in screen coordinates; reversing the endpoints reverses the
+      # shift direction.
       # @param distance [Numeric] signed perpendicular offset
       # @return [Sevgi::Geometry::Line]
       # @raise [Sevgi::Geometry::Error] when distance is not a finite real number
@@ -107,6 +111,14 @@ module Sevgi
       end
 
       private
+
+      def cross(ax, ay, bx, by) = (ax * by) - (ay * bx)
+      def delta(from, to) = [to.x - from.x, to.y - from.y]
+
+      def side(point)
+        point = Tuple[Point, point]
+        cross(*delta(starting, ending), *delta(starting, point))
+      end
 
       def within_range?(point)
         point = point.approx

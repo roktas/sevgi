@@ -37,26 +37,12 @@ module Sevgi
             refute_equal(Equation.vertical(5.0), Equation.vertical(6.0))
           end
 
-          def test_vertical_left_predicate_accepts_points_before_line
-            equ = Equation.vertical(5.0)
-
-            assert(equ.left?(Point[-5, 0]))
-            assert(equ.left?([-5, 0]))
-          end
-
           def test_vertical_on_predicate_accepts_points_on_line
             equ = Equation.vertical(5.0)
 
             assert(equ.on?(Point[5, 0]))
             assert(equ.on?([5, 0]))
             assert(equ.on?(Point[5, -1]))
-          end
-
-          def test_vertical_right_predicate_accepts_points_after_line
-            equ = Equation.vertical(5.0)
-
-            assert(equ.right?(Point[10, 0]))
-            assert(equ.right?([10, 0]))
           end
 
           def test_vertical_parallel_returns_no_solution
