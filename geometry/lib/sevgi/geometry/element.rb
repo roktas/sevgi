@@ -115,128 +115,118 @@ module Sevgi
         SHORTCUTS = ("A".."Z").to_a.freeze
         private_constant :Close, :Open, :SHORTCUTS
 
-        # Builds a concrete lined element class.
-        # @param size [Integer, Sevgi::Undefined] segment count for fixed-size elements, or Undefined for variable size
-        # @param open [Boolean] true for an open path, false for a closed path
-        # @return [Class] lined element subclass
-        # @api private
-        def self.build(size = Undefined, open: false)
-          klass = Class.new(open ? Open : Close)
-          klass.define_singleton_method(:close?) { !open }
-          klass.define_singleton_method(:poly?) { size == Undefined }
-          klass.define_singleton_method(:size) { size }
-          define_shortcuts(klass, size, open:) unless size == Undefined
-          klass.public_class_method(:[], :call, :from_points, :from_segments)
-          klass.private_class_method(:close?, :poly?, :size)
-          klass
-        end
+        class << self
+          private
 
-        # @overload [](*segments, position: Origin)
-        #   Builds an element from segments.
-        #   @param segments [Array<Sevgi::Geometry::Segment, Array<Numeric>>] boundary segments
-        #   @param position [Sevgi::Geometry::Point, Array<Numeric>] starting point
-        #   @return [Sevgi::Geometry::Element::Lined]
-        #   @raise [Sevgi::Geometry::Error] when segments or position cannot be coerced
-        # @api private
-        def self.[](...) = new_by_segments(...)
+          # Builds a concrete lined element class.
+          # @param size [Integer, Sevgi::Undefined] segment count for fixed-size elements, or Undefined for variable size
+          # @param open [Boolean] true for an open path, false for a closed path
+          # @return [Class] lined element subclass
+          # @api private
+          def build(size = Undefined, open: false)
+            klass = Class.new(open ? Open : Close)
+            klass.define_singleton_method(:close?) { !open }
+            klass.define_singleton_method(:poly?) { size == Undefined }
+            klass.define_singleton_method(:size) { size }
+            define_shortcuts(klass, size, open:) unless size == Undefined
+            klass.public_class_method(:[], :call, :from_points, :from_segments)
+            klass.private_class_method(:close?, :poly?, :size)
+            klass
+          end
 
-        private_class_method :[]
+          # @overload [](*segments, position: Origin)
+          #   Builds an element from segments.
+          #   @param segments [Array<Sevgi::Geometry::Segment, Array<Numeric>>] boundary segments
+          #   @param position [Sevgi::Geometry::Point, Array<Numeric>] starting point
+          #   @return [Sevgi::Geometry::Element::Lined]
+          #   @raise [Sevgi::Geometry::Error] when segments or position cannot be coerced
+          # @api private
+          def [](...) = new_by_segments(...)
 
-        # @overload call(*points)
-        #   Builds an element from points.
-        #   @param points [Array<Sevgi::Geometry::Point, Array<Numeric>>] boundary points
-        #   @return [Sevgi::Geometry::Element::Lined]
-        #   @raise [Sevgi::Geometry::Error] when points cannot be coerced
-        # @api private
-        def self.call(...) = new_by_points(...)
+          # @overload call(*points)
+          #   Builds an element from points.
+          #   @param points [Array<Sevgi::Geometry::Point, Array<Numeric>>] boundary points
+          #   @return [Sevgi::Geometry::Element::Lined]
+          #   @raise [Sevgi::Geometry::Error] when points cannot be coerced
+          # @api private
+          def call(...) = new_by_points(...)
 
-        # @overload from_points(*points)
-        #   Builds an element from points.
-        #   @param points [Array<Sevgi::Geometry::Point, Array<Numeric>>] boundary points
-        #   @return [Sevgi::Geometry::Element::Lined]
-        #   @raise [Sevgi::Geometry::Error] when points cannot be coerced
-        # @api private
-        def self.from_points(...) = call(...)
+          # @overload from_points(*points)
+          #   Builds an element from points.
+          #   @param points [Array<Sevgi::Geometry::Point, Array<Numeric>>] boundary points
+          #   @return [Sevgi::Geometry::Element::Lined]
+          #   @raise [Sevgi::Geometry::Error] when points cannot be coerced
+          # @api private
+          def from_points(...) = call(...)
 
-        # @overload from_segments(*segments, position: Origin)
-        #   Builds an element from segments.
-        #   @param segments [Array<Sevgi::Geometry::Segment, Array<Numeric>>] boundary segments
-        #   @param position [Sevgi::Geometry::Point, Array<Numeric>] starting point
-        #   @return [Sevgi::Geometry::Element::Lined]
-        #   @raise [Sevgi::Geometry::Error] when segments or position cannot be coerced
-        # @api private
-        def self.from_segments(*segments, position: Origin) = self[*segments, position:]
+          # @overload from_segments(*segments, position: Origin)
+          #   Builds an element from segments.
+          #   @param segments [Array<Sevgi::Geometry::Segment, Array<Numeric>>] boundary segments
+          #   @param position [Sevgi::Geometry::Point, Array<Numeric>] starting point
+          #   @return [Sevgi::Geometry::Element::Lined]
+          #   @raise [Sevgi::Geometry::Error] when segments or position cannot be coerced
+          # @api private
+          def from_segments(*segments, position: Origin) = self[*segments, position:]
 
-        def self.affine(*points) = new_by_points!(*points)
+          def affine(*points) = new_by_points!(*points)
 
-        # @overload new_by_points(*points)
-        #   Builds an element from points, applying closed-path behavior where appropriate.
-        #   @param points [Array<Sevgi::Geometry::Point, Array<Numeric>>] boundary points
-        #   @return [Sevgi::Geometry::Element::Lined]
-        #   @raise [Sevgi::Geometry::Error] when points cannot be coerced
-        # @api private
-        def self.new_by_points(...) = new_by_points!(...)
+          # @overload new_by_points(*points)
+          #   Builds an element from points, applying closed-path behavior where appropriate.
+          #   @param points [Array<Sevgi::Geometry::Point, Array<Numeric>>] boundary points
+          #   @return [Sevgi::Geometry::Element::Lined]
+          #   @raise [Sevgi::Geometry::Error] when points cannot be coerced
+          # @api private
+          def new_by_points(...) = new_by_points!(...)
 
-        # Builds an element from an exact point path.
-        #
-        # Closed classes require the closing point to be supplied by the caller.
-        # @param points [Array<Sevgi::Geometry::Point, Array<Numeric>>] exact boundary points
-        # @return [Sevgi::Geometry::Element::Lined]
-        # @raise [Sevgi::Geometry::Error] when points cannot be coerced or do not satisfy the class path contract
-        # @api private
-        def self.new_by_points!(*points)
-          new do
-            @points = Tuples[Point, *points]
+          # Builds an element from an exact point path.
+          #
+          # Closed classes require the closing point to be supplied by the caller.
+          # @param points [Array<Sevgi::Geometry::Point, Array<Numeric>>] exact boundary points
+          # @return [Sevgi::Geometry::Element::Lined]
+          # @raise [Sevgi::Geometry::Error] when points cannot be coerced or do not satisfy the class path contract
+          # @api private
+          def new_by_points!(*points)
+            new do
+              @points = Tuples[Point, *points]
+            end
+          end
+
+          # Builds an element from segments and a start position.
+          # @param segments [Array<Sevgi::Geometry::Segment, Array<Numeric>>] boundary segments
+          # @param position [Sevgi::Geometry::Point, Array<Numeric>] starting point
+          # @return [Sevgi::Geometry::Element::Lined]
+          # @raise [Sevgi::Geometry::Error] when segments or position cannot be coerced
+          # @api private
+          def new_by_segments(*segments, position: Origin)
+            new do
+              @position = Tuple[Point, position]
+              @segments = Tuples[Segment, *segments]
+            end
+          end
+
+          def define_line_shortcuts(klass, point_names, open:)
+            line_names = point_names.each_cons(2).map(&:join)
+            line_names << "#{point_names.last}#{point_names.first}" if !open && point_names.any?
+
+            line_names.each_with_index do |name, i|
+              klass.define_method(name) { lines[i] or Error.("No such line: #{name}") }
+            end
+          end
+
+          def define_point_shortcuts(klass, point_names)
+            point_names.each_with_index do |name, i|
+              klass.define_method(name) { points[i] or Error.("No such point: #{name}") }
+            end
+          end
+
+          def define_shortcuts(klass, size, open:)
+            point_names = SHORTCUTS.first([open ? size + 1 : size, SHORTCUTS.size].min)
+            define_point_shortcuts(klass, point_names)
+            define_line_shortcuts(klass, point_names, open:)
           end
         end
 
-        # Builds an element from segments and a start position.
-        # @param segments [Array<Sevgi::Geometry::Segment, Array<Numeric>>] boundary segments
-        # @param position [Sevgi::Geometry::Point, Array<Numeric>] starting point
-        # @return [Sevgi::Geometry::Element::Lined]
-        # @raise [Sevgi::Geometry::Error] when segments or position cannot be coerced
-        # @api private
-        def self.new_by_segments(*segments, position: Origin)
-          new do
-            @position = Tuple[Point, position]
-            @segments = Tuples[Segment, *segments]
-          end
-        end
-
-        private_class_method(
-          :affine,
-          :build,
-          :call,
-          :from_points,
-          :from_segments,
-          :new,
-          :new_by_points,
-          :new_by_points!,
-          :new_by_segments
-        )
-
-        def self.define_line_shortcuts(klass, point_names, open:)
-          line_names = point_names.each_cons(2).map(&:join)
-          line_names << "#{point_names.last}#{point_names.first}" if !open && point_names.any?
-
-          line_names.each_with_index do |name, i|
-            klass.define_method(name) { lines[i] or Error.("No such line: #{name}") }
-          end
-        end
-
-        def self.define_point_shortcuts(klass, point_names)
-          point_names.each_with_index do |name, i|
-            klass.define_method(name) { points[i] or Error.("No such point: #{name}") }
-          end
-        end
-
-        def self.define_shortcuts(klass, size, open:)
-          point_names = SHORTCUTS.first([open ? size + 1 : size, SHORTCUTS.size].min)
-          define_point_shortcuts(klass, point_names)
-          define_line_shortcuts(klass, point_names, open:)
-        end
-
-        private_class_method :define_line_shortcuts, :define_point_shortcuts, :define_shortcuts
+        private_class_method :new
 
         # Creates a lined element from a geometry-definition block.
         # @yield evaluates point or segment definitions in the new element

@@ -60,21 +60,23 @@ module Sevgi
         new_by_segments(a, b, closing_segment(a, b), position:)
       end
 
-      def self.closing_segment(a, b)
-        Segment.(b.ending(a.ending(Origin)), Origin)
-      end
+      class << self
+        private
 
-      def self.cross(a, b) = (a.x * b.y) - (a.y * b.x)
+        def closing_segment(a, b)
+          Segment.(b.ending(a.ending(Origin)), Origin)
+        end
 
-      def self.validate!(a, b)
-        if F.zero?(a.length) ||
-            F.zero?(b.length) ||
-            F.zero?(cross(a, b))
-          Error.("Triangle segments must form a non-degenerate triangle")
+        def cross(a, b) = (a.x * b.y) - (a.y * b.x)
+
+        def validate!(a, b)
+          if F.zero?(a.length) ||
+              F.zero?(b.length) ||
+              F.zero?(cross(a, b))
+            Error.("Triangle segments must form a non-degenerate triangle")
+          end
         end
       end
-
-      private_class_method :closing_segment, :cross, :validate!
 
       private
 

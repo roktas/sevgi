@@ -96,40 +96,44 @@ module Sevgi
       # @raise [Sevgi::Geometry::Error] when position cannot be coerced or a dimension is negative
       def self.from_size(width, height, position: Origin) = self[width, height, position:]
 
-      def self.affine(*points)
-        left, right, top, bottom = bounds(points)
-        width, height = right - left, bottom - top
+      class << self
+        private
 
-        unless axis_aligned?(points, left, right, top, bottom)
-          return Parallelogram.call(*points.first(4))
+        def affine(*points)
+          left, right, top, bottom = bounds(points)
+          width, height = right - left, bottom - top
+
+          unless axis_aligned?(points, left, right, top, bottom)
+            return Parallelogram.call(*points.first(4))
+          end
+
+          klass = self <= Square && F.eq?(width, height) ? Square : Rect
+          return klass[width, position: [left, top]] if klass == Square
+
+          klass[width, height, position: [left, top]]
         end
 
-        klass = self <= Square && F.eq?(width, height) ? Square : Rect
-        return klass[width, position: [left, top]] if klass == Square
+        def axis_aligned?(points, left, right, top, bottom)
+          expected = [[left, top], [right, top], [right, bottom], [left, bottom]]
+          vertices = points.first(4)
 
-        klass[width, height, position: [left, top]]
+          expected.all? { |corner| vertices.any? { it.eq?(Point[*corner]) } }
+        end
+
+        def bounds(points)
+          vertices = points.first(4)
+          [vertices.map(&:x).min, vertices.map(&:x).max, vertices.map(&:y).min, vertices.map(&:y).max]
+        end
+
+        def dimension!(name, value)
+          value = Real[name, value]
+          Error.("Rectangle #{name} cannot be negative") if value.negative?
+
+          value
+        end
       end
 
-      def self.axis_aligned?(points, left, right, top, bottom)
-        expected = [[left, top], [right, top], [right, bottom], [left, bottom]]
-        vertices = points.first(4)
-
-        expected.all? { |corner| vertices.any? { it.eq?(Point[*corner]) } }
-      end
-
-      def self.bounds(points)
-        vertices = points.first(4)
-        [vertices.map(&:x).min, vertices.map(&:x).max, vertices.map(&:y).min, vertices.map(&:y).max]
-      end
-
-      def self.dimension!(name, value)
-        value = Real[name, value]
-        Error.("Rectangle #{name} cannot be negative") if value.negative?
-
-        value
-      end
-
-      private_class_method :affine, :axis_aligned?, :bounds, :construct, :dimension!, :from_points, :from_segments
+      private_class_method :construct, :from_points, :from_segments
 
       # Draws the rectangle into a graphics node.
       # @param node [Object] graphics node receiving the drawing command
