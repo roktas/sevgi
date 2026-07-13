@@ -338,7 +338,7 @@ module Sevgi
         Sevgi::Function::Locate#call
         Sevgi::Function::Locate#exclude
         Sevgi::Function::File#existing_map!
-        Sevgi::Geometry::Line#length
+        Sevgi::Geometry::Element::Lined#length
         Sevgi::Graphics::Margin#to_a
       ]
         .each { assert_includes(paths, it) }
