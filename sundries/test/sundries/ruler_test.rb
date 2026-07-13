@@ -121,7 +121,7 @@ module Sevgi
 
         [
           0.0,
-          r.margin,
+          r.start,
           0.0,
           r.waste,
           10.0,
@@ -139,7 +139,7 @@ module Sevgi
 
       def test_ruler_handles_zero_fitting_span
         [Ruler, RulerEven].each do |type|
-          r = type.new(unit: 10, multiple: 10, brut: 20, margin: 10)
+          r = type.new(unit: 10, multiple: 10, brut: 20, margins: [10])
 
           [
             0,
@@ -149,7 +149,7 @@ module Sevgi
             20.0,
             r.waste,
             10.0,
-            r.margin,
+            r.start,
             [0.0],
             r.ds,
             [],
@@ -161,7 +161,7 @@ module Sevgi
       def test_rulers_reject_slightly_negative_fitting_span
         [Ruler, RulerEven].each do |type|
           error = assert_raises(ArgumentError) do
-            type.new(unit: 10, multiple: 10, brut: 5, margin: 3)
+            type.new(unit: 10, multiple: 10, brut: 5, margins: [3])
           end
 
           assert_match(/fitting span must not be negative/, error.message)
@@ -196,12 +196,14 @@ module Sevgi
           [/multiple must be a positive Integer/, {brut: 10, unit: 1, multiple: Float::INFINITY}],
           [/multiple must be a positive Integer/, {brut: 10, unit: 1, multiple: Complex(1, 2)}],
           [/multiple must be a positive Integer/, {brut: 10, unit: 1, multiple: "1"}],
-          [/margin must be non-negative/, {brut: 10, unit: 1, multiple: 1, margin: -1}],
-          [/margin must be finite/, {brut: 10, unit: 1, multiple: 1, margin: Float::NAN}],
-          [/margin must be finite/, {brut: 10, unit: 1, multiple: 1, margin: Float::INFINITY}],
-          [/margin must be a finite Numeric/, {brut: 10, unit: 1, multiple: 1, margin: Complex(1, 2)}],
-          [/margin must be Numeric/, {brut: 10, unit: 1, multiple: 1, margin: "1"}],
-          [/fitting span must not be negative/, {brut: 10, unit: 1, multiple: 1, margin: 6}]
+          [/margins must contain one or two/, {brut: 10, unit: 1, multiple: 1, margins: []}],
+          [/margins must contain one or two/, {brut: 10, unit: 1, multiple: 1, margins: [1, 2, 3]}],
+          [/margin must be non-negative/, {brut: 10, unit: 1, multiple: 1, margins: [-1]}],
+          [/margin must be finite/, {brut: 10, unit: 1, multiple: 1, margins: [Float::NAN]}],
+          [/margin must be finite/, {brut: 10, unit: 1, multiple: 1, margins: [Float::INFINITY]}],
+          [/margin must be a finite Numeric/, {brut: 10, unit: 1, multiple: 1, margins: [Complex(1, 2)]}],
+          [/margin must be Numeric/, {brut: 10, unit: 1, multiple: 1, margins: ["1"]}],
+          [/fitting span must not be negative/, {brut: 10, unit: 1, multiple: 1, margins: [6]}]
         ].each do |message, kwargs|
           error = assert_raises(ArgumentError) { Ruler.new(**kwargs) }
 
@@ -250,7 +252,7 @@ module Sevgi
       end
 
       def test_ruler_distributes_waste_to_margins
-        r = Ruler.new(unit: 1.0, multiple: 10, brut: 195.0, margin: 15)
+        r = Ruler.new(unit: 1.0, multiple: 10, brut: 195.0, margins: [15])
 
         [
           10.0,
@@ -260,7 +262,7 @@ module Sevgi
           160.0,
           r.d,
           17.5,
-          r.margin,
+          r.start,
           35.0,
           r.waste,
           80.0,
@@ -270,8 +272,17 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
+      def test_ruler_preserves_asymmetric_margin_difference
+        r = Ruler.new(unit: 1.0, multiple: 10, brut: 195.0, margins: [10, 20])
+
+        assert_equal([12.5, 22.5], r.margins)
+        assert_equal(10.0, r.finish - r.start)
+        assert_equal(r.brut, r.start + r.d + r.finish)
+        assert_predicate(r.margins, :frozen?)
+      end
+
       def test_ruler_even_balances_waste
-        r = RulerEven.new(unit: 1.0, multiple: 10, brut: 195.0, margin: 18)
+        r = RulerEven.new(unit: 1.0, multiple: 10, brut: 195.0, margins: [18])
 
         [
           10.0,
@@ -281,7 +292,7 @@ module Sevgi
           140.0,
           r.d,
           27.5,
-          r.margin,
+          r.start,
           55.0,
           r.waste,
           70.0,
@@ -292,7 +303,7 @@ module Sevgi
       end
 
       def test_ruler_expand_flattens_subinterval
-        r = Ruler.new(unit: 1.0, multiple: 10, brut: 195.0, margin: 15).expand
+        r = Ruler.new(unit: 1.0, multiple: 10, brut: 195.0, margins: [15]).expand
 
         assert(r.is_a?(Ruler))
         assert(r.sub.is_a?(Interval))

@@ -17,8 +17,8 @@ module Sevgi
         [
           # Ordinary construction
           Grid.new(
-            x: rx = Ruler.new(unit: 6, multiple: 5, brut: 210, margin: 15),
-            y: ry = Ruler.new(unit: 6, multiple: 5, brut: 297, margin: 15)
+            x: rx = Ruler.new(unit: 6, multiple: 5, brut: 210, margins: [15]),
+            y: ry = Ruler.new(unit: 6, multiple: 5, brut: 297, margins: [15])
           ),
           # Alternative construction
           Grid[rx, ry]
@@ -54,8 +54,8 @@ module Sevgi
 
       def test_grid_canvas_matches_brut_size_and_margins
         grid = Grid.new(
-          x: Ruler.new(unit: 6, multiple: 5, brut: 210, margin: 15),
-          y: Ruler.new(unit: 6, multiple: 5, brut: 297, margin: 15)
+          x: Ruler.new(unit: 6, multiple: 5, brut: 210, margins: [15]),
+          y: Ruler.new(unit: 6, multiple: 5, brut: 297, margins: [15])
         )
         canvas = grid.canvas
 
@@ -83,6 +83,18 @@ module Sevgi
           "-15 -28.5 210 297",
           canvas.viewbox
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+      end
+
+      def test_grid_canvas_preserves_axis_margin_difference
+        grid = Grid.new(
+          x: Ruler.new(unit: 10, multiple: 1, brut: 100, margins: [5, 30]),
+          y: Ruler.new(unit: 10, multiple: 1, brut: 100, margins: [10, 20])
+        )
+
+        assert_equal([10.0, 32.5, 20.0, 7.5], grid.canvas.margin.to_a)
+        assert_equal("-7.5 -10 100 100", grid.canvas.viewbox)
+        assert_equal(60.0, grid.width)
+        assert_equal(70.0, grid.height)
       end
 
       def test_grid_axes_memoize_base_lines
@@ -127,8 +139,8 @@ module Sevgi
 
       def test_grid_x_major_returns_horizontal_lines
         grid = Grid.new(
-          x: Ruler.new(unit: 6, multiple: 5, brut: 210, margin: 15),
-          y: Ruler.new(unit: 6, multiple: 5, brut: 297, margin: 15)
+          x: Ruler.new(unit: 6, multiple: 5, brut: 210, margins: [15]),
+          y: Ruler.new(unit: 6, multiple: 5, brut: 297, margins: [15])
         )
 
         grid.x.major.lines.each { assert(it.is_a?(Geometry::Line)) }
@@ -151,8 +163,8 @@ module Sevgi
 
       def test_grid_x_halve_returns_horizontal_midlines
         grid = Grid.new(
-          x: Ruler.new(unit: 6, multiple: 5, brut: 210, margin: 15),
-          y: Ruler.new(unit: 6, multiple: 5, brut: 297, margin: 15)
+          x: Ruler.new(unit: 6, multiple: 5, brut: 210, margins: [15]),
+          y: Ruler.new(unit: 6, multiple: 5, brut: 297, margins: [15])
         )
 
         grid.x.halve.lines.each { assert(it.is_a?(Geometry::Line)) }
@@ -174,8 +186,8 @@ module Sevgi
 
       def test_grid_x_minor_returns_horizontal_minor_lines
         grid = Grid.new(
-          x: Ruler.new(unit: 6, multiple: 5, brut: 210, margin: 15),
-          y: Ruler.new(unit: 6, multiple: 5, brut: 297, margin: 15)
+          x: Ruler.new(unit: 6, multiple: 5, brut: 210, margins: [15]),
+          y: Ruler.new(unit: 6, multiple: 5, brut: 297, margins: [15])
         )
 
         grid.x.minor.lines.each { assert(it.is_a?(Geometry::Line)) }
@@ -230,8 +242,8 @@ module Sevgi
 
       def test_grid_y_major_returns_vertical_lines
         grid = Grid.new(
-          x: Ruler.new(unit: 6, multiple: 5, brut: 210, margin: 15),
-          y: Ruler.new(unit: 6, multiple: 5, brut: 297, margin: 15)
+          x: Ruler.new(unit: 6, multiple: 5, brut: 210, margins: [15]),
+          y: Ruler.new(unit: 6, multiple: 5, brut: 297, margins: [15])
         )
 
         grid.y.major.lines.each { assert(it.is_a?(Geometry::Line)) }
@@ -252,8 +264,8 @@ module Sevgi
 
       def test_grid_y_halve_returns_vertical_midlines
         grid = Grid.new(
-          x: Ruler.new(unit: 6, multiple: 5, brut: 210, margin: 15),
-          y: Ruler.new(unit: 6, multiple: 5, brut: 297, margin: 15)
+          x: Ruler.new(unit: 6, multiple: 5, brut: 210, margins: [15]),
+          y: Ruler.new(unit: 6, multiple: 5, brut: 297, margins: [15])
         )
 
         grid.y.halve.lines.each { assert(it.is_a?(Geometry::Line)) }
@@ -273,8 +285,8 @@ module Sevgi
 
       def test_grid_y_minor_returns_vertical_minor_lines
         grid = Grid.new(
-          x: Ruler.new(unit: 6, multiple: 5, brut: 210, margin: 15),
-          y: Ruler.new(unit: 6, multiple: 5, brut: 297, margin: 15)
+          x: Ruler.new(unit: 6, multiple: 5, brut: 210, margins: [15]),
+          y: Ruler.new(unit: 6, multiple: 5, brut: 297, margins: [15])
         )
 
         grid.y.minor.lines.each { assert(it.is_a?(Geometry::Line)) }

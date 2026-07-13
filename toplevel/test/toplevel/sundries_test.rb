@@ -15,10 +15,37 @@ module Sevgi
         297.0,
         grid.y.brut,
         20.0,
-        grid.x.margin,
+        grid.x.start,
         13.5,
-        grid.y.margin
+        grid.y.start
       ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+    end
+
+    def test_grid_preserves_canvas_margin_shorthands
+      receiver = Module.new.extend(::Sevgi)
+      [
+        [[], [0.0, 0.0, 0.0, 0.0]],
+        [[10], [10.0, 10.0, 10.0, 10.0]],
+        [[10, 20], [10.0, 20.0, 10.0, 20.0]],
+        [[10, 20, 30], [10.0, 20.0, 30.0, 20.0]],
+        [[10, 20, 30, 5], [10.0, 22.5, 30.0, 7.5]]
+      ].each do |margins, expected|
+        canvas = Graphics::Canvas.call(width: 100, height: 100, margins:)
+        grid = receiver.Grid(canvas, unit: 10, multiple: 1)
+
+        assert_equal(expected, grid.canvas.margin.to_a)
+        assert_equal(grid.x.brut, grid.x.start + grid.width + grid.x.finish)
+        assert_equal(grid.y.brut, grid.y.start + grid.height + grid.y.finish)
+      end
+    end
+
+    def test_grid_rejects_an_inner_area_without_an_interval
+      receiver = Module.new.extend(::Sevgi)
+      canvas = Graphics::Canvas.call(width: 25, height: 25, margins: [10])
+
+      error = assert_raises(ArgumentError) { receiver.Grid(canvas, unit: 10, multiple: 1) }
+
+      assert_match(/fit at least one interval/, error.message)
     end
 
     def test_grid_rejects_non_canvas

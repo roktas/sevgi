@@ -26,8 +26,10 @@ module Sevgi
       # @param y [Sevgi::Sundries::Ruler] vertical ruler
       # @return [void]
       # @raise [Sevgi::ArgumentError] when either argument is not a ruler
+      # @raise [Sevgi::ArgumentError] when either ruler fits no interval
       def initialize(x:, y:)
         ArgumentError.("Arguments must be Ruler objects") unless [x, y].all?(Ruler)
+        ArgumentError.("Grid rulers must fit at least one interval") unless x.n.positive? && y.n.positive?
 
         @x = X.send(:new, x, y)
         @y = Y.send(:new, x, y)
@@ -35,12 +37,14 @@ module Sevgi
         super(Geometry::Rect[@x.u, @y.u], nx: @x.n, ny: @y.n)
       end
 
-      # Returns a graphics canvas matching the rulers and computed margins.
+      # Returns a graphics canvas matching the ruler spans and fitted margins.
+      # Horizontal ruler margins become the canvas left/right margins; vertical
+      # ruler margins become its top/bottom margins.
       # @return [Sevgi::Graphics::Canvas]
       def canvas
         Graphics::Canvas.new(
           **Graphics::Paper[x.brut, y.brut].to_h,
-          margins: Graphics::Margin[y.margin, x.margin].to_a
+          margins: [y.start, x.finish, y.finish, x.start]
         )
       end
 

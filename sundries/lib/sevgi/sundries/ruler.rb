@@ -151,10 +151,10 @@ module Sevgi
     # A ruler stores both the fitted major interval and the source subinterval.
     # The compact reader names mirror {Interval}: `brut` is the full available
     # span, `sd/su/sn` describe the subinterval, and `waste` is distributed as
-    # equal margins.
+    # margins while preserving any requested start/end difference.
     #
     # @example Ruler geometry
-    #   # <--------- d = n x sd ---------><--- waste = 2 x margin --->
+    #   # <-- start --><--------- d = n x sd ---------><-- finish -->
     #   # <----- u = unit x multiple ----->
     #   # <---------------- brut ---------------->
     #   ruler = Sevgi::Sundries::Ruler.new(unit: 1, multiple: 10, brut: 150)
@@ -164,6 +164,14 @@ module Sevgi
       # @return [Float]
       attr_reader :brut
 
+      # Returns the fitted margin after the interval.
+      # @return [Float]
+      attr_reader :finish
+
+      # Returns the fitted margin before the interval.
+      # @return [Float]
+      attr_reader :start
+
       # Returns the source subinterval.
       # @return [Sevgi::Sundries::Interval]
       attr_reader :sub
@@ -172,7 +180,7 @@ module Sevgi
       # @param brut [Numeric] full available span
       # @param unit [Numeric] subinterval unit length
       # @param multiple [Integer] number of subinterval units per major interval
-      # @param margin [Numeric] minimum margin on each side
+      # @param margins [Array<Numeric>] one symmetric or two start/end minimum margins
       # @return [void]
       # @raise [Sevgi::ArgumentError] when brut is not numeric
       # @raise [Sevgi::ArgumentError] when brut is not finite
@@ -181,32 +189,31 @@ module Sevgi
       # @raise [Sevgi::ArgumentError] when unit is not finite
       # @raise [Sevgi::ArgumentError] when unit is not positive
       # @raise [Sevgi::ArgumentError] when multiple is not a positive integer
-      # @raise [Sevgi::ArgumentError] when margin is not numeric
-      # @raise [Sevgi::ArgumentError] when margin is not finite
-      # @raise [Sevgi::ArgumentError] when margin is negative
+      # @raise [Sevgi::ArgumentError] when margins does not contain one or two values
+      # @raise [Sevgi::ArgumentError] when a margin is not numeric
+      # @raise [Sevgi::ArgumentError] when a margin is not finite
+      # @raise [Sevgi::ArgumentError] when a margin is negative
       # @raise [Sevgi::ArgumentError] when the fitting span is negative
-      def initialize(brut:, unit:, multiple:, margin: 0.0)
+      def initialize(brut:, unit:, multiple:, margins: [0.0])
         @brut = non_negative_number(brut, "Ruler brut")
         unit = positive_number(unit, "Ruler unit")
         multiple = positive_integer(multiple, "Ruler multiple")
-        margin = non_negative_number(margin, "Ruler margin")
         @sub = Interval.new(unit, multiple)
-
-        span = @brut - (2 * margin)
-        ArgumentError.("Ruler fitting span must not be negative") if span.negative?
+        span, start, finish = fitting_span(margins)
 
         n = divide(unit:, multiple:, span:)
 
         super(@sub, n)
+        @start, @finish = fitted_margins(start, finish, span)
       end
 
       # Returns a ruler where the source subinterval is flattened into units.
       # @return [Sevgi::Sundries::Ruler]
-      def expand = self.class.new(unit: sub.u, multiple: 1, brut: d + waste, margin:)
+      def expand = self.class.new(unit: sub.u, multiple: 1, brut: d + waste, margins:)
 
-      # Returns the computed margin after fitting.
-      # @return [Float]
-      def margin = @margin ||= waste / 2.0
+      # Returns fitted start and finish margins.
+      # @return [Array<Float>] frozen margin pair
+      def margins = @margins ||= [start, finish].freeze
 
       # Returns minor tick distances across the fitted span.
       # The memoized collection is frozen and must be treated as immutable.
@@ -228,6 +235,30 @@ module Sevgi
       # Returns the source subinterval unit length.
       # @return [Float]
       def su = @sub.u
+
+      private
+
+      def fitted_margins(start, finish, span)
+        extra = (span - d) / 2.0
+        [start + extra, finish + extra]
+      end
+
+      def fitting_span(margins)
+        start, finish = margin_pair(margins)
+        span = brut - start - finish
+        ArgumentError.("Ruler fitting span must not be negative") if span.negative?
+
+        [span, start, finish]
+      end
+
+      def margin_pair(values)
+        unless values.is_a?(::Array) && [1, 2].include?(values.size)
+          ArgumentError.("Ruler margins must contain one or two values")
+        end
+
+        values = [values.first, values.first] if values.one?
+        values.map { non_negative_number(it, "Ruler margin") }
+      end
 
       protected
 

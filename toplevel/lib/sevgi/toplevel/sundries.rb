@@ -4,7 +4,12 @@ require "sevgi/sundries"
 
 module Sevgi
   module Toplevel
-    # Builds a drawable grid from a graphics canvas.
+    # Builds a drawable grid fitted inside a graphics canvas.
+    #
+    # The canvas margins are minimum clearances. Any span left after fitting
+    # whole major intervals is shared equally between the opposite margins, so
+    # their requested difference is preserved. The returned grid starts at
+    # `(0, 0)`; {Sevgi::Sundries::Grid#canvas} exposes the fitted page margins.
     # @param canvas [Sevgi::Graphics::Canvas] canvas defining page size and margins
     # @param unit [Numeric] minor grid unit
     # @param multiple [Integer] number of minor units in each major interval
@@ -17,8 +22,8 @@ module Sevgi
       ArgumentError.("Must be a Canvas: #{canvas}") unless canvas.is_a?(Graphics::Canvas)
 
       Sundries::Grid[
-        Sundries::Ruler.new(brut: canvas.width, unit:, multiple:, margin: canvas.left),
-        Sundries::Ruler.new(brut: canvas.height, unit:, multiple:, margin: canvas.top)
+        Sundries::Ruler.new(brut: canvas.width, unit:, multiple:, margins: [canvas.left, canvas.right]),
+        Sundries::Ruler.new(brut: canvas.height, unit:, multiple:, margins: [canvas.top, canvas.bottom])
       ]
     end
 
