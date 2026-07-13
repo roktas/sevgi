@@ -102,10 +102,17 @@ module Sevgi
       end
 
       def test_graphics_loads_without_standard_component
-        result = run_without("standard", "require 'sevgi/graphics'; puts Sevgi::Graphics::Element.valid?(:custom_tag)")
+        result = run_without(
+          "standard",
+          <<~RUBY
+            require "sevgi/graphics"
+            element = Sevgi::Graphics::Element
+            puts [element.valid?(:custom_tag), element.valid?(:"bad?"), element.root.respond_to?(:"bad?")].join(":")
+          RUBY
+        )
 
         assert(result.ok?, result.err)
-        assert_equal("true", result.outline)
+        assert_equal("true:false:false", result.outline)
       end
 
       def test_graphics_propagates_standard_dependency_load_error

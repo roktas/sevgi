@@ -73,6 +73,23 @@ module Sevgi
       end
 
       class ElementClassTest < Minitest::Test
+        def test_element_valid_is_total
+          [
+            true,
+            Element.valid?(:marker),
+            true,
+            Element.valid?("marker"),
+            false,
+            Element.valid?(:foobar),
+            false,
+            Element.valid?(:foo?),
+            false,
+            Element.valid?("bad name"),
+            false,
+            Element.valid?(Object.new)
+          ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+        end
+
         def test_element_hides_method_name_normalizer
           refute_respond_to(Element, :id)
         end
@@ -200,6 +217,10 @@ module Sevgi
 
         def test_respond_to_rejects_invalid_svg_names
           refute_respond_to(Element.root, :foobar)
+        end
+
+        def test_respond_to_rejects_ruby_suffixes
+          %i[foo? foo! foo= Root?].each { refute_respond_to(Element.root, it) }
         end
 
         def test_invalid_element_name_raises_exception

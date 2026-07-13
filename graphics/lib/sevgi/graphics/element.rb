@@ -5,8 +5,9 @@ module Sevgi
     # SVG element node used by the graphics DSL.
     #
     # @!method self.valid?(name)
-    #   Reports whether an SVG element name is known.
-    #   @param name [Symbol] SVG element name
+    #   Reports whether a candidate can dispatch as an SVG element name.
+    #   With Standard loaded, the name must be known; standalone Graphics accepts any valid XML name.
+    #   @param name [Object] candidate element name
     #   @return [Boolean]
     class Element
       # Builds an element node.
@@ -54,16 +55,29 @@ module Sevgi
       class << self
         require "sevgi/standard"
 
-        # Reports whether an SVG element name is known.
-        # @param name [Symbol] SVG element name
+        # Reports whether a candidate can dispatch as a known SVG element name.
+        # @param name [Object] candidate element name
         # @return [Boolean]
-        def valid?(name) = Standard.element?(name)
+        def valid?(name)
+          Standard.element?(name)
+        rescue Sevgi::ArgumentError
+          false
+        end
+
       rescue ::LoadError => e
         raise unless e.path == "sevgi/standard"
 
-        # Reports whether an SVG element name is known.
+        # Reports whether a candidate can dispatch as a valid XML element name.
+        # @param name [Object] candidate element name
         # @return [Boolean]
-        def valid?(...) = true
+        def valid?(name)
+          return false unless name.is_a?(::String) || name.is_a?(::Symbol)
+
+          XML.name(name, context: "SVG element name")
+          true
+        rescue Sevgi::ArgumentError
+          false
+        end
       end
 
       private_class_method :new
