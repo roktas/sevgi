@@ -182,6 +182,12 @@ module Sevgi
 
           def affine(*points) = new_by_points!(*points)
 
+          def approximate(*points)
+            new_by_points!(*points)
+          rescue Error
+            (close? ? Polygon : Polyline).send(:new_by_points!, *points)
+          end
+
           # @overload new_by_points(*points)
           #   Builds an element from points, applying closed-path behavior where appropriate.
           #   @param points [Array<Sevgi::Geometry::Point, Array<Numeric>>] boundary points
@@ -263,14 +269,15 @@ module Sevgi
 
         # Core methods
 
-        # Returns an element with approximate points and segments.
+        # Returns an element rebuilt from rounded boundary points.
+        #
+        # Segments are derived from the rounded points so both representations describe the same path. When rounding
+        # breaks a concrete shape invariant, the result widens to a less specific Rect, Polygon, or Polyline rather than
+        # retaining a misleading concrete class.
+        # @param precision [Integer, nil] decimal precision, or nil for the current function default
         # @return [Sevgi::Geometry::Element::Lined]
-        def approx
-          points, segments = points(true), segments(true)
-          self.class.send(:new) do
-            @points, @segments = points, segments
-          end
-        end
+        # @raise [Sevgi::ArgumentError] when precision is invalid
+        def approx(precision = nil) = self.class.send(:approximate, *rounded_points(precision))
 
         # @overload draw(node, **attributes)
         #   Draws an approximate element into a graphics node.
@@ -285,7 +292,7 @@ module Sevgi
         # @param approximate [Boolean] true to round points with the current function precision
         # @return [Array<Sevgi::Geometry::Point>] frozen point collection
         def points(approximate = false)
-          approximate ? @points.map(&:approx).freeze : @points
+          approximate ? rounded_points(nil) : @points
         end
 
         # Returns the first point.
@@ -298,7 +305,7 @@ module Sevgi
         # @param approximate [Boolean] true to round segments with the current function precision
         # @return [Array<Sevgi::Geometry::Segment>] frozen segment collection
         def segments(approximate = false)
-          approximate ? @segments.map(&:approx).freeze : @segments
+          approximate ? rounded_segments(nil) : @segments
         end
 
         # Affinity methods
@@ -531,6 +538,16 @@ module Sevgi
           result
         end
         # rubocop:enable Metrics/MethodLength
+
+        def rounded_points(precision)
+          rounded = @points.map { it.approx(precision) }
+          rounded[-1] = rounded.first if self.class.send(:close?)
+          rounded.freeze
+        end
+
+        def rounded_segments(precision)
+          rounded_points(precision).each_cons(2).map { Segment.(*it) }.freeze
+        end
 
         def sanitize
           np = self.class.send(:poly?) ? points.size : self.class.send(:size) + 1

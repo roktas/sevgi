@@ -188,6 +188,54 @@ module Sevgi
         assert_equal(:ok, thread_hash[element])
       end
 
+      def test_lined_approx_derives_segments_from_rounded_points
+        source = Line.from_points([0.04, 0.04], [1.06, 2.06])
+        explicit = source.approx(1)
+        implicit = F.with_precision(1) { source.approx }
+
+        assert_equal(explicit, implicit)
+        assert_equal([Point[0, 0], Point[1.1, 2.1]], explicit.points)
+        assert_equal(Segment.(*explicit.points), explicit.head)
+        assert_equal(Point.length(explicit.starting, explicit.ending), explicit.length)
+        assert_equal(explicit, explicit.approx(1))
+
+        F.with_precision(1) do
+          assert_equal(
+            source.points(true).each_cons(2).map { Segment.(*it) },
+            source.segments(true)
+          )
+        end
+      end
+
+      def test_lined_approx_keeps_shape_views_coherent
+        rect = Rect[1.02, 2.02, position: [0.04, 0.04]].approx(1)
+
+        assert_instance_of(Rect, rect)
+        assert_equal([1.1, 2.1], [rect.width, rect.height])
+        assert_equal([rect.width, rect.height], [rect.box.width, rect.box.height])
+        assert_equal(
+          [[0.5, 0.0], [0.5, 2.1]],
+          rect.intersection(Equation.vertical(0.5), precision: 1).map(&:deconstruct)
+        )
+        assert_same(rect.points.first, rect.points.last)
+        assert_predicate(rect.points, :frozen?)
+        assert_predicate(rect.segments, :frozen?)
+      end
+
+      def test_lined_approx_widens_broken_concrete_invariants
+        transformed = Rect[2.03, 3.07].rotate(30).approx(1)
+        collapsed = Triangle.from_points([0.04, 0.04], [0.14, 0.04], [0.04, 0.14]).approx(0)
+        square = Square[0.06, position: [0.04, 0.06]].approx(1)
+
+        assert_instance_of(Polygon, transformed)
+        assert_instance_of(Polygon, collapsed)
+        assert_instance_of(Rect, square)
+        [transformed, collapsed, square].each do |shape|
+          assert_equal(shape.points.each_cons(2).map { Segment.(*it) }, shape.segments)
+          assert_same(shape.points.first, shape.points.last)
+        end
+      end
+
       def test_lined_affinity_and_at_reject_invalid_operands
         element = Rect[2, 3]
         original = element.points

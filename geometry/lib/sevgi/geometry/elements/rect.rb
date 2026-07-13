@@ -113,6 +113,14 @@ module Sevgi
           klass[width, height, position: [left, top]]
         end
 
+        def approximate(*points)
+          new_by_points!(*points)
+        rescue Error
+          return Rect.send(:new_by_points!, *points) if self <= Square
+
+          super
+        end
+
         def axis_aligned?(points, left, right, top, bottom)
           expected = [[left, top], [right, top], [right, bottom], [left, bottom]]
           vertices = points.first(4)

@@ -117,6 +117,12 @@ module Sevgi
         assert_same(query.lines, query.lines)
         assert_same(query.points, query.points)
         assert_same(query.xys, query.xys)
+
+        F.with_precision(1) do
+          query.lines.map(&:approx).each do |line|
+            assert_equal(line.points.each_cons(2).map { Geometry::Segment.(*it) }, line.segments)
+          end
+        end
       end
 
       def test_grid_query_collections_are_immutable
