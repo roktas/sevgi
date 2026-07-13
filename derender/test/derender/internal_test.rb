@@ -141,6 +141,16 @@ module Sevgi
 
         assert(Ruby.bare_element?(:rect))
       end
+
+      def test_bare_element_rejects_redefined_cached_dispatch_methods
+        SVG(:minimal) { rect }
+        Element.remove_method(:rect)
+        Element.define_method(:rect) { raise "application method" }
+
+        refute(Ruby.bare_element?(:rect))
+      ensure
+        Element.remove_method(:rect) if Element.method_defined?(:rect)
+      end
     end
 
     class RubyTest < Minitest::Test

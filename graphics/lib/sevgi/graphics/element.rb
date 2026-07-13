@@ -217,13 +217,17 @@ module Sevgi
               define_method(method) { |*args, &block| self.class.element(tag, *args, parent: self, &block) }
             end
 
-            (@methods ||= {})[method] = true
+            (@methods ||= {})[method] = Element.instance_method(method)
           end
 
           element.public_send(method, *, &)
         end
 
-        def cached?(method) = @methods&.key?(method) || false
+        def cached?(method)
+          cached = @methods&.[](method)
+
+          cached && Element.method_defined?(method) && Element.instance_method(method) == cached
+        end
 
         # Parses element DSL arguments.
         # @param name [Symbol] SVG element name
