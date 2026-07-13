@@ -13,6 +13,7 @@ module Sevgi
   # @return [Sevgi::Executor::Result] immutable execution result
   # @raise [Sevgi::ArgumentError] when an invocation argument is invalid
   # @note Script and required-library failures are captured in {Sevgi::Executor::Result#error}.
+  # @note Empty source without `require:` is a strict no-op; the receiver is untouched and the DSL boot block is unused.
   # @note Reentrant and concurrent calls keep independent executor scope stacks per fiber.
   # @see Sevgi::Executor.execute
   def self.execute(*args, **kwargs) = Executor.execute(*args, **kwargs, &BootBlock)
@@ -23,6 +24,7 @@ module Sevgi
   # @return [Sevgi::Executor::Result] immutable execution result
   # @raise [Sevgi::ArgumentError] when an invocation argument is invalid
   # @note File-read, script, and required-library failures are captured in {Sevgi::Executor::Result#error}.
+  # @note An empty file without `require:` is a strict no-op; the receiver is untouched and the DSL boot block is unused.
   # @note Reentrant and concurrent calls keep independent executor scope stacks per fiber.
   # @see Sevgi::Executor.execute_file
   def self.execute_file(*args, **kwargs) = Executor.execute_file(*args, **kwargs, &BootBlock)

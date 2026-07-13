@@ -232,11 +232,35 @@ module Sevgi
         <<~RUBY
           inner = Sevgi::Executor.execute("")
           Load(#{fixture.dump})
-          inner.success?
+          [inner.success?, inner.stack]
         RUBY
       )
 
-      assert_equal(true, result.value)
+      assert_equal([true, []], result.value)
+    end
+
+    def test_empty_source_and_file_entrypoints_are_strict_noops
+      Dir.mktmpdir do |dir|
+        file = ::File.join(dir, "empty.sevgi")
+        ::File.write(file, "")
+        receivers = Array.new(4) { Module.new }
+        boots = 0
+        results = [
+          Executor.execute("", receiver: receivers[0]) { boots += 1 },
+          Sevgi.execute("", receiver: receivers[1]),
+          Executor.execute_file(file, receiver: receivers[2]) { boots += 1 },
+          Sevgi.execute_file(file, receiver: receivers[3])
+        ]
+
+        results.each do |result|
+          assert_predicate(result, :success?)
+          assert_nil(result.value)
+          assert_empty(result.stack)
+        end
+
+        assert_equal(0, boots)
+        receivers.each { refute_respond_to(it, :Paper) }
+      end
     end
 
     def test_execute_empty_string_preserves_signal_guard
@@ -253,11 +277,24 @@ module Sevgi
     end
 
     def test_execute_empty_string_processes_required_library
-      result = Executor.execute("", require: "json")
+      receiver = Object.new
+      seen = nil
+      result = Executor.execute("", file: "required.sevgi", require: "json", receiver:) { seen = self }
 
       assert_instance_of(Executor::Result, result)
       assert_nil(result.value)
       refute(result.error?)
+      assert_same(receiver, seen)
+      assert_equal(["required.sevgi"], result.stack)
+    end
+
+    def test_toplevel_empty_source_with_required_library_runs_boot
+      receiver = Module.new
+      result = Sevgi.execute("", require: "json", receiver:)
+
+      assert_predicate(result, :success?)
+      assert_respond_to(receiver, :Paper)
+      assert_equal(["sevgi"], result.stack)
     end
 
     def test_execute_installs_dsl_in_isolated_scope

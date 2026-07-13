@@ -105,6 +105,8 @@ module Sevgi
     # @raise [Sevgi::ArgumentError] when source, file, line, required library, or receiver is invalid
     # @note Script and required-library failures are captured in {Sevgi::Executor::Result#error}; inspect
     #   {Sevgi::Executor::Error#cause} for the original exception.
+    # @note Empty source without `require:` is a strict no-op: no scope is created, the receiver and boot block are
+    #   unused, and the result stack is empty. Supplying `require:` uses the normal boot and evaluation lifecycle.
     # @note Reentrant and concurrent calls keep independent scope stacks per fiber. The temporary SIGINT handler remains
     #   process-global while any execution is active.
     def self.execute(string, file: nil, line: nil, require: nil, receiver: nil, &block)
@@ -125,6 +127,8 @@ module Sevgi
     # @raise [Sevgi::ArgumentError] when file, required library, or receiver is invalid
     # @note File-read, script, and required-library failures are captured in {Sevgi::Executor::Result#error}; inspect
     #   {Sevgi::Executor::Result#stack} for nested loads.
+    # @note An empty file without `require:` is a strict no-op: no scope is created, the receiver and boot block are
+    #   unused, and the result stack is empty. Supplying `require:` uses the normal boot and evaluation lifecycle.
     # @note Reentrant and concurrent calls keep independent scope stacks per fiber. The temporary SIGINT handler remains
     #   process-global while any execution is active.
     def self.execute_file(file, require: nil, receiver: nil, &block)
