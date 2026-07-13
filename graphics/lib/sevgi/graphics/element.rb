@@ -31,21 +31,25 @@ module Sevgi
       # @return [Boolean]
       def self.root?(element) = tree_parent(element).equal?(RootParent)
 
-      def self.attach(element, parent, index: nil)
-        children = tree_children(parent)
-        index ? children.insert(index, element) : children << element
-        element.instance_variable_set(:@parent, parent)
+      class << self
+        private
+
+        def attach(element, parent, index: nil)
+          children = tree_children(parent)
+          index ? children.insert(index, element) : children << element
+          element.instance_variable_set(:@parent, parent)
+        end
+
+        def detach(element)
+          parent = tree_parent(element)
+          tree_children(parent).delete(element) if parent.is_a?(element.class)
+          element.instance_variable_set(:@parent, DetachedParent)
+        end
+
+        def tree_children(element) = element.instance_variable_get(:@children)
+
+        def tree_parent(element) = element.instance_variable_get(:@parent)
       end
-
-      def self.detach(element)
-        parent = tree_parent(element)
-        tree_children(parent).delete(element) if parent.is_a?(element.class)
-        element.instance_variable_set(:@parent, DetachedParent)
-      end
-
-      def self.tree_children(element) = element.instance_variable_get(:@children)
-
-      def self.tree_parent(element) = element.instance_variable_get(:@parent)
 
       class << self
         require "sevgi/standard"
@@ -62,7 +66,7 @@ module Sevgi
         def valid?(...) = true
       end
 
-      private_class_method :attach, :detach, :new, :tree_children, :tree_parent
+      private_class_method :new
 
       # Sentinel parents used by root and detached elements.
       RootParent = Object.new.tap { def it.inspect = "RootParent" }.freeze

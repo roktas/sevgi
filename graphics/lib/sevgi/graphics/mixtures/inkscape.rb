@@ -118,112 +118,114 @@ module Sevgi
         # Validates and constructs Inkscape page collections outside the DSL method surface.
         # @api private
         module Pagination
-          # Builds a namedview from normalized page attributes.
-          # @param context [Sevgi::Graphics::Element] DSL element receiving the namedview
-          # @param pages [Array<Hash>] page attributes
-          # @param namedview [Hash] namedview attributes
-          # @param page [Hash] shared page attributes
-          # @return [Sevgi::Graphics::Element] namedview element
-          # @raise [Sevgi::ArgumentError] when an attribute channel or page is invalid
-          def self.call(context, pages, namedview:, page:, &block)
-            namedview, page = channels(namedview, page)
-            pages = pages.each_with_index.map { |attributes, index| normalize(attributes, page, index) }
+          class << self
+            # Builds a namedview from normalized page attributes.
+            # @param context [Sevgi::Graphics::Element] DSL element receiving the namedview
+            # @param pages [Array<Hash>] page attributes
+            # @param namedview [Hash] namedview attributes
+            # @param page [Hash] shared page attributes
+            # @return [Sevgi::Graphics::Element] namedview element
+            # @raise [Sevgi::ArgumentError] when an attribute channel or page is invalid
+            def call(context, pages, namedview:, page:, &block)
+              namedview, page = channels(namedview, page)
+              pages = pages.each_with_index.map { |attributes, index| normalize(attributes, page, index) }
 
-            context.Element(:"sodipodi:namedview", **namedview) do
-              pages.each do |attributes|
-                element = Element(:"inkscape:page", **attributes)
-                block&.call(element)
-              end
-            end
-          end
-
-          # Validates and normalizes the namedview and page-default channels.
-          # @return [Array<Hash>] normalized namedview attributes and page defaults
-          # @raise [Sevgi::ArgumentError] when either channel is not a Hash or has invalid attributes
-          # @api private
-          def self.channels(namedview, page)
-            ArgumentError.("Namedview attributes must be a Hash") unless namedview.is_a?(::Hash)
-            ArgumentError.("Page attributes must be a Hash") unless page.is_a?(::Hash)
-            [Attribute.defaults(namedview, id: "namedview"), Attribute.normalize(page)]
-          end
-
-          # Generates validated attributes for a rectangular page grid.
-          # @return [Array<Hash{Symbol => Object}>] page attribute hashes
-          # @raise [Sevgi::ArgumentError] when a count, dimension, or gap is invalid
-          def self.tabular(rows:, cols:, width:, height:, gap:)
-            width, height, gap = normalize_grid(rows:, cols:, width:, height:, gap:)
-
-            rows.times.flat_map do |row|
-              cols.times.map do |col|
-                x = col * (width + gap)
-                y = row * (height + gap)
-                label = "#{row + 1}x#{col + 1}"
-                {id: "pageview-#{label}", x:, y:, width:, height:}
-              end
-            end
-          end
-
-          # Normalizes and validates one page.
-          # @return [Hash{String, Symbol => Object}] independent page attributes
-          # @raise [Sevgi::ArgumentError] when attributes or dimensions are invalid
-          # @api private
-          def self.normalize(attributes, defaults, index)
-            ArgumentError.("Page #{index + 1} must be a Hash") unless attributes.is_a?(::Hash)
-            attributes = defaults.merge(Attribute.normalize(attributes))
-            %i[x y].each { number(attributes, it, index) }
-            %i[width height].each do |field|
-              number(attributes, field, index, positive: true)
-            end
-
-            identify(attributes, index)
-          end
-
-          # Normalizes one explicit or generated page id.
-          # @return [Hash{String, Symbol => Object}] attributes beginning with a canonical id
-          # @raise [Sevgi::ArgumentError] when String and Symbol ids collide
-          # @api private
-          def self.identify(attributes, index)
-            id = attributes.key?(:id) ? attributes.delete(:id) : "page-#{index + 1}"
-            {id:}.merge(attributes)
-          end
-
-          # Returns one required page field.
-          # @return [Object] page field value
-          # @raise [Sevgi::ArgumentError] when the field is absent
-          # @api private
-          def self.value(attributes, field, index)
-            attributes.fetch(field) do
-              attributes.fetch(field.to_s) { ArgumentError.("Page #{index + 1} requires #{field}") }
-            end
-          end
-
-          # Validates and normalizes page-grid arguments.
-          # @return [Array<(Integer, Float)>] normalized width, height, and gap
-          # @raise [Sevgi::ArgumentError] when a count, dimension, or gap is invalid
-          # @api private
-          def self.normalize_grid(rows:, cols:, width:, height:, gap:)
-            {rows:, cols:}.each do |field, count|
-              unless count.is_a?(::Integer) && count.positive?
-                ArgumentError.("Page #{field} must be a positive Integer")
+              context.Element(:"sodipodi:namedview", **namedview) do
+                pages.each do |attributes|
+                  element = Element(:"inkscape:page", **attributes)
+                  block&.call(element)
+                end
               end
             end
 
-            [
-              Scalar.number(width, context: "page", field: :width, positive: true),
-              Scalar.number(height, context: "page", field: :height, positive: true),
-              Scalar.number(gap, context: "page", field: :gap, nonnegative: true)
-            ]
-          end
+            # Generates validated attributes for a rectangular page grid.
+            # @return [Array<Hash{Symbol => Object}>] page attribute hashes
+            # @raise [Sevgi::ArgumentError] when a count, dimension, or gap is invalid
+            def tabular(rows:, cols:, width:, height:, gap:)
+              width, height, gap = normalize_grid(rows:, cols:, width:, height:, gap:)
 
-          # Replaces one page field with its normalized SVG number.
-          # @return [Integer, Float] normalized number
-          # @api private
-          def self.number(attributes, field, index, **range)
-            key = attributes.key?(field) ? field : field.to_s
-            attributes[key] = Scalar.number(value(attributes, field, index), context: "page", field:, **range)
-          end
+              rows.times.flat_map do |row|
+                cols.times.map do |col|
+                  x = col * (width + gap)
+                  y = row * (height + gap)
+                  label = "#{row + 1}x#{col + 1}"
+                  {id: "pageview-#{label}", x:, y:, width:, height:}
+                end
+              end
+            end
 
-          private_class_method :channels, :identify, :normalize, :normalize_grid, :number, :value
+            private
+
+            # Validates and normalizes the namedview and page-default channels.
+            # @return [Array<Hash>] normalized namedview attributes and page defaults
+            # @raise [Sevgi::ArgumentError] when either channel is not a Hash or has invalid attributes
+            # @api private
+            def channels(namedview, page)
+              ArgumentError.("Namedview attributes must be a Hash") unless namedview.is_a?(::Hash)
+              ArgumentError.("Page attributes must be a Hash") unless page.is_a?(::Hash)
+              [Attribute.defaults(namedview, id: "namedview"), Attribute.normalize(page)]
+            end
+
+            # Normalizes one explicit or generated page id.
+            # @return [Hash{String, Symbol => Object}] attributes beginning with a canonical id
+            # @raise [Sevgi::ArgumentError] when String and Symbol ids collide
+            # @api private
+            def identify(attributes, index)
+              id = attributes.key?(:id) ? attributes.delete(:id) : "page-#{index + 1}"
+              {id:}.merge(attributes)
+            end
+
+            # Normalizes and validates one page.
+            # @return [Hash{String, Symbol => Object}] independent page attributes
+            # @raise [Sevgi::ArgumentError] when attributes or dimensions are invalid
+            # @api private
+            def normalize(attributes, defaults, index)
+              ArgumentError.("Page #{index + 1} must be a Hash") unless attributes.is_a?(::Hash)
+              attributes = defaults.merge(Attribute.normalize(attributes))
+              %i[x y].each { number(attributes, it, index) }
+              %i[width height].each do |field|
+                number(attributes, field, index, positive: true)
+              end
+
+              identify(attributes, index)
+            end
+
+            # Validates and normalizes page-grid arguments.
+            # @return [Array<(Integer, Float)>] normalized width, height, and gap
+            # @raise [Sevgi::ArgumentError] when a count, dimension, or gap is invalid
+            # @api private
+            def normalize_grid(rows:, cols:, width:, height:, gap:)
+              {rows:, cols:}.each do |field, count|
+                unless count.is_a?(::Integer) && count.positive?
+                  ArgumentError.("Page #{field} must be a positive Integer")
+                end
+              end
+
+              [
+                Scalar.number(width, context: "page", field: :width, positive: true),
+                Scalar.number(height, context: "page", field: :height, positive: true),
+                Scalar.number(gap, context: "page", field: :gap, nonnegative: true)
+              ]
+            end
+
+            # Replaces one page field with its normalized SVG number.
+            # @return [Integer, Float] normalized number
+            # @api private
+            def number(attributes, field, index, **range)
+              key = attributes.key?(field) ? field : field.to_s
+              attributes[key] = Scalar.number(value(attributes, field, index), context: "page", field:, **range)
+            end
+
+            # Returns one required page field.
+            # @return [Object] page field value
+            # @raise [Sevgi::ArgumentError] when the field is absent
+            # @api private
+            def value(attributes, field, index)
+              attributes.fetch(field) do
+                attributes.fetch(field.to_s) { ArgumentError.("Page #{index + 1} requires #{field}") }
+              end
+            end
+          end
         end
 
         private_constant :Pagination

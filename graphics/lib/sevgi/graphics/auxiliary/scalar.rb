@@ -51,15 +51,17 @@ module Sevgi
         values.each_with_index.map { |value, index| number(value, context:, field: index) }
       end
 
-      def self.real?(value) = value.is_a?(::Numeric) && !value.is_a?(::Complex)
+      class << self
+        private
 
-      def self.valid?(number, positive:, nonnegative:)
-        number.finite? && (!positive || number.positive?) && (!nonnegative || number >= 0)
+        def real?(value) = value.is_a?(::Numeric) && !value.is_a?(::Complex)
+
+        def valid?(number, positive:, nonnegative:)
+          number.finite? && (!positive || number.positive?) && (!nonnegative || number >= 0)
+        end
+
+        def invalid(context, field, value) = ArgumentError.("Invalid #{context} #{field}: #{value.inspect}")
       end
-
-      def self.invalid(context, field, value) = ArgumentError.("Invalid #{context} #{field}: #{value.inspect}")
-
-      private_class_method :invalid, :real?, :valid?
     end
 
     private_constant :Scalar

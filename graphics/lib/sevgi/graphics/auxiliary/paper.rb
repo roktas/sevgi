@@ -125,67 +125,60 @@ module Sevgi
         register(name, profile, overwrite:)
       end
 
-      def self.install(name)
-        return if @accessors.key?(name)
+      class << self
+        private
 
-        define_singleton_method(name) { @mutex.synchronize { @profiles.fetch(name) } }
-        @accessors[name] = true
-      end
+        def install(name)
+          return if @accessors.key?(name)
 
-      def self.register(name, profile, overwrite:)
-        @mutex.synchronize do
-          if !overwrite && (current = @profiles[name])
-            ArgumentError.("Paper already defined differently: #{name}") unless current == profile
+          define_singleton_method(name) { @mutex.synchronize { @profiles.fetch(name) } }
+          @accessors[name] = true
+        end
 
-            next current
+        def register(name, profile, overwrite:)
+          @mutex.synchronize do
+            if !overwrite && (current = @profiles[name])
+              ArgumentError.("Paper already defined differently: #{name}") unless current == profile
+
+              next current
+            end
+
+            install(name)
+            @profiles[name] = profile
           end
+        end
 
-          install(name)
-          @profiles[name] = profile
+        def reserved?(name) = @reserved.include?(name)
+
+        def dimension!(field, value)
+          Scalar.finite(value, context: "paper", field:, positive: true)
+        end
+
+        def options!(options)
+          return if options.empty?
+
+          ArgumentError.("Unknown paper options: #{options.keys.join(", ")}")
+        end
+
+        def overwrite!(value)
+          return value if [true, false].include?(value)
+
+          ArgumentError.("Paper overwrite must be true or false")
+        end
+
+        def normalize(value)
+          normalized = value.to_sym if value.respond_to?(:to_sym)
+          normalized if normalized.is_a?(::Symbol)
+        rescue ::StandardError
+          nil
+        end
+
+        def normalize!(field, value)
+          normalize(value) || ArgumentError.("Invalid paper #{field}")
         end
       end
 
-      def self.reserved?(name) = @reserved.include?(name)
-
-      def self.dimension!(field, value)
-        Scalar.finite(value, context: "paper", field:, positive: true)
-      end
-
-      def self.options!(options)
-        return if options.empty?
-
-        ArgumentError.("Unknown paper options: #{options.keys.join(", ")}")
-      end
-
-      def self.overwrite!(value)
-        return value if [true, false].include?(value)
-
-        ArgumentError.("Paper overwrite must be true or false")
-      end
-
-      def self.normalize(value)
-        normalized = value.to_sym if value.respond_to?(:to_sym)
-        normalized if normalized.is_a?(::Symbol)
-      rescue ::StandardError
-        nil
-      end
-
-      def self.normalize!(field, value)
-        normalize(value) || ArgumentError.("Invalid paper #{field}")
-      end
-
       @reserved = methods.map(&:to_sym).freeze
-
-      private_class_method(
-        :dimension!,
-        :install,
-        :normalize,
-        :normalize!,
-        :options!,
-        :overwrite!,
-        :register,
-        :reserved?
-      )
 
       PAPER_SIZES.each { |name, (width, height, unit)| define(name, width:, height:, unit:) }
 

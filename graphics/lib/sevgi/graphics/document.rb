@@ -175,46 +175,48 @@ module Sevgi
         Registry[name]
       end
 
-      def self.anonymous(attributes:, preambles:)
-        attributes, preambles = defaults(attributes:, preambles:)
-        Class.new(Base) { document(Undefined, preambles:, attributes:, register: false) }
+      class << self
+        private
+
+        def anonymous(attributes:, preambles:)
+          attributes, preambles = defaults(attributes:, preambles:)
+          Class.new(Base) { document(Undefined, preambles:, attributes:, register: false) }
+        end
+
+        def lookup(name)
+          fetch(name)
+        end
+
+        def defaults(attributes:, preambles:)
+          [attributes == Undefined ? {} : attributes, preambles == Undefined ? nil : preambles]
+        end
+
+        def reject_conflict(name, current, attributes:, preambles:)
+          return if compatible?(current, attributes:, preambles:)
+
+          ArgumentError.("Document profile already defined differently: #{name}")
+        end
+
+        def compatible?(klass, attributes:, preambles:)
+          profile = klass.profile
+
+          (attributes == Undefined || Profile.new(nil, attributes:).attributes == profile.attributes) &&
+            (preambles == Undefined || Profile.new(nil, preambles:).preambles == profile.preambles)
+        end
+
+        def reuse(name, attributes:, preambles:, overwrite:)
+          return unless (current = Registry[name])
+
+          reject_conflict(name, current, attributes:, preambles:) unless overwrite
+          current unless overwrite
+        end
+
+        def overwrite!(value)
+          return value if [true, false].include?(value)
+
+          ArgumentError.("Document overwrite must be true or false")
+        end
       end
-
-      def self.lookup(name)
-        fetch(name)
-      end
-
-      def self.defaults(attributes:, preambles:)
-        [attributes == Undefined ? {} : attributes, preambles == Undefined ? nil : preambles]
-      end
-
-      def self.reject_conflict(name, current, attributes:, preambles:)
-        return if compatible?(current, attributes:, preambles:)
-
-        ArgumentError.("Document profile already defined differently: #{name}")
-      end
-
-      def self.compatible?(klass, attributes:, preambles:)
-        profile = klass.profile
-
-        (attributes == Undefined || Profile.new(nil, attributes:).attributes == profile.attributes) &&
-          (preambles == Undefined || Profile.new(nil, preambles:).preambles == profile.preambles)
-      end
-
-      def self.reuse(name, attributes:, preambles:, overwrite:)
-        return unless (current = Registry[name])
-
-        reject_conflict(name, current, attributes:, preambles:) unless overwrite
-        current unless overwrite
-      end
-
-      def self.overwrite!(value)
-        return value if [true, false].include?(value)
-
-        ArgumentError.("Document overwrite must be true or false")
-      end
-
-      private_class_method :anonymous, :compatible?, :defaults, :lookup, :overwrite!, :reject_conflict, :reuse
 
       # Process-global document profile registry.
       # @api private

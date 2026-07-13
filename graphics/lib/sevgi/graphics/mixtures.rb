@@ -27,22 +27,24 @@ module Sevgi
         include_anonymous(document, &block) if block
       end
 
-      def self.anonymous_document?(mod, block)
-        block && mod.is_a?(::Class) && mod <= Graphics::Document::Proto
-      end
+      class << self
+        private
 
-      def self.include_anonymous(document, &block)
-        ::Module.new(&block).tap do |anonymous|
-          document.send(:include, anonymous)
-          document.extend(anonymous.const_get(:ClassMethods)) if anonymous.const_defined?(:ClassMethods, false)
+        def anonymous_document?(mod, block)
+          block && mod.is_a?(::Class) && mod <= Graphics::Document::Proto
+        end
+
+        def include_anonymous(document, &block)
+          ::Module.new(&block).tap do |anonymous|
+            document.send(:include, anonymous)
+            document.extend(anonymous.const_get(:ClassMethods)) if anonymous.const_defined?(:ClassMethods, false)
+          end
+        end
+
+        def normalize(mod, document, block)
+          anonymous_document?(mod, block) ? [Undefined, mod] : [mod, document]
         end
       end
-
-      def self.normalize(mod, document, block)
-        anonymous_document?(mod, block) ? [Undefined, mod] : [mod, document]
-      end
-
-      private_class_method :anonymous_document?, :include_anonymous, :normalize
     end
   end
 end

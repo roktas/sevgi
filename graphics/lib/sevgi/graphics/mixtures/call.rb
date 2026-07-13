@@ -89,76 +89,80 @@ module Sevgi
         nil
       end
 
-      # Initializes callable module state.
-      # @param base [Module] extended module
-      # @return [void]
-      def self.extended(base)
-        base.instance_variable_set(:@sevgi_bases, [])
-        base.instance_variable_set(:@sevgi_callables, base.public_instance_methods(false))
-        base.instance_variable_set(:@sevgi_configuration_owner, base.object_id)
-      end
+      class << self
+        private
 
-      # Returns an owned snapshot of inherited and local base blocks in execution order.
-      # @param mod [Module] callable module
-      # @return [Array<Proc>] parent-first base blocks followed by local base blocks
-      # @raise [Sevgi::ArgumentError] when mod is not a plain module
-      def self.bases(mod)
-        ArgumentError.("Must be a module: #{mod}") unless mod.instance_of?(::Module)
-
-        mod
-          .ancestors
-          .reverse_each
-          .filter_map do |ancestor|
-            ancestor.instance_variable_get(:@sevgi_bases) if ancestor.instance_variable_defined?(:@sevgi_bases)
-          end
-          .flatten
-      end
-
-      # @overload call(mod, receiver, *args, **kwargs)
-      #   Runs module bases and callables against a receiver.
-      #   @param mod [Module] callable module
-      #   @param receiver [Sevgi::Graphics::Element] receiver element
-      #   @param args [Array<Object>] callable arguments
-      #   @param kwargs [Hash] callable keyword arguments
-      #   @return [Object, nil] last callable return value
-      #   @raise [Sevgi::ArgumentError] when mod is not a plain module
-      def self.call(mod, receiver, ...)
-        methods = callables(mod)
-        context = context(mod, receiver)
-        bases(mod).each { context.instance_exec(&it) }
-
-        invoke(context, receiver, methods, ...)
-      end
-
-      # Returns the methods that should be executed for a callable module.
-      # @param mod [Module] callable module
-      # @return [Array<UnboundMethod>]
-      # @raise [Sevgi::ArgumentError] when mod is not a plain module
-      def self.callables(mod)
-        ArgumentError.("Must be a module: #{mod}") unless mod.instance_of?(::Module)
-
-        callable_names(mod).uniq.filter_map do |name|
-          mod.instance_method(name) if mod.public_method_defined?(name)
+        # Initializes callable module state.
+        # @param base [Module] extended module
+        # @return [void]
+        def extended(base)
+          base.instance_variable_set(:@sevgi_bases, [])
+          base.instance_variable_set(:@sevgi_callables, base.public_instance_methods(false))
+          base.instance_variable_set(:@sevgi_configuration_owner, base.object_id)
         end
-      end
 
-      def self.callable_names(mod)
-        mod.ancestors.reverse_each.flat_map do |ancestor|
-          if ancestor.instance_variable_defined?(:@sevgi_callables)
-            ancestor.instance_variable_get(:@sevgi_callables) + ancestor.public_instance_methods(false)
-          else
-            ancestor.public_instance_methods(false)
+        # Returns an owned snapshot of inherited and local base blocks in execution order.
+        # @param mod [Module] callable module
+        # @return [Array<Proc>] parent-first base blocks followed by local base blocks
+        # @raise [Sevgi::ArgumentError] when mod is not a plain module
+        def bases(mod)
+          ArgumentError.("Must be a module: #{mod}") unless mod.instance_of?(::Module)
+
+          mod
+            .ancestors
+            .reverse_each
+            .filter_map do |ancestor|
+              ancestor.instance_variable_get(:@sevgi_bases) if ancestor.instance_variable_defined?(:@sevgi_bases)
+            end
+            .flatten
+        end
+
+        # @overload call(mod, receiver, *args, **kwargs)
+        #   Runs module bases and callables against a receiver.
+        #   @param mod [Module] callable module
+        #   @param receiver [Sevgi::Graphics::Element] receiver element
+        #   @param args [Array<Object>] callable arguments
+        #   @param kwargs [Hash] callable keyword arguments
+        #   @return [Object, nil] last callable return value
+        #   @raise [Sevgi::ArgumentError] when mod is not a plain module
+        def call(mod, receiver, ...)
+          methods = callables(mod)
+          context = context(mod, receiver)
+          bases(mod).each { context.instance_exec(&it) }
+
+          invoke(context, receiver, methods, ...)
+        end
+
+        # Returns the methods that should be executed for a callable module.
+        # @param mod [Module] callable module
+        # @return [Array<UnboundMethod>]
+        # @raise [Sevgi::ArgumentError] when mod is not a plain module
+        def callables(mod)
+          ArgumentError.("Must be a module: #{mod}") unless mod.instance_of?(::Module)
+
+          callable_names(mod).uniq.filter_map do |name|
+            mod.instance_method(name) if mod.public_method_defined?(name)
           end
         end
-      end
 
-      def self.context(mod, receiver)
-        ::Class.new(Context) { include(mod) }.new(mod, receiver)
-      end
+        def callable_names(mod)
+          mod.ancestors.reverse_each.flat_map do |ancestor|
+            if ancestor.instance_variable_defined?(:@sevgi_callables)
+              ancestor.instance_variable_get(:@sevgi_callables) + ancestor.public_instance_methods(false)
+            else
+              ancestor.public_instance_methods(false)
+            end
+          end
+        end
 
-      def self.invoke(context, receiver, methods, ...)
-        result = methods.map { context.__send__(it.name, ...) }.last
-        result.equal?(context) ? receiver : result
+        def context(mod, receiver)
+          ::Class.new(Context) { include(mod) }.new(mod, receiver)
+        end
+
+        def invoke(context, receiver, methods, ...)
+          result = methods.map { context.__send__(it.name, ...) }.last
+          result.equal?(context) ? receiver : result
+        end
       end
 
       private
@@ -208,7 +212,6 @@ module Sevgi
       end
 
       private :copy_configuration, :own_configuration
-      private_class_method :bases, :call, :callable_names, :callables, :context, :extended, :invoke
     end
 
     module Mixtures
