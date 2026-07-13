@@ -439,6 +439,8 @@ module Sevgi
         # @option options [Boolean] :validate (true) run SVG standard validation
         # @return [String] SVG document source
         # @raise [Sevgi::ArgumentError] when an option or XML-bound value is invalid
+        # @raise [Sevgi::ValidationError] when validation is enabled and the document violates the SVG standard
+        # @raise [Sevgi::Graphics::LintError] when linting is enabled and the document has structural conflicts
         # @see Sevgi::Graphics::Mixtures::Render#Render
         def call(**options)
           checks = DEFAULTS.merge(options.select { |key, _| DEFAULTS.key?(key) })

@@ -8,7 +8,8 @@ module Sevgi
     # @param file [String] path to the source SVG/XML file
     # @param id [String, nil] optional SVG id selecting a node inside the source
     # @return [Sevgi::Derender::Node] selected node in the derender tree
-    # @raise [Sevgi::ArgumentError] when the file cannot be found or the id is absent
+    # @raise [Sevgi::ArgumentError] when the file is absent, malformed, or rootless, or the id is absent
+    # @raise [SystemCallError] when the file cannot be read
     # @see Sevgi::Derender.decompile_file
     def Decompile(file, id = nil) = Derender.decompile_file(file, id:)
 
@@ -16,7 +17,9 @@ module Sevgi
     # @param file [String] path to the source SVG/XML file
     # @param id [String, nil] optional SVG id selecting a node inside the source
     # @return [String] formatted Sevgi DSL source
-    # @raise [Sevgi::ArgumentError] when the file cannot be found or the id is absent
+    # @raise [Sevgi::ArgumentError] when the file is absent, malformed, or rootless, or the id is absent
+    # @raise [Sevgi::PanicError] when generated Ruby source cannot be formatted
+    # @raise [SystemCallError] when the file cannot be read
     # @see Sevgi::Derender.derender_file
     def Derender(file, id = nil) = Derender.derender_file(file, id:)
   end

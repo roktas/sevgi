@@ -169,8 +169,9 @@ module Sevgi
           tap { Adoption.batch(elements, self, front: true) }
         end
 
-        # Returns the root document element.
-        # @return [Sevgi::Graphics::Element]
+        # Returns the topmost element in this tree.
+        # A detached subtree returns its detached topmost element; use {#Root?} to distinguish a document root.
+        # @return [Sevgi::Graphics::Element] document root or detached topmost element
         def Root
           element = self
           element = element.parent while element.parent
@@ -272,6 +273,7 @@ module Sevgi
         # Appends an element as a child.
         # @param element [Sevgi::Graphics::Element] element to append
         # @return [Sevgi::Graphics::Element] self
+        # @raise [Sevgi::ArgumentError] when the element has a different concrete class or would create a tree cycle
         def <<(element)
           Append(element)
         end

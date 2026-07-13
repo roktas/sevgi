@@ -132,7 +132,8 @@ module Sevgi
             parsed[:contents]
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
 
-          assert_raises(ArgumentError) { Dispatch.parse(:svg, ["foo"]) }
+          error = assert_raises(ArgumentError) { Dispatch.parse(:svg, ["foo"]) }
+          assert_match(/Hash, String, or Content/, error.message)
         end
 
         def test_arguments_parse_splits_text_and_attributes

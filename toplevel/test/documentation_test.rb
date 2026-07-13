@@ -35,6 +35,11 @@ module Sevgi
     DATA_INSTANCE_METHODS = %i[== deconstruct deconstruct_keys eql? hash inspect to_h with].freeze
     EXACT_CONTRACTS = {
       "#SVG" => [[%w[document canvas attributes], ["Sevgi::Graphics::Document::Proto"]]],
+      "Sevgi::Toplevel#Mixin" => [
+        [%w[mod document], ["nil"]],
+        [%w[mod document], ["Module"]],
+        [%w[document], ["Module"]]
+      ],
       "Sevgi::Toplevel#Paper" => [[%w[width height name unit], %w[Symbol String]]],
       "Sevgi::Toplevel#Paper!" => [[%w[width height name unit], %w[Symbol String]]],
       "Sevgi::Geometry::Segment.horizontal" => [[%w[length], ["Sevgi::Geometry::Segment"]]],
@@ -78,6 +83,8 @@ module Sevgi
         },
         raises: [
           "Sevgi::ArgumentError",
+          "Sevgi::ValidationError",
+          "Sevgi::Graphics::LintError",
           "Sevgi::MissingComponentError",
           "Sevgi::MissingComponentError",
           "Sevgi::Sundries::Export::ExportError",
@@ -94,6 +101,8 @@ module Sevgi
         },
         raises: [
           "Sevgi::ArgumentError",
+          "Sevgi::ValidationError",
+          "Sevgi::Graphics::LintError",
           "Sevgi::MissingComponentError",
           "Sevgi::MissingComponentError",
           "Sevgi::Sundries::Export::ExportError",
@@ -109,16 +118,34 @@ module Sevgi
         ]
       },
       "Sevgi::Graphics::Mixtures::Save#Out" => {
-        raises: ["Sevgi::ArgumentError"],
+        raises: ["Sevgi::ArgumentError", "Sevgi::ValidationError", "Sevgi::Graphics::LintError"],
         sees: ["Sevgi::Graphics::Document::Proto#call"]
       },
       "Sevgi::Graphics::Mixtures::Save#Save" => {
-        raises: ["Sevgi::ArgumentError", "SystemCallError"],
+        raises: ["Sevgi::ArgumentError", "Sevgi::ValidationError", "Sevgi::Graphics::LintError", "SystemCallError"],
         sees: ["Sevgi::Graphics::Document::Proto#call"]
       },
       "Sevgi::Graphics::Mixtures::Save#Write" => {
-        raises: ["Sevgi::ArgumentError", "SystemCallError"],
+        raises: ["Sevgi::ArgumentError", "Sevgi::ValidationError", "Sevgi::Graphics::LintError", "SystemCallError"],
         sees: ["Sevgi::Graphics::Document::Proto#call"]
+      },
+      "Sevgi::Graphics::Document::Proto#call" => {
+        raises: ["Sevgi::ArgumentError", "Sevgi::ValidationError", "Sevgi::Graphics::LintError"]
+      },
+      "Sevgi::Graphics::Element.root" => {
+        raises: ["Sevgi::ArgumentError", "Sevgi::ArgumentError"]
+      },
+      "Sevgi::Graphics::Mixtures::Core#Root" => {
+        phrases: ["topmost element", "Root?"]
+      },
+      "Sevgi::Graphics::Mixtures::Core#<<" => {
+        raises: ["Sevgi::ArgumentError"]
+      },
+      "Sevgi::Toplevel#Decompile" => {
+        raises: ["Sevgi::ArgumentError", "SystemCallError"]
+      },
+      "Sevgi::Toplevel#Derender" => {
+        raises: ["Sevgi::ArgumentError", "Sevgi::PanicError", "SystemCallError"]
       }
     }.freeze
     PUBLIC_CONSTANTS = %w[

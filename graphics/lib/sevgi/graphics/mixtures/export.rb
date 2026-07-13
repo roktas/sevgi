@@ -39,6 +39,8 @@ module Sevgi
         # @yieldreturn [String] transformed SVG source
         # @return [String] expanded output path
         # @raise [Sevgi::ArgumentError] when a path, default, option name, CSS value, or transformed SVG is invalid
+        # @raise [Sevgi::ValidationError] when validation is enabled and the document violates the SVG standard
+        # @raise [Sevgi::Graphics::LintError] when linting is enabled and the document has structural conflicts
         # @raise [Sevgi::MissingComponentError] when sevgi/sundries is unavailable
         # @raise [Sevgi::MissingComponentError] when native export gems are unavailable
         # @raise [Sevgi::Sundries::Export::ExportError] when native export fails
@@ -72,6 +74,8 @@ module Sevgi
         # @yieldreturn [String] transformed SVG source
         # @return [String] expanded output path
         # @raise [Sevgi::ArgumentError] when a path, default, option name, CSS value, or transformed SVG is invalid
+        # @raise [Sevgi::ValidationError] when validation is enabled and the document violates the SVG standard
+        # @raise [Sevgi::Graphics::LintError] when linting is enabled and the document has structural conflicts
         # @raise [Sevgi::MissingComponentError] when sevgi/sundries is unavailable
         # @raise [Sevgi::MissingComponentError] when native export gems are unavailable
         # @raise [Sevgi::Sundries::Export::ExportError] when native export fails

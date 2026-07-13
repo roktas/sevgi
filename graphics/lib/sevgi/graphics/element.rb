@@ -34,7 +34,8 @@ module Sevgi
       # @yield evaluates the drawing DSL in the root element
       # @yieldreturn [Object] ignored block result
       # @return [Sevgi::Graphics::Element]
-      # @raise [Sevgi::ArgumentError] when a root attribute is not valid XML
+      # @raise [Sevgi::ArgumentError] when an argument is not a Hash, String, or Content
+      # @raise [Sevgi::ArgumentError] when a root attribute or content value is not valid XML
       def self.root(*arguments, &block) = element(:svg, *arguments, parent: RootParent, &block)
 
       # Reports whether an element is the root element.
@@ -246,7 +247,7 @@ module Sevgi
             when Content
               contents << arg
             else
-              ArgumentError.("Argument of element '#{name}' must be a Hash or String: #{arg}")
+              ArgumentError.("Argument of element '#{name}' must be a Hash, String, or Content: #{arg}")
             end
           end
 

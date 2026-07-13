@@ -4,13 +4,20 @@ require "sevgi/graphics"
 
 module Sevgi
   module Toplevel
+    # @overload Mixin(mod, document = Sevgi::Graphics::Document::Base)
+    #   Adds a named graphics mixture to a document class.
+    #   @param mod [Symbol, String] named mixture to mix into the document
+    #   @param document [Class] document class receiving the mixture
+    #   @return [nil]
+    #   @raise [NameError] when a named mixture cannot be resolved
+    #   @see Sevgi::Graphics::Mixtures.mixin
     # @overload Mixin(mod, document = Sevgi::Graphics::Document::Base, &block)
-    #   Adds graphics mixture methods to a document class.
+    #   Adds a named graphics mixture and an anonymous extension to a document class.
     #   @param mod [Symbol, String] named mixture to mix into the document
     #   @param document [Class] document class receiving the mixture
     #   @yield optional anonymous mixture module body
     #   @yieldreturn [void]
-    #   @return [void]
+    #   @return [Module] anonymous mixture
     #   @raise [NameError] when a named mixture cannot be resolved
     #   @see Sevgi::Graphics::Mixtures.mixin
     # @overload Mixin(document = Sevgi::Graphics::Document::Base, &block)

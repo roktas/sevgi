@@ -41,7 +41,9 @@ module Sevgi
         # Writes rendered SVG to standard output.
         # @param kwargs [Hash] pre-render and renderer options accepted by {Sevgi::Graphics::Document::Proto#call}
         # @return [nil]
-        # @raise [Sevgi::ArgumentError] when rendering fails
+        # @raise [Sevgi::ArgumentError] when a render option or XML-bound value is invalid
+        # @raise [Sevgi::ValidationError] when validation is enabled and the document violates the SVG standard
+        # @raise [Sevgi::Graphics::LintError] when linting is enabled and the document has structural conflicts
         # @see Sevgi::Graphics::Document::Proto#call
         def Out(**kwargs)
           F.out(self.(**kwargs))
@@ -62,7 +64,9 @@ module Sevgi
         # @yieldparam content [String] old or new SVG source
         # @yieldreturn [String] normalized SVG source
         # @return [String, nil] expanded path when written, or nil when unchanged
-        # @raise [Sevgi::ArgumentError] when a selected path/default is blank or invalid, or rendering fails
+        # @raise [Sevgi::ArgumentError] when a selected path/default, render option, or XML-bound value is invalid
+        # @raise [Sevgi::ValidationError] when validation is enabled and the document violates the SVG standard
+        # @raise [Sevgi::Graphics::LintError] when linting is enabled and the document has structural conflicts
         # @raise [SystemCallError] when the destination or backup cannot be created, read, or written
         # @see Sevgi::Graphics::Document::Proto#call
         def Save(path = nil, default: nil, backup_suffix: nil, **kwargs, &filter)
@@ -81,7 +85,9 @@ module Sevgi
         # @yieldparam content [String] old or new SVG source
         # @yieldreturn [String] normalized SVG source
         # @return [String, nil] expanded path when written, or nil when unchanged
-        # @raise [Sevgi::ArgumentError] when path is blank, invalid, or an existing directory, or rendering fails
+        # @raise [Sevgi::ArgumentError] when path, a render option, or an XML-bound value is invalid
+        # @raise [Sevgi::ValidationError] when validation is enabled and the document violates the SVG standard
+        # @raise [Sevgi::Graphics::LintError] when linting is enabled and the document has structural conflicts
         # @raise [SystemCallError] when the destination cannot be read or written
         # @see Sevgi::Graphics::Document::Proto#call
         def Write(path, **kwargs, &filter)
