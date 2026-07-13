@@ -22,7 +22,7 @@ module Sevgi
         def CData
           return if !contents || contents.empty?
 
-          Content.text(contents)
+          contents.join("\n")
         end
 
         # Reports whether a namespace is available on this element or an ancestor.

@@ -129,7 +129,8 @@ module Sevgi
         # @return [Sevgi::Graphics::Element] new child element
         # @raise [Sevgi::ArgumentError] when the tag, attributes, or content are not valid XML
         def Element(tag, *contents, **attributes, &block)
-          self.class.send(:new, tag, contents: Content.contents(*contents), attributes:, parent: self, &block)
+          contents.map! { it.is_a?(Content) ? it : Content.encoded(it) }
+          self.class.send(:new, tag, contents:, attributes:, parent: self, &block)
         end
 
         # Forwards this element as the first argument to another receiver.

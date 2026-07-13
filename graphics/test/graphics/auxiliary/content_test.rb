@@ -24,6 +24,18 @@ module Sevgi
 
       private_constant :MutableText
 
+      class Emphasis < Content
+        def self.[](content) = send(:new, content)
+
+        def render(output, depth)
+          text = Content.encoded(to_s).to_s
+          output.append(depth + 1, "<tspan font-style=\"italic\">#{text}</tspan>")
+          :ignored
+        end
+      end
+
+      private_constant :Emphasis
+
       def test_cdata_content_renders_block
         expected = <<~SVG
           <svg>
@@ -47,6 +59,25 @@ module Sevgi
 
       def test_abstract_content_cannot_be_constructed
         assert_raises(NoMethodError) { Content.new("text") }
+      end
+
+      def test_custom_content_implements_the_render_protocol
+        document = SVG(:minimal) { text(Emphasis["important & safe"]) }
+
+        expected = <<~SVG
+          <svg>
+            <text><tspan font-style="italic">important &amp; safe</tspan></text>
+          </svg>
+        SVG
+          .chomp
+
+        assert_render(expected, document.Render())
+        assert_render(expected, document.Duplicate.Render())
+      end
+
+      def test_content_normalization_helpers_are_not_public
+        %i[cdata css encoded verbatim].each { assert_respond_to(Content, it) }
+        %i[contents text].each { refute_respond_to(Content, it) }
       end
 
       def test_encoded_and_verbatim_content_differ

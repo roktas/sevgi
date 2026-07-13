@@ -2,10 +2,24 @@
 
 module Sevgi
   module Graphics
-    # Abstract base for renderable text-like content inside an SVG element. Use {.cdata}, {.css}, {.encoded}, or
-    # {.verbatim} to construct a concrete content object. Content owns an immutable deep snapshot: strings and containers
-    # are copied, mutable leaf objects are stringified once during construction, and {#content} returns caller-owned
-    # copies. Later mutations cannot change rendering or invalidate the construction-time XML checks.
+    # Extensible protocol for renderable text-like content inside an SVG element. Use {.cdata}, {.css}, {.encoded}, or
+    # {.verbatim} for built-in content, or subclass Content and implement {#render} for a custom serialization. Content
+    # owns an immutable deep snapshot: strings and containers are copied, mutable leaf objects are stringified once
+    # during construction, and {#content} returns caller-owned copies. Later mutations cannot change rendering or
+    # invalidate the construction-time XML checks.
+    #
+    # @abstract Subclasses implement {#render} and expose their own construction API.
+    # @example Define custom content that emits an SVG tspan
+    #   class Emphasis < Sevgi::Graphics::Content
+    #     def self.[](content) = send(:new, content)
+    #
+    #     def render(output, depth)
+    #       text = Sevgi::Graphics::Content.encoded(to_s).to_s
+    #       output.append(depth + 1, %(<tspan font-style="italic">#{text}</tspan>))
+    #     end
+    #   end
+    #
+    #   SVG(:minimal) { text(Emphasis["important & safe"]) }.Render
     class Content
       private_class_method :new
 
@@ -104,13 +118,16 @@ module Sevgi
 
       private :initialize_copy
 
-      # Renders content with a renderer.
+      # Appends this content's serialized XML lines to rendering output.
+      # The output collaborator responds to `append(depth, *lines)`, where `depth` is an Integer or nil and every line
+      # is a String containing valid serialized XML text. The rendering engine ignores both `append` and `render` return
+      # values. Custom content is responsible for escaping data that it inserts into markup.
       # @abstract Subclasses implement content rendering.
-      # @param _renderer [Object] renderer receiving output
+      # @param _output [#append] rendering output collaborator
       # @param _depth [Integer] current render depth
-      # @return [void]
+      # @return [Object] ignored by the rendering engine
       # @raise [Sevgi::PanicError] when a subclass does not implement render
-      def render(_renderer, _depth) = PanicError.("#{self.class}#render must be implemented")
+      def render(_output, _depth) = PanicError.("#{self.class}#render must be implemented")
 
       # Returns content as a string.
       # @return [String]
@@ -128,14 +145,6 @@ module Sevgi
       #   @raise [Sevgi::ArgumentError] when content cannot be stringified, contains invalid encoding or illegal XML 1.0
       #     characters, contains cycles, or has keys that collide after stringification
       def self.cdata(...) = CData.send(:new, ...)
-
-      # Wraps content arguments, encoding non-content values.
-      # Mutable non-content values are stringified by encoded content during construction, before XML text escaping.
-      # @param args [Array<Object>] content arguments
-      # @return [Array<Sevgi::Graphics::Content>]
-      # @raise [Sevgi::ArgumentError] when an argument cannot be stringified, contains invalid encoding or illegal XML
-      #   1.0 characters, contains cycles, or has keys that collide after stringification
-      def self.contents(*args) = args.map { it.is_a?(Content) ? it : encoded(it) }
 
       # @overload css(content)
       #   Builds CSS content.
@@ -155,11 +164,6 @@ module Sevgi
       #     characters, contains cycles, or has keys that collide after stringification
       def self.encoded(...) = Encoded.send(:new, ...)
 
-      # Joins content lines with newlines.
-      # @param contents [Object, Array<Object>] content lines
-      # @return [String]
-      def self.text(contents) = Array(contents).join("\n")
-
       # @overload verbatim(content)
       #   Builds verbatim content.
       #   Mutable objects are stringified during construction.
@@ -175,9 +179,9 @@ module Sevgi
       class CData < Content
         # Renders CDATA content.
         # Embedded `]]>` terminators are split across adjacent CDATA sections so the output remains valid XML.
-        # @param renderer [Object] renderer receiving output
+        # @param renderer [#append] rendering output collaborator
         # @param depth [Integer] current render depth
-        # @return [void]
+        # @return [Object] ignored by the rendering engine
         def render(renderer, depth)
           depth += 1
 
@@ -210,9 +214,9 @@ module Sevgi
         end
 
         # Renders CSS content.
-        # @param renderer [Object] renderer receiving output
+        # @param renderer [#append] rendering output collaborator
         # @param depth [Integer] current render depth
-        # @return [void]
+        # @return [Object] ignored by the rendering engine
         def render(renderer, depth)
           depth += 1
 
@@ -259,9 +263,9 @@ module Sevgi
         def to_s = XML.text(payload).encode(xml: :text)
 
         # Renders encoded text content.
-        # @param renderer [Object] renderer receiving output
+        # @param renderer [#append] rendering output collaborator
         # @param depth [Integer] current render depth
-        # @return [void]
+        # @return [Object] ignored by the rendering engine
         def render(renderer, depth) = renderer.append(depth + 1, to_s)
       end
 
@@ -275,9 +279,9 @@ module Sevgi
         def to_s = XML.text(payload)
 
         # Renders verbatim content.
-        # @param renderer [Object] renderer receiving output
+        # @param renderer [#append] rendering output collaborator
         # @param depth [Integer] current render depth
-        # @return [void]
+        # @return [Object] ignored by the rendering engine
         def render(renderer, depth) = renderer.append(depth + 1, to_s)
       end
     end
