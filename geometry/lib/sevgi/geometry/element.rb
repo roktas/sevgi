@@ -227,9 +227,9 @@ module Sevgi
             end
           end
 
-          def define_line_shortcuts(klass, point_names, open:)
+          def define_line_shortcuts(klass, point_names, closing:)
             line_names = point_names.each_cons(2).map(&:join)
-            line_names << "#{point_names.last}#{point_names.first}" if !open && point_names.any?
+            line_names << "#{point_names.last}#{point_names.first}" if closing
 
             line_names.each_with_index do |name, i|
               klass.define_method(name) { lines[i] or Error.("No such line: #{name}") }
@@ -245,7 +245,7 @@ module Sevgi
           def define_shortcuts(klass, size, open:)
             point_names = SHORTCUTS.first([open ? size + 1 : size, SHORTCUTS.size].min)
             define_point_shortcuts(klass, point_names)
-            define_line_shortcuts(klass, point_names, open:)
+            define_line_shortcuts(klass, point_names, closing: !open && point_names.size == size)
           end
         end
 

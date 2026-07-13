@@ -77,6 +77,22 @@ module Sevgi
         assert_equal([3, 1, 2, 2, 27], shapes.map { it.segments.size })
       end
 
+      def test_lined_shortcuts_stop_at_named_endpoint_boundary
+        [
+          [25, true, nil],
+          [26, true, nil],
+          [27, true, nil],
+          [25, false, "YA"],
+          [26, false, "ZA"],
+          [27, false, nil]
+        ].each do |size, open, closing|
+          point_count = open ? size + 1 : size
+          shape = Element.lined(size, open:).(*Array.new(point_count) { [it, it % 2] })
+
+          assert_lined_shortcuts(shape, point_count, closing:)
+        end
+      end
+
       def test_lined_factory_rejects_invalid_class_invariants
         [nil, false, 0, -1, 1.5, "2"].each do |size|
           error = assert_raises(Error) { Element.lined(size) }
@@ -332,6 +348,23 @@ module Sevgi
         result.draw(node)
 
         assert_equal(result.points(true).map { it.deconstruct.join(",") }, attrs[:points])
+      end
+
+      private
+
+      def assert_lined_shortcuts(shape, point_count, closing:)
+        names = ("A".."Z").first([point_count, 26].min)
+        pairs = names.each_cons(2).map(&:join)
+        shortcuts = [*names, *pairs, closing].compact.map(&:to_sym).sort
+
+        assert_equal(shortcuts, shape.class.public_instance_methods(false).sort)
+        assert_equal(shape.points.first(names.size), names.map { shape.public_send(it) })
+        assert_equal(shape.lines.first(pairs.size), pairs.map { shape.public_send(it) })
+        assert_equal(shape.lines, shape.lines.each_index.map { shape[it] })
+
+        return assert_same(shape.lines.last, shape.public_send(closing)) if closing
+
+        refute_respond_to(shape, "#{names.last}#{names.first}")
       end
     end
   end
