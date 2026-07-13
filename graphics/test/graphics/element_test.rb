@@ -143,6 +143,27 @@ module Sevgi
           assert_nil(root.parent)
         end
 
+        def test_subclass_methods_do_not_override_tree_plumbing
+          klass = Class.new(Document::Minimal)
+          %i[attach root? tree_children tree_parent].each do |method|
+            klass.define_singleton_method(method) { |*| raise "shadowed #{method}" }
+          end
+
+          root = klass.root { rect }
+          child = root.children.first
+
+          [
+            true,
+            root.Root?(),
+            false,
+            child.Root?(),
+            root,
+            child.parent,
+            [child],
+            root.children
+          ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+        end
+
         def test_standard_elements_round_trip_through_dsl
           special_children = {
             feDiffuseLighting: [:feDistantLight],

@@ -180,7 +180,7 @@ module Sevgi
         # Reports whether this element is the root document element.
         # @return [Boolean]
         def Root?
-          self.class.root?(self)
+          Element.root?(self)
         end
 
         # @overload Stay(value)

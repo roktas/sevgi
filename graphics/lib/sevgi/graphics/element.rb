@@ -29,7 +29,7 @@ module Sevgi
       # Reports whether an element is the root element.
       # @param element [Sevgi::Graphics::Element] element to test
       # @return [Boolean]
-      def self.root?(element) = tree_parent(element).equal?(RootParent)
+      def self.root?(element) = Element.send(:tree_parent, element).equal?(RootParent)
 
       class << self
         private
@@ -131,7 +131,7 @@ module Sevgi
         @contents = contents.dup
         @parent = parent
 
-        self.class.send(:attach, self, parent) unless self.class.root?(self)
+        Element.send(:attach, self, parent) unless Element.root?(self)
 
         instance_exec(&block) if block
       end
