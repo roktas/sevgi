@@ -74,30 +74,32 @@ module Sevgi
           validate(element, attributes:, elements:, cdata:)
       end
 
-      def self.validate(element, attributes:, elements:, cdata:)
-        validator = @cache[element] || new(element)
-        result = validator.call(**arguments(attributes, elements, cdata))
-        @cache[element] ||= validator
-        result
-      end
+      class << self
+        private
 
-      def self.arguments(attributes, elements, cdata)
-        {
-          attributes: Attribute.concerns(attributes),
-          elements: Element.concerns(elements),
-          cdata:
-        }
-      end
-
-      def self.normalize_cdata(cdata)
-        unless cdata.nil? || cdata.is_a?(::String)
-          ArgumentError.("Character data must be a String or nil: #{cdata.inspect}")
+        def validate(element, attributes:, elements:, cdata:)
+          validator = @cache[element] || new(element)
+          result = validator.call(**arguments(attributes, elements, cdata))
+          @cache[element] ||= validator
+          result
         end
 
-        cdata unless cdata == ""
-      end
+        def arguments(attributes, elements, cdata)
+          {
+            attributes: Attribute.concerns(attributes),
+            elements: Element.concerns(elements),
+            cdata:
+          }
+        end
 
-      private_class_method :arguments, :normalize_cdata, :validate
+        def normalize_cdata(cdata)
+          unless cdata.nil? || cdata.is_a?(::String)
+            ArgumentError.("Character data must be a String or nil: #{cdata.inspect}")
+          end
+
+          cdata unless cdata == ""
+        end
+      end
     end
 
     private_constant :Conform, :Model
