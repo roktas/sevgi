@@ -84,6 +84,7 @@ module Sevgi
 
         ArgumentError.("Block required") unless block
 
+        own_configuration
         @sevgi_bases << block
         nil
       end
@@ -94,6 +95,7 @@ module Sevgi
       def self.extended(base)
         base.instance_variable_set(:@sevgi_bases, [])
         base.instance_variable_set(:@sevgi_callables, base.public_instance_methods(false))
+        base.instance_variable_set(:@sevgi_configuration_owner, base.object_id)
       end
 
       # Returns an owned snapshot of inherited and local base blocks in execution order.
@@ -183,6 +185,15 @@ module Sevgi
       def copy_configuration(original)
         @sevgi_bases = original.instance_variable_get(:@sevgi_bases).dup
         @sevgi_callables = original.instance_variable_get(:@sevgi_callables).dup
+        @sevgi_configuration_owner = object_id
+      end
+
+      def own_configuration
+        return if @sevgi_configuration_owner == object_id
+
+        @sevgi_bases = @sevgi_bases.dup
+        @sevgi_callables = @sevgi_callables.dup
+        @sevgi_configuration_owner = object_id
       end
 
       # Tracks newly defined methods as callable drawing candidates.
@@ -192,10 +203,11 @@ module Sevgi
       def method_added(method)
         super
 
+        own_configuration
         @sevgi_callables << method
       end
 
-      private :copy_configuration
+      private :copy_configuration, :own_configuration
       private_class_method :bases, :call, :callable_names, :callables, :context, :extended, :invoke
     end
 
