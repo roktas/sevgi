@@ -39,6 +39,17 @@ module Sevgi
             assert_empty(equ.intersect(Equation.horizontal(1.0)))
           end
 
+          def test_horizontal_intersects_other_linear_categories_in_both_orders
+            horizontal = Equation.horizontal(1)
+            diagonal = Equation.diagonal(slope: 1, intercept: 0)
+            vertical = Equation.vertical(3)
+
+            assert_equal([Point[1, 1]], horizontal.intersect(diagonal))
+            assert_equal([Point[1, 1]], diagonal.intersect(horizontal))
+            assert_equal([Point[3, 1]], horizontal.intersect(vertical))
+            assert_equal([Point[3, 1]], vertical.intersect(horizontal))
+          end
+
           def test_horizontal_shift_returns_horizontal_equation
             [
               Equation.horizontal(-3.0),

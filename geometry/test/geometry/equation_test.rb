@@ -49,6 +49,22 @@ module Sevgi
         end
       end
 
+      def test_linear_equation_categories_are_semantic_siblings
+        diagonal = Equation.diagonal(slope: 1, intercept: 0)
+        horizontal = Equation.horizontal(1)
+        vertical = Equation.vertical(1)
+
+        [diagonal, horizontal, vertical].each { assert_kind_of(Equation::Linear, it) }
+        assert_equal([Equation::Linear] * 3, [diagonal, horizontal, vertical].map { it.class.superclass })
+        assert_instance_of(Equation::Linear::Diagonal, diagonal)
+        assert_instance_of(Equation::Linear::Horizontal, horizontal)
+        assert_instance_of(Equation::Linear::Vertical, vertical)
+        refute_kind_of(Equation::Linear::Diagonal, horizontal)
+        assert_equal(horizontal, Equation.horizontal(1.0))
+        assert_equal(horizontal.hash, Equation.horizontal(1.0).hash)
+        refute_equal(horizontal, diagonal)
+      end
+
       def test_intersection_precision_controls_result_rounding
         triangle = Triangle[Segment[2, 0], Segment[1, 150]]
         equ = Equation.vertical(1.2)

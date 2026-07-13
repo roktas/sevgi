@@ -17,6 +17,43 @@ module Sevgi
 
         private :shift_values
 
+        # Shared behavior for equations that map x coordinates to y coordinates.
+        # @api private
+        module Nonvertical
+          # Reports strict equality for two nonvertical equations.
+          # @param equation [Sevgi::Geometry::Equation::Linear] equation to compare
+          # @param other [Object] comparison target
+          # @return [Boolean]
+          def self.equal?(equation, other)
+            equation.class == other.class && [equation.slope, equation.intercept] == [other.slope, other.intercept]
+          end
+
+          # Returns a strict-equality hash for a nonvertical equation.
+          # @param equation [Sevgi::Geometry::Equation::Linear] equation to hash
+          # @return [Integer]
+          def self.hash(equation) = [equation.class, equation.slope, equation.intercept].hash
+
+          # Reports whether a point is on a nonvertical equation.
+          # @param equation [Sevgi::Geometry::Equation::Linear] equation to test
+          # @param point [Sevgi::Geometry::Point, Array<Numeric>] point to test
+          # @return [Boolean]
+          # @raise [Sevgi::Geometry::Error] when point cannot be coerced
+          def self.on?(equation, point)
+            point = Tuple[Point, point]
+
+            F.eq?(point.y, y(equation, point.x))
+          end
+
+          # Evaluates a nonvertical equation at an x coordinate.
+          # @param equation [Sevgi::Geometry::Equation::Linear] equation to evaluate
+          # @param x [Numeric] x coordinate
+          # @return [Float]
+          # @raise [Sevgi::Geometry::Error] when x is not a finite real number
+          def self.y(equation, x) = (equation.slope * Real[:x, x]) + equation.intercept
+        end
+
+        private_constant :Nonvertical
+
         # Non-axis-aligned linear equation in `y = slope * x + intercept` form.
         class Diagonal < Linear
           public_class_method :new
@@ -39,7 +76,7 @@ module Sevgi
 
             @slope = Real[:slope, slope]
             @intercept = Real[:intercept, intercept]
-            Error.("A diagonal equation requires a non-zero slope") if instance_of?(Diagonal) && @slope.zero?
+            Error.("A diagonal equation requires a non-zero slope") if @slope.zero?
           end
 
           # Returns an equation rounded to precision.
@@ -52,21 +89,17 @@ module Sevgi
           # Reports strict equation equality.
           # @param other [Object] object to compare
           # @return [Boolean]
-          def eql?(other) = self.class == other.class && [slope, intercept] == [other.slope, other.intercept]
+          def eql?(other) = Nonvertical.equal?(self, other)
 
           # Returns a hash compatible with strict equality.
           # @return [Integer]
-          def hash = [self.class, slope, intercept].hash
+          def hash = Nonvertical.hash(self)
 
           # Reports whether a point is on the line.
           # @param point [Sevgi::Geometry::Point, Array<Numeric>] point to test
           # @return [Boolean]
           # @raise [Sevgi::Geometry::Error] when point cannot be coerced
-          def on?(point)
-            point = Tuple[Point, point]
-
-            F.eq?(point.y, y(point.x))
-          end
+          def on?(point) = Nonvertical.on?(self, point)
 
           # Returns a parallel equation shifted by a signed perpendicular offset.
           # Positive distance moves to screen-left of the equation's canonical increasing-x direction.
@@ -105,25 +138,53 @@ module Sevgi
           # @param x [Numeric] x coordinate
           # @return [Float]
           # @raise [Sevgi::Geometry::Error] when x is not a finite real number
-          def y(x) = (slope * Real[:x, x]) + intercept
+          def y(x) = Nonvertical.y(self, x)
 
           alias == eql?
         end
 
         # Horizontal linear equation in `y = c` form.
-        class Horizontal < Diagonal
+        class Horizontal < Linear
           public_class_method :new
+
+          # Returns the zero line slope.
+          # @return [Float]
+          attr_reader :slope
+
+          # Returns the y coordinate.
+          # @return [Float]
+          attr_reader :intercept
 
           # Creates a horizontal equation.
           # @param c [Numeric] y coordinate
           # @return [void]
           # @raise [Sevgi::Geometry::Error] when c is not a finite Numeric
-          def initialize(c) = super(slope: 0.0, intercept: c)
+          def initialize(c)
+            super()
+
+            @slope = 0.0
+            @intercept = Real[:y, c]
+          end
 
           # Returns an equation rounded to precision.
           # @param precision [Integer, nil] decimal precision, or nil for the current function default
           # @return [Sevgi::Geometry::Equation::Linear::Horizontal]
           def approx(precision = nil) = self.class.new(F.approx(intercept, precision))
+
+          # Reports strict equation equality.
+          # @param other [Object] object to compare
+          # @return [Boolean]
+          def eql?(other) = Nonvertical.equal?(self, other)
+
+          # Returns a hash compatible with strict equality.
+          # @return [Integer]
+          def hash = Nonvertical.hash(self)
+
+          # Reports whether a point is on the line.
+          # @param point [Sevgi::Geometry::Point, Array<Numeric>] point to test
+          # @return [Boolean]
+          # @raise [Sevgi::Geometry::Error] when point cannot be coerced
+          def on?(point) = Nonvertical.on?(self, point)
 
           # Returns a parallel horizontal equation shifted by offsets.
           #
@@ -148,6 +209,14 @@ module Sevgi
           # Formats the equation for display.
           # @return [String]
           def to_s = "Linear<y = #{F.approx(intercept)}>"
+
+          # Evaluates y for an x coordinate.
+          # @param x [Numeric] x coordinate
+          # @return [Float]
+          # @raise [Sevgi::Geometry::Error] when x is not a finite real number
+          def y(x) = Nonvertical.y(self, x)
+
+          alias == eql?
         end
 
         # Vertical linear equation in `x = c` form.

@@ -52,6 +52,7 @@ module Sevgi
           def test_diagonal_rejects_zero_slope
             assert_raises(Error) { Equation.diagonal(slope: 0, intercept: 1) }
             assert_raises(Error) { Diagonal.new(slope: -0.0, intercept: 1) }
+            assert_raises(Error) { Class.new(Diagonal).new(slope: 0, intercept: 1) }
           end
 
           def test_diagonal_equation_from_line_maps_y

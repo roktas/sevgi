@@ -57,19 +57,26 @@ module Sevgi
       private
 
       def linear_vs_linear(other)
-        case [self, other]
-        in [Linear::Diagonal, Linear::Diagonal]
-          diagonal_vs_diagonal(self, other)
-        in [Linear::Diagonal, Linear::Vertical]
-          diagonal_vs_vertical(self, other)
-        in [Linear::Vertical, Linear::Diagonal]
-          diagonal_vs_vertical(other, self)
-        in [Linear::Vertical, Linear::Vertical]
+        case [linear_category(self), linear_category(other)]
+        in [:vertical, :vertical]
           nil
+        in [:vertical, :nonvertical]
+          nonvertical_vs_vertical(other, self)
+        in [:nonvertical, :vertical]
+          nonvertical_vs_vertical(self, other)
+        in [:nonvertical, :nonvertical]
+          nonvertical_vs_nonvertical(self, other)
         end
       end
 
-      def diagonal_vs_diagonal(left, right)
+      def linear_category(equation)
+        return :vertical if equation.is_a?(Linear::Vertical)
+        return :nonvertical if equation.is_a?(Linear::Diagonal) || equation.is_a?(Linear::Horizontal)
+
+        PanicError.("Linear equation category not implemented: #{equation.class}")
+      end
+
+      def nonvertical_vs_nonvertical(left, right)
         return nil if F.eq?(left.slope, right.slope)
 
         x = (right.intercept - left.intercept) / (left.slope - right.slope)
@@ -77,10 +84,10 @@ module Sevgi
         Point[x, left.y(x)]
       end
 
-      def diagonal_vs_vertical(diagonal, vertical)
+      def nonvertical_vs_vertical(nonvertical, vertical)
         x = vertical.x
 
-        Point[x, diagonal.y(x)]
+        Point[x, nonvertical.y(x)]
       end
 
       def linear_vs_quadratic(...)
