@@ -24,7 +24,7 @@ module Sevgi
         # @yieldparam lines [Array<Sevgi::Geometry::Line>] generated sweep lines
         # @yieldreturn [void]
         # @return [Array<Sevgi::Geometry::Line>] generated sweep lines
-        # @raise [Sevgi::Geometry::Error] when initial, step, or limit is invalid
+        # @raise [Sevgi::Geometry::Error] when initial, angle, step, or limit is invalid
         # @raise [Sevgi::Geometry::Operation::OperationError] when iteration reaches the limit
         def sweep(element, initial:, angle:, step:, limit: LIMIT, &block)
           step = validate_arguments(step, limit)
@@ -51,7 +51,7 @@ module Sevgi
         # @yieldparam lines [Array<Sevgi::Geometry::Line>] generated sweep lines
         # @yieldreturn [void]
         # @return [Array<Sevgi::Geometry::Line>] generated sweep lines
-        # @raise [Sevgi::Geometry::Error] when initial, step, or limit is invalid
+        # @raise [Sevgi::Geometry::Error] when initial, angle, step, or limit is invalid
         # @raise [Sevgi::Geometry::Operation::OperationError] when no lines are found or iteration reaches the limit
         def sweep!(element, initial:, angle:, step:, limit: LIMIT, &block)
           sweep(element, initial:, angle:, step:, limit:) do |lines|

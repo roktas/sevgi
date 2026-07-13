@@ -27,7 +27,7 @@ module Sevgi
       #   @param angle [Numeric] clockwise angle in degrees
       #   @param position [Sevgi::Geometry::Point, Array<Numeric>] starting point
       #   @return [Sevgi::Geometry::Line]
-      #   @raise [Sevgi::Geometry::Error] when position cannot be coerced
+      #   @raise [Sevgi::Geometry::Error] when length, angle, or position cannot be coerced to finite geometry values
       # @example Mathematical notation and English convenience are equivalent
       #   Line[5, 30] == Line.from_length_angle(5, 30)
       def self.[](length, angle, position: Origin) = new_by_segments(Segment[length, angle], position:)
@@ -37,7 +37,7 @@ module Sevgi
       # @param angle [Numeric] clockwise angle in degrees
       # @param position [Sevgi::Geometry::Point, Array<Numeric>] starting point
       # @return [Sevgi::Geometry::Line]
-      # @raise [Sevgi::Geometry::Error] when position cannot be coerced
+      # @raise [Sevgi::Geometry::Error] when length, angle, or position cannot be coerced to finite geometry values
       def self.from_length_angle(length, angle, position: Origin) = self[length, angle, position:]
 
       # @overload from_points(starting, ending)

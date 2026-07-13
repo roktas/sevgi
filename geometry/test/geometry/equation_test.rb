@@ -38,7 +38,7 @@ module Sevgi
         refute_includes(Equation.constants(false), :Quadratic)
       end
 
-      def test_intersection_precision_rounds_after_membership
+      def test_intersection_precision_controls_result_rounding
         triangle = Triangle[Segment[2, 0], Segment[1, 150]]
         equ = Equation.vertical(1.2)
 
@@ -50,7 +50,7 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
-      def test_intersection_precision_ignores_thread_default
+      def test_intersection_explicit_precision_overrides_thread_precision
         triangle = Triangle[Segment[2, 0], Segment[1, 150]]
         equ = Equation.vertical(1.2)
 
@@ -62,7 +62,7 @@ module Sevgi
         end
       end
 
-      def test_intersection_explicit_precision_ignores_ambient_membership_precision
+      def test_intersection_explicit_precision_controls_membership
         rect = Rect[1, 1]
         equation = Equation.vertical(1.4)
 
@@ -71,6 +71,25 @@ module Sevgi
         F.with_precision(0) do
           assert_empty(rect.intersection(equation, precision: 1))
         end
+      end
+
+      def test_intersection_precision_controls_duplicate_collapse
+        rect = Rect[1, 0.049]
+        equation = Equation.vertical(0.5)
+
+        assert_equal([[0.5, 0.0]], rect.intersection(equation, precision: 1).map(&:deconstruct))
+        assert_equal([[0.5, 0.0], [0.5, 0.049]], rect.intersection(equation, precision: 3).map(&:deconstruct))
+      end
+
+      def test_intersection_nil_uses_thread_precision_for_all_stages
+        rect = Rect[1, 1]
+        equation = Equation.vertical(1.04)
+
+        F.with_precision(1) do
+          assert_equal([[1.0, 0.0], [1.0, 1.0]], rect.intersection(equation).map(&:deconstruct))
+        end
+
+        F.with_precision(2) { assert_empty(rect.intersection(equation)) }
       end
 
       def test_intersect_rejects_non_equation

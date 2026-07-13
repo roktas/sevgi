@@ -390,10 +390,8 @@ module Sevgi
 
         # Intersects the element boundary with an equation.
         #
-        # Boundary membership is tested on unrounded candidate points. `precision:`
-        # only rounds returned coordinates and controls duplicate collapse after
-        # membership has been accepted. When `precision` is nil, returned points use
-        # the current function precision.
+        # Precision is applied consistently to boundary-membership tolerance, returned-coordinate rounding, and
+        # duplicate collapse. A nil precision uses the current thread's function precision for all three stages.
         # @param equation [Sevgi::Geometry::Equation] equation to intersect with
         # @param precision [Integer, nil] decimal precision for returned points, or nil for the current function default
         # @return [Array<Sevgi::Geometry::Point>] unique boundary intersection points

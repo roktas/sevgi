@@ -19,7 +19,7 @@ module Sevgi
   #   drawing = Sevgi::Graphics.SVG(:minimal, width: 10, height: 10) do
   #     circle cx: 5, cy: 5, r: 4
   #   end
-  #   drawing.Render #=> "<svg ...>...</svg>\n"
+  #   drawing.Render #=> "<svg width=\"10\" height=\"10\">\n  <circle cx=\"5\" cy=\"5\" r=\"4\"/>\n</svg>"
   # @see https://sevgi.roktas.dev/showcase/ Runnable drawing examples
   module Graphics
     # @overload canvas(paper, **overrides)
