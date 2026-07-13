@@ -14,36 +14,36 @@ module Sevgi
         def error? = !error.nil?
       end
 
-      def test_call_uses_caller_toplevel_by_default
+      def test_call_uses_main_mode_by_default
         calls = []
 
         ::Sevgi.stub(
           :execute_file,
-          proc { |file, require:, receiver:|
-            calls << [file, require, receiver]
+          proc { |file, require:, main:|
+            calls << [file, require, main]
             Result.new(nil)
           }
         ) do
           _out, _err = capture_io { Sevgi.(["script.sevgi"]) }
         end
 
-        assert_equal([["script.sevgi", nil, TOPLEVEL_BINDING.receiver]], calls)
+        assert_equal([["script.sevgi", nil, true]], calls)
       end
 
-      def test_call_nomain_uses_isolated_receiver
+      def test_call_nomain_uses_isolated_mode
         calls = []
 
         ::Sevgi.stub(
           :execute_file,
-          proc { |file, require:, receiver:|
-            calls << [file, require, receiver]
+          proc { |file, require:, main:|
+            calls << [file, require, main]
             Result.new(nil)
           }
         ) do
           _out, _err = capture_io { Sevgi.(["-n", "script.sevgi"]) }
         end
 
-        assert_equal([["script.sevgi", nil, nil]], calls)
+        assert_equal([["script.sevgi", nil, false]], calls)
       end
 
       def test_call_nomain_long_option_matches_short_option
@@ -51,15 +51,15 @@ module Sevgi
 
         ::Sevgi.stub(
           :execute_file,
-          proc { |file, require:, receiver:|
-            calls << [file, require, receiver]
+          proc { |file, require:, main:|
+            calls << [file, require, main]
             Result.new(nil)
           }
         ) do
           _out, _err = capture_io { Sevgi.(["--nomain", "script.sevgi"]) }
         end
 
-        assert_equal([["script.sevgi", nil, nil]], calls)
+        assert_equal([["script.sevgi", nil, false]], calls)
       end
 
       def test_call_forwards_required_library
@@ -67,15 +67,15 @@ module Sevgi
 
         ::Sevgi.stub(
           :execute_file,
-          proc { |file, require:, receiver:|
-            calls << [file, require, receiver]
+          proc { |file, require:, main:|
+            calls << [file, require, main]
             Result.new(nil)
           }
         ) do
           _out, _err = capture_io { Sevgi.(["-r", "json", "script.sevgi"]) }
         end
 
-        assert_equal([["script.sevgi", "json", TOPLEVEL_BINDING.receiver]], calls)
+        assert_equal([["script.sevgi", "json", true]], calls)
       end
 
       def test_call_reports_load_stack_for_script_error

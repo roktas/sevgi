@@ -121,7 +121,7 @@ module Sevgi
       end
 
       def run(file, options)
-        ::Sevgi.execute_file(file, require: options.require, receiver: options.nomain ? nil : TOPLEVEL_BINDING.receiver)
+        ::Sevgi.execute_file(file, require: options.require, main: !options.nomain)
       end
     end
   end

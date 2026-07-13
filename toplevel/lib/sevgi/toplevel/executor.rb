@@ -8,26 +8,50 @@ module Sevgi
   private_constant :BootBlock
 
   # Executes Sevgi script source with the full top-level DSL installed.
-  # @param args [Array] arguments forwarded to {Sevgi::Executor.execute}
-  # @param kwargs [Hash] keyword arguments forwarded to {Sevgi::Executor.execute}
+  #
+  # @example Execute source in an isolated scope
+  #   result = Sevgi.execute("F.pluralize('cat')")
+  #   result.value # => "cats"
+  # @param string [String] source to evaluate
+  # @param file [String, nil] source file name used for errors and backtraces
+  # @param line [Integer, nil] starting source line used for errors and backtraces
+  # @param require [String, nil] optional Ruby library to require before execution
+  # @param main [Boolean] whether to install the DSL through Ruby's top-level main object
   # @return [Sevgi::Executor::Result] immutable execution result
-  # @raise [Sevgi::ArgumentError] when an invocation argument is invalid
+  # @raise [Sevgi::ArgumentError] when source, file, line, required library, or main mode is invalid
   # @note Script and required-library failures are captured in {Sevgi::Executor::Result#error}.
-  # @note Empty source without `require:` is a strict no-op; the receiver is untouched and the DSL boot block is unused.
+  # @note The default isolated mode does not modify Ruby's top-level main object. `main: true` preserves the command-line
+  #   default by installing Sevgi through main before evaluating source in the managed script scope.
+  # @note Empty source without `require:` is a strict no-op; the DSL boot block is unused.
   # @note Reentrant and concurrent calls keep independent executor scope stacks per fiber.
   # @see Sevgi::Executor.execute
-  def self.execute(*args, **kwargs) = Executor.execute(*args, **kwargs, &BootBlock)
+  def self.execute(string, file: nil, line: nil, require: nil, main: false)
+    Executor.execute(string, file:, line:, require:, receiver: execution_receiver(main), &BootBlock)
+  end
 
   # Executes a Sevgi script file with the full top-level DSL installed.
-  # @param args [Array] arguments forwarded to {Sevgi::Executor.execute_file}
-  # @param kwargs [Hash] keyword arguments forwarded to {Sevgi::Executor.execute_file}
+  # @param file [String] source file to read and execute
+  # @param require [String, nil] optional Ruby library to require before execution
+  # @param main [Boolean] whether to install the DSL through Ruby's top-level main object
   # @return [Sevgi::Executor::Result] immutable execution result
-  # @raise [Sevgi::ArgumentError] when an invocation argument is invalid
+  # @raise [Sevgi::ArgumentError] when file, required library, or main mode is invalid
   # @note File-read, script, and required-library failures are captured in {Sevgi::Executor::Result#error}.
-  # @note An empty file without `require:` is a strict no-op; the receiver is untouched and the DSL boot block is unused.
+  # @note The default isolated mode does not modify Ruby's top-level main object. `main: true` preserves the command-line
+  #   default by installing Sevgi through main before evaluating source in the managed script scope.
+  # @note An empty file without `require:` is a strict no-op; the DSL boot block is unused.
   # @note Reentrant and concurrent calls keep independent executor scope stacks per fiber.
   # @see Sevgi::Executor.execute_file
-  def self.execute_file(*args, **kwargs) = Executor.execute_file(*args, **kwargs, &BootBlock)
+  def self.execute_file(file, require: nil, main: false)
+    Executor.execute_file(file, require:, receiver: execution_receiver(main), &BootBlock)
+  end
+
+  def self.execution_receiver(main)
+    ArgumentError.("Sevgi main mode must be true or false") unless [true, false].include?(main)
+
+    TOPLEVEL_BINDING.receiver if main
+  end
+
+  private_class_method :execution_receiver
 
   module Toplevel
     # Loads one or more Sevgi files relative to the caller's source file.

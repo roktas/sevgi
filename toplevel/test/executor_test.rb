@@ -243,13 +243,13 @@ module Sevgi
       Dir.mktmpdir do |dir|
         file = ::File.join(dir, "empty.sevgi")
         ::File.write(file, "")
-        receivers = Array.new(4) { Module.new }
+        receivers = Array.new(2) { Module.new }
         boots = 0
         results = [
           Executor.execute("", receiver: receivers[0]) { boots += 1 },
-          Sevgi.execute("", receiver: receivers[1]),
-          Executor.execute_file(file, receiver: receivers[2]) { boots += 1 },
-          Sevgi.execute_file(file, receiver: receivers[3])
+          Sevgi.execute(""),
+          Executor.execute_file(file, receiver: receivers[1]) { boots += 1 },
+          Sevgi.execute_file(file)
         ]
 
         results.each do |result|
@@ -289,11 +289,9 @@ module Sevgi
     end
 
     def test_toplevel_empty_source_with_required_library_runs_boot
-      receiver = Module.new
-      result = Sevgi.execute("", require: "json", receiver:)
+      result = Sevgi.execute("", require: "json")
 
       assert_predicate(result, :success?)
-      assert_respond_to(receiver, :Paper)
       assert_equal(["sevgi"], result.stack)
     end
 
@@ -330,6 +328,40 @@ module Sevgi
         Sundries::Export,
         result.value[5]
       ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+    end
+
+    def test_toplevel_execute_rejects_invalid_main_mode_before_evaluation
+      [nil, Object.new, Module.new, :main].each do |main|
+        error = assert_raises(ArgumentError) { Sevgi.execute("raise 'evaluated'", main:) }
+
+        assert_match(/main mode must be true or false/, error.message)
+      end
+    end
+
+    def test_toplevel_execute_file_rejects_invalid_main_mode_before_reading
+      [nil, Object.new, Module.new, :main].each do |main|
+        error = assert_raises(ArgumentError) { Sevgi.execute_file("missing.sevgi", main:) }
+
+        assert_match(/main mode must be true or false/, error.message)
+      end
+    end
+
+    def test_toplevel_main_mode_installs_dsl_for_source_and_file
+      Dir.mktmpdir do |dir|
+        file = ::File.join(dir, "main.sevgi")
+        ::File.write(file, "Paper(7, 11, :file_main_test)\n")
+        command = <<~RUBY
+          require "sevgi"
+          source = Sevgi.execute("Paper(3, 5, :source_main_test)", require: "json", main: true)
+          file = Sevgi.execute_file(#{file.dump}, main: true)
+          abort [source.error, file.error].compact.join("\\n") unless source.value == :source_main_test &&
+            file.value == :file_main_test
+        RUBY
+
+        output, error, status = ::Open3.capture3(::RbConfig.ruby, "-Ilib", "-e", command)
+
+        assert(status.success?, "stdout:\n#{output}\nstderr:\n#{error}")
+      end
     end
 
     def test_execute_require_error_preserves_active_scope
