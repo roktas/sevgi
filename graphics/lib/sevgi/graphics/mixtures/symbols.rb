@@ -10,7 +10,7 @@ module Sevgi
         class Expansion
           # Creates a symbol expansion.
           # @param receiver [Sevgi::Graphics::Element] parent element
-          # @param mod [Module] callable drawing module
+          # @param mod [Module] module extended with {Sevgi::Graphics::Module}
           # @return [void]
           def initialize(receiver, mod)
             @receiver = receiver
@@ -67,7 +67,7 @@ module Sevgi
 
         # Renders module callables as symbols under defs. Named modules default the defs id to their final constant name;
         # anonymous modules omit the id unless supplied.
-        # @param mod [Module] callable drawing module
+        # @param mod [Module] module extended with {Sevgi::Graphics::Module}
         # @param args [Array<Object>] callable arguments
         # Base blocks run once in the defs element before symbols are created. Positional arguments, keyword arguments,
         # and the block are forwarded to each callable.
@@ -77,7 +77,8 @@ module Sevgi
         # @yield forwarded to each callable
         # @yieldreturn [Object] callable-defined block result
         # @return [Sevgi::Graphics::Element] defs element
-        # @raise [Sevgi::ArgumentError] when mod is not a plain module, attributes is not a Hash, or ids is not callable
+        # @raise [Sevgi::ArgumentError] when mod is not a callable drawing module, attributes is not a Hash, or ids is
+        #   not callable
         def Symbols(mod, *args, attributes: {}, ids: nil, **kwargs, &block)
           Expansion.new(self, mod).call(*args, attributes:, ids:, **kwargs, &block)
         end

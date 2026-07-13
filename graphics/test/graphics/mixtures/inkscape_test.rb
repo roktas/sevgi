@@ -117,6 +117,18 @@ module Sevgi
           end
         end
 
+        def test_callable_wrappers_require_configured_module_atomically
+          drawing = ::Module.new { def call = rect }
+
+          %i[Group Layer Layer!].each do |wrapper|
+            doc = SVG(:inkscape)
+            error = assert_raises(ArgumentError) { doc.public_send(wrapper, drawing) }
+
+            assert_match(/must extend Sevgi::Graphics::Module/, error.message)
+            assert_empty(doc.children)
+          end
+        end
+
         def test_pages_yields_page_elements_to_block
           doc = SVG(:inkscape)
           result = doc

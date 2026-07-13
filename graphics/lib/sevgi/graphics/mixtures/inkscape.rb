@@ -46,14 +46,14 @@ module Sevgi
         #     def call = circle(r: 5)
         #   end
         #   Sevgi::Graphics.SVG(:inkscape) { Group(drawing, attributes: {id: "drawing"}) }
-        # @param mod [Module] callable drawing module
+        # @param mod [Module] module extended with {Sevgi::Graphics::Module}
         # @param args [Array<Object>] callable arguments
         # @param attributes [Hash] group attributes; String and Symbol names are normalized and must not collide
         # @param kwargs [Hash] callable keyword arguments
         # @yield forwards customization to the callable module
         # @yieldreturn [Object] callable customization result
         # @return [Sevgi::Graphics::Element] group element
-        # @raise [Sevgi::ArgumentError] when mod is not a plain module or attributes is not a Hash
+        # @raise [Sevgi::ArgumentError] when mod is not a callable drawing module or attributes is not a Hash
         def Group(mod, *args, attributes: {}, **kwargs, &block)
           Graphics::Module.__send__(:callables, mod)
           ArgumentError.("Group attributes must be a Hash") unless attributes.is_a?(::Hash)
@@ -63,14 +63,14 @@ module Sevgi
 
         # Renders a callable module inside an Inkscape layer.
         # Named modules default the layer id to their final constant name. Anonymous modules omit the id unless supplied.
-        # @param mod [Module] callable drawing module
+        # @param mod [Module] module extended with {Sevgi::Graphics::Module}
         # @param args [Array<Object>] callable arguments
         # @param attributes [Hash] layer attributes; String and Symbol names are normalized and must not collide
         # @param kwargs [Hash] callable keyword arguments
         # @yield forwards customization to the callable module
         # @yieldreturn [Object] callable customization result
         # @return [Sevgi::Graphics::Element] layer element
-        # @raise [Sevgi::ArgumentError] when mod is not a plain module or attributes is not a Hash
+        # @raise [Sevgi::ArgumentError] when mod is not a callable drawing module or attributes is not a Hash
         def Layer(mod, *args, attributes: {}, **kwargs, &block)
           Graphics::Module.__send__(:callables, mod)
           ArgumentError.("Layer attributes must be a Hash") unless attributes.is_a?(::Hash)
@@ -80,14 +80,14 @@ module Sevgi
 
         # Renders a callable module inside an insensitive Inkscape layer.
         # Named modules default the layer id to their final constant name. Anonymous modules omit the id unless supplied.
-        # @param mod [Module] callable drawing module
+        # @param mod [Module] module extended with {Sevgi::Graphics::Module}
         # @param args [Array<Object>] callable arguments
         # @param attributes [Hash] layer attributes; String and Symbol names are normalized and must not collide
         # @param kwargs [Hash] callable keyword arguments
         # @yield forwards customization to the callable module
         # @yieldreturn [Object] callable customization result
         # @return [Sevgi::Graphics::Element] layer element
-        # @raise [Sevgi::ArgumentError] when mod is not a plain module or attributes is not a Hash
+        # @raise [Sevgi::ArgumentError] when mod is not a callable drawing module or attributes is not a Hash
         def Layer!(mod, *args, attributes: {}, **kwargs, &block)
           Graphics::Module.__send__(:callables, mod)
           ArgumentError.("Layer attributes must be a Hash") unless attributes.is_a?(::Hash)

@@ -447,8 +447,14 @@ module Sevgi
           assert_equal(%w[original original], doc.children.map { it[:id] })
         end
 
-        def test_call_rejects_non_module_argument
-          assert_raises(ArgumentError) { SVG(:minimal).Call(Object.new) }
+        def test_call_requires_configured_module_atomically
+          [Object.new, ::Module.new { def call = rect }].each do |candidate|
+            doc = SVG(:minimal)
+            error = assert_raises(ArgumentError) { doc.Call(candidate) }
+
+            assert_match(/must extend Sevgi::Graphics::Module/, error.message)
+            assert_empty(doc.children)
+          end
         end
       end
     end

@@ -124,6 +124,16 @@ module Sevgi
           assert_raises(Sevgi::ArgumentError) { doc.Symbols(IconSet, attributes:) }
           assert_empty(doc.children)
         end
+
+        def test_symbols_requires_configured_module_atomically
+          drawing = ::Module.new { def icon = rect }
+          doc = SVG(:symbol_test)
+
+          error = assert_raises(ArgumentError) { doc.Symbols(drawing) }
+
+          assert_match(/must extend Sevgi::Graphics::Module/, error.message)
+          assert_empty(doc.children)
+        end
       end
     end
   end

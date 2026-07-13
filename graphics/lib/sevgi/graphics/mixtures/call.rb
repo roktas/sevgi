@@ -102,11 +102,11 @@ module Sevgi
         end
 
         # Returns an owned snapshot of inherited and local base blocks in execution order.
-        # @param mod [Module] callable module
+        # @param mod [Module] module extended with {Sevgi::Graphics::Module}
         # @return [Array<Proc>] parent-first base blocks followed by local base blocks
-        # @raise [Sevgi::ArgumentError] when mod is not a plain module
+        # @raise [Sevgi::ArgumentError] when mod is not a callable drawing module
         def bases(mod)
-          ArgumentError.("Must be a module: #{mod}") unless mod.instance_of?(::Module)
+          validate(mod)
 
           mod
             .ancestors
@@ -119,12 +119,12 @@ module Sevgi
 
         # @overload call(mod, receiver, *args, **kwargs)
         #   Runs module bases and callables against a receiver.
-        #   @param mod [Module] callable module
+        #   @param mod [Module] module extended with {Sevgi::Graphics::Module}
         #   @param receiver [Sevgi::Graphics::Element] receiver element
         #   @param args [Array<Object>] callable arguments
         #   @param kwargs [Hash] callable keyword arguments
         #   @return [Object, nil] last callable return value
-        #   @raise [Sevgi::ArgumentError] when mod is not a plain module
+        #   @raise [Sevgi::ArgumentError] when mod is not a callable drawing module
         def call(mod, receiver, ...)
           methods = callables(mod)
           context = context(mod, receiver)
@@ -134,11 +134,11 @@ module Sevgi
         end
 
         # Returns the methods that should be executed for a callable module.
-        # @param mod [Module] callable module
+        # @param mod [Module] module extended with {Sevgi::Graphics::Module}
         # @return [Array<UnboundMethod>]
-        # @raise [Sevgi::ArgumentError] when mod is not a plain module
+        # @raise [Sevgi::ArgumentError] when mod is not a callable drawing module
         def callables(mod)
-          ArgumentError.("Must be a module: #{mod}") unless mod.instance_of?(::Module)
+          validate(mod)
 
           callable_names(mod).uniq.filter_map do |name|
             mod.instance_method(name) if mod.public_method_defined?(name)
@@ -162,6 +162,12 @@ module Sevgi
         def invoke(context, receiver, methods, ...)
           result = methods.map { context.__send__(it.name, ...) }.last
           result.equal?(context) ? receiver : result
+        end
+
+        def validate(mod)
+          return mod if mod.instance_of?(::Module) && mod.is_a?(Graphics::Module)
+
+          ArgumentError.("Callable drawing module must extend Sevgi::Graphics::Module: #{mod}")
         end
       end
 
@@ -219,11 +225,11 @@ module Sevgi
       module Call
         # @overload Call(mod, *args, **kwargs)
         #   Runs a callable drawing module in the current element context.
-        #   @param mod [Module] callable module
+        #   @param mod [Module] module extended with {Sevgi::Graphics::Module}
         #   @param args [Array<Object>] callable arguments
         #   @param kwargs [Hash] callable keyword arguments
         #   @return [Object, nil] last callable return value
-        #   @raise [Sevgi::ArgumentError] when mod is not a plain module
+        #   @raise [Sevgi::ArgumentError] when mod is not a callable drawing module
         def Call(mod, ...)
           Graphics::Module.__send__(:call, mod, self, ...)
         end
