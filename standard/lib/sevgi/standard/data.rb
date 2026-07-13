@@ -43,6 +43,10 @@ module Sevgi
       # @return [Set<Symbol>] mutation-isolated set snapshot
       def all = Snapshot.copy(@all ||= Set[*data.values.flatten.uniq.sort])
 
+      # Returns accepted group names for this data list.
+      # @return [Set<Symbol>] frozen group-name snapshot
+      def groups = @groups ||= Set[*data.keys.sort].freeze
+
       # Checks whether a name belongs to a group.
       # @param name [Symbol] item name
       # @param group [Symbol] group name

@@ -60,6 +60,27 @@ module Sevgi
         assert(Standard.element?(:svg))
       end
 
+      def test_public_group_names_exactly_match_filter_vocabularies
+        attribute = Standard.const_get(:Attribute)
+        element = Standard.const_get(:Element)
+
+        assert_equal(Set[*attribute.send(:data).keys], Standard.attribute_groups)
+        assert_equal(Set[*element.send(:data).keys], Standard.element_groups)
+
+        Standard.attribute_groups.each { refute_empty(Standard.attributes(it)) }
+        Standard.element_groups.each { refute_empty(Standard.elements(it.to_s)) }
+      end
+
+      def test_public_group_names_are_immutable
+        assert_predicate(Standard.attribute_groups, :frozen?)
+        assert_predicate(Standard.element_groups, :frozen?)
+        assert_raises(FrozenError) { Standard.attribute_groups.clear }
+        assert_raises(FrozenError) { Standard.element_groups << :AgentGroup }
+
+        assert_includes(Standard.attribute_groups, :Core)
+        assert_includes(Standard.element_groups, :Descriptive)
+      end
+
       def test_specification_hash_is_mutation_isolated
         Standard.specification(:svg).clear
 

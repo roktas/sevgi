@@ -26,7 +26,15 @@ module Sevgi
     #   Returns SVG attributes, optionally restricted to one or more attribute groups.
     #   @param groups [Array<String, Symbol>] attribute group names
     #   @return [Set<Symbol>] mutation-isolated attribute-name snapshot
+    #   @raise [Sevgi::ArgumentError] when a group name is invalid or not listed by {.attribute_groups}
+    # @example Discover and apply an attribute group
+    #   Sevgi::Standard.attribute_groups.include?(:Core) #=> true
+    #   Sevgi::Standard.attributes(:Core).include?(:id)  #=> true
     def attributes(...) = Attribute.set(...)
+
+    # Returns accepted attribute group names.
+    # @return [Set<Symbol>] frozen group-name snapshot
+    def attribute_groups = Attribute.groups
 
     # Reports whether an attribute name is recognized by the SVG standard data.
     # @param name [String, Symbol] attribute name
@@ -54,7 +62,15 @@ module Sevgi
     #   Returns SVG elements, optionally restricted to one or more element groups.
     #   @param groups [Array<String, Symbol>] element group names
     #   @return [Set<Symbol>] mutation-isolated element-name snapshot
+    #   @raise [Sevgi::ArgumentError] when a group name is invalid or not listed by {.element_groups}
+    # @example Discover and apply an element group
+    #   Sevgi::Standard.element_groups.include?(:Descriptive) #=> true
+    #   Sevgi::Standard.elements(:Descriptive)                 #=> Set[:desc, :metadata, :title]
     def elements(...) = Element.set(...)
+
+    # Returns accepted element group names.
+    # @return [Set<Symbol>] frozen group-name snapshot
+    def element_groups = Element.groups
 
     # Reports whether an element name is recognized by the SVG standard data.
     # @param name [String, Symbol] element name
