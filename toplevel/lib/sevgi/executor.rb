@@ -90,6 +90,8 @@ module Sevgi
       STATE.current.load(file, ...)
     end
 
+    private_class_method :load
+
     # Executes Ruby source inside a managed Sevgi script scope.
     # @param string [String] source to evaluate
     # @param file [String, nil] source file name used for errors and backtraces
@@ -139,59 +141,54 @@ module Sevgi
       execute_source(source, require:, receiver:, &block)
     end
 
-    def self.capture_error(source, error)
-      acquired = STATE.trap
-      scope = STATE.create
-      scope.capture(source, error).result
-    ensure
-      STATE.restore if acquired
-      STATE.shutdown(scope) if scope
+    class << self
+      private
+
+      def capture_error(source, error)
+        acquired = STATE.trap
+        scope = STATE.create
+        scope.capture(source, error).result
+      ensure
+        STATE.restore if acquired
+        STATE.shutdown(scope) if scope
+      end
+
+      def execute_source(source, require:, receiver:, &block)
+        acquired = false
+        return Result.new(value: nil, error: nil, stack: []) if source.string.empty? && require.nil?
+
+        acquired = STATE.trap
+        scope = STATE.create
+        catch(:result) { run_source(scope, source, require, receiver, &block) }
+        scope.result
+
+      ensure
+        STATE.restore if acquired
+        STATE.shutdown(scope) if scope
+      end
+
+      def run_source(scope, source, library, receiver, &block)
+        ::Kernel.require(library) if library
+        scope.call(source, receiver, &block)
+      rescue ::LoadError => e
+        scope.capture(source, e)
+      end
+
+      def validate_context!(library, receiver)
+        ArgumentError.("Executor library must be a String or nil") unless library.nil? || library.is_a?(::String)
+
+        valid = (receiver in ::Object) && receiver.respond_to?(:public_send) && receiver.respond_to?(:instance_exec)
+        ArgumentError.("Executor receiver must be an executable Object or nil") unless valid
+      end
+
+      def validate_source!(string, file, line)
+        ArgumentError.("Executor source must be a String") unless string.is_a?(::String)
+        ArgumentError.("Executor file must be a String or nil") unless file.nil? || file.is_a?(::String)
+
+        valid = line.nil? || (line.is_a?(::Integer) && line.between?(1, SOURCE_LINE_MAX))
+        ArgumentError.("Executor line must be between 1 and #{SOURCE_LINE_MAX}") unless valid
+      end
     end
-
-    def self.execute_source(source, require:, receiver:, &block)
-      acquired = false
-      return Result.new(value: nil, error: nil, stack: []) if source.string.empty? && require.nil?
-
-      acquired = STATE.trap
-      scope = STATE.create
-      catch(:result) { run_source(scope, source, require, receiver, &block) }
-      scope.result
-
-    ensure
-      STATE.restore if acquired
-      STATE.shutdown(scope) if scope
-    end
-
-    def self.run_source(scope, source, library, receiver, &block)
-      ::Kernel.require(library) if library
-      scope.call(source, receiver, &block)
-    rescue ::LoadError => e
-      scope.capture(source, e)
-    end
-
-    def self.validate_context!(library, receiver)
-      ArgumentError.("Executor library must be a String or nil") unless library.nil? || library.is_a?(::String)
-
-      valid = (receiver in ::Object) && receiver.respond_to?(:public_send) && receiver.respond_to?(:instance_exec)
-      ArgumentError.("Executor receiver must be an executable Object or nil") unless valid
-    end
-
-    def self.validate_source!(string, file, line)
-      ArgumentError.("Executor source must be a String") unless string.is_a?(::String)
-      ArgumentError.("Executor file must be a String or nil") unless file.nil? || file.is_a?(::String)
-
-      valid = line.nil? || (line.is_a?(::Integer) && line.between?(1, SOURCE_LINE_MAX))
-      ArgumentError.("Executor line must be between 1 and #{SOURCE_LINE_MAX}") unless valid
-    end
-
-    private_class_method(
-      :capture_error,
-      :execute_source,
-      :load,
-      :run_source,
-      :validate_context!,
-      :validate_source!
-    )
   end
 
 end
