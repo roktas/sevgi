@@ -411,7 +411,7 @@ module Sevgi
         # @param i [Integer] line index
         # @return [Sevgi::Geometry::Line]
         # @raise [Sevgi::Geometry::Error] when no line exists for index
-        def [](i) = lines[i].tap { |line| Error.("No line exist for index: #{i}") unless line }
+        def [](i) = lines[i].tap { |line| Error.("No line exists for index: #{i}") unless line }
 
         # Returns the bounding rectangle.
         # @return [Sevgi::Geometry::Rect]
@@ -421,7 +421,7 @@ module Sevgi
         # @param i [Integer] point index
         # @return [Sevgi::Geometry::Point]
         # @raise [Sevgi::Geometry::Error] when no point exists for index
-        def call(i) = points[i].tap { Error.("No point exist for index: #{i}") unless it }
+        def call(i) = points[i].tap { Error.("No point exists for index: #{i}") unless it }
 
         # Returns the first segment.
         # @return [Sevgi::Geometry::Segment]
@@ -491,7 +491,7 @@ module Sevgi
           Error.("No segments found") unless segments
 
           [point = position, *segments.map { point = it.ending(point) }].tap do |points|
-            # Perfectionist touch
+            # Share the first point object when the path closes within the current precision.
             points[-1] = points.first if points.first.eq?(points.last)
           end
         end

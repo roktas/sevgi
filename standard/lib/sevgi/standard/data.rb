@@ -172,11 +172,6 @@ module Sevgi
         names.replace(names.flat_map { |name| group?(name) ? list[name] : name }.uniq)
       end
 
-      # For testing purposes
-
-      def charge = data.each_key { expand(it) }
-
-      def flush = (@spec = {})
     end
 
     private_constant :Specification

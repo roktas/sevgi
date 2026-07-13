@@ -271,7 +271,6 @@ module Sevgi
           Pages(*pages, namedview:, page:, &block)
         end
 
-        # Internal symbol which does not show up Symbols Menu
         # @overload symbol!(**attributes)
         #   Builds an Inkscape symbol group hidden from the symbols menu.
         #   @param attributes [Hash] symbol attributes

@@ -134,6 +134,16 @@ module Sevgi
         triangle.points.each_index { assert_same(triangle.points[it], triangle.call(it)) }
       end
 
+      def test_lined_index_errors_name_the_missing_member
+        rect = Rect[2, 3]
+
+        line_error = assert_raises(Error) { rect[99] }
+        point_error = assert_raises(Error) { rect.call(99) }
+
+        assert_equal("No line exists for index: 99", line_error.message)
+        assert_equal("No point exists for index: 99", point_error.message)
+      end
+
       def test_lined_english_factories_follow_subclasses
         calls = []
         klass = Class.new(Polyline) do

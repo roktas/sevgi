@@ -88,7 +88,7 @@ module Sevgi
         define_singleton_method(operation) do |element, *args, **kwargs, &block|
           OperationInapplicableError.("Not a Geometric Element: #{element}") unless element.is_a?(Element)
           unless handler.applicable?(element)
-            OperationInapplicableError.("Unapplicable operation for #{element}: #{handler}")
+            OperationInapplicableError.("Operation not applicable to #{element}: #{handler}")
           end
 
           handler.public_send(operation, element, *args, **kwargs, &block)

@@ -232,7 +232,7 @@ module Sevgi
           hash = @store.reject { |id, _| Attribute.internal?(id) }
           return hash unless hash.key?(:id)
 
-          # A small aesthetic touch: always keep the id attribute first
+          # Keep id first for stable, readable SVG output.
           {id: hash.delete(:id), **hash}
         end
 

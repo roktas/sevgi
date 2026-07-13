@@ -4,7 +4,15 @@ require_relative "../../test_helper"
 
 module Sevgi
   module Standard
-    class SpecificationTest < Minitest::Test
+    class SpecificationCase < Minitest::Test
+      private
+
+      def fill_cache = Specification.send(:data).each_key { Specification.send(:expand, it) }
+
+      def clear_cache = Specification.instance_variable_set(:@spec, {})
+    end
+
+    class SpecificationTest < SpecificationCase
       def test_specified_element_names_are_valid
         Specification.send(:data).each_key { Conform.new(it) }
       end
@@ -87,12 +95,12 @@ module Sevgi
 
       def test_missing_lookup_doesnt_pollute_cache
         refute(Standard.specification(:missing))
-        Specification.send(:charge)
+        fill_cache
 
         cache = Specification.instance_variable_get(:@spec)
         refute_includes(cache.keys, :missing)
       ensure
-        Specification.send(:flush)
+        clear_cache
       end
 
       def test_expand_preserves_raw_specification_data
@@ -113,7 +121,7 @@ module Sevgi
         assert_equal(elements, spec[:elements])
       ensure
         Specification.send(:data).delete(:agentSpec)
-        Specification.send(:flush)
+        clear_cache
       end
 
       def test_expanded_snapshot_is_mutation_isolated
@@ -133,16 +141,16 @@ module Sevgi
         assert_equal(Element[:Descriptive], Specification[:agentSpec][:elements])
       ensure
         Specification.send(:data).delete(:agentSpec)
-        Specification.send(:flush)
+        clear_cache
       end
     end
 
-    class SpecificationConsistencyTest < Minitest::Test
-      def setup = Specification.send(:charge)
+    class SpecificationConsistencyTest < SpecificationCase
+      def setup = fill_cache
 
-      def teardown = Specification.send(:flush)
+      def teardown = clear_cache
 
-      def test_charge_expands_each_specification
+      def test_cache_expands_each_specification
         cache = Specification.instance_variable_get(:@spec)
 
         assert_equal(Specification.send(:data).keys.sort, cache.keys.sort)
