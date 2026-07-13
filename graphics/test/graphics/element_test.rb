@@ -73,6 +73,34 @@ module Sevgi
       end
 
       class ElementClassTest < Minitest::Test
+        def test_construction_rejects_mixed_tree_classes_atomically
+          base = Element.root
+          document = Document::Minimal.root
+          calls = 0
+          value = Object.new.tap do |object|
+            object.define_singleton_method(:to_s) {
+              calls += 1
+              "red"
+            }
+          end
+
+          [
+            -> { Document::Minimal.element(:rect, {fill: value}, parent: base) { calls += 1 } },
+            -> { Element.element(:rect, {fill: value}, parent: document) { calls += 1 } }
+          ].each do |construction|
+            error = assert_raises(Sevgi::ArgumentError, &construction)
+
+            assert_match(/parent type/i, error.message)
+          end
+
+          assert_empty(base.children)
+          assert_empty(document.children)
+          assert_equal(0, calls)
+
+          child = Document::Minimal.element(:rect, parent: document)
+          assert_same(document, child.parent)
+        end
+
         def test_element_valid_is_total
           [
             true,
