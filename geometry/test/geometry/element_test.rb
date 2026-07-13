@@ -279,6 +279,20 @@ module Sevgi
         assert_instance_of(Parallelogram, square.rotate(30))
       end
 
+      def test_affine_transform_inventory_is_public_on_consumers
+        transforms = %i[reflect rotate scale skew skew_x skew_y translate]
+        custom = Element.lined(1, open: true)
+        registry = Geometry.const_get(:Affinity, false)
+
+        assert_equal(transforms, registry.public_instance_methods(false).sort)
+        [Point, Line, Element::Lined, custom].each do |consumer|
+          assert_equal(transforms, transforms.select { consumer.public_method_defined?(it) })
+        end
+
+        refute_includes(Geometry.constants(false), :Affinity)
+        assert_raises(NameError) { ::Sevgi::Geometry::Affinity }
+      end
+
       def test_widened_rect_draws_transformed_points
         attrs = nil
         node = Object.new

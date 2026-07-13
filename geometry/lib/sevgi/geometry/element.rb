@@ -359,7 +359,7 @@ module Sevgi
         #   # @return [Sevgi::Geometry::Element::Lined]
         #   # @raise [Sevgi::Geometry::Error] when an offset is not a finite real number
         #   def translate(dx, dy = Undefined); end
-        Geometry::Affinity.instance_methods.each do |transform|
+        Affinity.public_instance_methods(false).each do |transform|
           define_method(transform) do |*args, **kwargs, &block|
             transformed = points.map { it.public_send(transform, *args, **kwargs, &block) }
             self.class.send(:affine, *transformed)

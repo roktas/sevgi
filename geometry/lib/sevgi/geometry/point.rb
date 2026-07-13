@@ -2,7 +2,8 @@
 
 module Sevgi
   module Geometry
-    # Affine transforms shared by immutable geometry tuples.
+    # Implementation owner and registry for public affine transformations on Point and lined elements.
+    # @api private
     module Affinity
       # Reflects a point across the selected axes.
       #
@@ -87,6 +88,52 @@ module Sevgi
     #     # @example Create a point with mathematical notation
     #     #   Sevgi::Geometry::Point[3, 5]
     #     def self.[](x, y); end
+    #
+    #     # Returns a point reflected across the selected axes.
+    #     # @param x [Boolean] reflect across the x-axis
+    #     # @param y [Boolean] reflect across the y-axis
+    #     # @return [Sevgi::Geometry::Point]
+    #     # @raise [Sevgi::Geometry::Error] when a flag is not Boolean
+    #     def reflect(x: true, y: true); end
+    #
+    #     # Returns a point rotated around the origin.
+    #     # @param a [Numeric] clockwise angle in degrees
+    #     # @return [Sevgi::Geometry::Point]
+    #     # @raise [Sevgi::Geometry::Error] when angle is not a finite real number
+    #     def rotate(a); end
+    #
+    #     # Returns a point scaled from the origin.
+    #     # @param sx [Numeric] x scale factor
+    #     # @param sy [Numeric, Sevgi::Undefined] y scale factor, defaulting to sx
+    #     # @return [Sevgi::Geometry::Point]
+    #     # @raise [Sevgi::Geometry::Error] when a scale is not a finite real number
+    #     def scale(sx, sy = Undefined); end
+    #
+    #     # Returns a point skewed from the origin.
+    #     # @param ax [Numeric] x-axis skew angle in degrees
+    #     # @param ay [Numeric, Sevgi::Undefined] y-axis skew angle in degrees, defaulting to ax
+    #     # @return [Sevgi::Geometry::Point]
+    #     # @raise [Sevgi::Geometry::Error] when an angle is not a finite real number
+    #     def skew(ax, ay = Undefined); end
+    #
+    #     # Returns a point skewed along x.
+    #     # @param a [Numeric] skew angle in degrees
+    #     # @return [Sevgi::Geometry::Point]
+    #     # @raise [Sevgi::Geometry::Error] when angle is not a finite real number
+    #     def skew_x(a); end
+    #
+    #     # Returns a point skewed along y.
+    #     # @param a [Numeric] skew angle in degrees
+    #     # @return [Sevgi::Geometry::Point]
+    #     # @raise [Sevgi::Geometry::Error] when angle is not a finite real number
+    #     def skew_y(a); end
+    #
+    #     # Returns a translated point.
+    #     # @param dx [Numeric] x offset
+    #     # @param dy [Numeric, Sevgi::Undefined] y offset, defaulting to dx
+    #     # @return [Sevgi::Geometry::Point]
+    #     # @raise [Sevgi::Geometry::Error] when an offset is not a finite real number
+    #     def translate(dx, dy = Undefined); end
     #   end
     Point = Data.define(:x, :y) do
       include Comparable
@@ -205,6 +252,8 @@ module Sevgi
 
       alias_method :==, :eql?
     end
+
+    private_constant :Affinity
 
     # Origin point in SVG/screen coordinates.
     Origin = Point.origin
