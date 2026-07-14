@@ -8,21 +8,35 @@ group = "Start"
 `require "sevgi"` loads the toolkit and adds one global entry point: `SVG(...)`. Library code can start a document with
 the same word used in a `.sevgi` script, but it does not pull every Sevgi helper into the application's method scope.
 
-## Build and render
+## Build and compose
 
 ```ruby
 require "sevgi"
 
-document = SVG(:minimal, width: 120, height: 40) do
-  rect width: 120, height: 40, rx: 8, fill: "midnightblue"
-  text "Sevgi", x: 60, y: 25, fill: "white", "text-anchor": "middle"
+drawing = SVG :minimal, width: 240, height: 64 do
+  text "Payment received", x: 52, y: 27, "font-weight": "bold"
+  text "$48.00", x: 52, y: 46, fill: "#166534"
 end
 
-svg = document.Render
+status = SVG :minimal do
+  g transform: "translate(28 32)" do
+    circle r: 14, fill: "#16a34a"
+    path d: "M -6 0 L -2 5 L 7 -6", fill: "none", stroke: "white", "stroke-width": 2
+  end
+end.first
+
+background = SVG(:minimal) { rect width: 240, height: 64, rx: 10, fill: "#f0fdf4" }.first
+
+drawing.Append status
+drawing.Prepend background
 ```
 
-`Render` returns a string. Write it to a file, return it from an HTTP endpoint, or compare it in a test. If you load only
-`sevgi/graphics`, the component-level constructor is `Sevgi::Graphics.SVG`.
+`Append` and `Prepend` transfer existing elements into the document, so independently built fragments can become one
+drawing. Here the background moves behind the original text, while the status icon moves after it. The same operations
+also reorder elements that already share a parent.
+
+Call `drawing.Render` when the surrounding application needs the SVG string. If you load only `sevgi/graphics`, the
+component-level constructor is `Sevgi::Graphics.SVG`.
 
 ## Short and explicit forms
 
@@ -55,7 +69,7 @@ require "sevgi"
 
 Sevgi.Paper 85, 55, :card
 
-card = SVG(:minimal, :card) do
+card = SVG :minimal, :card do
   rect width: "100%", height: "100%", rx: 3
 end
 
@@ -93,14 +107,16 @@ Callable modules keep related drawing steps together without adding global metho
 [`Layer!`](/dsl/#layer-callable-bang), or [`Symbols`](/dsl/#symbols), extend it with `Sevgi::Module`:
 
 ```ruby
-dot = Module.new do
+status = Module.new do
   extend Sevgi::Module
 
-  base { circle r: 5, fill: "gold" }
-  def call(x:) = circle(cx: x, r: 2, fill: "black")
+  base { circle r: 10, fill: "seagreen" }
+  def call(label:) = text label, y: 4, fill: "white", "text-anchor": "middle"
 end
 
-SVG(:minimal) { Call dot, x: 8 }.Render
+SVG :minimal, width: 24, height: 24 do
+  g(transform: "translate(12 12)") { Call status, label: "OK" }
+end.Render
 ```
 
 `Module.new` creates an ordinary Ruby module. `extend Sevgi::Module` makes its public instance methods available as
@@ -124,15 +140,15 @@ module StatusIcons
 
   module Alert
     base { circle r: 5, fill: "tomato" }
-    def call(x:) = text("!", x:, y: 3, "text-anchor": "middle")
+    def call(x:) = text "!", x:, y: 3, "text-anchor": "middle"
   end
 
   module Ready
-    def call(x:) = circle(cx: x, r: 3, fill: "seagreen")
+    def call(x:) = circle cx: x, r: 3, fill: "seagreen"
   end
 end
 
-SVG(:minimal) do
+SVG :minimal do
   Call StatusIcons::Alert, x: 5
   Call StatusIcons::Ready, x: 15
 end.Render

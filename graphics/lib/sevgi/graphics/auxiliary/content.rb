@@ -19,7 +19,7 @@ module Sevgi
     #     end
     #   end
     #
-    #   SVG(:minimal) { text(Emphasis["important & safe"]) }.Render
+    #   SVG(:minimal) { text Emphasis["important & safe"] }.Render
     class Content
       private_class_method :new
 

@@ -13,12 +13,12 @@ Ruby objects, not another drawing DSL.
 `Grid` fits major and minor ruler intervals into a canvas. It is available as a top-level constructor in scripts:
 
 ```ruby
-canvas = SVG.canvas(width: 60, height: 40, margins: [4, 6])
-grid = Grid canvas, unit: 1, multiple: 5
+canvas = SVG.canvas width: 80, height: 50, margins: 5
+grid = Grid canvas, unit: 1, multiple: 10
 
-SVG(:inkscape, grid.canvas) do
-  grid.x.major.lines.each { Draw it, stroke: "silver" }
-  grid.y.major.lines.each { Draw it, stroke: "silver" }
+SVG :inkscape, grid.canvas do
+  Draw grid.x.major.lines, class: %w[guide horizontal], stroke: "silver"
+  Draw grid.y.major.lines, class: %w[guide vertical], stroke: "silver"
 end.Render
 ```
 
@@ -36,7 +36,7 @@ or `TileY` instead when you want repeated SVG `<use>` elements.
 SVG output needs no native graphics libraries. PDF and PNG export are optional:
 
 ```ruby
-drawing = SVG(width: 40, height: 40) do
+drawing = SVG width: 40, height: 40 do
   circle cx: 20, cy: 20, r: 16, fill: "tomato"
 end
 

@@ -46,7 +46,7 @@ Use `Decompile` when you need to examine a selection, its attributes, or its chi
 `Include` evaluates a selected node under the current SVG element; `IncludeChildren` imports only its children:
 
 ```ruby
-SVG(:minimal) do
+SVG :minimal do
   g(id: "imported") { Include "badge.svg", "mark" }
 end.Render
 ```

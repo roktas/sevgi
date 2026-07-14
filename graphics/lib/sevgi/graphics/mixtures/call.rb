@@ -13,18 +13,18 @@ module Sevgi
     #   Widget = Module.new do
     #     extend Sevgi::Graphics::Module
     #
-    #     base { css(".widget" => { fill: "red" }) }
+    #     base { css ".widget" => { fill: "red" } }
     #
     #     def call(id)
-    #       draw(id)
+    #       draw id
     #     end
     #
     #     private
     #
-    #     def draw(id) = rect(id:, class: "widget")
+    #     def draw(id) = rect id:, class: "widget"
     #   end
     #
-    #   SVG { Call(Widget, "box") }
+    #   SVG { Call Widget, "box" }
     module Module
       # Ephemeral callable receiver that preserves a module's normal method lookup while forwarding drawing operations
       # to the current element.
@@ -228,15 +228,15 @@ module Sevgi
     #     extend Sevgi::Graphics::Modules
     #
     #     module Alert
-    #       base { css(".alert" => { fill: "red" }) }
+    #       base { css ".alert" => { fill: "red" } }
     #
     #       def call(id)
-    #         circle(id:, class: "alert", r: 5)
+    #         circle id:, class: "alert", r: 5
     #       end
     #     end
     #   end
     #
-    #   SVG { Call(Icons::Alert, "warning") }
+    #   SVG { Call Icons::Alert, "warning" }
     # @see Sevgi::Graphics::Module
     module Modules
       # Propagates the recursive contract when a module constant is added.

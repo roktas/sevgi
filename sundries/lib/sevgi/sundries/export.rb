@@ -13,7 +13,7 @@ module Sevgi
     # gems are unavailable.
     #
     # @example Export SVG source to a sized PNG
-    #   svg = Sevgi::Graphics.SVG(:minimal) { circle(cx: 5, cy: 5, r: 4) }.Render
+    #   svg = Sevgi::Graphics.SVG(:minimal) { circle cx: 5, cy: 5, r: 4 }.Render
     #   Sevgi::Sundries::Export.call(svg, "drawing.png", width: 320)
     module Export
       # File extensions mapped to export format names.

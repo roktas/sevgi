@@ -31,7 +31,7 @@ spelling:
 ```ruby
 require "sevgi"
 
-drawing = SVG(:minimal) do
+drawing = SVG :minimal do
   circle cx: 12, cy: 12, r: 10, fill: "tomato"
 end
 

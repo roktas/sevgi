@@ -16,7 +16,7 @@ module Sevgi
   # SVG document builder and DSL namespace.
   #
   # @example Build and render a minimal SVG document
-  #   drawing = Sevgi::Graphics.SVG(:minimal, width: 10, height: 10) do
+  #   drawing = Sevgi::Graphics.SVG :minimal, width: 10, height: 10 do
   #     circle cx: 5, cy: 5, r: 4
   #   end
   #   drawing.Render #=> "<svg width=\"10\" height=\"10\">\n  <circle cx=\"5\" cy=\"5\" r=\"4\"/>\n</svg>"

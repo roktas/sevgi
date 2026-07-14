@@ -67,7 +67,7 @@ module Sevgi
         # A pre-existing `-id` takes precedence over the visible id.
         # @return [Sevgi::Graphics::Element] self
         # @example Hide ids while retaining their source identity
-        #   document = SVG { rect(id: "source-id") }
+        #   document = SVG { rect id: "source-id" }
         #   document.Disidentify
         #   document.children.first[:"-id"] # => "source-id"
         def Disidentify

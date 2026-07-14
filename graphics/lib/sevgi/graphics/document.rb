@@ -89,7 +89,7 @@ module Sevgi
       # @raise [Sevgi::ArgumentError] when the document profile or root XML attributes are invalid
       # @example Extend a configured class while inheriting its profile
       #   Card = Class.new(Document::Minimal)
-      #   Document.(Card) { rect(width: 10, height: 5) }
+      #   Document.(Card) { rect width: 10, height: 5 }
       def self.call(document, canvas = Undefined, **, &block)
         klass = case document
         when ::Class
@@ -431,7 +431,7 @@ module Sevgi
 
         # Renders this document after its optional pre-render checks.
         # @example Render a document directly with separate check and renderer options
-        #   document = Sevgi::Graphics.SVG(:minimal) { rect(width: 3) }
+        #   document = Sevgi::Graphics.SVG(:minimal) { rect width: 3 }
         #   document.call(lint: false, style: :inline)
         # @param options [Hash] `lint` and `validate` check switches plus renderer options accepted by
         #   {Sevgi::Graphics::Mixtures::Render#Render}

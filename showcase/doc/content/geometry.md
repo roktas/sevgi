@@ -40,7 +40,10 @@ as an SVG transform:
 inner = Sevgi::Geometry::Rect[8, 4]
 outer = Sevgi::Geometry::Rect[40, 20]
 
-SVG(:minimal) { rect(width: 8, height: 4).Align :center, inner:, outer: }.Render
+SVG :minimal do
+  shape = rect width: 8, height: 4
+  shape.Align :center, inner:, outer:
+end.Render
 ```
 
 ## Drawing {#drawing}
@@ -48,9 +51,9 @@ SVG(:minimal) { rect(width: 8, height: 4).Align :center, inner:, outer: }.Render
 In an Inkscape document, `Draw` converts geometry into suitable SVG elements:
 
 ```ruby
-SVG(:inkscape) do
-  line = Sevgi::Geometry::Line.([2, 2], [18, 10])
-  Draw line, stroke: "tomato"
+SVG :inkscape do
+  trim = Sevgi::Geometry::Rect[80, 50, position: [5, 5]]
+  Draw trim.lines, class: %w[guide trim], stroke: "tomato"
 end.Render
 ```
 
@@ -59,8 +62,9 @@ end.Render
 Sweeps intersect parallel lines with a closed geometry shape. `Hatch` draws the result:
 
 ```ruby
-SVG(:inkscape) do
-  Hatch Sevgi::Geometry::Rect[24, 16], angle: 30, step: 3, stroke: "black"
+SVG :inkscape do
+  no_print = Sevgi::Geometry::Rect[48, 18, position: [6, 6]]
+  Hatch no_print, angle: 30, step: 3, class: %w[guide no-print], stroke: "black"
 end.Render
 ```
 

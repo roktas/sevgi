@@ -43,9 +43,9 @@ module Sevgi
         # @example Supply a stable id for an anonymous callable
         #   drawing = Module.new do
         #     extend Sevgi::Graphics::Module
-        #     def call = circle(r: 5)
+        #     def call = circle r: 5
         #   end
-        #   Sevgi::Graphics.SVG(:inkscape) { Group(drawing, attributes: {id: "drawing"}) }
+        #   Sevgi::Graphics.SVG(:inkscape) { Group drawing, attributes: {id: "drawing"} }
         # @param mod [Module] module extended with {Sevgi::Graphics::Module}
         # @param args [Array<Object>] callable arguments
         # @param attributes [Hash] group attributes; String and Symbol names are normalized and must not collide

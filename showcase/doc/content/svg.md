@@ -34,7 +34,7 @@ is an SVG element, while `LinearGradient` would be a different Ruby call.
 Use `Element` when producing foreign XML or when a qualified name cannot be expressed as a bare Ruby call:
 
 ```ruby
-SVG(:minimal) do
+SVG :minimal do
   Element "catalog:item", "featured", "catalog:rank": 1
 end.Render
 ```

@@ -17,7 +17,7 @@ require "sevgi/graphics"
 ## Example
 
 ```ruby
-doc = Sevgi::Graphics.SVG(:minimal) { rect(width: 3, height: 5) }
+doc = Sevgi::Graphics.SVG(:minimal) { rect width: 3, height: 5 }
 doc.call
 ```
 

@@ -46,7 +46,7 @@ The runner installs the full top-level API in a managed scope. The script needs 
 ```ruby
 Paper 85, 55, :card
 
-SVG(:minimal, :card) do
+SVG :minimal, :card do
   rect width: "100%", height: "100%", rx: 3
 end.Save
 ```

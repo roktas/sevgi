@@ -231,9 +231,9 @@ module Sevgi
 
         # Evaluates a block in the parent element context.
         # @example Add a sibling while forwarding its id
-        #   root = SVG(id: "root")
-        #   child = root.g(id: "child")
-        #   child.With("sibling") { |id| line(id:) }
+        #   root = SVG id: "root"
+        #   child = root.g id: "child"
+        #   child.With("sibling") { |id| line id: }
         # @param args [Array<Object>] positional arguments passed to the block
         # @param receiver [Sevgi::Graphics::Element] element whose parent becomes the block receiver
         # @param kwargs [Hash] keyword arguments passed to the block
@@ -254,9 +254,9 @@ module Sevgi
 
         # Evaluates a block in this element context.
         # @example Select a receiver without consuming the block argument
-        #   target = SVG(id: "target")
-        #   source = SVG(id: "source")
-        #   source.Within("child", receiver: target) { |id| g(id:) }
+        #   target = SVG id: "target"
+        #   source = SVG id: "source"
+        #   source.Within("child", receiver: target) { |id| g id: }
         # @param args [Array<Object>] positional arguments passed to the block
         # @param receiver [Object] block receiver
         # @param kwargs [Hash] keyword arguments passed to the block

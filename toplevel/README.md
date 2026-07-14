@@ -17,8 +17,8 @@ require "sevgi"
 ## Example
 
 ```ruby
-SVG(:minimal) do
-  rect(width: 3, height: 5)
+SVG :minimal do
+  rect width: 3, height: 5
 end.call
 ```
 
