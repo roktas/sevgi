@@ -37,7 +37,7 @@ jobs:
     - name: Ruby 🥁
       uses: ruby/setup-ruby@d45b1a4e94b71acab930e56e79c6aa188764e7f9 # v1.316.0
       with:
-        ruby-version: "4.0.5"
+        ruby-version: "4.0.6"
         bundler-cache: true
     - name: Lint 🔬
       run: bundle exec rake lint
@@ -77,7 +77,7 @@ jobs:
     - name: Ruby 🥁
       uses: ruby/setup-ruby@d45b1a4e94b71acab930e56e79c6aa188764e7f9 # v1.316.0
       with:
-        ruby-version: "4.0.5"
+        ruby-version: "4.0.6"
     - name: Configure RubyGems trusted publishing 🔑
       uses: rubygems/configure-rubygems-credentials@dc5a8d8553e6ee01fc26761a49e99e733d17954a # v2.1.0
     - name: Verify and push packages 💎

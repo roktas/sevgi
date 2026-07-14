@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: ["3.4", "4.0.5"]
+        ruby: ["3.4", "4.0.6"]
     steps:
     - name: Checkout 🛎️
       uses: actions/checkout@9f698171ed81b15d1823a05fc7211befd50c8ae0 # v6.0.3
@@ -36,7 +36,7 @@ jobs:
     - name: API docs 📚
       run: bundle exec rake doc:check
     - name: Upload API docs 📚
-      if: matrix.ruby == '4.0.5'
+      if: matrix.ruby == '4.0.6'
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
       with:
         name: api-docs
@@ -63,7 +63,7 @@ jobs:
     - name: Ruby 🥁
       uses: ruby/setup-ruby@d45b1a4e94b71acab930e56e79c6aa188764e7f9 # v1.316.0
       with:
-        ruby-version: "4.0.5"
+        ruby-version: "4.0.6"
         bundler-cache: true
     - name: Coverage 🧮
       run: bundle exec rake coverage
