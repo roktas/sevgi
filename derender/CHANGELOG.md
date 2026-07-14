@@ -45,7 +45,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Normalized numeric slots owned by path, shape, transform, tile, and Inkscape page helpers to finite SVG number spelling;
   arbitrary user-supplied attributes remain untouched.
 - Made named callable wrapper and symbol ids stable while omitting defaults for anonymous modules, and indexed every
-  rendered id value—including false and numeric values—through its serialized string.
+  rendered id value, including false and numeric values, through its serialized string.
 - Preserved signed Geometry constraint directions, rejected invalid sweep/export channels through Sevgi error families,
   and validated raw output paths before expansion or rendering.
 - Made callable module configuration copy-owned and freeze-aware, document subclasses inherit their nearest profile, and

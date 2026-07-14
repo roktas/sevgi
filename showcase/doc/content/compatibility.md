@@ -5,30 +5,30 @@ weight = 21
 group = "More"
 +++
 
-Sevgi is designed to support script-style SVG generation through a compact Ruby DSL. The public boundary for users is
-the documented DSL and the tested showcase workflow, not every internal helper or every downstream usage pattern.
+Sevgi supports two public workflows: `.sevgi` scripts and Ruby library calls. You can rely on the DSL and components
+described in this guide, along with the examples that the test suite runs. Internal helpers may change without notice.
 
 ## What is stable
 
-The stable boundary for Sevgi users is the Sevgi DSL, the documented components, and the runnable showcase examples.
-Those examples are the best starting point because they are executable and tested with the current source tree.
+The public API consists of the documented DSL and component methods. The runnable examples show how those pieces fit
+together. Start there if you are unsure about a task: the examples are short enough to take apart, and the test suite
+executes them against the current source.
 
 Prefer documented DSL words in scripts: `SVG`, SVG element names, and helper methods such as `TileX`. Regular Ruby code
 belongs around the DSL when the drawing needs loops, data structures, calculations, or small helper objects.
 
-The generated API reference is published on [RubyDoc](https://www.rubydoc.info/gems/sevgi). Use it for component-level
-Ruby APIs; use this site and the showcase examples for script-style workflows.
+The generated [API reference](https://www.rubydoc.info/gems/sevgi) covers component-level Ruby APIs. This guide is the
+better reference for scripts and drawing tasks.
 
-## What is not a contract
+## Outside the public API
 
 Implementation details are not public API. Avoid depending on private constants, registry internals, generated helper
 classes, cache state, or undocumented method aliases.
 
-If a script needs a behavior that is not covered by the docs or examples, treat that as a design question first. The
-right next step may be documenting an existing public behavior, adding a tested helper, or changing the script to use a
-more direct SVG construct.
+If the docs and examples do not cover a behavior, first check whether a direct SVG element will do the job. Otherwise,
+the missing piece may need a documented helper and a test before scripts can safely depend on it.
 
 ## Version choice
 
-For reproducible documents, pin the Sevgi version used to generate them. For exploratory work, using the current source
-tree is fine, but generated SVG should be reviewed when the dependency changes.
+Pin the Sevgi version when generated documents must be reproducible. The current source tree is fine for experiments,
+but inspect the SVG again after changing versions.

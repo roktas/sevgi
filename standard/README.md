@@ -1,6 +1,6 @@
 # Sevgi Standard
 
-SVG element, attribute, and conformance data used by Sevgi validation.
+Sevgi Standard supplies the SVG element and attribute data used by validation.
 
 ## Install
 
@@ -27,7 +27,7 @@ Requires Ruby 3.4.0 or newer. CI verifies Ruby 3.4.0 and the current development
 
 ## Native prerequisites
 
-None beyond Ruby and this gem's Ruby dependencies.
+This gem needs only Ruby and its Ruby dependencies.
 
 ## Links
 

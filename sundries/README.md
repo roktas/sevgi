@@ -1,6 +1,6 @@
 # Sevgi Sundries
 
-Helper objects and export tools for Sevgi drawings.
+Sevgi Sundries contains shared layout objects and optional export tools.
 
 ## Install
 

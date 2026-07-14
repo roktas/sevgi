@@ -1,6 +1,6 @@
 # Sevgi Graphics
 
-Core SVG DSL, document profiles, and rendering behavior.
+Sevgi Graphics implements the SVG DSL, document profiles, and rendering.
 
 ## Install
 
@@ -27,7 +27,7 @@ Requires Ruby 3.4.0 or newer. CI verifies Ruby 3.4.0 and the current development
 
 ## Native prerequisites
 
-None beyond Ruby and this gem's Ruby dependencies.
+This gem needs only Ruby and its Ruby dependencies.
 
 ## Links
 

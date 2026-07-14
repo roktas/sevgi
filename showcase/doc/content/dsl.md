@@ -5,13 +5,13 @@ weight = 11
 group = "Core"
 +++
 
-Sevgi speaks two related vocabularies. Lowercase calls such as `rect`, `circle`, and `linearGradient` are SVG element
-names. With the full `sevgi` gem loaded, Sevgi accepts known SVG elements during dispatch and validates their
-attributes, content, and nesting before normal output.
+The DSL has two related vocabularies. Lowercase calls such as `rect`, `circle`, and `linearGradient` are SVG element
+names. The full `sevgi` gem recognizes standard elements and checks their attributes, content, and nesting before
+writing the document.
 
 Sevgi's own drawing words usually begin with a capital letter, which keeps operations such as `Tile`, `Rotate`, and
-`Include` visually distinct from SVG. A few deliberate lowercase words—such as `css`, `layer`, and `base`—are included
-here as well. Ordinary Ruby object methods and exhaustive signatures belong in the API reference.
+`Include` visually distinct from SVG. A few deliberate lowercase words, including `css`, `layer`, and `base`, appear
+here too. Ordinary Ruby methods and exhaustive signatures belong in the API reference.
 
 ## SVG elements {#svg-elements}
 
@@ -33,7 +33,8 @@ element vocabulary.
 
 ## Browse by task {#browse-by-task}
 
-Themes overlap on purpose: `Include` is both composition and round trip, while `Grid` is both layout and a script tool.
+Some words appear in more than one group. `Include`, for example, belongs to both composition and round trip. `Grid`
+belongs to layout and script tools.
 
 {{ dsl_index() }}
 

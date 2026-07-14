@@ -5,8 +5,8 @@ weight = 2
 group = "Start"
 +++
 
-Sevgi has one drawing model and two comfortable entry points. Choose by ownership: use a `.sevgi` script when the
-drawing is the program; use the Ruby API when the drawing is part of a larger program.
+Both modes build the same SVG documents. Use a `.sevgi` script when the drawing is the program. Use the Ruby API when a
+larger application owns the drawing.
 
 ## Script mode
 
@@ -20,12 +20,13 @@ SVG :minimal do
 end.Save
 ```
 
-This is the shortest path for generated assets, plotter inputs, templates, and build steps. See [Script Mode](@/script-mode.md).
+Scripts work well for generated assets, plotter input, and build jobs. [Script Mode](@/script-mode.md) covers the
+runner and its top-level API.
 
 ## Library mode
 
-`require "sevgi"` deliberately provides the same short `SVG` entry point, so moving a drawing into an application does
-not require a different spelling:
+`require "sevgi"` provides the same short `SVG` entry point. Moving a drawing into an application does not change its
+spelling:
 
 ```ruby
 require "sevgi"
@@ -37,17 +38,15 @@ end
 File.write("badge.svg", drawing.Render)
 ```
 
-The difference is the surrounding scope and lifecycle. A Sevgi script receives the complete top-level API and its
-output helpers automatically. A Ruby application receives the short `SVG` constructor, owns the resulting document,
-and can reach the rest of the API explicitly through `Sevgi`, such as `Sevgi.Paper(...)`. `Sevgi.SVG(...)` is also
-available when an explicit namespace reads better; it builds the same document as `SVG(...)`.
+The surrounding scope is different. A Sevgi script gets the full top-level API and output helpers. A Ruby application
+gets the short `SVG` constructor, then keeps the resulting document. Other entry points remain available through
+`Sevgi`, for example `Sevgi.Paper(...)`. You can also write `Sevgi.SVG(...)`; it builds the same document as `SVG(...)`.
 
-This works well in services, tests, gems, and applications that already own their output lifecycle. See [Library
-Mode](@/library-mode.md) for the namespace choices.
+Library mode fits code that returns SVG in an HTTP response, compares it in a test, or writes it through an existing
+storage layer. [Library Mode](@/library-mode.md) explains the namespace choices.
 
 ## Do examples need both forms?
 
 Usually no. Repeating every example obscures the idea being taught. This site labels context in the DSL catalog and
-shows paired examples only where the boundary matters—document construction, reusable modules, loading, and output.
-Inside an `SVG` block the drawing vocabulary is the same in both modes; qualification changes how Ruby finds an entry
-point, not how Sevgi draws.
+uses paired examples only where the forms behave differently, such as document construction, loading, and output.
+Inside an `SVG` block, both modes use the same drawing words. Qualification only changes how Ruby finds the entry point.

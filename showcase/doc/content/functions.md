@@ -5,8 +5,8 @@ weight = 15
 group = "Toolkit"
 +++
 
-`Sevgi::F` is the shared function namespace used across the toolkit. It covers precise numeric helpers, strings, files,
-shell execution, and terminal color. Most drawings only meet its math helpers directly.
+`Sevgi::F` collects helpers shared by the Sevgi components. It includes numeric operations as well as string, file,
+shell, and terminal helpers. Drawings most often use its math methods.
 
 ```ruby
 Sevgi::F.with_precision(3) do
@@ -15,6 +15,5 @@ Sevgi::F.with_precision(3) do
 end
 ```
 
-Precision is thread-local and scoped overrides are preferred. A per-call `precision:` is useful for one calculation.
-Use the [API reference](https://www.rubydoc.info/gems/sevgi-function) for the full function inventory; this guide keeps
-the focus on drawing workflows.
+Precision belongs to the current thread. Use `with_precision` for a block or pass `precision:` for one calculation.
+The [API reference](https://www.rubydoc.info/gems/sevgi-function) lists the rest of the function module.

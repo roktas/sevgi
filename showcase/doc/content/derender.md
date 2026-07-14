@@ -5,8 +5,8 @@ weight = 14
 group = "Toolkit"
 +++
 
-Derender turns existing SVG or XML back into readable Sevgi source. It is useful at the boundary with visual editors:
-start from an artifact, recover a compact Ruby representation, then decide whether to regenerate, include, or inspect it.
+Derender turns SVG or XML into readable Sevgi source. It is handy when a drawing starts in a visual editor but needs to
+end up in code. Convert the file, then regenerate it, include part of it, or inspect its tree.
 
 ## The round trip
 
@@ -14,9 +14,8 @@ start from an artifact, recover a compact Ruby representation, then decide wheth
 SVG/XML file → immutable Derender node → Sevgi source → evaluated SVG tree
 ```
 
-The conversion preserves element names, attributes, text, comments, CDATA, and child order. Generated source is an
-honest representation of the XML tree; it is not an attempt to rediscover the higher-level program that originally
-produced it.
+The conversion keeps element names, attributes, text, comments, CDATA, and child order. It represents the XML tree as
+Ruby. It cannot recover the loops, helper methods, or other higher-level code that may have produced the original file.
 
 ## Generate source
 
@@ -40,7 +39,7 @@ puts node.name
 puts node.attributes
 ```
 
-Use this when selection, attributes, or tree structure matter more than generated source.
+Use `Decompile` when you need to examine a selection, its attributes, or its children without generating source.
 
 ## Evaluate and include {#evaluate}
 
@@ -52,8 +51,8 @@ SVG(:minimal) do
 end.Render
 ```
 
-At library level the corresponding APIs are `Sevgi::Derender.derender_file`, `decompile_file`, `evaluate_file`, and
-`evaluate_children_file`. Prefer those explicit methods when an application already owns file IO and document objects.
+Library code can call `Sevgi::Derender.derender_file`, `decompile_file`, `evaluate_file`, and `evaluate_children_file`.
+These methods fit applications that already manage their own files and document objects.
 
-Derender's catalog entries stay brief and link here because selection, conversion, and evaluation are one mechanism,
-not three unrelated DSL tricks.
+The catalog links its Derender entries back here because selection, conversion, and evaluation all use this same
+mechanism.

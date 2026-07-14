@@ -8,8 +8,8 @@ Gem::Specification.new do |s|
   s.email = "roktas@gmail.com"
   s.license = "GPL-3.0-or-later"
   s.version = version
-  s.summary = "SVG Validation for the Sevgi toolkit."
-  s.description = "Validates elements and attributes according to the SVG specification."
+  s.summary = "SVG element and attribute validation for Sevgi."
+  s.description = "Checks generated SVG against standard element and attribute rules."
   s.homepage = "https://sevgi.roktas.dev"
   s.files = Dir.chdir(__dir__) { Dir["CHANGELOG.md", "LICENSE", "README.md", "lib/**/*"] }
   s.required_ruby_version = ">= 3.4.0"

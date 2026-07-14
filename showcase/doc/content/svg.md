@@ -5,8 +5,9 @@ weight = 10
 group = "Core"
 +++
 
-An SVG document is an element tree with a document profile. Lowercase element calls build the tree; capitalized Sevgi
-words operate on it. The standard component checks known SVG names, attributes, content, and parent/child relations.
+An SVG document is an element tree plus a document profile. Lowercase calls add SVG elements to the tree. Sevgi's
+capitalized words move, copy, group, or otherwise operate on those elements. The standard component checks known SVG
+names and their allowed attributes, content, and parents.
 
 ## Construct a document
 
@@ -26,9 +27,9 @@ The default profile includes a fuller preamble and namespaces. `:minimal` is use
 
 ## Element dispatch {#elements}
 
-Known SVG element names are accepted dynamically, so the DSL does not need one Ruby method per SVG release. Sevgi then
-validates the resulting standard SVG before checked output. Names are case-sensitive: `linearGradient` follows SVG,
-while `LinearGradient` would be a different Ruby call.
+The DSL recognizes SVG element names dynamically, so it does not need a Ruby method for every element in each SVG
+release. Sevgi validates the resulting standard SVG before checked output. Names are case-sensitive: `linearGradient`
+is an SVG element, while `LinearGradient` would be a different Ruby call.
 
 Use `Element` when producing foreign XML or when a qualified name cannot be expressed as a bare Ruby call:
 
@@ -40,9 +41,9 @@ end.Render
 
 ## Validation lifecycle
 
-`Render`, `Save`, and `Out` prepare a document before output. `PreRender(validate: true, lint: true)` makes that phase
-explicit; `Validate()` and `Lint()` are available when a workflow needs an earlier checkpoint. Deliberately foreign XML
-should use an appropriate profile or direct rendering strategy instead of pretending it is standard SVG.
+`Render`, `Save`, and `Out` prepare a document before writing it. Call `PreRender(validate: true, lint: true)` to run
+that phase yourself, or use `Validate()` and `Lint()` for an earlier check. For non-SVG XML, choose a suitable document
+profile or render directly instead of running the standard SVG checks.
 
 For the standard vocabulary, use the
 [MDN SVG element reference](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element). For Sevgi operations,

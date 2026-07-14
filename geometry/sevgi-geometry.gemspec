@@ -8,8 +8,8 @@ Gem::Specification.new do |s|
   s.email = "roktas@gmail.com"
   s.license = "GPL-3.0-or-later"
   s.version = version
-  s.summary = "Tiny library for geometric computations."
-  s.description = "Enhances the Sevgi toolkit with geometry objects and methods."
+  s.summary = "Geometry values and operations for Sevgi drawings."
+  s.description = "Models the points, lines, shapes, and transforms used by the DSL."
   s.homepage = "https://sevgi.roktas.dev"
   s.files = Dir.chdir(__dir__) { Dir["CHANGELOG.md", "LICENSE", "README.md", "lib/**/*"] }
   s.required_ruby_version = ">= 3.4.0"

@@ -5,10 +5,10 @@ weight = 20
 group = "More"
 +++
 
-Sevgi examples[^victor-book] are executable `.sevgi` scripts generated from the tested source files in `showcase/srv`;
-the SVG panel shows the rendered output, the Ruby panel shows the script that produced it, and the examples are small
-enough to read end to end while still showing the main workflow: keep drawing data in Ruby, compose the drawing with
-helpers when useful, then emit SVG elements through the DSL.
+These examples[^victor-book] are the executable `.sevgi` files from `showcase/srv`, not copies written for the site.
+The test suite runs each file and compares its output. Open the Ruby panel for the script and the SVG panel for the
+result. Most are small enough to read in one sitting, though a few keep enough detail to show how a real drawing comes
+together.
 
 <div class="showcase-flow">
 {{ tabs(base="meter-face", dir="../showcase") }}

@@ -5,7 +5,7 @@ weight = 12
 group = "Toolkit"
 +++
 
-Geometry is the small, immutable model Sevgi uses when the renderer cannot do the calculation for you. It follows SVG
+Geometry supplies a small set of immutable values for calculations the SVG renderer cannot do for you. It uses SVG
 screen coordinates: positive x goes right, positive y goes down, and positive angles turn clockwise.
 
 ## Points and lines {#points-and-lines}
@@ -23,8 +23,8 @@ does not change.
 
 ## Shapes
 
-`Rect`, `Triangle`, `Parallelogram`, `Polyline`, and `Polygon` provide boxes, points, edges, and affine operations. Use
-the shortest constructor that preserves the idea:
+`Rect`, `Triangle`, `Parallelogram`, `Polyline`, and `Polygon` provide boxes, points, edges, and affine operations. Pick
+the constructor that makes the input easiest to read:
 
 ```ruby
 box = Sevgi::Geometry::Rect[40, 24, position: [6, 8]]
@@ -33,8 +33,8 @@ triangle = Sevgi::Geometry::Triangle.([0, 20], [10, 0], [20, 20])
 
 ## Alignment {#alignment}
 
-Alignment calculates the translation between an inner and outer box; the DSL `Align` helper applies it as an SVG
-transform:
+Alignment calculates the translation between an inner and outer box. The DSL `Align` helper applies that translation
+as an SVG transform:
 
 ```ruby
 inner = Sevgi::Geometry::Rect[8, 4]
@@ -56,7 +56,7 @@ end.Render
 
 ## Sweeps and hatching {#sweeps}
 
-Sweeps intersect parallel lines with a closed geometry shape. `Hatch` is the drawing-level convenience:
+Sweeps intersect parallel lines with a closed geometry shape. `Hatch` draws the result:
 
 ```ruby
 SVG(:inkscape) do
@@ -64,4 +64,4 @@ SVG(:inkscape) do
 end.Render
 ```
 
-Geometry intentionally stays focused. Unfinished arc and curve preparation APIs are not part of the supported surface.
+Arc and curve preparation is still incomplete, so those APIs are not supported yet.

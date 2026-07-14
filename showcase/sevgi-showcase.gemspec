@@ -8,8 +8,8 @@ Gem::Specification.new do |s|
   s.email = "roktas@gmail.com"
   s.license = "GPL-3.0-or-later"
   s.version = version
-  s.summary = "Documents and examples for the Sevgi toolkit."
-  s.description = "Provides documents and examples to demonstrate the Sevgi toolkit."
+  s.summary = "Executable examples and user documentation for Sevgi."
+  s.description = "Packages tested .sevgi examples and documentation site support."
   s.homepage = "https://sevgi.roktas.dev"
   s.files = Dir.chdir(__dir__) { Dir["CHANGELOG.md", "LICENSE", "README.md", "srv/**/*", "lib/**/*"] }
   s.required_ruby_version = ">= 3.4.0"

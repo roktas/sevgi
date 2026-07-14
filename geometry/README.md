@@ -1,6 +1,6 @@
 # Sevgi Geometry
 
-Small geometry primitives and operations for Sevgi drawings.
+Sevgi Geometry provides the small set of geometric values and operations used by Sevgi drawings.
 
 ## Install
 
@@ -27,7 +27,7 @@ Requires Ruby 3.4.0 or newer. CI verifies Ruby 3.4.0 and the current development
 
 ## Native prerequisites
 
-None beyond Ruby and this gem's Ruby dependencies.
+This gem needs only Ruby and its Ruby dependencies.
 
 ## Links
 

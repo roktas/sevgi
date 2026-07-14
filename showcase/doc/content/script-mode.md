@@ -5,44 +5,43 @@ weight = 3
 group = "Start"
 +++
 
-Script mode is the normal way to use Sevgi. A `.sevgi` file is Ruby executed by the `sevgi` command, with the DSL words
-installed in the script's top-level scope.
+A `.sevgi` file is ordinary Ruby run by the `sevgi` command. Before evaluating the file, the runner installs Sevgi's DSL
+words in the script's top-level scope.
 
 ## Script shape
 
-A script usually has three parts:
+A typical script has:
 
 - a shebang that runs `ruby -S sevgi`
 - Ruby constants, helper classes, or calculations
 - an `SVG` block followed by `Save`, `Write`, or `Out`
 
-The checker-board example shows the pattern clearly: a regular Ruby hash stores the piece positions, while a callable
-drawing module groups receiver-free DSL steps that the `SVG` block invokes with `Call`.
+In the checker-board example, a Ruby hash stores the piece positions. A callable module holds the drawing steps, and the
+`SVG` block invokes them with `Call`.
 
-Callable drawing modules use `base` blocks for argument-independent SVG shared by their public drawing methods. Each
-invocation runs inherited bases parent-first, then local bases in registration order. Name the drawing method `call` when
-a module has only one; use descriptive method names when each of several methods represents a separate drawing step.
+Callable modules can put argument-independent SVG in `base` blocks. Sevgi runs inherited bases from parent to child,
+then local bases in registration order. Name a single drawing method `call`; give multiple methods names that describe
+their drawing steps.
 
 {{ tabs(base="checker-board", dir="../showcase") }}
 
 ## Output methods
 
-Use `Save` when the script should write next to itself using the same base name and the `.svg` extension. This is the
-showcase convention.
+`Save` writes next to the script with the same base name and an `.svg` extension. The showcase files use this form.
 
-Use `Write(path)` when the destination should be explicit.
+`Write(path)` writes to a specific destination.
 
-Use `Out` when the script should print SVG to standard output. This is useful for shell pipelines and tests.
+`Out` prints SVG to standard output, which suits shell pipelines and tests.
 
 ## Top-level DSL scope
 
-In script mode, `SVG`, SVG element methods such as `rect` and `circle`, and helper methods such as `TileX` are intended
-to be used as DSL words. Prefer that style in scripts instead of treating Sevgi primarily as a library object graph.
+In a script, call `SVG`, SVG elements such as `rect` and `circle`, and helpers such as `TileX` as plain DSL words. There
+is little reason to spell out Sevgi's object graph in a file whose job is to draw.
 
-Ruby code is still available when the drawing needs data structures, loops, calculations, or small helper objects.
+It is still Ruby. Use hashes, loops, calculations, and helper objects wherever they make the drawing easier to read.
 
-The `sevgi` runner installs the full top-level API into a managed script scope. A script therefore needs neither
-`require "sevgi"` nor a `Sevgi.` prefix:
+The runner installs the full top-level API in a managed scope. The script needs neither `require "sevgi"` nor a
+`Sevgi.` prefix:
 
 ```ruby
 Paper 85, 55, :card
@@ -52,15 +51,15 @@ SVG(:minimal, :card) do
 end.Save
 ```
 
-Library mode keeps a smaller global surface. After `require "sevgi"`, the same `SVG(...)` spelling works, but other
-entry points are explicit—for example, `Sevgi.Paper(...)`—unless a dedicated class or module includes `Sevgi`. Inside
-the `SVG` block, both modes expose the same drawing DSL.
+Library mode keeps fewer global methods. After `require "sevgi"`, the same `SVG(...)` spelling works, but other entry
+points require an explicit receiver such as `Sevgi.Paper(...)`. A dedicated class or module can instead include
+`Sevgi`. The drawing DSL inside `SVG` is identical in both modes.
 
 ## Load {#load}
 
-`Load "palette"` evaluates `palette.sevgi` relative to the active script, not the process working directory. This makes
-small multi-file drawings relocatable. Sevgi preserves the load stack in executor errors, so a failure still points to
-the source file that caused it.
+`Load "palette"` evaluates `palette.sevgi` relative to the active script, not the process working directory. You can
+move a drawing split across several files as one directory. If loading fails, the executor error keeps the source stack
+and points back to the file that caused it.
 
 ## Top-level API {#top-level-api}
 

@@ -1,37 +1,37 @@
 themes:
   - id: documents
     title: Documents
-    summary: Start documents, choose profiles, and control their lifecycle.
+    summary: Choose a document profile and control when Sevgi prepares or renders it.
   - id: composition
     title: Composition
-    summary: Build, move, group, and reuse parts of an SVG tree.
+    summary: Build an SVG tree, then move, group, or reuse its branches.
   - id: context
     title: Context & traversal
     summary: Query the current element and move through its parents or children.
   - id: drawing
     title: Drawing helpers
-    summary: Express common shapes and line constructions with less ceremony.
+    summary: Draw common shape and line patterns without hand-writing path data.
   - id: transforms
     title: Transforms
     summary: Attach SVG transforms without assembling transform strings.
   - id: layout
     title: Layout & repetition
-    summary: Align, duplicate, tile, grid, and paginate repeated work.
+    summary: Arrange repeated work with alignment, tiling, grids, and pages.
   - id: round-trip
     title: Round trip & reuse
-    summary: Move between SVG/XML, Sevgi source, files, and reusable modules.
+    summary: Convert SVG/XML, load files, and reuse callable modules.
   - id: quality
     title: Quality & inspection
-    summary: Validate structure, inspect identity, and prepare reliable output.
+    summary: Validate SVG structure and inspect element identity before output.
   - id: output
     title: Output
     summary: Render, print, save, and export drawings.
   - id: editors
     title: Editors & metadata
-    summary: Add Inkscape structure, pages, RDF, and licensing metadata.
+    summary: Add Inkscape pages and metadata, including RDF licenses.
   - id: script-tools
     title: Script tools
-    summary: Use the full top-level environment provided to Sevgi scripts.
+    summary: Work with the top-level commands available in `.sevgi` scripts.
 
 letters:
   "_":
@@ -427,35 +427,35 @@ letters:
       code: 'License_CC_BY title: "Badge", creator: "Sevgi"'
     - name: License_CC_BY_NC
       anchor: license-cc-by-nc
-      summary: Add Creative Commons Attribution–NonCommercial 4.0 metadata.
+      summary: Add Creative Commons Attribution-NonCommercial 4.0 metadata.
       provider: RDF
       context: inkscape
       themes: [editors]
       code: 'License_CC_BY_NC title: "Badge", creator: "Sevgi"'
     - name: License_CC_BY_NC_ND
       anchor: license-cc-by-nc-nd
-      summary: Add Attribution–NonCommercial–NoDerivatives metadata.
+      summary: Add Attribution-NonCommercial-NoDerivatives metadata.
       provider: RDF
       context: inkscape
       themes: [editors]
       code: 'License_CC_BY_NC_ND title: "Badge", creator: "Sevgi"'
     - name: License_CC_BY_NC_SA
       anchor: license-cc-by-nc-sa
-      summary: Add Attribution–NonCommercial–ShareAlike metadata.
+      summary: Add Attribution-NonCommercial-ShareAlike metadata.
       provider: RDF
       context: inkscape
       themes: [editors]
       code: 'License_CC_BY_NC_SA title: "Badge", creator: "Sevgi"'
     - name: License_CC_BY_ND
       anchor: license-cc-by-nd
-      summary: Add Creative Commons Attribution–NoDerivatives metadata.
+      summary: Add Creative Commons Attribution-NoDerivatives metadata.
       provider: RDF
       context: inkscape
       themes: [editors]
       code: 'License_CC_BY_ND title: "Badge", creator: "Sevgi"'
     - name: License_CC_BY_SA
       anchor: license-cc-by-sa
-      summary: Add Creative Commons Attribution–ShareAlike metadata.
+      summary: Add Creative Commons Attribution-ShareAlike metadata.
       provider: RDF
       context: inkscape
       themes: [editors]

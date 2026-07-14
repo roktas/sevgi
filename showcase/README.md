@@ -1,6 +1,6 @@
 # Sevgi Showcase
 
-Executable examples, rendered outputs, and documentation-site support.
+Sevgi Showcase packages the executable examples, their SVG output, and support code for the documentation site.
 
 ## Install
 

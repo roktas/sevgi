@@ -1,6 +1,6 @@
 # Sevgi Derender
 
-Converts SVG/XML content back into Sevgi DSL source.
+Sevgi Derender converts SVG or XML back into Sevgi DSL source.
 
 ## Install
 
@@ -33,8 +33,7 @@ Requires Ruby 3.4.0 or newer. CI verifies Ruby 3.4.0 and the current development
 
 ## Native prerequisites
 
-None beyond Ruby and this gem's Ruby dependencies. Nokogiri may use platform packages depending on the target Ruby
-platform.
+This gem needs no native libraries of its own. Nokogiri may use platform packages depending on the target Ruby platform.
 
 ## Links
 

@@ -5,8 +5,8 @@ weight = 13
 group = "Toolkit"
 +++
 
-Sundries contains small cross-component objects that support layout and output. These are regular Ruby objects rather
-than a second drawing DSL; each section starts with the task, then introduces the object that models it.
+Sundries holds the odds and ends shared by several components, mainly layout objects and export tools. They are regular
+Ruby objects, not another drawing DSL.
 
 ## Grid {#grid}
 
@@ -22,14 +22,14 @@ SVG(:inkscape, grid.canvas) do
 end.Render
 ```
 
-The fitted `grid.canvas` carries the resulting drawable area. Axis queries expose major, minor, and halfway lines and
+After fitting, `grid.canvas` contains the drawable area. Each axis provides its major, minor, and halfway lines and
 points.
 
 ## Rulers and tiles
 
-`Sevgi::Sundries::Ruler` divides a span while respecting margins. `Sevgi::Sundries::Tile` arranges geometry-backed
-objects into rows and columns and exposes cell, row, column, and overall boxes. Use the DSL `Tile`, `TileX`, and `TileY`
-when repeated SVG `<use>` elements are the desired output.
+`Sevgi::Sundries::Ruler` divides a span without crossing its margins. `Sevgi::Sundries::Tile` arranges geometry-backed
+objects into rows and columns, with boxes for each cell and for the complete layout. Use the DSL words `Tile`, `TileX`,
+or `TileY` instead when you want repeated SVG `<use>` elements.
 
 ## Export {#export}
 
@@ -44,5 +44,5 @@ drawing.PNG "badge.png", dpi: 144
 drawing.PDF "badge.pdf"
 ```
 
-The native path uses Cairo, librsvg, and HexaPDF integrations. Missing optional dependencies raise a Sevgi component
-error rather than changing ordinary SVG rendering.
+PDF and PNG output uses Cairo, librsvg, and HexaPDF. If one is missing, Sevgi raises a component error. Ordinary SVG
+rendering still works without them.

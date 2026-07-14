@@ -12,7 +12,7 @@ dark_theme                 = "github-dark"
 logo_name                  = "Sevgi"
 logo_path                  = "/img/logo-mark.png"
 github_repo                = "roktas/sevgi"
-site_description           = "Toolkit to create SVG content with Ruby."
+site_description           = "Create SVG with Ruby."
 nav_groups                 = ["Start", "Core", "Toolkit", "More"]
 extra_menu                 = [
   { title = "API", link = "https://www.rubydoc.info/gems/sevgi" },

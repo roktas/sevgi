@@ -1,6 +1,6 @@
 # Sevgi
 
-Top-level API and `.sevgi` script runner.
+The `sevgi` gem provides the top-level API and the `.sevgi` script runner.
 
 ## Install
 

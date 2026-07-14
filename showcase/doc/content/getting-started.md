@@ -5,11 +5,11 @@ weight = 1
 group = "Start"
 +++
 
-Sevgi creates SVG with Ruby. The recommended entry point is a `.sevgi` script: write Ruby, call the `SVG` DSL word, and
-finish with an output method such as `Save` or `Out`.
+Sevgi creates SVG with Ruby. The quickest way in is a `.sevgi` script. Write ordinary Ruby, open an `SVG` block, and
+finish with `Save` or `Out`.
 
-The examples below are the same scripts used by the showcase test suite. Open the Ruby tab to inspect the source and the
-SVG tab to inspect the rendered result.
+The tabs below come from the same files that the test suite runs. The Ruby tab contains the script; the SVG tab contains
+its output.
 
 {{ tabs(base="meter-face", dir="../showcase") }}
 
@@ -24,8 +24,7 @@ bundle exec showcase/srv/meter-face.sevgi
 The script writes `showcase/srv/meter-face.svg` because it ends with `Save`. To write SVG to standard output instead,
 use `Out` in the script.
 
-Continue with [Choose a Mode](@/usage.md) to decide whether the drawing belongs in an executable script or a Ruby
-application. Both modes use the same document model and DSL.
+[Choose a Mode](@/usage.md) compares executable scripts with library calls. Both use the same documents and drawing DSL.
 
 ## Install the CLI
 
@@ -35,8 +34,7 @@ For released versions, install the top-level gem:
 gem install sevgi
 ```
 
-This installs the `sevgi` executable used by `.sevgi` scripts and pulls in the standard components: graphics, geometry,
-standard validation, derendering, sundries, and shared functions.
+This installs the `sevgi` executable and the standard components used by scripts.
 
 SVG-only scripts do not need native export gems. If a script writes PDF or PNG through Sevgi's native export helpers,
 install the optional native export stack separately. On Debian/Ubuntu:
@@ -56,7 +54,7 @@ gem install cairo rsvg2 hexapdf
 
 ## Choose a document profile
 
-`SVG` can be called with a document profile. `:minimal` emits compact SVG without the XML declaration; the default
-profile emits a fuller SVG document. The examples use both forms depending on what the output needs.
+`SVG` accepts a document profile. `:minimal` omits the XML declaration and produces compact output. The default profile
+writes a complete SVG document, while `:inkscape` adds editor-specific namespaces and helpers.
 
 {{ tabs(base="snow-flake", dir="../showcase") }}

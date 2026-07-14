@@ -3,70 +3,67 @@
 
 # SEVGI
 
-**SEVGI** is a toolkit for creating SVG content programmatically with a Ruby-based DSL[^1]. With this toolkit, you can
-create pixel-perfect graphics either without a vector graphics editor or together with one. Thanks to a mixin-based
-design, you can easily add custom features and use a rich set of methods, especially for tiling, hatching and various
-geometric operations. In brief:
+**SEVGI** builds SVG with a Ruby DSL[^1]. You can generate a drawing entirely in code or combine Ruby with files from a
+vector editor. The DSL uses SVG element names directly and adds helpers for tasks such as tiling, hatching, and geometry.
 
-- Input:
+Ruby input:
 
-  ```ruby
-  SVG :minimal do
-    g id: "group" do
-      rect   id: "rectangular", width: 3, height: 5
-      circle id: "circle", r: 1
-    end
+```ruby
+SVG :minimal do
+  g id: "group" do
+    rect   id: "rectangular", width: 3, height: 5
+    circle id: "circle", r: 1
   end
-  ```
+end
+```
 
-- Output (roughly simplified):
+Simplified SVG output:
 
-  ```svg
-  <svg>
-    <g id="group">
-      <rect id="rectangular" width="3" height="5"/>
-      <circle id="circle" r="1"/>
-    </g>
-  </svg>
-  ```
+```svg
+<svg>
+  <g id="group">
+    <rect id="rectangular" width="3" height="5"/>
+    <circle id="circle" r="1"/>
+  </g>
+</svg>
+```
 
 ## Usage
 
-**SEVGI** can be used as a regular Ruby library, but the recommended usage is the "script" mode. In this mode, add the
-correct shebang and call an I/O method on the SVG object to produce output. Use `.sevgi` as the preferred script file
-extension.
+SEVGI works as a Ruby library, but `.sevgi` scripts are the quickest option when the drawing is the whole program. Add
+the shebang, build the document, and call an output method on it.
 
-- Create the script (`example.sevgi`)
+Create `example.sevgi`:
 
-  ```ruby
-  #!/usr/bin/env -S ruby -S sevgi
+```ruby
+#!/usr/bin/env -S ruby -S sevgi
 
-  SVG do
-    g id: "group" do
-      rect   id: "rectangular", width: 3, height: 5
-      circle id: "circle", r: 1
-    end
-  end.Out
-  ```
+SVG do
+  g id: "group" do
+    rect   id: "rectangular", width: 3, height: 5
+    circle id: "circle", r: 1
+  end
+end.Out
+```
 
-- Run the script
+Make it executable and run it:
 
-  ```bash
-  chmod +x example.sevgi
-  bundle exec ./example.sevgi
-  ```
+```bash
+chmod +x example.sevgi
+bundle exec ./example.sevgi
+```
 
-- Output
+The script writes:
 
-  ```svg
-  <?xml version="1.0" standalone="no"?>
-  <svg xmlns="http://www.w3.org/2000/svg">
-    <g id="group">
-      <rect id="rectangular" width="3" height="5"/>
-      <circle id="circle" r="1"/>
-    </g>
-  </svg>
-  ```
+```svg
+<?xml version="1.0" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg">
+  <g id="group">
+    <rect id="rectangular" width="3" height="5"/>
+    <circle id="circle" r="1"/>
+  </g>
+</svg>
+```
 
 See [Showcase](showcase/srv) for examples and output.
 
@@ -93,22 +90,16 @@ brew install cairo gdk-pixbuf gobject-introspection librsvg pkg-config
 gem install cairo rsvg2 hexapdf
 ```
 
-## Project Structure
+## Project structure
 
-The project consists of 8 components, with the core `graphics` component at the center. In alphabetical order, the
-components are: `derender`, `function`, `geometry`, `graphics`, `showcase`, `standard`, `sundries`, and `toplevel`.
-Each component is packaged as a Ruby gem. Most component gems use the `sevgi-` prefix (for example, `sevgi-graphics`);
-the top-level component is the `sevgi` gem. Every component defines a namespace under `Sevgi` (for example,
-`Sevgi::Graphics` and `Sevgi::Showcase`); the Showcase namespace primarily contains documentation-site support.
+The repository contains eight components. `graphics` is the core; the others add conversion, shared functions,
+geometry, validation, helper objects, examples, and the top-level API. Each component is a Ruby gem. Most gem names use
+the `sevgi-` prefix, while the top-level gem is simply `sevgi`. Components define matching namespaces under `Sevgi`.
 
 ### `derender` - `Sevgi::Derender`
 
-This component converts SVG content (XML code) into the Sevgi DSL (Ruby code). It is especially useful for converting
-graphics created with a vector graphics editor that would be very hard to create directly with the DSL, such as shapes
-with dense Bezier curves. This makes it possible to combine Sevgi's programmatic graphics workflow with the manual
-workflow of vector drawing tools.
-
-Example scenario:
+Derender converts SVG or XML into Sevgi source. It is useful for artwork that begins in a vector editor, especially a
+shape with dense Bezier curves that would be tedious to reproduce by hand in Ruby.
 
 `Include` uses derender internally to evaluate SVG fragments inside the current document.
 
@@ -120,31 +111,27 @@ end
 
 ### `function` - `Sevgi::Function`
 
-General helper methods used across all components (for example, `F.round`). `F` is the same public object as
-`Sevgi::Function` in library, included, and script modes, so all function helpers are available through the same alias.
-This component contains general-purpose code that is used at least a few times across multiple components. Helper
-methods or objects that are specific to one component live in that component. For larger helper **objects** that are not
-specific to any component, prefer the `sundries` component.
+Function contains helpers shared by several components, such as `F.round`. `F` and `Sevgi::Function` refer to the same
+public object in library and script code. Helpers that belong to one component stay with that component; larger shared
+objects belong in `sundries`.
 
 ### `geometry` - `Sevgi::Geometry`
 
-A geometry calculation library usable from the Sevgi DSL. Because the guiding principle is "avoid doing calculations;
-use the SVG renderer", this library contains only simple geometric operations needed in unavoidable cases.
+Geometry provides the calculations that cannot be left to the SVG renderer. It stays small on purpose and covers only
+the operations Sevgi drawings need.
 
 ### `graphics` - `Sevgi::Graphics`
 
-The main component that implements the Sevgi DSL. A graphic element created through the DSL is essentially a tree
-structure. In the example at the beginning of this document, the root tree created with `SVG` has a single child, the
-`g` group element. The `rect` and `circle` elements are the two children of that group element.
+Graphics implements the DSL and document tree. In the opening example, the `SVG` root has one child, the `g` group.
+That group contains the `rect` and `circle` elements.
 
 ### `showcase`
 
-This component contains Sevgi examples under `srv` and the website under `doc`.
+Showcase contains executable examples under `srv` and the documentation site under `doc`.
 
 ### `standard` - `Sevgi::Standard`
 
-This component checks the elements and attributes being produced with the Sevgi DSL against SVG standards and prevents
-invalid usage. For example:
+Standard checks DSL output against the SVG element and attribute rules. For example:
 
 ```ruby
 rect id: "rectangular", width: 3, height: 5 do
@@ -160,22 +147,22 @@ The `standard` component catches two errors in this example:
 
 ### `sundries` - `Sevgi::Sundries`
 
-Helper objects (for example, `Grid`) and tools (for example, `Export`) that are not specific to a single component.
-These helper objects and tools do not need to be actively used in the current code; it is enough that they are known to
-be useful in various scenarios.
+Sundries contains shared objects such as `Grid` and optional output tools such as `Export`.
 
 ### `toplevel` - `Sevgi::Toplevel`
 
-This component provides the full `include Sevgi` / `extend Sevgi` DSL. Classes and modules receive promoted constants
-such as `F`, `Geometry`, `Origin`, and `Export`; extending an ordinary object installs DSL methods without mutating
-global `Object` constants.
+Toplevel provides the `sevgi` gem, the script runner, and the full `include Sevgi` or `extend Sevgi` API. Classes and
+modules receive constants such as `F`, `Geometry`, `Origin`, and `Export`. Extending an ordinary object adds DSL methods
+without writing constants to `Object`.
 
 ## Release
 
-The local `rake release` task remains supported for maintainers. It must run from a clean `main` checkout, builds and
-validates every component archive, checks all remote versions and checksums before the first push, then publishes in
-dependency order. A failure during preflight publishes nothing. GitHub Actions `Ship` is the preferred publisher for
-trusted RubyGems credentials; do not mix local and workflow publishing for the same version.
+Maintainers can publish locally with `rake release` from a clean `main` checkout. The task builds every component,
+checks remote versions and checksums before the first push, then publishes in dependency order. If preflight fails, it
+publishes nothing.
+
+GitHub Actions `Ship` is the preferred route when using trusted RubyGems credentials. Do not mix local and workflow
+publishing for the same version.
 
 ## Roadmap
 
@@ -192,6 +179,5 @@ Final stage
 - [ ] Complete Geometry library.
 
 [^1]:
-    Inspired by [Victor](https://github.com/DannyBen/victor), which might be a better choice for those seeking something
-    simpler. Please note that a fair amount of the examples used for demonstration purposes come from this project
-    (thanks to the author).
+    Inspired by [Victor](https://github.com/DannyBen/victor), which may suit projects that need a smaller API. Several
+    Sevgi examples are adapted from Victor's examples, with thanks to its author.
