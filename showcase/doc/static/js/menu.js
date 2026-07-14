@@ -64,7 +64,7 @@
     window.addEventListener('resize', function() {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(function() {
-            if (window.innerWidth > 768 && toggle.getAttribute('aria-expanded') === 'true') {
+            if (window.innerWidth > 1024 && toggle.getAttribute('aria-expanded') === 'true') {
                 closeMenu();
             }
         }, 100);

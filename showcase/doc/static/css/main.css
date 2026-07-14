@@ -759,6 +759,10 @@ main {
 .nav-outline-branch summary::-webkit-details-marker {
   display: none;
 }
+.nav-section summary::marker,
+.nav-outline-branch summary::marker {
+  content: "";
+}
 .nav-section-title {
   display: flex;
   align-items: center;
@@ -2031,11 +2035,11 @@ html[data-theme="dark"] .tabs .theme-dark {
 
 /*
  * -----------------------------------------------------------------------------
- * MOBILE - MAIN BREAKPOINT (Final Overrides)
+ * TABLET AND MOBILE - MAIN BREAKPOINT (Final Overrides)
  * -----------------------------------------------------------------------------
  */
 
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 1024px) {
   :root {
     --wt-header-height: 50px;
     --wt-main-padding-top: 20px;
