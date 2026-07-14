@@ -41,6 +41,21 @@ to be used as DSL words. Prefer that style in scripts instead of treating Sevgi 
 
 Ruby code is still available when the drawing needs data structures, loops, calculations, or small helper objects.
 
+The `sevgi` runner installs the full top-level API into a managed script scope. A script therefore needs neither
+`require "sevgi"` nor a `Sevgi.` prefix:
+
+```ruby
+Paper 85, 55, :card
+
+SVG(:minimal, :card) do
+  rect width: "100%", height: "100%", rx: 3
+end.Save
+```
+
+Library mode keeps a smaller global surface. After `require "sevgi"`, the same `SVG(...)` spelling works, but other
+entry points are explicit—for example, `Sevgi.Paper(...)`—unless a dedicated class or module includes `Sevgi`. Inside
+the `SVG` block, both modes expose the same drawing DSL.
+
 ## Load {#load}
 
 `Load "palette"` evaluates `palette.sevgi` relative to the active script, not the process working directory. This makes

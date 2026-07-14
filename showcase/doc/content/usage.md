@@ -24,23 +24,30 @@ This is the shortest path for generated assets, plotter inputs, templates, and b
 
 ## Library mode
 
-An application can keep names explicit:
+`require "sevgi"` deliberately provides the same short `SVG` entry point, so moving a drawing into an application does
+not require a different spelling:
 
 ```ruby
 require "sevgi"
 
-drawing = Sevgi.SVG(:minimal) do
+drawing = SVG(:minimal) do
   circle cx: 12, cy: 12, r: 10, fill: "tomato"
 end
 
 File.write("badge.svg", drawing.Render)
 ```
 
-This works well in services, tests, gems, and applications that already own their output lifecycle. See
-[Library Mode](@/library-mode.md).
+The difference is the surrounding scope and lifecycle. A Sevgi script receives the complete top-level API and its
+output helpers automatically. A Ruby application receives the short `SVG` constructor, owns the resulting document,
+and can reach the rest of the API explicitly through `Sevgi`, such as `Sevgi.Paper(...)`. `Sevgi.SVG(...)` is also
+available when an explicit namespace reads better; it builds the same document as `SVG(...)`.
+
+This works well in services, tests, gems, and applications that already own their output lifecycle. See [Library
+Mode](@/library-mode.md) for the namespace choices.
 
 ## Do examples need both forms?
 
 Usually no. Repeating every example obscures the idea being taught. This site labels context in the DSL catalog and
 shows paired examples only where the boundary matters—document construction, reusable modules, loading, and output.
-Inside an `SVG` block the drawing vocabulary is the same in both modes.
+Inside an `SVG` block the drawing vocabulary is the same in both modes; qualification changes how Ruby finds an entry
+point, not how Sevgi draws.

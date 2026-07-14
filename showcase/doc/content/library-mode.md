@@ -5,15 +5,16 @@ weight = 4
 group = "Start"
 +++
 
-`require "sevgi"` loads the complete toolkit. `Sevgi.SVG` is the explicit, namespaced document constructor; it accepts
-the same profile, canvas, attributes, and block as the script-mode `SVG` word.
+`require "sevgi"` loads the complete toolkit and deliberately installs `SVG(...)` as its minimal global entry point.
+Library code can therefore start a document with the same short word as a `.sevgi` script without importing every
+top-level helper into the application.
 
 ## Build and render
 
 ```ruby
 require "sevgi"
 
-document = Sevgi.SVG(:minimal, width: 120, height: 40) do
+document = SVG(:minimal, width: 120, height: 40) do
   rect width: 120, height: 40, rx: 8, fill: "midnightblue"
   text "Sevgi", x: 60, y: 25, fill: "white", "text-anchor": "middle"
 end
@@ -24,7 +25,48 @@ svg = document.Render
 Rendering returns a string. The application can write it, return it from an HTTP endpoint, compare it in a test, or
 pass it to another component. `Sevgi::Graphics.SVG` remains the component-level constructor when only graphics is loaded.
 
-## Import the top level deliberately
+## Short and explicit forms
+
+`SVG(...)` and `Sevgi.SVG(...)` are two names for the same constructor:
+
+```ruby
+require "sevgi"
+
+short = SVG(:minimal) { circle r: 4 }
+explicit = Sevgi.SVG(:minimal) { circle r: 4 }
+
+short.Render == explicit.Render # => true
+```
+
+Use the short form when Sevgi is already clear from the file or method. Use `Sevgi.SVG` when a broad application
+boundary benefits from an explicit owner, or when another library defines a competing `SVG` method. The namespace is a
+Ruby name-resolution choice; it does not select a different Sevgi mode or document type.
+
+`SVG` also exists as a constant naming the graphics component, so `SVG(:minimal)` calls the constructor while
+`SVG::Module` looks up a constant. Parentheses make that distinction especially clear in ordinary Ruby code.
+
+## Library scope is smaller
+
+The script runner installs the complete top-level API into its managed script scope. Plain `Paper`, `Grid`, `Load`, and
+output words are therefore natural in a `.sevgi` file. A normal `require "sevgi"` intentionally adds only the universal
+`SVG` constructor to Ruby's global method surface; address other entry points through `Sevgi`:
+
+```ruby
+require "sevgi"
+
+Sevgi.Paper 85, 55, :card
+
+card = SVG(:minimal, :card) do
+  rect width: "100%", height: "100%", rx: 3
+end
+
+File.write("card.svg", card.Render)
+```
+
+This is the library counterpart of a script using `Paper(...)`, `SVG(...)`, and `Save` without qualification. The
+application remains responsible for where the rendered string goes.
+
+## Import the full top level deliberately
 
 For a small Ruby object that benefits from script-like spelling, include `Sevgi`:
 
@@ -42,8 +84,8 @@ end
 badge.new.render("S")
 ```
 
-Prefer `Sevgi.SVG` at broad application boundaries; `include Sevgi` intentionally adds the top-level entry points to
-the receiver.
+`include Sevgi` adds the full top-level API to instances of that class or module. It is useful for a dedicated drawing
+object, but unnecessary merely to call `SVG(...)` after `require "sevgi"`.
 
 ## Callable modules {#callable-modules}
 
@@ -59,7 +101,7 @@ dot = Module.new do
   def call(x:) = circle(cx: x, r: 2, fill: "black")
 end
 
-Sevgi.SVG(:minimal) { Call dot, x: 8 }.Render
+SVG(:minimal) { Call dot, x: 8 }.Render
 ```
 
 Here `Module.new` creates a plain Ruby module; `extend Sevgi::Module` equips it with Sevgi's callable drawing contract.
@@ -91,7 +133,7 @@ module StatusIcons
   end
 end
 
-Sevgi.SVG(:minimal) do
+SVG(:minimal) do
   Call StatusIcons::Alert, x: 5
   Call StatusIcons::Ready, x: 15
 end.Render
