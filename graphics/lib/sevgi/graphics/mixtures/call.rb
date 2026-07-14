@@ -220,6 +220,66 @@ module Sevgi
       private :copy_configuration, :own_configuration
     end
 
+    # Recursive callable drawing module support. Extend a module with this API when it and the modules defined beneath
+    # it form a callable drawing namespace. Existing and subsequently defined descendants receive the same recursive
+    # contract. Classes, autoloads, and modules aliased from another namespace are left unchanged.
+    # @example Define a callable drawing namespace
+    #   module Icons
+    #     extend Sevgi::Graphics::Modules
+    #
+    #     module Alert
+    #       base { css(".alert" => { fill: "red" }) }
+    #
+    #       def call(id)
+    #         circle(id:, class: "alert", r: 5)
+    #       end
+    #     end
+    #   end
+    #
+    #   SVG { Call(Icons::Alert, "warning") }
+    # @see Sevgi::Graphics::Module
+    module Modules
+      # Propagates the recursive contract when a module constant is added.
+      # @api private
+      module Propagation
+        private
+
+        def const_added(name)
+          super
+          Graphics::Modules.__send__(:adopt, self, name)
+        end
+      end
+
+      private_constant :Propagation
+
+      class << self
+        private
+
+        # Applies the local callable contract and adopts owned descendants.
+        # @param base [Module] extended module
+        # @return [void]
+        def extended(base)
+          base.extend(Graphics::Module)
+          base.singleton_class.prepend(Propagation) unless base.singleton_class < Propagation
+          base.constants(false).each { adopt(base, it) }
+        end
+
+        # Applies this contract to an owned module constant without resolving autoloads or following aliases.
+        # @param owner [Module] constant owner
+        # @param name [Symbol] constant name
+        # @return [Module, nil] adopted module, or nil when the constant is outside the contract
+        def adopt(owner, name)
+          return if owner.autoload?(name, false)
+
+          child = owner.const_get(name, false)
+          return unless child.instance_of?(::Module)
+          return unless child.name == "#{owner}::#{name}"
+
+          child.extend(self) unless child.is_a?(self)
+        end
+      end
+    end
+
     module Mixtures
       # DSL helpers for invoking callable drawing modules.
       module Call

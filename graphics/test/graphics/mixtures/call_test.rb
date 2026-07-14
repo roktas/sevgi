@@ -18,6 +18,26 @@ module Sevgi
           end
           .freeze
 
+        module ExistingCallables
+          module Child
+            module Nested
+              def call = rect(id: "nested")
+            end
+          end
+        end
+
+        module RecursiveCallable
+          extend(Graphics::Modules)
+
+          module Child
+            base { rect(id: "base") }
+
+            module Nested
+              def call = rect(id: "nested")
+            end
+          end
+        end
+
         def test_call_discovers_all_public_entry_points
           included = ::Module.new do
             def included_item
@@ -51,6 +71,46 @@ module Sevgi
           refute_respond_to(mod, :method_added)
           %i[bases call callables extended].each { refute_respond_to(Graphics::Module, it) }
           %i[_bases _callables].each { refute_respond_to(mod, it) }
+        end
+
+        def test_callable_modules_propagate_recursively
+          family = RecursiveCallable
+          child = family::Child
+          nested = child.const_get(:Nested)
+          doc = SVG(:minimal)
+          doc.Call(child)
+          doc.Call(nested)
+
+          [family, child, nested].each do |mod|
+            assert(mod.is_a?(Graphics::Modules))
+            assert(mod.is_a?(Graphics::Module))
+          end
+
+          assert_equal(%w[base nested], doc.children.map { it[:id] })
+        end
+
+        def test_callable_modules_adopt_existing_descendants
+          family = ExistingCallables
+          family.extend(Graphics::Modules)
+
+          child = family::Child
+          nested = child::Nested
+          [family, child, nested].each { assert(it.is_a?(Graphics::Modules)) }
+        end
+
+        def test_callable_modules_preserve_external_constants
+          owner = ::Module.new
+          external = ::Module.new
+          owner.const_set(:External, external)
+
+          family = ::Module.new { extend(Graphics::Modules) }
+          family.const_set(:Alias, external)
+          family.const_set(:NestedClass, ::Class.new)
+          family.autoload(:Deferred, "/nonexistent/sevgi-deferred")
+
+          refute(external.is_a?(Graphics::Module))
+          refute(family.const_get(:NestedClass).is_a?(Graphics::Module))
+          assert_equal("/nonexistent/sevgi-deferred", family.autoload?(:Deferred, false))
         end
 
         def test_call_preserves_module_method_lookup
