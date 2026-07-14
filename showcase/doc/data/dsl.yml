@@ -100,10 +100,11 @@ letters:
       summary: Register shared drawing steps that run before a callable module's public methods.
       provider: Graphics::Module
       context: script
+      contract: callable
       themes: [composition, round-trip]
       code: |
-        icon = Module.new do
-          extend SVG::Module
+        icon = ::Module.new do
+          extend Sevgi::Module
           base { circle r: 5, fill: "gold" }
           def call = circle(r: 2, fill: "black")
         end
@@ -115,10 +116,11 @@ letters:
       summary: Run a configured Ruby module as a drawing step on the current element.
       provider: Call
       context: script
+      contract: callable
       themes: [composition, round-trip]
       code: |
-        dot = Module.new do
-          extend SVG::Module
+        dot = ::Module.new do
+          extend Sevgi::Module
           def call(x) = circle(cx: x, r: 2)
         end
         SVG(:minimal) { Call dot, 8 }.Render
@@ -282,10 +284,11 @@ letters:
       summary: Render a callable module inside a regular group with stable wrapper attributes.
       provider: Inkscape
       context: script
+      contract: callable
       themes: [composition, editors]
       code: |
-        art = Module.new do
-          extend SVG::Module
+        art = ::Module.new do
+          extend Sevgi::Module
           def call = circle(r: 4)
         end
         SVG(:inkscape) { Group art, attributes: {id: "art"} }.Render
@@ -373,10 +376,11 @@ letters:
       summary: Render a callable module inside an Inkscape layer.
       provider: Inkscape
       context: script
+      contract: callable
       themes: [composition, editors]
       code: |
-        art = Module.new do
-          extend SVG::Module
+        art = ::Module.new do
+          extend Sevgi::Module
           def call = circle(r: 4)
         end
         SVG(:inkscape) { Layer art, attributes: {id: "ink"} }.Render
@@ -392,10 +396,11 @@ letters:
       summary: Render a callable module inside a locked Inkscape layer.
       provider: Inkscape
       context: script
+      contract: callable
       themes: [composition, editors]
       code: |
-        guide = Module.new do
-          extend SVG::Module
+        guide = ::Module.new do
+          extend Sevgi::Module
           def call = LineTo(x2: 10, y2: 10)
         end
         SVG(:inkscape) { Layer! guide, attributes: {id: "guides"} }.Render
@@ -769,10 +774,11 @@ letters:
       summary: Collect symbols declared by a callable module into a defs element.
       provider: Symbols
       context: inkscape
+      contract: callable
       themes: [composition, round-trip]
       code: |
-        icons = Module.new do
-          extend SVG::Module
+        icons = ::Module.new do
+          extend Sevgi::Module
           def call = Symbol("dot") { circle r: 2 }
         end
         Symbols icons

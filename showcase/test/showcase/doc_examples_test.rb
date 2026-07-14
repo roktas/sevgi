@@ -29,6 +29,8 @@ describe "documentation examples" do
       require "sevgi/binaries/rake"
 
       Object.new.extend(Rake::DSL).extend(FileUtils).instance_eval(code, file, 1)
+    elsif File.basename(file) == "library-mode.md"
+      Object.new.instance_eval(code, file, 1)
     else
       source = File.join(Dir.pwd, File.basename(file))
       instance_eval(code, source, 1)

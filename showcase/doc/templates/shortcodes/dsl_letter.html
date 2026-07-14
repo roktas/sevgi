@@ -11,6 +11,10 @@
     {% for theme in entry.themes %}<a href="#theme-{{ theme }}">{{ theme | replace(from="-", to=" ") }}</a>{% endfor %}
   </p>
   <p>{{ entry.summary }}</p>
+  {% if entry.contract | default(value="") == "callable" %}
+  <p><strong>Module contract:</strong> <code>extend Sevgi::Module</code>. Use <code>extend Sevgi::Modules</code> to apply
+    the same contract recursively to an owned module tree.</p>
+  {% endif %}
   {% set example = "```ruby
 " ~ entry.code ~ "
 ```" %}

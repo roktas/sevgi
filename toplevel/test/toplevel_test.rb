@@ -48,7 +48,7 @@ module Sevgi
     end
 
     def test_extend_installs_methods_and_constants
-      mod = Module.new
+      mod = ::Module.new
       mod.extend(::Sevgi)
 
       [

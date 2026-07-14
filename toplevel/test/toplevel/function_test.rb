@@ -16,7 +16,7 @@ module Sevgi
     end
 
     def test_extend_module_promotes_canonical_function_alias
-      receiver = Module.new
+      receiver = ::Module.new
 
       receiver.extend(Sevgi)
 

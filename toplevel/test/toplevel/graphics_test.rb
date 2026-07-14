@@ -9,6 +9,11 @@ module Sevgi
       assert_equal(SVG, Graphics)
     end
 
+    def test_toplevel_exports_callable_module_contracts
+      assert_same(Graphics::Module, Sevgi::Module)
+      assert_same(Graphics::Modules, Sevgi::Modules)
+    end
+
     def test_toplevel_builds_svg_through_every_public_mode
       included = Class.new { include(::Sevgi) }.new
 
@@ -33,7 +38,7 @@ module Sevgi
       doc = Graphics.document(:mixin, attributes: {})
 
       begin
-        Sevgi::Graphics::Mixtures.const_set(:Foo, Module.new)
+        Sevgi::Graphics::Mixtures.const_set(:Foo, ::Module.new)
         assert_nil(obj.Mixin(:Foo, doc))
         assert_raises(NoMethodError) { Mixin(:Foo, doc) }
       ensure
@@ -53,7 +58,7 @@ module Sevgi
         end
       end
 
-      assert_instance_of(Module, extension)
+      assert_instance_of(::Module, extension)
       assert_equal("badge", doc.root.Badge()[:id])
     end
 
@@ -62,10 +67,10 @@ module Sevgi
       doc = Graphics.document(:named_anonymous_mixin, attributes: {})
 
       begin
-        Sevgi::Graphics::Mixtures.const_set(:Empty, Module.new)
+        Sevgi::Graphics::Mixtures.const_set(:Empty, ::Module.new)
         extension = klass.new.Mixin(:Empty, doc) { define_method(:Mark) { circle(id: "mark") } }
 
-        assert_instance_of(Module, extension)
+        assert_instance_of(::Module, extension)
         assert_equal("mark", doc.root.Mark()[:id])
       ensure
         Sevgi::Graphics::Mixtures.send(:remove_const, :Empty)

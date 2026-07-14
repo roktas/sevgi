@@ -86,6 +86,12 @@ describe "DSL catalog" do
     assert_empty(DSLCatalog::ENTRIES.reject { it.fetch("code").match?(/\S/) })
   end
 
+  it "marks every callable-module DSL word" do
+    names = DSLCatalog::ENTRIES.filter_map { it.fetch("name") if it["contract"] == "callable" }
+
+    assert_equal(%w[Call Group Layer Layer! Symbols base], names.sort)
+  end
+
   DSLCatalog::ENTRIES.each do |entry|
     it "runs the #{entry.fetch("name")} example" do
       Dir.mktmpdir("sevgi-dsl-") do |directory|
