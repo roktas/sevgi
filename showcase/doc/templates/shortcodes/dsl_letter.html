@@ -1,0 +1,22 @@
+{% set catalog = load_data(path="data/dsl.yml") %}
+
+{% for key, entries in catalog.letters %}
+  {% if key == letter %}
+    {% for entry in entries %}
+<article class="dsl-entry">
+  <h4 id="{{ entry.anchor }}"><a class="dsl-word" href="#{{ entry.anchor }}"><code>{{ entry.name }}</code></a></h4>
+  <p class="dsl-meta">
+    <span>{{ entry.provider }}</span>
+    <span>{{ entry.context }}</span>
+    {% for theme in entry.themes %}<a href="#theme-{{ theme }}">{{ theme | replace(from="-", to=" ") }}</a>{% endfor %}
+  </p>
+  <p>{{ entry.summary }}</p>
+  {% set example = "```ruby
+" ~ entry.code ~ "
+```" %}
+  {{ example | markdown | safe }}
+  {% if entry.see %}<p class="dsl-see">See <a href="{{ entry.see }}">{{ entry.see_title }}</a>.</p>{% endif %}
+</article>
+    {% endfor %}
+  {% endif %}
+{% endfor %}

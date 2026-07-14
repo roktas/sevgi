@@ -1,0 +1,893 @@
+themes:
+  - id: documents
+    title: Documents
+    summary: Start documents, choose profiles, and control their lifecycle.
+  - id: composition
+    title: Composition
+    summary: Build, move, group, and reuse parts of an SVG tree.
+  - id: context
+    title: Context & traversal
+    summary: Query the current element and move through its parents or children.
+  - id: drawing
+    title: Drawing helpers
+    summary: Express common shapes and line constructions with less ceremony.
+  - id: transforms
+    title: Transforms
+    summary: Attach SVG transforms without assembling transform strings.
+  - id: layout
+    title: Layout & repetition
+    summary: Align, duplicate, tile, grid, and paginate repeated work.
+  - id: round-trip
+    title: Round trip & reuse
+    summary: Move between SVG/XML, Sevgi source, files, and reusable modules.
+  - id: quality
+    title: Quality & inspection
+    summary: Validate structure, inspect identity, and prepare reliable output.
+  - id: output
+    title: Output
+    summary: Render, print, save, and export drawings.
+  - id: editors
+    title: Editors & metadata
+    summary: Add Inkscape structure, pages, RDF, and licensing metadata.
+  - id: script-tools
+    title: Script tools
+    summary: Use the full top-level environment provided to Sevgi scripts.
+
+letters:
+  "_":
+    - name: "_"
+      anchor: text-content
+      summary: Add floating encoded text or content at the current point in the tree.
+      provider: Underscore
+      context: document
+      themes: [composition]
+      code: '_ "A loose text node"'
+
+  A:
+    - name: Adopt
+      anchor: adopt
+      summary: Move an existing subtree under a new parent.
+      provider: Core
+      context: document
+      themes: [composition]
+      code: |
+        target = g id: "target"
+        rect(id: "moved", width: 4, height: 2).Adopt target
+    - name: AdoptFirst
+      anchor: adopt-first
+      summary: Move an existing subtree to the first position under a parent.
+      provider: Core
+      context: document
+      themes: [composition]
+      code: |
+        target = g { circle id: "second", r: 2 }
+        rect(id: "first", width: 3, height: 2).AdoptFirst target
+    - name: Align
+      anchor: align
+      summary: Center an element by comparing an inner and outer box.
+      provider: Transform
+      context: document
+      themes: [layout, transforms]
+      code: |
+        inner = Sevgi::Geometry::Rect[4, 2]
+        outer = Sevgi::Geometry::Rect[20, 10]
+        rect(width: 4, height: 2).Align :center, inner:, outer:
+      see: /geometry/#alignment
+      see_title: geometry alignment
+    - name: Ancestral
+      anchor: ancestral
+      summary: Merge internal metadata along the direct root-to-element chain.
+      provider: Underscore
+      context: document
+      themes: [context, composition]
+      code: |
+        g _:{tone: "tomato"} do
+          rect(width: 4, height: 2, fill: Ancestral()[:tone])
+        end
+    - name: Append
+      anchor: append
+      summary: Move existing elements to the end of a new parent's children.
+      provider: Core
+      context: document
+      themes: [composition]
+      code: |
+        target = g id: "target"
+        target.Append circle(r: 2), rect(width: 3, height: 2)
+
+  B:
+    - name: base
+      anchor: base
+      summary: Register shared drawing steps that run before a callable module's public methods.
+      provider: Graphics::Module
+      context: script
+      themes: [composition, round-trip]
+      code: |
+        icon = Module.new do
+          extend SVG::Module
+          base { circle r: 5, fill: "gold" }
+          def call = circle(r: 2, fill: "black")
+        end
+        SVG(:minimal) { Call icon }.Render
+
+  C:
+    - name: Call
+      anchor: call
+      summary: Run a configured Ruby module as a drawing step on the current element.
+      provider: Call
+      context: script
+      themes: [composition, round-trip]
+      code: |
+        dot = Module.new do
+          extend SVG::Module
+          def call(x) = circle(cx: x, r: 2)
+        end
+        SVG(:minimal) { Call dot, 8 }.Render
+      see: /library-mode/#callable-modules
+      see_title: callable modules
+    - name: CData
+      anchor: cdata
+      summary: Read the joined text content used by SVG validation.
+      provider: Validate
+      context: document
+      themes: [quality, composition]
+      code: 'text("hello").tap { |node| node[:data_text] = node.CData }'
+    - name: Classify
+      anchor: classify
+      summary: Add CSS class tokens without duplicating existing values.
+      provider: Core
+      context: document
+      themes: [composition]
+      code: 'rect(class: "shape").Classify "selected", :shape'
+    - name: Comment
+      anchor: comment
+      summary: Insert a safely encoded XML comment.
+      provider: Underscore
+      context: document
+      themes: [composition, quality]
+      code: 'Comment "generated by Sevgi"'
+    - name: css
+      anchor: css
+      summary: Turn a Ruby hash into a readable SVG style element.
+      provider: Wrappers
+      context: document
+      themes: [composition, drawing]
+      code: |
+        css ".badge" => {fill: "tomato", stroke: "white"}
+        circle class: "badge", r: 8
+
+  D:
+    - name: Decompile
+      anchor: decompile
+      summary: Parse an SVG/XML file into an inspectable immutable Derender node.
+      provider: Toplevel
+      context: script
+      themes: [round-trip, script-tools]
+      code: 'Decompile("shape.svg", "mark").attributes'
+      see: /derender/#inspect
+      see_title: inspecting Derender nodes
+    - name: Defaults
+      anchor: defaults
+      summary: Fill only attributes that the element does not already have.
+      provider: Core
+      context: document
+      themes: [composition]
+      code: 'rect(fill: "gold").Defaults fill: "gray", stroke: "black"'
+    - name: Derender
+      anchor: derender
+      summary: Convert an SVG/XML file or selected id into formatted Sevgi source.
+      provider: Toplevel
+      context: script
+      themes: [round-trip, script-tools]
+      code: 'Derender "shape.svg", "mark"'
+      see: /derender/
+      see_title: the Derender guide
+    - name: Disidentify
+      anchor: disidentify
+      summary: Hide rendered ids as internal metadata while retaining their source identity.
+      provider: Identify
+      context: document
+      themes: [quality, composition]
+      code: |
+        g(id: "art") { circle id: "dot", r: 2 }
+        Disidentify()
+    - name: Draw
+      anchor: draw
+      summary: Draw one or more Geometry objects into the current SVG element.
+      provider: Hatch
+      context: inkscape
+      themes: [drawing]
+      code: 'Draw Sevgi::Geometry::Line.([0, 0], [10, 4]), stroke: "black"'
+      see: /geometry/#drawing
+      see_title: drawing geometry
+    - name: Duplicate
+      anchor: duplicate
+      summary: Copy an independent subtree and optionally translate or customize it.
+      provider: Duplicate
+      context: document
+      themes: [composition, layout]
+      code: |
+        source = circle id: "dot", r: 2
+        source.Duplicate dx: 8 do |node|
+          node[:id] = "dot-copy" if node[:"-id"]
+        end
+    - name: DuplicateX
+      anchor: duplicate-x
+      summary: Copy an element and translate the copy along the x axis.
+      provider: Duplicate
+      context: document
+      themes: [composition, layout]
+      code: 'circle(r: 2).DuplicateX 8'
+    - name: DuplicateY
+      anchor: duplicate-y
+      summary: Copy an element and translate the copy along the y axis.
+      provider: Duplicate
+      context: document
+      themes: [composition, layout]
+      code: 'circle(r: 2).DuplicateY 8'
+
+  E:
+    - name: Element
+      anchor: element
+      summary: Build an explicitly named XML element when a bare Ruby call is unsuitable.
+      provider: Core
+      context: document
+      themes: [composition, round-trip]
+      code: 'Element "custom:mark", "hello", "custom:kind": "spark"'
+
+  F:
+    - name: Flip
+      anchor: flip
+      summary: Append a two-axis reflection to the element's SVG transform list.
+      provider: Transform
+      context: document
+      themes: [transforms]
+      code: 'path(d: "M 0 0 L 8 3").Flip'
+    - name: FlipX
+      anchor: flip-x
+      summary: Reflect an element horizontally with an SVG scale transform.
+      provider: Transform
+      context: document
+      themes: [transforms]
+      code: 'path(d: "M 0 0 L 8 3").FlipX'
+    - name: FlipY
+      anchor: flip-y
+      summary: Reflect an element vertically with an SVG scale transform.
+      provider: Transform
+      context: document
+      themes: [transforms]
+      code: 'path(d: "M 0 0 L 8 3").FlipY'
+    - name: Forward
+      anchor: forward
+      summary: Pass the current element as the first argument to another receiver.
+      provider: Core
+      context: document
+      themes: [context, composition]
+      code: 'Forward(proc { |node| node.Classify("forwarded") }, :call)'
+
+  G:
+    - name: Grid
+      anchor: grid
+      summary: Fit a major/minor grid inside a Canvas while preserving its margins.
+      provider: Toplevel
+      context: script
+      themes: [layout, script-tools]
+      code: |
+        canvas = SVG.canvas(width: 30, height: 20, margins: [2, 4])
+        grid = Grid canvas, unit: 1, multiple: 5
+        SVG(:minimal, grid.canvas) { grid.x.major.lines.each { it.draw(self) } }.Render
+      see: /sundries/#grid
+      see_title: fitted grids
+    - name: Group
+      anchor: group
+      summary: Render a callable module inside a regular group with stable wrapper attributes.
+      provider: Inkscape
+      context: script
+      themes: [composition, editors]
+      code: |
+        art = Module.new do
+          extend SVG::Module
+          def call = circle(r: 4)
+        end
+        SVG(:inkscape) { Group art, attributes: {id: "art"} }.Render
+
+  H:
+    - name: Hatch
+      anchor: hatch
+      summary: Sweep parallel Geometry lines through a closed shape and draw them.
+      provider: Hatch
+      context: inkscape
+      themes: [drawing, layout]
+      code: |
+        shape = Sevgi::Geometry::Rect[20, 12]
+        Hatch shape, angle: 30, step: 3, stroke: "black"
+      see: /geometry/#sweeps
+      see_title: sweeps and hatching
+    - name: HLineBy
+      anchor: h-line-by
+      summary: Draw a relative horizontal path segment from a starting point.
+      provider: Wrappers
+      context: document
+      themes: [drawing]
+      code: 'HLineBy x: 2, y: 4, length: 12, stroke: "black"'
+    - name: HLineTo
+      anchor: h-line-to
+      summary: Draw a horizontal path segment to an absolute x coordinate.
+      provider: Wrappers
+      context: document
+      themes: [drawing]
+      code: 'HLineTo x1: 2, y1: 4, x2: 14, stroke: "black"'
+
+  I:
+    - name: Identifiers
+      anchor: identifiers
+      summary: Snapshot rendered ids and expose duplicate-id collisions.
+      provider: Identify
+      context: document
+      themes: [quality, context]
+      code: |
+        circle id: "dot", r: 2
+        self[:data_ids] = Identifiers().namespace.keys.join(",")
+    - name: Include
+      anchor: include
+      summary: Import one selected SVG/XML node as data under the current element.
+      provider: Include
+      context: document
+      themes: [composition, round-trip]
+      code: 'Include "shape.svg", "mark"'
+      see: /derender/#evaluate
+      see_title: direct evaluation
+    - name: IncludeChildren
+      anchor: include-children
+      summary: Import only the children of a selected SVG/XML node.
+      provider: Include
+      context: document
+      themes: [composition, round-trip]
+      code: 'IncludeChildren "shape.svg", "group"'
+      see: /derender/#evaluate
+      see_title: direct evaluation
+    - name: InkscapeTemplateInfo
+      anchor: inkscape-template-info
+      summary: Add Inkscape's reusable-template name, description, and author metadata.
+      provider: Inkscape
+      context: inkscape
+      themes: [editors, documents]
+      code: 'InkscapeTemplateInfo name: "Badge", desc: "A tiny badge", author: "Sevgi"'
+    - name: Is?
+      anchor: is-predicate
+      summary: Ask whether the current element has a particular SVG/XML name.
+      provider: Core
+      context: document
+      themes: [context, quality]
+      code: 'circle(r: 2).tap { |node| node[:data_circle] = node.Is?(:circle) }'
+
+  L:
+    - name: layer
+      anchor: layer
+      summary: Build a generic group, or an Inkscape layer when using the Inkscape profile.
+      provider: Polyfills / Inkscape
+      context: document
+      themes: [composition, editors]
+      code: 'layer(id: "ink") { path d: "M 0 0 L 8 3" }'
+    - name: Layer
+      anchor: layer-callable
+      summary: Render a callable module inside an Inkscape layer.
+      provider: Inkscape
+      context: script
+      themes: [composition, editors]
+      code: |
+        art = Module.new do
+          extend SVG::Module
+          def call = circle(r: 4)
+        end
+        SVG(:inkscape) { Layer art, attributes: {id: "ink"} }.Render
+    - name: layer!
+      anchor: layer-bang
+      summary: Build an Inkscape layer marked insensitive to editor interaction.
+      provider: Inkscape
+      context: inkscape
+      themes: [composition, editors]
+      code: 'layer!(id: "locked") { rect width: 8, height: 4 }'
+    - name: Layer!
+      anchor: layer-callable-bang
+      summary: Render a callable module inside a locked Inkscape layer.
+      provider: Inkscape
+      context: script
+      themes: [composition, editors]
+      code: |
+        guide = Module.new do
+          extend SVG::Module
+          def call = LineTo(x2: 10, y2: 10)
+        end
+        SVG(:inkscape) { Layer! guide, attributes: {id: "guides"} }.Render
+    - name: License
+      anchor: license
+      summary: Add RDF work metadata with an explicit license URL.
+      provider: RDF
+      context: inkscape
+      themes: [editors]
+      code: 'License title: "Badge", creator: "Sevgi", license: "https://example.test/license"'
+    - name: License_CC0
+      anchor: license-cc0
+      summary: Mark a work with Creative Commons Zero metadata.
+      provider: RDF
+      context: inkscape
+      themes: [editors]
+      code: 'License_CC0 title: "Public badge", creator: "Sevgi"'
+    - name: License_CC_BY
+      anchor: license-cc-by
+      summary: Add Creative Commons Attribution 4.0 metadata.
+      provider: RDF
+      context: inkscape
+      themes: [editors]
+      code: 'License_CC_BY title: "Badge", creator: "Sevgi"'
+    - name: License_CC_BY_NC
+      anchor: license-cc-by-nc
+      summary: Add Creative Commons Attribution–NonCommercial 4.0 metadata.
+      provider: RDF
+      context: inkscape
+      themes: [editors]
+      code: 'License_CC_BY_NC title: "Badge", creator: "Sevgi"'
+    - name: License_CC_BY_NC_ND
+      anchor: license-cc-by-nc-nd
+      summary: Add Attribution–NonCommercial–NoDerivatives metadata.
+      provider: RDF
+      context: inkscape
+      themes: [editors]
+      code: 'License_CC_BY_NC_ND title: "Badge", creator: "Sevgi"'
+    - name: License_CC_BY_NC_SA
+      anchor: license-cc-by-nc-sa
+      summary: Add Attribution–NonCommercial–ShareAlike metadata.
+      provider: RDF
+      context: inkscape
+      themes: [editors]
+      code: 'License_CC_BY_NC_SA title: "Badge", creator: "Sevgi"'
+    - name: License_CC_BY_ND
+      anchor: license-cc-by-nd
+      summary: Add Creative Commons Attribution–NoDerivatives metadata.
+      provider: RDF
+      context: inkscape
+      themes: [editors]
+      code: 'License_CC_BY_ND title: "Badge", creator: "Sevgi"'
+    - name: License_CC_BY_SA
+      anchor: license-cc-by-sa
+      summary: Add Creative Commons Attribution–ShareAlike metadata.
+      provider: RDF
+      context: inkscape
+      themes: [editors]
+      code: 'License_CC_BY_SA title: "Badge", creator: "Sevgi"'
+    - name: License_LAL
+      anchor: license-lal
+      summary: Add Free Art License metadata.
+      provider: RDF
+      context: inkscape
+      themes: [editors]
+      code: 'License_LAL title: "Badge", creator: "Sevgi"'
+    - name: LineBy
+      anchor: line-by
+      summary: Draw a relative line from a screen-space angle and length.
+      provider: Wrappers
+      context: document
+      themes: [drawing]
+      code: 'LineBy x: 2, y: 2, angle: 30, length: 12, stroke: "black"'
+    - name: LineTo
+      anchor: line-to
+      summary: Draw a line path between two absolute points.
+      provider: Wrappers
+      context: document
+      themes: [drawing]
+      code: 'LineTo x1: 2, y1: 2, x2: 14, y2: 8, stroke: "black"'
+    - name: Lint
+      anchor: lint
+      summary: Reject structural problems such as duplicate rendered ids.
+      provider: Lint
+      context: document
+      themes: [quality]
+      code: |
+        circle id: "one", r: 2
+        Lint()
+    - name: Load
+      anchor: load
+      summary: Evaluate another `.sevgi` file relative to the active script while preserving the load stack.
+      provider: Toplevel
+      context: script
+      themes: [round-trip, script-tools]
+      code: |
+        Load "part"
+        SVG(:minimal) { circle r: PART_RADIUS }.Render
+      see: /script-mode/#load
+      see_title: script loading
+
+  M:
+    - name: Matrix
+      anchor: matrix
+      summary: Append an explicit six-value SVG transformation matrix.
+      provider: Transform
+      context: document
+      themes: [transforms]
+      code: 'rect(width: 4, height: 2).Matrix 1, 0.2, 0, 1, 6, 3'
+    - name: Mixin
+      anchor: mixin
+      summary: Add a named or anonymous DSL extension to a document profile.
+      provider: Toplevel
+      context: script
+      themes: [documents, script-tools, composition]
+      code: |
+        profile = SVG.document(attributes: {})
+        Mixin(profile) { define_method(:Badge) { circle(r: 4) } }
+        SVG(profile) { Badge() }.Render
+
+  N:
+    - name: NS?
+      anchor: ns-predicate
+      summary: Ask whether a namespace is declared on the element or an ancestor.
+      provider: Validate
+      context: inkscape
+      themes: [quality, context, editors]
+      code: 'rect(width: 2, data_inkscape: NS?(:inkscape))'
+
+  O:
+    - name: Orphan
+      anchor: orphan
+      summary: Detach an element and retain it as an independent subtree root.
+      provider: Core
+      context: document
+      themes: [composition]
+      code: |
+        spare = circle r: 2
+        spare.Orphan
+        g { spare.Adopt self }
+    - name: Out
+      anchor: out
+      summary: Render a checked document to standard output.
+      provider: Save
+      context: script
+      themes: [output, script-tools]
+      code: 'SVG(:minimal) { circle r: 3 }.Out'
+
+  P:
+    - name: Pages
+      anchor: pages
+      summary: Declare explicit Inkscape pages inside a namedview.
+      provider: Inkscape
+      context: inkscape
+      themes: [layout, editors, documents]
+      code: 'Pages({x: 0, y: 0, width: 100, height: 60, label: "front"})'
+    - name: PagesTabular
+      anchor: pages-tabular
+      summary: Generate a rectangular grid of Inkscape pages.
+      provider: Inkscape
+      context: inkscape
+      themes: [layout, editors, documents]
+      code: 'PagesTabular rows: 2, cols: 2, width: 100, height: 60, gap: 5'
+    - name: Paper
+      anchor: paper
+      summary: Register or verify an idempotent named paper profile.
+      provider: Toplevel
+      context: script
+      themes: [documents, script-tools]
+      code: |
+        Paper 90, 50, :catalog_card
+        SVG(:minimal, :catalog_card) { rect width: 90, height: 50 }.Render
+    - name: Paper!
+      anchor: paper-bang
+      summary: Explicitly replace a custom named paper profile.
+      provider: Toplevel
+      context: script
+      themes: [documents, script-tools]
+      code: |
+        Paper! 90, 50, :catalog_card
+        SVG(:minimal, :catalog_card) { rect width: 90, height: 50 }.Render
+    - name: PDF
+      anchor: pdf
+      summary: Render and export the document as a PDF through the optional native stack.
+      provider: Export
+      context: script
+      themes: [output]
+      code: 'SVG(width: 20, height: 20) { circle cx: 10, cy: 10, r: 8 }.PDF "example.pdf"'
+      see: /sundries/#export
+      see_title: export setup
+    - name: PNG
+      anchor: png
+      summary: Render and export the document as a PNG through the optional native stack.
+      provider: Export
+      context: script
+      themes: [output]
+      code: 'SVG(width: 20, height: 20) { circle cx: 10, cy: 10, r: 8 }.PNG "example.png"'
+      see: /sundries/#export
+      see_title: export setup
+    - name: Prepend
+      anchor: prepend
+      summary: Move existing elements to the beginning of a new parent's children.
+      provider: Core
+      context: document
+      themes: [composition]
+      code: |
+        target = g { circle id: "last", r: 2 }
+        target.Prepend rect(id: "first", width: 3, height: 2)
+    - name: PreRender
+      anchor: pre-render
+      summary: Run selected validation and lint checks explicitly before rendering.
+      provider: Document::Base
+      context: script
+      themes: [documents, quality, output]
+      code: |
+        drawing = SVG(:minimal) { rect width: 4, height: 2 }
+        drawing.PreRender validate: true, lint: true
+        drawing.Render
+
+  R:
+    - name: RDF
+      anchor: rdf
+      summary: Build an RDF metadata container inside an Inkscape document.
+      provider: RDF
+      context: inkscape
+      themes: [editors]
+      code: 'RDF { Element :"cc:Work", "rdf:about": "" }'
+    - name: RDFWork
+      anchor: rdf-work
+      summary: Describe a work with common Dublin Core and Creative Commons metadata.
+      provider: RDF
+      context: inkscape
+      themes: [editors]
+      code: 'RDFWork title: "Badge", creator: "Sevgi"'
+    - name: Render
+      anchor: render
+      summary: Serialize a checked document, element, or subtree as SVG/XML.
+      provider: Render
+      context: script
+      themes: [output, quality]
+      code: 'SVG(:minimal) { circle r: 3 }.Render'
+    - name: RenderChildren
+      anchor: render-children
+      summary: Serialize only an element's children, leaving out the element itself.
+      provider: Render
+      context: script
+      themes: [output, composition]
+      code: 'SVG(:minimal) { circle(r: 2); rect(width: 3, height: 2) }.RenderChildren'
+    - name: Root
+      anchor: root
+      summary: Return the document root, failing when the element is detached.
+      provider: Core
+      context: document
+      themes: [context]
+      code: 'circle(r: 2).tap { |node| node[:data_root] = node.Root.name }'
+    - name: Root?
+      anchor: root-predicate
+      summary: Return the document root when attached, or nil for a detached subtree.
+      provider: Core
+      context: document
+      themes: [context]
+      code: 'circle(r: 2).tap { |node| node[:data_attached] = !node.Root?.nil? }'
+    - name: Rotate
+      anchor: rotate
+      summary: Append an SVG rotation, optionally around an explicit center.
+      provider: Transform
+      context: document
+      themes: [transforms]
+      code: 'rect(width: 8, height: 3).Rotate 25, 4, 1.5'
+    - name: RotateLeft
+      anchor: rotate-left
+      summary: Rotate an element left by a quarter turn.
+      provider: Transform
+      context: document
+      themes: [transforms]
+      code: 'path(d: "M 0 0 L 8 3").RotateLeft'
+    - name: RotateRight
+      anchor: rotate-right
+      summary: Rotate an element right by a quarter turn.
+      provider: Transform
+      context: document
+      themes: [transforms]
+      code: 'path(d: "M 0 0 L 8 3").RotateRight'
+
+  S:
+    - name: Save
+      anchor: save
+      summary: Render a checked document to an SVG file.
+      provider: Save
+      context: script
+      themes: [output]
+      code: 'SVG(:minimal) { circle r: 3 }.Save "example.svg"'
+    - name: Scale
+      anchor: scale
+      summary: Append a one- or two-axis SVG scale transform.
+      provider: Transform
+      context: document
+      themes: [transforms]
+      code: 'circle(r: 3).Scale 1.5, 0.75'
+    - name: sevgi
+      anchor: rake-sevgi
+      summary: Run a `.sevgi` script as a Rake file task with arguments and dependency tracking.
+      provider: Rake helper
+      context: rake
+      themes: [script-tools, round-trip]
+      code: 'sevgi "drawing", "front", theme: :dark'
+      see: /script-mode/#rake
+      see_title: Rake integration
+    - name: Skew
+      anchor: skew
+      summary: Append horizontal and vertical SVG skew transforms together.
+      provider: Transform
+      context: document
+      themes: [transforms]
+      code: 'rect(width: 8, height: 3).Skew 12, -4'
+    - name: SkewX
+      anchor: skew-x
+      summary: Append a horizontal SVG skew transform.
+      provider: Transform
+      context: document
+      themes: [transforms]
+      code: 'rect(width: 8, height: 3).SkewX 12'
+    - name: SkewY
+      anchor: skew-y
+      summary: Append a vertical SVG skew transform.
+      provider: Transform
+      context: document
+      themes: [transforms]
+      code: 'rect(width: 8, height: 3).SkewY 12'
+    - name: square
+      anchor: square
+      summary: Draw a square through the familiar SVG rect vocabulary.
+      provider: Wrappers
+      context: document
+      themes: [drawing]
+      code: 'square x: 2, y: 2, length: 8, rx: 1'
+    - name: Stay
+      anchor: stay
+      summary: Stop a traversal from descending into a selected element's children.
+      provider: Core
+      context: document
+      themes: [context]
+      code: |
+        g { circle r: 2 }
+        Traverse { |node| Stay(node) if node.Is?(:g) }
+    - name: SVG
+      anchor: svg
+      summary: Create an SVG document from a profile, canvas, and drawing block.
+      provider: Toplevel
+      context: script
+      themes: [documents, script-tools]
+      code: 'SVG(:minimal) { circle r: 4 }.Render'
+      see: /svg/
+      see_title: document construction
+    - name: Symbol
+      anchor: symbol
+      summary: Build a titled SVG symbol with an id derived from its human-readable name.
+      provider: Symbols
+      context: document
+      themes: [composition]
+      code: 'Symbol("status dot") { circle r: 2 }'
+    - name: symbol!
+      anchor: symbol-bang
+      summary: Build an SVG symbol element directly, including in profiles without a wrapper.
+      provider: Polyfills / Inkscape
+      context: document
+      themes: [composition, editors]
+      code: 'symbol!(id: "hidden") { circle r: 2 }'
+    - name: Symbols
+      anchor: symbols
+      summary: Collect symbols declared by a callable module into a defs element.
+      provider: Symbols
+      context: inkscape
+      themes: [composition, round-trip]
+      code: |
+        icons = Module.new do
+          extend SVG::Module
+          def call = Symbol("dot") { circle r: 2 }
+        end
+        Symbols icons
+
+  T:
+    - name: Tile
+      anchor: tile
+      summary: Repeat a block across a two-dimensional grid of translated groups.
+      provider: Tile
+      context: document
+      themes: [layout]
+      code: 'Tile "dot-grid", nx: 3, ny: 2, dx: 6, dy: 6 do circle r: 2 end'
+    - name: TileX
+      anchor: tile-x
+      summary: Repeat a block horizontally at a fixed interval.
+      provider: Tile
+      context: document
+      themes: [layout]
+      code: 'TileX "dot-row", n: 3, d: 6 do circle r: 2 end'
+    - name: TileY
+      anchor: tile-y
+      summary: Repeat a block vertically at a fixed interval.
+      provider: Tile
+      context: document
+      themes: [layout]
+      code: 'TileY "dot-column", n: 3, d: 6 do circle r: 2 end'
+    - name: Translate
+      anchor: translate
+      summary: Append a two-axis SVG translation.
+      provider: Transform
+      context: document
+      themes: [transforms]
+      code: 'circle(r: 2).Translate 8, 4'
+    - name: TranslateX
+      anchor: translate-x
+      summary: Append a horizontal SVG translation.
+      provider: Transform
+      context: document
+      themes: [transforms]
+      code: 'circle(r: 2).TranslateX 8'
+    - name: TranslateY
+      anchor: translate-y
+      summary: Append a vertical SVG translation.
+      provider: Transform
+      context: document
+      themes: [transforms]
+      code: 'circle(r: 2).TranslateY 8'
+    - name: Traverse
+      anchor: traverse
+      summary: Walk an element and its descendants in document order.
+      provider: Core
+      context: document
+      themes: [context, quality]
+      code: |
+        g { circle r: 2; rect width: 3, height: 2 }
+        Traverse { |node| node.Classify "visited" }
+    - name: TraverseUp
+      anchor: traverse-up
+      summary: Walk from an element toward the root through its ancestors.
+      provider: Core
+      context: document
+      themes: [context]
+      code: |
+        g do
+          circle(r: 2).TraverseUp { |node| node[:data_seen] = true }
+        end
+
+  V:
+    - name: Validate
+      anchor: validate
+      summary: Check SVG element, attribute, namespace, and content rules immediately.
+      provider: Validate
+      context: document
+      themes: [quality]
+      code: |
+        circle r: 3, fill: "tomato"
+        Validate()
+    - name: VLineBy
+      anchor: v-line-by
+      summary: Draw a relative vertical path segment from a starting point.
+      provider: Wrappers
+      context: document
+      themes: [drawing]
+      code: 'VLineBy x: 4, y: 2, length: 12, stroke: "black"'
+    - name: VLineTo
+      anchor: v-line-to
+      summary: Draw a vertical path segment to an absolute y coordinate.
+      provider: Wrappers
+      context: document
+      themes: [drawing]
+      code: 'VLineTo x1: 4, y1: 2, y2: 14, stroke: "black"'
+
+  W:
+    - name: With
+      anchor: with
+      summary: Run a block with a sanitized generated id and return the original element.
+      provider: Core
+      context: document
+      themes: [composition, context]
+      code: |
+        marker = circle r: 2
+        marker.With("status dot") { |id| marker[:id] = id }
+    - name: Within
+      anchor: within
+      summary: Evaluate a block in another element's DSL context while retaining the caller.
+      provider: Core
+      context: document
+      themes: [composition, context]
+      code: |
+        target = g id: "target"
+        circle(r: 2).Within(receiver: target) { rect width: 4, height: 2 }
+    - name: Write
+      anchor: write
+      summary: Write rendered SVG to a named destination without the Save convenience checks.
+      provider: Save
+      context: script
+      themes: [output]
+      code: 'SVG(:minimal) { circle r: 3 }.Write "example.svg"'

@@ -35,6 +35,7 @@ module Sevgi
     DATA_INSTANCE_METHODS = %i[== deconstruct deconstruct_keys eql? hash inspect to_h with].freeze
     EXACT_CONTRACTS = {
       "#SVG" => [[%w[document canvas attributes], ["Sevgi::Graphics::Document::Proto"]]],
+      "Sevgi::Toplevel#SVG" => [[%w[document canvas attributes], ["Sevgi::Graphics::Document::Proto"]]],
       "Sevgi::Toplevel#Mixin" => [
         [%w[mod document], ["nil"]],
         [%w[mod document], ["Module"]],

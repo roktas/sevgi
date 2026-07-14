@@ -4,6 +4,20 @@ require "sevgi/graphics"
 
 module Sevgi
   module Toplevel
+    # Builds an SVG document through the full Sevgi top-level DSL.
+    # @param document [Symbol, String, Class] document profile name or document class
+    # @param canvas [Sevgi::Graphics::Canvas, Sevgi::Graphics::Paper, Symbol, String, Sevgi::Undefined, nil] optional
+    #   canvas or paper profile
+    # @param attributes [Hash] root SVG attributes
+    # @yield the document block evaluated in the SVG document context
+    # @yieldreturn [void]
+    # @return [Sevgi::Graphics::Document::Proto] SVG document object
+    # @raise [Sevgi::ArgumentError] when the document, paper, or canvas arguments are invalid
+    # @see Sevgi::Graphics.SVG
+    def SVG(document = :default, canvas = Undefined, **attributes, &block)
+      Graphics.SVG(document, canvas, **attributes, &block)
+    end
+
     # @overload Mixin(mod, document = Sevgi::Graphics::Document::Base)
     #   Adds a named graphics mixture to a document class.
     #   @param mod [Symbol, String] named mixture to mix into the document

@@ -1,0 +1,21 @@
+{% set catalog = load_data(path="data/dsl.yml") %}
+
+<div class="dsl-themes">
+  {% for theme in catalog.themes %}
+  <section class="dsl-theme" id="theme-{{ theme.id }}">
+    <div class="dsl-theme-intro">
+      <h3>{{ theme.title }}</h3>
+      <p>{{ theme.summary }}</p>
+    </div>
+    <div class="dsl-links">
+      {% for letter, entries in catalog.letters %}
+        {% for entry in entries %}
+          {% if theme.id in entry.themes %}
+          <a href="#{{ entry.anchor }}"><code>{{ entry.name }}</code></a>
+          {% endif %}
+        {% endfor %}
+      {% endfor %}
+    </div>
+  </section>
+  {% endfor %}
+</div>

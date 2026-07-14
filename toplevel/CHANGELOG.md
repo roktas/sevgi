@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Added
 
+- Added `Sevgi.SVG` as the explicit namespaced form of the top-level SVG document entrypoint.
 - Added the opt-in recursive `SVG::Modules` contract for callable drawing namespaces.
 - Added callable drawing-module `base` blocks, document and paper registry introspection, Canvas structural equality,
   renderer options on `RenderChildren`, axis translation helpers, and a CC BY RDF helper.

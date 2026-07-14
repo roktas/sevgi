@@ -1,12 +1,14 @@
 +++
 title = "Supported Usage"
-weight = 4
+weight = 21
+[extra]
+group = "More"
 +++
 
 Sevgi is designed to support script-style SVG generation through a compact Ruby DSL. The public boundary for users is
 the documented DSL and the tested showcase workflow, not every internal helper or every downstream usage pattern.
 
-## What Is Stable
+## What is stable
 
 The stable boundary for Sevgi users is the Sevgi DSL, the documented components, and the runnable showcase examples.
 Those examples are the best starting point because they are executable and tested with the current source tree.
@@ -17,7 +19,7 @@ belongs around the DSL when the drawing needs loops, data structures, calculatio
 The generated API reference is published on [RubyDoc](https://www.rubydoc.info/gems/sevgi). Use it for component-level
 Ruby APIs; use this site and the showcase examples for script-style workflows.
 
-## What Is Not A Contract
+## What is not a contract
 
 Implementation details are not public API. Avoid depending on private constants, registry internals, generated helper
 classes, cache state, or undocumented method aliases.
@@ -26,7 +28,7 @@ If a script needs a behavior that is not covered by the docs or examples, treat 
 right next step may be documenting an existing public behavior, adding a tested helper, or changing the script to use a
 more direct SVG construct.
 
-## Version Choice
+## Version choice
 
 For reproducible documents, pin the Sevgi version used to generate them. For exploratory work, using the current source
 tree is fine, but generated SVG should be reviewed when the dependency changes.

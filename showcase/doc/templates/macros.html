@@ -1,36 +1,54 @@
+{% macro nav_tree(docs_section, current_page=false) %}
+{% set active_group = "Start" %}
+{% if current_page %}
+{% set active_group = current_page.extra.group | default(value="Start") %}
+{% endif %}
+
+<div class="doc-nav-tree">
+    {% for group in config.extra.nav_groups %}
+    <details class="nav-section" {% if group == active_group %}open{% endif %}>
+        <summary class="nav-section-title">{{ group }}</summary>
+        <div class="nav-section-pages">
+            {% for doc_page in docs_section.pages %}
+            {% set page_group = doc_page.extra.group | default(value="") %}
+            {% if page_group == group %}
+            {% set is_current = current_page and doc_page.permalink == current_page.permalink %}
+            <a class="nav-page {% if is_current %}active{% endif %}" href="{{ doc_page.permalink | safe }}">
+                {{ doc_page.title }}
+            </a>
+
+            {% if is_current and current_page.toc %}
+            <div class="nav-outline">
+                {% for heading in current_page.toc %}
+                {% if heading.level == 2 %}
+                    {% if heading.children %}
+                    <details class="nav-outline-branch">
+                        <summary>{{ heading.title }}</summary>
+                        <div class="nav-outline-children">
+                            {% for child in heading.children %}
+                            <a href="{{ child.permalink | safe }}">{{ child.title }}</a>
+                            {% endfor %}
+                        </div>
+                    </details>
+                    {% else %}
+                    <a class="nav-outline-link" href="{{ heading.permalink | safe }}">{{ heading.title }}</a>
+                    {% endif %}
+                {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endif %}
+            {% endfor %}
+        </div>
+    </details>
+    {% endfor %}
+</div>
+{% endmacro nav_tree %}
+
 {% macro toc_nav(docs_section, current_page=false) %}
 <div class="toc">
     <div class="toc-sticky">
-        {% set current_group = "" %}
-        {% for doc_page in docs_section.pages %}
-        {% set is_current = current_page and doc_page.permalink == current_page.permalink %}
-        {% set page_group = doc_page.extra.group | default(value="") %}
-
-        {# Show group label when group changes #}
-        {% if page_group != current_group and page_group != "" %}
-        <div class="toc-group-label">{{ page_group }}</div>
-        {% set_global current_group = page_group %}
-        {% endif %}
-
-        <div class="toc-item">
-            <a class="subtext {% if is_current %}active{% endif %}" href="{{ doc_page.permalink | safe }}">
-                {{ doc_page.title }}
-            </a>
-        </div>
-
-        {# Show page TOC for current page (h2s only) #}
-        {% if is_current and current_page.toc %}
-        {% for h in current_page.toc %}
-        {% if h.level == 2 %}
-        <div class="toc-item-child">
-            <a class="subtext" href="{{ h.permalink | safe }}">
-                <small>{{ h.title }}</small>
-            </a>
-        </div>
-        {% endif %}
-        {% endfor %}
-        {% endif %}
-        {% endfor %}
+        {{ self::nav_tree(docs_section=docs_section, current_page=current_page) }}
     </div>
 </div>
 {% endmacro toc_nav %}

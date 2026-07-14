@@ -14,6 +14,7 @@ module Sevgi
           Mixin
           Paper
           Paper!
+          SVG
         ],
         Toplevel.public_instance_methods(false).sort
       )
@@ -33,6 +34,8 @@ module Sevgi
         object.respond_to?(:Paper),
         true,
         object.respond_to?(:Load),
+        Toplevel,
+        object.method(:SVG).owner,
         Function,
         klass.const_get(:F),
         Geometry,
@@ -53,6 +56,8 @@ module Sevgi
         mod.respond_to?(:Paper),
         true,
         mod.respond_to?(:Load),
+        Toplevel,
+        mod.method(:SVG).owner,
         Function,
         mod.const_get(:F),
         Geometry,

@@ -29,9 +29,7 @@ module Sevgi
         {
           ".content .footnote-definition" => "0.85rem",
           ".content .footnote-definition-label" => "0.7rem",
-          ".toc-group-label" => "0.75rem",
-          ".toc-item-child a" => "0.8rem",
-          ".mobile-toc-group" => "0.65rem"
+          ".nav-outline-link" => "0.84rem"
         }.each do |selector, font_size|
           body = selector_body(selector, css)
 

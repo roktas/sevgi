@@ -1,6 +1,8 @@
 +++
 title = "Showcase Examples"
-weight = 3
+weight = 20
+[extra]
+group = "More"
 +++
 
 Sevgi examples[^victor-book] are executable `.sevgi` scripts generated from the tested source files in `showcase/srv`;

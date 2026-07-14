@@ -1,6 +1,8 @@
 +++
 title = "Getting Started"
 weight = 1
+[extra]
+group = "Start"
 +++
 
 Sevgi creates SVG with Ruby. The recommended entry point is a `.sevgi` script: write Ruby, call the `SVG` DSL word, and
@@ -11,7 +13,7 @@ SVG tab to inspect the rendered result.
 
 {{ tabs(base="meter-face", dir="../showcase") }}
 
-## Run An Example
+## Run an example
 
 From a checkout, run the showcase scripts with Bundler:
 
@@ -22,7 +24,10 @@ bundle exec showcase/srv/meter-face.sevgi
 The script writes `showcase/srv/meter-face.svg` because it ends with `Save`. To write SVG to standard output instead,
 use `Out` in the script.
 
-## Install The CLI
+Continue with [Choose a Mode](@/usage.md) to decide whether the drawing belongs in an executable script or a Ruby
+application. Both modes use the same document model and DSL.
+
+## Install the CLI
 
 For released versions, install the top-level gem:
 
@@ -49,7 +54,7 @@ brew install cairo gdk-pixbuf gobject-introspection librsvg pkg-config
 gem install cairo rsvg2 hexapdf
 ```
 
-## Choose A Document Profile
+## Choose a document profile
 
 `SVG` can be called with a document profile. `:minimal` emits compact SVG without the XML declaration; the default
 profile emits a fuller SVG document. The examples use both forms depending on what the output needs.

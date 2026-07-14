@@ -23,7 +23,7 @@ SVG = Sevgi::Graphics
 #   @yieldreturn [void]
 #   @return [Sevgi::Graphics::Document::Proto] a rendered SVG document object
 #   @raise [Sevgi::ArgumentError] when the document, paper, or canvas arguments are invalid
-def SVG(...) = Sevgi::Graphics.SVG(...)
+def SVG(...) = Sevgi.SVG(...)
 
 # Full top-level API for Sevgi library and script consumers.
 #

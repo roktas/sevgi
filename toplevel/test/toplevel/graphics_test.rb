@@ -9,6 +9,21 @@ module Sevgi
       assert_equal(SVG, Graphics)
     end
 
+    def test_toplevel_builds_svg_through_every_public_mode
+      included = Class.new { include(::Sevgi) }.new
+
+      [
+        Toplevel,
+        Sevgi.method(:SVG).owner,
+        Toplevel,
+        included.method(:SVG).owner,
+        "<svg>\n  <rect width=\"3\"/>\n</svg>",
+        Sevgi.SVG(:minimal) { rect(width: 3) }.Render(),
+        "<svg>\n  <circle r=\"2\"/>\n</svg>",
+        included.SVG(:minimal) { circle(r: 2) }.Render()
+      ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+    end
+
     def test_toplevel_mixin_stays_instance_scoped
       klass = Class.new do
         include(::Sevgi)
