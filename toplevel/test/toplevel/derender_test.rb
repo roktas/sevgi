@@ -9,7 +9,24 @@ require_relative "../test_helper"
 
 module Sevgi
   class ToplevelDerenderTest < Minitest::Test
-    def test_decompile_delegates_to_file_api
+    def test_decompile_delegates_to_content_api
+      calls = []
+      node = Object.new
+
+      ::Sevgi::Derender.stub(
+        :decompile,
+        -> (content, id:) {
+          calls << [content, id]
+          node
+        }
+      ) do
+        assert_same(node, receiver.Decompile("<svg/>", id: "Root"))
+      end
+
+      assert_equal([["<svg/>", "Root"]], calls)
+    end
+
+    def test_decompile_file_delegates_to_file_api
       calls = []
       node = Object.new
 
@@ -20,30 +37,29 @@ module Sevgi
           node
         }
       ) do
-        assert_same(node, receiver.Decompile("drawing", "Root"))
+        assert_same(node, receiver.DecompileFile("drawing", id: "Root"))
       end
 
       assert_equal([%w[drawing Root]], calls)
     end
 
-    def test_decompile_accepts_missing_id
+    def test_derender_delegates_to_content_api
       calls = []
-      node = Object.new
 
       ::Sevgi::Derender.stub(
-        :decompile_file,
-        -> (file, id:) {
-          calls << [file, id]
-          node
+        :derender,
+        -> (content, id:) {
+          calls << [content, id]
+          "SVG"
         }
       ) do
-        assert_same(node, receiver.Decompile("drawing"))
+        assert_equal("SVG", receiver.Derender("<svg/>", id: "Root"))
       end
 
-      assert_equal([["drawing", nil]], calls)
+      assert_equal([["<svg/>", "Root"]], calls)
     end
 
-    def test_derender_delegates_to_file_api
+    def test_derender_file_delegates_to_file_api
       calls = []
 
       ::Sevgi::Derender.stub(
@@ -53,26 +69,82 @@ module Sevgi
           "SVG"
         }
       ) do
-        assert_equal("SVG", receiver.Derender("drawing", "Root"))
+        assert_equal("SVG", receiver.DerenderFile("drawing", id: "Root"))
       end
 
       assert_equal([%w[drawing Root]], calls)
     end
 
-    def test_derender_accepts_missing_id
+    def test_evaluate_delegates_to_content_api
       calls = []
+      element = Object.new
+      result = Object.new
 
       ::Sevgi::Derender.stub(
-        :derender_file,
-        -> (file, id:) {
-          calls << [file, id]
-          "SVG"
+        :evaluate,
+        -> (content, target, id:) {
+          calls << [content, target, id]
+          result
         }
       ) do
-        assert_equal("SVG", receiver.Derender("drawing"))
+        assert_same(result, receiver.Evaluate("<svg/>", element, id: "Root"))
       end
 
-      assert_equal([["drawing", nil]], calls)
+      assert_equal([["<svg/>", element, "Root"]], calls)
+    end
+
+    def test_evaluate_file_delegates_to_file_api
+      calls = []
+      element = Object.new
+      result = Object.new
+
+      ::Sevgi::Derender.stub(
+        :evaluate_file,
+        -> (file, target, id:) {
+          calls << [file, target, id]
+          result
+        }
+      ) do
+        assert_same(result, receiver.EvaluateFile("drawing", element, id: "Root"))
+      end
+
+      assert_equal([["drawing", element, "Root"]], calls)
+    end
+
+    def test_evaluate_children_delegates_to_content_api
+      calls = []
+      children = [].freeze
+      element = Object.new
+
+      ::Sevgi::Derender.stub(
+        :evaluate_children,
+        -> (content, target, id:) {
+          calls << [content, target, id]
+          children
+        }
+      ) do
+        assert_same(children, receiver.EvaluateChildren("<svg/>", element, id: "Root"))
+      end
+
+      assert_equal([["<svg/>", element, "Root"]], calls)
+    end
+
+    def test_evaluate_children_file_delegates
+      calls = []
+      children = [].freeze
+      element = Object.new
+
+      ::Sevgi::Derender.stub(
+        :evaluate_children_file,
+        -> (file, target, id:) {
+          calls << [file, target, id]
+          children
+        }
+      ) do
+        assert_same(children, receiver.EvaluateChildrenFile("drawing", element, id: "Root"))
+      end
+
+      assert_equal([["drawing", element, "Root"]], calls)
     end
 
     def test_derender_source_treats_ruby_names_as_elements

@@ -169,11 +169,22 @@ letters:
   D:
     - name: Decompile
       anchor: decompile
+      summary: Parse inline SVG/XML into an inspectable immutable Derender node.
+      provider: Toplevel
+      context: script
+      themes: [round-trip, script-tools]
+      code: |
+        node = Decompile '<rect id="mark" width="4" height="2"/>', id: "mark"
+        node.attributes
+      see: /derender/#inspect
+      see_title: inspecting Derender nodes
+    - name: DecompileFile
+      anchor: decompile-file
       summary: Parse an SVG/XML file into an inspectable immutable Derender node.
       provider: Toplevel
       context: script
       themes: [round-trip, script-tools]
-      code: 'Decompile("shape.svg", "mark").attributes'
+      code: 'DecompileFile "shape.svg", id: "mark"'
       see: /derender/#inspect
       see_title: inspecting Derender nodes
     - name: Defaults
@@ -187,11 +198,20 @@ letters:
         avatar.Defaults r: 16, fill: "gray", stroke: "white"
     - name: Derender
       anchor: derender
+      summary: Convert inline SVG/XML or a selected id into formatted Sevgi source.
+      provider: Toplevel
+      context: script
+      themes: [round-trip, script-tools]
+      code: 'Derender ''<rect id="mark" width="4"/>'', id: "mark"'
+      see: /derender/
+      see_title: the Derender guide
+    - name: DerenderFile
+      anchor: derender-file
       summary: Convert an SVG/XML file or selected id into formatted Sevgi source.
       provider: Toplevel
       context: script
       themes: [round-trip, script-tools]
-      code: 'Derender "shape.svg", "mark"'
+      code: 'DerenderFile "shape.svg", id: "mark"'
       see: /derender/
       see_title: the Derender guide
     - name: Disidentify
@@ -250,6 +270,42 @@ letters:
       context: document
       themes: [composition, round-trip]
       code: 'Element "custom:mark", "hello", "custom:kind": "spark"'
+    - name: Evaluate
+      anchor: evaluate
+      summary: Import an inline SVG/XML node directly under an existing SVG element.
+      provider: Toplevel
+      context: script
+      themes: [round-trip, script-tools, composition]
+      code: |
+        drawing = SVG :minimal
+        Evaluate '<circle id="mark" r="2"/>', drawing, id: "mark"
+    - name: EvaluateChildren
+      anchor: evaluate-children
+      summary: Import only the children of an inline SVG/XML node under an existing SVG element.
+      provider: Toplevel
+      context: script
+      themes: [round-trip, script-tools, composition]
+      code: |
+        drawing = SVG :minimal
+        EvaluateChildren '<g id="marks"><circle r="2"/></g>', drawing, id: "marks"
+    - name: EvaluateChildrenFile
+      anchor: evaluate-children-file
+      summary: Import only a selected file node's children under an existing SVG element.
+      provider: Toplevel
+      context: script
+      themes: [round-trip, script-tools, composition]
+      code: |
+        drawing = SVG :minimal
+        EvaluateChildrenFile "shape.svg", drawing, id: "group"
+    - name: EvaluateFile
+      anchor: evaluate-file
+      summary: Import a selected SVG/XML file node directly under an existing SVG element.
+      provider: Toplevel
+      context: script
+      themes: [round-trip, script-tools, composition]
+      code: |
+        drawing = SVG :minimal
+        EvaluateFile "shape.svg", drawing, id: "mark"
 
   F:
     - name: Flip

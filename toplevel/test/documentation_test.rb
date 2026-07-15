@@ -146,10 +146,28 @@ module Sevgi
         raises: ["Sevgi::ArgumentError"]
       },
       "Sevgi::Toplevel#Decompile" => {
+        raises: ["Sevgi::ArgumentError"]
+      },
+      "Sevgi::Toplevel#DecompileFile" => {
         raises: ["Sevgi::ArgumentError", "SystemCallError"]
       },
       "Sevgi::Toplevel#Derender" => {
+        raises: ["Sevgi::ArgumentError", "Sevgi::PanicError"]
+      },
+      "Sevgi::Toplevel#DerenderFile" => {
         raises: ["Sevgi::ArgumentError", "Sevgi::PanicError", "SystemCallError"]
+      },
+      "Sevgi::Toplevel#Evaluate" => {
+        raises: ["Sevgi::ArgumentError"]
+      },
+      "Sevgi::Toplevel#EvaluateChildren" => {
+        raises: ["Sevgi::ArgumentError"]
+      },
+      "Sevgi::Toplevel#EvaluateChildrenFile" => {
+        raises: ["Sevgi::ArgumentError", "SystemCallError"]
+      },
+      "Sevgi::Toplevel#EvaluateFile" => {
+        raises: ["Sevgi::ArgumentError", "SystemCallError"]
       }
     }.freeze
     PUBLIC_CONSTANTS = %w[

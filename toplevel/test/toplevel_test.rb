@@ -8,7 +8,13 @@ module Sevgi
       assert_equal(
         %i[
           Decompile
+          DecompileFile
           Derender
+          DerenderFile
+          Evaluate
+          EvaluateChildren
+          EvaluateChildrenFile
+          EvaluateFile
           Grid
           Load
           Mixin
