@@ -29,7 +29,7 @@ module Logo
 
     negative = use id: "SCVN", href: "#Logo.Master"
     negative.Classify :passive
-    negative.Matrix -1, 0, 0, 1, 60, 0
+    negative.Matrix(-1, 0, 0, 1, 60, 0)
   end
 end
 
