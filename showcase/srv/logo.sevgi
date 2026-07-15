@@ -11,10 +11,16 @@ module Logo
 
   STYLE = {
     ".active" => {
-      fill: "none", stroke: "purple", "stroke-linecap": "round", "stroke-width": 1.5
+      fill: "none",
+      stroke: "purple",
+      "stroke-linecap": "round",
+      "stroke-width": 1.5
     },
     ".passive" => {
-      fill: "none", stroke: "lightgrey", "stroke-linecap": "round", "stroke-width": 1.5
+      fill: "none",
+      stroke: "lightgrey",
+      "stroke-linecap": "round",
+      "stroke-width": 1.5
     }
   }.freeze
 
@@ -24,16 +30,17 @@ module Logo
   end
 
   def call
-    positive = use id: "SCVP", href: "#Logo.Master"
-    positive.Classify :active
+    positive = use(id: "SCVP", href: "#Logo.Master")
+    positive.Classify(:active)
 
-    negative = use id: "SCVN", href: "#Logo.Master"
-    negative.Classify :passive
+    negative = use(id: "SCVN", href: "#Logo.Master")
+    negative.Classify(:passive)
     negative.Matrix(-1, 0, 0, 1, 60, 0)
   end
 end
 
-SVG :minimal, width: 120, height: 120, viewBox: "-1 -1 62 62" do
-  rect x: -1, y: -1, width: 62, height: 62, fill: "white"
-  Call Logo
-end.Save
+SVG(:minimal, width: 120, height: 120, viewBox: "-1 -1 62 62") do
+  rect(x: -1, y: -1, width: 62, height: 62, fill: "white")
+  Call(Logo)
+end
+  .Save()
