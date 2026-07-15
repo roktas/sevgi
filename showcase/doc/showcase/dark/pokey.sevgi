@@ -1,17 +1,38 @@
 #!/usr/bin/env -S ruby -S sevgi
 # frozen_string_literal: true
 
-SVG :minimal, width: 100, height: 100 do
-  rect x: 0, y: 0, width: 100, height: 100, fill: "#222222"
-  circle cx: 50, cy: 50, r: 40, fill: "#e5c39c"
-  rect x: 10, y: 50, width: 80, height: 50, fill: "#e5c39c"
+SVG(:minimal, width: 100, height: 100) do
+  rect(x: 0, y: 0, width: 100, height: 100, fill: "#222222")
+  path(
+    fill: "#e5c39c",
+    d: %w[
+      M10
+      101
+      V50
+      A40
+      40
+      0
+      0
+      1
+      90
+      50
+      V101
+      L76
+      85
+      L63
+      101
+      L50
+      85
+      L37
+      101
+      L24
+      85
+      Z
+    ]
+  )
 
   [25, 50].each do |x|
-    circle cx: x, cy: 40, r: 8, fill: "#222222"
+    circle(cx: x, cy: 40, r: 8, fill: "#222222")
   end
-
-  path fill: "#222222", d: %w[
-    M11 100 l13 -15 l13 15 l13 -15
-    l13 15 l13 -15 l13 15 Z
-  ]
-end.Save
+end
+  .Save()

@@ -1,8 +1,6 @@
 <svg width="100" height="100">
   <rect x="0" y="0" width="100" height="100" fill="#222222"/>
-  <circle cx="50" cy="50" r="40" fill="#e5c39c"/>
-  <rect x="10" y="50" width="80" height="50" fill="#e5c39c"/>
+  <path fill="#e5c39c" d="M10 101 V50 A40 40 0 0 1 90 50 V101 L76 85 L63 101 L50 85 L37 101 L24 85 Z"/>
   <circle cx="25" cy="40" r="8" fill="#222222"/>
   <circle cx="50" cy="40" r="8" fill="#222222"/>
-  <path fill="#222222" d="M11 100 l13 -15 l13 15 l13 -15 l13 15 l13 -15 l13 15 Z"/>
 </svg>
