@@ -1,65 +1,61 @@
 #!/usr/bin/env -S ruby -S sevgi
 # frozen_string_literal: true
 
-# 15 cm width (ruler's length)
-WIDTH = 150
-# 2 cm height
-HEIGHT = 20
+WIDTH = 150 # 15 cm width (ruler's length)
+HEIGHT = 20 # 2 cm height
 PAGE_WIDTH = 210
 PAGE_HEIGHT = 50
 
 STYLE = {
-  ".labels" => {fill: "white", font: "3pt monospace"},
-  ".majors" => {stroke: "white", "stroke-width": 0.2},
-  ".halves" => {stroke: "white", "stroke-width": 0.1},
-  ".minors" => {stroke: "white", "stroke-width": 0.1},
-  ".frame" => {stroke: "white", "stroke-width": 0.1, fill: "none"}
+  ".labels" => { fill: "white", font: "3pt monospace" },
+  ".majors" => { stroke: "white", "stroke-width": 0.2 },
+  ".halves" => { stroke: "white", "stroke-width": 0.1 },
+  ".minors" => { stroke: "white", "stroke-width": 0.1 },
+  ".frame" => { stroke: "white", "stroke-width": 0.1, fill: "none" }
 }.freeze
 
-SVG(
-  width: "#{PAGE_WIDTH}mm",
-  height: "#{PAGE_HEIGHT}mm",
-  viewBox: "0 0 #{PAGE_WIDTH} #{PAGE_HEIGHT}"
-) do
-  css(STYLE)
+SVG width: "#{PAGE_WIDTH}mm", height: "#{PAGE_HEIGHT}mm",
+    viewBox: "0 0 #{PAGE_WIDTH} #{PAGE_HEIGHT}" do
+  css STYLE
 
-  ruler = g(id: "ruler") do
-    rect(id: "frame", width: WIDTH, height: HEIGHT, class: "frame")
+  ruler = g id: "ruler" do
+    rect id: "frame", width: WIDTH, height: HEIGHT, class: "frame"
 
-    layer(id: "minors") do
+    layer id: "minors" do
       length = 2
 
       (0..WIDTH).step(1) do |x|
-        VLineBy(x:, y: 0, length:, class: "minors")
-        VLineBy(x:, y: HEIGHT, length: -length, class: "minors")
+        VLineBy x:, y: 0, length:, class: "minors"
+        VLineBy x:, y: HEIGHT, length: -length, class: "minors"
       end
     end
 
-    layer(id: "halves") do
+    layer id: "halves" do
       length = 4
 
       (0..WIDTH).step(5) do |x|
-        VLineBy(x:, y: 0, length:, class: "halves")
-        VLineBy(x:, y: HEIGHT, length: -length, class: "halves")
+        VLineBy x:, y: 0, length:, class: "halves"
+        VLineBy x:, y: HEIGHT, length: -length, class: "halves"
       end
     end
 
-    layer(id: "majors") do
+    layer id: "majors" do
       length = 6
 
       (10..(WIDTH - 10)).step(10) do |x|
-        VLineBy(x:, y: 0, length:, class: "majors")
-        VLineBy(x:, y: HEIGHT, length: -length, class: "majors")
+        VLineBy x:, y: 0, length:, class: "majors"
+        VLineBy x:, y: HEIGHT, length: -length, class: "majors"
       end
 
-      layer(id: "labels") do
+      layer id: "labels" do
         (10..(WIDTH - 10)).step(10).each_with_index do |x, i|
-          text((i + 1).to_s, "text-anchor": "middle", x:, y: length + 5.5, class: "labels")
+          text (i + 1).to_s, "text-anchor": "middle", x:, y: length + 5.5, class: "labels"
         end
       end
     end
   end
 
-  ruler.Translate((PAGE_WIDTH - WIDTH) / 2, (PAGE_HEIGHT - HEIGHT) / 2)
-end
-  .Save()
+  offset_x = (PAGE_WIDTH - WIDTH) / 2
+  offset_y = (PAGE_HEIGHT - HEIGHT) / 2
+  ruler.Translate offset_x, offset_y
+end.Save
