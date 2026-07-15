@@ -404,31 +404,35 @@ main {
   line-height: 1.7;
   max-width: none;
 }
-.home-content .showcase-flow {
+.showcase-flow {
   display: grid;
   grid-template-columns: repeat(2, minmax(360px, 1fr));
   align-items: start;
   gap: 2rem 1.5rem;
   margin-top: 1.5rem;
 }
-.home-content .showcase-flow > .tabs {
+.showcase-flow > .tabs {
   --tabs-header-height: 53px;
 
   align-self: start;
   height: 360px;
   margin: 0;
 }
-.home-content .showcase-flow .tabs .panel {
+.showcase-flow .tabs .panel {
   height: calc(100% - var(--tabs-header-height));
   min-height: 0;
   overflow: auto;
 }
-.home-content .showcase-flow .tabs .panel.svg-panel {
+.showcase-flow .tabs .panel.svg-panel {
   padding: 1.5rem;
 }
-.home-content .showcase-flow .tabs .svg-output {
+.showcase-flow .tabs .svg-output {
   width: 86%;
   height: 86%;
+}
+.showcase-flow .tabs[data-tab-base^="guide-"] .svg-output {
+  width: 94%;
+  height: 94%;
 }
 .content p {
   margin-top: 0;
@@ -1262,7 +1266,7 @@ figcaption {
 }
 
 @media screen and (max-width: 1100px) {
-  .home-content .showcase-flow {
+  .showcase-flow {
     grid-template-columns: 1fr;
   }
 }
@@ -1837,6 +1841,45 @@ button.explore-more {
   /* Space for hover lift animation */
   padding-top: 4px;
 }
+.tabs[id] {
+  scroll-margin-top: calc(var(--wt-header-height) + var(--wt-main-padding-top));
+}
+.tabs .tabs-title {
+  order: -1;
+  display: flex;
+  flex: 1 1 5rem;
+  align-items: center;
+  justify-content: flex-start;
+  box-sizing: border-box;
+  min-width: 0;
+  height: 49px;
+  margin: 0;
+  padding: 0.875rem 1rem 0.875rem 1.25rem;
+  overflow: hidden;
+  font-family: var(--wt-font-mono);
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.2;
+}
+.tabs .tabs-title-link {
+  overflow: hidden;
+  color: var(--wt-color-text-muted);
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tabs .tabs-title-link:hover,
+.tabs .tabs-title-link:focus-visible {
+  color: var(--wt-color-accent);
+}
+html[data-theme="dark"] .tabs .tabs-title-link:not(:hover):not(:focus-visible) {
+  color: var(--wt-color-text-soft);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .tabs .tabs-title-link:not(:hover):not(:focus-visible) {
+    color: var(--wt-color-text-soft);
+  }
+}
 .tabs .input {
   position: absolute;
   opacity: 0;
@@ -1996,7 +2039,19 @@ html[data-theme="dark"] .tabs .theme-dark {
     margin: 0.5rem 0.25rem;
     border-radius: 0.5rem 0.5rem 0 0;
   }
-  .home-content .showcase-flow > .tabs {
+  .tabs.titled .label {
+    min-width: 58px;
+    padding-right: 1rem;
+    padding-left: 1rem;
+  }
+  .tabs .tabs-title {
+    order: -2;
+    height: 76px;
+    padding-right: 0.4rem;
+    padding-left: 0.2rem;
+    font-size: 0.79rem;
+  }
+  .showcase-flow > .tabs {
     --tabs-header-height: 94px;
 
     height: 403px;

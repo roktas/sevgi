@@ -1,6 +1,7 @@
 {% set base = base | default(value="example") %}
 {% set dir  = dir  | default(value="../../showcase") %}
 {% set ext  = ext  | default(value="sevgi") %}
+{% set title = title | default(value="") %}
 
 {# Build file paths with optional directory #}
 {% if dir %}
@@ -29,7 +30,7 @@
 {% set ruby_panel = "panel-" ~ base ~ "-ruby" %}
 {% set xml_panel = "panel-" ~ base ~ "-xml" %}
 
-<div class="tabs" data-tab-base="{{ base }}" role="tablist" aria-label="{{ base }} example views">
+<div class="tabs{% if title %} titled{% endif %}"{% if title %} id="{{ base }}"{% endif %} data-tab-base="{{ base }}" role="tablist" aria-label="{{ base }} example views">
   <input class="input" name="tabs-{{ base }}" type="radio" id="{{ svg_input }}" checked="checked" tabindex="-1" aria-hidden="true"/>
   <label class="label" for="{{ svg_input }}" id="{{ svg_tab }}" title="SVG Output" role="tab" tabindex="0" aria-selected="true" aria-controls="{{ svg_panel }}" aria-label="SVG Output" data-tab-input="{{ svg_input }}" data-tab-panel="{{ svg_panel }}"><i class="fa-solid fa-image" aria-hidden="true"></i></label>
   <div class="panel svg-panel" id="{{ svg_panel }}" role="tabpanel" aria-labelledby="{{ svg_tab }}">
@@ -75,4 +76,7 @@
 ```" | markdown | safe }}
     </div>
   </div>
+  {% if title %}
+  <h2 class="tabs-title"><a class="tabs-title-link" href="#{{ base }}">{{ title }}</a></h2>
+  {% endif %}
 </div>

@@ -1,7 +1,7 @@
 <svg width="200" height="200" viewBox="-100 -100 200 200">
   <path
     id="branch"
-    stroke="#e5c39c"
+    stroke="purple"
     stroke-width="5"
     d="M 0 0 L 0 -90
 M 0 -20 L 20 -34

@@ -1,0 +1,41 @@
+#!/usr/bin/env -S ruby -S sevgi
+# frozen_string_literal: true
+
+CELL = 6
+COLS = 8
+ROWS = 5
+
+canvas = SVG.canvas width: COLS * CELL, height: ROWS * CELL
+grid = Grid canvas, unit: CELL, multiple: 1
+
+module Guidesheet
+  extend SVG::Module
+
+  FRAME = 0.40
+
+  STYLE = {
+    ".frame" => { fill: "none", stroke: "blue", "stroke-width": FRAME },
+    ".halve" => { fill: "none", stroke: "dimgray", "stroke-width": 0.08 },
+    ".minor" => { fill: "none", stroke: "magenta", "stroke-width": 0.08 }
+  }.freeze
+
+  base { css STYLE }
+
+  def call(grid)
+    layer id: "Squares" do
+      Draw grid.x.minor.lines, class: %w[rule minor horizontal]
+      Draw grid.y.minor.lines, class: %w[rule minor vertical]
+      Draw grid.x.halve.lines, class: %w[rule halve horizontal]
+      Draw grid.y.halve.lines, class: %w[rule halve vertical]
+    end
+
+    rect x: FRAME / 2, y: FRAME / 2,
+         width: grid.width - FRAME, height: grid.height - FRAME,
+         class: %w[frame rule]
+  end
+end
+
+SVG :inkscape, canvas, "shape-rendering": "geometricPrecision" do
+  rect width: "100%", height: "100%", fill: "white"
+  Layer! Guidesheet, grid, attributes: { id: "Guides" }
+end.Save

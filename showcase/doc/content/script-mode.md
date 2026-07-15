@@ -63,9 +63,10 @@ and points back to the file that caused it.
 
 ## Top-level API {#top-level-api}
 
-Script mode exposes the document entry points `SVG`, `Paper`, `Paper!`, `Mixin`, `Grid`, `Derender`, `Decompile`, and
-`Load`. Drawing words such as `Rotate` live inside an `SVG` block. The [DSL Catalog](@/dsl.md) records the context for
-every word, including script-only helpers.
+Script mode exposes the document entry points `SVG`, `Paper`, `Paper!`, `Mixin`, `Grid`, and `Load`. Its Derender
+entry points are `Decompile`, `Derender`, `Evaluate`, and `EvaluateChildren`; append `File` to any of those names when
+the input is a file path. Drawing words such as `Rotate` live inside an `SVG` block. The [DSL Catalog](@/dsl.md)
+records the context for every word, including script-only helpers.
 
 ## Rake {#rake}
 
