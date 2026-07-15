@@ -3,8 +3,8 @@
 
 WIDTH = 150 # 15 cm width (ruler's length)
 HEIGHT = 20 # 2 cm height
-PAGE_WIDTH = 210
-PAGE_HEIGHT = 50
+PAGE_WIDTH = 170
+PAGE_HEIGHT = 30
 
 STYLE = {
   ".labels" => { fill: "white", font: "3pt monospace" },

@@ -70,7 +70,7 @@ module Sevgi
         assert_equal("0 0 128 30", fixtures.fetch(0).fetch("viewBox"))
         assert_equal("0 0 900 900", fixtures.fetch(1).fetch("viewBox"))
         assert_equal("-100 -100 200 200", fixtures.fetch(2).fetch("viewBox"))
-        assert_equal("0 0 210 50", fixtures.fetch(3).fetch("viewBox"))
+        assert_equal("0 0 170 30", fixtures.fetch(3).fetch("viewBox"))
 
         fixtures.each do |fixture|
           host = fixture.fetch("host")
@@ -101,6 +101,40 @@ module Sevgi
           JS
         )
         assert_nil(missing.fetch("viewBox"))
+      end
+
+      def test_mobile_showcase_cards_fit_content
+        [375, 320].each do |width|
+          cli("resize", width.to_s, VIEWPORT.fetch(1).to_s)
+          fixtures = eval_json(
+            <<~JS
+              () => Array.from(document.querySelectorAll('.showcase-flow > .tabs')).map((card) => {
+                const title = card.querySelector('.tabs-title-link');
+                const labels = Array.from(card.querySelectorAll(':scope > .label'));
+                const panel = card.querySelector('.svg-panel');
+                return {
+                  base: card.dataset.tabBase,
+                  card: card.getBoundingClientRect().toJSON(),
+                  panel: panel.getBoundingClientRect().toJSON(),
+                  labelTops: labels.map((label) => Math.round(label.getBoundingClientRect().top)),
+                  labelWidths: labels.map((label) => label.getBoundingClientRect().width),
+                  titleFits: title.scrollWidth <= title.clientWidth
+                };
+              })
+            JS
+          )
+
+          fixtures.each do |fixture|
+            base = "#{width}px #{fixture.fetch("base")}"
+            card = fixture.fetch("card")
+            panel = fixture.fetch("panel")
+            assert_operator(card.fetch("height"), :<=, 305, base)
+            assert_equal(1, fixture.fetch("labelTops").uniq.length, base)
+            assert(fixture.fetch("labelWidths").all? { it >= 44 }, base)
+            assert(fixture.fetch("titleFits"), base)
+            assert_operator(panel.fetch("bottom"), :<=, card.fetch("bottom") + 1, base)
+          end
+        end
       end
 
       private

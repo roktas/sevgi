@@ -3,8 +3,8 @@
 
 CELL_SIZE = 20
 COLORS = %w[#FF6961 #77DD77 #FFD700].freeze
-COLS = 8
-ROWS = 3
+COLS = 9
+ROWS = 4
 
 SVG :minimal,
     width: COLS * CELL_SIZE,

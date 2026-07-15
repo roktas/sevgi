@@ -2053,9 +2053,32 @@ html[data-theme="dark"] .tabs .theme-dark {
     font-size: 0.79rem;
   }
   .showcase-flow > .tabs {
-    --tabs-header-height: 94px;
+    --tabs-header-height: 49px;
 
-    height: 403px;
+    height: 300px;
+  }
+  .showcase-flow .tabs.titled .tabs-title {
+    flex: 1 1 0;
+    height: var(--tabs-header-height);
+    padding: 0.7rem 0.25rem 0.7rem 1rem;
+    font-size: 0.95rem;
+  }
+  .showcase-flow .tabs.titled .label {
+    flex: 0 0 44px;
+    width: 44px;
+    min-width: 44px;
+    min-height: var(--tabs-header-height);
+    margin: 0;
+    padding: 0.6rem 0.5rem;
+    border-radius: 0;
+    font-size: 1.05rem;
+  }
+  .showcase-flow .tabs .panel.svg-panel {
+    padding: 0.75rem;
+  }
+  .showcase-flow .tabs .svg-output {
+    width: 100%;
+    height: 100%;
   }
   .tabs .label:hover {
     transform: none;
@@ -2086,6 +2109,14 @@ html[data-theme="dark"] .tabs .theme-dark {
   }
   .tabs .input:checked + .label + .panel.svg-panel {
     display: flex;
+  }
+}
+
+@media screen and (max-width: 340px) {
+  .showcase-flow .tabs.titled .tabs-title {
+    padding-right: 0.125rem;
+    padding-left: 0.5rem;
+    font-size: 0.875rem;
   }
 }
 

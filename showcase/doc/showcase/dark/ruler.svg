@@ -1,5 +1,5 @@
 <?xml version="1.0" standalone="no"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="210mm" height="50mm" viewBox="0 0 210 50">
+<svg xmlns="http://www.w3.org/2000/svg" width="170mm" height="30mm" viewBox="0 0 170 30">
   <style type="text/css">
     <![CDATA[
       .labels {
@@ -25,7 +25,7 @@
       }
     ]]>
   </style>
-  <g id="ruler" transform="translate(30 15)">
+  <g id="ruler" transform="translate(10 5)">
     <rect id="frame" width="150" height="20" class="frame"/>
     <g id="minors">
       <path d="M 0 0 v 2" class="minors"/>
