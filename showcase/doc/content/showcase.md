@@ -13,7 +13,10 @@ together.
 <div class="showcase-flow">
 {{ tabs(base="pokey", dir="../showcase", title="Pokey") }}
 {{ tabs(base="grid", dir="../showcase", title="Grid") }}
+{{ tabs(base="stars", dir="../showcase", title="Stars") }}
 {{ tabs(base="snowflake", dir="../showcase", title="Snowflake") }}
+{{ tabs(base="clover", dir="../showcase", title="Clover") }}
+{{ tabs(base="tulips", dir="../showcase", title="Tulips") }}
 {{ tabs(base="pacman", dir="../showcase", title="Pacman") }}
 {{ tabs(base="meter", dir="../showcase", title="Meter") }}
 {{ tabs(base="heart", dir="../showcase", title="Heart") }}

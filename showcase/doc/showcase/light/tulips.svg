@@ -1,0 +1,19 @@
+<svg width="30" height="30">
+  <rect width="30" height="30" rx="0.75" fill="white"/>
+  <defs>
+    <path
+      id="Tulip.NW"
+      d="m 7.072424,8.784891 c -1.62123,1.620145 -4.24191,1.620145 -5.860483,0
+-1.611497,-1.619275 -1.62034,-4.239086 0,-5.854824 l 2.928473,-2.930067
+-0.48823,3.907639 3.42024,-0.977572 -0.98,3.417962 3.90758,-0.488766
+-2.92758,2.925628
+"
+      fill="purple"
+    />
+  </defs>
+  <use href="#Tulip.NW" x="15.538059" y="4.465109"/>
+  <use href="#Tulip.NW" x="15.538059" y="4.465109" transform="rotate(90, 15, 15)"/>
+  <use href="#Tulip.NW" x="15.538059" y="4.465109" transform="rotate(180, 15, 15)"/>
+  <use href="#Tulip.NW" x="15.538059" y="4.465109" transform="rotate(270, 15, 15)"/>
+  <rect width="3.5" height="3.5" x="13.25" y="13.25" fill="purple"/>
+</svg>

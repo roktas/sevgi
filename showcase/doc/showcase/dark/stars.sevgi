@@ -1,0 +1,16 @@
+#!/usr/bin/env -S ruby -S sevgi
+# frozen_string_literal: true
+
+STAR = <<~PATH
+  m 7.06716,10 v -2.930223 h 2.932843 l -2.073449,-2.073131 2.073449,-2.068098
+  h -2.932843 v -2.928548 l -2.07848,2.074807 -2.067578,-2.074807 v 2.928547
+  h -2.921102 l 2.060869,2.068098 -2.060869,2.073131 h 2.921102 v 2.930223
+  l 2.067578,-2.066419 2.07848,2.066419
+PATH
+
+SVG :minimal, width: 50, height: 50 do
+  rect width: 50, height: 50, rx: 1, fill: "#222222"
+
+  Symbol("Star") { path d: STAR, fill: "#e5c39c" }
+  Tile "star", nx: 4, dx: 10, ox: 5, ny: 4, dy: 10, oy: 5
+end.Save
