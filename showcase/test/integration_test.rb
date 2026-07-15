@@ -19,7 +19,7 @@ module Sevgi
     end
 
     def test_ruler_hline_tick_classes_match_layers
-      svg = Nokogiri::XML(File.read(File.expand_path("../srv/ruler-hline.svg", __dir__)))
+      svg = Nokogiri::XML(File.read(File.expand_path("../srv/ruler.svg", __dir__)))
 
       refute_empty(svg.xpath("//*[@id=\"halves\"]//*[@class=\"halves\"]"))
       refute_empty(svg.xpath("//*[@id=\"majors\"]//*[@class=\"majors\"]"))

@@ -30,27 +30,30 @@ module Sevgi
 
       def test_tabs_support_keyboard_navigation_and_reload
         cli("resize", *VIEWPORT.map(&:to_s))
-        assert_tab_state("meter-face", %w[true false false], [false, true, true], nil)
+        assert_tab_state("meter", %w[true false false], [false, true, true], nil)
 
-        cli("eval", "() => document.querySelector(\".tabs [role=tab]\").focus()")
+        cli(
+          "eval",
+          "() => document.querySelector('.tabs[data-tab-base=\"meter\"] [role=tab]').focus()"
+        )
         cli("press", "ArrowRight")
-        assert_tab_state("meter-face", %w[false true false], [true, false, true], "tab-meter-face-ruby")
+        assert_tab_state("meter", %w[false true false], [true, false, true], "tab-meter-ruby")
 
         cli("press", "End")
-        assert_tab_state("meter-face", %w[false false true], [true, true, false], "tab-meter-face-xml")
+        assert_tab_state("meter", %w[false false true], [true, true, false], "tab-meter-xml")
 
         cli("press", "Home")
-        assert_tab_state("meter-face", %w[true false false], [false, true, true], "tab-meter-face-svg")
+        assert_tab_state("meter", %w[true false false], [false, true, true], "tab-meter-svg")
 
         cli("reload")
-        assert_tab_state("meter-face", %w[true false false], [false, true, true], nil)
+        assert_tab_state("meter", %w[true false false], [false, true, true], nil)
       end
 
       def test_mobile_svg_bounds_cover_units_and_artwork_sizes
         cli("resize", *VIEWPORT.map(&:to_s))
         fixtures = eval_json(
           <<~JS
-            () => ["meter-face", "checker-board", "snow-flake", "ruler-hline"].map((base) => {
+            () => ["meter", "checkers", "snowflake", "ruler"].map((base) => {
               const tab = document.querySelector('.tabs[data-tab-base="' + base + '"]');
               const output = tab.querySelector('.svg-output');
               const svg = output.shadowRoot.querySelector('svg');

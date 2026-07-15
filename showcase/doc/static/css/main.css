@@ -430,7 +430,8 @@ main {
   width: 86%;
   height: 86%;
 }
-.showcase-flow .tabs[data-tab-base^="guide-"] .svg-output {
+.showcase-flow .tabs[data-tab-base="squared"] .svg-output,
+.showcase-flow .tabs[data-tab-base="copperplate"] .svg-output {
   width: 94%;
   height: 94%;
 }

@@ -11,17 +11,17 @@ finish with `Save` or `Out`.
 The tabs below come from the same files that the test suite runs. The Ruby tab contains the script; the SVG tab contains
 its output.
 
-{{ tabs(base="meter-face", dir="../showcase") }}
+{{ tabs(base="meter", dir="../showcase") }}
 
 ## Run an example
 
 From a checkout, run the showcase scripts with Bundler:
 
 ```bash
-bundle exec showcase/srv/meter-face.sevgi
+bundle exec showcase/srv/meter.sevgi
 ```
 
-The script writes `showcase/srv/meter-face.svg` because it ends with `Save`. To write SVG to standard output instead,
+The script writes `showcase/srv/meter.svg` because it ends with `Save`. To write SVG to standard output instead,
 use `Out` in the script.
 
 [Choose a Mode](@/usage.md) compares executable scripts with library calls. Both use the same documents and drawing DSL.
@@ -57,4 +57,4 @@ gem install cairo rsvg2 hexapdf
 `SVG` accepts a document profile. `:minimal` omits the XML declaration and produces compact output. The default profile
 writes a complete SVG document, while `:inkscape` adds editor-specific namespaces and helpers.
 
-{{ tabs(base="snow-flake", dir="../showcase") }}
+{{ tabs(base="snowflake", dir="../showcase") }}

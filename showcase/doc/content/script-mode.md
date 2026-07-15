@@ -16,14 +16,14 @@ A typical script has:
 - Ruby constants, helper classes, or calculations
 - an `SVG` block followed by `Save`, `Write`, or `Out`
 
-In the checker-board example, a Ruby hash stores the piece positions. A callable module holds the drawing steps, and the
+In the checkers example, a Ruby hash stores the piece positions. A callable module holds the drawing steps, and the
 `SVG` block invokes them with `Call`.
 
 Callable modules can put argument-independent SVG in `base` blocks. Sevgi runs inherited bases from parent to child,
 then local bases in registration order. Name a single drawing method `call`; give multiple methods names that describe
 their drawing steps.
 
-{{ tabs(base="checker-board", dir="../showcase") }}
+{{ tabs(base="checkers", dir="../showcase") }}
 
 ## Output methods
 
