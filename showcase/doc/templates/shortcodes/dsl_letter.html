@@ -12,7 +12,7 @@
   </p>
   <p>{{ entry.summary }}</p>
   {% if entry.contract | default(value="") == "callable" %}
-  <p><strong>Module contract:</strong> <code>extend Sevgi::Module</code>. Use <code>extend Sevgi::Modules</code> to apply
+  <p><strong>Module contract:</strong> <code>extend SVG::Module</code>. Use <code>extend SVG::Modules</code> to apply
     the same contract recursively to an owned module tree.</p>
   {% endif %}
   {% set example = "```ruby

@@ -3,16 +3,6 @@
 require "sevgi/graphics"
 
 module Sevgi
-  # Full-toolkit alias for the callable drawing module contract.
-  # Extend a Ruby module with this contract before passing it to callable-module DSL words.
-  # @see Sevgi::Graphics::Module
-  Module = Graphics::Module
-
-  # Full-toolkit alias for the recursive callable drawing namespace contract.
-  # Extend a module with this convenience when its owned module descendants should all become callable drawing modules.
-  # @see Sevgi::Graphics::Modules
-  Modules = Graphics::Modules
-
   module Toplevel
     # Builds an SVG document through the full Sevgi top-level DSL.
     # @param document [Symbol, String, Class] document profile name or document class

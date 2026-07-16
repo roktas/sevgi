@@ -107,7 +107,7 @@ module Sevgi
       end
 
       def main
-        ::Module.new.tap { |mod| mod.define_singleton_method(:name) { "Sevgi::Main" } }
+        Module.new.tap { |mod| mod.define_singleton_method(:name) { "Sevgi::Main" } }
       end
 
       def push(source)

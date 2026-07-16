@@ -104,11 +104,11 @@ badge.new.render("S")
 
 Callable modules keep related drawing steps together without adding global methods. Before passing a module to
 [`Call`](/dsl/#call), [`Group`](/dsl/#group), [`Layer`](/dsl/#layer-callable),
-[`Layer!`](/dsl/#layer-callable-bang), or [`Symbols`](/dsl/#symbols), extend it with `Sevgi::Module`:
+[`Layer!`](/dsl/#layer-callable-bang), or [`Symbols`](/dsl/#symbols), extend it with `SVG::Module`:
 
 ```ruby
 status = Module.new do
-  extend Sevgi::Module
+  extend SVG::Module
 
   base { circle r: 10, fill: "seagreen" }
   def call(label:) = text label, y: 4, fill: "white", "text-anchor": "middle"
@@ -119,24 +119,24 @@ SVG :minimal, width: 24, height: 24 do
 end.Render
 ```
 
-`Module.new` creates an ordinary Ruby module. `extend Sevgi::Module` makes its public instance methods available as
+`Module.new` creates an ordinary Ruby module. `extend SVG::Module` makes its public instance methods available as
 drawing steps.
 
 Name the method `call` when the module has one drawing step. If it has several public methods, each method becomes a
 separate step. [`base`](/dsl/#base) registers shared, argument-independent drawing that runs before them. The wrapper
 word decides whether Sevgi draws the result directly, puts it in a group or layer, or expands it into symbols.
 
-The full toolkit names this contract `Sevgi::Module`. When loading only `sevgi/graphics`, use
-`Sevgi::Graphics::Module` instead. `Sevgi::SVG::Module` is its alias under the SVG namespace.
+`SVG::Module` is the short form of `Sevgi::SVG::Module`. When loading only `sevgi/graphics`, use
+`Sevgi::SVG::Module` or the identical component-level name `Sevgi::Graphics::Module`.
 
 ### Module namespaces {#module-namespaces}
 
-For a namespace that owns several drawing modules, use `extend Sevgi::Modules`. It applies the singular contract to the
+For a namespace that owns several drawing modules, use `extend SVG::Modules`. It applies the singular contract to the
 namespace and its module constants, including descendants defined later:
 
 ```ruby
 module StatusIcons
-  extend Sevgi::Modules
+  extend SVG::Modules
 
   module Alert
     base { circle r: 5, fill: "tomato" }
@@ -155,4 +155,4 @@ end.Render
 ```
 
 Sevgi leaves classes, autoloads, and modules merely aliased into the namespace alone. Extend an external module with
-`Sevgi::Module` yourself when it should participate.
+`SVG::Module` yourself when it should participate.

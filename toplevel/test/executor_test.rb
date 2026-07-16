@@ -243,7 +243,7 @@ module Sevgi
       Dir.mktmpdir do |dir|
         file = ::File.join(dir, "empty.sevgi")
         ::File.write(file, "")
-        receivers = Array.new(2) { ::Module.new }
+        receivers = Array.new(2) { Module.new }
         boots = 0
         results = [
           Executor.execute("", receiver: receivers[0]) { boots += 1 },
@@ -331,7 +331,7 @@ module Sevgi
     end
 
     def test_toplevel_execute_rejects_invalid_main_mode_before_evaluation
-      [nil, Object.new, ::Module.new, :main].each do |main|
+      [nil, Object.new, Module.new, :main].each do |main|
         error = assert_raises(ArgumentError) { Sevgi.execute("raise 'evaluated'", main:) }
 
         assert_match(/main mode must be true or false/, error.message)
@@ -339,7 +339,7 @@ module Sevgi
     end
 
     def test_toplevel_execute_file_rejects_invalid_main_mode_before_reading
-      [nil, Object.new, ::Module.new, :main].each do |main|
+      [nil, Object.new, Module.new, :main].each do |main|
         error = assert_raises(ArgumentError) { Sevgi.execute_file("missing.sevgi", main:) }
 
         assert_match(/main mode must be true or false/, error.message)
@@ -449,7 +449,7 @@ module Sevgi
       pp(foobar) if respond_to?(:foobar)
       refute_respond_to(self, :foobar)
       result = Executor.execute("foobar") do
-        extend(::Module.new { def foobar = "default" })
+        extend(Module.new { def foobar = "default" })
       end
 
       assert_equal("default", result.value)
@@ -458,7 +458,7 @@ module Sevgi
 
     def test_execute_preserves_explicit_boot_receivers
       object = Object.new
-      mod = ::Module.new
+      mod = Module.new
 
       [nil, false, object, mod].each do |receiver|
         seen = nil
@@ -466,7 +466,7 @@ module Sevgi
 
         assert_equal(1, result.value)
         if receiver.nil?
-          assert_instance_of(::Module, seen)
+          assert_instance_of(Module, seen)
           assert_equal("Sevgi::Main", seen.name)
         else
           assert_same(receiver, seen)
@@ -492,7 +492,7 @@ module Sevgi
     end
 
     def test_execute_isolates_concurrent_boot_receivers
-      receivers = [Object.new, false, ::Module.new]
+      receivers = [Object.new, false, Module.new]
       ready = Queue.new
       release = Queue.new
 
@@ -515,7 +515,7 @@ module Sevgi
     def test_execute_boots_toplevel_receiver
       refute_respond_to(self, :foobar)
       result = Executor.execute("module A; foobar; end", receiver: TOPLEVEL_BINDING.receiver) do
-        include(::Module.new { def foobar = "toplevel" })
+        include(Module.new { def foobar = "toplevel" })
       end
 
       assert_equal("toplevel", result.value)

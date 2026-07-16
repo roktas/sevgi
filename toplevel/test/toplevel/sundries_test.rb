@@ -5,7 +5,7 @@ require_relative "../test_helper"
 module Sevgi
   class ToplevelSundriesTest < Minitest::Test
     def test_grid_builds_sundries_grid_from_canvas
-      receiver = ::Module.new.extend(::Sevgi)
+      receiver = Module.new.extend(::Sevgi)
       canvas = Graphics::Canvas.call(width: 210, height: 297, unit: :px, name: :poster, margins: [10, 20])
       grid = receiver.Grid(canvas, unit: 5, multiple: 2)
 
@@ -26,7 +26,7 @@ module Sevgi
     end
 
     def test_grid_preserves_canvas_margin_shorthands
-      receiver = ::Module.new.extend(::Sevgi)
+      receiver = Module.new.extend(::Sevgi)
       [
         [[], [0.0, 0.0, 0.0, 0.0]],
         [[10], [10.0, 10.0, 10.0, 10.0]],
@@ -44,7 +44,7 @@ module Sevgi
     end
 
     def test_grid_rejects_an_inner_area_without_an_interval
-      receiver = ::Module.new.extend(::Sevgi)
+      receiver = Module.new.extend(::Sevgi)
       canvas = Graphics::Canvas.call(width: 25, height: 25, margins: [10])
 
       error = assert_raises(ArgumentError) { receiver.Grid(canvas, unit: 10, multiple: 1) }
@@ -53,7 +53,7 @@ module Sevgi
     end
 
     def test_grid_rejects_non_canvas
-      receiver = ::Module.new.extend(::Sevgi)
+      receiver = Module.new.extend(::Sevgi)
 
       error = assert_raises(ArgumentError) do
         receiver.Grid(Object.new, unit: 5, multiple: 2)
@@ -63,7 +63,7 @@ module Sevgi
     end
 
     def test_grid_rejects_invalid_ruler_inputs
-      receiver = ::Module.new.extend(::Sevgi)
+      receiver = Module.new.extend(::Sevgi)
       canvas = Graphics::Canvas.from_paper(:a4)
 
       [
