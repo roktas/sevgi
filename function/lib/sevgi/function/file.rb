@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "digest"
 require "fileutils"
 
 module Sevgi
@@ -21,7 +20,7 @@ module Sevgi
         old_content = ::File.read(file)
         old_content, content = [old_content, content].map(&filter) if filter
 
-        Digest::SHA1.digest(old_content) != Digest::SHA1.digest(content)
+        old_content != content
       end
 
       # Finds an existing file by exact path or by trying default extensions.

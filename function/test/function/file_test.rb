@@ -17,7 +17,7 @@ module Sevgi
           end
         end
 
-        def test_changed_detects_content_digest
+        def test_changed_detects_content_changes
           ::Dir.mktmpdir do |dir|
             file = ::File.join(dir, "out.txt")
             ::File.write(file, "old")
