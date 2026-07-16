@@ -67,6 +67,16 @@ module Sevgi
         end
       end
 
+      def test_locate_default_rejects_directories
+        ::Dir.mktmpdir do |dir|
+          candidate = ::File.join(dir, "target.sevgi")
+          ::Dir.mkdir(candidate)
+
+          assert_nil(Locate.("target.sevgi", dir))
+          assert_equal(candidate, Locate.("target.sevgi", dir, &::File.method(:exist?)).file)
+        end
+      end
+
       def test_locator_owns_configuration_and_results
         ::Dir.mktmpdir do |dir|
           start = ::File.join(dir, "child")

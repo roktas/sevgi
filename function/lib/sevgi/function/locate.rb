@@ -31,7 +31,7 @@ module Sevgi
       #   @param paths [Array<String>, String] candidate file paths
       #   @param start [String] directory where lookup starts
       #   @param exclude [Array<String>, String, nil] paths ignored during lookup
-      #   @yield optional matcher used instead of file existence checks
+      #   @yield optional matcher used instead of built-in file checks
       #   @yieldparam path [String] candidate path
       #   @yieldreturn [Boolean]
       #   @return [Sevgi::Function::Location, nil] found location, or nil
@@ -62,7 +62,7 @@ module Sevgi
       end
 
       # Runs the upward lookup.
-      # @yield optional matcher used instead of file existence checks
+      # @yield optional matcher used instead of built-in file checks
       # @yieldparam path [String] absolute candidate path
       # @yieldreturn [Boolean]
       # @note Absolute exclusions are applied before the default or custom matcher.
@@ -103,7 +103,8 @@ module Sevgi
           candidate = ::File.expand_path(path, here)
           next if excluded?(candidate)
 
-          return [path, candidate] if (block || proc { ::File.exist?(it) }).call(candidate)
+          matched = block ? block.call(candidate) : ::File.file?(candidate)
+          return [path, candidate] if matched
         end
 
         nil

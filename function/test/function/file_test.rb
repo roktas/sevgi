@@ -32,15 +32,30 @@ module Sevgi
           ::Dir.mktmpdir do |dir|
             plain = ::File.join(dir, "image")
             icon = ::File.join(dir, "icon")
+            linked = ::File.join(dir, "linked")
             svg = "#{plain}.svg"
             icon_svg = "#{icon}.svg"
             ::File.write(plain, "")
             ::File.write(svg, "")
             ::File.write(icon_svg, "")
+            ::File.symlink(plain, linked)
 
             assert_equal(plain, Function.existing(plain, %w[svg]))
             assert_equal(icon_svg, Function.existing(icon, %w[png svg]))
+            assert_equal(linked, Function.existing(linked, []))
             assert_nil(Function.existing(::File.join(dir, "missing"), []))
+          end
+        end
+
+        def test_existing_rejects_directories
+          ::Dir.mktmpdir do |dir|
+            exact = ::File.join(dir, "exact")
+            qualified = ::File.join(dir, "qualified")
+            ::Dir.mkdir(exact)
+            ::Dir.mkdir("#{qualified}.svg")
+
+            assert_nil(Function.existing(exact, %w[svg]))
+            assert_nil(Function.existing(qualified, %w[svg]))
           end
         end
 

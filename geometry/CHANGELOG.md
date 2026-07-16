@@ -41,6 +41,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Fixed
 
+- Rejected directories from default file discovery while preserving custom locator matchers.
 - Kept `Ancestral` context in non-rendering `-context` metadata instead of leaking it into SVG attributes.
 - Preserved source Canvas units and names when deriving fitted Grid canvases.
 - Prevented stale documentation assets from mixing old layouts with new HTML, and moved sidebar navigation into the

@@ -29,11 +29,11 @@ module Sevgi
       # @param extensions [Array<String>] extensions to try when file has no extension
       # @return [String, nil] matching file path, or nil when no file is found
       def existing(file, extensions)
-        return file if ::File.exist?(file)
+        return file if ::File.file?(file)
         return nil unless ::File.extname(file).empty?
         return nil if extensions.empty?
 
-        extensions.map { |ext| "#{file}.#{ext}" }.detect { |file| ::File.exist?(file) }
+        extensions.map { |ext| "#{file}.#{ext}" }.detect { |file| ::File.file?(file) }
       end
 
       # Finds an existing file or raises.
