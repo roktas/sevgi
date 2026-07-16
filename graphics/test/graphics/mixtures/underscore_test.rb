@@ -75,28 +75,29 @@ module Sevgi
           end
         end
 
-        def test_ancestral_merges_internal_attributes
+        def test_ancestral_merges_non_rendering_context
           descendant = nil
 
-          SVG(DOC, _: {page: "one"}) do
-            g(_: {group: "main"}) do
-              descendant = rect(_: {shape: "box"})
+          document = SVG(DOC, "-context": {page: "one"}) do
+            g("-context": {group: "main"}) do
+              descendant = rect("-context": {shape: "box"})
             end
           end
 
           assert_equal({page: "one", group: "main", shape: "box"}, descendant.Ancestral())
+          refute_includes(document.Render(), "context")
         end
 
         def test_ancestral_uses_only_ancestor_chain
           descendant = nil
 
-          SVG(DOC, _: {root: "root", shared: "root"}) do
-            g(_: {sibling: "sibling", shared: "sibling"}) do
-              rect(_: {niece: "niece", shared: "niece"})
+          SVG(DOC, "-context": {root: "root", shared: "root"}) do
+            g("-context": {sibling: "sibling", shared: "sibling"}) do
+              rect("-context": {niece: "niece", shared: "niece"})
             end
 
-            g(_: {ancestor: "ancestor", shared: "ancestor"}) do
-              descendant = rect(_: {self: "self", shared: "self"})
+            g("-context": {ancestor: "ancestor", shared: "ancestor"}) do
+              descendant = rect("-context": {self: "self", shared: "self"})
             end
           end
 

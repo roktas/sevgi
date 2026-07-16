@@ -79,12 +79,12 @@ letters:
       see_title: geometry alignment
     - name: Ancestral
       anchor: ancestral
-      summary: Merge internal metadata along the direct root-to-element chain.
+      summary: Merge non-rendering context along the direct root-to-element chain.
       provider: Underscore
       context: document
       themes: [context, composition]
       code: |
-        g _:{tone: "tomato"} do
+        g "-context": {tone: "tomato"} do
           rect width: 4, height: 2, fill: Ancestral()[:tone]
         end
     - name: Append

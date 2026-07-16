@@ -3,8 +3,11 @@
 module Sevgi
   module Graphics
     module Mixtures
-      # DSL helpers for floating text, comments, and inherited internal attributes.
+      # DSL helpers for floating text, comments, and inherited non-rendering context.
       module Underscore
+        CONTEXT = :"#{Attributes::META_PREFIX}context"
+        private_constant :CONTEXT
+
         # Creates a floating content element.
         # @param contents [Array<Object>] text or content objects
         # @return [Sevgi::Graphics::Element] floating element
@@ -25,16 +28,22 @@ module Sevgi
           _(Content.verbatim("<!-- #{comment} -->"))
         end
 
-        # Merges internal attributes from the document root, ancestors, and this element.
+        # Merges `-context` metadata from the document root, ancestors, and this element.
         # Only the direct root-to-self ancestor chain participates; sibling subtrees are ignored. When the same key is
-        # present on multiple chain elements, the nearest element to the receiver wins.
-        # @return [Hash] merged internal attributes
+        # present on multiple chain elements, the nearest element to the receiver wins. Context remains available in
+        # memory but is omitted from rendered SVG. It is unrelated to the `_:` XML namespace syntax preserved by
+        # Derender.
+        # @return [Hash] merged context
+        # @example Inherit drawing context without rendering it
+        #   SVG "-context": {tone: "tomato"} do
+        #     rect fill: Ancestral()[:tone]
+        #   end
         def Ancestral
           chain = []
           TraverseUp { |element| chain.unshift(element) }
 
           {}.tap do |result|
-            chain.each { |element| result.merge!(element[:_]) if element.has?(:_) }
+            chain.each { |element| result.merge!(element[CONTEXT]) if element.has?(CONTEXT) }
           end
         end
       end
