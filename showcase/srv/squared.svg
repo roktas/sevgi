@@ -21,12 +21,12 @@
         .halve {
           fill: none;
           stroke: dimgray;
-          stroke-width: 0.08;
+          stroke-width: 0.12;
         }
         .minor {
           fill: none;
           stroke: magenta;
-          stroke-width: 0.08;
+          stroke-width: 0.12;
         }
       ]]>
     </style>

@@ -21,12 +21,12 @@
         .halve {
           fill: none;
           stroke: #a3a3a3;
-          stroke-width: 0.08;
+          stroke-width: 0.12;
         }
         .minor {
           fill: none;
           stroke: #f472b6;
-          stroke-width: 0.08;
+          stroke-width: 0.12;
         }
       ]]>
     </style>

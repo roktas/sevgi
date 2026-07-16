@@ -8,19 +8,19 @@
       }
       .majors {
         stroke: black;
-        stroke-width: 0.2;
+        stroke-width: 0.3;
       }
       .halves {
         stroke: black;
-        stroke-width: 0.1;
+        stroke-width: 0.15;
       }
       .minors {
         stroke: black;
-        stroke-width: 0.1;
+        stroke-width: 0.15;
       }
       .frame {
         stroke: black;
-        stroke-width: 0.1;
+        stroke-width: 0.15;
         fill: none;
       }
     ]]>

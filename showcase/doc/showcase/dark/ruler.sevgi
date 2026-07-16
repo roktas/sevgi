@@ -8,10 +8,10 @@ PAGE_HEIGHT = 30
 
 STYLE = {
   ".labels" => { fill: "white", font: "3pt monospace" },
-  ".majors" => { stroke: "white", "stroke-width": 0.2 },
-  ".halves" => { stroke: "white", "stroke-width": 0.1 },
-  ".minors" => { stroke: "white", "stroke-width": 0.1 },
-  ".frame" => { stroke: "white", "stroke-width": 0.1, fill: "none" }
+  ".majors" => { stroke: "white", "stroke-width": 0.3 },
+  ".halves" => { stroke: "white", "stroke-width": 0.15 },
+  ".minors" => { stroke: "white", "stroke-width": 0.15 },
+  ".frame" => { stroke: "white", "stroke-width": 0.15, fill: "none" }
 }.freeze
 
 SVG width: "#{PAGE_WIDTH}mm", height: "#{PAGE_HEIGHT}mm",

@@ -15,8 +15,8 @@ module Guidesheet
 
   STYLE = {
     ".frame" => { fill: "none", stroke: "#60a5fa", "stroke-width": FRAME },
-    ".halve" => { fill: "none", stroke: "#a3a3a3", "stroke-width": 0.08 },
-    ".minor" => { fill: "none", stroke: "#f472b6", "stroke-width": 0.08 }
+    ".halve" => { fill: "none", stroke: "#a3a3a3", "stroke-width": 0.12 },
+    ".minor" => { fill: "none", stroke: "#f472b6", "stroke-width": 0.12 }
   }.freeze
 
   base { css STYLE }

@@ -2,11 +2,14 @@
 # frozen_string_literal: true
 
 COLS = 4
+MARGIN = 3
 ROWS = 2
 SLANT = 55
 XHEIGHT = 12
 
-canvas = SVG.canvas width: COLS * XHEIGHT, height: ROWS * XHEIGHT
+canvas = SVG.canvas width: COLS * XHEIGHT,
+                    height: (ROWS * XHEIGHT) + (MARGIN * 2),
+                    margins: [MARGIN, 0]
 grid = Grid canvas, unit: XHEIGHT / 5.0, multiple: 5
 
 module Guidesheet
@@ -33,15 +36,16 @@ module Guidesheet
 end
 
 STYLE = {
-  ".angle" => { fill: "none", stroke: "#4ade80", "stroke-width": 0.08 },
+  ".angle" => { fill: "none", stroke: "#4ade80", "stroke-width": 0.12 },
   ".frame" => { fill: "none", stroke: "#60a5fa", "stroke-width": Guidesheet::FRAME },
-  ".major" => { fill: "none", stroke: "#60a5fa", "stroke-width": 0.16 },
-  ".minor" => { fill: "none", stroke: "#f472b6", "stroke-width": 0.08 }
+  ".major" => { fill: "none", stroke: "#60a5fa", "stroke-width": 0.24 },
+  ".minor" => { fill: "none", stroke: "#f472b6", "stroke-width": 0.12 }
 }.freeze
 
 SVG :inkscape, canvas, "shape-rendering": "geometricPrecision" do
   css STYLE
-  rect width: "100%", height: "100%", fill: "#222222"
+  rect y: -canvas.top, width: canvas.width, height: canvas.height,
+       fill: "#222222"
 
   Layer! Guidesheet::Angles, grid, attributes: { id: "Angles" }
   Layer! Guidesheet::Rules, grid, attributes: { id: "Rules" }
