@@ -1,11 +1,11 @@
-<svg width="30" height="30">
-  <rect width="30" height="30" rx="0.75" fill="#222222"/>
+<svg width="26" height="26">
+  <rect width="26" height="26" rx="0.75" fill="#222222"/>
   <defs>
     <path id="Clover.NW" d="m 0,10 c 5.53264,0 10,-4.479747 10,-10 -5.52589,0 -10,4.488702 -10,10
 " fill="#e5c39c"/>
   </defs>
-  <use href="#Clover.NW" x="15" y="5"/>
-  <use href="#Clover.NW" x="15" y="5" transform="rotate(90, 15, 15)"/>
-  <use href="#Clover.NW" x="15" y="5" transform="rotate(180, 15, 15)"/>
-  <use href="#Clover.NW" x="15" y="5" transform="rotate(270, 15, 15)"/>
+  <use href="#Clover.NW" x="13" y="3"/>
+  <use href="#Clover.NW" x="13" y="3" transform="rotate(90, 13, 13)"/>
+  <use href="#Clover.NW" x="13" y="3" transform="rotate(180, 13, 13)"/>
+  <use href="#Clover.NW" x="13" y="3" transform="rotate(270, 13, 13)"/>
 </svg>

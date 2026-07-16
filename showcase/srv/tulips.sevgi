@@ -8,13 +8,14 @@ TULIP_NW = <<~PATH
   -2.92758,2.925628
 PATH
 
-CENTER = 15
+CENTER = 13
 SIDE = 3.5
 ANCHOR = [1.211941, 8.784891].freeze
 CORNER = [CENTER + (SIDE / 2), CENTER - (SIDE / 2)].freeze
+SIZE = 26
 
-SVG :minimal, width: 30, height: 30 do
-  rect width: 30, height: 30, rx: 0.75, fill: "white"
+SVG :minimal, width: SIZE, height: SIZE do
+  rect width: SIZE, height: SIZE, rx: 0.75, fill: "white"
   defs { path id: "Tulip.NW", d: TULIP_NW, fill: "purple" }
 
   4.times do |quarter|

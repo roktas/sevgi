@@ -1,58 +1,50 @@
 #!/usr/bin/env -S ruby -S sevgi
 # frozen_string_literal: true
 
-COLS = 4
-ROWS = 2
+COLS = 15
+MULTIPLE = 5
+ROWS = 10
 SLANT = 55
-WIDTH = 12
-XHEIGHT = 15
+UNIT = 6
 
-canvas = SVG.canvas width: COLS * WIDTH, height: ROWS * XHEIGHT
-grid = Sundries::Grid.new(
-  x: Sundries::Ruler.new(brut: canvas.width, unit: WIDTH / 5.0, multiple: 5),
-  y: Sundries::Ruler.new(brut: canvas.height, unit: XHEIGHT / 5.0, multiple: 5),
-  canvas:
-)
+canvas = SVG.canvas width: COLS * UNIT, height: ROWS * UNIT
+grid = Grid canvas, unit: UNIT, multiple: MULTIPLE
 
 module Guidesheet
-  extend SVG::Modules
+  extend SVG::Module
 
-  FRAME = 0.32
+  FRAME = 0.6
 
-  module Angles
-    def call(grid)
+  STYLE = {
+    ".angle" => { fill: "none", stroke: "#4ade80", "stroke-width": 0.12 },
+    ".frame" => { fill: "none", stroke: "#60a5fa", "stroke-width": FRAME },
+    ".major" => { fill: "none", stroke: "#60a5fa", "stroke-width": 0.4 },
+    ".minor" => { fill: "none", stroke: "#f472b6", "stroke-width": 0.12 }
+  }.freeze
+
+  base { css STYLE }
+
+  def call(grid)
+    layer id: "Slants" do
       TileY "slant-row", n: grid.y.n, d: grid.y.u do
         Hatch grid.rowbox, angle: -SLANT, step: grid.x.su, class: %w[angle slant]
       end
     end
-  end
 
-  module Rules
-    def call(grid)
+    layer id: "Squares" do
       Draw grid.x.minor.lines, class: %w[rule minor horizontal]
       Draw grid.y.minor.lines, class: %w[rule minor vertical]
       Draw grid.x.major.lines, class: %w[rule major horizontal]
       Draw grid.y.major.lines, class: %w[rule major vertical]
     end
+
+    rect x: FRAME / 2, y: FRAME / 2,
+         width: grid.width - FRAME, height: grid.height - FRAME,
+         class: %w[frame rule]
   end
 end
 
-STYLE = {
-  ".angle" => { fill: "none", stroke: "#4ade80", "stroke-width": 0.12 },
-  ".frame" => { fill: "none", stroke: "#60a5fa", "stroke-width": Guidesheet::FRAME },
-  ".major" => { fill: "none", stroke: "#60a5fa", "stroke-width": 0.24 },
-  ".minor" => { fill: "none", stroke: "#f472b6", "stroke-width": 0.12 }
-}.freeze
-
 SVG :inkscape, canvas, "shape-rendering": "geometricPrecision" do
-  css STYLE
   rect width: "100%", height: "100%", fill: "#222222"
-
-  Layer! Guidesheet::Angles, grid, attributes: { id: "Angles" }
-  Layer! Guidesheet::Rules, grid, attributes: { id: "Rules" }
-
-  frame = Guidesheet::FRAME
-  rect x: frame / 2, y: frame / 2,
-       width: grid.width - frame, height: grid.height - frame,
-       class: %w[frame rule]
+  Layer! Guidesheet, grid, attributes: { id: "Guides" }
 end.Save

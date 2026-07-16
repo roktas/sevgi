@@ -5,12 +5,15 @@ CLOVER_NW = <<~PATH
   m 0,10 c 5.53264,0 10,-4.479747 10,-10 -5.52589,0 -10,4.488702 -10,10
 PATH
 
-SVG :minimal, width: 30, height: 30 do
-  rect width: 30, height: 30, rx: 0.75, fill: "#222222"
+CENTER = 13
+SIZE = 26
+
+SVG :minimal, width: SIZE, height: SIZE do
+  rect width: SIZE, height: SIZE, rx: 0.75, fill: "#222222"
   defs { path id: "Clover.NW", d: CLOVER_NW, fill: "#e5c39c" }
 
   4.times do |quarter|
-    leaf = use href: "#Clover.NW", x: 15, y: 5
-    leaf.Rotate quarter * 90, 15, 15
+    leaf = use href: "#Clover.NW", x: CENTER, y: CENTER - 10
+    leaf.Rotate quarter * 90, CENTER, CENTER
   end
 end.Save

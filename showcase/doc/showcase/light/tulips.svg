@@ -1,5 +1,5 @@
-<svg width="30" height="30">
-  <rect width="30" height="30" rx="0.75" fill="white"/>
+<svg width="26" height="26">
+  <rect width="26" height="26" rx="0.75" fill="white"/>
   <defs>
     <path
       id="Tulip.NW"
@@ -11,9 +11,9 @@
       fill="purple"
     />
   </defs>
-  <use href="#Tulip.NW" x="15.538059" y="4.465109"/>
-  <use href="#Tulip.NW" x="15.538059" y="4.465109" transform="rotate(90, 15, 15)"/>
-  <use href="#Tulip.NW" x="15.538059" y="4.465109" transform="rotate(180, 15, 15)"/>
-  <use href="#Tulip.NW" x="15.538059" y="4.465109" transform="rotate(270, 15, 15)"/>
-  <rect width="3.5" height="3.5" x="13.25" y="13.25" fill="purple"/>
+  <use href="#Tulip.NW" x="13.538059" y="2.465109"/>
+  <use href="#Tulip.NW" x="13.538059" y="2.465109" transform="rotate(90, 13, 13)"/>
+  <use href="#Tulip.NW" x="13.538059" y="2.465109" transform="rotate(180, 13, 13)"/>
+  <use href="#Tulip.NW" x="13.538059" y="2.465109" transform="rotate(270, 13, 13)"/>
+  <rect width="3.5" height="3.5" x="11.25" y="11.25" fill="purple"/>
 </svg>

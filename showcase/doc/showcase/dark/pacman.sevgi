@@ -1,15 +1,15 @@
 #!/usr/bin/env -S ruby -S sevgi
 # frozen_string_literal: true
 
-SVG :minimal, width: 200, height: 100 do
-  rect id: "frame", width: 200, height: 100, rx: 5, fill: "#222222"
+SVG :minimal, width: 180, height: 90 do
+  rect id: "frame", width: 180, height: 90, rx: 5, fill: "#222222"
 
-  circle id: "head", cx: 80, cy: 50, r: 40, fill: "#e5c39c"
-  circle id: "eye", cx: 90, cy: 28, r: 6, fill: "#222222"
-  polygon id: "mouth", points: %w[80,50 120,20 120,80], fill: "#222222"
+  circle id: "head", cx: 70, cy: 45, r: 40, fill: "#e5c39c"
+  circle id: "eye", cx: 80, cy: 23, r: 6, fill: "#222222"
+  polygon id: "mouth", points: %w[70,45 110,15 110,75], fill: "#222222"
 
   Symbol "dot" do
-    circle cx: 120, cy: 50, r: 6, fill: "#e5c39c"
+    circle cx: 110, cy: 45, r: 6, fill: "#e5c39c"
   end
 
   g id: "dots" do

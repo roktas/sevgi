@@ -1,21 +1,22 @@
 #!/usr/bin/env -S ruby -S sevgi
 # frozen_string_literal: true
 
-CELL = 6
-COLS = 8
-ROWS = 5
+COLS = 15
+MULTIPLE = 5
+ROWS = 10
+UNIT = 6
 
-canvas = SVG.canvas width: COLS * CELL, height: ROWS * CELL
-grid = Grid canvas, unit: CELL, multiple: 1
+canvas = SVG.canvas width: COLS * UNIT, height: ROWS * UNIT
+grid = Grid canvas, unit: UNIT, multiple: MULTIPLE
 
 module Guidesheet
   extend SVG::Module
 
-  FRAME = 0.32
+  FRAME = 0.6
 
   STYLE = {
     ".frame" => { fill: "none", stroke: "blue", "stroke-width": FRAME },
-    ".halve" => { fill: "none", stroke: "dimgray", "stroke-width": 0.12 },
+    ".major" => { fill: "none", stroke: "blue", "stroke-width": 0.4 },
     ".minor" => { fill: "none", stroke: "magenta", "stroke-width": 0.12 }
   }.freeze
 
@@ -25,8 +26,8 @@ module Guidesheet
     layer id: "Squares" do
       Draw grid.x.minor.lines, class: %w[rule minor horizontal]
       Draw grid.y.minor.lines, class: %w[rule minor vertical]
-      Draw grid.x.halve.lines, class: %w[rule halve horizontal]
-      Draw grid.y.halve.lines, class: %w[rule halve vertical]
+      Draw grid.x.major.lines, class: %w[rule major horizontal]
+      Draw grid.y.major.lines, class: %w[rule major vertical]
     end
 
     rect x: FRAME / 2, y: FRAME / 2,

@@ -26,10 +26,10 @@ module Sevgi
       paths = copperplate.xpath("//*[@class=\"rule major horizontal\" or @class=\"rule major vertical\"]")
       majors = paths.map { |path| path["d"] }
       [
-        "M 0 0 L 0 30",
-        "M 0 0 L 48 0",
-        "M 0 30 L 48 30",
-        "M 48 0 L 48 30"
+        "M 0 0 L 0 60",
+        "M 0 0 L 90 0",
+        "M 0 60 L 90 60",
+        "M 90 0 L 90 60"
       ].each { assert_includes(majors, it) }
     end
 

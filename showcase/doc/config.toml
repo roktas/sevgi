@@ -15,5 +15,5 @@ github_repo                = "roktas/sevgi"
 site_description           = "Create SVG with Ruby."
 nav_groups                 = ["Start", "Core", "Toolkit", "More"]
 extra_menu                 = [
-  { title = "API", link = "/api/" },
+  { title = "Reference", link = "/api/" },
 ]

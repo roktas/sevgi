@@ -13,14 +13,28 @@
     </div>
   </section>
   
-  <img
+  <svg
     class="hero-image"
-    src="{{ get_url(path='img/logo.png') }}"
-    srcset="{{ get_url(path='img/logo.png') }} 1x, {{ get_url(path='img/logo@2x.png') }} 2x"
-    alt="Sevgi logo"
-    decoding="sync"
-    fetchpriority="high"
+    viewBox="0 -2 38.28 61.5"
+    role="img"
+    aria-label="Sevgi logo"
+    shape-rendering="geometricPrecision"
   >
+    <defs>
+      <path
+        id="hero-logo-master"
+        d="m 30,30 c 0,0 18.39,7.089444 18.39,15 C 48.39,52.910556 30,60 30,60 M 30,0 C 30,0 11.61,7.089442 11.61,14.999998 C 11.61,22.910556 30,30 30,30"
+      />
+    </defs>
+    <g transform="translate(-10.86,-1.25)" fill="none" stroke-linecap="round" stroke-width="1.5">
+      <use
+        href="#hero-logo-master"
+        stroke="var(--wt-logo-passive)"
+        transform="matrix(-1,0,0,1,60,0)"
+      />
+      <use href="#hero-logo-master" stroke="var(--wt-logo-active)" />
+    </g>
+  </svg>
 </div>
 
 <div class="hero-features">
@@ -50,7 +64,7 @@
   </div>
 
   <div class="feature-item">
-    <h3>PDF and PNG export <i class="fa-solid fa-file-export"></i></h3>
+    <h3>PDF/PNG export <i class="fa-solid fa-file-export"></i></h3>
     <p>Export SVG drawings to PDF or PNG through the optional native output pipeline when a workflow needs fixed artifacts.</p>
   </div>
 </div>
