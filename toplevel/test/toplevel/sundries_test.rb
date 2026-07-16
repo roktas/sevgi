@@ -6,7 +6,7 @@ module Sevgi
   class ToplevelSundriesTest < Minitest::Test
     def test_grid_builds_sundries_grid_from_canvas
       receiver = ::Module.new.extend(::Sevgi)
-      canvas = Graphics::Canvas.from_paper(:a4, margins: [10, 20])
+      canvas = Graphics::Canvas.call(width: 210, height: 297, unit: :px, name: :poster, margins: [10, 20])
       grid = receiver.Grid(canvas, unit: 5, multiple: 2)
 
       [
@@ -17,7 +17,11 @@ module Sevgi
         20.0,
         grid.x.start,
         13.5,
-        grid.y.start
+        grid.y.start,
+        :px,
+        grid.canvas.unit,
+        :poster,
+        grid.canvas.name
       ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
     end
 

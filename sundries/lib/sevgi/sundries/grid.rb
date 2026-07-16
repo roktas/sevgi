@@ -24,13 +24,19 @@ module Sevgi
       # Creates a grid from horizontal and vertical rulers.
       # @param x [Sevgi::Sundries::Ruler] horizontal ruler
       # @param y [Sevgi::Sundries::Ruler] vertical ruler
+      # @param canvas [Sevgi::Graphics::Canvas, nil] source canvas whose identity should be preserved
       # @return [void]
       # @raise [Sevgi::ArgumentError] when either argument is not a ruler
+      # @raise [Sevgi::ArgumentError] when the source canvas does not match the ruler spans
       # @raise [Sevgi::ArgumentError] when either ruler fits no interval
-      def initialize(x:, y:)
+      def initialize(x:, y:, canvas: nil)
         ArgumentError.("Arguments must be Ruler objects") unless [x, y].all?(Ruler)
         ArgumentError.("Grid rulers must fit at least one interval") unless x.n.positive? && y.n.positive?
+        if canvas && (!canvas.is_a?(Graphics::Canvas) || canvas.width != x.brut || canvas.height != y.brut)
+          ArgumentError.("Grid canvas must match the ruler spans")
+        end
 
+        @source = canvas
         @x = X.send(:new, x, y)
         @y = Y.send(:new, x, y)
 
@@ -42,9 +48,12 @@ module Sevgi
       # ruler margins become its top/bottom margins.
       # @return [Sevgi::Graphics::Canvas]
       def canvas
+        margins = [y.start, x.finish, y.finish, x.start]
+        return @source.with(margins:) if @source
+
         Graphics::Canvas.new(
           **Graphics::Paper[x.brut, y.brut].to_h,
-          margins: [y.start, x.finish, y.finish, x.start]
+          margins:
         )
       end
 

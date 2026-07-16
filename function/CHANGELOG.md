@@ -42,6 +42,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Fixed
 
+- Preserved source Canvas units and names when deriving fitted Grid canvases.
 - Prevented stale documentation assets from mixing old layouts with new HTML, and moved sidebar navigation into the
   tablet menu at 1024px and below.
 - Normalized numeric slots owned by path, shape, transform, tile, and Inkscape page helpers to finite SVG number spelling;

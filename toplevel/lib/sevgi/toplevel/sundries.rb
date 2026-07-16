@@ -21,10 +21,11 @@ module Sevgi
     def Grid(canvas, unit:, multiple:)
       ArgumentError.("Must be a Canvas: #{canvas}") unless canvas.is_a?(Graphics::Canvas)
 
-      Sundries::Grid[
-        Sundries::Ruler.new(brut: canvas.width, unit:, multiple:, margins: [canvas.left, canvas.right]),
-        Sundries::Ruler.new(brut: canvas.height, unit:, multiple:, margins: [canvas.top, canvas.bottom])
-      ]
+      Sundries::Grid.new(
+        x: Sundries::Ruler.new(brut: canvas.width, unit:, multiple:, margins: [canvas.left, canvas.right]),
+        y: Sundries::Ruler.new(brut: canvas.height, unit:, multiple:, margins: [canvas.top, canvas.bottom]),
+        canvas:
+      )
     end
 
     promote Sundries::Export

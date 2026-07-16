@@ -97,6 +97,18 @@ module Sevgi
         assert_equal(70.0, grid.height)
       end
 
+      def test_grid_canvas_preserves_source_identity
+        source = Graphics::Canvas.call(width: 100, height: 80, unit: :px, name: :icon, margins: [3, 7, 11, 13])
+        grid = Grid.new(
+          x: Ruler.new(unit: 10, multiple: 1, brut: source.width, margins: [source.left, source.right]),
+          y: Ruler.new(unit: 10, multiple: 1, brut: source.height, margins: [source.top, source.bottom]),
+          canvas: source
+        )
+
+        assert_equal([100.0, 80.0, :px, :icon], grid.canvas.size.deconstruct)
+        assert_equal([6.0, 7.0, 14.0, 13.0], grid.canvas.margin.to_a)
+      end
+
       def test_grid_axes_memoize_base_lines
         grid = Grid.new(
           x: Ruler.new(unit: 2, multiple: 2, brut: 8),
