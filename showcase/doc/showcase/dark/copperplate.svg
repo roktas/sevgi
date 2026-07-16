@@ -19,7 +19,7 @@
       .frame {
         fill: none;
         stroke: #60a5fa;
-        stroke-width: 0.4;
+        stroke-width: 0.32;
       }
       .major {
         fill: none;
@@ -103,5 +103,5 @@
     <path d="M 36 0 L 36 24" class="rule major vertical"/>
     <path d="M 48 0 L 48 24" class="rule major vertical"/>
   </g>
-  <rect x="0.2" y="0.2" width="47.6" height="23.6" class="frame rule"/>
+  <rect x="0.16" y="-2.84" width="47.68" height="29.68" class="frame rule"/>
 </svg>

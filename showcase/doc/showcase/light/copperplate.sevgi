@@ -15,7 +15,7 @@ grid = Grid canvas, unit: XHEIGHT / 5.0, multiple: 5
 module Guidesheet
   extend SVG::Modules
 
-  FRAME = 0.40
+  FRAME = 0.32
 
   module Angles
     def call(grid)
@@ -51,7 +51,7 @@ SVG :inkscape, canvas, "shape-rendering": "geometricPrecision" do
   Layer! Guidesheet::Rules, grid, attributes: { id: "Rules" }
 
   frame = Guidesheet::FRAME
-  rect x: frame / 2, y: frame / 2,
-       width: grid.width - frame, height: grid.height - frame,
+  rect x: frame / 2, y: -canvas.top + (frame / 2),
+       width: canvas.width - frame, height: canvas.height - frame,
        class: %w[frame rule]
 end.Save

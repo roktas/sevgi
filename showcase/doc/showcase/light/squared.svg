@@ -16,7 +16,7 @@
         .frame {
           fill: none;
           stroke: blue;
-          stroke-width: 0.4;
+          stroke-width: 0.32;
         }
         .halve {
           fill: none;
@@ -60,6 +60,6 @@
       <path d="M 39 0 L 39 30" class="rule halve vertical"/>
       <path d="M 45 0 L 45 30" class="rule halve vertical"/>
     </g>
-    <rect x="0.2" y="0.2" width="47.6" height="29.6" class="frame rule"/>
+    <rect x="0.16" y="0.16" width="47.68" height="29.68" class="frame rule"/>
   </g>
 </svg>

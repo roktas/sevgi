@@ -11,7 +11,7 @@ grid = Grid canvas, unit: CELL, multiple: 1
 module Guidesheet
   extend SVG::Module
 
-  FRAME = 0.40
+  FRAME = 0.32
 
   STYLE = {
     ".frame" => { fill: "none", stroke: "blue", "stroke-width": FRAME },
