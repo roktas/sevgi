@@ -67,9 +67,53 @@ module Sevgi
       "Sevgi::Executor::Result#error" => [[[], ["Sevgi::Executor::Error", "nil"]]],
       "Sevgi::Executor::Result#stack" => [[[], ["Array<String>"]]]
     }.freeze
+    DERENDER_ID_CONTRACTS = %w[
+      Sevgi::Derender.decompile
+      Sevgi::Derender.decompile_file
+      Sevgi::Derender.derender
+      Sevgi::Derender.derender_file
+      Sevgi::Derender.evaluate
+      Sevgi::Derender.evaluate_children
+      Sevgi::Derender.evaluate_children_file
+      Sevgi::Derender.evaluate_file
+      Sevgi::Toplevel#Decompile
+      Sevgi::Toplevel#DecompileFile
+      Sevgi::Toplevel#Derender
+      Sevgi::Toplevel#DerenderFile
+      Sevgi::Toplevel#Evaluate
+      Sevgi::Toplevel#EvaluateChildren
+      Sevgi::Toplevel#EvaluateChildrenFile
+      Sevgi::Toplevel#EvaluateFile
+    ]
+      .to_h { [it, %w[String Symbol nil]] }
+      .merge(
+        %w[
+          Sevgi::Graphics::Mixtures::Include#Include
+          Sevgi::Graphics::Mixtures::Include#IncludeChildren
+        ].to_h { [it, %w[String Symbol]] }
+      )
+      .freeze
     SEMANTICS = {
+      "Sevgi::Derender.decompile_file" => {
+        raises: ["Sevgi::ArgumentError", "SystemCallError"]
+      },
+      "Sevgi::Derender.derender_file" => {
+        raises: ["Sevgi::ArgumentError", "Sevgi::PanicError", "SystemCallError"]
+      },
+      "Sevgi::Derender.evaluate_children_file" => {
+        raises: ["Sevgi::ArgumentError", "SystemCallError"]
+      },
+      "Sevgi::Derender.evaluate_file" => {
+        raises: ["Sevgi::ArgumentError", "SystemCallError"]
+      },
       "Sevgi::Executor::Error" => {
         phrases: ["visited source", "not the active load stack"]
+      },
+      "Sevgi::Graphics::Mixtures::Include#Include" => {
+        raises: ["Sevgi::ArgumentError", "SystemCallError", "Sevgi::MissingComponentError"]
+      },
+      "Sevgi::Graphics::Mixtures::Include#IncludeChildren" => {
+        raises: ["Sevgi::ArgumentError", "SystemCallError", "Sevgi::MissingComponentError"]
       },
       "Sevgi::Graphics::Margin#adjust" => {
         raises: ["Sevgi::ArgumentError"]
@@ -331,6 +375,14 @@ module Sevgi
         end
 
         assert_equal(expected, actual, path)
+      end
+    end
+
+    def test_derender_id_contracts_are_consistent
+      DERENDER_ID_CONTRACTS.each do |path, expected|
+        id = yard(path).tags(:param).find { it.name == "id" }
+
+        assert_equal(expected, id&.types, path)
       end
     end
 

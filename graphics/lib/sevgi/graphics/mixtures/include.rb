@@ -12,6 +12,7 @@ module Sevgi
       #   @param id [String, Symbol] source node id
       #   @return [Sevgi::Graphics::Element, nil] included element, or nil when it produces no graphics output
       #   @raise [Sevgi::ArgumentError] when the file is absent or XML content is malformed, rootless, or lacks the id
+      #   @raise [SystemCallError] when the file cannot be read
       #   @raise [Sevgi::MissingComponentError] when sevgi/derender is unavailable
       # @!method IncludeChildren(file, id)
       #   Includes the children of a derendered node matching an id.
@@ -20,6 +21,7 @@ module Sevgi
       #   @param id [String, Symbol] source node id
       #   @return [Array<Sevgi::Graphics::Element>] immutable included-child snapshot
       #   @raise [Sevgi::ArgumentError] when the file is absent or XML content is malformed, rootless, or lacks the id
+      #   @raise [SystemCallError] when the file cannot be read
       #   @raise [Sevgi::MissingComponentError] when sevgi/derender is unavailable
       module Include
         require "sevgi/derender"
@@ -33,6 +35,7 @@ module Sevgi
         #   output
         # @raise [Sevgi::ArgumentError] when the file cannot be found, file content is malformed or rootless, or the id is
         #   absent
+        # @raise [SystemCallError] when the file cannot be read
         # @raise [Sevgi::MissingComponentError] when sevgi/derender is unavailable
         def Include(file, id) = Derender.evaluate_file(file, self, id:)
 
@@ -44,6 +47,7 @@ module Sevgi
         # @return [Array<Sevgi::Graphics::Element>] immutable included-child snapshot
         # @raise [Sevgi::ArgumentError] when the file cannot be found, file content is malformed or rootless, or the id is
         #   absent
+        # @raise [SystemCallError] when the file cannot be read
         # @raise [Sevgi::MissingComponentError] when sevgi/derender is unavailable
         def IncludeChildren(file, id) = Derender.evaluate_children_file(file, self, id:)
       rescue ::LoadError => e

@@ -14,7 +14,7 @@ module Sevgi
       # @param path [String] path to the source file, with or without `.svg` extension
       # @return [Sevgi::Derender::Document] document wrapper
       # @raise [Sevgi::ArgumentError] when the file cannot be found or file content is malformed XML
-      # @raise [Errno::EACCES] when the file cannot be read
+      # @raise [SystemCallError] when the file cannot be read
       def self.load_file(path)
         entry = ::File.expand_path(F.qualify(path, "svg"))
 
@@ -66,7 +66,7 @@ module Sevgi
       end
 
       # Converts the root or selected node into a derender node.
-      # @param id [String, nil] optional SVG id selecting a node inside the document
+      # @param id [String, Symbol, nil] optional SVG id selecting a node inside the document
       # @return [Sevgi::Derender::Node] selected node in the derender tree
       # @raise [Sevgi::ArgumentError] when the document has no root element or the id is absent
       def decompile(id = nil)

@@ -16,6 +16,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Changed
 
+- Formalized String and Symbol ids across Derender selection APIs and documented file-read failures consistently.
 - Breaking: made top-level `Decompile`, `Derender`, `Evaluate`, and `EvaluateChildren` consume inline SVG/XML;
   file inputs now use the corresponding `File`-suffixed entrypoints.
 - Breaking: replaced callable drawing module `call` block registration with argument-independent `base` blocks;

@@ -58,6 +58,24 @@ module Sevgi
         end
       end
 
+      def test_conversions_accept_symbol_ids
+        svg = "<svg><g id=\"mark\"><rect/></g></svg>"
+
+        Dir.mktmpdir do |dir|
+          file = ::File.join(dir, "source.svg")
+          ::File.write(file, svg)
+
+          assert_equal("mark", Derender.decompile(svg, id: :mark).attributes["id"])
+          assert_includes(Derender.derender(svg, id: :mark), "id: \"mark\"")
+          assert_equal("mark", Derender.evaluate(svg, SVG(:minimal), id: :mark)[:id])
+          assert_equal([:rect], Derender.evaluate_children(svg, SVG(:minimal), id: :mark).map(&:name))
+          assert_equal("mark", Derender.decompile_file(file, id: :mark).attributes["id"])
+          assert_includes(Derender.derender_file(file, id: :mark), "id: \"mark\"")
+          assert_equal("mark", Derender.evaluate_file(file, SVG(:minimal), id: :mark)[:id])
+          assert_equal([:rect], Derender.evaluate_children_file(file, SVG(:minimal), id: :mark).map(&:name))
+        end
+      end
+
       def test_evaluate_renders_selected_node_in_document
         expected = svg = <<~SVG
           <g id="xxx">
