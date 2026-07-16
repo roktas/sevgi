@@ -7,7 +7,7 @@
   shape-rendering="geometricPrecision"
   width="48.0mm"
   height="30.0mm"
-  viewBox="0 -3 48 30"
+  viewBox="0 0 48 30"
 >
   <style type="text/css">
     <![CDATA[
@@ -33,75 +33,75 @@
       }
     ]]>
   </style>
-  <rect y="-3.0" width="48.0" height="30.0" fill="#222222"/>
+  <rect width="100%" height="100%" fill="#222222"/>
   <g id="Angles" inkscape:groupmode="layer" sodipodi:insensitive="true">
     <defs>
       <g id="slant-row">
-        <path d="M 48 10.95007 L 47.264831 12" class="angle slant"/>
-        <path d="M 48 6.765797 L 44.334972 12" class="angle slant"/>
-        <path d="M 48 2.581525 L 41.405113 12" class="angle slant"/>
-        <path d="M 46.877744 0 L 38.475254 12" class="angle slant"/>
-        <path d="M 43.947885 0 L 35.545395 12" class="angle slant"/>
-        <path d="M 41.018026 0 L 32.615536 12" class="angle slant"/>
-        <path d="M 38.088167 0 L 29.685677 12" class="angle slant"/>
-        <path d="M 35.158308 0 L 26.755818 12" class="angle slant"/>
-        <path d="M 32.228449 0 L 23.825959 12" class="angle slant"/>
-        <path d="M 29.29859 0 L 20.8961 12" class="angle slant"/>
-        <path d="M 26.368731 0 L 17.966241 12" class="angle slant"/>
-        <path d="M 23.438872 0 L 15.036382 12" class="angle slant"/>
-        <path d="M 20.509013 0 L 12.106523 12" class="angle slant"/>
-        <path d="M 17.579154 0 L 9.176664 12" class="angle slant"/>
-        <path d="M 14.649295 0 L 6.246805 12" class="angle slant"/>
-        <path d="M 11.719436 0 L 3.316946 12" class="angle slant"/>
-        <path d="M 8.789577 0 L 0.387087 12" class="angle slant"/>
+        <path d="M 48 10.95007 L 45.164208 15" class="angle slant"/>
+        <path d="M 48 6.765797 L 42.234349 15" class="angle slant"/>
+        <path d="M 48 2.581525 L 39.30449 15" class="angle slant"/>
+        <path d="M 46.877744 0 L 36.374631 15" class="angle slant"/>
+        <path d="M 43.947885 0 L 33.444772 15" class="angle slant"/>
+        <path d="M 41.018026 0 L 30.514913 15" class="angle slant"/>
+        <path d="M 38.088167 0 L 27.585054 15" class="angle slant"/>
+        <path d="M 35.158308 0 L 24.655195 15" class="angle slant"/>
+        <path d="M 32.228449 0 L 21.725336 15" class="angle slant"/>
+        <path d="M 29.29859 0 L 18.795477 15" class="angle slant"/>
+        <path d="M 26.368731 0 L 15.865618 15" class="angle slant"/>
+        <path d="M 23.438872 0 L 12.935759 15" class="angle slant"/>
+        <path d="M 20.509013 0 L 10.0059 15" class="angle slant"/>
+        <path d="M 17.579154 0 L 7.076041 15" class="angle slant"/>
+        <path d="M 14.649295 0 L 4.146182 15" class="angle slant"/>
+        <path d="M 11.719436 0 L 1.216323 15" class="angle slant"/>
+        <path d="M 8.789577 0 L 0 12.552817" class="angle slant"/>
         <path d="M 5.859718 0 L 0 8.368545" class="angle slant"/>
         <path d="M 2.929859 0 L 0 4.184272" class="angle slant"/>
       </g>
     </defs>
     <use id="slant-row-1" href="#slant-row" class="tile-row-1 tile-row-first"/>
-    <use id="slant-row-2" href="#slant-row" class="tile-row-2 tile-row-last" y="12"/>
+    <use id="slant-row-2" href="#slant-row" class="tile-row-2 tile-row-last" y="15"/>
   </g>
   <g id="Rules" inkscape:groupmode="layer" sodipodi:insensitive="true">
     <path d="M 0 0 L 48 0" class="rule minor horizontal"/>
-    <path d="M 0 2.4 L 48 2.4" class="rule minor horizontal"/>
-    <path d="M 0 4.8 L 48 4.8" class="rule minor horizontal"/>
-    <path d="M 0 7.2 L 48 7.2" class="rule minor horizontal"/>
-    <path d="M 0 9.6 L 48 9.6" class="rule minor horizontal"/>
+    <path d="M 0 3 L 48 3" class="rule minor horizontal"/>
+    <path d="M 0 6 L 48 6" class="rule minor horizontal"/>
+    <path d="M 0 9 L 48 9" class="rule minor horizontal"/>
     <path d="M 0 12 L 48 12" class="rule minor horizontal"/>
-    <path d="M 0 14.4 L 48 14.4" class="rule minor horizontal"/>
-    <path d="M 0 16.8 L 48 16.8" class="rule minor horizontal"/>
-    <path d="M 0 19.2 L 48 19.2" class="rule minor horizontal"/>
-    <path d="M 0 21.6 L 48 21.6" class="rule minor horizontal"/>
+    <path d="M 0 15 L 48 15" class="rule minor horizontal"/>
+    <path d="M 0 18 L 48 18" class="rule minor horizontal"/>
+    <path d="M 0 21 L 48 21" class="rule minor horizontal"/>
     <path d="M 0 24 L 48 24" class="rule minor horizontal"/>
-    <path d="M 0 0 L 0 24" class="rule minor vertical"/>
-    <path d="M 2.4 0 L 2.4 24" class="rule minor vertical"/>
-    <path d="M 4.8 0 L 4.8 24" class="rule minor vertical"/>
-    <path d="M 7.2 0 L 7.2 24" class="rule minor vertical"/>
-    <path d="M 9.6 0 L 9.6 24" class="rule minor vertical"/>
-    <path d="M 12 0 L 12 24" class="rule minor vertical"/>
-    <path d="M 14.4 0 L 14.4 24" class="rule minor vertical"/>
-    <path d="M 16.8 0 L 16.8 24" class="rule minor vertical"/>
-    <path d="M 19.2 0 L 19.2 24" class="rule minor vertical"/>
-    <path d="M 21.6 0 L 21.6 24" class="rule minor vertical"/>
-    <path d="M 24 0 L 24 24" class="rule minor vertical"/>
-    <path d="M 26.4 0 L 26.4 24" class="rule minor vertical"/>
-    <path d="M 28.8 0 L 28.8 24" class="rule minor vertical"/>
-    <path d="M 31.2 0 L 31.2 24" class="rule minor vertical"/>
-    <path d="M 33.6 0 L 33.6 24" class="rule minor vertical"/>
-    <path d="M 36 0 L 36 24" class="rule minor vertical"/>
-    <path d="M 38.4 0 L 38.4 24" class="rule minor vertical"/>
-    <path d="M 40.8 0 L 40.8 24" class="rule minor vertical"/>
-    <path d="M 43.2 0 L 43.2 24" class="rule minor vertical"/>
-    <path d="M 45.6 0 L 45.6 24" class="rule minor vertical"/>
-    <path d="M 48 0 L 48 24" class="rule minor vertical"/>
+    <path d="M 0 27 L 48 27" class="rule minor horizontal"/>
+    <path d="M 0 30 L 48 30" class="rule minor horizontal"/>
+    <path d="M 0 0 L 0 30" class="rule minor vertical"/>
+    <path d="M 2.4 0 L 2.4 30" class="rule minor vertical"/>
+    <path d="M 4.8 0 L 4.8 30" class="rule minor vertical"/>
+    <path d="M 7.2 0 L 7.2 30" class="rule minor vertical"/>
+    <path d="M 9.6 0 L 9.6 30" class="rule minor vertical"/>
+    <path d="M 12 0 L 12 30" class="rule minor vertical"/>
+    <path d="M 14.4 0 L 14.4 30" class="rule minor vertical"/>
+    <path d="M 16.8 0 L 16.8 30" class="rule minor vertical"/>
+    <path d="M 19.2 0 L 19.2 30" class="rule minor vertical"/>
+    <path d="M 21.6 0 L 21.6 30" class="rule minor vertical"/>
+    <path d="M 24 0 L 24 30" class="rule minor vertical"/>
+    <path d="M 26.4 0 L 26.4 30" class="rule minor vertical"/>
+    <path d="M 28.8 0 L 28.8 30" class="rule minor vertical"/>
+    <path d="M 31.2 0 L 31.2 30" class="rule minor vertical"/>
+    <path d="M 33.6 0 L 33.6 30" class="rule minor vertical"/>
+    <path d="M 36 0 L 36 30" class="rule minor vertical"/>
+    <path d="M 38.4 0 L 38.4 30" class="rule minor vertical"/>
+    <path d="M 40.8 0 L 40.8 30" class="rule minor vertical"/>
+    <path d="M 43.2 0 L 43.2 30" class="rule minor vertical"/>
+    <path d="M 45.6 0 L 45.6 30" class="rule minor vertical"/>
+    <path d="M 48 0 L 48 30" class="rule minor vertical"/>
     <path d="M 0 0 L 48 0" class="rule major horizontal"/>
-    <path d="M 0 12 L 48 12" class="rule major horizontal"/>
-    <path d="M 0 24 L 48 24" class="rule major horizontal"/>
-    <path d="M 0 0 L 0 24" class="rule major vertical"/>
-    <path d="M 12 0 L 12 24" class="rule major vertical"/>
-    <path d="M 24 0 L 24 24" class="rule major vertical"/>
-    <path d="M 36 0 L 36 24" class="rule major vertical"/>
-    <path d="M 48 0 L 48 24" class="rule major vertical"/>
+    <path d="M 0 15 L 48 15" class="rule major horizontal"/>
+    <path d="M 0 30 L 48 30" class="rule major horizontal"/>
+    <path d="M 0 0 L 0 30" class="rule major vertical"/>
+    <path d="M 12 0 L 12 30" class="rule major vertical"/>
+    <path d="M 24 0 L 24 30" class="rule major vertical"/>
+    <path d="M 36 0 L 36 30" class="rule major vertical"/>
+    <path d="M 48 0 L 48 30" class="rule major vertical"/>
   </g>
-  <rect x="0.16" y="-2.84" width="47.68" height="29.68" class="frame rule"/>
+  <rect x="0.16" y="0.16" width="47.68" height="29.68" class="frame rule"/>
 </svg>
