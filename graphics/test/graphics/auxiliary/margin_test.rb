@@ -35,17 +35,12 @@ module Sevgi
 
       def test_margin_expands_css_like_values
         [
-          [0.0, 0.0, 0.0, 0.0],
-          Margin.margin(nil).to_a,
-          [1.0, 1.0, 1.0, 1.0],
-          Margin.margin([1]).to_a,
-          [1.0, 2.0, 1.0, 2.0],
-          Margin.margin([1, 2]).to_a,
-          [1.0, 2.0, 3.0, 2.0],
-          Margin.margin([1, 2, 3]).to_a,
-          [1.0, 2.0, 3.0, 4.0],
-          Margin.margin([1, 2, 3, 4]).to_a
-        ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+          [[0.0, 0.0, 0.0, 0.0], []],
+          [[1.0, 1.0, 1.0, 1.0], [1]],
+          [[1.0, 2.0, 1.0, 2.0], [1, 2]],
+          [[1.0, 2.0, 3.0, 2.0], [1, 2, 3]],
+          [[1.0, 2.0, 3.0, 4.0], [1, 2, 3, 4]]
+        ].each { |expected, values| assert_equal(expected, Margin[*values].to_a) }
       end
     end
   end

@@ -77,15 +77,6 @@ module Sevgi
       # @return [Array<Float>]
       alias_method :to_a, :deconstruct
 
-      # Builds a margin from an array-like shorthand.
-      # @param array [Object] value converted with Array()
-      # @return [Sevgi::Graphics::Margin]
-      def self.margin(array)
-        self[
-          *(array = Array(array)[0...(size = Margin.members.size)]).fill(nil, array.size, size - array.size)
-        ]
-      end
-
       # Returns a zero margin.
       # @return [Sevgi::Graphics::Margin]
       def self.zero = (@zero ||= self[0.0, 0.0, 0.0, 0.0])
