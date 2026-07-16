@@ -62,6 +62,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Removed
 
+- Removed public access to document profile name normalizers; registry operations retain them as private plumbing.
 - Removed the redundant `Margin.margin` constructor; use canonical bracket notation.
 - Removed public executor orchestration, obsolete callable-module hooks, the old public attribute syntax constants, and
   direct construction of abstract or internally wired Content, Element, and Grid query types.

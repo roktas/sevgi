@@ -78,7 +78,27 @@ module Sevgi
         end
       end
 
-      private_constant :Snapshot
+      # Document profile name normalization.
+      # @api private
+      module Name
+        # Normalizes a profile name.
+        # @param name [Object] profile name
+        # @return [Symbol, nil]
+        def self.normalize(name)
+          normalized = name.to_sym if name.respond_to?(:to_sym)
+          normalized if normalized.is_a?(::Symbol)
+        rescue ::StandardError
+          nil
+        end
+
+        # Normalizes a profile name or raises.
+        # @param name [Object] profile name
+        # @return [Symbol]
+        # @raise [Sevgi::ArgumentError] when name cannot be normalized
+        def self.normalize!(name) = normalize(name) || ArgumentError.("Invalid document profile: #{name}")
+      end
+
+      private_constant :Name, :Snapshot
 
       # Builds a root SVG element from a document profile.
       # @param document [Symbol, String, Class] profile name or document class
@@ -124,7 +144,7 @@ module Sevgi
       #   klass = Document.fetch(:minimal)
       #   Document.profile(:minimal) # => klass.profile
       def self.fetch(name)
-        name = Profile.normalize!(name)
+        name = Name.normalize!(name)
         Registry[name] || ArgumentError.("Unknown document profile: #{name}")
       end
 
@@ -135,7 +155,7 @@ module Sevgi
       # @param name [Object] profile name
       # @return [Boolean]
       def self.exist?(name)
-        name = Profile.normalize(name)
+        name = Name.normalize(name)
         name ? !Registry[name].nil? : false
       end
 
@@ -167,7 +187,7 @@ module Sevgi
 
         return lookup(name) if preambles == Undefined && attributes == Undefined
 
-        name = Profile.normalize!(name)
+        name = Name.normalize!(name)
         current = reuse(name, attributes:, preambles:, overwrite:)
         return current if current
 
@@ -232,7 +252,7 @@ module Sevgi
 
           def register(name, klass, profile: nil, overwrite: false)
             overwrite = Document.send(:overwrite!, overwrite)
-            name = Profile.normalize!(name)
+            name = Name.normalize!(name)
             validate!(name, klass, profile)
 
             @mutex.synchronize { store(name, klass, profile, overwrite) }
@@ -273,22 +293,6 @@ module Sevgi
       # are omitted, and update-suffix intent is retained for inheritance.
       # @see Sevgi::Graphics.document
       class Profile
-        # Normalizes a profile name.
-        # @param name [Object] profile name
-        # @return [Symbol, nil]
-        def self.normalize(name)
-          normalized = name.to_sym if name.respond_to?(:to_sym)
-          normalized if normalized.is_a?(::Symbol)
-        rescue ::StandardError
-          nil
-        end
-
-        # Normalizes a profile name or raises.
-        # @param name [Object] profile name
-        # @return [Symbol]
-        # @raise [Sevgi::ArgumentError] when name cannot be normalized
-        def self.normalize!(name) = normalize(name) || ArgumentError.("Invalid document profile: #{name}")
-
         # @return [Symbol, nil] profile name
         attr_reader :name
 
@@ -299,7 +303,7 @@ module Sevgi
         # @return [void]
         # @raise [Sevgi::ArgumentError] when name or metadata is invalid XML, cyclic, or cannot be stringified
         def initialize(name, attributes: nil, preambles: nil)
-          @name = name.nil? ? nil : self.class.normalize!(name)
+          @name = name.nil? ? nil : Name.normalize!(name)
           @attributes = capture_attributes(attributes)
           @preambles = capture_preambles(preambles)
           freeze

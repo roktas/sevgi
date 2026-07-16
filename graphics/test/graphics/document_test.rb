@@ -177,6 +177,8 @@ module Sevgi
       def test_profile_registry_is_not_public
         before = Document.keys
 
+        refute_respond_to(Document::Profile, :normalize)
+        refute_respond_to(Document::Profile, :normalize!)
         refute_respond_to(Document::Profile, :register)
         assert_raises(NoMethodError) { Document::Profile.register(:broken, String) }
         assert_equal(before, Document.keys)
@@ -278,7 +280,7 @@ module Sevgi
         wrong = Object.new.tap { it.define_singleton_method(:to_sym) { "broken" } }
 
         [Object.new, raising, wrong].each do |name|
-          assert_nil(Document::Profile.normalize(name))
+          refute(Document.exist?(name))
           assert_raises(ArgumentError) { registry.register(name, Document::Minimal) }
           assert_equal(before, Document.keys)
         end
