@@ -30,11 +30,8 @@ module Sevgi
       # @raise [Sevgi::ArgumentError] when the source canvas does not match the ruler spans
       # @raise [Sevgi::ArgumentError] when either ruler fits no interval
       def initialize(x:, y:, canvas: nil)
-        ArgumentError.("Arguments must be Ruler objects") unless [x, y].all?(Ruler)
-        ArgumentError.("Grid rulers must fit at least one interval") unless x.n.positive? && y.n.positive?
-        if canvas && (!canvas.is_a?(Graphics::Canvas) || canvas.width != x.brut || canvas.height != y.brut)
-          ArgumentError.("Grid canvas must match the ruler spans")
-        end
+        validate_axes(x, y)
+        validate_canvas(canvas, x, y)
 
         @source = canvas
         @x = X.send(:new, x, y)
@@ -176,6 +173,22 @@ module Sevgi
         # @param x [Numeric] x coordinate
         # @return [Sevgi::Geometry::Line]
         def line_at(x) = line.at([x, 0.0])
+      end
+
+      private
+
+      def validate_axes(x, y)
+        ArgumentError.("Arguments must be Ruler objects") unless [x, y].all?(Ruler)
+        ArgumentError.("Grid rulers must fit at least one interval") unless x.n.positive? && y.n.positive?
+      end
+
+      def validate_canvas(canvas, x, y)
+        return unless canvas
+
+        ArgumentError.("Grid canvas must match the ruler spans") unless canvas.is_a?(Graphics::Canvas)
+        return if canvas.width == x.brut && canvas.height == y.brut
+
+        ArgumentError.("Grid canvas must match the ruler spans")
       end
     end
   end

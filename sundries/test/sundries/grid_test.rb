@@ -13,6 +13,17 @@ module Sevgi
         assert_equal("Arguments must be Ruler objects", error.message)
       end
 
+      def test_grid_rejects_invalid_source_canvas
+        x = Ruler.new(unit: 10, multiple: 1, brut: 100)
+        y = Ruler.new(unit: 10, multiple: 1, brut: 80)
+
+        [Object.new, Graphics::Canvas.call(width: 101, height: 80)].each do |canvas|
+          error = assert_raises(ArgumentError) { Grid.new(x:, y:, canvas:) }
+
+          assert_equal("Grid canvas must match the ruler spans", error.message)
+        end
+      end
+
       def test_grid_builds_axes_from_rulers
         [
           # Ordinary construction
