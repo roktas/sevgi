@@ -1,12 +1,12 @@
 #!/usr/bin/env -S ruby -S sevgi
 # frozen_string_literal: true
 
-logo = Decompile <<~SVG, id: "Logo"
+logo = Decompile <<~SVG, id: "Mark"
   <svg xmlns="http://www.w3.org/2000/svg">
-    <g id="Logo">
-      <path id="Logo.Master" d="m 30,30 c 0,0 18.39,7.089444 18.39,15 C 48.39,52.910556 30,60 30,60 M 30,0 C 30,0 11.61,7.089442 11.61,14.999998 C 11.61,22.910556 30,30 30,30" fill="none"/>
-      <use id="SCVN" href="#Logo.Master" class="passive" transform="matrix(-1,0,0,1,60,0)"/>
-      <use id="SCVP" href="#Logo.Master" class="active"/>
+    <g id="Mark">
+      <path id="Logo" d="m 30,30 c 0,0 18.39,7.089444 18.39,15 C 48.39,52.910556 30,60 30,60 M 30,0 C 30,0 11.61,7.089442 11.61,14.999998 C 11.61,22.910556 30,30 30,30" fill="none"/>
+      <use id="SCVN" href="#Logo" class="passive" transform="matrix(-1,0,0,1,60,0)"/>
+      <use id="SCVP" href="#Logo" class="active"/>
     </g>
   </svg>
 SVG
@@ -30,5 +30,5 @@ SVG :minimal, width: 260, height: 135, viewBox: "0 0 260 135" do
   rect width: 260, height: 135, fill: "white"
 
   defs { logo.evaluate self }
-  Tile "Logo", nx: 4, dx: 65, ox: 5, ny: 2, dy: 65, oy: 5, proc: fade
+  Tile "Mark", nx: 4, dx: 65, ox: 5, ny: 2, dy: 65, oy: 5, proc: fade
 end.Save

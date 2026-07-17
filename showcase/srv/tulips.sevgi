@@ -16,10 +16,10 @@ SIZE = 26
 
 SVG :minimal, width: SIZE, height: SIZE do
   rect width: SIZE, height: SIZE, rx: 0.75, fill: "white"
-  defs { path id: "Tulip.NW", d: TULIP, fill: "purple" }
+  defs { path id: "Tulip", d: TULIP, fill: "purple" }
 
   4.times do |quarter|
-    flower = use href: "#Tulip.NW", x: CORNER[0] - ANCHOR[0], y: CORNER[1] - ANCHOR[1]
+    flower = use href: "#Tulip", x: CORNER[0] - ANCHOR[0], y: CORNER[1] - ANCHOR[1]
     flower.Rotate quarter * 90, CENTER, CENTER
   end
 

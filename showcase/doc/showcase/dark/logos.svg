@@ -17,22 +17,22 @@
   </style>
   <rect width="260" height="135" fill="#222222"/>
   <defs>
-    <g id="Logo" xmlns="http://www.w3.org/2000/svg">
+    <g id="Mark" xmlns="http://www.w3.org/2000/svg">
       <path
-        id="Logo.Master"
+        id="Logo"
         d="m 30,30 c 0,0 18.39,7.089444 18.39,15 C 48.39,52.910556 30,60 30,60 M 30,0 C 30,0 11.61,7.089442 11.61,14.999998 C 11.61,22.910556 30,30 30,30"
         fill="none"
       />
-      <use id="SCVN" href="#Logo.Master" class="passive" transform="matrix(-1,0,0,1,60,0)"/>
-      <use id="SCVP" href="#Logo.Master" class="active"/>
+      <use id="SCVN" href="#Logo" class="passive" transform="matrix(-1,0,0,1,60,0)"/>
+      <use id="SCVP" href="#Logo" class="active"/>
     </g>
   </defs>
-  <use id="Logo-1-1" href="#Logo" class="tile-row-1 tile-row-first tile-col-1 tile-col-first" x="5" y="5" opacity="0.8"/>
-  <use id="Logo-1-2" href="#Logo" class="tile-row-1 tile-row-first tile-col-2" x="70" y="5" opacity="0.86"/>
-  <use id="Logo-1-3" href="#Logo" class="tile-row-1 tile-row-first tile-col-3" x="135" y="5" opacity="0.92"/>
-  <use id="Logo-1-4" href="#Logo" class="tile-row-1 tile-row-first tile-col-4 tile-col-last" x="200" y="5" opacity="0.97"/>
-  <use id="Logo-2-1" href="#Logo" class="tile-row-2 tile-row-last tile-col-1 tile-col-first" x="5" y="70" opacity="0.86"/>
-  <use id="Logo-2-2" href="#Logo" class="tile-row-2 tile-row-last tile-col-2" x="70" y="70" opacity="0.92"/>
-  <use id="Logo-2-3" href="#Logo" class="tile-row-2 tile-row-last tile-col-3" x="135" y="70" opacity="0.97"/>
-  <use id="Logo-2-4" href="#Logo" class="tile-row-2 tile-row-last tile-col-4 tile-col-last" x="200" y="70" opacity="1.0"/>
+  <use id="Mark-1-1" href="#Mark" class="tile-row-1 tile-row-first tile-col-1 tile-col-first" x="5" y="5" opacity="0.8"/>
+  <use id="Mark-1-2" href="#Mark" class="tile-row-1 tile-row-first tile-col-2" x="70" y="5" opacity="0.86"/>
+  <use id="Mark-1-3" href="#Mark" class="tile-row-1 tile-row-first tile-col-3" x="135" y="5" opacity="0.92"/>
+  <use id="Mark-1-4" href="#Mark" class="tile-row-1 tile-row-first tile-col-4 tile-col-last" x="200" y="5" opacity="0.97"/>
+  <use id="Mark-2-1" href="#Mark" class="tile-row-2 tile-row-last tile-col-1 tile-col-first" x="5" y="70" opacity="0.86"/>
+  <use id="Mark-2-2" href="#Mark" class="tile-row-2 tile-row-last tile-col-2" x="70" y="70" opacity="0.92"/>
+  <use id="Mark-2-3" href="#Mark" class="tile-row-2 tile-row-last tile-col-3" x="135" y="70" opacity="0.97"/>
+  <use id="Mark-2-4" href="#Mark" class="tile-row-2 tile-row-last tile-col-4 tile-col-last" x="200" y="70" opacity="1.0"/>
 </svg>

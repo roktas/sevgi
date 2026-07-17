@@ -10,10 +10,10 @@ SIZE = 26
 
 SVG :minimal, width: SIZE, height: SIZE do
   rect width: SIZE, height: SIZE, rx: 0.75, fill: "white"
-  defs { path id: "Clover.NW", d: CLOVER, fill: "purple" }
+  defs { path id: "Clover", d: CLOVER, fill: "purple" }
 
   4.times do |quarter|
-    leaf = use href: "#Clover.NW", x: CENTER, y: CENTER - 10
+    leaf = use href: "#Clover", x: CENTER, y: CENTER - 10
     leaf.Rotate quarter * 90, CENTER, CENTER
   end
 end.Save

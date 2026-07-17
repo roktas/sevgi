@@ -20,15 +20,15 @@ module Logo
 
   base do
     css STYLE
-    defs { path id: "Logo.Master", d: LOGO }
+    defs { path id: "Logo", d: LOGO }
   end
 
   def call
-    negative = use id: "SCVN", href: "#Logo.Master"
+    negative = use id: "SCVN", href: "#Logo"
     negative.Classify :passive
     negative.Matrix(-1, 0, 0, 1, 60, 0)
 
-    positive = use id: "SCVP", href: "#Logo.Master"
+    positive = use id: "SCVP", href: "#Logo"
     positive.Classify :active
   end
 end
