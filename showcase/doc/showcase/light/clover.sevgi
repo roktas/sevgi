@@ -1,7 +1,7 @@
 #!/usr/bin/env -S ruby -S sevgi
 # frozen_string_literal: true
 
-CLOVER_NW = <<~PATH
+CLOVER = <<~PATH
   m 0,10 c 5.53264,0 10,-4.479747 10,-10 -5.52589,0 -10,4.488702 -10,10
 PATH
 
@@ -10,7 +10,7 @@ SIZE = 26
 
 SVG :minimal, width: SIZE, height: SIZE do
   rect width: SIZE, height: SIZE, rx: 0.75, fill: "white"
-  defs { path id: "Clover.NW", d: CLOVER_NW, fill: "purple" }
+  defs { path id: "Clover.NW", d: CLOVER, fill: "purple" }
 
   4.times do |quarter|
     leaf = use href: "#Clover.NW", x: CENTER, y: CENTER - 10
