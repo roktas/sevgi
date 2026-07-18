@@ -22,6 +22,7 @@ module Sevgi
     # Lightweight English pluralization helper.
     module Pluralize
       # Words that should not be pluralized.
+      # @api private
       UNCOUNTABLES = %w[
         equipment
         fish
@@ -36,6 +37,7 @@ module Sevgi
         .freeze
 
       # Singular-to-plural forms that do not follow suffix rules.
+      # @api private
       IRREGULARS = Hash[
         *%w[
           child
@@ -59,9 +61,11 @@ module Sevgi
         .freeze
 
       # Plural forms already accepted as plural.
+      # @api private
       PLURALS = IRREGULARS.invert.freeze
 
       # Ordered suffix replacement rules.
+      # @api private
       RULES = [
         [/(quiz)$/i, "\\1zes"],
         [/^(oxen)$/i, "\\1"],
@@ -84,7 +88,11 @@ module Sevgi
         [/^(ax|test)is$/i, "\\1es"],
         [/s$/i, "s"],
         [/$/, "s"]
-      ].freeze
+      ]
+        .each(&:freeze)
+        .freeze
+
+      private_constant :IRREGULARS, :PLURALS, :RULES, :UNCOUNTABLES
 
       # Pluralizes an English word using a small built-in rule set.
       # @param word [Object] word to pluralize

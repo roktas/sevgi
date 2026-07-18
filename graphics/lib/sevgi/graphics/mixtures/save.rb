@@ -8,7 +8,10 @@ module Sevgi
       # DSL helpers for writing rendered SVG output.
       module Save
         # Default SVG extension.
+        # @api private
         EXT = ".svg"
+
+        private_constant :EXT
 
         # Change-aware file writer with optional backup support.
         # @api private
