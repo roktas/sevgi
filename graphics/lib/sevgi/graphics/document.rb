@@ -4,10 +4,24 @@ module Sevgi
   module Graphics
     # SVG document profile factory and process-global named-profile registry.
     #
-    # A profile owns SVG root attributes and optional preamble lines, but not
-    # canvas size. Built-in and named profiles can be passed to
-    # {Sevgi::Graphics.SVG}; an anonymous profile class is useful when library
-    # code needs one-off metadata without adding a global name.
+    # A profile owns SVG root attributes and optional preamble lines, but not canvas size. Built-in and named profiles
+    # can be passed to {Sevgi::Graphics.SVG}; an anonymous profile class is useful when library code needs one-off
+    # metadata without adding a global name.
+    #
+    # | Profile | Preamble | Root metadata | Additional DSL |
+    # | --- | --- | --- | --- |
+    # | `:minimal` | none | none | common document DSL |
+    # | `:default` | XML declaration | SVG namespace | common document DSL |
+    # | `:html` | none | SVG namespace | common document DSL |
+    # | `:inkscape` | XML declaration | SVG and editor namespaces; crisp edges | `Draw`, `Hatch`, and editor/RDF helpers |
+    #
+    # The Inkscape root adds Sevgi, Inkscape, and Sodipodi namespaces plus `shape-rendering="crispEdges"`. Every
+    # selectable profile has the same validation and lint lifecycle; `:minimal` changes serialization metadata, not
+    # checking policy. {Base} is the public common extension layer rather than a selectable profile. Targeting it through
+    # {Sevgi::Graphics::Mixtures.mixin} changes every descendant profile process-wide; derive scoped custom profiles from
+    # {Minimal}.
+    #
+    # @see https://sevgi.roktas.dev/svg/#document-profiles Document profiles guide
     module Document
       # Defensive copy helper for profile metadata snapshots.
       # @api private

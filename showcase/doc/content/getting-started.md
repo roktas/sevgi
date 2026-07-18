@@ -54,7 +54,8 @@ gem install cairo rsvg2 hexapdf
 
 ## Choose a document profile
 
-`SVG` accepts a document profile. `:minimal` omits the XML declaration and produces compact output. The default profile
-writes a complete SVG document, while `:inkscape` adds editor-specific namespaces and helpers.
+`SVG` accepts a document profile. `:minimal` produces compact output, `:default` writes a standalone SVG document,
+`:html` is suitable for embedding, and `:inkscape` adds editor metadata and helpers. See the
+[document-profile matrix](@/svg.md#document-profiles) for the exact capabilities.
 
 {{ tabs(base="snowflake", dir="../showcase") }}

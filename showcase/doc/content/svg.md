@@ -22,8 +22,26 @@ end
 drawing.Render
 ```
 
-The default profile includes a fuller preamble and namespaces. `:minimal` is useful for compact fragments and tests;
-`:inkscape` adds editor namespaces and editor-oriented DSL.
+## Document profiles {#document-profiles}
+
+A profile controls document metadata and extra DSL capabilities, not canvas size or checking policy. All four profiles
+use the same validation and lint lifecycle.
+
+| Profile | Preamble | Root metadata | Additional DSL |
+| --- | --- | --- | --- |
+| `:minimal` | none | none | common document DSL |
+| `:default` | XML declaration | SVG namespace | common document DSL |
+| `:html` | none | SVG namespace | common document DSL |
+| `:inkscape` | XML declaration | SVG and editor namespaces; crisp edges | `Draw`, `Hatch`, and editor/RDF helpers |
+
+Use `:minimal` for compact output or as the superclass of a custom profile, `:default` for a standalone SVG file,
+`:html` for SVG embedded in HTML, and `:inkscape` when editor metadata or its additional helpers belong to the drawing.
+The Inkscape root adds Sevgi, Inkscape, and Sodipodi namespaces plus `shape-rendering="crispEdges"`. The presence of
+`Draw` and `Hatch` on `:inkscape` is a convenience default, not an Inkscape format requirement.
+
+`Sevgi::Graphics::Document::Base` is the public common extension layer, not a selectable profile. Advanced consumers
+can target it with `Mixin` to change every descendant profile process-wide. Prefer a subclass of
+`Sevgi::Graphics::Document::Minimal` when an extension should remain scoped.
 
 ## Element dispatch {#elements}
 

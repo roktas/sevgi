@@ -76,7 +76,8 @@ end
 
 A document profile owns SVG root attributes and preambles independently of the physical canvas. Anonymous profiles
 are useful for one library object. Named profiles belong to a process-wide registry; reserve them for shared vocabulary
-rather than per-request options:
+rather than per-request options. The [document-profile matrix](@/svg.md#document-profiles) compares the four built-in
+choices and explains the advanced common extension layer.
 
 ```ruby
 require "sevgi"
