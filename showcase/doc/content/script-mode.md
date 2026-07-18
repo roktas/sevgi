@@ -1,6 +1,6 @@
 +++
 title = "Script Mode"
-weight = 3
+weight = 2
 [extra]
 group = "Start"
 +++
@@ -54,7 +54,7 @@ end.Save
 ```
 
 Library code uses the same words through the facade: the example above becomes `SVG.Paper(...)` followed by the same
-`SVG(...)` block. Types and callable-module contracts keep their double-colon spelling in both hosts, such as
+`SVG(...)` block. Types and callable-module contracts keep their double-colon spelling in both modes, such as
 `SVG::Canvas` and `SVG::Module`.
 
 ## Load {#load}

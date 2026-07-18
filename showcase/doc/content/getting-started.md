@@ -5,38 +5,49 @@ weight = 1
 group = "Start"
 +++
 
-Sevgi creates SVG with Ruby. It uses one drawing vocabulary in executable `.sevgi` scripts and in ordinary Ruby
-libraries. The host changes how you qualify a few entry points; the SVG block itself does not change.
+Sevgi creates SVG with Ruby. A drawing can be an executable `.sevgi` script or a value built inside another Ruby
+application.
 
-## Your first drawing
+## Script and library modes
 
-In library code, `SVG` is both the document builder and the facade for SVG-related operations:
+Use script mode when the drawing is the program, such as a generated asset or build job. The runner supplies Sevgi's
+entry points, and the script usually writes or prints its result:
+
+```ruby
+#!/usr/bin/env -S ruby -S sevgi
+
+canvas = Canvas width: 24, height: 24, unit: :px
+
+SVG :minimal, canvas do
+  circle cx: 12, cy: 12, r: 10, fill: "tomato"
+end.Save "badge.svg"
+```
+
+Use library mode when an application owns the drawing and decides where its rendered string goes:
 
 ```ruby
 require "sevgi"
 
-canvas = SVG.Canvas width: 80, height: 50, margins: 5
+canvas = SVG.Canvas width: 24, height: 24, unit: :px
 
 drawing = SVG :minimal, canvas do
-  rect width: canvas.inner.width, height: canvas.inner.height, rx: 4, fill: "linen"
-  circle cx: 15, cy: 15, r: 8, fill: "tomato"
-  text "Hello", x: 28, y: 18, "font-size": 8
+  circle cx: 12, cy: 12, r: 10, fill: "tomato"
 end
 
-puts drawing.Render
+File.write "badge.svg", drawing.Render
 ```
 
-Three similar-looking forms have distinct jobs:
+The `SVG` block is the same in both modes. Operations around it are bare words in a script and capitalized methods on
+the `SVG` facade in library code:
 
-| Form | Meaning |
-| --- | --- |
-| `SVG(...)` | build an SVG document |
-| `SVG.Canvas(...)` | call the capitalized `Canvas` operation on the SVG facade |
-| `SVG::Canvas` | refer to the Ruby type returned by that operation |
+| Role | `.sevgi` script | Ruby library |
+| --- | --- | --- |
+| Build a document | `SVG(...)` | `SVG(...)` |
+| Create a canvas | `Canvas(...)` | `SVG.Canvas(...)` |
+| Refer to the canvas type | `SVG::Canvas` | `SVG::Canvas` |
 
-In a `.sevgi` script, facade operations become bare DSL words: write `Canvas(...)` instead of `SVG.Canvas(...)`.
-The `SVG(...)` document builder and everything inside its block keep the same spelling. The
-[One DSL, Two Hosts](@/usage.md) guide shows the two complete forms side by side.
+The script passes its document to `Save`. The application keeps the document and passes its `Render` result to ordinary
+Ruby code. [Script Mode](@/script-mode.md) and [Library Mode](@/library-mode.md) cover each form in detail.
 
 ## See a complete drawing
 
@@ -55,9 +66,6 @@ bundle exec showcase/srv/meter.sevgi
 
 The script writes `showcase/srv/meter.svg` because it ends with `Save`. To write SVG to standard output instead,
 use `Out` in the script.
-
-[One DSL, Two Hosts](@/usage.md) compares executable scripts with library calls. Both use the same documents and
-drawing DSL.
 
 ## Install the CLI
 

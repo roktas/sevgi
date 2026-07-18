@@ -1,6 +1,6 @@
 +++
 title = "Library Mode"
-weight = 4
+weight = 3
 [extra]
 group = "Start"
 +++
