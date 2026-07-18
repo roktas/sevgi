@@ -40,6 +40,7 @@ module Sevgi
   #   origin.translate(0, 10).below?(origin)        #=> true
   # @see Sevgi::Geometry::Element::Lined
   # @see Sevgi::Geometry::Operation
+  # @see https://sevgi.roktas.dev/geometry/ Geometry guide
   module Geometry
   end
 end

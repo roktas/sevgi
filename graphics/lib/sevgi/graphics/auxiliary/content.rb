@@ -20,6 +20,7 @@ module Sevgi
     #   end
     #
     #   Sevgi::Graphics.SVG(:minimal) { text Emphasis["important & safe"] }.Render
+    # @see https://sevgi.roktas.dev/svg/#content-safety Content safety guide
     class Content
       private_class_method :new
 

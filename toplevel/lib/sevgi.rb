@@ -47,6 +47,9 @@ def SVG(...) = Sevgi.SVG(...)
 #   class Drawing
 #     include Sevgi
 #   end
+# @see https://sevgi.roktas.dev/library-mode/ Library mode guide
+# @see https://sevgi.roktas.dev/script-mode/ Script mode guide
+# @see https://sevgi.roktas.dev/execution/ Embedded execution guide
 module Sevgi
   # See sevgi/toplevel/*.rb files for details
   require_relative "sevgi/toplevel"
