@@ -2,7 +2,8 @@
 
 module Sevgi
   module Function
-    # Numeric and trigonometric helpers used by geometry and DSL code.
+    # Numeric and trigonometric methods promoted to {Sevgi::F}. This module owns the public thread-local
+    # {Math.precision} configuration but is not otherwise a consumer mixin contract.
     module Math
       # Default decimal precision used by approximate comparisons.
       PRECISION = 6

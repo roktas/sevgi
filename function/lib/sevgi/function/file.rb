@@ -4,7 +4,8 @@ require "fileutils"
 
 module Sevgi
   module Function
-    # File-system helpers used by build scripts and DSL support code.
+    # File-system methods promoted to {Sevgi::F}. This module organizes the facade implementation; it is not a consumer
+    # mixin contract.
     module File
       # Checks whether a file would change if written with content.
       # @param file [String] file path to compare

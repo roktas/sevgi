@@ -20,6 +20,11 @@ belongs around the DSL when the drawing needs loops, data structures, calculatio
 The generated [API reference](https://www.rubydoc.info/gems/sevgi) covers component-level Ruby APIs. This guide is the
 better reference for scripts and drawing tasks.
 
+Advanced extensions may rely on the documented `Sevgi::F` facade and the public values it returns. The supported
+secondary Function surface is `Sevgi::Function::Location`, `Locate`, `Shell::Result`, and the thread-local
+`Math.precision` accessors. Other nested Function modules organize the implementation and are not consumer
+`include`/`extend` contracts.
+
 ## Outside the public API
 
 Implementation details are not public API. Avoid depending on private constants, registry internals, generated helper

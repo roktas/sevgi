@@ -19,7 +19,8 @@ Sevgi is released as a set of focused gems. Open the reference for the component
 
 ## Toolkit
 
-- [`sevgi-function`](https://www.rubydoc.info/gems/sevgi-function) — shared utility and math functions.
+- [`sevgi-function`](https://www.rubydoc.info/gems/sevgi-function) — the supported `Sevgi::F` extension toolbox and its
+  returned values.
 - [`sevgi-geometry`](https://www.rubydoc.info/gems/sevgi-geometry) — immutable geometry values and operations.
 - [`sevgi-derender`](https://www.rubydoc.info/gems/sevgi-derender) — SVG/XML parsing and Sevgi source generation.
 - [`sevgi-sundries`](https://www.rubydoc.info/gems/sevgi-sundries) — grids, rulers, tiles, and export tools.

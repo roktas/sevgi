@@ -1,6 +1,8 @@
 # Sevgi Function
 
-Sevgi Function contains helper methods shared by the other components.
+Sevgi Function contains the supported `Sevgi::F` toolbox shared by Sevgi components and advanced extensions. It is not
+intended as a general-purpose utility library; nested helper modules organize the facade implementation and are not
+consumer mixins.
 
 ## Install
 

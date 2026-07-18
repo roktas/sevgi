@@ -2,7 +2,8 @@
 
 module Sevgi
   module Function
-    # String helpers used by generated names and user-facing text.
+    # String methods promoted to {Sevgi::F}. This module organizes the facade implementation; it is not a consumer mixin
+    # contract.
     module String
       # Returns the final constant name segment from a module path.
       # @param path [Object] module, class, or string-like path
@@ -19,7 +20,8 @@ module Sevgi
 
     extend String
 
-    # Lightweight English pluralization helper.
+    # English pluralization promoted to {Sevgi::F}. This module organizes the facade implementation; it is not a
+    # consumer mixin contract.
     module Pluralize
       # Words that should not be pluralized.
       # @api private
@@ -97,11 +99,11 @@ module Sevgi
       # Pluralizes an English word using a small built-in rule set.
       # @param word [Object] word to pluralize
       # @return [String]
-      # @example
-      #   F.pluralize("post")         # => "posts"
-      #   F.pluralize("octopus")      # => "octopi"
-      #   F.pluralize("sheep")        # => "sheep"
-      #   F.pluralize("CamelOctopus") # => "CamelOctopi"
+      # @example Pluralize through the library facade
+      #   Sevgi::F.pluralize("post")         # => "posts"
+      #   Sevgi::F.pluralize("octopus")      # => "octopi"
+      #   Sevgi::F.pluralize("sheep")        # => "sheep"
+      #   Sevgi::F.pluralize("CamelOctopus") # => "CamelOctopi"
       def pluralize(word)
         result = word.to_s.dup
 

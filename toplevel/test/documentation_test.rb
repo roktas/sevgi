@@ -113,6 +113,9 @@ module Sevgi
       "Sevgi::Executor::Error" => {
         phrases: ["visited source", "not the active load stack"]
       },
+      "Sevgi::Function" => {
+        phrases: ["supported helper facade", "consumers should not include or extend them"]
+      },
       "Sevgi::Function::File#changed?" => {
         raises: ["SystemCallError"]
       },
