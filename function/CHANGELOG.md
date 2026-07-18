@@ -18,6 +18,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Changed
 
+- Made degree-based sine and cosine exact at integer quarter turns, eliminating cardinal Geometry residue.
 - Documented complete file-system failure families for file comparison, output, touch, and upward location helpers.
 - Formalized generated Tile ids, positional CSS classes, template placement, and per-use callback signatures.
 - Formalized String and Symbol ids across Derender selection APIs and documented file-read failures consistently.

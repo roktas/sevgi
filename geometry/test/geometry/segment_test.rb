@@ -87,6 +87,28 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
+      def test_segment_cardinal_components_are_exact
+        [
+          0,
+          2.0,
+          0.0,
+          90,
+          0.0,
+          2.0,
+          180,
+          -2.0,
+          0.0,
+          270,
+          0.0,
+          -2.0
+        ].each_slice(3) do |angle, x, y|
+          segment = Segment[2, angle]
+
+          assert_equal(x, segment.x)
+          assert_equal(y, segment.y)
+        end
+      end
+
       def test_segment_line_preserves_position
         line = Segment[5, 45].line([2, 3])
 
