@@ -5,6 +5,12 @@ require "delegate"
 module Sevgi
   module Sundries
     # Builds a tile-like grid from horizontal and vertical rulers.
+    # @example Query fitted horizontal and vertical lines
+    #   x = Sevgi::Sundries::Ruler.new(brut: 80, unit: 1, multiple: 10, margins: [5])
+    #   y = Sevgi::Sundries::Ruler.new(brut: 50, unit: 1, multiple: 10, margins: [5])
+    #   grid = Sevgi::Sundries::Grid[x, y]
+    #   grid.x.major.lines.size # => 5
+    #   grid.y.minor.lines.size # => 71
     class Grid < Tile
       # Builds a grid using bracket syntax.
       # @param x [Sevgi::Sundries::Ruler] horizontal ruler

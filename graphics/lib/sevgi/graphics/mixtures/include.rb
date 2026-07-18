@@ -8,6 +8,10 @@ module Sevgi
       # @!method Include(file, id, omit: nil)
       #   Includes a derendered node matching an id.
       #   SVG/XML content is treated as data and is not evaluated as Ruby source.
+      #   @example Import a fragment without editor ids and inline styles
+      #     SVG do
+      #       Include "badge.svg", "mark", omit: %i[id style]
+      #     end
       #   @param file [String] source SVG/XML file
       #   @param id [String, Symbol] source node id
       #   @param omit [String, Symbol, Array<String, Symbol>, nil] exact attribute name or names omitted from the selected

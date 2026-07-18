@@ -180,6 +180,9 @@ module Sevgi
       # @return [Object] block return value
       # @raise [Sevgi::ArgumentError] when no block is given
       # @raise [Sevgi::ArgumentError] when precision is not an Integer or nil
+      # @example Compare values under a temporary precision
+      #   Sevgi::F.with_precision(2) { Sevgi::F.eq?(1.001, 1.0) } # => true
+      #   Sevgi::Function::Math.precision # => 6
       def with_precision(precision, &block)
         ArgumentError.("Block required") unless block
 

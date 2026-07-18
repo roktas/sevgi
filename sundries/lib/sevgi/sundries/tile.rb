@@ -3,6 +3,10 @@
 module Sevgi
   module Sundries
     # Repeats a geometry element over a rectangular row and column layout.
+    # @example Address cells by row and column
+    #   cell = Sevgi::Geometry::Rect[8, 4]
+    #   tile = Sevgi::Sundries::Tile.new(cell, position: [10, 20], nx: 3, ny: 2)
+    #   tile[1][2].position.deconstruct # => [26.0, 24.0]
     class Tile
       include Enumerable
 

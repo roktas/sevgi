@@ -78,6 +78,10 @@ module Sevgi
     # Immutable point in SVG/screen coordinates.
     #
     # Use `Point[x, y]` to create a point from two coordinates.
+    # @example Measure and rotate a point in screen coordinates
+    #   point = Sevgi::Geometry::Point[3, 4]
+    #   Sevgi::Geometry::Point.length(Sevgi::Geometry::Origin, point) # => 5.0
+    #   point.rotate(90).approx.deconstruct # => [-4.0, 3.0]
     # @!parse
     #   class Point
     #     # Creates a point from two coordinates.

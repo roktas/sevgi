@@ -412,11 +412,11 @@ letters:
         self[:data_ids] = Identifiers().namespace.keys.join(",")
     - name: Include
       anchor: include
-      summary: Import one selected SVG/XML node as data under the current element.
+      summary: Import one selected SVG/XML node, optionally omitting unwanted attributes.
       provider: Include
       context: document
       themes: [composition, round-trip]
-      code: 'Include "shape.svg", "mark"'
+      code: 'Include "shape.svg", "mark", omit: :id'
       see: /derender/#evaluate
       see_title: direct evaluation
     - name: IncludeChildren
@@ -736,7 +736,7 @@ letters:
       code: 'SVG(:minimal) { circle r: 2; rect width: 3, height: 2 }.RenderChildren'
     - name: Root
       anchor: root
-      summary: Return the document root, failing when the element is detached.
+      summary: Return the topmost element of the current tree, including a detached subtree.
       provider: Core
       context: document
       themes: [context]
@@ -745,13 +745,14 @@ letters:
         dot[:data_root] = dot.Root.name
     - name: Root?
       anchor: root-predicate
-      summary: Return the document root when attached, or nil for a detached subtree.
+      summary: Report whether the element is the document root.
       provider: Core
       context: document
       themes: [context]
       code: |
         dot = circle r: 2
-        dot[:data_attached] = !dot.Root?.nil?
+        self[:data_root] = Root?()
+        dot[:data_root] = dot.Root?()
     - name: Rotate
       anchor: rotate
       summary: Append an SVG rotation, optionally around an explicit center.
@@ -842,13 +843,14 @@ letters:
       code: 'square x: 2, y: 2, length: 8, rx: 1'
     - name: Stay
       anchor: stay
-      summary: Stop a traversal from descending into a selected element's children.
+      summary: Stop a traversal immediately and return a selected value.
       provider: Core
       context: document
       themes: [context]
       code: |
-        g { circle r: 2 }
-        Traverse { |node| Stay node if node.Is? :g }
+        g(id: "target") { circle r: 2 }
+        found = Traverse { |node| Stay node if node.Is? :g }
+        self[:data_found] = found[:id]
     - name: SVG
       anchor: svg
       summary: Create an SVG document from a profile, canvas, and drawing block.
@@ -882,28 +884,29 @@ letters:
       code: |
         icons = Module.new do
           extend SVG::Module
-          def call = Symbol("dot") { circle r: 2 }
+          def dot = circle r: 2
+          def tick = path d: "M 0 2 L 2 4 L 6 0"
         end
         Symbols icons
 
   T:
     - name: Tile
       anchor: tile
-      summary: Repeat a block across a two-dimensional grid of translated groups.
+      summary: Define one template and place references across a two-dimensional grid.
       provider: Tile
       context: document
       themes: [layout]
       code: 'Tile("seat-map", nx: 4, ny: 3, dx: 8, dy: 8) { rect width: 5, height: 5, rx: 1 }'
     - name: TileX
       anchor: tile-x
-      summary: Repeat a block horizontally at a fixed interval.
+      summary: Define one template and place references at a fixed horizontal interval.
       provider: Tile
       context: document
       themes: [layout]
       code: 'TileX("ticket-holes", n: 8, d: 6) { circle r: 1, fill: "white" }'
     - name: TileY
       anchor: tile-y
-      summary: Repeat a block vertically at a fixed interval.
+      summary: Define one template and place references at a fixed vertical interval.
       provider: Tile
       context: document
       themes: [layout]

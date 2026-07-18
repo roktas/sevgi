@@ -71,6 +71,13 @@ module Sevgi
         # @param args [Array<Object>] callable arguments
         # Base blocks run once in the defs element before symbols are created. Positional arguments, keyword arguments,
         # and the block are forwarded to each callable.
+        # @example Expand named drawing methods into reusable symbols
+        #   icons = Module.new do
+        #     extend SVG::Module
+        #     def dot = circle r: 2
+        #     def tick = path d: "M 0 2 L 2 4 L 6 0"
+        #   end
+        #   SVG(:minimal) { Symbols icons }
         # @param attributes [Hash] defs attributes; String and Symbol names are normalized and must not collide
         # @param ids [#call, nil] optional callable mapping each method name to a symbol id
         # @param kwargs [Hash] callable keyword arguments

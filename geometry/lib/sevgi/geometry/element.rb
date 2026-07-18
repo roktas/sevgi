@@ -404,6 +404,10 @@ module Sevgi
         #
         # Precision is applied consistently to boundary-membership tolerance, returned-coordinate rounding, and
         # duplicate collapse. A nil precision uses the current thread's function precision for all three stages.
+        # @example Intersect a rectangle with a vertical line
+        #   rect = Sevgi::Geometry::Rect[8, 4]
+        #   axis = Sevgi::Geometry::Equation.vertical(3)
+        #   rect.intersection(axis).map(&:deconstruct) # => [[3.0, 0.0], [3.0, 4.0]]
         # @param equation [Sevgi::Geometry::Equation] equation to intersect with
         # @param precision [Integer, nil] decimal precision for returned points, or nil for the current function default
         # @return [Array<Sevgi::Geometry::Point>] unique boundary intersection points
