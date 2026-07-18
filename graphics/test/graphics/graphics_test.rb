@@ -42,9 +42,8 @@ module Sevgi
 
       private_constant :Barrier, :Name
 
-      def test_svg_constant_aliases_graphics
-        assert(SVG.is_a?(::Module))
-        assert_equal(SVG, Graphics)
+      def test_graphics_does_not_define_svg_facade
+        refute(Sevgi.const_defined?(:SVG, false))
       end
 
       def test_graphics_responds_to_public_helpers

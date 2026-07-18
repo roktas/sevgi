@@ -4,9 +4,64 @@ require_relative "../test_helper"
 
 module Sevgi
   class ToplevelGraphicsTest < Minitest::Test
-    def test_toplevel_exports_graphics_module
-      assert(SVG.is_a?(::Module))
-      assert_equal(SVG, Graphics)
+    def test_svg_is_an_independent_facade
+      assert_same(Sevgi::SVG, ::SVG)
+      refute_same(Graphics, ::SVG)
+    end
+
+    def test_svg_facade_exposes_graphics_constants
+      expected = %i[
+        Attributes
+        Canvas
+        Content
+        Document
+        Element
+        LintError
+        Margin
+        Mixtures
+        Module
+        Modules
+        Paper
+        VERSION
+      ]
+
+      assert_equal(expected, ::SVG.constants(false).sort)
+      (expected - [:VERSION]).each do |name|
+        assert_same(Graphics.const_get(name, false), ::SVG.const_get(name, false))
+      end
+
+      assert_same(Sevgi::VERSION, ::SVG::VERSION)
+    end
+
+    def test_svg_facade_exposes_capitalized_operations
+      expected = %i[
+        Canvas
+        Decompile
+        DecompileFile
+        Derender
+        DerenderFile
+        Document
+        Document!
+        Evaluate
+        EvaluateChildren
+        EvaluateChildrenFile
+        EvaluateFile
+        Grid
+        Load
+        Mixin
+        Paper
+        Paper!
+      ]
+
+      assert_equal(expected, ::SVG.singleton_methods(false).sort)
+      assert_instance_of(Graphics::Canvas, ::SVG.Canvas(width: 4, height: 2))
+      assert_operator(::SVG.Document(attributes: {}), :<, Graphics::Document::Base)
+    end
+
+    def test_svg_facade_omits_component_helpers
+      %i[SVG canvas document document! paper paper!].each do |name|
+        refute_respond_to(::SVG, name)
+      end
     end
 
     def test_toplevel_does_not_own_callable_contract_aliases
@@ -27,6 +82,15 @@ module Sevgi
         "<svg>\n  <circle r=\"2\"/>\n</svg>",
         included.SVG(:minimal) { circle(r: 2) }.Render()
       ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+    end
+
+    def test_toplevel_builds_canvas_and_document_profiles
+      canvas = Sevgi.Canvas(width: 4, height: 2)
+      profile = Sevgi.Document(attributes: {viewBox: "0 0 4 2"})
+
+      assert_instance_of(Graphics::Canvas, canvas)
+      assert_operator(profile, :<, Graphics::Document::Base)
+      assert_equal("0 0 4 2", Sevgi.SVG(profile)[:viewBox])
     end
 
     def test_toplevel_mixin_stays_instance_scoped

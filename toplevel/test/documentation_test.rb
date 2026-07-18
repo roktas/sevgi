@@ -286,10 +286,13 @@ module Sevgi
     ]
       .freeze
     TOPLEVEL_FORWARDERS = %w[
+      Canvas
       Decompile
       DecompileFile
       Derender
       DerenderFile
+      Document
+      Document!
       Evaluate
       EvaluateChildren
       EvaluateChildrenFile
@@ -302,6 +305,9 @@ module Sevgi
       SVG
     ]
       .to_h { ["Sevgi.#{it}", "Sevgi::Toplevel##{it}"] }
+      .freeze
+    SVG_FORWARDERS = (TOPLEVEL_FORWARDERS.keys.map { it.delete_prefix("Sevgi.") } - ["SVG"])
+      .to_h { ["Sevgi::SVG.#{it}", "Sevgi::Toplevel##{it}"] }
       .freeze
 
     def self.registry
@@ -502,7 +508,7 @@ module Sevgi
     end
 
     def test_namespaced_toplevel_forwarders_are_cross_linked
-      errors = TOPLEVEL_FORWARDERS.filter_map do |path, implementation|
+      errors = TOPLEVEL_FORWARDERS.merge(SVG_FORWARDERS).filter_map do |path, implementation|
         object = yard(path)
         next "#{path}: missing" unless object
         next if object.tags(:see).map(&:name).include?(implementation)

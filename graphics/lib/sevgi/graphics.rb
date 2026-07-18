@@ -150,6 +150,4 @@ module Sevgi
     extend self
   end
 
-  # Top-level alias for the graphics DSL namespace.
-  SVG = Graphics
 end

@@ -7,7 +7,7 @@ ROWS = 10
 SLANT = 55
 UNIT = 6
 
-canvas = SVG.canvas width: COLS * UNIT, height: ROWS * UNIT
+canvas = SVG.Canvas width: COLS * UNIT, height: ROWS * UNIT
 grid = Grid canvas, unit: UNIT, multiple: MULTIPLE
 
 module Guidesheet

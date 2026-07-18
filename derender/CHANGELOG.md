@@ -18,6 +18,9 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Changed
 
+- Breaking: replaced the `SVG = Sevgi::Graphics` alias with an independent SVG facade. Facade operations now use
+  capitalized names such as `SVG.Canvas` and `SVG.Document`; lowercase component helpers remain on
+  `Sevgi::Graphics`, and the stuttering `SVG.SVG` form was removed.
 - Breaking: made low-level `Executor.execute` and `execute_file` runners private; consumers use
   `Sevgi.execute` and `Sevgi.execute_file` while retaining the public result and error types.
 - Breaking: removed the abstract `Document::Base` layer from the selectable document-profile registry; `Minimal` and

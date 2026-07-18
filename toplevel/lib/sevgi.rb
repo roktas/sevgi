@@ -9,9 +9,12 @@ require "sevgi/sundries"
 
 require "sevgi/version"
 
-# Minimal top-level SVG interface installed by `require "sevgi"`.
-# @return [Module] the graphics module used as the SVG DSL namespace
-SVG = Sevgi::Graphics
+require_relative "sevgi/toplevel"
+require_relative "sevgi/svg"
+
+# SVG-domain facade installed by `require "sevgi"`.
+# @return [Module] the public SVG operations and types
+SVG = Sevgi::SVG
 
 # @overload SVG(document = :default, canvas = Undefined, **attributes, &block)
 #   Builds an SVG document through the default top-level DSL entrypoint.
@@ -31,9 +34,11 @@ def SVG(...) = Sevgi.SVG(...)
 
 # Full top-level API for Sevgi library and script consumers.
 #
-# `require "sevgi"` installs one global method, `SVG(...)`, and the `SVG` constant naming {Graphics}. The same document
-# entrypoint and the rest of the library API are available explicitly on `Sevgi`, such as `Sevgi.SVG`, `Sevgi.Paper`,
-# `Sevgi.Grid`, and `Sevgi.Derender`.
+# `require "sevgi"` installs the global document builder `SVG(...)` and the independent {Sevgi::SVG} facade. SVG-domain
+# operations use capitalized method names on that facade, such as `SVG.Canvas`, `SVG.Paper`, and `SVG.Derender`; types
+# and namespaces use Ruby's double-colon notation, such as `SVG::Canvas`. The same operations are available on `Sevgi`
+# for consumers that prefer the full toolkit namespace. Process-level operations such as {Sevgi.execute} remain on
+# `Sevgi` rather than the SVG facade.
 #
 # Including this module in a class or module installs the DSL methods plus convenience constants `F`, `Geometry`,
 # `Origin`, and `Export`; script execution provides the same promoted scope. Extending a module does the same. Extending
@@ -51,9 +56,18 @@ def SVG(...) = Sevgi.SVG(...)
 # @see https://sevgi.roktas.dev/script-mode/ Script mode guide
 # @see https://sevgi.roktas.dev/execution/ Embedded execution guide
 module Sevgi
-  # See sevgi/toplevel/*.rb files for details
-  require_relative "sevgi/toplevel"
-
+  # @!method self.Canvas(...)
+  #   Builds a canvas from a paper profile or explicit dimensions.
+  #   @return [Sevgi::Graphics::Canvas] canvas value
+  #   @see Sevgi::Toplevel#Canvas
+  # @!method self.Document(...)
+  #   Defines, validates, or looks up a document profile.
+  #   @return [Class] document class
+  #   @see Sevgi::Toplevel#Document
+  # @!method self.Document!(...)
+  #   Defines or replaces a document profile.
+  #   @return [Class] document class
+  #   @see Sevgi::Toplevel#Document!
   # @!method self.SVG(...)
   #   Builds an SVG document through the explicit namespaced top-level API.
   #   @return [Sevgi::Graphics::Document::Proto] SVG document object

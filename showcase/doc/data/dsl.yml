@@ -131,6 +131,15 @@ letters:
         SVG(:minimal) { Call price, 48 }.Render
       see: /library-mode/#callable-modules
       see_title: callable modules
+    - name: Canvas
+      anchor: canvas
+      summary: Build a canvas from a paper profile or explicit dimensions and margins.
+      provider: Toplevel
+      context: script
+      themes: [documents, layout, script-tools]
+      code: |
+        canvas = Canvas width: 80, height: 50, margins: 5
+        SVG(:minimal, canvas) { rect width: canvas.inner.width, height: canvas.inner.height }.Render
     - name: CData
       anchor: cdata
       summary: Read the joined text content used by SVG validation.
@@ -167,6 +176,24 @@ letters:
         circle class: "alert", cx: 10, cy: 10, r: 8
 
   D:
+    - name: Document
+      anchor: document
+      summary: Define, validate, or look up a document profile without replacing a conflicting definition.
+      provider: Toplevel
+      context: script
+      themes: [documents, script-tools]
+      code: |
+        Document :catalog_icon, attributes: {viewBox: "0 0 24 24"}
+        SVG(:catalog_icon) { circle cx: 12, cy: 12, r: 10 }.Render
+    - name: Document!
+      anchor: document-bang
+      summary: Explicitly replace a named document profile.
+      provider: Toplevel
+      context: script
+      themes: [documents, script-tools]
+      code: |
+        Document! :catalog_badge, attributes: {viewBox: "0 0 80 32"}
+        SVG(:catalog_badge) { rect width: 80, height: 32, rx: 4 }.Render
     - name: Decompile
       anchor: decompile
       summary: Parse inline SVG/XML into an inspectable immutable Derender node.
@@ -351,7 +378,7 @@ letters:
       context: script
       themes: [layout, script-tools]
       code: |
-        canvas = SVG.canvas width: 80, height: 50, margins: 5
+        canvas = SVG.Canvas width: 80, height: 50, margins: 5
         grid = Grid canvas, unit: 1, multiple: 10
         SVG :inkscape, grid.canvas do
           Draw grid.x.major.lines, class: %w[guide horizontal]
@@ -601,7 +628,7 @@ letters:
       context: script
       themes: [documents, script-tools, composition]
       code: |
-        profile = SVG.document attributes: {}
+        profile = SVG.Document attributes: {}
         Mixin(profile) { define_method(:Badge) { circle r: 4 } }
         SVG(profile) { Badge() }.Render
 
