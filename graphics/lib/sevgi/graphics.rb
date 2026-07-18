@@ -15,12 +15,19 @@ require_relative "graphics/version"
 module Sevgi
   # SVG document builder and DSL namespace.
   #
+  # A document profile controls root metadata and preambles; a {Canvas} controls
+  # physical size, margins, viewport, and viewBox. {Graphics.SVG} combines them
+  # into an element tree. Library code keeps that tree as an object until it
+  # explicitly renders, validates, saves, or exports it.
+  #
   # @example Build and render a minimal SVG document
   #   drawing = Sevgi::Graphics.SVG :minimal, width: 10, height: 10 do
   #     circle cx: 5, cy: 5, r: 4
   #   end
   #   drawing.Render #=> "<svg width=\"10\" height=\"10\">\n  <circle cx=\"5\" cy=\"5\" r=\"4\"/>\n</svg>"
   # @see https://sevgi.roktas.dev/showcase/ Runnable drawing examples
+  # @see Sevgi::Graphics::Document
+  # @see Sevgi::Graphics::Canvas
   module Graphics
     # @overload canvas(paper, **overrides)
     #   Builds a canvas from a paper profile with optional field overrides.
@@ -37,6 +44,10 @@ module Sevgi
     #   @param margins [Array<Numeric>] margin shorthand values
     #   @return [Sevgi::Graphics::Canvas]
     #   @raise [Sevgi::ArgumentError] when a required field is omitted or a value is invalid
+    # @example Use the component constructor in library code
+    #   page = Sevgi::Graphics.canvas(:a4, margins: [12, 10])
+    #   icon = Sevgi::Graphics.canvas(width: 24, height: 24, unit: :px)
+    #   [page.name, icon.viewport] # => [:a4, {width: "24.0px", height: "24.0px"}]
     def canvas(...)
       Graphics::Canvas.call(...)
     end
@@ -73,12 +84,18 @@ module Sevgi
     # @example Define an anonymous document without changing the registry
     #   klass = document(attributes: {viewBox: "0 0 10 10"})
     #   klass.profile.name # => nil
+    # @example Define and use a named profile from library code
+    #   Sevgi::Graphics.document(:badge, attributes: {viewBox: "0 0 24 24"})
+    #   drawing = Sevgi::Graphics.SVG(:badge) { circle cx: 12, cy: 12, r: 10 }
+    #   drawing[:viewBox] # => "0 0 24 24"
     def document(name = Undefined, preambles: Undefined, attributes: Undefined)
       Graphics::Document.define(name, preambles:, attributes:)
     end
 
     # Defines or replaces a document profile class.
     # Validation and snapshot capture complete before an existing registration is atomically replaced.
+    # Use the non-bang {#document} for ordinary idempotent definitions; this
+    # bang form is an explicit process-global replacement.
     # @param name [Symbol, String] profile name
     # @param preambles [Array<String>, nil] document preamble lines
     # @param attributes [Hash, nil] default root attributes; nil means an empty Hash
@@ -103,6 +120,7 @@ module Sevgi
     end
 
     # Defines or replaces a paper profile.
+    # Use this only when replacing the process-global meaning of a name is intentional.
     # @param width [Numeric] paper width
     # @param height [Numeric] paper height
     # @param name [Symbol, String] profile name
@@ -113,7 +131,10 @@ module Sevgi
       name.tap { Graphics::Paper.define(name, width:, height:, unit:, overwrite: true) }
     end
 
-    # Builds an SVG root document.
+    # Builds an SVG root element tree without rendering it.
+    #
+    # The first argument selects root metadata; the second supplies physical
+    # canvas attributes. Keyword attributes are applied to the root after both.
     # @param document [Symbol, String, Class] document profile name or document class
     # @param canvas [Sevgi::Graphics::Canvas, Sevgi::Graphics::Paper, Symbol, String, Sevgi::Undefined, nil] canvas input
     # @yield evaluates the drawing DSL in the root element

@@ -2,7 +2,17 @@
 
 module Sevgi
   module Geometry
-    # Abstract base class for geometric equations. Construct linear equations through the class factories below.
+    # Abstract base class for geometry equations used in boundary intersections.
+    #
+    # The supported public factories build horizontal, vertical, and diagonal
+    # linear equations. {#intersect} always returns an Array: no intersection is
+    # `[]`, while one crossing is a one-item Array. Coincident parallel lines do
+    # not represent a finite intersection and also return an empty Array.
+    # @example Intersect two linear equations
+    #   diagonal = Sevgi::Geometry::Equation.diagonal(slope: 1, intercept: 0)
+    #   vertical = Sevgi::Geometry::Equation.vertical(3)
+    #   diagonal.intersect(vertical).map(&:deconstruct) # => [[3.0, 3.0]]
+    # @see Sevgi::Geometry::Element::Lined#intersection
     class Equation
       private_class_method :new
 
@@ -101,6 +111,10 @@ module Sevgi
 
     class Point
       # Returns the linear equation passing through this point at an angle.
+      # @example Create axis-aligned equations through a point
+      #   point = Sevgi::Geometry::Point[4, 3]
+      #   point.equation(0).y(20)  # => 3.0
+      #   point.equation(90).x(20) # => 4.0
       # @param angle [Numeric] clockwise angle in degrees
       # @return [Sevgi::Geometry::Equation::Linear]
       def equation(angle)

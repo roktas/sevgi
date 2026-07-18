@@ -38,6 +38,11 @@ module Sevgi
     #   segments = Polygon.(*points).segments
     #   Polygon[*segments] == Polygon.from_segments(*segments)
     #   Polygon.(*points) == Polygon.from_points(*points)
+    # @example Classify points against a closed boundary
+    #   polygon = Sevgi::Geometry::Polygon.([0, 0], [6, 0], [3, 4])
+    #   polygon.inside?([3, 2]) # => true
+    #   polygon.on?([3, 0])     # => true
+    #   polygon.outside?([7, 2]) # => true
     class Polygon < PolygonBase
       private
 

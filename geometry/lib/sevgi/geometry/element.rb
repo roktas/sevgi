@@ -2,7 +2,11 @@
 
 module Sevgi
   module Geometry
-    # Abstract base class for geometric elements. Construct concrete shapes through their class factories.
+    # Abstract base class for positioned geometry values.
+    #
+    # Construct concrete shapes through their class factories. Element
+    # operations return new values, and {#box} supplies the axis-aligned bounds
+    # used by alignment and tiling helpers.
     class Element
       private_class_method :new
 
@@ -31,6 +35,11 @@ module Sevgi
       # Core API
 
       # Returns a copy moved to a point and optional offset.
+      # @example Position a copy without mutating the source
+      #   source = Sevgi::Geometry::Rect[8, 4, position: [1, 2]]
+      #   moved = source.at([10, 20], dx: 2)
+      #   source.position.deconstruct # => [1.0, 2.0]
+      #   moved.position.deconstruct  # => [12.0, 20.0]
       # @param point [Sevgi::Geometry::Point, Array<Numeric>, nil] target position, or nil to keep current position
       # @param dx [Numeric] additional x offset
       # @param dy [Numeric] additional y offset
@@ -79,6 +88,17 @@ module Sevgi
       def translate(_x, _y) = PanicError.("#{self.class}#translate must be implemented")
 
       # Element whose boundary is represented by straight segments.
+      #
+      # The same path is available as immutable {#points}, {#segments}, and
+      # {#lines} collections. Closed shapes repeat their first point at the end;
+      # open paths do not. Only closed shapes have a filled interior, so
+      # `inside?` on an open path is equivalent to testing its boundary.
+      # @example Inspect the interchangeable point, segment, and line views
+      #   rect = Sevgi::Geometry::Rect[8, 4]
+      #   rect.points.size   # => 5
+      #   rect.segments.size # => 4
+      #   rect.lines.size    # => 4
+      # @see Sevgi::Geometry::Operation.sweep
       class Lined < self
         # Open lined element base class.
         # @api private
@@ -470,6 +490,12 @@ module Sevgi
         #
         # Open paths have no filled interior; for them this predicate is true
         # only for points on the actual path boundary.
+        # @example Compare closed and open path containment
+        #   rect = Sevgi::Geometry::Rect[8, 4]
+        #   line = Sevgi::Geometry::Line.([0, 0], [8, 0])
+        #   rect.inside?([4, 2]) # => true
+        #   line.inside?([4, 2]) # => false
+        #   line.inside?([4, 0]) # => true
         # @param point [Sevgi::Geometry::Point, Array<Numeric>] point to test
         # @return [Boolean]
         # @raise [Sevgi::Geometry::Error] when point cannot be coerced

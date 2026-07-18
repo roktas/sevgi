@@ -10,6 +10,14 @@ module Sevgi
     # Closed four-sided rectangle aligned to the screen axes. Affine operations return Rect while the result remains
     # axis-aligned and widen to {Parallelogram} after rotation or skew changes that category. A Square similarly widens
     # to Rect after unequal scaling.
+    # @example Inspect corners, sides, and containment
+    #   rect = Sevgi::Geometry::Rect[8, 4, position: [2, 3]]
+    #   rect.top_left.deconstruct # => [2.0, 3.0]
+    #   rect.right.length         # => 4.0
+    #   rect.inside?([5, 5])      # => true
+    # @example Observe semantic widening after affine transforms
+    #   Sevgi::Geometry::Rect[8, 4].rotate(30).class # => Sevgi::Geometry::Parallelogram
+    #   Sevgi::Geometry::Square[4].scale(2, 1).class # => Sevgi::Geometry::Rect
     # @!attribute [r] A
     #   @return [Sevgi::Geometry::Point] top-left vertex
     # @!attribute [r] B

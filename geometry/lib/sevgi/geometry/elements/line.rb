@@ -7,7 +7,20 @@ module Sevgi
     LineBase = Element.lined(1, open: true)
     private_constant :LineBase
 
-    # Open lined element with one segment.
+    # Finite, directed line between two endpoints.
+    #
+    # Direction affects {#left?}, {#right?}, and the sign of {#shift}. Use
+    # {#equation} when the corresponding infinite line is required; {#over?}
+    # deliberately tests only the finite extent between the endpoints.
+    # @example Query sides of a directed line in screen coordinates
+    #   line = Sevgi::Geometry::Line.([0, 0], [10, 0])
+    #   line.left?([5, -2])  # => true
+    #   line.right?([5, 2])  # => true
+    #   line.shift(2).starting.deconstruct # => [0.0, -2.0]
+    # @example Distinguish the finite segment from its infinite equation
+    #   line = Sevgi::Geometry::Line.([0, 0], [10, 0])
+    #   line.over?([5, 0])  # => true
+    #   line.over?([15, 0]) # => false
     # @!method self.call(starting, ending)
     #   Builds a line from two endpoints.
     #   @param starting [Sevgi::Geometry::Point, Array<Numeric>] starting point

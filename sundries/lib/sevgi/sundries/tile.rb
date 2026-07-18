@@ -3,10 +3,25 @@
 module Sevgi
   module Sundries
     # Repeats a geometry element over a rectangular row and column layout.
+    #
+    # The source element's bounding-box width and height become the cell pitch.
+    # Indexing is row-first: `tile[row][column]`. Generated cells and collection
+    # snapshots are immutable geometry values; no SVG elements are created.
     # @example Address cells by row and column
     #   cell = Sevgi::Geometry::Rect[8, 4]
     #   tile = Sevgi::Sundries::Tile.new(cell, position: [10, 20], nx: 3, ny: 2)
     #   tile[1][2].position.deconstruct # => [26.0, 24.0]
+    # @example Inspect the complete, row, and column bounds
+    #   cell = Sevgi::Geometry::Rect[8, 4]
+    #   tile = Sevgi::Sundries::Tile.new(cell, position: [10, 20], nx: 3, ny: 2)
+    #   [tile.box.approx.width, tile.box.approx.height] # => [24.0, 8.0]
+    #   tile.rowbox(1).position.deconstruct # => [10.0, 24.0]
+    #   tile.colbox(2).position.deconstruct # => [26.0, 20.0]
+    # @example Iterate by rows or columns
+    #   tile = Sevgi::Sundries::Tile.new(Sevgi::Geometry::Rect[8, 4], nx: 3, ny: 2)
+    #   tile.each_row.map(&:size) # => [3, 3]
+    #   tile.each_col.map(&:size) # => [2, 2, 2]
+    # @see Sevgi::Graphics::Mixtures::Tile
     class Tile
       include Enumerable
 

@@ -4,12 +4,20 @@ require "forwardable"
 
 module Sevgi
   module Graphics
-    # SVG canvas size, margins, viewport, and viewBox.
+    # Immutable SVG canvas size, margins, viewport, and viewBox.
+    #
+    # `size` is the outer paper. `inner` subtracts the margins but remains a
+    # size value, not a positioned rectangle. By default the viewBox origin is
+    # the negative left/top margin, so drawing coordinates `(0, 0)` begin at the
+    # inner area's top-left while the SVG viewport still includes the margins.
+    # Pass nil to {#viewbox} or {#attributes} for a literal zero origin.
     # @example Build from a paper profile or an explicit size
     #   page = Sevgi::Graphics::Canvas.from_paper(:a4, margins: [10])
     #   icon = Sevgi::Graphics::Canvas.call(width: 24, height: 24, unit: :px)
     #   page.viewbox       # uses the negative left and top margins as its origin
     #   icon.viewbox(nil)  # uses `0 0` as its origin
+    # @see Sevgi::Graphics::Document
+    # @see Sevgi::Sundries::Grid
     class Canvas
       DEFAULTS = {unit: "mm", name: :custom, margins: []}.freeze
       FIELDS = %i[width height unit name margins].freeze
@@ -106,6 +114,10 @@ module Sevgi
       # @overload attributes(origin = Undefined)
       #   Returns SVG root viewport attributes.
       #   Omission uses the negative left and top margins; nil uses zero for both coordinates.
+      #   @example Compare margin-aware and zero-origin viewBoxes
+      #     canvas = Sevgi::Graphics::Canvas.call(width: 80, height: 50, margins: [5, 10])
+      #     canvas.attributes[:viewBox] # => "-10 -5 80 50"
+      #     canvas.attributes(nil)[:viewBox] # => "0 0 80 50"
       #   @param origin [Numeric, Array<Numeric>, nil, Sevgi::Undefined] viewBox origin; a scalar sets both coordinates
       #   @return [Hash{Symbol => String}] SVG viewport and viewBox attributes
       #   @raise [Sevgi::ArgumentError] when origin is invalid
@@ -136,6 +148,12 @@ module Sevgi
       def viewbox(origin = Undefined) = prettify(*originate(origin), width, height).join(" ")
 
       # Returns a canvas with selected fields replaced.
+      # Unspecified fields, including margins, retain their current values.
+      # @example Derive a canvas while preserving the source
+      #   source = Sevgi::Graphics::Canvas.call(width: 80, height: 50, margins: [5])
+      #   derived = source.with(width: 100, margins: [10, 5])
+      #   source.width # => 80.0
+      #   derived.inner.deconstruct # => [90.0, 30.0, :mm, :custom]
       # @param kwargs [Hash] replacement options
       # @option kwargs [Numeric] :width replacement canvas width
       # @option kwargs [Numeric] :height replacement canvas height

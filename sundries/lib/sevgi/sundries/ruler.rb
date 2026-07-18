@@ -5,8 +5,10 @@ module Sevgi
     # A one-dimensional interval divided into equal units.
     #
     # The compact reader names are part of the domain vocabulary:
-    # `u` is the unit length, `n` is the interval count, `d` is total
-    # distance, and `h` is the midpoint distance.
+    # `u` is the unit length, `n` is the interval count, and `d` is total
+    # distance. `ds` includes both endpoints, while `hs` contains one halfway
+    # distance per interval. These compact names are intended to read as
+    # formulas in layout code rather than as general-purpose collection names.
     #
     # @example Interval geometry
     #   # <---------------- d = n x u ---------------->
@@ -14,6 +16,10 @@ module Sevgi
     #   #           <--- u --->
     #   interval = Sevgi::Sundries::Interval[3, 4]
     #   interval.d # => 12.0
+    # @example Query major and halfway distances
+    #   interval = Sevgi::Sundries::Interval[3, 4]
+    #   interval.ds # => [0.0, 3.0, 6.0, 9.0, 12.0]
+    #   interval.hs # => [1.5, 4.5, 7.5, 10.5]
     class Interval
       # Builds an interval using bracket syntax.
       # @param e [Numeric, #length] unit length or an object exposing length
@@ -149,9 +155,11 @@ module Sevgi
     # Fits a repeated interval into a broader span with computed margins.
     #
     # A ruler stores both the fitted major interval and the source subinterval.
-    # The compact reader names mirror {Interval}: `brut` is the full available
-    # span, `sd/su/sn` describe the subinterval, and `waste` is distributed as
-    # margins while preserving any requested start/end difference.
+    # `brut` is the full available span. `unit * multiple` becomes the major
+    # interval, and `sd/su/sn` describe that source subinterval. Requested
+    # margins are minimums: leftover space is split between them while their
+    # start/end difference is preserved. The fitted `d` excludes those margins;
+    # `waste` includes them and any remainder.
     #
     # @example Ruler geometry
     #   # <-- start --><--------- d = n x sd ---------><-- finish -->
@@ -159,6 +167,16 @@ module Sevgi
     #   # <---------------- brut ---------------->
     #   ruler = Sevgi::Sundries::Ruler.new(unit: 1, multiple: 10, brut: 150)
     #   ruler.d # => 150.0
+    # @example Fit whole major intervals inside minimum margins
+    #   ruler = Sevgi::Sundries::Ruler.new(brut: 103, unit: 1, multiple: 10, margins: [5])
+    #   ruler.n       # => 9
+    #   ruler.margins # => [6.5, 6.5]
+    #   ruler.waste   # => 13.0
+    # @example Preserve an asymmetric margin difference
+    #   ruler = Sevgi::Sundries::Ruler.new(brut: 100, unit: 1, multiple: 10, margins: [5, 15])
+    #   ruler.margins # => [5.0, 15.0]
+    #   ruler.ds.last # => 80.0
+    # @see Sevgi::Sundries::Grid
     class Ruler < Interval
       # Returns the full available span before fitting.
       # @return [Float]
@@ -208,6 +226,10 @@ module Sevgi
       end
 
       # Returns a ruler where the source subinterval is flattened into units.
+      # @example Expand major intervals into individual units
+      #   ruler = Sevgi::Sundries::Ruler.new(brut: 103, unit: 1, multiple: 10, margins: [5])
+      #   ruler.expand.n # => 90
+      #   ruler.ms.size  # => 91
       # @return [Sevgi::Sundries::Ruler]
       def expand = self.class.new(unit: sub.u, multiple: 1, brut: d + waste, margins:)
 
@@ -271,6 +293,13 @@ module Sevgi
     end
 
     # Ruler variant that always chooses an even number of major intervals.
+    #
+    # If ordinary fitting produces an odd count, one complete major interval is
+    # removed and the additional space is distributed through the margins.
+    # @example Reserve symmetric waste when an odd count would fit
+    #   ruler = Sevgi::Sundries::RulerEven.new(brut: 50, unit: 1, multiple: 10)
+    #   ruler.n       # => 4
+    #   ruler.margins # => [5.0, 5.0]
     class RulerEven < Ruler
       protected
 

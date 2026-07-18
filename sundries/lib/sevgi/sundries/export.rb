@@ -6,15 +6,20 @@ require_relative "export/system"
 
 module Sevgi
   module Sundries
-    # Exports SVG content and post-processes PDF output.
+    # Exports SVG source to PNG or PDF and post-processes PDF output.
     #
     # Native PDF/PNG rendering is loaded lazily so installing `sevgi-sundries` for SVG-only helpers does not require the
     # Cairo, RSVG, or HexaPDF gems. Native export entrypoints raise {Sevgi::MissingComponentError} when those optional
-    # gems are unavailable.
+    # gems are unavailable. Omit `format:` to infer it from the output suffix;
+    # width and height are output dimensions rather than changes to the SVG
+    # viewBox. The return value is the expanded path that was written.
     #
     # @example Export SVG source to a sized PNG
     #   svg = Sevgi::Graphics.SVG(:minimal) { circle cx: 5, cy: 5, r: 4 }.Render
     #   Sevgi::Sundries::Export.call(svg, "drawing.png", width: 320)
+    # @example Infer PDF output and inject export-only CSS
+    #   svg = Sevgi::Graphics.SVG(:minimal) { circle class: "accent", r: 4 }.Render
+    #   Sevgi::Sundries::Export.call(svg, "drawing.pdf", css: ".accent { fill: tomato; }")
     module Export
       # File extensions mapped to export format names.
       # @api private

@@ -5,12 +5,34 @@ require "delegate"
 module Sevgi
   module Sundries
     # Builds a tile-like grid from horizontal and vertical rulers.
+    #
+    # Axis names describe line direction, not the coordinate used to place a
+    # line: `grid.x` produces horizontal lines whose y positions come from the
+    # vertical ruler; `grid.y` produces vertical lines whose x positions come
+    # from the horizontal ruler. Each query can return geometry lines, Point
+    # endpoint pairs, or plain coordinate pairs for different consumers.
     # @example Query fitted horizontal and vertical lines
     #   x = Sevgi::Sundries::Ruler.new(brut: 80, unit: 1, multiple: 10, margins: [5])
     #   y = Sevgi::Sundries::Ruler.new(brut: 50, unit: 1, multiple: 10, margins: [5])
     #   grid = Sevgi::Sundries::Grid[x, y]
     #   grid.x.major.lines.size # => 5
     #   grid.y.minor.lines.size # => 71
+    # @example Preserve a source canvas while fitting axis margins
+    #   canvas = Sevgi::Graphics::Canvas.call(width: 80, height: 50)
+    #   x = Sevgi::Sundries::Ruler.new(brut: 80, unit: 1, multiple: 10, margins: [5, 7])
+    #   y = Sevgi::Sundries::Ruler.new(brut: 50, unit: 1, multiple: 10, margins: [3, 5])
+    #   grid = Sevgi::Sundries::Grid.new(x:, y:, canvas:)
+    #   grid.canvas.margin.to_a # => [4.0, 11.0, 6.0, 9.0]
+    # @example Use lines, points, coordinate pairs, and inherited row boxes
+    #   x = Sevgi::Sundries::Ruler.new(brut: 30, unit: 1, multiple: 10)
+    #   y = Sevgi::Sundries::Ruler.new(brut: 20, unit: 1, multiple: 10)
+    #   grid = Sevgi::Sundries::Grid[x, y]
+    #   grid.x.major.lines.size  # => 3
+    #   grid.x.major.points.first.map(&:deconstruct) # => [[0.0, 0.0], [30.0, 0.0]]
+    #   grid.y.halve.xys.first   # => [[5.0, 0.0], [5.0, 20.0]]
+    #   grid.rowbox.approx.height # => 10.0
+    # @see Sevgi::Sundries::Ruler
+    # @see Sevgi::Graphics::Mixtures::Hatch
     class Grid < Tile
       # Builds a grid using bracket syntax.
       # @param x [Sevgi::Sundries::Ruler] horizontal ruler
@@ -19,11 +41,13 @@ module Sevgi
       # @raise [Sevgi::ArgumentError] when either argument is not a ruler
       def self.[](x, y) = new(x:, y:)
 
-      # Returns the horizontal axis ruler and line queries.
+      # Returns the horizontal-line axis and its ruler queries.
+      # Line positions are supplied by the vertical ruler.
       # @return [Sevgi::Sundries::Grid::X]
       attr_reader :x
 
-      # Returns the vertical axis ruler and line queries.
+      # Returns the vertical-line axis and its ruler queries.
+      # Line positions are supplied by the horizontal ruler.
       # @return [Sevgi::Sundries::Grid::Y]
       attr_reader :y
 
@@ -49,6 +73,15 @@ module Sevgi
       # Returns a graphics canvas matching the ruler spans and fitted margins.
       # Horizontal ruler margins become the canvas left/right margins; vertical
       # ruler margins become its top/bottom margins.
+      # @example Build a drawing with the fitted canvas
+      #   x = Sevgi::Sundries::Ruler.new(brut: 80, unit: 1, multiple: 10, margins: [5])
+      #   y = Sevgi::Sundries::Ruler.new(brut: 50, unit: 1, multiple: 10, margins: [5])
+      #   grid = Sevgi::Sundries::Grid[x, y]
+      #   drawing = Sevgi::Graphics.SVG(:inkscape, grid.canvas) do
+      #     Draw grid.x.major.lines, class: %w[guide horizontal]
+      #     Draw grid.y.major.lines, class: %w[guide vertical]
+      #   end
+      #   drawing.Render
       # @return [Sevgi::Graphics::Canvas]
       def canvas
         margins = [y.start, x.finish, y.finish, x.start]
@@ -68,19 +101,19 @@ module Sevgi
       # @return [Float]
       def width = x.d
 
-      # Axis wrapper exposing grid line queries for one ruler direction.
+      # Axis wrapper exposing grid line queries for one line direction.
       class Axis < DelegateClass(Ruler)
         private_class_method :new
 
-        # Returns the major line query.
+        # Returns lines placed at the perpendicular ruler's major distances.
         # @return [Sevgi::Sundries::Grid::Axis::Major]
         attr_reader :major
 
-        # Returns the midpoint line query.
+        # Returns lines placed at the perpendicular ruler's halfway distances.
         # @return [Sevgi::Sundries::Grid::Axis::Halve]
         attr_reader :halve
 
-        # Returns the minor line query.
+        # Returns lines placed at the perpendicular ruler's minor distances.
         # @return [Sevgi::Sundries::Grid::Axis::Minor]
         attr_reader :minor
 

@@ -2,7 +2,12 @@
 
 module Sevgi
   module Graphics
-    # SVG document profile factory.
+    # SVG document profile factory and process-global named-profile registry.
+    #
+    # A profile owns SVG root attributes and optional preamble lines, but not
+    # canvas size. Built-in and named profiles can be passed to
+    # {Sevgi::Graphics.SVG}; an anonymous profile class is useful when library
+    # code needs one-off metadata without adding a global name.
     module Document
       # Defensive copy helper for profile metadata snapshots.
       # @api private
@@ -169,7 +174,13 @@ module Sevgi
       # @raise [Sevgi::ArgumentError] when name is invalid or unknown
       def self.profile(name) = fetch(name).profile
 
-      # Defines or returns a document profile class.
+      # Defines, looks up, or returns an anonymous document profile class.
+      #
+      # A name without metadata performs lookup. A name plus either metadata
+      # keyword defines or compatibly reuses a named profile. Omitting the name
+      # creates an anonymous class and leaves the registry unchanged. Named
+      # profiles are process-global; use them for shared vocabulary rather than
+      # per-call configuration.
       # Profile metadata is captured before class or thread-atomic registry mutation. Mutable non-container attribute
       # values are stringified once, attribute names and nested Hash keys are normalized, and nil attributes are omitted
       # during capture. Successful named definitions return the canonical class stored by the registry, including when
@@ -181,6 +192,16 @@ module Sevgi
       # @return [Class] document class
       # @raise [Sevgi::ArgumentError] when overwrite is not Boolean, a name conflicts, or metadata is invalid XML,
       #   cyclic, or cannot be stringified
+      # @example Define a reusable library profile
+      #   profile = Sevgi::Graphics::Document.define(
+      #     :icon,
+      #     preambles: [],
+      #     attributes: {xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24"}
+      #   )
+      #   Sevgi::Graphics::Document.(profile) { circle cx: 12, cy: 12, r: 10 }.Render
+      # @example Build an anonymous one-off profile
+      #   profile = Sevgi::Graphics::Document.define(attributes: {viewBox: "0 0 10 10"})
+      #   profile.profile.name # => nil
       def self.define(name = Undefined, preambles: Undefined, attributes: Undefined, overwrite: false)
         overwrite!(overwrite)
         return anonymous(attributes:, preambles:) if name == Undefined
@@ -291,6 +312,8 @@ module Sevgi
       # are thread-atomic. Metadata containers and strings are captured recursively; other mutable attribute values are
       # stringified once during construction. Attribute names and nested Hash keys are normalized to Symbols, nil values
       # are omitted, and update-suffix intent is retained for inheritance.
+      # Returned attribute and preamble collections are caller-owned snapshots,
+      # so changing them does not alter the registered profile.
       # @see Sevgi::Graphics.document
       class Profile
         # @return [Symbol, nil] profile name

@@ -49,6 +49,11 @@ module Sevgi
     #   Parallelogram[[2, 0], [2, -90]] == Parallelogram.from_segments([2, 0], [2, -90])
     #   points = [[0, 0], [2, 0], [2, 2], [0, 2]]
     #   Parallelogram.(*points) == Parallelogram.from_points(*points)
+    # @example Compare vertices with the axis-aligned bounding box
+    #   shape = Sevgi::Geometry::Parallelogram.([1, 1], [5, 1], [7, 4], [3, 4])
+    #   shape.C.deconstruct # => [7.0, 4.0]
+    #   shape.box.width     # => 6.0
+    #   shape.box.height    # => 3.0
     class Parallelogram < ParallelogramBase
       # Builds a parallelogram from adjacent horizontal and vertical segments.
       # @param horizontal [Sevgi::Geometry::Segment, Array<Numeric>] horizontal segment

@@ -15,9 +15,17 @@ require_relative "sundries/version"
 module Sevgi
   # Layout, tiling, grid, and export helpers shared by Sevgi consumers.
   #
-  # This component loads its eager public surfaces directly. `Ruler`, `Tile`, and `Grid` therefore require
-  # `sevgi-function`, `sevgi-geometry`, and `sevgi-graphics` as runtime dependencies of the `sevgi-sundries` gem.
-  # Native PDF/PNG export gems are optional and loaded only by {Export} when export is used.
+  # {Ruler} fits repeatable distances into a span; {Grid} combines two rulers
+  # and exposes drawable lines; {Tile} repeats geometry by rows and columns.
+  # These layout values can be computed without an SVG document and then passed
+  # to Graphics. Native PDF/PNG dependencies remain lazy and are loaded only by
+  # {Export}.
+  # @example Load the component and build a tiled geometry layout
+  #   require "sevgi/sundries"
+  #
+  #   cell = Sevgi::Geometry::Rect[8, 4]
+  #   Sevgi::Sundries::Tile.new(cell, nx: 3, ny: 2).box.deconstruct
+  # @see Sevgi::Graphics::Canvas
   module Sundries
   end
 end

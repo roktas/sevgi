@@ -77,11 +77,19 @@ module Sevgi
 
     # Immutable point in SVG/screen coordinates.
     #
-    # Use `Point[x, y]` to create a point from two coordinates.
+    # Use `Point[x, y]` to create a point from two coordinates. Public geometry
+    # methods that expect a point also accept `[x, y]`; explicit Point values are
+    # most useful when a result will be transformed, compared, or reused.
     # @example Measure and rotate a point in screen coordinates
     #   point = Sevgi::Geometry::Point[3, 4]
     #   Sevgi::Geometry::Point.length(Sevgi::Geometry::Origin, point) # => 5.0
     #   point.rotate(90).approx.deconstruct # => [-4.0, 3.0]
+    # @example Compare positions in screen coordinates
+    #   upper = Sevgi::Geometry::Point[4, 2]
+    #   lower = Sevgi::Geometry::Point[4, 8]
+    #   upper.above?(lower) # => true
+    #   upper.left?([6, 2]) # => true
+    # @see Sevgi::Geometry::Segment
     # @!parse
     #   class Point
     #     # Creates a point from two coordinates.

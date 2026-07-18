@@ -58,6 +58,41 @@ calls return the same kind of document.
 `SVG` also exists as a constant naming the graphics component, so `SVG(:minimal)` calls the constructor while
 `SVG::Module` looks up a constant. Parentheses make that distinction especially clear in ordinary Ruby code.
 
+## Canvas and document profiles
+
+Use a `Canvas` when dimensions, units, margins, and the resulting `viewBox` belong together. Its `size` is the outer
+paper; `inner` is the remaining size after margins. The default viewBox shifts by the negative left and top margins, so
+drawing coordinate `(0, 0)` starts at the inner area's top-left while the viewport still includes the margins:
+
+```ruby
+require "sevgi"
+
+canvas = Sevgi::Graphics.canvas(:a4, margins: [12, 10])
+
+drawing = SVG :minimal, canvas do
+  rect width: canvas.inner.width, height: canvas.inner.height
+end
+```
+
+A document profile owns SVG root attributes and preambles independently of the physical canvas. Anonymous profiles
+are useful for one library object. Named profiles belong to a process-wide registry; reserve them for shared vocabulary
+rather than per-request options:
+
+```ruby
+require "sevgi"
+
+icon = Sevgi::Graphics.document(attributes: {viewBox: "0 0 24 24"})
+
+SVG(icon) { circle cx: 12, cy: 12, r: 10 }.Render
+
+Sevgi::Graphics.document(:badge, attributes: {viewBox: "0 0 40 16"})
+SVG(:badge) { text "OK", x: 20, y: 12, "text-anchor": "middle" }.Render
+```
+
+The first argument to `SVG` selects the document profile; the optional second argument supplies the canvas. Root keyword
+attributes are applied after both. Keep profile and canvas separate when several document dialects share one page size,
+or one document dialect is rendered on several sizes.
+
 ## Library scope is smaller
 
 The script runner puts the complete top-level API in its script scope, so `.sevgi` files can call `Paper`, `Grid`,
