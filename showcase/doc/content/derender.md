@@ -19,17 +19,17 @@ Ruby. It cannot recover the loops, helper methods, or other higher-level code th
 
 | Operation family | Inline input | File input | Result | Existing target |
 | --- | --- | --- | --- | --- |
-| Inspect | `decompile` | `decompile_file` | immutable `Derender::Node` | no |
-| Generate source | `derender` | `derender_file` | formatted Ruby string | no |
-| Include selection | `evaluate` | `evaluate_file` | included element or `nil` | yes |
-| Include children | `evaluate_children` | `evaluate_children_file` | frozen element snapshot | yes |
+| Inspect | `SVG.Decompile` | `SVG.DecompileFile` | immutable `Sevgi::Derender::Node` | no |
+| Generate source | `SVG.Derender` | `SVG.DerenderFile` | formatted Ruby string | no |
+| Include selection | `SVG.Evaluate` | `SVG.EvaluateFile` | included element or `nil` | yes |
+| Include children | `SVG.EvaluateChildren` | `SVG.EvaluateChildrenFile` | frozen element snapshot | yes |
 
-Library code uses the namespaced lowercase forms. For example, a consumer can inspect a node and generate only that
+Library code uses the capitalized facade operations. For example, a consumer can inspect a node and generate only that
 subtree without installing script-mode names:
 
 ```ruby
 xml = '<svg><g id="mark" style="fill: red"><rect width="4"/></g></svg>'
-mark = Sevgi::Derender.decompile(xml, id: "mark")
+mark = SVG.Decompile(xml, id: "mark")
 source = mark.derender
 
 raise unless mark.name == "g"
@@ -44,6 +44,8 @@ In a `.sevgi` script, `Derender` converts inline content and returns formatted R
 source = Derender '<path id="mark" d="M 0 0 L 8 3"/>', id: "mark"
 puts source
 ```
+
+Library code writes the same operation as `SVG.Derender(...)`.
 
 Use `DerenderFile` when the source already lives on disk:
 
@@ -80,7 +82,7 @@ xml = <<~SVG
   </svg>
 SVG
 
-root = Sevgi::Derender.decompile(xml)
+root = SVG.Decompile(xml)
 mark = root.find("mark")
 
 raise unless root.root?
@@ -107,7 +109,7 @@ node's children:
 
 ```ruby
 drawing = SVG :minimal
-Evaluate '<circle id="mark" r="4"/>', drawing, id: "mark"
+SVG.Evaluate '<circle id="mark" r="4"/>', drawing, id: "mark"
 drawing.Render
 ```
 
@@ -121,8 +123,8 @@ SVG do
 end
 ```
 
-Library code has the same matrix under `Sevgi::Derender`: `decompile`, `derender`, `evaluate`, and
-`evaluate_children` accept content; their `_file` counterparts accept paths.
+Applications depending only on `sevgi-derender` can use the lowercase component API under `Sevgi::Derender`:
+`decompile`, `derender`, `evaluate`, and `evaluate_children` accept content; their `_file` counterparts accept paths.
 
 All these APIs parse XML as data and build immutable snapshots or graphics elements; they do not execute the generated
 Ruby. This is distinct from [`Sevgi.execute`](@/execution.md), which deliberately runs trusted Ruby with the process's

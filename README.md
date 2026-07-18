@@ -31,6 +31,9 @@ end
 puts drawing.Render
 ```
 
+Library operations use capitalized facade methods such as `SVG.Canvas`; related Ruby types and namespaces use
+double-colon names such as `SVG::Canvas`. Executable `.sevgi` scripts promote those operations as bare DSL words.
+
 Sevgi also runs executable `.sevgi` drawing scripts. See [Getting Started](https://sevgi.roktas.dev/getting-started/)
 for installation details and [Showcase](https://sevgi.roktas.dev/showcase/) for complete examples with rendered output.
 

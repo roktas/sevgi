@@ -5,8 +5,11 @@ weight = 4
 group = "Start"
 +++
 
-`require "sevgi"` loads the toolkit and adds one global entry point: `SVG(...)`. Library code can start a document with
-the same word used in a `.sevgi` script, but it does not pull every Sevgi helper into the application's method scope.
+`require "sevgi"` loads two complementary entry points: the global `SVG(...)` document builder and the `SVG` facade.
+Facade operations use capitalized method names such as `SVG.Canvas`, `SVG.Document`, and `SVG.Derender`; constants and
+types use double colons, such as `SVG::Canvas`. Library code gets this explicit SVG vocabulary without pulling every
+Sevgi helper into the application's method scope.
+
 Use the [Execution](@/execution.md) API when library code needs to run a complete trusted `.sevgi` program rather than
 construct a document directly.
 
@@ -40,25 +43,26 @@ also reorder elements that already share a parent.
 Call `drawing.Render` when the surrounding application needs the SVG string. If you load only `sevgi/graphics`, the
 component-level constructor is `Sevgi::Graphics.SVG`.
 
-## Short and explicit forms
+## Facade grammar
 
-`SVG(...)` and `Sevgi.SVG(...)` are two names for the same constructor:
+The method/constant distinction is deliberate:
 
 ```ruby
 require "sevgi"
 
-short = SVG(:minimal) { circle r: 4 }
-explicit = Sevgi.SVG(:minimal) { circle r: 4 }
+canvas = SVG.Canvas width: 24, height: 24, unit: :px
+drawing = SVG(:minimal, canvas) { circle cx: 12, cy: 12, r: 10 }
 
-short.Render == explicit.Render # => true
+canvas.is_a?(SVG::Canvas) # => true
+drawing.Render
 ```
 
-Use the short form when the surrounding code already makes Sevgi clear. Write `Sevgi.SVG` when another library defines
-an `SVG` method or when you want the receiver visible at the call site. This only affects Ruby name resolution. Both
-calls return the same kind of document.
+`SVG(...)` invokes the global document-builder method. `SVG.Canvas(...)` invokes a facade operation.
+`SVG::Canvas` names the returned type. The facade does not repeat the receiver as `SVG.SVG(...)`.
 
-`SVG` also exists as a constant naming the graphics component, so `SVG(:minimal)` calls the constructor while
-`SVG::Module` looks up a constant. Parentheses make that distinction especially clear in ordinary Ruby code.
+The same top-level operations also exist on `Sevgi` because script execution and `include Sevgi` use that complete
+toolkit surface. `Sevgi.SVG(...)` and `Sevgi.Canvas(...)` are valid, but the `SVG` facade is the canonical receiver for
+ordinary SVG library work. Execution stays separate as `Sevgi.execute` and `Sevgi.execute_file`.
 
 ## Canvas and document profiles
 
@@ -69,7 +73,7 @@ drawing coordinate `(0, 0)` starts at the inner area's top-left while the viewpo
 ```ruby
 require "sevgi"
 
-canvas = Sevgi::Graphics.canvas(:a4, margins: [12, 10])
+canvas = SVG.Canvas :a4, margins: [12, 10]
 
 drawing = SVG :minimal, canvas do
   rect width: canvas.inner.width, height: canvas.inner.height
@@ -84,11 +88,11 @@ choices and explains the advanced common extension layer.
 ```ruby
 require "sevgi"
 
-icon = Sevgi::Graphics.document(attributes: {viewBox: "0 0 24 24"})
+icon = SVG.Document attributes: {viewBox: "0 0 24 24"}
 
 SVG(icon) { circle cx: 12, cy: 12, r: 10 }.Render
 
-Sevgi::Graphics.document(:badge, attributes: {viewBox: "0 0 40 16"})
+SVG.Document :badge, attributes: {viewBox: "0 0 40 16"}
 SVG(:badge) { text "OK", x: 20, y: 12, "text-anchor": "middle" }.Render
 ```
 
@@ -96,26 +100,27 @@ The first argument to `SVG` selects the document profile; the optional second ar
 attributes are applied after both. Keep profile and canvas separate when several document dialects share one page size,
 or one document dialect is rendered on several sizes.
 
-## Library scope is smaller
+## The same vocabulary with a receiver
 
-The script runner puts the complete top-level API in its script scope, so `.sevgi` files can call `Paper`, `Grid`,
-`Load`, and the output words directly. A normal `require "sevgi"` defines only `SVG` globally. Call other entry points
-on `Sevgi`:
+The script runner promotes operations such as `Paper`, `Canvas`, and `Grid` into its managed scope. Library code uses
+the same capitalized words on the facade:
 
 ```ruby
 require "sevgi"
 
-Sevgi.Paper 85, 55, :card
+SVG.Paper 85, 55, :card
+canvas = SVG.Canvas :card, margins: 4
 
-card = SVG :minimal, :card do
+card = SVG :minimal, canvas do
   rect width: "100%", height: "100%", rx: 3
 end
 
 File.write("card.svg", card.Render)
 ```
 
-The equivalent script can call `Paper`, `SVG`, and `Save` without qualification. In library mode, the application
-decides where the rendered string goes.
+The equivalent script drops only the facade receiver: `Paper(...)` and `Canvas(...)` become bare words, while
+`SVG(...)` and the drawing block stay unchanged. In library mode, the application usually decides where the rendered
+string goes.
 
 ## Import the full top level
 
@@ -137,6 +142,21 @@ badge.new.render("S")
 
 `include Sevgi` adds the full top-level API to instances. You do not need it just to call `SVG(...)` after
 `require "sevgi"`.
+
+## Focused graphics component
+
+Applications that depend only on `sevgi-graphics` use its conventional lowercase component API. This focused require
+does not install the full `SVG` facade:
+
+```ruby
+require "sevgi/graphics"
+
+canvas = Sevgi::Graphics.canvas width: 24, height: 24, unit: :px
+drawing = Sevgi::Graphics.SVG(:minimal, canvas) { circle cx: 12, cy: 12, r: 10 }
+```
+
+Use this form when the smaller gem dependency is the goal. Do not mix its lowercase constructors into the facade
+dialect; `SVG.Canvas` is the corresponding full-toolkit spelling.
 
 ## Callable modules {#callable-modules}
 
@@ -164,8 +184,8 @@ Name the method `call` when the module has one drawing step. If it has several p
 separate step. [`base`](/dsl/#base) registers shared, argument-independent drawing that runs before them. The wrapper
 word decides whether Sevgi draws the result directly, puts it in a group or layer, or expands it into symbols.
 
-`SVG::Module` is the short form of `Sevgi::SVG::Module`. When loading only `sevgi/graphics`, use
-`Sevgi::SVG::Module` or the identical component-level name `Sevgi::Graphics::Module`.
+`SVG::Module` aliases the graphics component's callable-module contract. When loading only `sevgi/graphics`, the facade
+is not installed; use `Sevgi::Graphics::Module`.
 
 ### Module namespaces {#module-namespaces}
 

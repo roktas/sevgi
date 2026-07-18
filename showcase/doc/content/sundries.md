@@ -38,12 +38,12 @@ length, count, and fitted distance. `su`, `sn`, and `sd` describe the source sub
 
 ## Grid {#grid}
 
-`Grid` combines one horizontal and one vertical ruler. In library mode, the `Sevgi.Grid` convenience builds both rulers
-from a canvas and preserves that canvas's size, unit, and name while replacing its margins with the fitted values:
+`Grid` combines one horizontal and one vertical ruler. In library mode, `SVG.Grid` builds both rulers from a canvas and
+preserves that canvas's size, unit, and name while replacing its margins with the fitted values:
 
 ```ruby
-canvas = Sevgi::Graphics.canvas(width: 80, height: 50, margins: [5])
-grid = Sevgi.Grid(canvas, unit: 1, multiple: 10)
+canvas = SVG.Canvas width: 80, height: 50, margins: [5]
+grid = SVG.Grid canvas, unit: 1, multiple: 10
 
 drawing = SVG :inkscape, grid.canvas do
   Draw grid.x.major.lines, class: %w[guide horizontal], stroke: "silver"
@@ -64,8 +64,8 @@ query has three representations:
 | `xys` | pairs of plain coordinate Arrays | feed data-only consumers |
 
 ```ruby
-canvas = Sevgi::Graphics.canvas(width: 80, height: 50, margins: [5])
-grid = Sevgi.Grid(canvas, unit: 1, multiple: 10)
+canvas = SVG.Canvas width: 80, height: 50, margins: [5]
+grid = SVG.Grid canvas, unit: 1, multiple: 10
 
 grid.x.major.lines  # geometry Line objects, suitable for Draw
 grid.x.halve.points # endpoint Point pairs
@@ -76,8 +76,8 @@ grid.y.minor.xys    # plain coordinate pairs
 should be constrained to one row or column. This is the pattern used by guide-sheet consumers:
 
 ```ruby
-canvas = Sevgi::Graphics.canvas(width: 80, height: 50, margins: [5])
-grid = Sevgi.Grid(canvas, unit: 1, multiple: 10)
+canvas = SVG.Canvas width: 80, height: 50, margins: [5]
+grid = SVG.Grid canvas, unit: 1, multiple: 10
 
 SVG :inkscape, grid.canvas do
   Hatch grid.rowbox(0), angle: -30, step: grid.x.su, stroke: "silver"

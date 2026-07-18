@@ -121,7 +121,7 @@ module Sevgi
     # @raise [Sevgi::ArgumentError] when content is malformed or rootless, or when the id is absent
     # @note Namespace-aware dispatch preserves ordinary foreign/qualified nodes and nested SVG elements.
     # @example Include the selected node under an existing element
-    #   drawing = Sevgi.SVG(:minimal)
+    #   drawing = Sevgi::Graphics.SVG(:minimal)
     #   included = Sevgi::Derender.evaluate('<circle id="mark" r="4"/>', drawing)
     #   included.name   #=> :circle
     #   included[:id]   #=> "mark"
@@ -141,7 +141,7 @@ module Sevgi
     # @raise [Sevgi::ArgumentError] when content is malformed or rootless, or when the id is absent
     # @note Namespace-aware dispatch preserves ordinary foreign/qualified nodes and nested SVG elements.
     # @example Include only children and retain an immutable result snapshot
-    #   drawing = Sevgi.SVG(:minimal)
+    #   drawing = Sevgi::Graphics.SVG(:minimal)
     #   children = Sevgi::Derender.evaluate_children('<g><rect/><circle/></g>', drawing)
     #   children.map(&:name) #=> [:rect, :circle]
     #   children.frozen?     #=> true

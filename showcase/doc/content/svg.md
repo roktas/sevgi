@@ -5,9 +5,10 @@ weight = 10
 group = "Core"
 +++
 
-An SVG document is an element tree plus a document profile. Lowercase calls add SVG elements to the tree. Sevgi's
-capitalized words move, copy, group, or otherwise operate on those elements. The standard component checks known SVG
-names and their allowed attributes, content, and parents.
+An SVG document is an element tree plus a document profile. Lowercase calls add SVG elements to the tree. Capitalized
+words create supporting values or operate on elements. In library code, operations outside the document block use the
+`SVG.` facade receiver; types and namespaces use `SVG::`. The standard component checks known SVG names and their
+allowed attributes, content, and parents.
 
 ## Construct a document
 
@@ -39,19 +40,19 @@ Use `:minimal` for compact output, `:default` for a standalone SVG file, `:html`
 The Inkscape root adds Sevgi, Inkscape, and Sodipodi namespaces plus `shape-rendering="crispEdges"`. The presence of
 `Draw` and `Hatch` on `:inkscape` is a convenience default, not an Inkscape format requirement.
 
-`Sevgi::Graphics::Document::Base` is the public common extension layer, not a selectable profile. Advanced consumers
-can target it with `Mixin` to change every descendant profile process-wide. `Minimal` and `Default` are sibling concrete
-profiles: `Minimal` adds no metadata and is not the base of the other profiles. Subclass `Base` first when an extension
-should remain scoped.
+`SVG::Document::Base` is the public common extension layer, not a selectable profile. Advanced consumers can target it
+with `SVG.Mixin` to change every descendant profile process-wide. `Minimal` and `Default` are sibling concrete profiles:
+`Minimal` adds no metadata and is not the base of the other profiles. Subclass `Base` first when an extension should
+remain scoped.
 
 For example, `Draw` and `Hatch` can be added to a private Base-derived profile without adopting profile metadata:
 
 ```ruby
-profile = Class.new(Sevgi::Graphics::Document::Base)
-Sevgi::Graphics::Mixtures.mixin(:Hatch, profile)
+profile = Class.new(SVG::Document::Base)
+SVG.Mixin :Hatch, profile
 region = Sevgi::Geometry::Rect[24, 12]
 
-Sevgi::Graphics.SVG(profile) do
+SVG(profile) do
   Draw region.lines, stroke: "silver"
   Hatch region, angle: 30, step: 3, stroke: "black"
 end.Render
@@ -87,18 +88,18 @@ different serialization channel.
 ```ruby
 drawing = SVG :minimal do
   text "A & B"
-  text Sevgi::Graphics::Content.encoded("A & B")
-  style Sevgi::Graphics::Content.cdata(".note { fill: red; }")
-  style Sevgi::Graphics::Content.css(".note" => {fill: "red"})
-  g Sevgi::Graphics::Content.verbatim("<title>trusted markup</title>")
+  text SVG::Content.encoded("A & B")
+  style SVG::Content.cdata(".note { fill: red; }")
+  style SVG::Content.css(".note" => {fill: "red"})
+  g SVG::Content.verbatim("<title>trusted markup</title>")
 end
 
 drawing.Render
 ```
 
-Advanced consumers may subclass `Sevgi::Graphics::Content` and implement `render(output, depth)`. The rendering engine
-ignores the method's return value. A custom implementation must escape any data it inserts into markup; use
-`Content.encoded(...).to_s` rather than interpolating caller text directly.
+Advanced consumers may subclass `SVG::Content` and implement `render(output, depth)`. The rendering engine ignores the
+method's return value. A custom implementation must escape any data it inserts into markup; use
+`SVG::Content.encoded(...).to_s` rather than interpolating caller text directly.
 
 ## Validation lifecycle
 

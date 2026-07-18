@@ -29,17 +29,29 @@ module Sevgi
   # @see https://sevgi.roktas.dev/getting-started/ Getting started
   # @see https://sevgi.roktas.dev/library-mode/ Library mode guide
   module SVG
+    # SVG attribute collection and normalization API.
     Attributes = Graphics::Attributes
+    # Canvas value type returned by {SVG.Canvas}.
     Canvas = Graphics::Canvas
+    # Explicit SVG content serialization types.
     Content = Graphics::Content
+    # Document profiles and document classes.
     Document = Graphics::Document
+    # Base SVG/XML element type.
     Element = Graphics::Element
+    # Duplicate-id and structural lint failure.
     LintError = Graphics::LintError
+    # CSS-like canvas margin value.
     Margin = Graphics::Margin
+    # Graphics mixtures available for document composition.
     Mixtures = Graphics::Mixtures
+    # Contract for one callable drawing module.
     Module = Graphics::Module
+    # Recursive contract for namespaces of callable drawing modules.
     Modules = Graphics::Modules
+    # Immutable paper-size value and profile registry.
     Paper = Graphics::Paper
+    # Current Sevgi toolkit version.
     VERSION = Sevgi::VERSION
 
     # Builds a canvas from a paper profile or explicit dimensions.

@@ -12,6 +12,7 @@ Sevgi is released as focused gems, so consumers can depend only on the layers th
 
 | Task | Guide | API owner |
 | --- | --- | --- |
+| Use the full SVG facade | [Library Mode](@/library-mode.md#facade-grammar) | [`sevgi`](https://www.rubydoc.info/gems/sevgi) |
 | Construct and render SVG | [SVG Essentials](@/svg.md) | [`sevgi-graphics`](https://www.rubydoc.info/gems/sevgi-graphics) |
 | Extend or embed the drawing DSL | [Library Mode](@/library-mode.md#callable-modules) | [`sevgi-graphics`](https://www.rubydoc.info/gems/sevgi-graphics) and [`sevgi`](https://www.rubydoc.info/gems/sevgi) |
 | Execute trusted `.sevgi` source | [Execution](@/execution.md) | [`sevgi`](https://www.rubydoc.info/gems/sevgi) |
@@ -22,12 +23,13 @@ Sevgi is released as focused gems, so consumers can depend only on the layers th
 | Reuse precision, discovery, shell, or status behavior | [Functions](@/functions.md) | [`sevgi-function`](https://www.rubydoc.info/gems/sevgi-function) |
 
 The executable [DSL Catalog](@/dsl.md) is the canonical inventory of drawing words. It complements the YARD component
-references rather than being repeated in them.
+references rather than being repeated in them. In the full toolkit, capitalized SVG-domain operations live on the
+`SVG` facade and types live beneath `SVG::`; focused component references retain their conventional lowercase APIs.
 
 ## Component index
 
-- [`sevgi`](https://www.rubydoc.info/gems/sevgi) — explicit top-level constructors, script execution, and the complete
-  toolkit.
+- [`sevgi`](https://www.rubydoc.info/gems/sevgi) — the `SVG` facade, promoted script operations, execution, and the
+  complete toolkit.
 - [`sevgi-graphics`](https://www.rubydoc.info/gems/sevgi-graphics) — SVG documents, elements, and the drawing DSL.
 - [`sevgi-standard`](https://www.rubydoc.info/gems/sevgi-standard) — SVG element and attribute validation.
 - [`sevgi-function`](https://www.rubydoc.info/gems/sevgi-function) — the supported `Sevgi::F` extension toolbox and its

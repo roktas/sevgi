@@ -1,12 +1,13 @@
 +++
-title = "Choose a Mode"
+title = "One DSL, Two Hosts"
 weight = 2
 [extra]
 group = "Start"
 +++
 
-Both modes build the same SVG documents. Use a `.sevgi` script when the drawing is the program. Use the Ruby API when a
-larger application owns the drawing.
+Sevgi does not split its drawing vocabulary into a script API and a library API. Both hosts build the same document
+objects and use the same words. A script promotes capitalized operations into its managed scope; library code calls
+those operations through the `SVG` facade.
 
 ## Script mode
 
@@ -25,22 +26,41 @@ runner and its top-level API.
 
 ## Library mode
 
-`require "sevgi"` provides the same short `SVG` entry point. Moving a drawing into an application does not change its
-spelling:
+`require "sevgi"` provides the same `SVG(...)` document builder and the `SVG` facade. Moving the drawing block into an
+application does not change its spelling:
 
 ```ruby
 require "sevgi"
 
-drawing = SVG :minimal do
+canvas = SVG.Canvas width: 24, height: 24, unit: :px
+
+drawing = SVG :minimal, canvas do
   circle cx: 12, cy: 12, r: 10, fill: "tomato"
 end
 
 File.write("badge.svg", drawing.Render)
 ```
 
-The surrounding scope is different. A Sevgi script gets the full top-level API and output helpers. A Ruby application
-gets the short `SVG` constructor, then keeps the resulting document. Other entry points remain available through
-`Sevgi`, for example `Sevgi.Paper(...)`. You can also write `Sevgi.SVG(...)`; it builds the same document as `SVG(...)`.
+The equivalent script can write `Canvas(...)` without the `SVG.` receiver. The resulting object is still an
+`SVG::Canvas`. Output is an ownership choice: scripts commonly call `Save` or `Out`, while applications commonly keep
+the document and call `Render` when their storage or response layer needs a String.
+
+## Where names live
+
+| Role | `.sevgi` script | Ruby library |
+| --- | --- | --- |
+| Build a document | `SVG(...)` | `SVG(...)` |
+| SVG operation | `Canvas(...)`, `Paper(...)`, `Derender(...)` | `SVG.Canvas(...)`, `SVG.Paper(...)`, `SVG.Derender(...)` |
+| SVG type or namespace | `SVG::Canvas`, `SVG::Module` | `SVG::Canvas`, `SVG::Module` |
+| Execute trusted Sevgi source | managed by the runner | `Sevgi.execute`, `Sevgi.execute_file` |
+
+A dot followed by a capitalized word denotes a facade operation. Double colons denote a Ruby constant, type, or
+namespace. `SVG.Canvas(...)` therefore creates a value whose type is `SVG::Canvas`. The document builder remains the
+global `SVG(...)` method; there is no `SVG.SVG(...)` spelling.
+
+The full `Sevgi` namespace also owns the promoted operations used by inclusion and script execution, so forms such as
+`Sevgi.Canvas(...)` exist. Prefer the `SVG` facade for ordinary library work in the SVG domain. Process-level operations
+such as `Sevgi.execute` deliberately stay on `Sevgi`.
 
 Library mode fits code that returns SVG in an HTTP response, compares it in a test, or writes it through an existing
 storage layer. [Library Mode](@/library-mode.md) explains the namespace choices.
@@ -49,4 +69,5 @@ storage layer. [Library Mode](@/library-mode.md) explains the namespace choices.
 
 Usually no. Repeating every example obscures the idea being taught. This site labels context in the DSL catalog and
 uses paired examples only where the forms behave differently, such as document construction, loading, and output.
-Inside an `SVG` block, both modes use the same drawing words. Qualification only changes how Ruby finds the entry point.
+Inside an `SVG` block, both hosts use the same drawing words. Qualification only changes how Ruby finds operations
+outside that block.
