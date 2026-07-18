@@ -7,6 +7,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Added
 
+- Added exact, subtree-wide attribute omission to Derender content/file conversion, evaluation, and inclusion APIs;
+  `igves --omit` exposes the same behavior from the command line.
 - Added `Sevgi.SVG` as the explicit namespaced form of the top-level SVG document entrypoint.
 - Added the opt-in recursive `SVG::Modules` contract for callable drawing namespaces.
 - Added callable drawing-module `base` blocks, document and paper registry introspection, Canvas structural equality,

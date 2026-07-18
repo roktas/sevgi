@@ -19,12 +19,15 @@ require "sevgi/derender"
 ```ruby
 source = "<svg><rect width=\"3\" height=\"5\"/></svg>"
 Sevgi::Derender.derender(source)
+
+source = '<svg><rect id="mark" style="fill: red" width="3"/></svg>'
+Sevgi::Derender.derender(source, omit: %i[id style])
 ```
 
 ## Executable
 
 ```sh
-igves drawing.svg
+igves --omit id --omit style drawing.svg
 ```
 
 ## Ruby compatibility

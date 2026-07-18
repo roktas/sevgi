@@ -15,15 +15,15 @@ module Sevgi
 
       ::Sevgi::Derender.stub(
         :decompile,
-        -> (content, id:) {
-          calls << [content, id]
+        -> (content, id:, omit:) {
+          calls << [content, id, omit]
           node
         }
       ) do
-        assert_same(node, receiver.Decompile("<svg/>", id: "Root"))
+        assert_same(node, receiver.Decompile("<svg/>", id: "Root", omit: :style))
       end
 
-      assert_equal([["<svg/>", "Root"]], calls)
+      assert_equal([["<svg/>", "Root", :style]], calls)
     end
 
     def test_decompile_file_delegates_to_file_api
@@ -32,15 +32,15 @@ module Sevgi
 
       ::Sevgi::Derender.stub(
         :decompile_file,
-        -> (file, id:) {
-          calls << [file, id]
+        -> (file, id:, omit:) {
+          calls << [file, id, omit]
           node
         }
       ) do
-        assert_same(node, receiver.DecompileFile("drawing", id: "Root"))
+        assert_same(node, receiver.DecompileFile("drawing", id: "Root", omit: %i[id style]))
       end
 
-      assert_equal([%w[drawing Root]], calls)
+      assert_equal([["drawing", "Root", %i[id style]]], calls)
     end
 
     def test_derender_delegates_to_content_api
@@ -48,15 +48,15 @@ module Sevgi
 
       ::Sevgi::Derender.stub(
         :derender,
-        -> (content, id:) {
-          calls << [content, id]
+        -> (content, id:, omit:) {
+          calls << [content, id, omit]
           "SVG"
         }
       ) do
-        assert_equal("SVG", receiver.Derender("<svg/>", id: "Root"))
+        assert_equal("SVG", receiver.Derender("<svg/>", id: "Root", omit: "style"))
       end
 
-      assert_equal([["<svg/>", "Root"]], calls)
+      assert_equal([["<svg/>", "Root", "style"]], calls)
     end
 
     def test_derender_file_delegates_to_file_api
@@ -64,15 +64,15 @@ module Sevgi
 
       ::Sevgi::Derender.stub(
         :derender_file,
-        -> (file, id:) {
-          calls << [file, id]
+        -> (file, id:, omit:) {
+          calls << [file, id, omit]
           "SVG"
         }
       ) do
-        assert_equal("SVG", receiver.DerenderFile("drawing", id: "Root"))
+        assert_equal("SVG", receiver.DerenderFile("drawing", id: "Root", omit: %w[id style]))
       end
 
-      assert_equal([%w[drawing Root]], calls)
+      assert_equal([["drawing", "Root", %w[id style]]], calls)
     end
 
     def test_evaluate_delegates_to_content_api
@@ -82,15 +82,15 @@ module Sevgi
 
       ::Sevgi::Derender.stub(
         :evaluate,
-        -> (content, target, id:) {
-          calls << [content, target, id]
+        -> (content, target, id:, omit:) {
+          calls << [content, target, id, omit]
           result
         }
       ) do
-        assert_same(result, receiver.Evaluate("<svg/>", element, id: "Root"))
+        assert_same(result, receiver.Evaluate("<svg/>", element, id: "Root", omit: :style))
       end
 
-      assert_equal([["<svg/>", element, "Root"]], calls)
+      assert_equal([["<svg/>", element, "Root", :style]], calls)
     end
 
     def test_evaluate_file_delegates_to_file_api
@@ -100,15 +100,15 @@ module Sevgi
 
       ::Sevgi::Derender.stub(
         :evaluate_file,
-        -> (file, target, id:) {
-          calls << [file, target, id]
+        -> (file, target, id:, omit:) {
+          calls << [file, target, id, omit]
           result
         }
       ) do
-        assert_same(result, receiver.EvaluateFile("drawing", element, id: "Root"))
+        assert_same(result, receiver.EvaluateFile("drawing", element, id: "Root", omit: "style"))
       end
 
-      assert_equal([["drawing", element, "Root"]], calls)
+      assert_equal([["drawing", element, "Root", "style"]], calls)
     end
 
     def test_evaluate_children_delegates_to_content_api
@@ -118,15 +118,15 @@ module Sevgi
 
       ::Sevgi::Derender.stub(
         :evaluate_children,
-        -> (content, target, id:) {
-          calls << [content, target, id]
+        -> (content, target, id:, omit:) {
+          calls << [content, target, id, omit]
           children
         }
       ) do
-        assert_same(children, receiver.EvaluateChildren("<svg/>", element, id: "Root"))
+        assert_same(children, receiver.EvaluateChildren("<svg/>", element, id: "Root", omit: %i[id style]))
       end
 
-      assert_equal([["<svg/>", element, "Root"]], calls)
+      assert_equal([["<svg/>", element, "Root", %i[id style]]], calls)
     end
 
     def test_evaluate_children_file_delegates
@@ -136,15 +136,15 @@ module Sevgi
 
       ::Sevgi::Derender.stub(
         :evaluate_children_file,
-        -> (file, target, id:) {
-          calls << [file, target, id]
+        -> (file, target, id:, omit:) {
+          calls << [file, target, id, omit]
           children
         }
       ) do
-        assert_same(children, receiver.EvaluateChildrenFile("drawing", element, id: "Root"))
+        assert_same(children, receiver.EvaluateChildrenFile("drawing", element, id: "Root", omit: [:id, "style"]))
       end
 
-      assert_equal([["drawing", element, "Root"]], calls)
+      assert_equal([["drawing", element, "Root", [:id, "style"]]], calls)
     end
 
     def test_derender_source_treats_ruby_names_as_elements

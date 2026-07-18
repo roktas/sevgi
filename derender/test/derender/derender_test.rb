@@ -76,6 +76,71 @@ module Sevgi
         end
       end
 
+      def test_conversions_omit_attributes_from_selected_tree
+        svg = <<~SVG
+          <svg>
+            <g id="mark" class="kept" style="fill: red">
+              <rect id="child" style="stroke: blue" width="2"/>
+              <style>.kept { opacity: 1; }</style>
+            </g>
+          </svg>
+        SVG
+          .chomp
+
+        node = Derender.decompile(svg, id: "mark", omit: [:id, "style"])
+
+        assert_equal({"class" => "kept"}, node.attributes)
+        assert_equal({"width" => "2"}, node.children.first.attributes)
+        assert_equal("style", node.children.last.name)
+        assert_nil(node.find("child"))
+
+        source = Derender.derender(svg, id: "mark", omit: %i[id style])
+
+        refute_includes(source, "id:")
+        refute_includes(source, "style:")
+        assert_includes(source, "css({")
+
+        evaluated = Derender.evaluate(svg, SVG(:minimal), id: "mark", omit: "style")
+
+        assert_equal("mark", evaluated[:id])
+        assert_nil(evaluated[:style])
+        assert_equal("child", evaluated.children.first[:id])
+        assert_nil(evaluated.children.first[:style])
+        assert_equal(:style, evaluated.children.last.name)
+      end
+
+      def test_file_conversions_accept_omit
+        svg = "<svg><g id=\"mark\" style=\"fill: red\"><rect id=\"child\" style=\"stroke: blue\"/></g></svg>"
+
+        Dir.mktmpdir do |dir|
+          file = ::File.join(dir, "source.svg")
+          ::File.write(file, svg)
+
+          node = Derender.decompile_file(file, id: "mark", omit: :id)
+          source = Derender.derender_file(file, id: "mark", omit: %w[id style])
+          element = Derender.evaluate_file(file, SVG(:minimal), id: "mark", omit: :style)
+          children = Derender.evaluate_children_file(file, SVG(:minimal), id: "mark", omit: [:id, "style"])
+
+          refute_includes(node.attributes, "id")
+          refute_includes(source, "id:")
+          refute_includes(source, "style:")
+          assert_nil(element[:style])
+          assert_nil(children.first[:id])
+          assert_nil(children.first[:style])
+        end
+      end
+
+      def test_omit_matches_qualified_attributes_exactly
+        svg = "<svg xmlns:xlink=\"http://www.w3.org/1999/xlink\"><use href=\"#plain\" xlink:href=\"#qualified\"/></svg>"
+
+        local = Derender.decompile(svg, omit: :href)
+        qualified = Derender.decompile(svg, omit: "xlink:href")
+
+        assert_equal({"xlink:href" => "#qualified"}, local.children.first.attributes)
+        assert_equal({"href" => "#plain"}, qualified.children.first.attributes)
+        assert_equal({"xmlns:xlink" => "http://www.w3.org/1999/xlink"}, qualified.namespaces)
+      end
+
       def test_evaluate_renders_selected_node_in_document
         expected = svg = <<~SVG
           <g id="xxx">

@@ -48,6 +48,19 @@ module Sevgi
         end
       end
 
+      def test_executable_omits_repeated_attributes
+        Dir.mktmpdir do |dir|
+          file = ::File.join(dir, "drawing.svg")
+          ::File.write(file, "<svg id=\"root\" style=\"fill: red\" width=\"10\"/>")
+
+          out, err, status = run_igves("--omit", "id", "--omit", "style", file)
+
+          assert_predicate(status, :success?)
+          assert_equal("SVG width: 10\n", out)
+          assert_empty(err)
+        end
+      end
+
       def test_executable_rejects_extra_operands
         out, err, status = run_igves("first.svg", "second.svg")
 

@@ -32,8 +32,22 @@ Use `DerenderFile` when the source already lives on disk:
 source = DerenderFile "badge.svg", id: "mark"
 ```
 
-The optional id selects one subtree. Without it, the document root is used. The companion `igves` command prints a
-file conversion from the shell.
+The optional id selects one subtree. Without it, the document root is used. Pass one attribute name or an array to
+`omit` when editor metadata should not survive the conversion:
+
+```ruby
+source = DerenderFile "badge.svg", id: "mark", omit: %i[id style]
+```
+
+Attribute names may be strings or symbols and match exactly across the selected subtree. Selection happens before
+omission, so an id may select a node without appearing in the result. Namespace declarations and `style` elements are
+preserved when attributes are omitted.
+
+The companion `igves` command prints a file conversion from the shell and accepts a repeatable option:
+
+```text
+igves --omit id --omit style badge.svg
+```
 
 ## Inspect {#inspect}
 
@@ -64,9 +78,15 @@ Evaluate '<circle id="mark" r="4"/>', drawing, id: "mark"
 drawing.Render
 ```
 
-Use `EvaluateFile` or `EvaluateChildrenFile` for file input. Inside an `SVG` block, the established `Include` and
-`IncludeChildren` drawing words remain convenient file-oriented forms because their target is already the current
-element.
+Use `EvaluateFile` or `EvaluateChildrenFile` for file input. All conversion and evaluation forms accept `omit`. Inside
+an `SVG` block, the established `Include` and `IncludeChildren` drawing words remain convenient file-oriented forms
+because their target is already the current element:
+
+```ruby
+SVG do
+  Include "badge.svg", "mark", omit: %i[id style]
+end
+```
 
 Library code has the same matrix under `Sevgi::Derender`: `decompile`, `derender`, `evaluate`, and
 `evaluate_children` accept content; their `_file` counterparts accept paths.

@@ -37,13 +37,18 @@ module Sevgi
       def capture_children
         @children = node
           .children
-          .map { self.class.send(:new, it, top: false) }
+          .map { self.class.send(:new, it, omit: @omit, top: false) }
           .reject { ignorable_child?(it) }
           .freeze
       end
 
       def capture_values
-        @attributes = snapshot(node.attribute_nodes.to_h { [attribute_key(it), it.value] })
+        @attributes = snapshot(
+          node.attribute_nodes.filter_map do |attribute|
+            key = attribute_key(attribute)
+            [key, attribute.value] unless @omit.key?(key)
+          end
+        )
         @meta = snapshot(attributes.filter_map { |key, value| metadata(key, value) })
       end
 
@@ -69,8 +74,8 @@ module Sevgi
 
     # Immutable conversion result for one SVG/XML node.
     #
-    # Attributes, namespaces, content, and descendants are owned snapshots;
-    # parser objects and dispatch strategies remain internal to Derender.
+    # Attributes, namespaces, content, and descendants are owned snapshots; parser objects and dispatch strategies
+    # remain internal to Derender. Attributes omitted during decompilation are absent throughout the captured subtree.
     class Node
       include Capture
 
@@ -102,11 +107,13 @@ module Sevgi
       # @param node [Nokogiri::XML::Node] source XML node
       # @param pres [Array<String>] preamble XML lines carried by the root node
       # @param namespaces [Hash{String => String}, nil] namespace declarations to emit on this node
+      # @param omit [Hash{String => Boolean}, nil] normalized attribute omission set shared by the captured subtree
       # @param top [Boolean] true when this node is the root of the current conversion
       # @return [void]
       # @api private
-      def initialize(node, pres = [], namespaces: nil, top: true)
+      def initialize(node, pres = [], namespaces: nil, omit: nil, top: true)
         @node = node
+        @omit = omit || {}.freeze
         @top = top
         capture_context(pres, namespaces)
         capture_values
@@ -143,6 +150,7 @@ module Sevgi
       # @param arg [String] attribute value to find
       # @param by [String] attribute name used for lookup
       # @return [Sevgi::Derender::Node, nil] matching immutable node, or nil
+      # @note Attributes omitted during decompilation are unavailable for later searches.
       def find(arg, by: "id")
         return self if attributes[by] == arg
 

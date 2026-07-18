@@ -93,6 +93,10 @@ module Sevgi
         ].to_h { [it, %w[String Symbol]] }
       )
       .freeze
+    DERENDER_OMIT_CONTRACTS = DERENDER_ID_CONTRACTS
+      .keys
+      .to_h { [it, ["String", "Symbol", "Array<String, Symbol>", "nil"]] }
+      .freeze
     SEMANTICS = {
       "Sevgi::Derender.decompile_file" => {
         raises: ["Sevgi::ArgumentError", "SystemCallError"]
@@ -398,6 +402,14 @@ module Sevgi
         id = yard(path).tags(:param).find { it.name == "id" }
 
         assert_equal(expected, id&.types, path)
+      end
+    end
+
+    def test_derender_omit_contracts_are_consistent
+      DERENDER_OMIT_CONTRACTS.each do |path, expected|
+        omit = yard(path).tags(:param).find { it.name == "omit" }
+
+        assert_equal(expected, omit&.types, path)
       end
     end
 

@@ -17,9 +17,19 @@ module Sevgi
       # Error raised for invalid command-line usage.
       Error = Class.new(::Sevgi::Error)
 
+      FLAGS = {
+        "--exception" => :vomit,
+        "--help" => :help,
+        "--version" => :version,
+        "-h" => :help,
+        "-v" => :version,
+        "-x" => :vomit
+      }.freeze
+      private_constant :FLAGS
+
       # Parsed command-line options for the `igves` executable.
       # @api private
-      Options = Struct.new(:vomit, :help, :version) do
+      Options = Struct.new(:vomit, :help, :version, :omit) do
         # Parses command-line options and removes them from the argv array.
         # @param argv [Array<String>] mutable command-line argument array
         # @return [Sevgi::Binaries::Igves::Options] parsed options
@@ -42,16 +52,11 @@ module Sevgi
           private
 
           def option(argv, options)
-            case (arg = argv.shift)
-            when "-x", "--exception"
-              options.vomit = true
-            when "-h", "--help"
-              options.help = true
-            when "-v", "--version"
-              options.version = true
-            else
-              Error.("Not a valid option: #{arg}")
-            end
+            arg = argv.shift
+            return options[FLAGS[arg]] = true if FLAGS.key?(arg)
+            return (options.omit ||= []) << (argv.shift || Error.("No attribute given for --omit")) if arg == "--omit"
+
+            Error.("Not a valid option: #{arg}")
           end
         end
       end
@@ -110,6 +115,7 @@ module Sevgi
           Options:
 
           -x, --exception       Raise exception instead of abort
+          --omit ATTRIBUTE      Omit an attribute (repeatable)
           --                    Stop option parsing
           -h, --help            Show this help
           -v, --version         Display version
@@ -123,8 +129,8 @@ module Sevgi
         file
       end
 
-      def run(file, _options)
-        Derender.derender_file(file)
+      def run(file, options)
+        Derender.derender_file(file, omit: options.omit)
       end
 
       def print_file(file, options)
