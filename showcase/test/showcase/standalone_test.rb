@@ -8,6 +8,26 @@ require_relative "../test_helper"
 module Sevgi
   module Showcase
     class StandaloneTest < Minitest::Test
+      def test_dark_support_entrypoint_loads_standalone
+        script = <<~RUBY
+          require "sevgi/showcase/dark"
+
+          dark = Sevgi::Showcase.const_get(:Dark, false)
+
+          begin
+            dark.apply("fill: 'black'", {"yellow" => "purple"})
+          rescue => error
+            puts "\#{error.class}:\#{error.message}"
+          end
+        RUBY
+
+        out, err, status = Open3.capture3(RbConfig.ruby, *load_path, "-e", script)
+
+        assert_predicate(status, :success?, err)
+        assert_empty(err)
+        assert_equal("Sevgi::ArgumentError:Unapplied dark mapping(s): yellow\n", out)
+      end
+
       def test_showcase_support_is_explicit_and_standalone
         script = <<~RUBY
           require "sevgi/showcase"

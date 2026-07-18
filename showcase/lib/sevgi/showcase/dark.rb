@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "../showcase"
+
 module Sevgi
   module Showcase
     # Applies dark-theme color mappings to showcase source files.
