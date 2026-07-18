@@ -8,7 +8,7 @@ require_relative "executor/scope"
 require_relative "executor/source"
 
 module Sevgi
-  # Executes Sevgi script source inside an isolated module scope.
+  # Internal Sevgi script runtime and namespace for public execution result types.
   #
   # The executor is used by script mode and by the `Load` DSL word to preserve a
   # useful load stack while keeping DSL methods out of the caller's global object
@@ -18,10 +18,9 @@ module Sevgi
   # with a reference-counted critical section and restore the previous handler
   # after the last active execution finishes.
   #
-  # @example Execute source and inspect its result
-  #   result = Sevgi::Executor.execute("6 * 7")
-  #   result.success? #=> true
-  #   result.value    #=> 42
+  # Consumers execute the full DSL through {Sevgi.execute} or {Sevgi.execute_file}, then inspect {Executor::Result},
+  # {Executor::Error}, and {Executor::CycleError}. The custom receiver and boot lifecycle is internal plumbing for the
+  # top-level API and Rake integration.
   class Executor
     private_class_method :new
     private_constant :Scope
@@ -109,6 +108,7 @@ module Sevgi
     #   unused, and the result stack is empty. Supplying `require:` uses the normal boot and evaluation lifecycle.
     # @note Reentrant and concurrent calls keep independent scope stacks per fiber. The temporary SIGINT handler remains
     #   process-global while any execution is active.
+    # @api private
     def self.execute(string, file: nil, line: nil, require: nil, receiver: nil, &block)
       validate_source!(string, file, line)
       validate_context!(require, receiver)
@@ -131,6 +131,7 @@ module Sevgi
     #   unused, and the result stack is empty. Supplying `require:` uses the normal boot and evaluation lifecycle.
     # @note Reentrant and concurrent calls keep independent scope stacks per fiber. The temporary SIGINT handler remains
     #   process-global while any execution is active.
+    # @api private
     def self.execute_file(file, require: nil, receiver: nil, &block)
       ArgumentError.("Executor file must be a String") unless file.is_a?(::String)
       validate_context!(require, receiver)
@@ -144,6 +145,8 @@ module Sevgi
 
       execute_source(source, require:, receiver:, &block)
     end
+
+    private_class_method :execute, :execute_file
 
     class << self
       private

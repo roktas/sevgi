@@ -268,7 +268,7 @@ module Sevgi
     }.freeze
     WORKFLOW_EXAMPLES = %w[
       Sevgi::Derender
-      Sevgi::Executor
+      Sevgi.execute
       Sevgi::Geometry
       Sevgi::Graphics
       Sevgi::Standard

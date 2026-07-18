@@ -24,9 +24,8 @@ module Sevgi
   #   default by installing Sevgi through main before evaluating source in the managed script scope.
   # @note Empty source without `require:` is a strict no-op; the DSL boot block is unused.
   # @note Reentrant and concurrent calls keep independent executor scope stacks per fiber.
-  # @see Sevgi::Executor.execute
   def self.execute(string, file: nil, line: nil, require: nil, main: false)
-    Executor.execute(string, file:, line:, require:, receiver: execution_receiver(main), &BootBlock)
+    Executor.__send__(:execute, string, file:, line:, require:, receiver: execution_receiver(main), &BootBlock)
   end
 
   # Executes a Sevgi script file with the full top-level DSL installed.
@@ -40,9 +39,8 @@ module Sevgi
   #   default by installing Sevgi through main before evaluating source in the managed script scope.
   # @note An empty file without `require:` is a strict no-op; the DSL boot block is unused.
   # @note Reentrant and concurrent calls keep independent executor scope stacks per fiber.
-  # @see Sevgi::Executor.execute_file
   def self.execute_file(file, require: nil, main: false)
-    Executor.execute_file(file, require:, receiver: execution_receiver(main), &BootBlock)
+    Executor.__send__(:execute_file, file, require:, receiver: execution_receiver(main), &BootBlock)
   end
 
   def self.execution_receiver(main)

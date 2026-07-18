@@ -10,18 +10,18 @@ module Sevgi
     # order; it is never shared with the executor's internal mutable state.
     #
     # @example Inspect successful execution
-    #   result = Sevgi::Executor.execute("6 * 7")
+    #   result = Sevgi.execute("6 * 7")
     #   result.success? #=> true
     #   result.value    #=> 42
     #
     # @example Inspect a captured failure
-    #   result = Sevgi::Executor.execute("missing", file: "drawing.sevgi")
+    #   result = Sevgi.execute("missing", file: "drawing.sevgi")
     #   result.error?       #=> true
     #   result.error.cause  #=> #<NameError ...>
     #   result.stack        #=> ["drawing.sevgi"]
     #
-    # @see Executor.execute
-    # @see Executor.execute_file
+    # @see Sevgi.execute
+    # @see Sevgi.execute_file
     Result = Data.define(:value, :error, :stack) do
       # @!attribute [r] value
       #   @return [Object, nil] last value produced, or nil when no value was produced
