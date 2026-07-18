@@ -21,6 +21,8 @@ module Sevgi
   # Consumers execute the full DSL through {Sevgi.execute} or {Sevgi.execute_file}, then inspect {Executor::Result},
   # {Executor::Error}, and {Executor::CycleError}. The custom receiver and boot lifecycle is internal plumbing for the
   # top-level API and Rake integration.
+  #
+  # @see https://sevgi.roktas.dev/execution/ Execution guide
   class Executor
     private_class_method :new
     private_constant :Scope

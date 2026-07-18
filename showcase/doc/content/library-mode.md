@@ -7,6 +7,8 @@ group = "Start"
 
 `require "sevgi"` loads the toolkit and adds one global entry point: `SVG(...)`. Library code can start a document with
 the same word used in a `.sevgi` script, but it does not pull every Sevgi helper into the application's method scope.
+Use the [Execution](@/execution.md) API when library code needs to run a complete trusted `.sevgi` program rather than
+construct a document directly.
 
 ## Build and compose
 

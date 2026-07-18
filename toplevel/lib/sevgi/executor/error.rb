@@ -3,11 +3,13 @@
 module Sevgi
   class Executor
     # Raised when a source attempts to load another source already active in the same scope.
+    # @see https://sevgi.roktas.dev/execution/ Execution guide
     class CycleError < ::Sevgi::Error
     end
 
     # Wraps an exception raised while executing Sevgi script source. Its visited source snapshot records every source in
     # load order; it is not the active load stack at the instant of failure.
+    # @see https://sevgi.roktas.dev/execution/ Execution guide
     class Error < ::Sevgi::Error
       # Builds an executor error wrapper.
       # @param error [Exception] original exception

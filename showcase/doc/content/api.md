@@ -10,6 +10,7 @@ Sevgi is released as a set of focused gems. Open the reference for the component
 ## Entry point
 
 - [`sevgi`](https://www.rubydoc.info/gems/sevgi) — top-level constructors, script execution, and the complete toolkit.
+- [Execution](@/execution.md) — embedding trusted Sevgi source and inspecting results and diagnostics.
 
 ## SVG
 

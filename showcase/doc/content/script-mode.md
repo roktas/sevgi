@@ -8,6 +8,8 @@ group = "Start"
 A `.sevgi` file is ordinary Ruby run by the `sevgi` command. Before evaluating the file, the runner installs Sevgi's DSL
 words in the script's top-level scope.
 
+Applications embedding the same runner should use the result-oriented [Execution](@/execution.md) API.
+
 ## Script shape
 
 A typical script has:
