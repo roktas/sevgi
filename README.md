@@ -37,6 +37,31 @@ double-colon names such as `SVG::Canvas`. Executable `.sevgi` scripts promote th
 Sevgi also runs executable `.sevgi` drawing scripts. See [Getting Started](https://sevgi.roktas.dev/getting-started/)
 for installation details and [Showcase](https://sevgi.roktas.dev/showcase/) for complete examples with rendered output.
 
+## Choose a package
+
+`sevgi` is the umbrella gem. It installs the script runner, the `SVG` facade, and all runtime component gems. This is
+the simplest choice for applications and drawing scripts:
+
+```sh
+gem install sevgi
+```
+
+The components are also published as separate gems for libraries that need a smaller dependency surface:
+
+| Scenario | Install | Ruby entry point |
+| --- | --- | --- |
+| Build and render SVG only | `sevgi-graphics` | `require "sevgi/graphics"` |
+| Build and validate SVG without the full toolkit | `sevgi-graphics sevgi-standard` | `require "sevgi/graphics"` |
+| Use geometry values and transformations without the DSL | `sevgi-geometry` | `require "sevgi/geometry"` |
+| Convert SVG or XML back into Sevgi source | `sevgi-derender` | `require "sevgi/derender"` |
+| Use grids, rulers, tiles, or export integrations | `sevgi-sundries` | `require "sevgi/sundries"` |
+
+For example, a service that only builds SVG can install `sevgi-graphics`. Its focused API is
+`Sevgi::Graphics.SVG(...)`; the full `SVG` facade and the `sevgi` executable belong to the umbrella gem. Add
+`sevgi-standard` when that focused service should validate element and attribute names. Shared support gems such as
+`sevgi-function` are installed transitively by the components that need them. Native PDF and PNG export gems remain
+optional when using `sevgi-sundries`.
+
 ## Requirements
 
 Sevgi requires Ruby 3.4 or newer. SVG output has no native graphics dependencies; PDF and PNG export use optional

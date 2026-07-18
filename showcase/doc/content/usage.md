@@ -5,9 +5,15 @@ weight = 2
 group = "Start"
 +++
 
-Sevgi does not split its drawing vocabulary into a script API and a library API. Both hosts build the same document
-objects and use the same words. A script promotes capitalized operations into its managed scope; library code calls
-those operations through the `SVG` facade.
+A Sevgi drawing can be a complete executable program or a value produced inside another Ruby application:
+
+- In **script mode**, a `.sevgi` file is the program. The runner supplies Sevgi's entry points and the script usually
+  writes or prints its result.
+- In **library mode**, an application requires Sevgi, builds a document, and decides when and where to use the rendered
+  SVG string.
+
+The `SVG` drawing block is identical in both modes. Operations around that block are bare words in a script and
+capitalized methods on the `SVG` facade in library code.
 
 ## Script mode
 
@@ -16,9 +22,11 @@ A script gets the top-level DSL automatically and can be run directly:
 ```ruby
 #!/usr/bin/env -S ruby -S sevgi
 
-SVG :minimal do
+canvas = Canvas width: 24, height: 24, unit: :px
+
+SVG :minimal, canvas do
   circle cx: 12, cy: 12, r: 10, fill: "tomato"
-end.Save
+end.Save "badge.svg"
 ```
 
 Scripts work well for generated assets, plotter input, and build jobs. [Script Mode](@/script-mode.md) covers the
@@ -38,12 +46,12 @@ drawing = SVG :minimal, canvas do
   circle cx: 12, cy: 12, r: 10, fill: "tomato"
 end
 
-File.write("badge.svg", drawing.Render)
+File.write "badge.svg", drawing.Render
 ```
 
-The equivalent script can write `Canvas(...)` without the `SVG.` receiver. The resulting object is still an
-`SVG::Canvas`. Output is an ownership choice: scripts commonly call `Save` or `Out`, while applications commonly keep
-the document and call `Render` when their storage or response layer needs a String.
+The drawing geometry is unchanged. The script calls `Canvas(...)` because the runner promotes that operation into its
+scope; the application calls the same operation as `SVG.Canvas(...)`. Both return an `SVG::Canvas`. The script hands
+the document to `Save`, while the application keeps the document and writes its `Render` result through ordinary Ruby.
 
 ## Where names live
 
@@ -65,9 +73,9 @@ such as `Sevgi.execute` deliberately stay on `Sevgi`.
 Library mode fits code that returns SVG in an HTTP response, compares it in a test, or writes it through an existing
 storage layer. [Library Mode](@/library-mode.md) explains the namespace choices.
 
-## Do examples need both forms?
+## Choose a mode
 
-Usually no. Repeating every example obscures the idea being taught. This site labels context in the DSL catalog and
-uses paired examples only where the forms behave differently, such as document construction, loading, and output.
-Inside an `SVG` block, both hosts use the same drawing words. Qualification only changes how Ruby finds operations
-outside that block.
+Use script mode when the drawing itself is the program, such as a generated asset, plotting job, or build step. Use
+library mode when an application owns the lifecycle, such as an HTTP response, test fixture, database value, or larger
+rendering pipeline. Library code that must run a complete trusted `.sevgi` program can use `Sevgi.execute` or
+`Sevgi.execute_file` instead of rebuilding the runner.
