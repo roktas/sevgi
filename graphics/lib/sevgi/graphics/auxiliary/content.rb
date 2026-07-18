@@ -9,6 +9,14 @@ module Sevgi
     # invalidate the construction-time XML checks.
     #
     # @abstract Subclasses implement {#render} and expose their own construction API.
+    # @example Choose a built-in content channel
+    #   Sevgi::Graphics.SVG(:minimal) do
+    #     text "A & B" # ordinary String arguments are encoded automatically
+    #     text Sevgi::Graphics::Content.encoded("A & B")
+    #     style Sevgi::Graphics::Content.cdata(".note { fill: red; }")
+    #     style Sevgi::Graphics::Content.css(".note" => {fill: "red"})
+    #     g Sevgi::Graphics::Content.verbatim("<title>trusted markup</title>")
+    #   end
     # @example Define custom content that emits an SVG tspan
     #   class Emphasis < Sevgi::Graphics::Content
     #     def self.[](content) = send(:new, content)
@@ -20,6 +28,8 @@ module Sevgi
     #   end
     #
     #   Sevgi::Graphics.SVG(:minimal) { text Emphasis["important & safe"] }.Render
+    #
+    #   # The renderer ignores Emphasis#render's return value. Custom content must escape inserted data itself.
     # @see https://sevgi.roktas.dev/svg/#content-safety Content safety guide
     class Content
       private_class_method :new

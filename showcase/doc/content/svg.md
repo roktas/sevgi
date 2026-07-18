@@ -70,6 +70,35 @@ SVG :minimal do
 end.Render
 ```
 
+## Content safety {#content-safety}
+
+Ordinary String arguments are XML text-encoded automatically. Use a `Content` constructor only when content needs a
+different serialization channel.
+
+| Input | Use | Safety contract |
+| --- | --- | --- |
+| Ordinary text argument | `text "A & B"` | encoded automatically |
+| Explicit reusable text content | `Content.encoded` | XML text-encoded |
+| Literal text body in a CDATA section | `Content.cdata` | CDATA terminators split safely |
+| CSS rules expressed as a Hash | `Content.css` | rendered as CSS inside CDATA |
+| Already serialized trusted markup | `Content.verbatim` | deliberately unescaped; caller owns well-formedness and escaping |
+
+```ruby
+drawing = SVG :minimal do
+  text "A & B"
+  text Sevgi::Graphics::Content.encoded("A & B")
+  style Sevgi::Graphics::Content.cdata(".note { fill: red; }")
+  style Sevgi::Graphics::Content.css(".note" => {fill: "red"})
+  g Sevgi::Graphics::Content.verbatim("<title>trusted markup</title>")
+end
+
+drawing.Render
+```
+
+Advanced consumers may subclass `Sevgi::Graphics::Content` and implement `render(output, depth)`. The rendering engine
+ignores the method's return value. A custom implementation must escape any data it inserts into markup; use
+`Content.encoded(...).to_s` rather than interpolating caller text directly.
+
 ## Validation lifecycle
 
 `Render`, `Save`, and `Out` prepare a document before writing it. Call `PreRender(validate: true, lint: true)` to run
