@@ -21,7 +21,7 @@ module Sevgi
         # @raise [Sevgi::ArgumentError] when a translation is not a finite real number
         # @raise [Sevgi::ArgumentError] when copied attributes or contents contain cyclic payloads
         # @example Remap source ids on a duplicate
-        #   source = SVG { rect id: "shape" }.children.first
+        #   source = Sevgi::Graphics.SVG { rect id: "shape" }.children.first
         #   copy = source.Duplicate do |node|
         #     node[:id] = "#{node[:"-id"]}-copy" if node[:"-id"]
         #   end

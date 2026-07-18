@@ -42,8 +42,8 @@ module Sevgi
     #   Returns the closed path perimeter.
     #   @return [Float]
     # @example Pair mathematical notation with English conveniences
-    #   Triangle[[2, 0], [2, 90]] == Triangle.from_segments([2, 0], [2, 90])
-    #   Triangle.([0, 0], [2, 0], [2, 2]) == Triangle.from_points([0, 0], [2, 0], [2, 2])
+    #   Sevgi::Geometry::Triangle[[2, 0], [2, 90]] == Sevgi::Geometry::Triangle.from_segments([2, 0], [2, 90])
+    #   Sevgi::Geometry::Triangle.([0, 0], [2, 0], [2, 2]) == Sevgi::Geometry::Triangle.from_points([0, 0], [2, 0], [2, 2])
     # @example Use named vertices and sides
     #   triangle = Sevgi::Geometry::Triangle.([0, 0], [3, 0], [3, 4])
     #   triangle.C.deconstruct # => [3.0, 4.0]

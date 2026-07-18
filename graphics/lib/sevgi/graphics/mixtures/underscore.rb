@@ -35,7 +35,7 @@ module Sevgi
         # Derender.
         # @return [Hash] merged context
         # @example Inherit drawing context without rendering it
-        #   SVG "-context": {tone: "tomato"} do
+        #   Sevgi::Graphics.SVG "-context": {tone: "tomato"} do
         #     rect fill: Ancestral()[:tone]
         #   end
         def Ancestral

@@ -35,9 +35,9 @@ module Sevgi
     #   @return [Float]
     # @example Pair point notation with its English convenience
     #   points = [[0, 0], [2, 0], [1, 1]]
-    #   segments = Polygon.(*points).segments
-    #   Polygon[*segments] == Polygon.from_segments(*segments)
-    #   Polygon.(*points) == Polygon.from_points(*points)
+    #   segments = Sevgi::Geometry::Polygon.(*points).segments
+    #   Sevgi::Geometry::Polygon[*segments] == Sevgi::Geometry::Polygon.from_segments(*segments)
+    #   Sevgi::Geometry::Polygon.(*points) == Sevgi::Geometry::Polygon.from_points(*points)
     # @example Classify points against a closed boundary
     #   polygon = Sevgi::Geometry::Polygon.([0, 0], [6, 0], [3, 4])
     #   polygon.inside?([3, 2]) # => true

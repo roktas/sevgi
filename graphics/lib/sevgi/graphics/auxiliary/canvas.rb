@@ -125,7 +125,8 @@ module Sevgi
 
       # Reports structural canvas equality by size and margins.
       # @example Compare equivalent canvas values
-      #   Canvas.from_paper(:a4, margins: [10]) == Canvas.from_paper("a4", margins: [10]) # => true
+      #   Sevgi::Graphics::Canvas.from_paper(:a4, margins: [10]) ==
+      #     Sevgi::Graphics::Canvas.from_paper("a4", margins: [10]) # => true
       # @param other [Object] object to compare
       # @return [Boolean]
       def eql?(other) = self.class == other.class && size.eql?(other.size) && margin.eql?(other.margin)

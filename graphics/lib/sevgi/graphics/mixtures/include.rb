@@ -9,7 +9,7 @@ module Sevgi
       #   Includes a derendered node matching an id.
       #   SVG/XML content is treated as data and is not evaluated as Ruby source.
       #   @example Import a fragment without editor ids and inline styles
-      #     SVG do
+      #     Sevgi::Graphics.SVG do
       #       Include "badge.svg", "mark", omit: %i[id style]
       #     end
       #   @param file [String] source SVG/XML file

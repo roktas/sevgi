@@ -7,7 +7,7 @@ module Sevgi
       #
       # Transform calls are appended in call order and return the element, so they can be composed.
       # @example Compose transforms on one element
-      #   SVG(:minimal) do
+      #   Sevgi::Graphics.SVG(:minimal) do
       #     rect(width: 8, height: 4).Translate(12, 6).Rotate(15, 4, 2)
       #   end
       module Transform

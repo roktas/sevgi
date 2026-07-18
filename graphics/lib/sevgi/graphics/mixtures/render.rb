@@ -380,7 +380,7 @@ module Sevgi
         # Child render output omits document preambles and preserves each child's text whitespace and inline
         # mixed-content formatting.
         # @example Render child fragments with block-style attributes
-        #   SVG(:minimal) { rect id: "one" }.RenderChildren(style: :block, indent: "\t")
+        #   Sevgi::Graphics.SVG(:minimal) { rect id: "one" }.RenderChildren(style: :block, indent: "\t")
         # @param separator [String] separator between child documents
         # @param options [Hash] renderer options applied to every child fragment
         # @option options [String] :indent ("  ") XML-whitespace indentation unit

@@ -127,8 +127,8 @@ module Sevgi
       # @return [Sevgi::Graphics::Document::Proto] SVG root element
       # @raise [Sevgi::ArgumentError] when the document profile or root XML attributes are invalid
       # @example Extend a configured class while inheriting its profile
-      #   Card = Class.new(Document::Minimal)
-      #   Document.(Card) { rect width: 10, height: 5 }
+      #   Card = Class.new(Sevgi::Graphics::Document::Minimal)
+      #   Sevgi::Graphics::Document.(Card) { rect width: 10, height: 5 }
       def self.call(document, canvas = Undefined, **, &block)
         klass = case document
         when ::Class
@@ -160,8 +160,8 @@ module Sevgi
       # @return [Class] registered subclass of {Sevgi::Graphics::Document::Proto}
       # @raise [Sevgi::ArgumentError] when name is invalid or unknown
       # @example Look up a document class and its metadata
-      #   klass = Document.fetch(:minimal)
-      #   Document.profile(:minimal) # => klass.profile
+      #   klass = Sevgi::Graphics::Document.fetch(:minimal)
+      #   Sevgi::Graphics::Document.profile(:minimal) # => klass.profile
       def self.fetch(name)
         name = Name.normalize!(name)
         Registry[name] || ArgumentError.("Unknown document profile: #{name}")
@@ -170,7 +170,7 @@ module Sevgi
       # Reports whether a normalizable document profile name is registered.
       # Invalid converters return false and do not change the registry.
       # @example Check a built-in profile
-      #   Document.exist?(:minimal) # => true
+      #   Sevgi::Graphics::Document.exist?(:minimal) # => true
       # @param name [Object] profile name
       # @return [Boolean]
       def self.exist?(name)

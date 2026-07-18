@@ -7,7 +7,7 @@ module Sevgi
       module Wrappers
         # Builds a line path ending at an absolute point.
         # @example Render a rational coordinate as an SVG number
-        #   SVG { LineTo(x2: Rational(1, 2), y2: 1) }
+        #   Sevgi::Graphics.SVG { LineTo(x2: Rational(1, 2), y2: 1) }
         # @param x2 [Numeric] finite ending x coordinate
         # @param y2 [Numeric] finite ending y coordinate
         # @param x1 [Numeric] finite starting x coordinate

@@ -42,7 +42,7 @@ module Sevgi
       #   @return [Sevgi::Geometry::Line]
       #   @raise [Sevgi::Geometry::Error] when length, angle, or position cannot be coerced to finite geometry values
       # @example Mathematical notation and English convenience are equivalent
-      #   Line[5, 30] == Line.from_length_angle(5, 30)
+      #   Sevgi::Geometry::Line[5, 30] == Sevgi::Geometry::Line.from_length_angle(5, 30)
       def self.[](length, angle, position: Origin) = new_by_segments(Segment[length, angle], position:)
 
       # Builds a line from length and angle.
@@ -60,7 +60,7 @@ module Sevgi
       #   @return [Sevgi::Geometry::Line]
       #   @raise [Sevgi::Geometry::Error] when either point cannot be coerced
       # @example Mathematical notation and English convenience are equivalent
-      #   Line.([0, 0], [3, 4]) == Line.from_points([0, 0], [3, 4])
+      #   Sevgi::Geometry::Line.([0, 0], [3, 4]) == Sevgi::Geometry::Line.from_points([0, 0], [3, 4])
       def self.from_points(...) = call(...)
 
       private_class_method :from_segments

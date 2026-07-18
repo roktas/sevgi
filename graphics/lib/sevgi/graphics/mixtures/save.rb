@@ -57,7 +57,7 @@ module Sevgi
         # existing destination is copied immediately before replacement; unchanged saves leave both files untouched.
         # Missing parent directories are created. An existing directory target uses the default file name.
         # @example Save to a relative destination
-        #   path = SVG(:minimal).Save("build/drawing.svg")
+        #   path = Sevgi::Graphics.SVG(:minimal).Save("build/drawing.svg")
         #   path == File.expand_path("build/drawing.svg") # => true
         # @param path [String, #to_path, nil] output path or existing directory
         # @param default [String, #to_path, nil] default output path

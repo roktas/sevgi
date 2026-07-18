@@ -46,7 +46,7 @@ module Sevgi
       #   @return [Sevgi::Geometry::Rect]
       #   @raise [Sevgi::Geometry::Error] when position cannot be coerced or a dimension is negative
       # @example Mathematical notation and English convenience are equivalent
-      #   Rect[3, 4] == Rect.from_size(3, 4)
+      #   Sevgi::Geometry::Rect[3, 4] == Sevgi::Geometry::Rect.from_size(3, 4)
       def self.[](width, height, position: Origin) = construct(width, height, position:)
 
       # Constructs a rectangle for canonical size notation.
@@ -76,7 +76,7 @@ module Sevgi
       #   @return [Sevgi::Geometry::Rect]
       #   @raise [Sevgi::Geometry::Error] when either point cannot be coerced
       # @example Mathematical notation and English convenience are equivalent
-      #   Rect.([0, 0], [3, 4]) == Rect.from_corners([0, 0], [3, 4])
+      #   Sevgi::Geometry::Rect.([0, 0], [3, 4]) == Sevgi::Geometry::Rect.from_corners([0, 0], [3, 4])
       def self.call(top_left, bottom_right)
         top_left, bottom_right = Tuples[Point, top_left, bottom_right]
         left, right = [top_left.x, bottom_right.x].minmax
@@ -223,7 +223,7 @@ module Sevgi
     # Rectangle with equal width and height. Use {#width} or {#height} for its side length; inherited
     # {Element::Lined#length} returns the complete path length.
     # @example Construct the same square from opposite corners
-    #   Square.([0, 0], [5, 5]) == Square.from_corners([0, 0], [5, 5])
+    #   Sevgi::Geometry::Square.([0, 0], [5, 5]) == Sevgi::Geometry::Square.from_corners([0, 0], [5, 5])
     class Square < Rect
       # Builds a square from side length and top-left position.
       # @param length [Numeric] side length
@@ -231,7 +231,7 @@ module Sevgi
       # @return [Sevgi::Geometry::Square]
       # @raise [Sevgi::Geometry::Error] when position cannot be coerced or length is negative
       # @example Mathematical notation and English convenience are equivalent
-      #   Square[5] == Square.from_size(5)
+      #   Sevgi::Geometry::Square[5] == Sevgi::Geometry::Square.from_size(5)
       def self.[](length, position: Origin) = construct(length, length, position:)
 
       # Builds a square from two opposite corners.

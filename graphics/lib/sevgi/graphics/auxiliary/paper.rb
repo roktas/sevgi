@@ -89,8 +89,8 @@ module Sevgi
       # @return [Sevgi::Graphics::Paper] registered profile
       # @raise [Sevgi::ArgumentError] when name is invalid or no profile is registered
       # @example Look up a non-identifier profile name
-      #   Paper.define("business-card", width: 90, height: 50)
-      #   Paper.fetch("business-card")
+      #   Sevgi::Graphics::Paper.define("business-card", width: 90, height: 50)
+      #   Sevgi::Graphics::Paper.fetch("business-card")
       def self.fetch(name)
         name = normalize!(:name, name)
         @mutex.synchronize { @profiles.fetch(name) { ArgumentError.("Unknown paper profile: #{name}") } }
@@ -113,9 +113,9 @@ module Sevgi
       # @raise [Sevgi::ArgumentError] when the name, dimensions, unit, overwrite flag, or options are reserved or invalid,
       #   or a non-bang definition conflicts with the registered profile
       # @example Define or reuse a matching profile
-      #   Paper.define(:card, width: 90, height: 50)
+      #   Sevgi::Graphics::Paper.define(:card, width: 90, height: 50)
       # @example Replace a profile explicitly
-      #   Paper.define(:card, width: 100, height: 60, overwrite: true)
+      #   Sevgi::Graphics::Paper.define(:card, width: 100, height: 60, overwrite: true)
       def self.define(name, overwrite: false, **spec)
         name = normalize!(:name, name)
         ArgumentError.("Paper name is reserved: #{name}") if reserved?(name)

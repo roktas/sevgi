@@ -46,9 +46,10 @@ module Sevgi
     #   Returns the closed path perimeter.
     #   @return [Float]
     # @example Pair mathematical notation with English conveniences
-    #   Parallelogram[[2, 0], [2, -90]] == Parallelogram.from_segments([2, 0], [2, -90])
+    #   Sevgi::Geometry::Parallelogram[[2, 0], [2, -90]] ==
+    #     Sevgi::Geometry::Parallelogram.from_segments([2, 0], [2, -90])
     #   points = [[0, 0], [2, 0], [2, 2], [0, 2]]
-    #   Parallelogram.(*points) == Parallelogram.from_points(*points)
+    #   Sevgi::Geometry::Parallelogram.(*points) == Sevgi::Geometry::Parallelogram.from_points(*points)
     # @example Compare vertices with the axis-aligned bounding box
     #   shape = Sevgi::Geometry::Parallelogram.([1, 1], [5, 1], [7, 4], [3, 4])
     #   shape.C.deconstruct # => [7.0, 4.0]

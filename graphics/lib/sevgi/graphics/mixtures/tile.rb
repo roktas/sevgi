@@ -14,7 +14,7 @@ module Sevgi
         # as a group under `defs` before the uses are added.
         # @example Define and customize a tile grid
         #   customize = proc { |use, x:, y:, nx:, ny:| use[:opacity] = (x + y + 1).fdiv(nx + ny) }
-        #   SVG(:minimal) do
+        #   Sevgi::Graphics.SVG(:minimal) do
         #     Tile("dot", nx: 2, dx: 10, ny: 2, dy: 10, proc: customize) { circle r: 2 }
         #   end
         # @param id [String] referenced template id
