@@ -678,10 +678,14 @@ module Sevgi
       when :options
         object.tags(:option).to_h { [it.pair.name.delete_prefix(":"), it.pair.types || []] }
       when :raises
-        contract_sources(object).flat_map { |source| source.tags(:raise).flat_map { it.types || [] } }
+        semantic_raises(object)
       when :sees
         object.tags(:see).map(&:name)
       end
+    end
+
+    def semantic_raises(object)
+      contract_sources(object).flat_map { |source| source.tags(:raise).flat_map { it.types || [] } }
     end
 
     def visibility_error(object)
