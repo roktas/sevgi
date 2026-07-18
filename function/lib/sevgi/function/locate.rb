@@ -35,6 +35,8 @@ module Sevgi
       #   @yieldparam path [String] candidate path
       #   @yieldreturn [Boolean]
       #   @return [Sevgi::Function::Location, nil] found location, or nil
+      #   @raise [Errno::ENOENT] when the start directory does not exist
+      #   @raise [Errno::ENOTDIR] when the start path is not a directory
       def self.call(*, **, &block) = new(*, **).call(&block)
 
       # Returns the frozen owned candidate paths.
@@ -123,6 +125,8 @@ module Sevgi
     # @param extension [String] default extension added before lookup
     # @return [Sevgi::Function::Location] found location
     # @raise [Sevgi::Error] when no matching file exists
+    # @raise [Errno::ENOENT] when the start directory does not exist
+    # @raise [Errno::ENOTDIR] when the start path is not a directory
     def self.locate(filename, start, exclude: nil, extension: EXTENSION)
       Locate.(F.qualify(filename, extension), start, exclude:).tap do |path|
         Error.("Cannot load a file matching: #{filename}") unless path

@@ -109,6 +109,21 @@ module Sevgi
       "Sevgi::Executor::Error" => {
         phrases: ["visited source", "not the active load stack"]
       },
+      "Sevgi::Function::File#changed?" => {
+        raises: ["SystemCallError"]
+      },
+      "Sevgi::Function::File#out" => {
+        raises: ["SystemCallError"]
+      },
+      "Sevgi::Function::File#touch" => {
+        raises: ["SystemCallError"]
+      },
+      "Sevgi::Function::Locate.call" => {
+        raises: ["Errno::ENOENT", "Errno::ENOTDIR"]
+      },
+      "Sevgi::Function.locate" => {
+        raises: ["Sevgi::Error", "Errno::ENOENT", "Errno::ENOTDIR"]
+      },
       "Sevgi::Graphics::Mixtures::Include#Include" => {
         raises: ["Sevgi::ArgumentError", "SystemCallError", "Sevgi::MissingComponentError"]
       },
@@ -663,7 +678,7 @@ module Sevgi
       when :options
         object.tags(:option).to_h { [it.pair.name.delete_prefix(":"), it.pair.types || []] }
       when :raises
-        object.tags(:raise).flat_map { it.types || [] }
+        contract_sources(object).flat_map { |source| source.tags(:raise).flat_map { it.types || [] } }
       when :sees
         object.tags(:see).map(&:name)
       end

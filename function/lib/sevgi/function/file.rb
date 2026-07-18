@@ -13,7 +13,7 @@ module Sevgi
       # @yieldparam content [String] content to normalize
       # @yieldreturn [String]
       # @return [Boolean] true when the file is missing or content differs
-      # @raise [Errno::EACCES] when the file cannot be read
+      # @raise [SystemCallError] when the file cannot be inspected or read
       def changed?(file, content, &filter)
         return true unless ::File.exist?(file)
 
@@ -78,8 +78,7 @@ module Sevgi
       # @yieldparam content [String] old or new content
       # @yieldreturn [String]
       # @return [String, nil] expanded file path when written, otherwise nil
-      # @raise [Errno::EACCES] when the file cannot be read or written
-      # @raise [Errno::ENOENT] when the parent directory does not exist
+      # @raise [SystemCallError] when the destination cannot be inspected, read, or written
       def out(content, *paths, &filter)
         if paths.empty?
           ::Kernel.puts(content)
@@ -121,7 +120,7 @@ module Sevgi
       # Creates a file and any missing parent directories.
       # @param paths [Array<String>] path components for the file
       # @return [String] touched file path
-      # @raise [Errno::EACCES] when the file or parent directory cannot be created
+      # @raise [SystemCallError] when the file or parent directory cannot be created
       def touch(*paths)
         ::File.join(*paths).tap do |path|
           ::FileUtils.mkdir_p(::File.dirname(path))
