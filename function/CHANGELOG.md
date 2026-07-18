@@ -18,6 +18,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Changed
 
+- Breaking: removed the abstract `Document::Base` layer from the selectable document-profile registry; custom
+  profiles should derive from `Document::Minimal`.
 - Breaking: renamed Parallelogram segment and constraint arguments by geometric role: `base`, `side`, and
   `constraint` replace axis-implying constructor names.
 - Made degree-based sine and cosine exact at integer quarter turns, eliminating cardinal Geometry residue.

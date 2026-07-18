@@ -3,9 +3,11 @@
 module Sevgi
   module Graphics
     module Document
-      # Standard document profile with the full common DSL mixture set.
+      # Abstract common document layer with the profile-independent DSL mixture set. It is not registered as a
+      # selectable profile. Advanced extensions may target this class through {Sevgi::Graphics::Mixtures.mixin}; doing
+      # so changes every descendant profile process-wide. Derive scoped custom profiles from {Minimal} instead.
       class Base < Proto
-        document :base
+        document nil, register: false
 
         mixture :Call
         mixture :Duplicate

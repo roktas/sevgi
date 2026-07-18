@@ -97,13 +97,32 @@ module Sevgi
 
       def test_named_document_lookup_returns_builtin_profiles
         {
-          base: Document::Base,
           minimal: Document::Minimal,
           default: Document::Default,
           html: Document::HTML,
           inkscape: Document::Inkscape
         }.each do |name, klass|
           assert_same(klass, Graphics.document(name))
+        end
+
+        refute(Document.exist?(:base))
+        assert_nil(Document::Base.profile.name)
+        assert_equal("<svg/>", SVG(Document::Base).Render())
+        assert_raises(Sevgi::ArgumentError) { Graphics.document(:base) }
+        assert_raises(Sevgi::ArgumentError) { SVG(:base) }
+      end
+
+      def test_common_document_extensions_reach_descendant_profiles
+        common = Class.new(Document::Base)
+        minimal = Class.new(common)
+        inkscape = Class.new(common)
+
+        Graphics::Mixtures.mixin(common) do
+          define_method(:Marker) { circle(id: "marker") }
+        end
+
+        [minimal, inkscape].each do |profile|
+          assert_equal("marker", SVG(profile).Marker()[:id])
         end
       end
 
