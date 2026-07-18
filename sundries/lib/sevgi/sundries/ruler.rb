@@ -11,10 +11,9 @@ module Sevgi
     # formulas in layout code rather than as general-purpose collection names.
     #
     # @example Interval geometry
-    #   # <---------------- d = n x u ---------------->
-    #   # |---------+---------+---------+---------|
-    #   #           <--- u --->
     #   interval = Sevgi::Sundries::Interval[3, 4]
+    #   interval.u # => 3.0
+    #   interval.n # => 4
     #   interval.d # => 12.0
     # @example Query major and halfway distances
     #   interval = Sevgi::Sundries::Interval[3, 4]
@@ -162,11 +161,12 @@ module Sevgi
     # `waste` includes them and any remainder.
     #
     # @example Ruler geometry
-    #   # <-- start --><--------- d = n x sd ---------><-- finish -->
-    #   # <----- u = unit x multiple ----->
-    #   # <---------------- brut ---------------->
     #   ruler = Sevgi::Sundries::Ruler.new(unit: 1, multiple: 10, brut: 150)
-    #   ruler.d # => 150.0
+    #   ruler.su # => 1.0
+    #   ruler.sn # => 10
+    #   ruler.u  # => 10.0
+    #   ruler.n  # => 15
+    #   ruler.d  # => 150.0
     # @example Fit whole major intervals inside minimum margins
     #   ruler = Sevgi::Sundries::Ruler.new(brut: 103, unit: 1, multiple: 10, margins: [5])
     #   ruler.n       # => 9
