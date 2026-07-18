@@ -14,10 +14,10 @@ module Sevgi
     #   @param points [Array<Sevgi::Geometry::Point, Array<Numeric>>] four boundary points
     #   @return [Sevgi::Geometry::Parallelogram]
     #   @raise [Sevgi::Geometry::Error] when inputs cannot be coerced or do not form a parallelogram
-    # @!method self.from_segments(horizontal, vertical, position: Origin)
+    # @!method self.from_segments(base, side, position: Origin)
     #   Builds a parallelogram from two adjacent segments and derives their opposites.
-    #   @param horizontal [Sevgi::Geometry::Segment, Array<Numeric>] first adjacent segment
-    #   @param vertical [Sevgi::Geometry::Segment, Array<Numeric>] second adjacent segment
+    #   @param base [Sevgi::Geometry::Segment, Array<Numeric>] segment from A to B
+    #   @param side [Sevgi::Geometry::Segment, Array<Numeric>] segment from A to D
     #   @param position [Sevgi::Geometry::Point, Array<Numeric>] starting point
     #   @return [Sevgi::Geometry::Parallelogram]
     #   @raise [Sevgi::Geometry::Error] when inputs cannot be coerced or do not form a parallelogram
@@ -55,70 +55,71 @@ module Sevgi
     #   shape.box.width     # => 6.0
     #   shape.box.height    # => 3.0
     class Parallelogram < ParallelogramBase
-      # Builds a parallelogram from adjacent horizontal and vertical segments.
-      # @param horizontal [Sevgi::Geometry::Segment, Array<Numeric>] horizontal segment
-      # @param vertical [Sevgi::Geometry::Segment, Array<Numeric>] vertical segment
+      # Builds a parallelogram from adjacent base and side segments. Both segments originate at `position`; `base`
+      # defines AB and `side` defines AD, regardless of their angles.
+      # @param base [Sevgi::Geometry::Segment, Array<Numeric>] segment from A to B
+      # @param side [Sevgi::Geometry::Segment, Array<Numeric>] segment from A to D
       # @param position [Sevgi::Geometry::Point, Array<Numeric>] starting point
       # @return [Sevgi::Geometry::Parallelogram]
       # @raise [Sevgi::Geometry::Error] when segments or position cannot be coerced
-      def self.[](horizontal, vertical, position: Origin)
-        horizontal, vertical = Tuples[Segment, horizontal, vertical]
+      def self.[](base, side, position: Origin)
+        base, side = Tuples[Segment, base, side]
 
-        new_by_segments(horizontal, vertical.reverse, horizontal.reverse, vertical, position:)
+        new_by_segments(base, side.reverse, base.reverse, side, position:)
       end
 
-      # Builds a parallelogram from a horizontal segment and tallness constraint. The constraint length is the target
-      # bounding height; its signed angle is retained as the direction of the derived side while the component magnitude
-      # determines that side's non-negative length.
-      # @param horizontal [Sevgi::Geometry::Segment, Array<Numeric>] horizontal segment
-      # @param tallness [Sevgi::Geometry::LengthAngle, Array<Numeric>] overall target height and side direction
+      # Builds a parallelogram from a base and bounding-height constraint. The constraint length is the target height;
+      # its signed angle is retained as the direction of the derived side while the component magnitude determines that
+      # side's non-negative length.
+      # @param base [Sevgi::Geometry::Segment, Array<Numeric>] segment from A to B
+      # @param constraint [Sevgi::Geometry::LengthAngle, Array<Numeric>] target height and side direction
       # @param position [Sevgi::Geometry::Point, Array<Numeric>] starting point
       # @return [Sevgi::Geometry::Parallelogram]
       # @raise [Sevgi::Geometry::Error] when inputs cannot be coerced or the height constraint is infeasible
       # @example Use an array constraint
-      #   Sevgi::Geometry::Parallelogram.new_by_height(horizontal: [4, 0], tallness: [3, -90])
+      #   Sevgi::Geometry::Parallelogram.new_by_height(base: [4, 0], constraint: [3, -90])
       # @example Use a LengthAngle constraint
       #   constraint = Sevgi::Geometry::LengthAngle.new(length: 3, angle: 90)
-      #   horizontal = Sevgi::Geometry::Segment[4, 0]
-      #   Sevgi::Geometry::Parallelogram.new_by_height(horizontal:, tallness: constraint)
-      def self.new_by_height(horizontal:, tallness:, position: Origin)
-        horizontal = Tuple[Segment, horizontal]
-        tallness = Tuple[LengthAngle, tallness]
+      #   base = Sevgi::Geometry::Segment[4, 0]
+      #   Sevgi::Geometry::Parallelogram.new_by_height(base:, constraint:)
+      def self.new_by_height(base:, constraint:, position: Origin)
+        base = Tuple[Segment, base]
+        constraint = Tuple[LengthAngle, constraint]
 
-        height = tallness.length - horizontal.y.abs
-        angle = tallness.angle
+        height = constraint.length - base.y.abs
+        angle = constraint.angle
         sine = F.sin(angle)
-        Error.("Parallelogram height is smaller than its horizontal side span") if height.negative?
-        Error.("Parallelogram height angle must have a vertical component") if F.zero?(sine)
+        Error.("Parallelogram height is smaller than its base span") if height.negative?
+        Error.("Parallelogram height constraint must have a vertical component") if F.zero?(sine)
 
-        self[horizontal, Segment[height / sine.abs, angle], position:]
+        self[base, Segment[height / sine.abs, angle], position:]
       end
 
-      # Builds a parallelogram from a vertical segment and wideness constraint. The constraint length is the target
-      # bounding width; its signed angle is retained as the direction of the derived side while the component magnitude
-      # determines that side's non-negative length.
-      # @param vertical [Sevgi::Geometry::Segment, Array<Numeric>] vertical segment
-      # @param wideness [Sevgi::Geometry::LengthAngle, Array<Numeric>] overall target width and side direction
+      # Builds a parallelogram from a side and bounding-width constraint. The constraint length is the target width; its
+      # signed angle is retained as the direction of the derived base while the component magnitude determines that
+      # base's non-negative length.
+      # @param side [Sevgi::Geometry::Segment, Array<Numeric>] segment from A to D
+      # @param constraint [Sevgi::Geometry::LengthAngle, Array<Numeric>] target width and base direction
       # @param position [Sevgi::Geometry::Point, Array<Numeric>] starting point
       # @return [Sevgi::Geometry::Parallelogram]
       # @raise [Sevgi::Geometry::Error] when inputs cannot be coerced or the width constraint is infeasible
       # @example Use an array constraint
-      #   Sevgi::Geometry::Parallelogram.new_by_width(vertical: [3, 90], wideness: [4, 180])
+      #   Sevgi::Geometry::Parallelogram.new_by_width(side: [3, 90], constraint: [4, 180])
       # @example Use a LengthAngle constraint
       #   constraint = Sevgi::Geometry::LengthAngle.new(length: 4, angle: 0)
-      #   vertical = Sevgi::Geometry::Segment[3, 90]
-      #   Sevgi::Geometry::Parallelogram.new_by_width(vertical:, wideness: constraint)
-      def self.new_by_width(vertical:, wideness:, position: Origin)
-        vertical = Tuple[Segment, vertical]
-        wideness = Tuple[LengthAngle, wideness]
+      #   side = Sevgi::Geometry::Segment[3, 90]
+      #   Sevgi::Geometry::Parallelogram.new_by_width(side:, constraint:)
+      def self.new_by_width(side:, constraint:, position: Origin)
+        side = Tuple[Segment, side]
+        constraint = Tuple[LengthAngle, constraint]
 
-        width = wideness.length - vertical.x.abs
-        angle = wideness.angle
+        width = constraint.length - side.x.abs
+        angle = constraint.angle
         cosine = F.cos(angle)
-        Error.("Parallelogram width is smaller than its vertical side span") if width.negative?
-        Error.("Parallelogram width angle must have a horizontal component") if F.zero?(cosine)
+        Error.("Parallelogram width is smaller than its side span") if width.negative?
+        Error.("Parallelogram width constraint must have a horizontal component") if F.zero?(cosine)
 
-        self[Segment[width / cosine.abs, angle], vertical, position:]
+        self[Segment[width / cosine.abs, angle], side, position:]
       end
 
       private

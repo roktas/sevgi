@@ -52,6 +52,22 @@ The English constructors such as `Rect.from_size`, `Rect.from_corners`, `Line.fr
 `Line.from_points` are aliases for the same two input families. Use them when the call site benefits from saying which
 representation it has.
 
+Parallelogram segment names describe geometric roles, not screen axes. `base` runs from A to B and `side` from A to D;
+both begin at `position`. The constrained constructors derive the missing segment while preserving the requested
+bounding dimension:
+
+```ruby
+shape = Sevgi::Geometry::Parallelogram.new_by_height(
+  base: [12, 15],
+  constraint: [8, 105],
+  position: [2, 3]
+)
+
+shape.AB.angle # => 15.0
+shape.DA.angle # => 105.0
+shape.box.height # => 8.0
+```
+
 Every lined shape exposes the same path in three forms: `points` for vertex work, `segments` for reusable polar
 displacements, and `lines` for finite positioned edges. Closed shapes repeat the first point at the end of `points`, so
 a rectangle has five path points but four segments and four lines.

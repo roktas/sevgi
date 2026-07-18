@@ -18,6 +18,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Changed
 
+- Breaking: renamed Parallelogram segment and constraint arguments by geometric role: `base`, `side`, and
+  `constraint` replace axis-implying constructor names.
 - Made degree-based sine and cosine exact at integer quarter turns, eliminating cardinal Geometry residue.
 - Documented complete file-system failure families for file comparison, output, touch, and upward location helpers.
 - Formalized generated Tile ids, positional CSS classes, template placement, and per-use callback signatures.
