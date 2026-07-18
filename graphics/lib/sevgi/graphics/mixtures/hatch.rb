@@ -11,6 +11,14 @@ module Sevgi
       # spacing. The default initial line passes through `element.position`.
       # The built-in `:inkscape` document profile includes this mixture;
       # `:minimal`, `:default`, and `:html` do not.
+      # @example Add geometry drawing to a scoped custom profile
+      #   profile = Class.new(Sevgi::Graphics::Document::Minimal)
+      #   Sevgi::Graphics::Mixtures.mixin(:Hatch, profile)
+      #   region = Sevgi::Geometry::Rect[24, 12]
+      #   Sevgi::Graphics.SVG(profile) do
+      #     Draw region.lines, stroke: "silver"
+      #     Hatch region, angle: 30, step: 3, stroke: "black"
+      #   end.Render
       # @see Sevgi::Geometry::Operation.sweep
       module Hatch
         # Draws one or more geometry line-like objects into this element.

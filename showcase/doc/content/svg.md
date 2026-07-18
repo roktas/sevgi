@@ -43,6 +43,19 @@ The Inkscape root adds Sevgi, Inkscape, and Sodipodi namespaces plus `shape-rend
 can target it with `Mixin` to change every descendant profile process-wide. Prefer a subclass of
 `Sevgi::Graphics::Document::Minimal` when an extension should remain scoped.
 
+For example, `Draw` and `Hatch` can be added to a private Minimal-derived profile without adopting Inkscape metadata:
+
+```ruby
+profile = Class.new(Sevgi::Graphics::Document::Minimal)
+Sevgi::Graphics::Mixtures.mixin(:Hatch, profile)
+region = Sevgi::Geometry::Rect[24, 12]
+
+Sevgi::Graphics.SVG(profile) do
+  Draw region.lines, stroke: "silver"
+  Hatch region, angle: 30, step: 3, stroke: "black"
+end.Render
+```
+
 ## Element dispatch {#elements}
 
 The DSL recognizes SVG element names dynamically, so it does not need a Ruby method for every element in each SVG

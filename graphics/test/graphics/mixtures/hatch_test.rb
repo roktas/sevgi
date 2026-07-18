@@ -45,6 +45,24 @@ module Sevgi
             node.Hatch(Geometry::Polyline.([0, 0], [1, 0]), angle: 0, step: 1)
           end
         end
+
+        def test_hatch_can_extend_a_scoped_minimal_profile
+          profile = Class.new(Document::Minimal)
+          Mixtures.mixin(:Hatch, profile)
+          drawn = nil
+          hatched = nil
+
+          drawing = Graphics.SVG(profile) do
+            region = Geometry::Rect[2, 2]
+            drawn = Draw(region.lines)
+            hatched = Hatch(region, angle: 0, step: 1)
+          end
+
+          assert_equal(4, drawn.size)
+          refute_empty(hatched)
+          assert(drawing.children.all? { it.name == :path })
+          refute_includes(drawing.Render(), "inkscape")
+        end
       end
     end
   end
