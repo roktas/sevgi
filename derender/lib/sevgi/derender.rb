@@ -42,6 +42,7 @@ module Sevgi
   #   source = '<svg><g id="mark" style="fill: red"><rect/></g></svg>'
   #   Sevgi::Derender.derender(source, id: "mark", omit: %i[id style])
   #   #=> "g do\n  rect\nend\n"
+  # @see https://sevgi.roktas.dev/derender/ Derender guide
   module Derender
     private_constant :Attributes, :Document, :Elements
 
@@ -52,6 +53,14 @@ module Sevgi
     #   subtree after id selection
     # @return [Sevgi::Derender::Node] owned immutable selected node
     # @raise [Sevgi::ArgumentError] when content is malformed or rootless, or when the id is absent
+    # @example Inspect a selected immutable node
+    #   root = Sevgi::Derender.decompile('<svg><g id="mark"><rect width="4"/></g></svg>')
+    #   mark = root.find("mark")
+    #   mark.name                  #=> "g"
+    #   mark.children.first.name  #=> "rect"
+    #   mark.attributes["id"]     #=> "mark"
+    # @see Sevgi::Derender.decompile_file
+    # @see Sevgi.Decompile
     def self.decompile(content, id: nil, omit: nil) = Document.new(content).decompile(id, omit:)
 
     # Converts an SVG/XML file into an immutable derender result.
@@ -63,6 +72,8 @@ module Sevgi
     # @raise [Sevgi::ArgumentError] when the file cannot be found, file content is malformed or rootless, or the id is
     #   absent
     # @raise [SystemCallError] when the file cannot be read
+    # @see Sevgi::Derender.decompile
+    # @see Sevgi.DecompileFile
     def self.decompile_file(file, id: nil, omit: nil) = Document.load_file(file).decompile(id, omit:)
 
     # Converts SVG/XML content into Sevgi DSL Ruby source.
@@ -75,6 +86,12 @@ module Sevgi
     # @raise [Sevgi::PanicError] when generated Ruby source cannot be formatted
     # @note Namespace-aware dispatch preserves ordinary foreign/qualified nodes and nested SVG elements.
     # @note Unsafe bare Ruby names are emitted through the explicit `Element` DSL word.
+    # @example Select first, then omit attributes from generated source
+    #   xml = '<svg><g id="mark" style="fill: red"><rect id="part"/></g></svg>'
+    #   Sevgi::Derender.derender(xml, id: :mark, omit: [:id, "style"])
+    #   #=> "g do\n  rect\nend\n"
+    # @see Sevgi::Derender.derender_file
+    # @see Sevgi.Derender
     def self.derender(content, id: nil, omit: nil) = Document.new(content).decompile(id, omit:).derender
 
     # Converts an SVG/XML file into Sevgi DSL Ruby source.
@@ -89,6 +106,8 @@ module Sevgi
     # @raise [SystemCallError] when the file cannot be read
     # @note Namespace-aware dispatch preserves ordinary foreign/qualified nodes and nested SVG elements.
     # @note Unsafe bare Ruby names are emitted through the explicit `Element` DSL word.
+    # @see Sevgi::Derender.derender
+    # @see Sevgi.DerenderFile
     def self.derender_file(file, id: nil, omit: nil) = Document.load_file(file).decompile(id, omit:).derender
 
     # Evaluates SVG/XML content under a graphics element, including the selected node.
@@ -101,6 +120,13 @@ module Sevgi
     #   produces no graphics output
     # @raise [Sevgi::ArgumentError] when content is malformed or rootless, or when the id is absent
     # @note Namespace-aware dispatch preserves ordinary foreign/qualified nodes and nested SVG elements.
+    # @example Include the selected node under an existing element
+    #   drawing = Sevgi.SVG(:minimal)
+    #   included = Sevgi::Derender.evaluate('<circle id="mark" r="4"/>', drawing)
+    #   included.name   #=> :circle
+    #   included[:id]   #=> "mark"
+    # @see Sevgi::Derender.evaluate_file
+    # @see Sevgi.Evaluate
     def self.evaluate(content, element, id: nil, omit: nil)
       Document.new(content).decompile(id, omit:).evaluate(element)
     end
@@ -114,6 +140,13 @@ module Sevgi
     # @return [Array<Sevgi::Graphics::Element>] immutable included-child snapshot
     # @raise [Sevgi::ArgumentError] when content is malformed or rootless, or when the id is absent
     # @note Namespace-aware dispatch preserves ordinary foreign/qualified nodes and nested SVG elements.
+    # @example Include only children and retain an immutable result snapshot
+    #   drawing = Sevgi.SVG(:minimal)
+    #   children = Sevgi::Derender.evaluate_children('<g><rect/><circle/></g>', drawing)
+    #   children.map(&:name) #=> [:rect, :circle]
+    #   children.frozen?     #=> true
+    # @see Sevgi::Derender.evaluate_children_file
+    # @see Sevgi.EvaluateChildren
     def self.evaluate_children(content, element, id: nil, omit: nil)
       Document.new(content).decompile(id, omit:).evaluate_children(element)
     end
@@ -130,6 +163,8 @@ module Sevgi
     #   absent
     # @raise [SystemCallError] when the file cannot be read
     # @note Namespace-aware dispatch preserves ordinary foreign/qualified nodes and nested SVG elements.
+    # @see Sevgi::Derender.evaluate
+    # @see Sevgi.EvaluateFile
     def self.evaluate_file(file, element, id: nil, omit: nil)
       Document.load_file(file).decompile(id, omit:).evaluate(element)
     end
@@ -145,6 +180,8 @@ module Sevgi
     #   absent
     # @raise [SystemCallError] when the file cannot be read
     # @note Namespace-aware dispatch preserves ordinary foreign/qualified nodes and nested SVG elements.
+    # @see Sevgi::Derender.evaluate_children
+    # @see Sevgi.EvaluateChildrenFile
     def self.evaluate_children_file(file, element, id: nil, omit: nil)
       Document.load_file(file).decompile(id, omit:).evaluate_children(element)
     end

@@ -17,6 +17,25 @@ SVG/XML content or file → immutable Derender node → Sevgi source → evaluat
 The conversion keeps element names, attributes, text, comments, CDATA, and child order. It represents the XML tree as
 Ruby. It cannot recover the loops, helper methods, or other higher-level code that may have produced the original file.
 
+| Operation family | Inline input | File input | Result | Existing target |
+| --- | --- | --- | --- | --- |
+| Inspect | `decompile` | `decompile_file` | immutable `Derender::Node` | no |
+| Generate source | `derender` | `derender_file` | formatted Ruby string | no |
+| Include selection | `evaluate` | `evaluate_file` | included element or `nil` | yes |
+| Include children | `evaluate_children` | `evaluate_children_file` | frozen element snapshot | yes |
+
+Library code uses the namespaced lowercase forms. For example, a consumer can inspect a node and generate only that
+subtree without installing script-mode names:
+
+```ruby
+xml = '<svg><g id="mark" style="fill: red"><rect width="4"/></g></svg>'
+mark = Sevgi::Derender.decompile(xml, id: "mark")
+source = mark.derender
+
+raise unless mark.name == "g"
+raise unless source.include?("rect width: 4")
+```
+
 ## Generate source
 
 In a `.sevgi` script, `Derender` converts inline content and returns formatted Ruby:
@@ -51,12 +70,26 @@ igves --omit id --omit style badge.svg
 
 ## Inspect {#inspect}
 
-`Decompile` stops one step earlier and returns an immutable node:
+`Decompile` stops one step earlier and returns an immutable node. The node owns snapshots of its attributes,
+namespaces, metadata, content, and descendants:
 
 ```ruby
-node = Decompile '<circle id="mark" r="4"/>', id: "mark"
-puts node.name
-puts node.attributes
+xml = <<~SVG
+  <svg xmlns="http://www.w3.org/2000/svg" xmlns:_="https://sevgi.roktas.dev/meta">
+    <g id="mark" _:role="icon"><rect width="4"/></g>
+  </svg>
+SVG
+
+root = Sevgi::Derender.decompile(xml)
+mark = root.find("mark")
+
+raise unless root.root?
+raise unless root.namespaces["xmlns"] == "http://www.w3.org/2000/svg"
+raise unless root.children.first.equal?(mark)
+raise unless mark.attributes["id"] == "mark"
+raise unless mark.meta["role"] == "icon"
+raise unless mark.children.map(&:name) == ["rect"]
+raise unless mark.derender.include?("rect width: 4")
 ```
 
 The file counterpart is explicit:
@@ -90,6 +123,11 @@ end
 
 Library code has the same matrix under `Sevgi::Derender`: `decompile`, `derender`, `evaluate`, and
 `evaluate_children` accept content; their `_file` counterparts accept paths.
+
+All these APIs parse XML as data and build immutable snapshots or graphics elements; they do not execute the generated
+Ruby. This is distinct from [`Sevgi.execute`](@/execution.md), which deliberately runs trusted Ruby with the process's
+authority. Parsing untrusted XML still deserves normal resource limits, but it does not grant the source a Ruby
+execution path.
 
 The catalog links its Derender entries back here because selection, conversion, and evaluation all use this same
 mechanism.
