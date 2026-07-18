@@ -18,16 +18,16 @@ module Sevgi
       "RUBYLIB" => nil,
       "RUBYOPT" => nil
     }.freeze
-    Component = Data.define(:dir, :name, :entrypoint, :executables)
+    Component = Data.define(:dir, :name, :entrypoint, :executables, :runtime)
     COMPONENTS = [
-      Component["function", "sevgi-function", "sevgi/function", []],
-      Component["geometry", "sevgi-geometry", "sevgi/geometry", []],
-      Component["graphics", "sevgi-graphics", "sevgi/graphics", []],
-      Component["standard", "sevgi-standard", "sevgi/standard", []],
-      Component["derender", "sevgi-derender", "sevgi/derender", %w[igves]],
-      Component["sundries", "sevgi-sundries", "sevgi/sundries", []],
-      Component["toplevel", "sevgi", "sevgi", %w[sevgi]],
-      Component["showcase", "sevgi-showcase", "sevgi/showcase", []]
+      Component["function", "sevgi-function", "sevgi/function", [], true],
+      Component["geometry", "sevgi-geometry", "sevgi/geometry", [], true],
+      Component["graphics", "sevgi-graphics", "sevgi/graphics", [], true],
+      Component["standard", "sevgi-standard", "sevgi/standard", [], true],
+      Component["derender", "sevgi-derender", "sevgi/derender", %w[igves], true],
+      Component["sundries", "sevgi-sundries", "sevgi/sundries", [], true],
+      Component["toplevel", "sevgi", "sevgi", %w[sevgi], true],
+      Component["showcase", "sevgi-showcase", "sevgi/showcase", [], false]
     ].freeze
 
     def test_archives_are_complete_from_root_and_component_builds
@@ -103,7 +103,12 @@ module Sevgi
 
         refute_includes(readme, "../", component.name)
         assert_includes(readme, "gem install #{component.name}", component.name)
-        assert_includes(readme, "require \"#{component.entrypoint}\"", component.name)
+        if component.runtime
+          assert_includes(readme, "require \"#{component.entrypoint}\"", component.name)
+        else
+          assert_includes(readme, "asset package rather than a runtime API", component.name)
+        end
+
         assert_includes(readme, "Native prerequisites", component.name)
         assert_includes(readme, "Ruby #{MINIMUM_RUBY} or newer", component.name)
         assert_includes(readme, "https://sevgi.roktas.dev", component.name)

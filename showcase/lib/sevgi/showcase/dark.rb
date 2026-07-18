@@ -60,5 +60,7 @@ module Sevgi
         end
       end
     end
+
+    private_constant :Dark
   end
 end

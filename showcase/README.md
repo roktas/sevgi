@@ -8,18 +8,10 @@ Sevgi Showcase packages the executable examples, their SVG output, and support c
 gem install sevgi-showcase
 ```
 
-## Require
+## Contents
 
-```ruby
-require "sevgi/showcase"
-```
-
-## Example
-
-```ruby
-suite = Sevgi::Test::Suite.new("srv")
-suite.valids.map(&:name)
-```
+The gem is an asset package rather than a runtime API. It contains the executable `.sevgi` examples, their expected
+SVG output, and private build support used by the documentation site.
 
 ## Ruby compatibility
 

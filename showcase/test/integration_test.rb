@@ -3,10 +3,10 @@
 require_relative "test_helper"
 
 require "nokogiri"
-require "sevgi/showcase"
+require "sevgi/showcase/minitest"
 
 module Sevgi
-  EXAMPLES = Test::Suite.new(File.expand_path("#{__dir__}/../srv"))
+  EXAMPLES = Showcase.const_get(:Test, false)::Suite.new(File.expand_path("#{__dir__}/../srv"))
 
   class IntegrationTest < Minitest::Test
     def test_guidesheets_share_visible_bounds

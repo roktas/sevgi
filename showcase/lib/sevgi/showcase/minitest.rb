@@ -3,3 +3,9 @@
 require_relative "minitest/script"
 require_relative "minitest/shell"
 require_relative "minitest/suite"
+
+module Sevgi
+  module Showcase
+    private_constant :Test
+  end
+end

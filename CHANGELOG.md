@@ -62,6 +62,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Removed
 
+- Removed eager loading and public documentation of private Showcase build/test support; explicit support entrypoints
+  now keep the harness under the Showcase namespace.
 - Removed public access to document profile name normalizers; registry operations retain them as private plumbing.
 - Removed the redundant `Margin.margin` constructor; use canonical bracket notation.
 - Removed public executor orchestration, obsolete callable-module hooks, the old public attribute syntax constants, and

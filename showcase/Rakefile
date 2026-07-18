@@ -6,6 +6,11 @@ require "yaml"
 $LOAD_PATH.push(File.expand_path("lib", __dir__))
 
 require "sevgi/showcase"
+require "sevgi/showcase/dark"
+require "sevgi/showcase/minitest"
+
+showcase_dark = Sevgi::Showcase.const_get(:Dark, false)
+showcase_test = Sevgi::Showcase.const_get(:Test, false)
 
 ENV["PATH"] = [ENV["PATH"], ::File.expand_path("bin")].compact.join(::File::PATH_SEPARATOR) if ::Dir.exist?("bin")
 
@@ -56,7 +61,7 @@ task(:package) if ::Dir["*.gemspec"].any?
 def say(sign, subject) = warn("#{sign} #{::File.basename(subject, ".*")}")
 
 if ::Dir.exist?("srv")
-  bins = Sevgi::Test::Suite.new("srv").valids
+  bins = showcase_test::Suite.new("srv").valids
 
   bins.map do |bin|
     file(bin.svg => bin.file) do |t|
@@ -112,7 +117,7 @@ if ::Dir.exist?("srv")
         if File.exist?(cfg = bin.yml) && (yaml = YAML.load_file(cfg)) && (color = yaml["dark"])
           say("***", t.name)
 
-          Sevgi::Showcase::Dark.apply_file(t.source, t.name, color)
+          showcase_dark.apply_file(t.source, t.name, color)
         else
           say(">>>", t.name)
 
