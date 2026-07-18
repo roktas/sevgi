@@ -126,6 +126,13 @@ module Sevgi
         end
       end
 
+      def test_builtin_profile_lineage_preserves_roles
+        assert_same(Document::Base, Document::Minimal.superclass)
+        assert_same(Document::Base, Document::Default.superclass)
+        assert_same(Document::Default, Document::HTML.superclass)
+        assert_same(Document::Default, Document::Inkscape.superclass)
+      end
+
       def test_profile_and_document_lookup_are_distinct
         profile = Document.profile(:minimal)
         keys = Document.keys
@@ -171,7 +178,7 @@ module Sevgi
 
         assert_raises(NameError) { Document::DEFAULTS }
 
-        custom = Class.new(Document::Minimal) do
+        custom = Class.new(Document::Base) do
           document(
             :private_document_dsl,
             attributes: {viewBox: "0 0 3 3"}

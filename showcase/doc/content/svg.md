@@ -34,19 +34,20 @@ use the same validation and lint lifecycle.
 | `:html` | none | SVG namespace | common document DSL |
 | `:inkscape` | XML declaration | SVG and editor namespaces; crisp edges | `Draw`, `Hatch`, and editor/RDF helpers |
 
-Use `:minimal` for compact output or as the superclass of a custom profile, `:default` for a standalone SVG file,
-`:html` for SVG embedded in HTML, and `:inkscape` when editor metadata or its additional helpers belong to the drawing.
+Use `:minimal` for compact output, `:default` for a standalone SVG file, `:html` for SVG embedded in HTML, and
+`:inkscape` when editor metadata or its additional helpers belong to the drawing.
 The Inkscape root adds Sevgi, Inkscape, and Sodipodi namespaces plus `shape-rendering="crispEdges"`. The presence of
 `Draw` and `Hatch` on `:inkscape` is a convenience default, not an Inkscape format requirement.
 
 `Sevgi::Graphics::Document::Base` is the public common extension layer, not a selectable profile. Advanced consumers
-can target it with `Mixin` to change every descendant profile process-wide. Prefer a subclass of
-`Sevgi::Graphics::Document::Minimal` when an extension should remain scoped.
+can target it with `Mixin` to change every descendant profile process-wide. `Minimal` and `Default` are sibling concrete
+profiles: `Minimal` adds no metadata and is not the base of the other profiles. Subclass `Base` first when an extension
+should remain scoped.
 
-For example, `Draw` and `Hatch` can be added to a private Minimal-derived profile without adopting Inkscape metadata:
+For example, `Draw` and `Hatch` can be added to a private Base-derived profile without adopting profile metadata:
 
 ```ruby
-profile = Class.new(Sevgi::Graphics::Document::Minimal)
+profile = Class.new(Sevgi::Graphics::Document::Base)
 Sevgi::Graphics::Mixtures.mixin(:Hatch, profile)
 region = Sevgi::Geometry::Rect[24, 12]
 

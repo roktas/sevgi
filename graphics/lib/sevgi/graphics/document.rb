@@ -17,9 +17,10 @@ module Sevgi
     #
     # The Inkscape root adds Sevgi, Inkscape, and Sodipodi namespaces plus `shape-rendering="crispEdges"`. Every
     # selectable profile has the same validation and lint lifecycle; `:minimal` changes serialization metadata, not
-    # checking policy. {Base} is the public common extension layer rather than a selectable profile. Targeting it through
-    # {Sevgi::Graphics::Mixtures.mixin} changes every descendant profile process-wide; derive scoped custom profiles from
-    # {Minimal}.
+    # checking policy. {Base} is the public common extension layer rather than a selectable profile. {Minimal} and
+    # {Default} are sibling concrete profiles: Minimal contributes no metadata and is not the semantic base of the other
+    # profiles. Targeting Base through {Sevgi::Graphics::Mixtures.mixin} changes every descendant profile process-wide;
+    # subclass Base first when an extension should remain scoped.
     #
     # @see https://sevgi.roktas.dev/svg/#document-profiles Document profiles guide
     module Document
@@ -126,8 +127,8 @@ module Sevgi
       # @yieldreturn [Object] ignored block result
       # @return [Sevgi::Graphics::Document::Proto] SVG root element
       # @raise [Sevgi::ArgumentError] when the document profile or root XML attributes are invalid
-      # @example Extend a configured class while inheriting its profile
-      #   Card = Class.new(Sevgi::Graphics::Document::Minimal)
+      # @example Build from a scoped Base-derived profile
+      #   Card = Class.new(Sevgi::Graphics::Document::Base)
       #   Sevgi::Graphics::Document.(Card) { rect width: 10, height: 5 }
       def self.call(document, canvas = Undefined, **, &block)
         klass = case document

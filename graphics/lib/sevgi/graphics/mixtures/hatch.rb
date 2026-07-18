@@ -12,7 +12,7 @@ module Sevgi
       # The built-in `:inkscape` document profile includes this mixture;
       # `:minimal`, `:default`, and `:html` do not.
       # @example Add geometry drawing to a scoped custom profile
-      #   profile = Class.new(Sevgi::Graphics::Document::Minimal)
+      #   profile = Class.new(Sevgi::Graphics::Document::Base)
       #   Sevgi::Graphics::Mixtures.mixin(:Hatch, profile)
       #   region = Sevgi::Geometry::Rect[24, 12]
       #   Sevgi::Graphics.SVG(profile) do

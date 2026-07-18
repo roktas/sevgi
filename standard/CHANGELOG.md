@@ -20,8 +20,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 - Breaking: made low-level `Executor.execute` and `execute_file` runners private; consumers use
   `Sevgi.execute` and `Sevgi.execute_file` while retaining the public result and error types.
-- Breaking: removed the abstract `Document::Base` layer from the selectable document-profile registry; custom
-  profiles should derive from `Document::Minimal`.
+- Breaking: removed the abstract `Document::Base` layer from the selectable document-profile registry; `Minimal` and
+  `Default` are now sibling concrete profiles, and custom profile hierarchies should derive from `Base`.
 - Breaking: renamed Parallelogram segment and constraint arguments by geometric role: `base`, `side`, and
   `constraint` replace axis-implying constructor names.
 - Made degree-based sine and cosine exact at integer quarter turns, eliminating cardinal Geometry residue.

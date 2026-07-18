@@ -46,8 +46,8 @@ module Sevgi
           end
         end
 
-        def test_hatch_can_extend_a_scoped_minimal_profile
-          profile = Class.new(Document::Minimal)
+        def test_hatch_can_extend_a_scoped_base_profile
+          profile = Class.new(Document::Base)
           Mixtures.mixin(:Hatch, profile)
           drawn = nil
           hatched = nil
