@@ -5,10 +5,18 @@ module Sevgi
     module Mixtures
       # DSL helpers for repeated SVG use elements.
       module Tile
-        # Prefix used for generated tile CSS classes.
+        # Stable prefix used for generated tile CSS classes.
         PREFIX = "tile"
 
         # Builds a two-dimensional tile grid.
+        # Each use id has the form `id-row-column`, with one-based row and column numbers. Generated classes identify
+        # the one-based row and column and mark their first and last positions. A block defines the referenced template
+        # as a group under `defs` before the uses are added.
+        # @example Define and customize a tile grid
+        #   customize = proc { |use, x:, y:, nx:, ny:| use[:opacity] = (x + y + 1).fdiv(nx + ny) }
+        #   SVG(:minimal) do
+        #     Tile("dot", nx: 2, dx: 10, ny: 2, dy: 10, proc: customize) { circle r: 2 }
+        #   end
         # @param id [String] referenced template id
         # @param nx [Integer] number of columns
         # @param dx [Numeric] finite horizontal spacing, normalized before coordinates are rendered
@@ -16,8 +24,9 @@ module Sevgi
         # @param ny [Integer] number of rows
         # @param dy [Numeric] finite vertical spacing, normalized before coordinates are rendered
         # @param oy [Numeric] finite vertical offset, normalized before coordinates are rendered
-        # @param proc [Proc, nil] optional coordinate/customization proc
-        # @yield evaluates the template drawing DSL in a generated group
+        # @param proc [Proc, nil] optional callback invoked for each use as `(element, x:, y:, nx:, ny:)`, with
+        #   zero-based coordinates and total counts; the callback may mutate the element and its return value is ignored
+        # @yield evaluates the template drawing DSL in a generated `defs` group named by id
         # @yieldreturn [Object] ignored block result
         # @return [Sevgi::Graphics::Element] self
         # @raise [Sevgi::ArgumentError] when a required tile argument is missing or invalid
@@ -68,12 +77,16 @@ module Sevgi
         end
 
         # Builds a one-dimensional horizontal tile row.
+        # Each use id has the form `id-column`, with a one-based column number. Generated classes identify the column and
+        # mark its first and last positions. A block defines the referenced template as a group under `defs` before the
+        # uses are added.
         # @param id [String] referenced template id
         # @param n [Integer] number of instances
         # @param d [Numeric] finite horizontal spacing, normalized before coordinates are rendered
         # @param o [Numeric] finite horizontal offset, normalized before coordinates are rendered
-        # @param proc [Proc, nil] optional coordinate/customization proc
-        # @yield evaluates the template drawing DSL in a generated group
+        # @param proc [Proc, nil] optional callback invoked for each use as `(element, x:, n:)`, with a zero-based column
+        #   and total count; the callback may mutate the element and its return value is ignored
+        # @yield evaluates the template drawing DSL in a generated `defs` group named by id
         # @yieldreturn [Object] ignored block result
         # @return [Sevgi::Graphics::Element] self
         # @raise [Sevgi::ArgumentError] when a required tile argument is missing or invalid
@@ -103,12 +116,16 @@ module Sevgi
         end
 
         # Builds a one-dimensional vertical tile column.
+        # Each use id has the form `id-row`, with a one-based row number. Generated classes identify the row and mark its
+        # first and last positions. A block defines the referenced template as a group under `defs` before the uses are
+        # added.
         # @param id [String] referenced template id
         # @param n [Integer] number of instances
         # @param d [Numeric] finite vertical spacing, normalized before coordinates are rendered
         # @param o [Numeric] finite vertical offset, normalized before coordinates are rendered
-        # @param proc [Proc, nil] optional coordinate/customization proc
-        # @yield evaluates the template drawing DSL in a generated group
+        # @param proc [Proc, nil] optional callback invoked for each use as `(element, y:, n:)`, with a zero-based row and
+        #   total count; the callback may mutate the element and its return value is ignored
+        # @yield evaluates the template drawing DSL in a generated `defs` group named by id
         # @yieldreturn [Object] ignored block result
         # @return [Sevgi::Graphics::Element] self
         # @raise [Sevgi::ArgumentError] when a required tile argument is missing or invalid
