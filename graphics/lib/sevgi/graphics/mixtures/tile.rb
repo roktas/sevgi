@@ -41,16 +41,9 @@ module Sevgi
           proc: nil,
           &block
         )
-          id, nx, dx, ox, ny, dy, oy, proc = Helper
+          id, nx, dx, ox, ny, dy, oy, callback = Helper
             .normalize(id:, nx:, dx:, ox:, ny:, dy:, oy:, proc:)
             .values_at(:id, :nx, :dx, :ox, :ny, :dy, :oy, :proc)
-
-          href, coords = id, proc do |x, y|
-            # rubocop:disable Style/NestedTernaryOperator
-            # for pretty kwargs handling
-            x.zero? ? (y.zero? ? {} : {y:}) : (y.zero? ? {x:} : {x:, y:})
-            # rubocop:enable Style/NestedTernaryOperator
-          end
 
           defs { g(id:, &block) } if block
 
@@ -62,15 +55,15 @@ module Sevgi
                 cs = Helper.classify(as: "col", index: x, upper: nx)
 
                 element = use(
-                  id: [href, y + 1, x + 1].join("-"),
-                  href: "##{href}",
+                  id: [id, y + 1, x + 1].join("-"),
+                  href: "##{id}",
                   class: [*rs, *cs].join(" "),
-                  **coords.(
-                    Scalar.number((x * dx) + ox, context: "tile", field: :x),
-                    Scalar.number((y * dy) + oy, context: "tile", field: :y)
+                  **Helper.coordinates(
+                    x: Scalar.number((x * dx) + ox, context: "tile", field: :x),
+                    y: Scalar.number((y * dy) + oy, context: "tile", field: :y)
                   )
                 )
-                proc&.call(element, x:, y:, nx:, ny:)
+                callback&.call(element, x:, y:, nx:, ny:)
               end
             end
           end
@@ -91,12 +84,7 @@ module Sevgi
         # @return [Sevgi::Graphics::Element] self
         # @raise [Sevgi::ArgumentError] when a required tile argument is missing or invalid
         def TileX(id = Undefined, n: Undefined, d: Undefined, o: 0, proc: nil, &block)
-          id, n, d, o, proc = Helper.normalize(id:, n:, d:, o:, proc:).values_at(:id, :n, :d, :o, :proc)
-
-          href, coords = id, proc do |x|
-            # for pretty kwargs handling
-            x.zero? ? {} : {x:}
-          end
+          id, n, d, o, callback = Helper.normalize(id:, n:, d:, o:, proc:).values_at(:id, :n, :d, :o, :proc)
 
           defs { g(id:, &block) } if block
 
@@ -105,12 +93,12 @@ module Sevgi
               cs = Helper.classify(as: "col", index: x, upper: n)
 
               element = use(
-                id: [href, x + 1].join("-"),
-                href: "##{href}",
+                id: [id, x + 1].join("-"),
+                href: "##{id}",
                 class: cs.join(" "),
-                **coords.(Scalar.number((x * d) + o, context: "tile", field: :x))
+                **Helper.coordinates(x: Scalar.number((x * d) + o, context: "tile", field: :x))
               )
-              proc&.call(element, x:, n:)
+              callback&.call(element, x:, n:)
             end
           end
         end
@@ -130,12 +118,7 @@ module Sevgi
         # @return [Sevgi::Graphics::Element] self
         # @raise [Sevgi::ArgumentError] when a required tile argument is missing or invalid
         def TileY(id = Undefined, n: Undefined, d: Undefined, o: 0, proc: nil, &block)
-          id, n, d, o, proc = Helper.normalize(id:, n:, d:, o:, proc:).values_at(:id, :n, :d, :o, :proc)
-
-          href, coords = id, proc do |y|
-            # for pretty kwargs handling
-            y.zero? ? {} : {y:}
-          end
+          id, n, d, o, callback = Helper.normalize(id:, n:, d:, o:, proc:).values_at(:id, :n, :d, :o, :proc)
 
           defs { g(id:, &block) } if block
 
@@ -144,12 +127,12 @@ module Sevgi
               rs = Helper.classify(as: "row", index: y, upper: n)
 
               element = use(
-                id: [href, y + 1].join("-"),
-                href: "##{href}",
+                id: [id, y + 1].join("-"),
+                href: "##{id}",
                 class: rs.join(" "),
-                **coords.(Scalar.number((y * d) + o, context: "tile", field: :y))
+                **Helper.coordinates(y: Scalar.number((y * d) + o, context: "tile", field: :y))
               )
-              proc&.call(element, y:, n:)
+              callback&.call(element, y:, n:)
             end
           end
         end
@@ -187,6 +170,10 @@ module Sevgi
               ArgumentError.("Argument '#{name}' required") if value == Undefined
               [name, normalize_value(name, value)]
             end
+          end
+
+          def coordinates(**coordinates)
+            coordinates.reject { |_, value| value.zero? }
           end
 
           def normalize_value(name, value)
