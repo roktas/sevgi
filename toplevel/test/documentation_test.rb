@@ -20,6 +20,13 @@ module Sevgi
     CONTRACT_TAGS = %w[param raise return yield yieldparam yieldreturn].freeze
     GENERIC_RETURNS = %w[Array Hash Object].freeze
     CONSTANT_ALIAS_PREFIXES = %w[Sevgi::F:: Sevgi::SVG::].freeze
+    GUIDE_ROOT = ::File.join(ROOT, "showcase/doc/content")
+    GUIDE_URL = "https://sevgi.roktas.dev/"
+    EXAMPLE_CONTEXT_PATTERNS = {
+      "Sevgi::Function" => /(?<![\w:.])F\./,
+      "Sevgi::Geometry" => /(?<![\w:.])(?:Element|Equation|LengthAngle|Line|Operation|Origin|Parallelogram|Point|Polygon|Polyline|Rect|Segment|Square|Triangle)(?=[.\[])/,
+      "Sevgi::Graphics" => /(?<![\w:.])(?:Attributes|Canvas|Content|Document|Margin|Paper|SVG)(?=\s|[.:\[(])|(?<![\w:.])document\s*\(/
+    }.freeze
     DATA_CLASS_SURFACES = {
       "Sevgi::Executor::Result" => %i[members new],
       "Sevgi::Function::Location" => %i[members new],
@@ -463,6 +470,37 @@ module Sevgi
       assert_empty(missing, "Core workflows without examples:\n#{missing.join("\n")}")
     end
 
+    def test_examples_are_named
+      errors = registry.all.flat_map do |object|
+        object.tags(:example).filter_map do |example|
+          "#{object.path}: unnamed example" if example.name.to_s.strip.empty?
+        end
+      end
+
+      assert_empty(errors, errors.join("\n"))
+    end
+
+    def test_component_examples_use_namespaced_entrypoints
+      errors = EXAMPLE_CONTEXT_PATTERNS.flat_map do |prefix, pattern|
+        registry.all.select { it.path.start_with?(prefix) }.flat_map do |object|
+          object.tags(:example).filter_map do |example|
+            code = example.text.lines.map { it.sub(/\s+#.*\z/, "") }.join
+            "#{object.path}: #{example.name}" if code.match?(pattern)
+          end
+        end
+      end
+
+      assert_empty(errors, "Component examples depend on promoted aliases:\n#{errors.join("\n")}")
+    end
+
+    def test_guide_links_resolve
+      errors = registry.all.flat_map do |object|
+        object.tags(:see).filter_map { guide_link_error(object.path, it.name) }
+      end
+
+      assert_empty(errors, errors.join("\n"))
+    end
+
     def test_namespaced_toplevel_forwarders_are_cross_linked
       errors = TOPLEVEL_FORWARDERS.filter_map do |path, implementation|
         object = yard(path)
@@ -636,6 +674,18 @@ module Sevgi
         .reject { |name, _default| name.to_s.start_with?("&") }
         .map { |name, _default| name.to_s.sub(/\A\*+/, "").delete_suffix(":") }
         .reject { it.empty? || it == "..." }
+    end
+
+    def guide_link_error(object, link)
+      return unless link.start_with?(GUIDE_URL)
+
+      path, anchor = link.delete_prefix(GUIDE_URL).split("#", 2)
+      slug = path.delete_suffix("/")
+      file = ::File.join(GUIDE_ROOT, slug.empty? ? "_index.md" : "#{slug}.md")
+      return "#{object}: missing #{file}" unless ::File.file?(file)
+      return unless anchor && !::File.read(file).include?("{##{anchor}}")
+
+      "#{object}: missing ##{anchor} in #{file}"
     end
 
     def feature_loaded?(file)
