@@ -3,8 +3,11 @@
 require "sevgi"
 
 module Sevgi
+  # Command-line entrypoint implementations shipped with Sevgi.
+  # @api private
   module Binaries
     # Implements the `igves` executable that converts SVG files into Sevgi DSL source.
+    # @api private
     module Igves
       extend self
 
@@ -139,4 +142,6 @@ module Sevgi
       end
     end
   end
+
+  private_constant :Binaries
 end

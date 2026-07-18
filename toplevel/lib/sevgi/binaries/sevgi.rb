@@ -4,8 +4,10 @@ require "sevgi"
 
 module Sevgi
   # Command-line entrypoint implementations shipped with Sevgi.
+  # @api private
   module Binaries
     # Implements the `sevgi` executable.
+    # @api private
     module Sevgi
       extend self
 
@@ -125,4 +127,6 @@ module Sevgi
       end
     end
   end
+
+  private_constant :Binaries
 end

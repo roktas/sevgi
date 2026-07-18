@@ -3,4 +3,4 @@
 
 require "sevgi/binaries/igves"
 
-Sevgi::Binaries::Igves.(ARGV)
+Sevgi.const_get(:Binaries, false)::Igves.(ARGV)
