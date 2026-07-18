@@ -13,6 +13,7 @@ module Sevgi
     # @yieldreturn [void]
     # @return [Sevgi::Graphics::Document::Proto] SVG document object
     # @raise [Sevgi::ArgumentError] when the document, paper, or canvas arguments are invalid
+    # @see Sevgi.SVG
     # @see Sevgi::Graphics.SVG
     def SVG(document = :default, canvas = Undefined, **attributes, &block)
       Graphics.SVG(document, canvas, **attributes, &block)
@@ -24,6 +25,7 @@ module Sevgi
     #   @param document [Class] document class receiving the mixture
     #   @return [nil]
     #   @raise [NameError] when a named mixture cannot be resolved
+    #   @see Sevgi.Mixin
     #   @see Sevgi::Graphics::Mixtures.mixin
     # @overload Mixin(mod, document = Sevgi::Graphics::Document::Base, &block)
     #   Adds a named graphics mixture and an anonymous extension to a document class.
@@ -33,6 +35,7 @@ module Sevgi
     #   @yieldreturn [void]
     #   @return [Module] anonymous mixture
     #   @raise [NameError] when a named mixture cannot be resolved
+    #   @see Sevgi.Mixin
     #   @see Sevgi::Graphics::Mixtures.mixin
     # @overload Mixin(document = Sevgi::Graphics::Document::Base, &block)
     #   Adds an anonymous graphics mixture to a document class.
@@ -41,6 +44,7 @@ module Sevgi
     #   @yieldreturn [void]
     #   @return [Module] anonymous mixture
     #   @raise [Sevgi::ArgumentError] when no named mixture or block is given
+    #   @see Sevgi.Mixin
     #   @see Sevgi::Graphics::Mixtures.mixin
     def Mixin(...) = Graphics::Mixtures.mixin(...)
 
@@ -52,6 +56,7 @@ module Sevgi
     #   @param unit [String, Symbol] size unit
     #   @return [Symbol, String] the original paper profile name
     #   @raise [Sevgi::ArgumentError] when the profile is invalid or an existing profile differs
+    #   @see Sevgi.Paper
     #   @see Sevgi::Graphics#paper
     def Paper(...) = Graphics.paper(...)
 
@@ -63,6 +68,7 @@ module Sevgi
     #   @param unit [String, Symbol] size unit
     #   @return [Symbol, String] the original paper profile name
     #   @raise [Sevgi::ArgumentError] when the profile is invalid or the paper name is reserved
+    #   @see Sevgi.Paper!
     #   @see Sevgi::Graphics#paper!
     def Paper!(...) = Graphics.paper!(...)
   end

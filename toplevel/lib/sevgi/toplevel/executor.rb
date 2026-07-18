@@ -58,6 +58,9 @@ module Sevgi
     # @raise [Sevgi::PanicError] when called without an active executor scope
     # @raise [Sevgi::Error] when a file cannot be located
     # @note `Load` resolves against the active executor scope in the current fiber.
+    # @note Ordinary library code should use Ruby `require`; `Load` is available only during Sevgi script execution.
+    # @see Sevgi.Load
+    # @see Sevgi.execute_file
     def Load(*files)
       start = ::File.dirname(caller_locations(1..1).first.path)
 

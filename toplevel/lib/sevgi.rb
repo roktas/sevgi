@@ -23,15 +23,25 @@ SVG = Sevgi::Graphics
 #   @yieldreturn [void]
 #   @return [Sevgi::Graphics::Document::Proto] a rendered SVG document object
 #   @raise [Sevgi::ArgumentError] when the document, paper, or canvas arguments are invalid
+# @example Build through the global library entrypoint
+#   SVG(:minimal) { circle r: 4 }.Render
+# @see Sevgi.SVG
+# @see Sevgi::Toplevel#SVG
 def SVG(...) = Sevgi.SVG(...)
 
 # Full top-level API for Sevgi library and script consumers.
 #
-# Including this module in a class or module installs DSL methods such as
-# `Paper`, `Load`, and `Grid`, plus convenience constants such as `F`,
-# `Geometry`, `Origin`, and `Export`. Extending a module does the same.
-# Extending an ordinary object installs the methods only and does not write
-# promoted constants to `Object`.
+# `require "sevgi"` installs one global method, `SVG(...)`, and the `SVG` constant naming {Graphics}. The same document
+# entrypoint and the rest of the library API are available explicitly on `Sevgi`, such as `Sevgi.SVG`, `Sevgi.Paper`,
+# `Sevgi.Grid`, and `Sevgi.Derender`.
+#
+# Including this module in a class or module installs the DSL methods plus convenience constants `F`, `Geometry`,
+# `Origin`, and `Export`; script execution provides the same promoted scope. Extending a module does the same. Extending
+# an ordinary object installs methods only and does not write promoted constants to `Object`. Focused component requires
+# expose their namespaced component APIs instead of this full top-level surface.
+#
+# `Load` is meaningful only during {Sevgi.execute}, {Sevgi.execute_file}, or command-line script execution. It resolves
+# nested `.sevgi` files through the active executor scope; it is not a general-purpose replacement for Ruby `require`.
 #
 # @example Include the DSL in an object
 #   class Drawing
@@ -40,6 +50,63 @@ def SVG(...) = Sevgi.SVG(...)
 module Sevgi
   # See sevgi/toplevel/*.rb files for details
   require_relative "sevgi/toplevel"
+
+  # @!method self.SVG(...)
+  #   Builds an SVG document through the explicit namespaced top-level API.
+  #   @return [Sevgi::Graphics::Document::Proto] SVG document object
+  #   @see Sevgi::Toplevel#SVG
+  # @!method self.Mixin(...)
+  #   Extends a document profile with a named or anonymous graphics mixture.
+  #   @return [Module, nil] anonymous mixture when supplied, otherwise nil
+  #   @see Sevgi::Toplevel#Mixin
+  # @!method self.Paper(...)
+  #   Defines or validates a named paper profile.
+  #   @return [Symbol, String] original paper profile name
+  #   @see Sevgi::Toplevel#Paper
+  # @!method self.Paper!(...)
+  #   Defines or overwrites a named paper profile.
+  #   @return [Symbol, String] original paper profile name
+  #   @see Sevgi::Toplevel#Paper!
+  # @!method self.Grid(...)
+  #   Fits a drawable grid to a graphics canvas.
+  #   @return [Sevgi::Sundries::Grid] fitted grid
+  #   @see Sevgi::Toplevel#Grid
+  # @!method self.Decompile(...)
+  #   Converts inline SVG/XML into an immutable Derender node.
+  #   @return [Sevgi::Derender::Node] selected node
+  #   @see Sevgi::Toplevel#Decompile
+  # @!method self.DecompileFile(...)
+  #   Converts an SVG/XML file into an immutable Derender node.
+  #   @return [Sevgi::Derender::Node] selected node
+  #   @see Sevgi::Toplevel#DecompileFile
+  # @!method self.Derender(...)
+  #   Converts inline SVG/XML into formatted Sevgi DSL source.
+  #   @return [String] formatted Sevgi DSL source
+  #   @see Sevgi::Toplevel#Derender
+  # @!method self.DerenderFile(...)
+  #   Converts an SVG/XML file into formatted Sevgi DSL source.
+  #   @return [String] formatted Sevgi DSL source
+  #   @see Sevgi::Toplevel#DerenderFile
+  # @!method self.Evaluate(...)
+  #   Includes an inline SVG/XML node under a graphics element.
+  #   @return [Sevgi::Graphics::Element, nil] included element, or nil when no output is produced
+  #   @see Sevgi::Toplevel#Evaluate
+  # @!method self.EvaluateFile(...)
+  #   Includes an SVG/XML file node under a graphics element.
+  #   @return [Sevgi::Graphics::Element, nil] included element, or nil when no output is produced
+  #   @see Sevgi::Toplevel#EvaluateFile
+  # @!method self.EvaluateChildren(...)
+  #   Includes only an inline SVG/XML node's children under a graphics element.
+  #   @return [Array<Sevgi::Graphics::Element>] immutable included-child snapshot
+  #   @see Sevgi::Toplevel#EvaluateChildren
+  # @!method self.EvaluateChildrenFile(...)
+  #   Includes only an SVG/XML file node's children under a graphics element.
+  #   @return [Array<Sevgi::Graphics::Element>] immutable included-child snapshot
+  #   @see Sevgi::Toplevel#EvaluateChildrenFile
+  # @!method self.Load(...)
+  #   Loads nested `.sevgi` files through the active executor scope.
+  #   @return [Array<String>] requested file names
+  #   @see Sevgi::Toplevel#Load
 
   # Installs the full toplevel DSL into an including class or module.
   # @param base [Module] the class or module receiving the DSL methods

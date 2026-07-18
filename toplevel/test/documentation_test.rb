@@ -275,6 +275,24 @@ module Sevgi
       Sevgi::Sundries::Export
     ]
       .freeze
+    TOPLEVEL_FORWARDERS = %w[
+      Decompile
+      DecompileFile
+      Derender
+      DerenderFile
+      Evaluate
+      EvaluateChildren
+      EvaluateChildrenFile
+      EvaluateFile
+      Grid
+      Load
+      Mixin
+      Paper
+      Paper!
+      SVG
+    ]
+      .to_h { ["Sevgi.#{it}", "Sevgi::Toplevel##{it}"] }
+      .freeze
 
     def self.registry
       return @registry if @registry
@@ -440,6 +458,18 @@ module Sevgi
       missing = WORKFLOW_EXAMPLES.reject { yard(it).tags(:example).any? }
 
       assert_empty(missing, "Core workflows without examples:\n#{missing.join("\n")}")
+    end
+
+    def test_namespaced_toplevel_forwarders_are_cross_linked
+      errors = TOPLEVEL_FORWARDERS.filter_map do |path, implementation|
+        object = yard(path)
+        next "#{path}: missing" unless object
+        next if object.tags(:see).map(&:name).include?(implementation)
+
+        "#{path}: missing @see #{implementation}"
+      end
+
+      assert_empty(errors, errors.join("\n"))
     end
 
     def test_constant_visibility_matches_documentation
