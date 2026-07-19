@@ -61,13 +61,20 @@ module Sevgi
         end
       end
 
-      def test_executable_rejects_extra_operands
-        out, err, status = run_igves("first.svg", "second.svg")
+      def test_executable_rejects_invalid_argv_grammar
+        [
+          [[], /No SVG file given/],
+          [["--unknown"], /Not a valid option: --unknown/],
+          [["--omit"], /No attribute given for --omit/],
+          [%w[first.svg second.svg], /Unexpected argument: second\.svg/]
+        ].each do |args, message|
+          out, err, status = run_igves(*args)
 
-        assert_equal(1, status.exitstatus)
-        assert_empty(out)
-        assert_match(/Unexpected argument: second\.svg/, err)
-        assert_match(/Usage: igves \[options\.\.\.\] \[--\] <SVG file>/, err)
+          assert_equal(1, status.exitstatus)
+          assert_empty(out)
+          assert_match(message, err)
+          assert_match(/Usage: igves \[options\.\.\.\] \[--\] <SVG file>/, err)
+        end
       end
 
       private
