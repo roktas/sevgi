@@ -47,7 +47,7 @@ This gem needs no native libraries of its own. Nokogiri may use platform package
 
 ## Links
 
-- Documentation: https://sevgi.roktas.dev
-- API documentation: https://www.rubydoc.info/gems/sevgi-derender
-- Source: https://github.com/roktas/sevgi/tree/main/derender
-- Changelog: https://github.com/roktas/sevgi/blob/main/CHANGELOG.md
+- Documentation: <https://sevgi.roktas.dev>
+- API documentation: <https://www.rubydoc.info/gems/sevgi-derender>
+- Source: <https://github.com/roktas/sevgi/tree/main/derender>
+- Changelog: <https://github.com/roktas/sevgi/blob/main/CHANGELOG.md>

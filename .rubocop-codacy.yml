@@ -1,0 +1,25 @@
+# Codacy cannot install the local RuboCop plugins. Let rubyfmt and the full local
+# configuration own formatting and metrics; keep Codacy focused on correctness.
+AllCops:
+  DisabledByDefault: true
+  NewCops: enable
+  SuggestExtensions: false
+  Exclude:
+    - "vendor/**/*"
+    - "_/**/*"
+    - "**/_/**/*"
+    - "**/*.sevgi"
+
+Lint:
+  Enabled: true
+Security:
+  Enabled: true
+
+Lint/AmbiguousBlockAssociation:
+  Enabled: false
+Lint/AmbiguousRegexpLiteral:
+  Enabled: false
+Lint/ElseLayout:
+  Enabled: false
+Lint/RedundantCopDisableDirective:
+  Enabled: false

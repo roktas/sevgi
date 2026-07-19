@@ -32,7 +32,7 @@ This gem needs only Ruby and its Ruby dependencies.
 
 ## Links
 
-- Documentation: https://sevgi.roktas.dev
-- API documentation: https://www.rubydoc.info/gems/sevgi-function
-- Source: https://github.com/roktas/sevgi/tree/main/function
-- Changelog: https://github.com/roktas/sevgi/blob/main/CHANGELOG.md
+- Documentation: <https://sevgi.roktas.dev>
+- API documentation: <https://www.rubydoc.info/gems/sevgi-function>
+- Source: <https://github.com/roktas/sevgi/tree/main/function>
+- Changelog: <https://github.com/roktas/sevgi/blob/main/CHANGELOG.md>

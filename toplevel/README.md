@@ -62,7 +62,7 @@ gem install cairo rsvg2 hexapdf
 
 ## Links
 
-- Documentation: https://sevgi.roktas.dev
-- API documentation: https://www.rubydoc.info/gems/sevgi
-- Source: https://github.com/roktas/sevgi/tree/main/toplevel
-- Changelog: https://github.com/roktas/sevgi/blob/main/CHANGELOG.md
+- Documentation: <https://sevgi.roktas.dev>
+- API documentation: <https://www.rubydoc.info/gems/sevgi>
+- Source: <https://github.com/roktas/sevgi/tree/main/toplevel>
+- Changelog: <https://github.com/roktas/sevgi/blob/main/CHANGELOG.md>
