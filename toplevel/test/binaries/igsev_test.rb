@@ -41,6 +41,19 @@ module Sevgi
         end
       end
 
+      def test_executable_loads_required_library
+        with_svg("<svg xmlns=\"http://www.w3.org/2000/svg\"><circle r=\"4\"/></svg>") do |file|
+          library = ::File.join(::File.dirname(file), "required.rb")
+          ::File.write(library, "warn \"igsev required library\"")
+
+          out, err, status = run_igsev("--require", library, file)
+
+          assert_predicate(status, :success?)
+          assert_match(%r{<circle r="4"/>}, out)
+          assert_equal("igsev required library\n", err)
+        end
+      end
+
       def test_executable_accepts_dash_prefixed_file_after_separator
         Dir.mktmpdir do |dir|
           File.write(File.join(dir, "-drawing.svg"), "<svg xmlns=\"http://www.w3.org/2000/svg\"/>")
@@ -55,6 +68,8 @@ module Sevgi
 
       def test_executable_rejects_invalid_argv_grammar
         [
+          [[], /No SVG file given/],
+          [["--unknown"], /Not a valid option: --unknown/],
           [["-r"], /Option requires a library: -r/],
           [["--omit"], /No attribute given for --omit/],
           [%w[first.svg second.svg], /Unexpected argument: second\.svg/]
