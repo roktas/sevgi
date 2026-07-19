@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.description = "Loads the complete Sevgi API and runs .sevgi scripts."
   s.homepage = "https://sevgi.roktas.dev"
   s.files = Dir.chdir(__dir__) { Dir["CHANGELOG.md", "LICENSE", "README.md", "lib/**/*"] }
-  s.executables = ["sevgi"]
+  s.executables = %w[igsev sevgi]
   s.required_ruby_version = ">= 3.4.0"
   s.metadata["changelog_uri"] = "https://github.com/roktas/sevgi/blob/main/CHANGELOG.md"
   s.metadata["source_code_uri"] = "https://github.com/roktas/sevgi"

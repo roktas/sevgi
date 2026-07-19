@@ -27,7 +27,7 @@ module Sevgi
       Component["derender", "sevgi-derender", "sevgi/derender", %w[igves], true],
       Component["sundries", "sevgi-sundries", "sevgi/sundries", [], true],
       Component["appendix", "sevgi-appendix", "sevgi/appendix", [], true],
-      Component["toplevel", "sevgi", "sevgi", %w[sevgi], true],
+      Component["toplevel", "sevgi", "sevgi", %w[igsev sevgi], true],
       Component["showcase", "sevgi-showcase", "sevgi/showcase", [], false]
     ].freeze
 
@@ -300,10 +300,12 @@ module Sevgi
     end
 
     def smoke_installed_cli(gem_home)
-      out, err, status = Open3.capture3(smoke_env(gem_home), "sevgi", "--version")
+      %w[igsev igves sevgi].each do |command|
+        out, err, status = Open3.capture3(smoke_env(gem_home), command, "--version")
 
-      assert(status.success?, "stdout:\n#{out}\nstderr:\n#{err}")
-      assert_equal(VERSION, out.strip)
+        assert(status.success?, "#{command}\nstdout:\n#{out}\nstderr:\n#{err}")
+        assert_equal(VERSION, out.strip)
+      end
 
       out, err, status = Open3.capture3(smoke_env(gem_home), "sevgi", "--skill")
       skill = out.strip

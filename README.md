@@ -16,8 +16,9 @@ For the complete command-line toolkit, Homebrew is the recommended installation 
 brew install roktas/tap/sevgi
 ```
 
-This installs Sevgi with Ruby, its native PDF and PNG export stack, and the headless pdfcpu and Poppler tools. It also
-gives the packaged agent skill a stable location; `sevgi --skill` prints that location for agent setup.
+This installs Sevgi with Ruby, the `sevgi`, `igves`, and `igsev` commands, its native PDF and PNG export stack, and the
+headless pdfcpu and Poppler tools. It also gives the packaged agent skill a stable location; `sevgi --skill` prints that
+location for agent setup.
 
 When Sevgi is a dependency of a Ruby application, manage it with Bundler in the application's `Gemfile` instead:
 

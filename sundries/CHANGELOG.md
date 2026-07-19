@@ -10,6 +10,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Added `sevgi-appendix`, containing the Sevgi agent skill and a RuboCop plugin for preserving readable `.sevgi` DSL
   source alongside rubyfmt-formatted Ruby; the umbrella `sevgi` gem installs the matching Appendix version.
 - Added `sevgi --skill` to report the validated path of the matching packaged agent skill for product-neutral setup.
+- Added `igsev` to the umbrella gem for normalizing an SVG file through a complete SVG-to-Sevgi-to-SVG round trip.
 
 ### Changed
 

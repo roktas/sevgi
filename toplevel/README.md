@@ -22,14 +22,18 @@ SVG :minimal do
 end.call
 ```
 
-## Executable
+## Executables
 
 ```sh
 sevgi drawing.sevgi
+igsev drawing.svg
 ```
 
 `sevgi --skill` prints the validated path of the matching packaged agent skill. See the
 [Appendix documentation](https://github.com/roktas/sevgi/tree/main/appendix) for installation guidance.
+
+`igsev` converts an SVG file to Sevgi source, evaluates it with the complete DSL, and prints the resulting normalized
+SVG. Use `igves` from `sevgi-derender` when the generated Sevgi source itself is the desired output.
 
 ## Ruby compatibility
 

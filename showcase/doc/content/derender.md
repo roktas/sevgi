@@ -78,6 +78,16 @@ The companion `igves` command prints a file conversion from the shell and accept
 igves --omit id --omit style badge.svg
 ```
 
+When normalized SVG is the desired result rather than generated Ruby, the umbrella `sevgi` gem provides `igsev`. It
+performs the complete SVG-to-Sevgi-to-SVG round trip and accepts the same repeatable omission option:
+
+```text
+igsev --omit id --omit style badge.svg > normalized.svg
+```
+
+This is a structural formatter, not a byte-preserving XML rewrite: Sevgi rendering determines declaration, whitespace,
+attribute spelling, and other serialized details.
+
 ## Inspect {#inspect}
 
 `Decompile` stops one step earlier and returns an immutable node. The node owns snapshots of its attributes,

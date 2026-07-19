@@ -49,6 +49,10 @@ source = SVG.DerenderFile "brand.svg", id: "logo", omit: :id
 puts source
 ```
 
+At the command line, `igves` prints generated Sevgi source. Use `igsev` from the umbrella gem only when the intended
+result is normalized SVG produced by a complete SVG-to-Sevgi-to-SVG round trip. Both commands accept repeatable
+`--omit ATTRIBUTE`; `igsev` is a structural formatter, not a byte-preserving XML rewrite.
+
 A selected subtree may produce a fragment rather than a standalone `.sevgi` script. Review the conversion, then place
 it inside the document or callable module that owns it; do not merely rename an arbitrary fragment to `.sevgi`.
 

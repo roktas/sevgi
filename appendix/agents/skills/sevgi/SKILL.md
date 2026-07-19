@@ -33,8 +33,8 @@ visible intent.
 4. Identify the owner of each visual result before writing arithmetic, offsets, or scaling. Read
    [drawing.md](references/drawing.md), and use [svg.md](references/svg.md) when SVG may own the behavior.
 5. Read [layout.md](references/layout.md) for repetition, tiling, alignment, rulers, grids, drawing, or hatching.
-6. For editor-authored SVG/XML, read [derender.md](references/derender.md). For PDF/PNG output, read
-   [output.md](references/output.md).
+6. For editor-authored SVG/XML, `igves` prints Sevgi source and `igsev` round-trips to normalized SVG; read
+   [derender.md](references/derender.md). For PDF/PNG output, read [output.md](references/output.md).
 7. Before introducing a Sevgi word or signature not established by nearby code or the loaded references, verify it in
    the DSL catalog or owning YARD. Do not infer an API from an English name or use `Element` to bypass an unknown
    operation.
