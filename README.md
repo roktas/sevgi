@@ -8,13 +8,27 @@ close to their output while retaining Ruby's composition and reuse.
 
 The full guides, DSL catalog, API reference, and rendered examples are at [sevgi.roktas.dev](https://sevgi.roktas.dev).
 
-## Quick start
+## Install
 
-Install Sevgi:
+For the complete command-line toolkit, Homebrew is the recommended installation on macOS and Linux:
 
 ```sh
-gem install sevgi
+brew install roktas/tap/sevgi
 ```
+
+This installs Sevgi with Ruby, its native PDF and PNG export stack, and the headless pdfcpu and Poppler tools. It also
+gives the packaged agent skill a stable location; `sevgi --skill` prints that location for agent setup.
+
+When Sevgi is a dependency of a Ruby application, manage it with Bundler in the application's `Gemfile` instead:
+
+```ruby
+gem "sevgi"
+```
+
+See [Sevgi Appendix](appendix/README.md) for agent-skill and RuboCop setup, including the difference between Homebrew
+and versioned gem paths.
+
+## Quick start
 
 Build and render an SVG document:
 
@@ -39,22 +53,23 @@ for installation details and [Showcase](https://sevgi.roktas.dev/showcase/) for 
 
 ## Choose a package
 
-`sevgi` is the umbrella gem. It installs the script runner, the `SVG` facade, and all runtime component gems. This is
-the simplest choice for applications and drawing scripts:
+`sevgi` is the umbrella gem. It installs the script runner, the `SVG` facade, the Appendix development extras, and all
+runtime component gems. This is the simplest Bundler dependency for applications and drawing scripts:
 
-```sh
-gem install sevgi
+```ruby
+gem "sevgi"
 ```
 
 The components are also published as separate gems for libraries that need a smaller dependency surface:
 
-| Scenario | Install | Ruby entry point |
+| Scenario | Install | Entry point |
 | --- | --- | --- |
 | Build and render SVG only | `sevgi-graphics` | `require "sevgi/graphics"` |
 | Build and validate SVG without the full toolkit | `sevgi-graphics sevgi-standard` | `require "sevgi/graphics"` |
 | Use geometry values and transformations without the DSL | `sevgi-geometry` | `require "sevgi/geometry"` |
 | Convert SVG or XML back into Sevgi source | `sevgi-derender` | `require "sevgi/derender"` |
 | Use grids, rulers, tiles, or export integrations | `sevgi-sundries` | `require "sevgi/sundries"` |
+| Locate the agent skill or lint `.sevgi` source | `sevgi-appendix` | `sevgi --skill` or the RuboCop plugin |
 
 For example, a service that only builds SVG can install `sevgi-graphics`. Its focused API is
 `Sevgi::Graphics.SVG(...)`; the full `SVG` facade and the `sevgi` executable belong to the umbrella gem. Add
@@ -64,8 +79,8 @@ optional when using `sevgi-sundries`.
 
 ## Requirements
 
-Sevgi requires Ruby 3.4 or newer. SVG output has no native graphics dependencies; PDF and PNG export use optional
-Cairo, librsvg, and HexaPDF integrations documented in Getting Started.
+Sevgi requires Ruby 3.4 or newer. SVG output has no native graphics dependencies. Gem-based PDF and PNG export uses
+optional Cairo, librsvg, and HexaPDF integrations documented in Getting Started.
 
 > [!NOTE]
 >

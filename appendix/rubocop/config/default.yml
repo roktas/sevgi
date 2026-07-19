@@ -1,0 +1,67 @@
+AllCops:
+  Include:
+    - "**/*.sevgi"
+
+Sevgi:
+  Enabled: true
+  Include:
+    - "**/*.sevgi"
+
+Sevgi/BlockDelimiters:
+  Description: "Use braces for one-line blocks and do/end for multiline blocks in Sevgi DSL source."
+  EnforcedStyle: line_count_based
+  SupportedStyles:
+    - line_count_based
+    - semantic
+    - braces_for_chaining
+    - always_braces
+  ProceduralMethods:
+    - benchmark
+    - bm
+    - bmbm
+    - create
+    - each_with_object
+    - measure
+    - new
+    - realtime
+    - tap
+    - with_object
+  FunctionalMethods:
+    - let
+    - let!
+    - subject
+    - watch
+  AllowedMethods:
+    - lambda
+    - proc
+    - it
+  AllowedPatterns: []
+  AllowBracesOnProceduralOneLiners: false
+  BracesRequiredMethods: []
+  VersionAdded: "0.97.0"
+
+Sevgi/Parentheses:
+  Description: "Omit optional parentheses from bare DSL calls and capitalized Sevgi operations."
+  EnforcedStyle: omit_parentheses
+  SupportedStyles:
+    - require_parentheses
+    - omit_parentheses
+  IgnoreMacros: true
+  AllowedMethods: []
+  AllowedPatterns: []
+  IncludedMacros: []
+  IncludedMacroPatterns: []
+  AllowParenthesesInMultilineCall: true
+  AllowParenthesesInChaining: true
+  AllowParenthesesInCamelCaseMethod: false
+  AllowParenthesesInStringInterpolation: true
+  VersionAdded: "0.97.0"
+
+Sevgi/StringLiterals:
+  Description: "Use double-quoted strings in Sevgi DSL source."
+  EnforcedStyle: double_quotes
+  SupportedStyles:
+    - single_quotes
+    - double_quotes
+  ConsistentQuotesInMultiline: false
+  VersionAdded: "0.97.0"

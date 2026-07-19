@@ -42,6 +42,7 @@ module Sevgi
           sevgi-standard
           sevgi-derender
           sevgi-sundries
+          sevgi-appendix
           sevgi
           sevgi-showcase
         ],

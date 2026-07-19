@@ -5,17 +5,8 @@ require_relative "test_helper"
 module Sevgi
   class DocumentationTest < Minitest::Test
     ROOT = ::File.expand_path("../..", __dir__)
-    LIB_FILES = %w[
-      function
-      geometry
-      graphics
-      standard
-      derender
-      sundries
-      toplevel
-      showcase
-    ]
-      .flat_map { ::Dir[::File.join(ROOT, it, "lib/**/*.rb")] }
+    LIB_FILES = ::Dir[::File.join(ROOT, "*/*.gemspec")]
+      .flat_map { ::Dir[::File.join(::File.dirname(it), "lib/**/*.rb")] }
       .freeze
     CONTRACT_TAGS = %w[param raise return yield yieldparam yieldreturn].freeze
     GENERIC_RETURNS = %w[Array Hash Object].freeze
@@ -397,6 +388,15 @@ module Sevgi
       assert_includes(workflow, "bundle exec rake doc:check")
       assert_includes(workflow, "actions/upload-artifact")
       assert_includes(workflow, ".cache/ruby/doc/api")
+    end
+
+    def test_yard_sources_cover_every_component
+      sources = ::File.readlines(::File.join(ROOT, ".yardopts"), chomp: true)
+      expected = ::Dir[::File.join(ROOT, "*/*.gemspec")].map do |gemspec|
+        "#{::File.basename(::File.dirname(gemspec))}/lib/**/*.rb"
+      end
+
+      assert_empty(expected - sources)
     end
 
     def test_docs_site_links_generated_api

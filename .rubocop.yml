@@ -8,6 +8,7 @@ inherit_mode:
 
 plugins:
   - "rubocop-rubyfmt"
+  - "sevgi-appendix"
   - "rubocop-md"
   - "rubocop-packaging"
   - "rubocop-rake"
@@ -17,23 +18,24 @@ Metrics/AbcSize:
     - "**/test/**/*.rb"
     - "**/*.sevgi"
 Metrics/BlockLength:
-  Exclude: 
+  Exclude:
     - "**/test/**/*.rb"
     - "**/*.gemspec"
     - "**/*.sevgi"
 Metrics/ClassLength:
-  Exclude: 
+  Exclude:
     - "**/test/**/*.rb"
     - "**/*.sevgi"
 Metrics/MethodLength:
-  Exclude: 
+  Exclude:
     - "**/test/**/*.rb"
     - "**/*.sevgi"
 
-# Rake's conventional root entrypoint cannot use a snake_case filename.
+# Conventional Rake and hyphenated gem entrypoints cannot use snake_case filenames.
 Naming/FileName:
   Exclude:
     - "Rakefile"
+    - "appendix/lib/sevgi-appendix.rb"
 Naming/MethodName:
   Enabled: false
 Naming/MethodParameterName:
@@ -61,6 +63,11 @@ Style/OptionalBooleanParameter:
   Enabled: false
 Style/ParallelAssignment:
   Enabled: false
+# rubocop-md combines the independent alternatives in this reference.
+Style/CombinableLoops:
+  Exclude:
+    - "appendix/agents/skills/sevgi/references/drawing.md"
+
 # Root build and release collaborators must remain in the Rakefile; top-level source directories are component gems.
 Style/OneClassPerFile:
   Exclude:

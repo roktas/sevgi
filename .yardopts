@@ -9,5 +9,6 @@ graphics/lib/**/*.rb
 standard/lib/**/*.rb
 derender/lib/**/*.rb
 sundries/lib/**/*.rb
+appendix/lib/**/*.rb
 toplevel/lib/**/*.rb
 showcase/lib/**/*.rb

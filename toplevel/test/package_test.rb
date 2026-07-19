@@ -26,6 +26,7 @@ module Sevgi
       Component["standard", "sevgi-standard", "sevgi/standard", [], true],
       Component["derender", "sevgi-derender", "sevgi/derender", %w[igves], true],
       Component["sundries", "sevgi-sundries", "sevgi/sundries", [], true],
+      Component["appendix", "sevgi-appendix", "sevgi/appendix", [], true],
       Component["toplevel", "sevgi", "sevgi", %w[sevgi], true],
       Component["showcase", "sevgi-showcase", "sevgi/showcase", [], false]
     ].freeze
@@ -208,6 +209,11 @@ module Sevgi
       assert_empty(contents.grep(%r{\A/|\.\.}), component.name)
       refute(contents.any? { |file| file == "AGENTS.md" || file.start_with?(".agents/") }, component.name)
       assert_equal(component.executables, gem.spec.executables.sort)
+
+      return unless component.name == "sevgi-appendix"
+
+      assert_equal("agents/skills/sevgi", gem.spec.metadata.fetch("sevgi_skill_path"))
+      assert_includes(contents, "agents/skills/sevgi/SKILL.md")
     end
 
     def build_component_package(component, dir)
@@ -298,11 +304,30 @@ module Sevgi
 
       assert(status.success?, "stdout:\n#{out}\nstderr:\n#{err}")
       assert_equal(VERSION, out.strip)
+
+      out, err, status = Open3.capture3(smoke_env(gem_home), "sevgi", "--skill")
+      skill = out.strip
+
+      assert(status.success?, "stdout:\n#{out}\nstderr:\n#{err}")
+      assert_equal("#{skill}\n", out)
+      assert_empty(err)
+      assert_equal(::File.expand_path(skill), skill)
+      assert(::File.file?(::File.join(skill, "SKILL.md")), skill)
     end
 
     def smoke_installed_gems(gem_home)
       code = <<~RUBY
         require "sevgi"
+        require "sevgi/appendix"
+
+        raise "sevgi loaded RuboCop development tooling" if defined?(RuboCop)
+
+        require "sevgi-appendix"
+
+        context = LintRoller::Context.new(engine: :rubocop, engine_version: RuboCop::Version.version)
+        rules = RuboCop::Sevgi::Plugin.new({}).rules(context)
+        raise "sevgi-appendix rules are missing" unless File.file?(rules.value)
+
         require "sevgi/showcase"
 
         %w[
@@ -312,6 +337,7 @@ module Sevgi
           sevgi-standard
           sevgi-derender
           sevgi-sundries
+          sevgi-appendix
           sevgi
           sevgi-showcase
         ].each do |name|

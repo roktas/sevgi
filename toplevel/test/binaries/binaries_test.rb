@@ -2,6 +2,7 @@
 
 require_relative "../test_helper"
 
+require "fileutils"
 require "open3"
 require "rbconfig"
 require "sevgi/binaries/sevgi"
@@ -13,6 +14,8 @@ module Sevgi
       Result = Data.define(:error) do
         def error? = !error.nil?
       end
+
+      GemSpec = Data.define(:full_gem_path, :metadata)
 
       def test_call_uses_main_mode_by_default
         calls = []
@@ -100,10 +103,92 @@ module Sevgi
         )
       end
 
-      def test_help_reports_nomain_short_option
+      def test_help_lists_options
         out, _err = capture_io { Sevgi.(["--help"]) }
 
         assert_match(/-n, --nomain/, out)
+        assert_match(/--skill/, out)
+      end
+
+      def test_call_skill_reports_the_matching_appendix_skill
+        with_skill do |root, skill|
+          spec = GemSpec.new(root, {"sevgi_skill_path" => "agents/skills/sevgi"})
+          requests = []
+
+          ::Gem::Specification.stub(
+            :find_by_name,
+            proc { |name, requirement|
+              requests << [name, requirement]
+              spec
+            }
+          ) do
+            with_env("SEVGI_SKILL", nil) do
+              out, err = capture_io { Sevgi.(["--skill"]) }
+
+              assert_equal("#{skill}\n", out)
+              assert_empty(err)
+            end
+          end
+
+          assert_equal([["sevgi-appendix", "= #{::Sevgi::VERSION}"]], requests)
+        end
+      end
+
+      def test_call_skill_preserves_a_packager_path
+        with_skill do |root, skill|
+          stable = ::File.join(root, "stable")
+          ::File.symlink(skill, stable)
+          spec = GemSpec.new(root, {"sevgi_skill_path" => "agents/skills/sevgi"})
+
+          ::Gem::Specification.stub(:find_by_name, spec) do
+            with_env("SEVGI_SKILL", stable) do
+              out, err = capture_io { Sevgi.(["--skill"]) }
+
+              assert_equal("#{stable}\n", out)
+              assert_empty(err)
+            end
+          end
+        end
+      end
+
+      def test_call_skill_requires_a_matching_appendix_before_the_packager_path
+        with_skill do |_root, skill|
+          error = ::Gem::MissingSpecError.new("sevgi-appendix", "= #{::Sevgi::VERSION}")
+
+          ::Gem::Specification.stub(:find_by_name, proc { raise error }) do
+            with_env("SEVGI_SKILL", skill) do
+              out, err = capture_io do
+                exit = assert_raises(SystemExit) { Sevgi.(["--skill"]) }
+
+                assert_equal(1, exit.status)
+              end
+
+              assert_empty(out)
+              assert_equal("sevgi-appendix #{::Sevgi::VERSION} is not installed.\n", err)
+              refute_match(/Usage:/, err)
+            end
+          end
+        end
+      end
+
+      def test_call_skill_rejects_an_incomplete_appendix
+        Dir.mktmpdir do |root|
+          spec = GemSpec.new(root, {"sevgi_skill_path" => "agents/skills/sevgi"})
+
+          ::Gem::Specification.stub(:find_by_name, spec) do
+            with_env("SEVGI_SKILL", nil) do
+              out, err = capture_io do
+                exit = assert_raises(SystemExit) { Sevgi.(["--skill"]) }
+
+                assert_equal(1, exit.status)
+              end
+
+              assert_empty(out)
+              assert_match(/Sevgi skill is unavailable/, err)
+              refute_match(/Usage:/, err)
+            end
+          end
+        end
       end
 
       def test_executable_reports_missing_file
@@ -257,6 +342,24 @@ module Sevgi
           *args,
           **options
         )
+      end
+
+      def with_env(name, value)
+        present = ENV.key?(name)
+        previous = ENV.fetch(name, nil)
+        value.nil? ? ENV.delete(name) : ENV[name] = value
+        yield
+      ensure
+        present ? ENV[name] = previous : ENV.delete(name)
+      end
+
+      def with_skill
+        Dir.mktmpdir do |root|
+          skill = ::File.join(root, "agents/skills/sevgi")
+          ::FileUtils.mkdir_p(skill)
+          ::File.write(::File.join(skill, "SKILL.md"), "# Sevgi\n")
+          yield(root, skill)
+        end
       end
 
       def with_script(source)

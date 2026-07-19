@@ -28,6 +28,9 @@ end.call
 sevgi drawing.sevgi
 ```
 
+`sevgi --skill` prints the validated path of the matching packaged agent skill. See the
+[Appendix documentation](https://github.com/roktas/sevgi/tree/main/appendix) for installation guidance.
+
 ## Ruby compatibility
 
 Requires Ruby 3.4.0 or newer. CI verifies Ruby 3.4.0 and the current development Ruby from `.ruby-version`.

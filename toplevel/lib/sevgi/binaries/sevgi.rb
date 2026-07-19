@@ -2,6 +2,8 @@
 
 require "sevgi"
 
+require_relative "skill"
+
 module Sevgi
   # Command-line entrypoint implementations shipped with Sevgi.
   # @api private
@@ -17,9 +19,21 @@ module Sevgi
       # Error raised for invalid command-line usage.
       Error = Class.new(::Sevgi::Error)
 
+      FLAGS = {
+        "-n" => :nomain,
+        "--nomain" => :nomain,
+        "-x" => :vomit,
+        "--exception" => :vomit,
+        "-h" => :help,
+        "--help" => :help,
+        "--skill" => :skill,
+        "-v" => :version,
+        "--version" => :version
+      }.freeze
+
       # Parsed command-line options for the `sevgi` executable.
       # @api private
-      Options = Struct.new(:require, :nomain, :vomit, :help, :version) do
+      Options = Struct.new(:require, :nomain, :vomit, :help, :skill, :version) do
         # Parses command-line options and removes them from the argv array.
         # @param argv [Array<String>] mutable command-line argument array
         # @return [Sevgi::Binaries::Sevgi::Options] parsed options
@@ -42,18 +56,11 @@ module Sevgi
           private
 
           def option(argv, options)
-            case (arg = argv.shift)
-            when "-r", "--require"
+            arg = argv.shift
+            if (flag = FLAGS[arg])
+              options[flag] = true
+            elsif ["-r", "--require"].include?(arg)
               options.require = argv.shift || Error.("Option requires a library: #{arg}")
-            when "-n", "--nomain"
-              options.nomain = true
-            when "-x", "--exception"
-              options.vomit = true
-
-            when "-h", "--help"
-              options.help = true
-            when "-v", "--version"
-              options.version = true
             else
               Error.("Not a valid option: #{arg}")
             end
@@ -61,7 +68,7 @@ module Sevgi
         end
       end
 
-      private_constant :Options
+      private_constant :FLAGS, :Options
 
       # Runs the `sevgi` command-line interface.
       # @param argv [Array<String>, String, nil] command-line arguments
@@ -70,11 +77,14 @@ module Sevgi
       # @raise [SystemExit] when argv does not match `[options...] [--] <file>` or script execution aborts
       def call(argv)
         return puts(help) if (options = Options.parse(argv = Array(argv))).help
+        return puts(Skill.path) if options.skill
         return puts(::Sevgi::VERSION) if options.version
 
         file = operand(argv)
         handle(run(file, options), file, options)
 
+      rescue Skill::Error => e
+        abort(e.message)
       rescue Binaries::Sevgi::Error => e
         abort("#{e.message}\n\n#{help}")
       end
@@ -111,6 +121,7 @@ module Sevgi
           --                    Stop option parsing
 
           -h, --help            Show this help
+          --skill               Display the packaged agent skill path
           -v, --version         Display version
         HELP
       end

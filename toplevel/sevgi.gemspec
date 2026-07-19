@@ -19,6 +19,7 @@ Gem::Specification.new do |s|
   s.metadata["bug_tracker_uri"] = "https://github.com/roktas/sevgi/issues"
   s.metadata["rubygems_mfa_required"] = "true"
 
+  s.add_dependency("sevgi-appendix", version)
   s.add_dependency("sevgi-derender", version)
   s.add_dependency("sevgi-function", version)
   s.add_dependency("sevgi-geometry", version)

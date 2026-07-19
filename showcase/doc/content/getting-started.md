@@ -69,29 +69,28 @@ use `Out` in the script.
 
 ## Install the CLI
 
-For released versions, install the top-level gem:
+For the complete command-line toolkit, install Sevgi through Homebrew on macOS or Linux:
 
 ```bash
-gem install sevgi
+brew install roktas/tap/sevgi
 ```
 
-This installs the `sevgi` executable and the standard components used by scripts.
+This installs the `sevgi` executable, Ruby, the native PDF and PNG export stack, and the headless pdfcpu and Poppler
+tools. Inkscape remains an optional external backend.
 
-SVG-only scripts do not need native export gems. If a script writes PDF or PNG through Sevgi's native export helpers,
-install the optional native export stack separately. On Debian/Ubuntu:
+When Sevgi is a dependency of a Ruby application, add the umbrella gem to its bundle instead:
 
-```bash
-sudo apt-get update
-sudo apt-get install -y libcairo2-dev libgdk-pixbuf-2.0-dev libgirepository1.0-dev libglib2.0-dev librsvg2-dev pkg-config
-gem install cairo rsvg2 hexapdf
+```ruby
+gem "sevgi"
 ```
 
-On macOS with Homebrew:
+SVG-only library use needs no native graphics packages. Applications that install gems directly and use PDF or PNG
+export must provide the optional `cairo`, `rsvg2`, and `hexapdf` gems and their system libraries themselves. See the
+[`sevgi-sundries` package guide](https://github.com/roktas/sevgi/tree/main/sundries) for those prerequisites. The
+[repository README](https://github.com/roktas/sevgi) lists focused component gems for smaller dependency surfaces.
 
-```bash
-brew install cairo gdk-pixbuf gobject-introspection librsvg pkg-config
-gem install cairo rsvg2 hexapdf
-```
+The full installation also packages Sevgi's agent skill. Run `sevgi --skill` to locate it, then follow the
+[Appendix setup guide](https://github.com/roktas/sevgi/tree/main/appendix).
 
 ## Choose a document profile
 

@@ -15,6 +15,7 @@ module SevgiRelease
     sevgi-standard
     sevgi-derender
     sevgi-sundries
+    sevgi-appendix
     sevgi
     sevgi-showcase
   ]
@@ -397,6 +398,7 @@ module SevgiBuild
     standard
     derender
     sundries
+    appendix
     toplevel
     showcase
   ].freeze

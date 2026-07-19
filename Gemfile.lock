@@ -1,4 +1,11 @@
 PATH
+  remote: appendix
+  specs:
+    sevgi-appendix (0.96.0)
+      lint_roller (~> 1.1)
+      rubocop (>= 1.72.2, < 2.0)
+
+PATH
   remote: derender
   specs:
     sevgi-derender (0.96.0)
@@ -49,6 +56,7 @@ PATH
   remote: toplevel
   specs:
     sevgi (0.96.0)
+      sevgi-appendix (= 0.96.0)
       sevgi-derender (= 0.96.0)
       sevgi-function (= 0.96.0)
       sevgi-geometry (= 0.96.0)
@@ -235,6 +243,7 @@ DEPENDENCIES
   rubocop-rubyfmt (= 0.1.1)
   ruby-lsp
   sevgi!
+  sevgi-appendix!
   sevgi-derender!
   sevgi-function!
   sevgi-geometry!
@@ -311,6 +320,7 @@ CHECKSUMS
   ruby-progressbar (1.13.0) sha256=80fc9c47a9b640d6834e0dc7b3c94c9df37f08cb072b7761e4a71e22cff29b33
   rufo (0.18.2) sha256=f279bea838aae7cd51149413a2dfa3383044b1c93f1469ceaddd1ca3824fc46f
   sevgi (0.96.0)
+  sevgi-appendix (0.96.0)
   sevgi-derender (0.96.0)
   sevgi-function (0.96.0)
   sevgi-geometry (0.96.0)

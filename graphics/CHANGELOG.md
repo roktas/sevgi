@@ -5,6 +5,17 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## Unreleased
 
+### Added
+
+- Added `sevgi-appendix`, containing the Sevgi agent skill and a RuboCop plugin for preserving readable `.sevgi` DSL
+  source alongside rubyfmt-formatted Ruby; the umbrella `sevgi` gem installs the matching Appendix version.
+- Added `sevgi --skill` to report the validated path of the matching packaged agent skill for product-neutral setup.
+
+### Changed
+
+- Made Homebrew the recommended complete CLI installation while retaining Bundler and focused component gems for Ruby
+  application dependencies.
+
 ## 0.96.0 - 2026-07-18
 
 ### Added
