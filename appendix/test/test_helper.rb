@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "simplecov" if ENV["COVERAGE"] == "1"
+
 require "minitest/autorun"
 require "minitest/focus"
 require "minitest/reporters"
