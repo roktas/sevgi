@@ -82,7 +82,6 @@ module Sevgi
 
       def backtrace(error)
         return error.load_backtrace if error.respond_to?(:load_backtrace)
-        return error.backtrace! if error.respond_to?(:backtrace!)
 
         error.backtrace || []
       end
