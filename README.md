@@ -69,13 +69,14 @@ The components are also published as separate gems for libraries that need a sma
 | Use geometry values and transformations without the DSL | `sevgi-geometry` | `require "sevgi/geometry"` |
 | Convert SVG or XML back into Sevgi source | `sevgi-derender` | `require "sevgi/derender"` |
 | Use grids, rulers, tiles, or export integrations | `sevgi-sundries` | `require "sevgi/sundries"` |
-| Locate the agent skill or lint `.sevgi` source | `sevgi-appendix` | `sevgi --skill` or the RuboCop plugin |
+| Package the agent skill or lint `.sevgi` source | `sevgi-appendix` | `require "sevgi/appendix"` or the RuboCop plugin |
 
 For example, a service that only builds SVG can install `sevgi-graphics`. Its focused API is
 `Sevgi::Graphics.SVG(...)`; the full `SVG` facade and the `sevgi` executable belong to the umbrella gem. Add
 `sevgi-standard` when that focused service should validate element and attribute names. Shared support gems such as
 `sevgi-function` are installed transitively by the components that need them. Native PDF and PNG export gems remain
-optional when using `sevgi-sundries`.
+optional when using `sevgi-sundries`. The umbrella gem adds the `sevgi --skill` query for locating the matching
+Appendix skill.
 
 ## Requirements
 

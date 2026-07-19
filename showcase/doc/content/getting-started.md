@@ -67,7 +67,7 @@ bundle exec showcase/srv/meter.sevgi
 The script writes `showcase/srv/meter.svg` because it ends with `Save`. To write SVG to standard output instead,
 use `Out` in the script.
 
-## Install the CLI
+## Install Sevgi
 
 For the complete command-line toolkit, install Sevgi through Homebrew on macOS or Linux:
 
@@ -84,10 +84,31 @@ When Sevgi is a dependency of a Ruby application, add the umbrella gem to its bu
 gem "sevgi"
 ```
 
+The umbrella gem is the right choice for most applications and drawing scripts. It installs the script runner, the
+`SVG` facade, the Appendix development extras, and all runtime components.
+
+### Choose a gem
+
+Libraries that need a smaller dependency surface can install focused component gems:
+
+| Scenario | Install | Entry point |
+| --- | --- | --- |
+| Build and render SVG only | `sevgi-graphics` | `require "sevgi/graphics"` |
+| Build and validate SVG without the full toolkit | `sevgi-graphics sevgi-standard` | `require "sevgi/graphics"` |
+| Use geometry values and transformations without the DSL | `sevgi-geometry` | `require "sevgi/geometry"` |
+| Convert SVG or XML back into Sevgi source | `sevgi-derender` | `require "sevgi/derender"` |
+| Use grids, rulers, tiles, or export integrations | `sevgi-sundries` | `require "sevgi/sundries"` |
+| Package the agent skill or lint `.sevgi` source | `sevgi-appendix` | `require "sevgi/appendix"` or the RuboCop plugin |
+
+For example, a service that only builds SVG can install `sevgi-graphics` and use
+`Sevgi::Graphics.SVG(...)`. The full `SVG` facade and the `sevgi` executable belong to the umbrella gem. Add
+`sevgi-standard` when the service should validate element and attribute names. Bundler installs shared support gems
+such as `sevgi-function` as transitive dependencies of the components that use them. The umbrella gem adds the
+`sevgi --skill` query for locating the matching Appendix skill.
+
 SVG-only library use needs no native graphics packages. Applications that install gems directly and use PDF or PNG
 export must provide the optional `cairo`, `rsvg2`, and `hexapdf` gems and their system libraries themselves. See the
-[`sevgi-sundries` package guide](https://github.com/roktas/sevgi/tree/main/sundries) for those prerequisites. The
-[repository README](https://github.com/roktas/sevgi) lists focused component gems for smaller dependency surfaces.
+[`sevgi-sundries` package guide](https://github.com/roktas/sevgi/tree/main/sundries) for those prerequisites.
 
 The full installation also packages Sevgi's agent skill. Run `sevgi --skill` to locate it, then follow the
 [Appendix setup guide](https://github.com/roktas/sevgi/tree/main/appendix).
