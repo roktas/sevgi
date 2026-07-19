@@ -42,7 +42,8 @@ visible intent.
    capitalized Sevgi operations, ordinary Ruby control flow, and SVG attributes visibly distinct. Do not mechanically
    parenthesize statement-like DSL calls.
 9. Render and inspect the actual output in each context it claims to support. Compare visible bounds and density—not
-   only canvas or DOM dimensions.
+   only canvas or DOM dimensions. For size, alignment, clipping, density, or visual-regression evidence, read
+   [inspection.md](references/inspection.md) and identify the measurement space before choosing a tool.
 10. Re-read the finished source for raw-XML detours, avoidable calculations, magic offsets, duplicated helpers, and
     stale artifacts.
 
@@ -54,6 +55,7 @@ visible intent.
 | Choose a component and locate user, YARD, or checkout documentation | [toolkit.md](references/toolkit.md) |
 | Structure `.sevgi` and library code as idiomatic Ruby | [ruby.md](references/ruby.md) |
 | Apply the renderer/program ownership boundary; diagnose visual mismatches | [drawing.md](references/drawing.md) |
+| Measure SVG geometry, browser layout, or painted pixels | [inspection.md](references/inspection.md) |
 | Find an SVG capability and its authoritative specification | [svg.md](references/svg.md) |
 | Choose repetition, tiling, ruler, grid, Draw, pattern, or Hatch | [layout.md](references/layout.md) |
 | Integrate editor-authored SVG/XML through Derender | [derender.md](references/derender.md) |
