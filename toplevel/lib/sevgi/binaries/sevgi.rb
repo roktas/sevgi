@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
+require "rubygems"
 require "sevgi"
-
-require_relative "skill"
+require "sevgi/skill"
 
 module Sevgi
   # Command-line entrypoint implementations shipped with Sevgi.
