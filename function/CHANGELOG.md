@@ -5,6 +5,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## Unreleased
 
+## 0.97.0 - 2026-07-19
+
 ### Added
 
 - Added `sevgi-appendix`, containing the Sevgi agent skill and a RuboCop plugin for preserving readable `.sevgi` DSL

@@ -3,6 +3,6 @@
 module Sevgi
   module Geometry
     # Component version.
-    VERSION = "0.96.0"
+    VERSION = "0.97.0"
   end
 end
