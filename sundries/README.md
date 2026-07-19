@@ -24,7 +24,7 @@ tile.box.height
 
 ## Ruby compatibility
 
-Requires Ruby 3.4.0 or newer. CI verifies Ruby 3.4.0 and the current development Ruby from `.ruby-version`.
+Requires Ruby 3.4.0 or newer. CI verifies the current Ruby 3.4 release and the development Ruby from `.ruby-version`.
 
 ## Native prerequisites
 
