@@ -10,6 +10,18 @@ grid combines two rulers, and a tile repeats one geometry value. They are regula
 so applications can inspect and test a layout before creating any SVG elements. Export is the separate output-oriented
 part of the component.
 
+## Choose a layout model {#choose-a-layout-model}
+
+Choose by the value the rest of the program needs, not only by the visible repetition:
+
+| Need | Use | Result |
+| --- | --- | --- |
+| Repeat one SVG template in the document | DSL `Tile`, `TileX`, or `TileY` | `<defs>` plus positioned `<use>` elements |
+| Copy independently editable SVG subtrees | `Duplicate`, `DuplicateX`, or `DuplicateY` | separate element trees |
+| Inspect repeated cells and their bounds in Ruby | `Sevgi::Sundries::Tile` | geometry values without SVG output |
+| Fit major and minor intervals into one span | `Ruler` or `RulerEven` | inspectable distances and margins |
+| Combine two fitted rulers | `SVG.Grid` or `Sevgi::Sundries::Grid` | lines, points, cells, and a fitted canvas |
+
 ## Rulers {#rulers}
 
 `Ruler` fits whole major intervals inside a span. `unit` is the smallest step; `multiple` says how many units form one
@@ -107,7 +119,8 @@ Use this Ruby object when later calculations need the cells or their bounds. Use
 SVG output needs no native graphics libraries. PDF and PNG export are optional:
 
 ```ruby
-drawing = SVG width: 40, height: 40 do
+canvas = SVG.Canvas width: 40, height: 40, unit: :px
+drawing = SVG :minimal, canvas do
   circle cx: 20, cy: 20, r: 16, fill: "tomato"
 end
 
@@ -119,9 +132,14 @@ Applications that keep output policy outside the document can call the component
 the format when `format:` is omitted, and the return value is the expanded output path:
 
 ```ruby
-drawing = SVG(:minimal) { circle cx: 20, cy: 20, r: 16, fill: "tomato" }
+canvas = SVG.Canvas width: 40, height: 40, unit: :px
+drawing = SVG(:minimal, canvas) { circle cx: 20, cy: 20, r: 16, fill: "tomato" }
 Sevgi::Sundries::Export.call(drawing.Render, "badge.png", width: 320)
 ```
+
+Export `width` and `height` control output dimensions; they do not replace the SVG canvas or repair its `viewBox` or
+visible geometry. Define those relationships in the drawing before export. Use `css:` only for deliberate export-only
+styling.
 
 PDF and PNG output uses Cairo, librsvg, and HexaPDF. If one is missing, Sevgi raises a component error. Ordinary SVG
 rendering still works without them.

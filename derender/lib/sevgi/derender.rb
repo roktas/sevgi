@@ -11,7 +11,13 @@ require_relative "derender/node"
 require_relative "derender/version"
 
 module Sevgi
-  # Converts SVG/XML content into Sevgi DSL source or evaluates it into graphics elements.
+  # Brings editor-authored SVG/XML into programmatic Sevgi workflows.
+  #
+  # Vector geometry such as a Bezier-heavy logo or hand-adjusted illustration may be better authored in a visual editor
+  # than reconstructed as Ruby. Derender preserves that SVG/XML tree as inspectable data, formatted Sevgi DSL source,
+  # or graphics elements under an existing document. This lets editor-authored geometry participate in programmatic
+  # composition, styling, layout, and output. Use it when SVG/XML is a real input artifact, not as an intermediate
+  # authoring format for ordinary Sevgi drawing code.
   #
   # Generated source uses bare DSL calls only for recognized element names that cannot dispatch to an existing Ruby or
   # Sevgi method. Other XML names use the explicit `Element` DSL word so executing generated source preserves the XML

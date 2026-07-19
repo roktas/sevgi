@@ -5,8 +5,13 @@ weight = 14
 group = "Toolkit"
 +++
 
-Derender turns SVG or XML into readable Sevgi source. It is handy when a drawing starts in a visual editor but needs to
-end up in code. Convert inline content or a file, then regenerate it, include part of it, or inspect its tree.
+Not every useful vector drawing should be produced programmatically. A Bezier-heavy logo, traced illustration, or
+hand-adjusted path may be easier and more faithful to author in a visual editor. Derender brings that SVG or XML into
+Sevgi's element model, where editor-authored geometry can participate in Ruby-driven composition, styling, layout, and
+output.
+
+Use Derender when SVG/XML is a real input artifact, not as a detour for shapes or relationships that are clearer in the
+Sevgi DSL. Convert inline content or a file, generate source, include part of it, or inspect its tree.
 
 ## The round trip
 
@@ -23,6 +28,9 @@ Ruby. It cannot recover the loops, helper methods, or other higher-level code th
 | Generate source | `SVG.Derender` | `SVG.DerenderFile` | formatted Ruby string | no |
 | Include selection | `SVG.Evaluate` | `SVG.EvaluateFile` | included element or `nil` | yes |
 | Include children | `SVG.EvaluateChildren` | `SVG.EvaluateChildrenFile` | frozen element snapshot | yes |
+
+Choose source generation when the converted Ruby should become the maintained representation. Choose evaluation or
+`Include` when the editor file should remain the source of its geometry and Sevgi should compose it at runtime.
 
 Library code uses the capitalized facade operations. For example, a consumer can inspect a node and generate only that
 subtree without installing script-mode names:

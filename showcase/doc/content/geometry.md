@@ -147,4 +147,9 @@ SVG :inkscape do
 end.Render
 ```
 
+`Hatch` materializes each finite segment as a separate SVG path. Use it when those segments must remain editable,
+inspectable, or available as explicit geometry. If only the rendered striped fill matters, prefer an SVG
+[`pattern`](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/pattern) and let the renderer repeat and
+clip it.
+
 Arc and curve preparation is still incomplete, so those APIs are not supported yet.

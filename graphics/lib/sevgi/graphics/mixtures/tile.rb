@@ -3,7 +3,12 @@
 module Sevgi
   module Graphics
     module Mixtures
-      # DSL helpers for repeated SVG use elements.
+      # DSL helpers for defining one SVG template and repeating it through `use` elements.
+      #
+      # Use {Sevgi::Sundries::Tile} instead when Ruby code needs inspectable repeated geometry or row/column bounds
+      # rather than SVG references.
+      # @see Sevgi::Sundries::Tile
+      # @see https://sevgi.roktas.dev/sundries/#choose-a-layout-model Choosing a layout model
       module Tile
         # Stable prefix used for generated tile CSS classes.
         PREFIX = "tile"

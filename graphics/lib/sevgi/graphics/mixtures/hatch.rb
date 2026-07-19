@@ -11,6 +11,9 @@ module Sevgi
       # spacing. The default initial line passes through `element.position`.
       # The built-in `:inkscape` document profile includes this mixture;
       # `:minimal`, `:default`, and `:html` do not.
+      #
+      # Hatch materializes separate finite SVG path elements. When only a repeated visual fill matters, use an SVG
+      # pattern and leave repetition and clipping to the renderer instead of computing line geometry.
       # @example Add geometry drawing to a scoped custom profile
       #   profile = Class.new(Sevgi::Graphics::Document::Base)
       #   Sevgi::Graphics::Mixtures.mixin(:Hatch, profile)
@@ -20,6 +23,7 @@ module Sevgi
       #     Hatch region, angle: 30, step: 3, stroke: "black"
       #   end.Render
       # @see Sevgi::Geometry::Operation.sweep
+      # @see https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/pattern SVG pattern element
       module Hatch
         # Draws one or more geometry line-like objects into this element.
         # @example Draw geometry lines into a library-built document
@@ -31,7 +35,7 @@ module Sevgi
         #   drawing.Render
         # @param lines [#draw, Array<#draw>] drawable geometry objects
         # @param kwargs [Hash] SVG attributes passed to each draw call
-        # @return [Array<Sevgi::Graphics::Element>] rendered line elements
+        # @return [Array<Sevgi::Graphics::Element>] rendered SVG elements
         def Draw(lines, **kwargs)
           Array(lines).map { it.draw(self, **kwargs) }
         end
@@ -53,7 +57,7 @@ module Sevgi
         # @param step [Numeric] distance between hatch lines
         # @param initial [Sevgi::Geometry::Point, Array<Numeric>, nil] initial sweep point, or nil for element.position
         # @param kwargs [Hash] SVG attributes passed to each draw call
-        # @return [Array<Sevgi::Graphics::Element>] rendered line elements
+        # @return [Array<Sevgi::Graphics::Element>] rendered hatch path elements
         # @raise [Sevgi::MissingComponentError] when sevgi/geometry is unavailable
         # @raise [Sevgi::Geometry::Operation::OperationInapplicableError] when element is not sweepable
         # @raise [Sevgi::Geometry::Error] when initial, angle, or step is invalid

@@ -20,6 +20,7 @@ module Sevgi
     # @example Infer PDF output and inject export-only CSS
     #   svg = Sevgi::Graphics.SVG(:minimal) { circle class: "accent", r: 4 }.Render
     #   Sevgi::Sundries::Export.call(svg, "drawing.pdf", css: ".accent { fill: tomato; }")
+    # @see https://sevgi.roktas.dev/sundries/#export Export guide
     module Export
       # File extensions mapped to export format names.
       # @api private
