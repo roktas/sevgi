@@ -1,68 +1,68 @@
 PATH
   remote: appendix
   specs:
-    sevgi-appendix (0.97.0)
+    sevgi-appendix (0.98.0)
       lint_roller (~> 1.1)
       rubocop (>= 1.72.2, < 2.0)
 
 PATH
   remote: derender
   specs:
-    sevgi-derender (0.97.0)
+    sevgi-derender (0.98.0)
       css_parser (~> 1.21)
       nokogiri (~> 1.18)
       rufo (~> 0.18)
-      sevgi-function (= 0.97.0)
-      sevgi-graphics (= 0.97.0)
+      sevgi-function (= 0.98.0)
+      sevgi-graphics (= 0.98.0)
 
 PATH
   remote: function
   specs:
-    sevgi-function (0.97.0)
+    sevgi-function (0.98.0)
 
 PATH
   remote: geometry
   specs:
-    sevgi-geometry (0.97.0)
-      sevgi-function (= 0.97.0)
+    sevgi-geometry (0.98.0)
+      sevgi-function (= 0.98.0)
 
 PATH
   remote: graphics
   specs:
-    sevgi-graphics (0.97.0)
-      sevgi-function (= 0.97.0)
+    sevgi-graphics (0.98.0)
+      sevgi-function (= 0.98.0)
 
 PATH
   remote: showcase
   specs:
-    sevgi-showcase (0.97.0)
-      sevgi (= 0.97.0)
+    sevgi-showcase (0.98.0)
+      sevgi (= 0.98.0)
 
 PATH
   remote: standard
   specs:
-    sevgi-standard (0.97.0)
-      sevgi-function (= 0.97.0)
+    sevgi-standard (0.98.0)
+      sevgi-function (= 0.98.0)
 
 PATH
   remote: sundries
   specs:
-    sevgi-sundries (0.97.0)
-      sevgi-function (= 0.97.0)
-      sevgi-geometry (= 0.97.0)
-      sevgi-graphics (= 0.97.0)
+    sevgi-sundries (0.98.0)
+      sevgi-function (= 0.98.0)
+      sevgi-geometry (= 0.98.0)
+      sevgi-graphics (= 0.98.0)
 
 PATH
   remote: toplevel
   specs:
-    sevgi (0.97.0)
-      sevgi-appendix (= 0.97.0)
-      sevgi-derender (= 0.97.0)
-      sevgi-function (= 0.97.0)
-      sevgi-geometry (= 0.97.0)
-      sevgi-graphics (= 0.97.0)
-      sevgi-standard (= 0.97.0)
-      sevgi-sundries (= 0.97.0)
+    sevgi (0.98.0)
+      sevgi-appendix (= 0.98.0)
+      sevgi-derender (= 0.98.0)
+      sevgi-function (= 0.98.0)
+      sevgi-geometry (= 0.98.0)
+      sevgi-graphics (= 0.98.0)
+      sevgi-standard (= 0.98.0)
+      sevgi-sundries (= 0.98.0)
 
 GEM
   remote: https://rubygems.org/
@@ -83,7 +83,7 @@ GEM
     css_parser (1.22.0)
       addressable
     docile (1.4.1)
-    erb (6.0.5)
+    erb (6.0.6)
     fiddle (1.1.8)
     gdk_pixbuf2 (4.3.7)
       gio2 (= 4.3.7)
@@ -266,7 +266,7 @@ CHECKSUMS
   cmdparse (3.0.7) sha256=f7c5cace10bec6abf853370ae095e4b97a84ed9d847b3fb38f41cc4fbc950739
   css_parser (1.22.0) sha256=f274988a40c6178305530d60e7deb5162f7b5538b701b61b5488fc703e5b40c1
   docile (1.4.1) sha256=96159be799bfa73cdb721b840e9802126e4e03dfc26863db73647204c727f21e
-  erb (6.0.5) sha256=858e63488cb796c9daba8b6e9ff4b3879c395022049be9a66a8e00980e612eac
+  erb (6.0.6) sha256=a9b24986700f5bf127c4f297c5403c3ca41b83b0a316c0cd09a096b56e644ae5
   fiddle (1.1.8) sha256=7fa8ee3627271497f3add5503acdbc3f40b32f610fc1cf49634f083ef3f32eee
   gdk_pixbuf2 (4.3.7) sha256=6eecabf3136ddc708ff438c9f6c19e11d0f5d883b8d83d9b577761070cc18807
   geom2d (0.4.1) sha256=ea0998ea90c4f2752e24fe13d85a4f89bee689d151316140ebcc6369bf634ed9
@@ -319,15 +319,15 @@ CHECKSUMS
   ruby-lsp (0.26.10) sha256=e67284af94423531f6b9a583350596421b5a6a4dd93083f1c2ba03da7c23bbed
   ruby-progressbar (1.13.0) sha256=80fc9c47a9b640d6834e0dc7b3c94c9df37f08cb072b7761e4a71e22cff29b33
   rufo (0.18.2) sha256=f279bea838aae7cd51149413a2dfa3383044b1c93f1469ceaddd1ca3824fc46f
-  sevgi (0.97.0)
-  sevgi-appendix (0.97.0)
-  sevgi-derender (0.97.0)
-  sevgi-function (0.97.0)
-  sevgi-geometry (0.97.0)
-  sevgi-graphics (0.97.0)
-  sevgi-showcase (0.97.0)
-  sevgi-standard (0.97.0)
-  sevgi-sundries (0.97.0)
+  sevgi (0.98.0)
+  sevgi-appendix (0.98.0)
+  sevgi-derender (0.98.0)
+  sevgi-function (0.98.0)
+  sevgi-geometry (0.98.0)
+  sevgi-graphics (0.98.0)
+  sevgi-showcase (0.98.0)
+  sevgi-standard (0.98.0)
+  sevgi-sundries (0.98.0)
   simplecov (0.22.0) sha256=fe2622c7834ff23b98066bb0a854284b2729a569ac659f82621fc22ef36213a5
   simplecov-html (0.13.2) sha256=bd0b8e54e7c2d7685927e8d6286466359b6f16b18cb0df47b508e8d73c777246
   simplecov_json_formatter (0.1.4) sha256=529418fbe8de1713ac2b2d612aa3daa56d316975d307244399fa4838c601b428

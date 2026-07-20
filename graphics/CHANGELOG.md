@@ -5,6 +5,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## Unreleased
 
+## 0.98.0 - 2026-07-20
+
 ### Added
 
 - Added standard-input support to `sevgi`, `igves`, and `igsev`; `sevgi --as NAME` and
