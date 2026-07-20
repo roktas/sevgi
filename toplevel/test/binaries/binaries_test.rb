@@ -22,7 +22,8 @@ module Sevgi
 
         ::Sevgi.stub(
           :execute_file,
-          proc { |file, require:, main:|
+          proc { |file, require:, main:, as: nil|
+            assert_nil(as)
             calls << [file, require, main]
             Result.new(nil)
           }
@@ -38,7 +39,8 @@ module Sevgi
 
         ::Sevgi.stub(
           :execute_file,
-          proc { |file, require:, main:|
+          proc { |file, require:, main:, as: nil|
+            assert_nil(as)
             calls << [file, require, main]
             Result.new(nil)
           }
@@ -54,7 +56,8 @@ module Sevgi
 
         ::Sevgi.stub(
           :execute_file,
-          proc { |file, require:, main:|
+          proc { |file, require:, main:, as: nil|
+            assert_nil(as)
             calls << [file, require, main]
             Result.new(nil)
           }
@@ -70,7 +73,8 @@ module Sevgi
 
         ::Sevgi.stub(
           :execute_file,
-          proc { |file, require:, main:|
+          proc { |file, require:, main:, as: nil|
+            assert_nil(as)
             calls << [file, require, main]
             Result.new(nil)
           }
@@ -107,6 +111,7 @@ module Sevgi
         out, _err = capture_io { Sevgi.(["--help"]) }
 
         assert_match(/-n, --nomain/, out)
+        assert_match(/--as NAME/, out)
         assert_match(/--skill/, out)
       end
 
@@ -213,6 +218,18 @@ module Sevgi
         end
       end
 
+      def test_executable_as_preserves_missing_file_error_policy
+        Dir.mktmpdir do |dir|
+          file = ::File.join(dir, "missing.sevgi")
+          out, err, status = run_sevgi("--as", "badge", file)
+
+          assert_equal(1, status.exitstatus)
+          assert_empty(out)
+          assert_match(/No such file or directory/, err)
+          refute_raw_error(err)
+        end
+      end
+
       def test_executable_reports_unreadable_file
         with_unreadable_script do |file|
           out, err, status = run_sevgi(file)
@@ -258,6 +275,95 @@ module Sevgi
         end
       end
 
+      def test_executable_reads_stdin_when_file_is_omitted_or_dash
+        source = <<~SEVGI
+          SVG :minimal do
+            circle r: 4
+          end.Out
+        SEVGI
+
+        [[], ["-"]].each do |args|
+          out, err, status = run_sevgi(*args, stdin_data: source)
+
+          assert_predicate(status, :success?)
+          assert_match(%r{<circle r="4"/>}, out)
+          assert_empty(err)
+        end
+      end
+
+      def test_executable_uses_stdin_name_for_implicit_save
+        source = "SVG(:minimal) { circle r: 4 }.Save\n"
+
+        Dir.mktmpdir do |dir|
+          out, err, status = run_sevgi(chdir: dir, stdin_data: source)
+
+          assert_predicate(status, :success?)
+          assert_empty(out)
+          assert_empty(err)
+          assert_path_exists(::File.join(dir, "output.svg"))
+        end
+      end
+
+      def test_executable_as_sets_stdin_implicit_output_name
+        source = "SVG(:minimal) { circle r: 4 }.Save\n"
+
+        Dir.mktmpdir do |dir|
+          out, err, status = run_sevgi("--as", "badge", chdir: dir, stdin_data: source)
+
+          assert_predicate(status, :success?)
+          assert_empty(out)
+          assert_empty(err)
+          assert_path_exists(::File.join(dir, "badge.svg"))
+          refute_path_exists(::File.join(dir, "output.svg"))
+        end
+      end
+
+      def test_executable_as_renames_file_in_its_source_directory
+        source = "SVG(:minimal) { circle r: 4 }.Save\n"
+
+        Dir.mktmpdir do |dir|
+          input = ::File.join(dir, "drawing.sevgi")
+          ::File.write(input, source)
+
+          out, err, status = run_sevgi("--as", "badge", input)
+
+          assert_predicate(status, :success?)
+          assert_empty(out)
+          assert_empty(err)
+          assert_path_exists(::File.join(dir, "badge.svg"))
+          refute_path_exists(::File.join(dir, "drawing.svg"))
+        end
+      end
+
+      def test_executable_as_preserves_load_identity
+        Dir.mktmpdir do |dir|
+          input = ::File.join(dir, "drawing.sevgi")
+          shared = ::File.join(dir, "shared.sevgi")
+          ::File.write(input, "Load 'shared'\n")
+          ::File.write(shared, "warn 'loaded'\n")
+
+          out, err, status = run_sevgi("--as", "shared", input)
+
+          assert_predicate(status, :success?)
+          assert_empty(out)
+          assert_equal("loaded\n", err)
+        end
+      end
+
+      def test_executable_as_does_not_override_explicit_save_default
+        source = "SVG(:minimal) { circle r: 4 }.Save default: \"chosen.svg\"\n"
+
+        Dir.mktmpdir do |dir|
+          out, err, status = run_sevgi("--as", "badge", chdir: dir, stdin_data: source)
+
+          assert_predicate(status, :success?)
+          assert_empty(out)
+          assert_empty(err)
+          assert_path_exists(::File.join(dir, "chosen.svg"))
+          refute_path_exists(::File.join(dir, "badge.svg"))
+        end
+      end
+
       def test_executable_accepts_dash_prefixed_file_after_separator
         Dir.mktmpdir do |dir|
           File.write(File.join(dir, "-drawing.sevgi"), "")
@@ -274,6 +380,8 @@ module Sevgi
         [
           [["-r"], /Option requires a library: -r/],
           [["--require"], /Option requires a library: --require/],
+          [["--as"], /Option requires a name: --as/],
+          [["--as", "build/badge"], /Option requires a name, not a path: --as/],
           [%w[first.sevgi second.sevgi], /Unexpected argument: second\.sevgi/]
         ].each do |args, message|
           out, err, status = run_sevgi(*args)
@@ -281,7 +389,7 @@ module Sevgi
           assert_equal(1, status.exitstatus)
           assert_empty(out)
           assert_match(message, err)
-          assert_match(/Usage: sevgi \[options\.\.\.\] \[--\] <Sevgi file>/, err)
+          assert_match(/Usage: sevgi \[options\.\.\.\] \[--\] \[Sevgi file\|-\]/, err)
         end
       end
 
@@ -329,7 +437,7 @@ module Sevgi
         refute_match(%r{toplevel/lib|bin/sevgi|Traceback}, err)
       end
 
-      def run_sevgi(*args, env: {}, chdir: nil)
+      def run_sevgi(*args, env: {}, chdir: nil, stdin_data: "")
         lib = ::File.expand_path("../../lib", __dir__)
         bin = ::File.expand_path("../../bin/sevgi", __dir__)
         rubylib = [lib, ENV.fetch("RUBYLIB", nil)].compact.join(::File::PATH_SEPARATOR)
@@ -340,6 +448,7 @@ module Sevgi
           ::RbConfig.ruby,
           bin,
           *args,
+          stdin_data:,
           **options
         )
       end

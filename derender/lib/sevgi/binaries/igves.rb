@@ -36,8 +36,7 @@ module Sevgi
         # @raise [Sevgi::Binaries::Igves::Error] when an option is not recognized
         def self.parse(argv)
           new.tap do |options|
-            until argv.empty?
-              break unless argv.first.start_with?("-")
+            until argv.empty? || argv.first == "-" || !argv.first.start_with?("-")
               if argv.first == "--"
                 argv.shift
                 break
@@ -69,7 +68,7 @@ module Sevgi
       # @raise [Sevgi::ArgumentError] when the SVG file cannot be found
       # @raise [Sevgi::PanicError] when generated Ruby source cannot be formatted
       # @raise [StandardError] when `--exception` or `SEVGI_VOMIT` requests raw errors
-      # @raise [SystemExit] when argv does not match `[options...] [--] <file>` or command-line usage aborts
+      # @raise [SystemExit] when argv does not match `[options...] [--] [file|-]` or command-line usage aborts
       def call(argv)
         dispatch(Array(argv))
       rescue Binaries::Igves::Error => e
@@ -108,7 +107,7 @@ module Sevgi
 
       def help
         <<~HELP
-          Usage: #{PROGNAME} [options...] [--] <SVG file>
+          Usage: #{PROGNAME} [options...] [--] [SVG file|-]
 
           See documentation for detailed help.
 
@@ -123,14 +122,16 @@ module Sevgi
       end
 
       def operand(argv)
-        file = argv.shift || Error.("No SVG file given.")
+        file = argv.shift
         Error.("Unexpected argument: #{argv.first}") unless argv.empty?
 
-        file
+        file unless file == "-"
       end
 
       def run(file, options)
-        Derender.derender_file(file, omit: options.omit)
+        return Derender.derender_file(file, omit: options.omit) if file
+
+        Derender.derender($stdin.read, omit: options.omit)
       end
 
       def print_file(file, options)

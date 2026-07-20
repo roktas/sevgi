@@ -36,8 +36,7 @@ module Sevgi
         # @raise [Sevgi::Binaries::Igsev::Error] when an option is not recognized or a required value is missing
         def self.parse(argv)
           new.tap do |options|
-            until argv.empty?
-              break unless argv.first.start_with?("-")
+            until argv.empty? || argv.first == "-" || !argv.first.start_with?("-")
               if argv.first == "--"
                 argv.shift
                 break
@@ -71,7 +70,7 @@ module Sevgi
       # @param argv [Array<String>, String, nil] command-line arguments
       # @return [nil]
       # @raise [StandardError] when `--exception` or `SEVGI_VOMIT` requests raw errors
-      # @raise [SystemExit] when argv does not match `[options...] [--] <SVG file>` or conversion aborts
+      # @raise [SystemExit] when argv does not match `[options...] [--] [file|-]` or conversion aborts
       def call(argv)
         dispatch(Array(argv))
       rescue Binaries::Igsev::Error => e
@@ -121,7 +120,7 @@ module Sevgi
 
       def help
         <<~HELP
-          Usage: #{PROGNAME} [options...] [--] <SVG file>
+          Usage: #{PROGNAME} [options...] [--] [SVG file|-]
 
           See documentation for detailed help.
 
@@ -137,18 +136,21 @@ module Sevgi
       end
 
       def operand(argv)
-        file = argv.shift || Error.("No SVG file given.")
+        file = argv.shift
         Error.("Unexpected argument: #{argv.first}") unless argv.empty?
 
-        file
+        file unless file == "-"
       end
 
-      def raw_error?(options)
-        options&.vomit || ENV.fetch(ENVVOMIT, nil)
-      end
+      def raw_error?(options) = options&.vomit || ENV.fetch(ENVVOMIT, nil)
 
       def run(file, options)
-        source = ::Sevgi::Derender.derender_file(file, omit: options.omit)
+        source = if file
+          ::Sevgi::Derender.derender_file(file, omit: options.omit)
+        else
+          ::Sevgi::Derender.derender($stdin.read, omit: options.omit)
+        end
+
         ::Sevgi.execute(source, require: options.require)
       end
     end

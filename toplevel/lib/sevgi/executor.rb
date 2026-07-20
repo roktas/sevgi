@@ -120,13 +120,14 @@ module Sevgi
 
     # Executes a file inside a managed Sevgi script scope.
     # @param file [String] source file to read and execute
+    # @param as [String, nil] logical source name used for evaluation and diagnostics
     # @param require [String, nil] optional Ruby library to require before execution
     # @param receiver [Object, nil] receiver used verbatim while booting the DSL; nil selects the isolated execution
     #   module, while false and other executable objects remain explicit receivers
     # @yield optional boot block that installs DSL methods before evaluation
     # @yieldreturn [void]
     # @return [Sevgi::Executor::Result] immutable execution result
-    # @raise [Sevgi::ArgumentError] when file, required library, or receiver is invalid
+    # @raise [Sevgi::ArgumentError] when file, logical source name, required library, or receiver is invalid
     # @note File-read, script, and required-library failures are captured in {Sevgi::Executor::Result#error}; inspect
     #   {Sevgi::Executor::Result#stack} for nested loads.
     # @note An empty file without `require:` is a strict no-op: no scope is created, the receiver and boot block are
@@ -134,15 +135,16 @@ module Sevgi
     # @note Reentrant and concurrent calls keep independent scope stacks per fiber. The temporary SIGINT handler remains
     #   process-global while any execution is active.
     # @api private
-    def self.execute_file(file, require: nil, receiver: nil, &block)
+    def self.execute_file(file, as: nil, require: nil, receiver: nil, &block)
       ArgumentError.("Executor file must be a String") unless file.is_a?(::String)
+      ArgumentError.("Executor logical file must be a String or nil") unless as.nil? || as.is_a?(::String)
       validate_context!(require, receiver)
 
       source = nil
       begin
-        source = Source.load(file)
+        source = Source.load(file, as:)
       rescue ::SystemCallError => e
-        return capture_error(Source.new(string: "", file:, line: 1), e)
+        return capture_error(Source.new(string: "", file: as || file, line: 1, origin: file), e)
       end
 
       execute_source(source, require:, receiver:, &block)

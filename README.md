@@ -51,6 +51,7 @@ double-colon names such as `SVG::Canvas`. Executable `.sevgi` scripts promote th
 
 Sevgi also runs executable `.sevgi` drawing scripts. See [Getting Started](https://sevgi.roktas.dev/getting-started/)
 for installation details and [Showcase](https://sevgi.roktas.dev/showcase/) for complete examples with rendered output.
+The `sevgi`, `igves`, and `igsev` commands accept a file, `-`, or standard input when no file is given.
 
 ## Choose a package
 

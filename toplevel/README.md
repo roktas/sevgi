@@ -29,6 +29,17 @@ sevgi drawing.sevgi
 igsev drawing.svg
 ```
 
+Both commands read standard input when the file is omitted or `-`. For `sevgi`, implicit `Save`, `PDF`, and `PNG`
+destinations use `output` as the input name; use `--as NAME` to choose another basename:
+
+```sh
+sevgi --as badge < drawing.sevgi
+igsev < drawing.svg > normalized.svg
+```
+
+`NAME` cannot include a directory. An explicit output path or `default:` argument in the script remains authoritative.
+With a file operand, `--as` keeps the file's source directory so relative `Load` calls continue to resolve there.
+
 `sevgi --skill` prints the validated path of the matching packaged agent skill. See the
 [Appendix documentation](https://github.com/roktas/sevgi/tree/main/appendix) for installation guidance.
 

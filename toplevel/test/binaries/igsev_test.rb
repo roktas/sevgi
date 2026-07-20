@@ -66,9 +66,20 @@ module Sevgi
         end
       end
 
+      def test_executable_reads_stdin_when_file_is_omitted_or_dash
+        source = "<svg xmlns=\"http://www.w3.org/2000/svg\"><circle r=\"4\"/></svg>"
+
+        [[], ["-"]].each do |args|
+          out, err, status = run_igsev(*args, stdin_data: source)
+
+          assert_predicate(status, :success?)
+          assert_match(%r{<circle r="4"/>}, out)
+          assert_empty(err)
+        end
+      end
+
       def test_executable_rejects_invalid_argv_grammar
         [
-          [[], /No SVG file given/],
           [["--unknown"], /Not a valid option: --unknown/],
           [["-r"], /Option requires a library: -r/],
           [["--omit"], /No attribute given for --omit/],
@@ -79,7 +90,7 @@ module Sevgi
           assert_equal(1, status.exitstatus)
           assert_empty(out)
           assert_match(message, err)
-          assert_match(/Usage: igsev \[options\.\.\.\] \[--\] <SVG file>/, err)
+          assert_match(/Usage: igsev \[options\.\.\.\] \[--\] \[SVG file\|-\]/, err)
         end
       end
 
@@ -99,7 +110,7 @@ module Sevgi
 
       private
 
-      def run_igsev(*args, chdir: nil)
+      def run_igsev(*args, chdir: nil, stdin_data: "")
         lib = ::File.expand_path("../../lib", __dir__)
         bin = ::File.expand_path("../../bin/igsev", __dir__)
         rubylib = [lib, ENV.fetch("RUBYLIB", nil)].compact.join(::File::PATH_SEPARATOR)
@@ -110,6 +121,7 @@ module Sevgi
           ::RbConfig.ruby,
           bin,
           *args,
+          stdin_data:,
           **options
         )
       end

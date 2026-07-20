@@ -30,11 +30,17 @@ Sevgi::Derender.derender(source, omit: %i[id style])
 igves --omit id --omit style drawing.svg
 ```
 
+Omit the file or pass `-` to read SVG from standard input:
+
+```sh
+igves --omit id < drawing.svg
+```
+
 `igves` prints generated Sevgi source. The umbrella `sevgi` gem also installs `igsev`, which evaluates that source and
 prints normalized SVG:
 
 ```sh
-igsev --omit id --omit style drawing.svg
+igsev --omit id --omit style < drawing.svg
 ```
 
 ## Ruby compatibility

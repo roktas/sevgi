@@ -38,13 +38,22 @@ The public observable types are `Sevgi::Executor::Result`, `Sevgi::Executor::Err
 | --- | --- |
 | `file:` | Diagnostic name and relative-load origin for inline source |
 | `line:` | Starting line used in inline-source errors and backtraces |
+| `as:` | Basename used by `execute_file` for evaluation, diagnostics, and caller-derived output defaults |
 | `require:` | Ruby library loaded before the Sevgi source |
 | `main: false` | Default isolated module scope; does not install the DSL on Ruby's main object |
 | `main: true` | Command-line-compatible main-object mode for consumers that deliberately need it |
 
-`execute_file` accepts `require:` and `main:`; its path supplies the file and starting line. Empty source without
-`require:` is a strict no-op. Use the isolated default unless compatibility with command-line top-level behavior is the
-actual requirement.
+`execute_file` also accepts `as:`. Its extension becomes `.sevgi`, while the physical input directory and load-cycle
+identity remain intact:
+
+```ruby
+result = Sevgi.execute_file("drawings/card.sevgi", as: "proof")
+```
+
+An implicit `Save` in that source writes `drawings/proof.svg`; relative `Load` calls still start in `drawings`.
+Without `as:`, the input path supplies the evaluation name and starting line. Empty source without `require:` is a
+strict no-op. Use the isolated default unless compatibility with command-line top-level behavior is the actual
+requirement.
 
 ## Nested Load
 

@@ -78,6 +78,13 @@ The companion `igves` command prints a file conversion from the shell and accept
 igves --omit id --omit style badge.svg
 ```
 
+Both conversion commands read standard input when the file is omitted or `-`, which makes the same conversion usable
+in a pipeline:
+
+```text
+igves --omit id < badge.svg
+```
+
 When normalized SVG is the desired result rather than generated Ruby, the umbrella `sevgi` gem provides `igsev`. It
 performs the complete SVG-to-Sevgi-to-SVG round trip and accepts the same repeatable omission option:
 

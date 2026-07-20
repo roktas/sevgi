@@ -15,6 +15,9 @@ module Sevgi
       # Executable name used in help output.
       PROGNAME = "sevgi"
 
+      # Logical source name used for standard input.
+      STDIN_NAME = "output.sevgi"
+
       # Error raised for invalid command-line usage.
       Error = Class.new(::Sevgi::Error)
 
@@ -32,15 +35,14 @@ module Sevgi
 
       # Parsed command-line options for the `sevgi` executable.
       # @api private
-      Options = Struct.new(:require, :nomain, :vomit, :help, :skill, :version) do
+      Options = Struct.new(:require, :nomain, :vomit, :help, :skill, :version, :as) do
         # Parses command-line options and removes them from the argv array.
         # @param argv [Array<String>] mutable command-line argument array
         # @return [Sevgi::Binaries::Sevgi::Options] parsed options
         # @raise [Sevgi::Binaries::Sevgi::Error] when an option is not recognized or a required value is missing
         def self.parse(argv)
           new.tap do |options|
-            until argv.empty?
-              break unless argv.first.start_with?("-")
+            until argv.empty? || argv.first == "-" || !argv.first.start_with?("-")
               if argv.first == "--"
                 argv.shift
                 break
@@ -60,6 +62,9 @@ module Sevgi
               options[flag] = true
             elsif ["-r", "--require"].include?(arg)
               options.require = argv.shift || Error.("Option requires a library: #{arg}")
+            elsif arg == "--as"
+              options.as = argv.shift
+              Error.("Option requires a name: --as") if options.as.nil? || options.as.empty?
             else
               Error.("Not a valid option: #{arg}")
             end
@@ -67,13 +72,13 @@ module Sevgi
         end
       end
 
-      private_constant :FLAGS, :Options
+      private_constant :FLAGS, :Options, :STDIN_NAME
 
       # Runs the `sevgi` command-line interface.
       # @param argv [Array<String>, String, nil] command-line arguments
       # @return [nil]
       # @raise [Sevgi::Executor::Error] when `--exception` or `SEVGI_VOMIT` requests raw executor errors
-      # @raise [SystemExit] when argv does not match `[options...] [--] <file>` or script execution aborts
+      # @raise [SystemExit] when argv does not match `[options...] [--] [file|-]` or script execution aborts
       def call(argv)
         return puts(help) if (options = Options.parse(argv = Array(argv))).help
         return puts(Skill.path) if options.skill
@@ -91,10 +96,7 @@ module Sevgi
       private
 
       def die(error, _file)
-        warn(error.message)
-        warn("")
-        error.load_backtrace.each { warn("  #{it}") }
-
+        warn(error.message, "", *error.load_backtrace.map { "  #{it}" })
         exit(1)
       end
 
@@ -108,7 +110,7 @@ module Sevgi
 
       def help
         <<~HELP
-          Usage: #{PROGNAME} [options...] [--] <Sevgi file>
+          Usage: #{PROGNAME} [options...] [--] [Sevgi file|-]
 
           See documentation for detailed help.
 
@@ -116,6 +118,7 @@ module Sevgi
 
           -n, --nomain          Do not modify main object
           -r, --require LIB     Require Ruby LIB
+          --as NAME             Evaluate input as NAME for implicit output names
           -x, --exception       Raise exception instead of abort
           --                    Stop option parsing
 
@@ -126,14 +129,28 @@ module Sevgi
       end
 
       def operand(argv)
-        file = argv.shift || Error.("No sevgi file given.")
+        file = argv.shift
         Error.("Unexpected argument: #{argv.first}") unless argv.empty?
 
-        file
+        file unless file == "-"
+      end
+
+      def execute_file(file, options)
+        name = source_name(options.as) if options.as
+        ::Sevgi.execute_file(file, as: name, require: options.require, main: !options.nomain)
       end
 
       def run(file, options)
-        ::Sevgi.execute_file(file, require: options.require, main: !options.nomain)
+        return execute_file(file, options) if file
+
+        ::Sevgi.execute($stdin.read, file: source_name(options.as), require: options.require, main: !options.nomain)
+      end
+
+      def source_name(name)
+        return STDIN_NAME unless name
+
+        Error.("Option requires a name, not a path: --as") unless ::File.basename(name) == name
+        F.subext(".sevgi", name)
       end
     end
   end

@@ -31,18 +31,21 @@ module Sevgi
 
   # Executes a Sevgi script file with the full top-level DSL installed.
   # @param file [String] source file to read and execute
+  # @param as [String, nil] source basename used for evaluation, diagnostics, and caller-derived output defaults;
+  #   its extension is replaced with `.sevgi` and the input file's directory is retained
   # @param require [String, nil] optional Ruby library to require before execution
   # @param main [Boolean] whether to install the DSL through Ruby's top-level main object
   # @return [Sevgi::Executor::Result] immutable execution result
-  # @raise [Sevgi::ArgumentError] when file, required library, or main mode is invalid
+  # @raise [Sevgi::ArgumentError] when file, logical source name, required library, or main mode is invalid
   # @note File-read, script, and required-library failures are captured in {Sevgi::Executor::Result#error}.
   # @note The default isolated mode does not modify Ruby's top-level main object. `main: true` preserves the command-line
   #   default by installing Sevgi through main before evaluating source in the managed script scope.
   # @note An empty file without `require:` is a strict no-op; the DSL boot block is unused.
   # @note Reentrant and concurrent calls keep independent executor scope stacks per fiber.
   # @see https://sevgi.roktas.dev/execution/ Execution guide
-  def self.execute_file(file, require: nil, main: false)
-    Executor.__send__(:execute_file, file, require:, receiver: execution_receiver(main), &BootBlock)
+  def self.execute_file(file, as: nil, require: nil, main: false)
+    as = source_name(file, as) if as
+    Executor.__send__(:execute_file, file, as:, require:, receiver: execution_receiver(main), &BootBlock)
   end
 
   def self.execution_receiver(main)
@@ -51,7 +54,15 @@ module Sevgi
     TOPLEVEL_BINDING.receiver if main
   end
 
-  private_class_method :execution_receiver
+  def self.source_name(file, name)
+    ArgumentError.("Sevgi file must be a String") unless file.is_a?(::String)
+    ArgumentError.("Sevgi file name must be a non-empty String") unless name.is_a?(::String) && !name.empty?
+    ArgumentError.("Sevgi file name must not include a directory") unless ::File.basename(name) == name
+
+    ::File.join(::File.dirname(file), F.subext(".sevgi", name))
+  end
+
+  private_class_method :execution_receiver, :source_name
 
   module Toplevel
     # Loads one or more Sevgi files relative to the caller's source file.

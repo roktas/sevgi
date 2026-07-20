@@ -210,6 +210,37 @@ module Sevgi
       end
     end
 
+    def test_execute_file_as_preserves_physical_identity
+      Dir.mktmpdir do |dir|
+        file = File.join(dir, "self.sevgi")
+        File.write(
+          file,
+          <<~SEVGI
+            raise "reentered" if const_defined?(:ENTERED)
+            ENTERED = true
+            Load "self"
+          SEVGI
+        )
+
+        result = Sevgi.execute_file(file, as: "alias")
+
+        assert_instance_of(Executor::CycleError, result.error.cause)
+        refute_match(/reentered/, result.error.message)
+      end
+    end
+
+    def test_execute_label_does_not_claim_file_identity
+      Dir.mktmpdir do |dir|
+        file = File.join(dir, "shared.sevgi")
+        File.write(file, "42\n")
+
+        result = Sevgi.execute("Load 'shared'\n", file:)
+
+        assert_predicate(result, :success?)
+        assert_equal(["shared"], result.value)
+      end
+    end
+
     def test_execute_file_isolates_concurrent_load_scopes
       Dir.mktmpdir do |dir|
         paths = write_concurrent_load_scripts(dir)
@@ -350,6 +381,12 @@ module Sevgi
         error = assert_raises(ArgumentError) { Sevgi.execute_file("missing.sevgi", main:) }
 
         assert_match(/main mode must be true or false/, error.message)
+      end
+    end
+
+    def test_toplevel_execute_file_rejects_invalid_name
+      [:alias, "", "build/alias"].each do |name|
+        assert_raises(ArgumentError) { Sevgi.execute_file("missing.sevgi", as: name) }
       end
     end
 
@@ -645,6 +682,7 @@ module Sevgi
     def test_execute_file_rejects_invalid_invocation
       calls = [
         proc { execute_file(nil) },
+        proc { execute_file("missing.sevgi", as: :alias) },
         proc { execute_file("missing.sevgi", require: :json) },
         proc { execute_file("missing.sevgi", receiver: BasicObject.new) }
       ]

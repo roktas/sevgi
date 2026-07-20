@@ -11,6 +11,10 @@ Keep document construction and output policy separate. Choose the final operatio
 | PNG file | `PNG` |
 | Export an existing SVG String outside the document | `Sevgi::Sundries::Export.call` |
 
+The `sevgi` command reads standard input when no file is given. Use `sevgi --as badge` when an implicit `Save`, `PDF`,
+or `PNG` should derive `badge.svg`, `badge.pdf`, or `badge.png` instead of the default `output` basename. `NAME` is a
+basename, not a path; explicit destinations in the source remain authoritative.
+
 ## PDF
 
 For a document, use the convenience operation:

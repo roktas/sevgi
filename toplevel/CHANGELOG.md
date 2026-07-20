@@ -5,6 +5,12 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## Unreleased
 
+### Added
+
+- Added standard-input support to `sevgi`, `igves`, and `igsev`; `sevgi --as NAME` and
+  `Sevgi.execute_file(..., as: NAME)` supply the logical source basename used by implicit SVG, PDF, and PNG
+  destinations without changing physical load identity.
+
 ## 0.97.0 - 2026-07-19
 
 ### Added

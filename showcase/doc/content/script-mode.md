@@ -35,6 +35,24 @@ their drawing steps.
 
 `Out` prints SVG to standard output, which suits shell pipelines and tests.
 
+The runner reads a file operand, `-`, or standard input when no file is given. Input from standard input has the
+logical name `output.sevgi`, so an implicit `Save`, `PDF`, or `PNG` writes `output.svg`, `output.pdf`, or `output.png`.
+Use `--as NAME` when the pipeline has a more useful identity. `NAME` is a basename, not a path:
+
+```sh
+sevgi --as badge < drawing.sevgi
+```
+
+That command evaluates the input as `badge.sevgi`, making an implicit `Save` write `badge.svg`. The option also works
+with a file operand and keeps the file's directory, so relative `Load` calls still resolve beside the source:
+
+```sh
+sevgi --as proof drawings/card.sevgi
+```
+
+Here an implicit `Save` writes `drawings/proof.svg`. Explicit destinations such as `Save "build/card.svg"` and an
+explicit `default:` always take precedence over the logical input name.
+
 ## Top-level DSL scope
 
 In a script, call `SVG`, SVG elements such as `rect` and `circle`, and capitalized operations such as `Canvas`, `Paper`,
