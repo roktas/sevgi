@@ -5,6 +5,15 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## Unreleased
 
+### Changed
+
+- Changed the `sevgi` CLI to use the executor's isolated scope by default.
+
+### Removed
+
+- Removed the redundant `-n` and `--nomain` CLI options; library consumers can still select `main: true` through
+  `Sevgi.execute` and `Sevgi.execute_file` when needed.
+
 ## 0.98.0 - 2026-07-20
 
 ### Added

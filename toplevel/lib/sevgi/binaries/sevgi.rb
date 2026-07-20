@@ -22,8 +22,6 @@ module Sevgi
       Error = Class.new(::Sevgi::Error)
 
       FLAGS = {
-        "-n" => :nomain,
-        "--nomain" => :nomain,
         "-x" => :vomit,
         "--exception" => :vomit,
         "-h" => :help,
@@ -35,7 +33,7 @@ module Sevgi
 
       # Parsed command-line options for the `sevgi` executable.
       # @api private
-      Options = Struct.new(:require, :nomain, :vomit, :help, :skill, :version, :as) do
+      Options = Struct.new(:require, :vomit, :help, :skill, :version, :as) do
         # Parses command-line options and removes them from the argv array.
         # @param argv [Array<String>] mutable command-line argument array
         # @return [Sevgi::Binaries::Sevgi::Options] parsed options
@@ -117,7 +115,6 @@ module Sevgi
           Options:
 
               --as NAME         Evaluate input as NAME for implicit output names
-          -n, --nomain          Do not modify main object
           -r, --require LIB     Require Ruby LIB
               --skill           Display the packaged agent skill path
           -x, --exception       Raise exception instead of abort
@@ -137,13 +134,13 @@ module Sevgi
 
       def execute_file(file, options)
         name = source_name(options.as) if options.as
-        ::Sevgi.execute_file(file, as: name, require: options.require, main: !options.nomain)
+        ::Sevgi.execute_file(file, as: name, require: options.require, main: false)
       end
 
       def run(file, options)
         return execute_file(file, options) if file
 
-        ::Sevgi.execute($stdin.read, file: source_name(options.as), require: options.require, main: !options.nomain)
+        ::Sevgi.execute($stdin.read, file: source_name(options.as), require: options.require, main: false)
       end
 
       def source_name(name)

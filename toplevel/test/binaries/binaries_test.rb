@@ -17,7 +17,7 @@ module Sevgi
 
       GemSpec = Data.define(:full_gem_path, :metadata)
 
-      def test_call_uses_main_mode_by_default
+      def test_call_uses_isolated_mode
         calls = []
 
         ::Sevgi.stub(
@@ -29,40 +29,6 @@ module Sevgi
           }
         ) do
           _out, _err = capture_io { Sevgi.(["script.sevgi"]) }
-        end
-
-        assert_equal([["script.sevgi", nil, true]], calls)
-      end
-
-      def test_call_nomain_uses_isolated_mode
-        calls = []
-
-        ::Sevgi.stub(
-          :execute_file,
-          proc { |file, require:, main:, as: nil|
-            assert_nil(as)
-            calls << [file, require, main]
-            Result.new(nil)
-          }
-        ) do
-          _out, _err = capture_io { Sevgi.(["-n", "script.sevgi"]) }
-        end
-
-        assert_equal([["script.sevgi", nil, false]], calls)
-      end
-
-      def test_call_nomain_long_option_matches_short_option
-        calls = []
-
-        ::Sevgi.stub(
-          :execute_file,
-          proc { |file, require:, main:, as: nil|
-            assert_nil(as)
-            calls << [file, require, main]
-            Result.new(nil)
-          }
-        ) do
-          _out, _err = capture_io { Sevgi.(["--nomain", "script.sevgi"]) }
         end
 
         assert_equal([["script.sevgi", nil, false]], calls)
@@ -82,14 +48,14 @@ module Sevgi
           _out, _err = capture_io { Sevgi.(["-r", "json", "script.sevgi"]) }
         end
 
-        assert_equal([["script.sevgi", "json", true]], calls)
+        assert_equal([["script.sevgi", "json", false]], calls)
       end
 
       def test_call_reports_load_stack_for_script_error
         fixture = "test/fixtures/executor/test_load_nested.sevgi"
 
         out, err = capture_io do
-          error = assert_raises(SystemExit) { Sevgi.(["-n", fixture]) }
+          error = assert_raises(SystemExit) { Sevgi.([fixture]) }
 
           assert_equal(1, error.status)
         end
@@ -110,7 +76,6 @@ module Sevgi
       def test_help_lists_options
         out, _err = capture_io { Sevgi.(["--help"]) }
 
-        assert_match(/-n, --nomain/, out)
         assert_match(/--as NAME/, out)
         assert_match(/--skill/, out)
       end
