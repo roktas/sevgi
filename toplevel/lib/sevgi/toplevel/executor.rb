@@ -20,8 +20,8 @@ module Sevgi
   # @return [Sevgi::Executor::Result] immutable execution result
   # @raise [Sevgi::ArgumentError] when source, file, line, required library, or main mode is invalid
   # @note Script and required-library failures are captured in {Sevgi::Executor::Result#error}.
-  # @note The default isolated mode does not modify Ruby's top-level main object. `main: true` preserves the command-line
-  #   default by installing Sevgi through main before evaluating source in the managed script scope.
+  # @note The default isolated mode does not modify Ruby's top-level main object. `main: true` installs Sevgi through
+  #   main for code that deliberately relies on top-level method and constant lookup.
   # @note Empty source without `require:` is a strict no-op; the DSL boot block is unused.
   # @note Reentrant and concurrent calls keep independent executor scope stacks per fiber.
   # @see https://sevgi.roktas.dev/execution/ Execution guide
@@ -38,8 +38,8 @@ module Sevgi
   # @return [Sevgi::Executor::Result] immutable execution result
   # @raise [Sevgi::ArgumentError] when file, logical source name, required library, or main mode is invalid
   # @note File-read, script, and required-library failures are captured in {Sevgi::Executor::Result#error}.
-  # @note The default isolated mode does not modify Ruby's top-level main object. `main: true` preserves the command-line
-  #   default by installing Sevgi through main before evaluating source in the managed script scope.
+  # @note The default isolated mode does not modify Ruby's top-level main object. `main: true` installs Sevgi through
+  #   main for code that deliberately relies on top-level method and constant lookup.
   # @note An empty file without `require:` is a strict no-op; the DSL boot block is unused.
   # @note Reentrant and concurrent calls keep independent executor scope stacks per fiber.
   # @see https://sevgi.roktas.dev/execution/ Execution guide
