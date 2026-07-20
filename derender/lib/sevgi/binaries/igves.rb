@@ -113,9 +113,10 @@ module Sevgi
 
           Options:
 
+              --omit ATTRIBUTE  Omit an attribute (repeatable)
           -x, --exception       Raise exception instead of abort
-          --omit ATTRIBUTE      Omit an attribute (repeatable)
-          --                    Stop option parsing
+              --                Stop option parsing
+
           -h, --help            Show this help
           -v, --version         Display version
         HELP

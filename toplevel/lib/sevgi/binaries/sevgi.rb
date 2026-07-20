@@ -116,14 +116,14 @@ module Sevgi
 
           Options:
 
+              --as NAME         Evaluate input as NAME for implicit output names
           -n, --nomain          Do not modify main object
           -r, --require LIB     Require Ruby LIB
-          --as NAME             Evaluate input as NAME for implicit output names
+              --skill           Display the packaged agent skill path
           -x, --exception       Raise exception instead of abort
-          --                    Stop option parsing
+              --                Stop option parsing
 
           -h, --help            Show this help
-          --skill               Display the packaged agent skill path
           -v, --version         Display version
         HELP
       end
