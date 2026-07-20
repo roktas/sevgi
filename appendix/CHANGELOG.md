@@ -5,6 +5,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## Unreleased
 
+## 0.98.1 - 2026-07-20
+
 ### Changed
 
 - Changed the `sevgi` CLI to use the executor's isolated scope by default.

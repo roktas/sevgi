@@ -3,6 +3,6 @@
 module Sevgi
   module Sundries
     # Component version.
-    VERSION = "0.98.0"
+    VERSION = "0.98.1"
   end
 end
