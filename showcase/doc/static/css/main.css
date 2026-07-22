@@ -214,9 +214,11 @@ header .slogan span {
   font-weight: 700;
 }
 header .slogan span:nth-of-type(2),
-header .slogan span:nth-of-type(4),
-header .slogan span:nth-of-type(5) {
+header .slogan span:nth-of-type(4) {
   margin-right: 0.07em;
+}
+header .slogan span:nth-of-type(5) {
+  margin-right: 0.05em;
 }
 nav {
   display: flex;
