@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Sundries | Sevgi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <link rel="icon" type="image/png" href="/img/favicon.png">
+    <link rel="icon" type="image/svg+xml" href="/img/favicon.svg">
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+
+    <style>
+    :root {
+        /* Fonts */
+        --wt-font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+        --wt-font-head: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+        --wt-font-mono: 'JetBrains Mono', monospace;
+
+        /* Base Colors */
+        --wt-color-bg: #ffffff;
+        --wt-color-bg-soft: #fafafa;
+        --wt-color-bg-elevated: #ffffff;
+        --wt-color-text: #1a1a1a;
+        --wt-color-text-muted: #666666;
+        --wt-color-text-soft: #737373;
+        --wt-color-border-subtle: #e5e5e5;
+        --wt-color-link: #800080; /* Link color aligned with theme */
+        
+        /* Accent Colors */
+        --wt-color-accent: #800080; /* Primary Purple */
+        --wt-color-accent-soft: #f8e6f8; /* Very soft purple (for backgrounds) */
+        --wt-color-accent-strong: #600060; /* Darker purple (for hover states) */
+        --wt-color-on-accent: #ffffff;
+        --wt-logo-active: #800080;
+        --wt-logo-passive: #d3d3d3;
+        
+        /* Code Blocks */
+        --wt-color-code-bg: #f5f5f5;
+        --wt-color-code-border: #e5e5e5;
+        
+        /* Shadows */
+        --wt-shadow-soft: rgba(0, 0, 0, 0.05);
+        --wt-shadow-medium: rgba(0, 0, 0, 0.1);
+        --wt-shadow-accent: rgba(128, 0, 128, 0.2);
+        --wt-shadow-accent-strong: rgba(128, 0, 128, 0.32);
+
+        /* Hero */
+        --wt-hero-background:
+            radial-gradient(ellipse 80% 60% at 70% 40%, rgba(254, 243, 199, 0.7) 0%, transparent 60%),
+            radial-gradient(ellipse 50% 40% at 30% 70%, rgba(251, 243, 219, 0.5) 0%, transparent 50%),
+            var(--wt-color-bg-soft);
+        --wt-hero-shadow: rgba(217, 119, 6, 0.15);
+        --wt-hero-shadow-strong: rgba(217, 119, 6, 0.25);
+        
+        /* Dimensions */
+        --wt-header-height: 64px;
+        --wt-main-padding-top: 40px;
+    }
+
+    /* Dark Mode Variables */
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --wt-color-bg: #111111;
+            --wt-color-bg-soft: #1a1a1a;
+            --wt-color-bg-elevated: #222222;
+            --wt-color-text: #e5e5e5;
+            --wt-color-text-muted: #a3a3a3;
+            --wt-color-text-soft: #8f8f8f;
+            --wt-color-border-subtle: #333333;
+            --wt-color-link: #e5c39c;
+            --wt-color-accent: #e5c39c;
+            --wt-color-accent-soft: #2c251e;
+            --wt-color-accent-strong: #f0d6b8;
+            --wt-color-on-accent: #111111;
+            --wt-logo-active: #e5c39c;
+            --wt-logo-passive: #52525b;
+            
+            --wt-color-code-bg: #1a1a1a;
+            --wt-color-code-border: #333333;
+            
+            --wt-shadow-soft: rgba(0, 0, 0, 0.3);
+            --wt-shadow-medium: rgba(0, 0, 0, 0.5);
+            --wt-shadow-accent: rgba(229, 195, 156, 0.24);
+            --wt-shadow-accent-strong: rgba(229, 195, 156, 0.36);
+            --wt-hero-background:
+                radial-gradient(ellipse 60% 50% at 50% 30%, rgba(229, 195, 156, 0.08) 0%, transparent 70%),
+                var(--wt-color-bg-soft);
+            --wt-hero-shadow: rgba(229, 195, 156, 0.2);
+            --wt-hero-shadow-strong: rgba(229, 195, 156, 0.3);
+        }
+    }
+
+    /* Manual Theme Overrides */
+    html[data-theme="dark"] {
+        --wt-color-bg: #111111;
+        --wt-color-bg-soft: #1a1a1a;
+        --wt-color-bg-elevated: #222222;
+        --wt-color-text: #e5e5e5;
+        --wt-color-text-muted: #a3a3a3;
+        --wt-color-text-soft: #8f8f8f;
+        --wt-color-border-subtle: #333333;
+        --wt-color-link: #e5c39c;
+        --wt-color-accent: #e5c39c;
+        --wt-color-accent-soft: #2c251e;
+        --wt-color-accent-strong: #f0d6b8;
+        --wt-color-on-accent: #111111;
+        --wt-logo-active: #e5c39c;
+        --wt-logo-passive: #52525b;
+        --wt-color-code-bg: #1a1a1a;
+        --wt-color-code-border: #333333;
+        --wt-shadow-soft: rgba(0, 0, 0, 0.3);
+        --wt-shadow-medium: rgba(0, 0, 0, 0.5);
+        --wt-shadow-accent: rgba(229, 195, 156, 0.24);
+        --wt-shadow-accent-strong: rgba(229, 195, 156, 0.36);
+        --wt-hero-background:
+            radial-gradient(ellipse 60% 50% at 50% 30%, rgba(229, 195, 156, 0.08) 0%, transparent 70%),
+            var(--wt-color-bg-soft);
+        --wt-hero-shadow: rgba(229, 195, 156, 0.2);
+        --wt-hero-shadow-strong: rgba(229, 195, 156, 0.3);
+    }
+
+    html[data-theme="light"] {
+        --wt-color-bg: #ffffff;
+        --wt-color-bg-soft: #fafafa;
+        --wt-color-bg-elevated: #ffffff;
+        --wt-color-text: #1a1a1a;
+        --wt-color-text-muted: #666666;
+        --wt-color-text-soft: #737373;
+        --wt-color-border-subtle: #e5e5e5;
+        --wt-color-link: #800080;
+        --wt-color-accent: #800080;
+        --wt-color-accent-soft: #f8e6f8;
+        --wt-color-accent-strong: #600060;
+        --wt-color-on-accent: #ffffff;
+        --wt-logo-active: #800080;
+        --wt-logo-passive: #d3d3d3;
+        --wt-color-code-bg: #f5f5f5;
+        --wt-color-code-border: #e5e5e5;
+        --wt-shadow-soft: rgba(0, 0, 0, 0.05);
+        --wt-shadow-medium: rgba(0, 0, 0, 0.1);
+        --wt-shadow-accent: rgba(128, 0, 128, 0.2);
+        --wt-shadow-accent-strong: rgba(128, 0, 128, 0.32);
+        --wt-hero-background:
+            radial-gradient(ellipse 80% 60% at 70% 40%, rgba(254, 243, 199, 0.7) 0%, transparent 60%),
+            radial-gradient(ellipse 50% 40% at 30% 70%, rgba(251, 243, 219, 0.5) 0%, transparent 50%),
+            var(--wt-color-bg-soft);
+        --wt-hero-shadow: rgba(217, 119, 6, 0.15);
+        --wt-hero-shadow-strong: rgba(217, 119, 6, 0.25);
+    }
+</style>
+
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+    <script>
+    // iOS viewport jank fix
+    (function() {
+        var isIOS = /iP(hone|ad|od)/.test(navigator.platform) ||
+                    (/Macintosh/.test(navigator.userAgent) && 'ontouchend' in document);
+        if (!isIOS) return;
+
+        var h = window.innerHeight;
+        if (h) {
+            document.documentElement.style.setProperty('--vh-full', h + 'px');
+        }
+
+        window.addEventListener('orientationchange', function() {
+            setTimeout(function() {
+                var newH = window.innerHeight;
+                if (newH) {
+                    document.documentElement.style.setProperty('--vh-full', newH + 'px');
+                }
+            }, 100);
+        });
+    })();
+    </script>
+    <meta name="view-transition" content="same-origin">
+    <meta name="description" content="Create SVG with Ruby.">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https:&#x2F;&#x2F;sevgi.roktas.dev&#x2F;sundries&#x2F;">
+    <meta property="og:title" content="Sundries | Sevgi">
+    <meta property="og:description" content="Create SVG with Ruby.">
+    <meta property="og:image" content="https://sevgi.roktas.dev/img/logo@2x.png">
+    <meta property="og:image:width" content="1024">
+    <meta property="og:image:height" content="1024">
+
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Sundries | Sevgi">
+    <meta name="twitter:description" content="Create SVG with Ruby.">
+    <meta name="twitter:image" content="https://sevgi.roktas.dev/img/logo@2x.png">
+
+    
+    
+    <link rel="stylesheet" href="https://sevgi.roktas.dev/css/normalize.css?h=580818700724d42d7fcc">
+    <link rel="preload" href="https://sevgi.roktas.dev/css/main.css?h=6bbbd93d59b6321975a3" as="style">
+    <link rel="stylesheet" href="https://sevgi.roktas.dev/css/main.css?h=6bbbd93d59b6321975a3">
+    
+    <link rel="stylesheet" href="https://sevgi.roktas.dev/giallo-light.css?h=5cefe4954cda1947c74d" id="syntax-light">
+    <link rel="stylesheet" href="https://sevgi.roktas.dev/giallo-dark.css?h=fb6bfef1747cf20d61d5" id="syntax-dark">
+    
+    <script src="https://sevgi.roktas.dev/js/toggle.js?h=77918af59eeb33c2936b"></script>
+    
+    <script>
+    // Keep DSL search results pointed at their catalog entries.
+    window.sevgiDslAnchors = [
+    
+    
+        ["_", "text-content"],
+    
+    
+    
+        ["Adopt", "adopt"],
+    
+        ["AdoptFirst", "adopt-first"],
+    
+        ["Align", "align"],
+    
+        ["Ancestral", "ancestral"],
+    
+        ["Append", "append"],
+    
+    
+    
+        ["base", "base"],
+    
+    
+    
+        ["Call", "call"],
+    
+        ["Canvas", "canvas"],
+    
+        ["CData", "cdata"],
+    
+        ["Classify", "classify"],
+    
+        ["Comment", "comment"],
+    
+        ["css", "css"],
+    
+    
+    
+        ["Document", "document"],
+    
+        ["Document!", "document-bang"],
+    
+        ["Decompile", "decompile"],
+    
+        ["DecompileFile", "decompile-file"],
+    
+        ["Defaults", "defaults"],
+    
+        ["Derender", "derender"],
+    
+        ["DerenderFile", "derender-file"],
+    
+        ["Disidentify", "disidentify"],
+    
+        ["Draw", "draw"],
+    
+        ["Duplicate", "duplicate"],
+    
+        ["DuplicateX", "duplicate-x"],
+    
+        ["DuplicateY", "duplicate-y"],
+    
+    
+    
+        ["Element", "element"],
+    
+        ["Evaluate", "evaluate"],
+    
+        ["EvaluateChildren", "evaluate-children"],
+    
+        ["EvaluateChildrenFile", "evaluate-children-file"],
+    
+        ["EvaluateFile", "evaluate-file"],
+    
+    
+    
+        ["Flip", "flip"],
+    
+        ["FlipX", "flip-x"],
+    
+        ["FlipY", "flip-y"],
+    
+        ["Forward", "forward"],
+    
+    
+    
+        ["Grid", "grid"],
+    
+        ["Group", "group"],
+    
+    
+    
+        ["Hatch", "hatch"],
+    
+        ["HLineBy", "h-line-by"],
+    
+        ["HLineTo", "h-line-to"],
+    
+    
+    
+        ["Identifiers", "identifiers"],
+    
+        ["Include", "include"],
+    
+        ["IncludeChildren", "include-children"],
+    
+        ["InkscapeTemplateInfo", "inkscape-template-info"],
+    
+        ["Is?", "is-predicate"],
+    
+    
+    
+        ["layer", "layer"],
+    
+        ["Layer", "layer-callable"],
+    
+        ["layer!", "layer-bang"],
+    
+        ["Layer!", "layer-callable-bang"],
+    
+        ["License", "license"],
+    
+        ["License_CC0", "license-cc0"],
+    
+        ["License_CC_BY", "license-cc-by"],
+    
+        ["License_CC_BY_NC", "license-cc-by-nc"],
+    
+        ["License_CC_BY_NC_ND", "license-cc-by-nc-nd"],
+    
+        ["License_CC_BY_NC_SA", "license-cc-by-nc-sa"],
+    
+        ["License_CC_BY_ND", "license-cc-by-nd"],
+    
+        ["License_CC_BY_SA", "license-cc-by-sa"],
+    
+        ["License_LAL", "license-lal"],
+    
+        ["LineBy", "line-by"],
+    
+        ["LineTo", "line-to"],
+    
+        ["Lint", "lint"],
+    
+        ["Load", "load"],
+    
+    
+    
+        ["Matrix", "matrix"],
+    
+        ["Mixin", "mixin"],
+    
+    
+    
+        ["NS?", "ns-predicate"],
+    
+    
+    
+        ["Orphan", "orphan"],
+    
+        ["Out", "out"],
+    
+    
+    
+        ["Pages", "pages"],
+    
+        ["PagesTabular", "pages-tabular"],
+    
+        ["Paper", "paper"],
+    
+        ["Paper!", "paper-bang"],
+    
+        ["PDF", "pdf"],
+    
+        ["PNG", "png"],
+    
+        ["Prepend", "prepend"],
+    
+        ["PreRender", "pre-render"],
+    
+    
+    
+        ["RDF", "rdf"],
+    
+        ["RDFWork", "rdf-work"],
+    
+        ["Render", "render"],
+    
+        ["RenderChildren", "render-children"],
+    
+        ["Root", "root"],
+    
+        ["Root?", "root-predicate"],
+    
+        ["Rotate", "rotate"],
+    
+        ["RotateLeft", "rotate-left"],
+    
+        ["RotateRight", "rotate-right"],
+    
+    
+    
+        ["Save", "save"],
+    
+        ["Scale", "scale"],
+    
+        ["sevgi", "rake-sevgi"],
+    
+        ["Skew", "skew"],
+    
+        ["SkewX", "skew-x"],
+    
+        ["SkewY", "skew-y"],
+    
+        ["square", "square"],
+    
+        ["Stay", "stay"],
+    
+        ["SVG", "svg"],
+    
+        ["Symbol", "symbol"],
+    
+        ["symbol!", "symbol-bang"],
+    
+        ["Symbols", "symbols"],
+    
+    
+    
+        ["Tile", "tile"],
+    
+        ["TileX", "tile-x"],
+    
+        ["TileY", "tile-y"],
+    
+        ["Translate", "translate"],
+    
+        ["TranslateX", "translate-x"],
+    
+        ["TranslateY", "translate-y"],
+    
+        ["Traverse", "traverse"],
+    
+        ["TraverseUp", "traverse-up"],
+    
+    
+    
+        ["Validate", "validate"],
+    
+        ["VLineBy", "v-line-by"],
+    
+        ["VLineTo", "v-line-to"],
+    
+    
+    
+        ["With", "with"],
+    
+        ["Within", "within"],
+    
+        ["Write", "write"],
+    
+    
+    ];
+    </script>
+    <script src="/elasticlunr.min.js" defer></script>
+    <script src="/search_index.en.js" defer></script>
+    <script src="https://sevgi.roktas.dev/js/search.js?h=1bddf8bddc413c3db88a" defer></script>
+    <script src="https://sevgi.roktas.dev/js/copy.js?h=a5eac946898599ad3fee" defer></script>
+    <script src="https://sevgi.roktas.dev/js/tabs.js?h=81fe713d771c95209dcc" defer></script>
+    <script src="https://sevgi.roktas.dev/js/menu.js?h=a05b0b890d46da60db19" defer></script>
+    <script src="//instant.page/5.2.0" type="module" integrity="sha384-jnZyxPjiipYXnSU0ygqeac2q7CVYMbh84q0uHVRRxEtvFPiQYbXWUorga2aqZJ0z"></script>
+    <script>
+    // 1Password extension bug workaround
+    (function() {
+        var mark = function(el) { el.setAttribute('data-1p-ignore', ''); };
+        new MutationObserver(function(mutations) {
+            mutations.forEach(function(m) {
+                m.addedNodes.forEach(function(n) {
+                    if (n.nodeType === 1) {
+                        if (n.matches && n.matches('code[class*="language-"]')) mark(n);
+                        if (n.querySelectorAll) {
+                            n.querySelectorAll('code[class*="language-"]').forEach(mark);
+                        }
+                    }
+                });
+            });
+        }).observe(document.documentElement, { childList: true, subtree: true });
+    })();
+    </script>
+</head>
+
+<body>
+    <div class="ios-chrome-scrim" aria-hidden="true"></div>
+    <header>
+        <button class="mobile-menu-toggle" aria-label="Open menu" aria-expanded="false">
+            <svg class="menu-icon" aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+            <svg class="close-icon" aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+
+        <a href="/" class="logo-link">
+            <div class="logo">
+                <svg viewBox="0 -2 38.28 61.5" role="img" aria-label="Sevgi logo" shape-rendering="geometricPrecision">
+                    <defs>
+                        <path id="header-logo-master" d="m 30,30 c 0,0 18.39,7.089444 18.39,15 C 48.39,52.910556 30,60 30,60 M 30,0 C 30,0 11.61,7.089442 11.61,14.999998 C 11.61,22.910556 30,30 30,30"></path>
+                    </defs>
+                    <g transform="translate(-10.86,-1.25)" fill="none" stroke-linecap="round" stroke-width="4">
+                        <use href="#header-logo-master" stroke="var(--wt-logo-passive)" transform="matrix(-1,0,0,1,60,0)"></use>
+                        <use href="#header-logo-master" stroke="var(--wt-logo-active)"></use>
+                    </g>
+                </svg>
+                <span class="logo-text">Sevgi</span>
+            </div>
+        </a>
+
+        
+
+        <nav>
+            <div class="search-container">
+                <input id="userinput" type="search" placeholder="Search..." aria-label="Search documentation">
+                <div id="suggestions"></div>
+            </div>
+            
+            <a class="nav-item" href="/api/">Reference</a>
+            
+            <button class="theme-toggle" aria-label="Toggle theme" title="Toggle dark/light mode">
+                <svg class="light-icon theme-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="12" cy="12" r="6" fill="currentColor"></circle>
+                    <path d="m5.6 5.6-2.1-2.1m15 2.1 2.1-2.1m-15 15-2.1 2.1m15-2.1 2.1 2.1M12 4V2.8m0 17.2v1.2M4 12H2.8m17.2 0h1.2" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+                </svg>
+                <i class="fas fa-moon dark-icon" aria-hidden="true"></i>
+            </button>
+        </nav>
+
+        <button class="theme-toggle mobile-theme-toggle" aria-label="Toggle theme" title="Toggle dark/light mode">
+            <svg class="light-icon theme-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="6" fill="currentColor"></circle>
+                <path d="m5.6 5.6-2.1-2.1m15 2.1 2.1-2.1m-15 15-2.1 2.1m15-2.1 2.1 2.1M12 4V2.8m0 17.2v1.2M4 12H2.8m17.2 0h1.2" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+            </svg>
+            <i class="fas fa-moon dark-icon" aria-hidden="true"></i>
+        </button>
+    </header>
+
+    <div class="mobile-menu-overlay" aria-hidden="true"></div>
+    <nav class="mobile-menu" aria-hidden="true">
+        <div class="mobile-menu-content">
+            
+            <div class="mobile-menu-section">
+                
+                <a class="mobile-nav-item" href="/api/">Reference</a>
+                
+            </div>
+            <div class="mobile-menu-divider"></div>
+            
+            <div class="mobile-menu-section mobile-menu-toc">
+                
+                
+                
+
+
+
+
+
+<div class="doc-nav-tree">
+    
+    <details class="nav-section" >
+        <summary class="nav-section-title">Start</summary>
+        <div class="nav-section-pages">
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/getting-started/">
+                Getting Started
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/script-mode/">
+                Script Mode
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/library-mode/">
+                Library Mode
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/execution/">
+                Execution
+            </a>
+
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+        </div>
+    </details>
+    
+    <details class="nav-section" >
+        <summary class="nav-section-title">Core</summary>
+        <div class="nav-section-pages">
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/svg/">
+                SVG Essentials
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/dsl/">
+                DSL Catalog
+            </a>
+
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+        </div>
+    </details>
+    
+    <details class="nav-section" open>
+        <summary class="nav-section-title">Toolkit</summary>
+        <div class="nav-section-pages">
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/geometry/">
+                Geometry
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page active" href="https://sevgi.roktas.dev/sundries/">
+                Sundries
+            </a>
+
+            
+            <div class="nav-outline">
+                
+                
+                    
+                    <a class="nav-outline-link" href="https://sevgi.roktas.dev/sundries/#choose-a-layout-model">Choose a layout model</a>
+                    
+                
+                
+                
+                    
+                    <a class="nav-outline-link" href="https://sevgi.roktas.dev/sundries/#rulers">Rulers</a>
+                    
+                
+                
+                
+                    
+                    <a class="nav-outline-link" href="https://sevgi.roktas.dev/sundries/#grid">Grid</a>
+                    
+                
+                
+                
+                    
+                    <a class="nav-outline-link" href="https://sevgi.roktas.dev/sundries/#tiles">Tiles</a>
+                    
+                
+                
+                
+                    
+                    <a class="nav-outline-link" href="https://sevgi.roktas.dev/sundries/#export">Export</a>
+                    
+                
+                
+            </div>
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/derender/">
+                Derender
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/functions/">
+                Functions
+            </a>
+
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+        </div>
+    </details>
+    
+    <details class="nav-section" >
+        <summary class="nav-section-title">More</summary>
+        <div class="nav-section-pages">
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/showcase/">
+                Showcase Examples
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/compatibility/">
+                Supported Usage
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/api/">
+                API
+            </a>
+
+            
+            
+            
+        </div>
+    </details>
+    
+</div>
+
+                
+            </div>
+        </div>
+    </nav>
+
+    <div class="hero">
+        
+    </div>
+
+    <main>
+        
+
+
+<div class="toc">
+    <div class="toc-sticky">
+        
+
+
+
+
+
+<div class="doc-nav-tree">
+    
+    <details class="nav-section" >
+        <summary class="nav-section-title">Start</summary>
+        <div class="nav-section-pages">
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/getting-started/">
+                Getting Started
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/script-mode/">
+                Script Mode
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/library-mode/">
+                Library Mode
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/execution/">
+                Execution
+            </a>
+
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+        </div>
+    </details>
+    
+    <details class="nav-section" >
+        <summary class="nav-section-title">Core</summary>
+        <div class="nav-section-pages">
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/svg/">
+                SVG Essentials
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/dsl/">
+                DSL Catalog
+            </a>
+
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+        </div>
+    </details>
+    
+    <details class="nav-section" open>
+        <summary class="nav-section-title">Toolkit</summary>
+        <div class="nav-section-pages">
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/geometry/">
+                Geometry
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page active" href="https://sevgi.roktas.dev/sundries/">
+                Sundries
+            </a>
+
+            
+            <div class="nav-outline">
+                
+                
+                    
+                    <a class="nav-outline-link" href="https://sevgi.roktas.dev/sundries/#choose-a-layout-model">Choose a layout model</a>
+                    
+                
+                
+                
+                    
+                    <a class="nav-outline-link" href="https://sevgi.roktas.dev/sundries/#rulers">Rulers</a>
+                    
+                
+                
+                
+                    
+                    <a class="nav-outline-link" href="https://sevgi.roktas.dev/sundries/#grid">Grid</a>
+                    
+                
+                
+                
+                    
+                    <a class="nav-outline-link" href="https://sevgi.roktas.dev/sundries/#tiles">Tiles</a>
+                    
+                
+                
+                
+                    
+                    <a class="nav-outline-link" href="https://sevgi.roktas.dev/sundries/#export">Export</a>
+                    
+                
+                
+            </div>
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/derender/">
+                Derender
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/functions/">
+                Functions
+            </a>
+
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+        </div>
+    </details>
+    
+    <details class="nav-section" >
+        <summary class="nav-section-title">More</summary>
+        <div class="nav-section-pages">
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/showcase/">
+                Showcase Examples
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/compatibility/">
+                Supported Usage
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/api/">
+                API
+            </a>
+
+            
+            
+            
+        </div>
+    </details>
+    
+</div>
+
+    </div>
+</div>
+
+
+
+        <div
+            class="content "
+            id="sundries"
+        >
+            
+<h1 class="heading-text"><a href="#sundries" class="heading-anchor">Sundries</a></h1>
+<p>Sundries supplies the layout bridge between dimensions and drawings. A ruler fits repeated distances into one span, a
+grid combines two rulers, and a tile repeats one geometry value. They are regular Ruby objects, not another drawing DSL,
+so applications can inspect and test a layout before creating any SVG elements. Export is the separate output-oriented
+part of the component.</p>
+<h2 id="choose-a-layout-model"><a class="zola-anchor" href="#choose-a-layout-model" aria-label="Anchor link for: choose-a-layout-model">Choose a layout model</a></h2>
+<p>Choose by the value the rest of the program needs, not only by the visible repetition:</p>
+<table><thead><tr><th>Need</th><th>Use</th><th>Result</th></tr></thead><tbody>
+<tr><td>Repeat one SVG template in the document</td><td>DSL <code>Tile</code>, <code>TileX</code>, or <code>TileY</code></td><td><code>&lt;defs&gt;</code> plus positioned <code>&lt;use&gt;</code> elements</td></tr>
+<tr><td>Copy independently editable SVG subtrees</td><td><code>Duplicate</code>, <code>DuplicateX</code>, or <code>DuplicateY</code></td><td>separate element trees</td></tr>
+<tr><td>Inspect repeated cells and their bounds in Ruby</td><td><code>Sevgi::Sundries::Tile</code></td><td>geometry values without SVG output</td></tr>
+<tr><td>Fit major and minor intervals into one span</td><td><code>Ruler</code> or <code>RulerEven</code></td><td>inspectable distances and margins</td></tr>
+<tr><td>Combine two fitted rulers</td><td><code>SVG.Grid</code> or <code>Sevgi::Sundries::Grid</code></td><td>lines, points, cells, and a fitted canvas</td></tr>
+</tbody></table>
+<h2 id="rulers"><a class="zola-anchor" href="#rulers" aria-label="Anchor link for: rulers">Rulers</a></h2>
+<p><code>Ruler</code> fits whole major intervals inside a span. <code>unit</code> is the smallest step; <code>multiple</code> says how many units form one
+major interval. Requested margins are minimums. Any distance left after fitting whole major intervals is split between
+them while preserving an asymmetric start/end difference:</p>
+<pre class="giallo z-code"><code data-lang="ruby"><span class="giallo-l"><span class="z-variable">ruler</span><span class="z-keyword"> =</span><span class="z-support"> Sevgi</span><span>::</span><span class="z-support">Sundries</span><span>::</span><span class="z-support">Ruler</span><span>.</span><span class="z-keyword">new</span><span>(</span></span>
+<span class="giallo-l"><span class="z-constant">  brut</span><span class="z-constant">:</span><span class="z-constant"> 103</span><span>,</span></span>
+<span class="giallo-l"><span class="z-constant">  unit</span><span class="z-constant">:</span><span class="z-constant"> 1</span><span>,</span></span>
+<span class="giallo-l"><span class="z-constant">  multiple</span><span class="z-constant">:</span><span class="z-constant"> 10</span><span>,</span></span>
+<span class="giallo-l"><span class="z-constant">  margins</span><span class="z-constant">:</span><span> [</span><span class="z-constant">5</span><span>]</span></span>
+<span class="giallo-l"><span>)</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span>ruler</span><span>.</span><span class="z-entity z-name">n</span><span class="z-punctuation z-definition z-comment">       #</span><span class="z-comment"> =&gt; 9 major intervals</span></span>
+<span class="giallo-l"><span>ruler</span><span>.</span><span class="z-entity z-name">ds</span><span class="z-punctuation z-definition z-comment">      #</span><span class="z-comment"> major distances</span></span>
+<span class="giallo-l"><span>ruler</span><span>.</span><span class="z-entity z-name">hs</span><span class="z-punctuation z-definition z-comment">      #</span><span class="z-comment"> halfway distances</span></span>
+<span class="giallo-l"><span>ruler</span><span>.</span><span class="z-entity z-name">ms</span><span class="z-punctuation z-definition z-comment">      #</span><span class="z-comment"> minor distances</span></span>
+<span class="giallo-l"><span>ruler</span><span>.</span><span class="z-entity z-name">margins</span><span class="z-punctuation z-definition z-comment"> #</span><span class="z-comment"> =&gt; [6.5, 6.5]</span></span>
+<span class="giallo-l"><span>ruler</span><span>.</span><span class="z-entity z-name">d</span><span class="z-punctuation z-definition z-comment">       #</span><span class="z-comment"> =&gt; 90.0 fitted distance, excluding margins</span></span>
+<span class="giallo-l"><span>ruler</span><span>.</span><span class="z-entity z-name">waste</span><span class="z-punctuation z-definition z-comment">   #</span><span class="z-comment"> =&gt; 13.0 margins plus unfitted remainder</span></span></code></pre>
+<p>Use <code>RulerEven</code> when the number of major intervals must be even. The compact readers <code>u</code>, <code>n</code>, and <code>d</code> mean interval
+length, count, and fitted distance. <code>su</code>, <code>sn</code>, and <code>sd</code> describe the source subinterval.</p>
+<h2 id="grid"><a class="zola-anchor" href="#grid" aria-label="Anchor link for: grid">Grid</a></h2>
+<p><code>Grid</code> combines one horizontal and one vertical ruler. In library mode, <code>SVG.Grid</code> builds both rulers from a canvas and
+preserves that canvas's size, unit, and name while replacing its margins with the fitted values:</p>
+<pre class="giallo z-code"><code data-lang="ruby"><span class="giallo-l"><span class="z-variable">canvas</span><span class="z-keyword"> =</span><span class="z-support"> SVG</span><span>.</span><span class="z-variable z-other z-constant">Canvas</span><span class="z-constant"> width</span><span class="z-constant">:</span><span class="z-constant"> 80</span><span>,</span><span class="z-constant"> height</span><span class="z-constant">:</span><span class="z-constant"> 50</span><span>,</span><span class="z-constant"> margins</span><span class="z-constant">:</span><span> [</span><span class="z-constant">5</span><span>]</span></span>
+<span class="giallo-l"><span class="z-variable">grid</span><span class="z-keyword"> =</span><span class="z-support"> SVG</span><span>.</span><span class="z-variable z-other z-constant">Grid</span><span> canvas</span><span>,</span><span class="z-constant"> unit</span><span class="z-constant">:</span><span class="z-constant"> 1</span><span>,</span><span class="z-constant"> multiple</span><span class="z-constant">:</span><span class="z-constant"> 10</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span class="z-variable">drawing</span><span class="z-keyword"> =</span><span class="z-variable z-other z-constant"> SVG</span><span class="z-constant"> :</span><span class="z-constant">inkscape</span><span>,</span><span> grid</span><span>.</span><span class="z-entity z-name">canvas</span><span class="z-keyword"> do</span></span>
+<span class="giallo-l"><span class="z-variable z-other z-constant">  Draw</span><span> grid</span><span>.</span><span class="z-entity z-name">x</span><span>.</span><span class="z-entity z-name">major</span><span>.</span><span class="z-entity z-name">lines</span><span>,</span><span class="z-constant"> class</span><span class="z-constant">:</span><span class="z-string"> %w[</span><span class="z-string">guide horizontal</span><span class="z-string">]</span><span>,</span><span class="z-constant"> stroke</span><span class="z-constant">:</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">silver</span><span class="z-punctuation z-definition z-string">&quot;</span></span>
+<span class="giallo-l"><span class="z-variable z-other z-constant">  Draw</span><span> grid</span><span>.</span><span class="z-entity z-name">y</span><span>.</span><span class="z-entity z-name">major</span><span>.</span><span class="z-entity z-name">lines</span><span>,</span><span class="z-constant"> class</span><span class="z-constant">:</span><span class="z-string"> %w[</span><span class="z-string">guide vertical</span><span class="z-string">]</span><span>,</span><span class="z-constant"> stroke</span><span class="z-constant">:</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">silver</span><span class="z-punctuation z-definition z-string">&quot;</span></span>
+<span class="giallo-l"><span class="z-keyword">end</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span>drawing.</span><span class="z-variable z-other z-constant">Render</span></span></code></pre>
+<p>Axis names describe line direction: <code>grid.x</code> produces horizontal lines, and <code>grid.y</code> produces vertical lines. The
+positions of horizontal lines therefore come from the vertical ruler, and vice versa. Each major, minor, or halfway
+query has three representations:</p>
+<table><thead><tr><th>Reader</th><th>Value</th><th>Typical use</th></tr></thead><tbody>
+<tr><td><code>lines</code></td><td>geometry <code>Line</code> objects</td><td>pass a complete set to <code>Draw</code></td></tr>
+<tr><td><code>points</code></td><td>pairs of geometry <code>Point</code> objects</td><td>place marks at both endpoints</td></tr>
+<tr><td><code>xys</code></td><td>pairs of plain coordinate Arrays</td><td>feed data-only consumers</td></tr>
+</tbody></table>
+<pre class="giallo z-code"><code data-lang="ruby"><span class="giallo-l"><span class="z-variable">canvas</span><span class="z-keyword"> =</span><span class="z-support"> SVG</span><span>.</span><span class="z-variable z-other z-constant">Canvas</span><span class="z-constant"> width</span><span class="z-constant">:</span><span class="z-constant"> 80</span><span>,</span><span class="z-constant"> height</span><span class="z-constant">:</span><span class="z-constant"> 50</span><span>,</span><span class="z-constant"> margins</span><span class="z-constant">:</span><span> [</span><span class="z-constant">5</span><span>]</span></span>
+<span class="giallo-l"><span class="z-variable">grid</span><span class="z-keyword"> =</span><span class="z-support"> SVG</span><span>.</span><span class="z-variable z-other z-constant">Grid</span><span> canvas</span><span>,</span><span class="z-constant"> unit</span><span class="z-constant">:</span><span class="z-constant"> 1</span><span>,</span><span class="z-constant"> multiple</span><span class="z-constant">:</span><span class="z-constant"> 10</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span>grid</span><span>.</span><span class="z-entity z-name">x</span><span>.</span><span class="z-entity z-name">major</span><span>.</span><span class="z-entity z-name">lines</span><span class="z-punctuation z-definition z-comment">  #</span><span class="z-comment"> geometry Line objects, suitable for Draw</span></span>
+<span class="giallo-l"><span>grid</span><span>.</span><span class="z-entity z-name">x</span><span>.</span><span class="z-entity z-name">halve</span><span>.</span><span class="z-entity z-name">points</span><span class="z-punctuation z-definition z-comment"> #</span><span class="z-comment"> endpoint Point pairs</span></span>
+<span class="giallo-l"><span>grid</span><span>.</span><span class="z-entity z-name">y</span><span>.</span><span class="z-entity z-name">minor</span><span>.</span><span class="z-entity z-name">xys</span><span class="z-punctuation z-definition z-comment">    #</span><span class="z-comment"> plain coordinate pairs</span></span></code></pre>
+<p><code>Grid</code> also inherits tile accessors. <code>grid.rowbox(i)</code> and <code>grid.colbox(i)</code> are useful when a hatch or another operation
+should be constrained to one row or column. This is the pattern used by guide-sheet consumers:</p>
+<pre class="giallo z-code"><code data-lang="ruby"><span class="giallo-l"><span class="z-variable">canvas</span><span class="z-keyword"> =</span><span class="z-support"> SVG</span><span>.</span><span class="z-variable z-other z-constant">Canvas</span><span class="z-constant"> width</span><span class="z-constant">:</span><span class="z-constant"> 80</span><span>,</span><span class="z-constant"> height</span><span class="z-constant">:</span><span class="z-constant"> 50</span><span>,</span><span class="z-constant"> margins</span><span class="z-constant">:</span><span> [</span><span class="z-constant">5</span><span>]</span></span>
+<span class="giallo-l"><span class="z-variable">grid</span><span class="z-keyword"> =</span><span class="z-support"> SVG</span><span>.</span><span class="z-variable z-other z-constant">Grid</span><span> canvas</span><span>,</span><span class="z-constant"> unit</span><span class="z-constant">:</span><span class="z-constant"> 1</span><span>,</span><span class="z-constant"> multiple</span><span class="z-constant">:</span><span class="z-constant"> 10</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span class="z-variable z-other z-constant">SVG</span><span class="z-constant"> :</span><span class="z-constant">inkscape</span><span>,</span><span> grid</span><span>.</span><span class="z-entity z-name">canvas</span><span class="z-keyword"> do</span></span>
+<span class="giallo-l"><span class="z-variable z-other z-constant">  Hatch</span><span> grid</span><span>.</span><span class="z-entity z-name">rowbox</span><span>(</span><span class="z-constant">0</span><span>)</span><span>,</span><span class="z-constant"> angle</span><span class="z-constant">:</span><span class="z-keyword"> -</span><span class="z-constant">30</span><span>,</span><span class="z-constant"> step</span><span class="z-constant">:</span><span> grid</span><span>.</span><span class="z-entity z-name">x</span><span>.</span><span class="z-entity z-name">su</span><span>,</span><span class="z-constant"> stroke</span><span class="z-constant">:</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">silver</span><span class="z-punctuation z-definition z-string">&quot;</span></span>
+<span class="giallo-l"><span class="z-keyword">end</span><span>.</span><span class="z-variable z-other z-constant">Render</span></span></code></pre><h2 id="tiles"><a class="zola-anchor" href="#tiles" aria-label="Anchor link for: tiles">Tiles</a></h2>
+<p><code>Tile</code> arranges copies of one geometry value into rows and columns. The source element's bounding box sets the cell
+pitch, and indexing is row-first:</p>
+<pre class="giallo z-code"><code data-lang="ruby"><span class="giallo-l"><span class="z-variable">cell</span><span class="z-keyword"> =</span><span class="z-support"> Sevgi</span><span>::</span><span class="z-support">Geometry</span><span>::</span><span class="z-support">Rect</span><span>[</span><span class="z-constant">8</span><span>,</span><span class="z-constant"> 4</span><span>]</span></span>
+<span class="giallo-l"><span class="z-variable">tile</span><span class="z-keyword"> =</span><span class="z-support"> Sevgi</span><span>::</span><span class="z-support">Sundries</span><span>::</span><span class="z-support">Tile</span><span>.</span><span class="z-keyword">new</span><span>(</span><span>cell</span><span>,</span><span class="z-constant"> position</span><span class="z-constant">:</span><span> [</span><span class="z-constant">10</span><span>,</span><span class="z-constant"> 20</span><span>]</span><span>,</span><span class="z-constant"> nx</span><span class="z-constant">:</span><span class="z-constant"> 3</span><span>,</span><span class="z-constant"> ny</span><span class="z-constant">:</span><span class="z-constant"> 2</span><span>)</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span>tile</span><span>[</span><span class="z-constant">1</span><span>]</span><span>[</span><span class="z-constant">2</span><span>]</span><span>.</span><span class="z-entity z-name">position</span><span class="z-punctuation z-definition z-comment"> #</span><span class="z-comment"> row 1, column 2</span></span>
+<span class="giallo-l"><span>tile</span><span>.</span><span class="z-entity z-name">rowbox</span><span>(</span><span class="z-constant">1</span><span>)</span><span class="z-punctuation z-definition z-comment">      #</span><span class="z-comment"> bounds of the second row</span></span>
+<span class="giallo-l"><span>tile</span><span>.</span><span class="z-entity z-name">colbox</span><span>(</span><span class="z-constant">2</span><span>)</span><span class="z-punctuation z-definition z-comment">      #</span><span class="z-comment"> bounds of the third column</span></span>
+<span class="giallo-l"><span>tile</span><span>.</span><span class="z-entity z-name">box</span><span class="z-punctuation z-definition z-comment">            #</span><span class="z-comment"> bounds of the complete layout</span></span></code></pre>
+<p>Use this Ruby object when later calculations need the cells or their bounds. Use the DSL words <code>Tile</code>, <code>TileX</code>, or
+<code>TileY</code> instead when the output should define one SVG template and repeat it with <code>&lt;use&gt;</code> elements.</p>
+<h2 id="export"><a class="zola-anchor" href="#export" aria-label="Anchor link for: export">Export</a></h2>
+<p>SVG output needs no native graphics libraries. PDF and PNG export are optional:</p>
+<pre class="giallo z-code"><code data-lang="ruby"><span class="giallo-l"><span class="z-variable">canvas</span><span class="z-keyword"> =</span><span class="z-support"> SVG</span><span>.</span><span class="z-variable z-other z-constant">Canvas</span><span class="z-constant"> width</span><span class="z-constant">:</span><span class="z-constant"> 40</span><span>,</span><span class="z-constant"> height</span><span class="z-constant">:</span><span class="z-constant"> 40</span><span>,</span><span class="z-constant"> unit</span><span class="z-constant">:</span><span class="z-constant"> :</span><span class="z-constant">px</span></span>
+<span class="giallo-l"><span class="z-variable">drawing</span><span class="z-keyword"> =</span><span class="z-variable z-other z-constant"> SVG</span><span class="z-constant"> :</span><span class="z-constant">minimal</span><span>,</span><span> canvas </span><span class="z-keyword">do</span></span>
+<span class="giallo-l"><span>  circle </span><span class="z-constant">cx</span><span class="z-constant">:</span><span class="z-constant"> 20</span><span>,</span><span class="z-constant"> cy</span><span class="z-constant">:</span><span class="z-constant"> 20</span><span>,</span><span class="z-constant"> r</span><span class="z-constant">:</span><span class="z-constant"> 16</span><span>,</span><span class="z-constant"> fill</span><span class="z-constant">:</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">tomato</span><span class="z-punctuation z-definition z-string">&quot;</span></span>
+<span class="giallo-l"><span class="z-keyword">end</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span>drawing.</span><span class="z-variable z-other z-constant">PNG</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">badge.png</span><span class="z-punctuation z-definition z-string">&quot;</span><span>,</span><span class="z-constant"> dpi</span><span class="z-constant">:</span><span class="z-constant"> 144</span></span>
+<span class="giallo-l"><span>drawing.</span><span class="z-variable z-other z-constant">PDF</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">badge.pdf</span><span class="z-punctuation z-definition z-string">&quot;</span></span></code></pre>
+<p>Applications that keep output policy outside the document can call the component directly. The file suffix selects
+the format when <code>format:</code> is omitted, and the return value is the expanded output path:</p>
+<pre class="giallo z-code"><code data-lang="ruby"><span class="giallo-l"><span class="z-variable">canvas</span><span class="z-keyword"> =</span><span class="z-support"> SVG</span><span>.</span><span class="z-variable z-other z-constant">Canvas</span><span class="z-constant"> width</span><span class="z-constant">:</span><span class="z-constant"> 40</span><span>,</span><span class="z-constant"> height</span><span class="z-constant">:</span><span class="z-constant"> 40</span><span>,</span><span class="z-constant"> unit</span><span class="z-constant">:</span><span class="z-constant"> :</span><span class="z-constant">px</span></span>
+<span class="giallo-l"><span class="z-variable">drawing</span><span class="z-keyword"> =</span><span class="z-variable z-other z-constant"> SVG</span><span>(</span><span class="z-constant">:</span><span class="z-constant">minimal</span><span>,</span><span> canvas</span><span>)</span><span> {</span><span> circle </span><span class="z-constant">cx</span><span class="z-constant">:</span><span class="z-constant"> 20</span><span>,</span><span class="z-constant"> cy</span><span class="z-constant">:</span><span class="z-constant"> 20</span><span>,</span><span class="z-constant"> r</span><span class="z-constant">:</span><span class="z-constant"> 16</span><span>,</span><span class="z-constant"> fill</span><span class="z-constant">:</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">tomato</span><span class="z-punctuation z-definition z-string">&quot;</span><span> }</span></span>
+<span class="giallo-l"><span class="z-support">Sevgi</span><span>::</span><span class="z-support">Sundries</span><span>::</span><span class="z-support">Export</span><span>.</span><span class="z-entity z-name">call</span><span>(</span><span>drawing.</span><span class="z-variable z-other z-constant">Render</span><span>,</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">badge.png</span><span class="z-punctuation z-definition z-string">&quot;</span><span>,</span><span class="z-constant"> width</span><span class="z-constant">:</span><span class="z-constant"> 320</span><span>)</span></span></code></pre>
+<p>Export <code>width</code> and <code>height</code> control output dimensions; they do not replace the SVG canvas or repair its <code>viewBox</code> or
+visible geometry. Define those relationships in the drawing before export. Use <code>css:</code> only for deliberate export-only
+styling.</p>
+<p>PDF and PNG output uses Cairo, librsvg, and HexaPDF. If one is missing, Sevgi raises a component error. Ordinary SVG
+rendering still works without them.</p>
+
+
+
+
+
+
+
+    
+    
+    
+        
+    
+
+    
+    
+    
+        
+    
+
+    
+    
+    
+        
+    
+
+    
+    
+    
+        
+    
+
+    
+    
+    
+        
+    
+
+    
+    
+    
+        
+    
+
+    
+    
+    
+        
+    
+
+    
+    
+        
+    
+    
+
+    
+        
+    
+    
+    
+
+    
+    
+    
+
+    
+    
+    
+
+    
+    
+    
+
+    
+    
+    
+
+
+<div class="page-nav">
+    
+    <a href="https://sevgi.roktas.dev/geometry/">← Geometry</a>
+    
+
+    
+    <a href="https://sevgi.roktas.dev/derender/">Derender →</a>
+    
+</div>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-social">
+            <a href="https://github.com/roktas/sevgi" aria-label="GitHub" title="GitHub">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.399 1.02 0 2.047.133 3.006.4 2.29-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                </svg>
+            </a>
+        </div>
+    </footer>
+</body>
+</html>

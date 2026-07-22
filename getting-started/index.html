@@ -1,0 +1,1805 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Getting Started | Sevgi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <link rel="icon" type="image/png" href="/img/favicon.png">
+    <link rel="icon" type="image/svg+xml" href="/img/favicon.svg">
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+
+    <style>
+    :root {
+        /* Fonts */
+        --wt-font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+        --wt-font-head: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+        --wt-font-mono: 'JetBrains Mono', monospace;
+
+        /* Base Colors */
+        --wt-color-bg: #ffffff;
+        --wt-color-bg-soft: #fafafa;
+        --wt-color-bg-elevated: #ffffff;
+        --wt-color-text: #1a1a1a;
+        --wt-color-text-muted: #666666;
+        --wt-color-text-soft: #737373;
+        --wt-color-border-subtle: #e5e5e5;
+        --wt-color-link: #800080; /* Link color aligned with theme */
+        
+        /* Accent Colors */
+        --wt-color-accent: #800080; /* Primary Purple */
+        --wt-color-accent-soft: #f8e6f8; /* Very soft purple (for backgrounds) */
+        --wt-color-accent-strong: #600060; /* Darker purple (for hover states) */
+        --wt-color-on-accent: #ffffff;
+        --wt-logo-active: #800080;
+        --wt-logo-passive: #d3d3d3;
+        
+        /* Code Blocks */
+        --wt-color-code-bg: #f5f5f5;
+        --wt-color-code-border: #e5e5e5;
+        
+        /* Shadows */
+        --wt-shadow-soft: rgba(0, 0, 0, 0.05);
+        --wt-shadow-medium: rgba(0, 0, 0, 0.1);
+        --wt-shadow-accent: rgba(128, 0, 128, 0.2);
+        --wt-shadow-accent-strong: rgba(128, 0, 128, 0.32);
+
+        /* Hero */
+        --wt-hero-background:
+            radial-gradient(ellipse 80% 60% at 70% 40%, rgba(254, 243, 199, 0.7) 0%, transparent 60%),
+            radial-gradient(ellipse 50% 40% at 30% 70%, rgba(251, 243, 219, 0.5) 0%, transparent 50%),
+            var(--wt-color-bg-soft);
+        --wt-hero-shadow: rgba(217, 119, 6, 0.15);
+        --wt-hero-shadow-strong: rgba(217, 119, 6, 0.25);
+        
+        /* Dimensions */
+        --wt-header-height: 64px;
+        --wt-main-padding-top: 40px;
+    }
+
+    /* Dark Mode Variables */
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --wt-color-bg: #111111;
+            --wt-color-bg-soft: #1a1a1a;
+            --wt-color-bg-elevated: #222222;
+            --wt-color-text: #e5e5e5;
+            --wt-color-text-muted: #a3a3a3;
+            --wt-color-text-soft: #8f8f8f;
+            --wt-color-border-subtle: #333333;
+            --wt-color-link: #e5c39c;
+            --wt-color-accent: #e5c39c;
+            --wt-color-accent-soft: #2c251e;
+            --wt-color-accent-strong: #f0d6b8;
+            --wt-color-on-accent: #111111;
+            --wt-logo-active: #e5c39c;
+            --wt-logo-passive: #52525b;
+            
+            --wt-color-code-bg: #1a1a1a;
+            --wt-color-code-border: #333333;
+            
+            --wt-shadow-soft: rgba(0, 0, 0, 0.3);
+            --wt-shadow-medium: rgba(0, 0, 0, 0.5);
+            --wt-shadow-accent: rgba(229, 195, 156, 0.24);
+            --wt-shadow-accent-strong: rgba(229, 195, 156, 0.36);
+            --wt-hero-background:
+                radial-gradient(ellipse 60% 50% at 50% 30%, rgba(229, 195, 156, 0.08) 0%, transparent 70%),
+                var(--wt-color-bg-soft);
+            --wt-hero-shadow: rgba(229, 195, 156, 0.2);
+            --wt-hero-shadow-strong: rgba(229, 195, 156, 0.3);
+        }
+    }
+
+    /* Manual Theme Overrides */
+    html[data-theme="dark"] {
+        --wt-color-bg: #111111;
+        --wt-color-bg-soft: #1a1a1a;
+        --wt-color-bg-elevated: #222222;
+        --wt-color-text: #e5e5e5;
+        --wt-color-text-muted: #a3a3a3;
+        --wt-color-text-soft: #8f8f8f;
+        --wt-color-border-subtle: #333333;
+        --wt-color-link: #e5c39c;
+        --wt-color-accent: #e5c39c;
+        --wt-color-accent-soft: #2c251e;
+        --wt-color-accent-strong: #f0d6b8;
+        --wt-color-on-accent: #111111;
+        --wt-logo-active: #e5c39c;
+        --wt-logo-passive: #52525b;
+        --wt-color-code-bg: #1a1a1a;
+        --wt-color-code-border: #333333;
+        --wt-shadow-soft: rgba(0, 0, 0, 0.3);
+        --wt-shadow-medium: rgba(0, 0, 0, 0.5);
+        --wt-shadow-accent: rgba(229, 195, 156, 0.24);
+        --wt-shadow-accent-strong: rgba(229, 195, 156, 0.36);
+        --wt-hero-background:
+            radial-gradient(ellipse 60% 50% at 50% 30%, rgba(229, 195, 156, 0.08) 0%, transparent 70%),
+            var(--wt-color-bg-soft);
+        --wt-hero-shadow: rgba(229, 195, 156, 0.2);
+        --wt-hero-shadow-strong: rgba(229, 195, 156, 0.3);
+    }
+
+    html[data-theme="light"] {
+        --wt-color-bg: #ffffff;
+        --wt-color-bg-soft: #fafafa;
+        --wt-color-bg-elevated: #ffffff;
+        --wt-color-text: #1a1a1a;
+        --wt-color-text-muted: #666666;
+        --wt-color-text-soft: #737373;
+        --wt-color-border-subtle: #e5e5e5;
+        --wt-color-link: #800080;
+        --wt-color-accent: #800080;
+        --wt-color-accent-soft: #f8e6f8;
+        --wt-color-accent-strong: #600060;
+        --wt-color-on-accent: #ffffff;
+        --wt-logo-active: #800080;
+        --wt-logo-passive: #d3d3d3;
+        --wt-color-code-bg: #f5f5f5;
+        --wt-color-code-border: #e5e5e5;
+        --wt-shadow-soft: rgba(0, 0, 0, 0.05);
+        --wt-shadow-medium: rgba(0, 0, 0, 0.1);
+        --wt-shadow-accent: rgba(128, 0, 128, 0.2);
+        --wt-shadow-accent-strong: rgba(128, 0, 128, 0.32);
+        --wt-hero-background:
+            radial-gradient(ellipse 80% 60% at 70% 40%, rgba(254, 243, 199, 0.7) 0%, transparent 60%),
+            radial-gradient(ellipse 50% 40% at 30% 70%, rgba(251, 243, 219, 0.5) 0%, transparent 50%),
+            var(--wt-color-bg-soft);
+        --wt-hero-shadow: rgba(217, 119, 6, 0.15);
+        --wt-hero-shadow-strong: rgba(217, 119, 6, 0.25);
+    }
+</style>
+
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+    <script>
+    // iOS viewport jank fix
+    (function() {
+        var isIOS = /iP(hone|ad|od)/.test(navigator.platform) ||
+                    (/Macintosh/.test(navigator.userAgent) && 'ontouchend' in document);
+        if (!isIOS) return;
+
+        var h = window.innerHeight;
+        if (h) {
+            document.documentElement.style.setProperty('--vh-full', h + 'px');
+        }
+
+        window.addEventListener('orientationchange', function() {
+            setTimeout(function() {
+                var newH = window.innerHeight;
+                if (newH) {
+                    document.documentElement.style.setProperty('--vh-full', newH + 'px');
+                }
+            }, 100);
+        });
+    })();
+    </script>
+    <meta name="view-transition" content="same-origin">
+    <meta name="description" content="Create SVG with Ruby.">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https:&#x2F;&#x2F;sevgi.roktas.dev&#x2F;getting-started&#x2F;">
+    <meta property="og:title" content="Getting Started | Sevgi">
+    <meta property="og:description" content="Create SVG with Ruby.">
+    <meta property="og:image" content="https://sevgi.roktas.dev/img/logo@2x.png">
+    <meta property="og:image:width" content="1024">
+    <meta property="og:image:height" content="1024">
+
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Getting Started | Sevgi">
+    <meta name="twitter:description" content="Create SVG with Ruby.">
+    <meta name="twitter:image" content="https://sevgi.roktas.dev/img/logo@2x.png">
+
+    
+    
+    <link rel="stylesheet" href="https://sevgi.roktas.dev/css/normalize.css?h=580818700724d42d7fcc">
+    <link rel="preload" href="https://sevgi.roktas.dev/css/main.css?h=6bbbd93d59b6321975a3" as="style">
+    <link rel="stylesheet" href="https://sevgi.roktas.dev/css/main.css?h=6bbbd93d59b6321975a3">
+    
+    <link rel="stylesheet" href="https://sevgi.roktas.dev/giallo-light.css?h=5cefe4954cda1947c74d" id="syntax-light">
+    <link rel="stylesheet" href="https://sevgi.roktas.dev/giallo-dark.css?h=fb6bfef1747cf20d61d5" id="syntax-dark">
+    
+    <script src="https://sevgi.roktas.dev/js/toggle.js?h=77918af59eeb33c2936b"></script>
+    
+    <script>
+    // Keep DSL search results pointed at their catalog entries.
+    window.sevgiDslAnchors = [
+    
+    
+        ["_", "text-content"],
+    
+    
+    
+        ["Adopt", "adopt"],
+    
+        ["AdoptFirst", "adopt-first"],
+    
+        ["Align", "align"],
+    
+        ["Ancestral", "ancestral"],
+    
+        ["Append", "append"],
+    
+    
+    
+        ["base", "base"],
+    
+    
+    
+        ["Call", "call"],
+    
+        ["Canvas", "canvas"],
+    
+        ["CData", "cdata"],
+    
+        ["Classify", "classify"],
+    
+        ["Comment", "comment"],
+    
+        ["css", "css"],
+    
+    
+    
+        ["Document", "document"],
+    
+        ["Document!", "document-bang"],
+    
+        ["Decompile", "decompile"],
+    
+        ["DecompileFile", "decompile-file"],
+    
+        ["Defaults", "defaults"],
+    
+        ["Derender", "derender"],
+    
+        ["DerenderFile", "derender-file"],
+    
+        ["Disidentify", "disidentify"],
+    
+        ["Draw", "draw"],
+    
+        ["Duplicate", "duplicate"],
+    
+        ["DuplicateX", "duplicate-x"],
+    
+        ["DuplicateY", "duplicate-y"],
+    
+    
+    
+        ["Element", "element"],
+    
+        ["Evaluate", "evaluate"],
+    
+        ["EvaluateChildren", "evaluate-children"],
+    
+        ["EvaluateChildrenFile", "evaluate-children-file"],
+    
+        ["EvaluateFile", "evaluate-file"],
+    
+    
+    
+        ["Flip", "flip"],
+    
+        ["FlipX", "flip-x"],
+    
+        ["FlipY", "flip-y"],
+    
+        ["Forward", "forward"],
+    
+    
+    
+        ["Grid", "grid"],
+    
+        ["Group", "group"],
+    
+    
+    
+        ["Hatch", "hatch"],
+    
+        ["HLineBy", "h-line-by"],
+    
+        ["HLineTo", "h-line-to"],
+    
+    
+    
+        ["Identifiers", "identifiers"],
+    
+        ["Include", "include"],
+    
+        ["IncludeChildren", "include-children"],
+    
+        ["InkscapeTemplateInfo", "inkscape-template-info"],
+    
+        ["Is?", "is-predicate"],
+    
+    
+    
+        ["layer", "layer"],
+    
+        ["Layer", "layer-callable"],
+    
+        ["layer!", "layer-bang"],
+    
+        ["Layer!", "layer-callable-bang"],
+    
+        ["License", "license"],
+    
+        ["License_CC0", "license-cc0"],
+    
+        ["License_CC_BY", "license-cc-by"],
+    
+        ["License_CC_BY_NC", "license-cc-by-nc"],
+    
+        ["License_CC_BY_NC_ND", "license-cc-by-nc-nd"],
+    
+        ["License_CC_BY_NC_SA", "license-cc-by-nc-sa"],
+    
+        ["License_CC_BY_ND", "license-cc-by-nd"],
+    
+        ["License_CC_BY_SA", "license-cc-by-sa"],
+    
+        ["License_LAL", "license-lal"],
+    
+        ["LineBy", "line-by"],
+    
+        ["LineTo", "line-to"],
+    
+        ["Lint", "lint"],
+    
+        ["Load", "load"],
+    
+    
+    
+        ["Matrix", "matrix"],
+    
+        ["Mixin", "mixin"],
+    
+    
+    
+        ["NS?", "ns-predicate"],
+    
+    
+    
+        ["Orphan", "orphan"],
+    
+        ["Out", "out"],
+    
+    
+    
+        ["Pages", "pages"],
+    
+        ["PagesTabular", "pages-tabular"],
+    
+        ["Paper", "paper"],
+    
+        ["Paper!", "paper-bang"],
+    
+        ["PDF", "pdf"],
+    
+        ["PNG", "png"],
+    
+        ["Prepend", "prepend"],
+    
+        ["PreRender", "pre-render"],
+    
+    
+    
+        ["RDF", "rdf"],
+    
+        ["RDFWork", "rdf-work"],
+    
+        ["Render", "render"],
+    
+        ["RenderChildren", "render-children"],
+    
+        ["Root", "root"],
+    
+        ["Root?", "root-predicate"],
+    
+        ["Rotate", "rotate"],
+    
+        ["RotateLeft", "rotate-left"],
+    
+        ["RotateRight", "rotate-right"],
+    
+    
+    
+        ["Save", "save"],
+    
+        ["Scale", "scale"],
+    
+        ["sevgi", "rake-sevgi"],
+    
+        ["Skew", "skew"],
+    
+        ["SkewX", "skew-x"],
+    
+        ["SkewY", "skew-y"],
+    
+        ["square", "square"],
+    
+        ["Stay", "stay"],
+    
+        ["SVG", "svg"],
+    
+        ["Symbol", "symbol"],
+    
+        ["symbol!", "symbol-bang"],
+    
+        ["Symbols", "symbols"],
+    
+    
+    
+        ["Tile", "tile"],
+    
+        ["TileX", "tile-x"],
+    
+        ["TileY", "tile-y"],
+    
+        ["Translate", "translate"],
+    
+        ["TranslateX", "translate-x"],
+    
+        ["TranslateY", "translate-y"],
+    
+        ["Traverse", "traverse"],
+    
+        ["TraverseUp", "traverse-up"],
+    
+    
+    
+        ["Validate", "validate"],
+    
+        ["VLineBy", "v-line-by"],
+    
+        ["VLineTo", "v-line-to"],
+    
+    
+    
+        ["With", "with"],
+    
+        ["Within", "within"],
+    
+        ["Write", "write"],
+    
+    
+    ];
+    </script>
+    <script src="/elasticlunr.min.js" defer></script>
+    <script src="/search_index.en.js" defer></script>
+    <script src="https://sevgi.roktas.dev/js/search.js?h=1bddf8bddc413c3db88a" defer></script>
+    <script src="https://sevgi.roktas.dev/js/copy.js?h=a5eac946898599ad3fee" defer></script>
+    <script src="https://sevgi.roktas.dev/js/tabs.js?h=81fe713d771c95209dcc" defer></script>
+    <script src="https://sevgi.roktas.dev/js/menu.js?h=a05b0b890d46da60db19" defer></script>
+    <script src="//instant.page/5.2.0" type="module" integrity="sha384-jnZyxPjiipYXnSU0ygqeac2q7CVYMbh84q0uHVRRxEtvFPiQYbXWUorga2aqZJ0z"></script>
+    <script>
+    // 1Password extension bug workaround
+    (function() {
+        var mark = function(el) { el.setAttribute('data-1p-ignore', ''); };
+        new MutationObserver(function(mutations) {
+            mutations.forEach(function(m) {
+                m.addedNodes.forEach(function(n) {
+                    if (n.nodeType === 1) {
+                        if (n.matches && n.matches('code[class*="language-"]')) mark(n);
+                        if (n.querySelectorAll) {
+                            n.querySelectorAll('code[class*="language-"]').forEach(mark);
+                        }
+                    }
+                });
+            });
+        }).observe(document.documentElement, { childList: true, subtree: true });
+    })();
+    </script>
+</head>
+
+<body>
+    <div class="ios-chrome-scrim" aria-hidden="true"></div>
+    <header>
+        <button class="mobile-menu-toggle" aria-label="Open menu" aria-expanded="false">
+            <svg class="menu-icon" aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+            <svg class="close-icon" aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+
+        <a href="/" class="logo-link">
+            <div class="logo">
+                <svg viewBox="0 -2 38.28 61.5" role="img" aria-label="Sevgi logo" shape-rendering="geometricPrecision">
+                    <defs>
+                        <path id="header-logo-master" d="m 30,30 c 0,0 18.39,7.089444 18.39,15 C 48.39,52.910556 30,60 30,60 M 30,0 C 30,0 11.61,7.089442 11.61,14.999998 C 11.61,22.910556 30,30 30,30"></path>
+                    </defs>
+                    <g transform="translate(-10.86,-1.25)" fill="none" stroke-linecap="round" stroke-width="4">
+                        <use href="#header-logo-master" stroke="var(--wt-logo-passive)" transform="matrix(-1,0,0,1,60,0)"></use>
+                        <use href="#header-logo-master" stroke="var(--wt-logo-active)"></use>
+                    </g>
+                </svg>
+                <span class="logo-text">Sevgi</span>
+            </div>
+        </a>
+
+        
+
+        <nav>
+            <div class="search-container">
+                <input id="userinput" type="search" placeholder="Search..." aria-label="Search documentation">
+                <div id="suggestions"></div>
+            </div>
+            
+            <a class="nav-item" href="/api/">Reference</a>
+            
+            <button class="theme-toggle" aria-label="Toggle theme" title="Toggle dark/light mode">
+                <svg class="light-icon theme-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="12" cy="12" r="6" fill="currentColor"></circle>
+                    <path d="m5.6 5.6-2.1-2.1m15 2.1 2.1-2.1m-15 15-2.1 2.1m15-2.1 2.1 2.1M12 4V2.8m0 17.2v1.2M4 12H2.8m17.2 0h1.2" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+                </svg>
+                <i class="fas fa-moon dark-icon" aria-hidden="true"></i>
+            </button>
+        </nav>
+
+        <button class="theme-toggle mobile-theme-toggle" aria-label="Toggle theme" title="Toggle dark/light mode">
+            <svg class="light-icon theme-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="6" fill="currentColor"></circle>
+                <path d="m5.6 5.6-2.1-2.1m15 2.1 2.1-2.1m-15 15-2.1 2.1m15-2.1 2.1 2.1M12 4V2.8m0 17.2v1.2M4 12H2.8m17.2 0h1.2" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+            </svg>
+            <i class="fas fa-moon dark-icon" aria-hidden="true"></i>
+        </button>
+    </header>
+
+    <div class="mobile-menu-overlay" aria-hidden="true"></div>
+    <nav class="mobile-menu" aria-hidden="true">
+        <div class="mobile-menu-content">
+            
+            <div class="mobile-menu-section">
+                
+                <a class="mobile-nav-item" href="/api/">Reference</a>
+                
+            </div>
+            <div class="mobile-menu-divider"></div>
+            
+            <div class="mobile-menu-section mobile-menu-toc">
+                
+                
+                
+
+
+
+
+
+<div class="doc-nav-tree">
+    
+    <details class="nav-section" open>
+        <summary class="nav-section-title">Start</summary>
+        <div class="nav-section-pages">
+            
+            
+            
+            
+            <a class="nav-page active" href="https://sevgi.roktas.dev/getting-started/">
+                Getting Started
+            </a>
+
+            
+            <div class="nav-outline">
+                
+                
+                    
+                    <a class="nav-outline-link" href="https://sevgi.roktas.dev/getting-started/#script-and-library-modes">Script and library modes</a>
+                    
+                
+                
+                
+                    
+                    <a class="nav-outline-link" href="https://sevgi.roktas.dev/getting-started/#see-a-complete-drawing">See a complete drawing</a>
+                    
+                
+                
+                
+                    
+                    <a class="nav-outline-link" href="https://sevgi.roktas.dev/getting-started/#run-an-example">Run an example</a>
+                    
+                
+                
+                
+                    
+                    <details class="nav-outline-branch">
+                        <summary>Install Sevgi</summary>
+                        <div class="nav-outline-children">
+                            
+                            <a href="https://sevgi.roktas.dev/getting-started/#choose-a-gem">Choose a gem</a>
+                            
+                        </div>
+                    </details>
+                    
+                
+                
+                
+                    
+                    <a class="nav-outline-link" href="https://sevgi.roktas.dev/getting-started/#choose-a-document-profile">Choose a document profile</a>
+                    
+                
+                
+            </div>
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/script-mode/">
+                Script Mode
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/library-mode/">
+                Library Mode
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/execution/">
+                Execution
+            </a>
+
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+        </div>
+    </details>
+    
+    <details class="nav-section" >
+        <summary class="nav-section-title">Core</summary>
+        <div class="nav-section-pages">
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/svg/">
+                SVG Essentials
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/dsl/">
+                DSL Catalog
+            </a>
+
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+        </div>
+    </details>
+    
+    <details class="nav-section" >
+        <summary class="nav-section-title">Toolkit</summary>
+        <div class="nav-section-pages">
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/geometry/">
+                Geometry
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/sundries/">
+                Sundries
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/derender/">
+                Derender
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/functions/">
+                Functions
+            </a>
+
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+        </div>
+    </details>
+    
+    <details class="nav-section" >
+        <summary class="nav-section-title">More</summary>
+        <div class="nav-section-pages">
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/showcase/">
+                Showcase Examples
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/compatibility/">
+                Supported Usage
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/api/">
+                API
+            </a>
+
+            
+            
+            
+        </div>
+    </details>
+    
+</div>
+
+                
+            </div>
+        </div>
+    </nav>
+
+    <div class="hero">
+        
+    </div>
+
+    <main>
+        
+
+
+<div class="toc">
+    <div class="toc-sticky">
+        
+
+
+
+
+
+<div class="doc-nav-tree">
+    
+    <details class="nav-section" open>
+        <summary class="nav-section-title">Start</summary>
+        <div class="nav-section-pages">
+            
+            
+            
+            
+            <a class="nav-page active" href="https://sevgi.roktas.dev/getting-started/">
+                Getting Started
+            </a>
+
+            
+            <div class="nav-outline">
+                
+                
+                    
+                    <a class="nav-outline-link" href="https://sevgi.roktas.dev/getting-started/#script-and-library-modes">Script and library modes</a>
+                    
+                
+                
+                
+                    
+                    <a class="nav-outline-link" href="https://sevgi.roktas.dev/getting-started/#see-a-complete-drawing">See a complete drawing</a>
+                    
+                
+                
+                
+                    
+                    <a class="nav-outline-link" href="https://sevgi.roktas.dev/getting-started/#run-an-example">Run an example</a>
+                    
+                
+                
+                
+                    
+                    <details class="nav-outline-branch">
+                        <summary>Install Sevgi</summary>
+                        <div class="nav-outline-children">
+                            
+                            <a href="https://sevgi.roktas.dev/getting-started/#choose-a-gem">Choose a gem</a>
+                            
+                        </div>
+                    </details>
+                    
+                
+                
+                
+                    
+                    <a class="nav-outline-link" href="https://sevgi.roktas.dev/getting-started/#choose-a-document-profile">Choose a document profile</a>
+                    
+                
+                
+            </div>
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/script-mode/">
+                Script Mode
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/library-mode/">
+                Library Mode
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/execution/">
+                Execution
+            </a>
+
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+        </div>
+    </details>
+    
+    <details class="nav-section" >
+        <summary class="nav-section-title">Core</summary>
+        <div class="nav-section-pages">
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/svg/">
+                SVG Essentials
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/dsl/">
+                DSL Catalog
+            </a>
+
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+        </div>
+    </details>
+    
+    <details class="nav-section" >
+        <summary class="nav-section-title">Toolkit</summary>
+        <div class="nav-section-pages">
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/geometry/">
+                Geometry
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/sundries/">
+                Sundries
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/derender/">
+                Derender
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/functions/">
+                Functions
+            </a>
+
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+        </div>
+    </details>
+    
+    <details class="nav-section" >
+        <summary class="nav-section-title">More</summary>
+        <div class="nav-section-pages">
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/showcase/">
+                Showcase Examples
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/compatibility/">
+                Supported Usage
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/api/">
+                API
+            </a>
+
+            
+            
+            
+        </div>
+    </details>
+    
+</div>
+
+    </div>
+</div>
+
+
+
+        <div
+            class="content "
+            id="getting-started"
+        >
+            
+<h1 class="heading-text"><a href="#getting-started" class="heading-anchor">Getting Started</a></h1>
+<p>Sevgi creates SVG with Ruby. A drawing can be an executable <code>.sevgi</code> script or a value built inside another Ruby
+application.</p>
+<h2 id="script-and-library-modes"><a class="zola-anchor" href="#script-and-library-modes" aria-label="Anchor link for: script-and-library-modes">Script and library modes</a></h2>
+<p>Use script mode when the drawing is the program, such as a generated asset or build job. The runner supplies Sevgi's
+entry points, and the script usually writes or prints its result:</p>
+<pre class="giallo z-code"><code data-lang="ruby"><span class="giallo-l"><span class="z-punctuation z-definition z-comment">#</span><span class="z-comment">!/usr/bin/env -S ruby -S sevgi</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span class="z-variable">canvas</span><span class="z-keyword"> =</span><span class="z-variable z-other z-constant"> Canvas</span><span class="z-constant"> width</span><span class="z-constant">:</span><span class="z-constant"> 24</span><span>,</span><span class="z-constant"> height</span><span class="z-constant">:</span><span class="z-constant"> 24</span><span>,</span><span class="z-constant"> unit</span><span class="z-constant">:</span><span class="z-constant"> :</span><span class="z-constant">px</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span class="z-variable z-other z-constant">SVG</span><span class="z-constant"> :</span><span class="z-constant">minimal</span><span>,</span><span> canvas </span><span class="z-keyword">do</span></span>
+<span class="giallo-l"><span>  circle </span><span class="z-constant">cx</span><span class="z-constant">:</span><span class="z-constant"> 12</span><span>,</span><span class="z-constant"> cy</span><span class="z-constant">:</span><span class="z-constant"> 12</span><span>,</span><span class="z-constant"> r</span><span class="z-constant">:</span><span class="z-constant"> 10</span><span>,</span><span class="z-constant"> fill</span><span class="z-constant">:</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">tomato</span><span class="z-punctuation z-definition z-string">&quot;</span></span>
+<span class="giallo-l"><span class="z-keyword">end</span><span>.</span><span class="z-variable z-other z-constant">Save</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">badge.svg</span><span class="z-punctuation z-definition z-string">&quot;</span></span></code></pre>
+<p>Use library mode when an application owns the drawing and decides where its rendered string goes:</p>
+<pre class="giallo z-code"><code data-lang="ruby"><span class="giallo-l"><span class="z-keyword">require</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">sevgi</span><span class="z-punctuation z-definition z-string">&quot;</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span class="z-variable">canvas</span><span class="z-keyword"> =</span><span class="z-support"> SVG</span><span>.</span><span class="z-variable z-other z-constant">Canvas</span><span class="z-constant"> width</span><span class="z-constant">:</span><span class="z-constant"> 24</span><span>,</span><span class="z-constant"> height</span><span class="z-constant">:</span><span class="z-constant"> 24</span><span>,</span><span class="z-constant"> unit</span><span class="z-constant">:</span><span class="z-constant"> :</span><span class="z-constant">px</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span class="z-variable">drawing</span><span class="z-keyword"> =</span><span class="z-variable z-other z-constant"> SVG</span><span class="z-constant"> :</span><span class="z-constant">minimal</span><span>,</span><span> canvas </span><span class="z-keyword">do</span></span>
+<span class="giallo-l"><span>  circle </span><span class="z-constant">cx</span><span class="z-constant">:</span><span class="z-constant"> 12</span><span>,</span><span class="z-constant"> cy</span><span class="z-constant">:</span><span class="z-constant"> 12</span><span>,</span><span class="z-constant"> r</span><span class="z-constant">:</span><span class="z-constant"> 10</span><span>,</span><span class="z-constant"> fill</span><span class="z-constant">:</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">tomato</span><span class="z-punctuation z-definition z-string">&quot;</span></span>
+<span class="giallo-l"><span class="z-keyword">end</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span class="z-support">File</span><span>.</span><span class="z-entity z-name">write</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">badge.svg</span><span class="z-punctuation z-definition z-string">&quot;</span><span>,</span><span> drawing.</span><span class="z-variable z-other z-constant">Render</span></span></code></pre>
+<p>The <code>SVG</code> block is the same in both modes. Operations around it are bare words in a script and capitalized methods on
+the <code>SVG</code> facade in library code:</p>
+<table><thead><tr><th>Role</th><th><code>.sevgi</code> script</th><th>Ruby library</th></tr></thead><tbody>
+<tr><td>Build a document</td><td><code>SVG(...)</code></td><td><code>SVG(...)</code></td></tr>
+<tr><td>Create a canvas</td><td><code>Canvas(...)</code></td><td><code>SVG.Canvas(...)</code></td></tr>
+<tr><td>Refer to the canvas type</td><td><code>SVG::Canvas</code></td><td><code>SVG::Canvas</code></td></tr>
+</tbody></table>
+<p>The script passes its document to <code>Save</code>. The application keeps the document and passes its <code>Render</code> result to ordinary
+Ruby code. <a href="https://sevgi.roktas.dev/script-mode/">Script Mode</a> and <a href="https://sevgi.roktas.dev/library-mode/">Library Mode</a> cover each form in detail.</p>
+<h2 id="see-a-complete-drawing"><a class="zola-anchor" href="#see-a-complete-drawing" aria-label="Anchor link for: see-a-complete-drawing">See a complete drawing</a></h2>
+<p>The tabs below come from the same files that the test suite runs. The Ruby tab contains the script; the SVG tab contains
+its output.</p>
+
+
+
+
+
+
+
+  
+  
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="tabs" data-tab-base="meter" role="tablist" aria-label="meter example views">
+  <input class="input" name="tabs-meter" type="radio" id="tab-meter-svg-input" checked="checked" tabindex="-1" aria-hidden="true"/>
+  <label class="label" for="tab-meter-svg-input" id="tab-meter-svg" title="SVG Output" role="tab" tabindex="0" aria-selected="true" aria-controls="panel-meter-svg" aria-label="SVG Output" data-tab-input="tab-meter-svg-input" data-tab-panel="panel-meter-svg"><i class="fa-solid fa-image" aria-hidden="true"></i></label>
+  <div class="panel svg-panel" id="panel-meter-svg" role="tabpanel" aria-labelledby="tab-meter-svg">
+    <template id="svg-light-meter">
+      <svg width="128" height="30" viewBox="0 0 128 30">
+  <rect x="2" y="2" width="124" height="26" rx="4" fill="none" stroke="#666"/>
+  <defs>
+    <g id="led">
+      <rect y="5" width="10" height="20" rx="3" fill="green"/>
+    </g>
+  </defs>
+  <use id="led-1" href="#led" class="tile-col-1 tile-col-first" x="5"/>
+  <use id="led-2" href="#led" class="tile-col-2" x="17"/>
+  <use id="led-3" href="#led" class="tile-col-3" x="29"/>
+  <use id="led-4" href="#led" class="tile-col-4" x="41"/>
+  <use id="led-5" href="#led" class="tile-col-5" x="53"/>
+  <use id="led-6" href="#led" class="tile-col-6" x="65"/>
+  <use id="led-7" href="#led" class="tile-col-7" x="77"/>
+  <use id="led-8" href="#led" class="tile-col-8" x="89" fill-opacity="0.3"/>
+  <use id="led-9" href="#led" class="tile-col-9" x="101" fill-opacity="0.3"/>
+  <use id="led-10" href="#led" class="tile-col-10 tile-col-last" x="113" fill-opacity="0.3"/>
+</svg>
+
+    </template>
+    <template id="svg-dark-meter">
+      <svg width="128" height="30" viewBox="0 0 128 30">
+  <rect x="2" y="2" width="124" height="26" rx="4" fill="none" stroke="#d8d8d8"/>
+  <defs>
+    <g id="led">
+      <rect y="5" width="10" height="20" rx="3" fill="#7bd88f"/>
+    </g>
+  </defs>
+  <use id="led-1" href="#led" class="tile-col-1 tile-col-first" x="5"/>
+  <use id="led-2" href="#led" class="tile-col-2" x="17"/>
+  <use id="led-3" href="#led" class="tile-col-3" x="29"/>
+  <use id="led-4" href="#led" class="tile-col-4" x="41"/>
+  <use id="led-5" href="#led" class="tile-col-5" x="53"/>
+  <use id="led-6" href="#led" class="tile-col-6" x="65"/>
+  <use id="led-7" href="#led" class="tile-col-7" x="77"/>
+  <use id="led-8" href="#led" class="tile-col-8" x="89" fill-opacity="0.3"/>
+  <use id="led-9" href="#led" class="tile-col-9" x="101" fill-opacity="0.3"/>
+  <use id="led-10" href="#led" class="tile-col-10 tile-col-last" x="113" fill-opacity="0.3"/>
+</svg>
+
+    </template>
+    <div class="svg-output" data-light-template="svg-light-meter" data-dark-template="svg-dark-meter">
+      <noscript>
+        <svg width="128" height="30" viewBox="0 0 128 30">
+  <rect x="2" y="2" width="124" height="26" rx="4" fill="none" stroke="#666"/>
+  <defs>
+    <g id="led">
+      <rect y="5" width="10" height="20" rx="3" fill="green"/>
+    </g>
+  </defs>
+  <use id="led-1" href="#led" class="tile-col-1 tile-col-first" x="5"/>
+  <use id="led-2" href="#led" class="tile-col-2" x="17"/>
+  <use id="led-3" href="#led" class="tile-col-3" x="29"/>
+  <use id="led-4" href="#led" class="tile-col-4" x="41"/>
+  <use id="led-5" href="#led" class="tile-col-5" x="53"/>
+  <use id="led-6" href="#led" class="tile-col-6" x="65"/>
+  <use id="led-7" href="#led" class="tile-col-7" x="77"/>
+  <use id="led-8" href="#led" class="tile-col-8" x="89" fill-opacity="0.3"/>
+  <use id="led-9" href="#led" class="tile-col-9" x="101" fill-opacity="0.3"/>
+  <use id="led-10" href="#led" class="tile-col-10 tile-col-last" x="113" fill-opacity="0.3"/>
+</svg>
+
+      </noscript>
+    </div>
+  </div>
+
+  <input class="input" name="tabs-meter" type="radio" id="tab-meter-ruby-input" tabindex="-1" aria-hidden="true"/>
+  <label class="label" for="tab-meter-ruby-input" id="tab-meter-ruby" title="Ruby Code" role="tab" tabindex="0" aria-selected="false" aria-controls="panel-meter-ruby" aria-label="Ruby Code" data-tab-input="tab-meter-ruby-input" data-tab-panel="panel-meter-ruby"><i class="fa-solid fa-gem" aria-hidden="true"></i></label>
+  <div class="panel code-panel ruby-panel" id="panel-meter-ruby" role="tabpanel" aria-labelledby="tab-meter-ruby">
+    <div class="theme-light">
+<pre class="giallo z-code"><code data-lang="ruby"><span class="giallo-l"><span class="z-punctuation z-definition z-comment">#</span><span class="z-comment">!/usr/bin/env -S ruby -S sevgi</span></span>
+<span class="giallo-l"><span class="z-punctuation z-definition z-comment">#</span><span class="z-comment"> frozen_string_literal: true</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span class="z-variable z-other z-constant">LED_COUNT</span><span class="z-keyword"> =</span><span class="z-constant"> 10</span></span>
+<span class="giallo-l"><span class="z-variable z-other z-constant">LED_GAP</span><span class="z-keyword"> =</span><span class="z-constant"> 2</span></span>
+<span class="giallo-l"><span class="z-variable z-other z-constant">LED_WIDTH</span><span class="z-keyword"> =</span><span class="z-constant"> 10</span></span>
+<span class="giallo-l"><span class="z-variable z-other z-constant">TOTAL_WIDTH</span><span class="z-keyword"> =</span><span> (</span><span class="z-variable z-other z-constant">LED_COUNT</span><span class="z-keyword"> *</span><span> (</span><span class="z-variable z-other z-constant">LED_WIDTH</span><span class="z-keyword"> +</span><span class="z-variable z-other z-constant"> LED_GAP</span><span>)</span><span>)</span><span class="z-keyword"> +</span><span class="z-constant"> 8</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span class="z-variable">dim</span><span class="z-keyword"> =</span><span class="z-support"> proc</span><span class="z-keyword"> do</span><span> |</span><span class="z-variable z-other">led</span><span>,</span><span class="z-variable z-other"> x</span><span>:</span><span>,</span><span> **</span><span>|</span></span>
+<span class="giallo-l"><span>  led</span><span>[</span><span class="z-constant">:&quot;</span><span class="z-constant">fill-opacity</span><span class="z-constant">&quot;</span><span>]</span><span class="z-keyword"> =</span><span class="z-constant"> 0.3</span><span class="z-keyword"> if</span><span> x </span><span class="z-keyword">&gt;=</span><span class="z-constant"> 7</span></span>
+<span class="giallo-l"><span class="z-keyword">end</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span class="z-variable z-other z-constant">SVG</span><span class="z-constant"> :</span><span class="z-constant">minimal</span><span>,</span><span class="z-constant"> width</span><span class="z-constant">:</span><span class="z-variable z-other z-constant"> TOTAL_WIDTH</span><span>,</span><span class="z-constant"> height</span><span class="z-constant">:</span><span class="z-constant"> 30</span><span>,</span><span class="z-constant"> viewBox</span><span class="z-constant">:</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">0 0 </span><span class="z-string">#{</span><span class="z-variable z-other z-constant">TOTAL_WIDTH</span><span class="z-string">}</span><span class="z-string"> 30</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-keyword"> do</span></span>
+<span class="giallo-l"><span>  rect </span><span class="z-constant">x</span><span class="z-constant">:</span><span class="z-constant"> 2</span><span>,</span><span class="z-constant"> y</span><span class="z-constant">:</span><span class="z-constant"> 2</span><span>,</span><span class="z-constant"> width</span><span class="z-constant">:</span><span class="z-variable z-other z-constant"> TOTAL_WIDTH</span><span class="z-keyword"> -</span><span class="z-constant"> 4</span><span>,</span><span class="z-constant"> height</span><span class="z-constant">:</span><span class="z-constant"> 26</span><span>,</span></span>
+<span class="giallo-l"><span class="z-constant">       rx</span><span class="z-constant">:</span><span class="z-constant"> 4</span><span>,</span><span class="z-constant"> fill</span><span class="z-constant">:</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">none</span><span class="z-punctuation z-definition z-string">&quot;</span><span>,</span><span class="z-constant"> stroke</span><span class="z-constant">:</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">#666</span><span class="z-punctuation z-definition z-string">&quot;</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span class="z-variable z-other z-constant">  TileX</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">led</span><span class="z-punctuation z-definition z-string">&quot;</span><span>,</span><span class="z-constant"> n</span><span class="z-constant">:</span><span class="z-variable z-other z-constant"> LED_COUNT</span><span>,</span><span class="z-constant"> d</span><span class="z-constant">:</span><span class="z-variable z-other z-constant"> LED_WIDTH</span><span class="z-keyword"> +</span><span class="z-variable z-other z-constant"> LED_GAP</span><span>,</span><span class="z-constant"> o</span><span class="z-constant">:</span><span class="z-constant"> 5</span><span>,</span><span class="z-constant"> proc</span><span class="z-constant">:</span><span> dim </span><span class="z-keyword">do</span></span>
+<span class="giallo-l"><span>    rect </span><span class="z-constant">y</span><span class="z-constant">:</span><span class="z-constant"> 5</span><span>,</span><span class="z-constant"> width</span><span class="z-constant">:</span><span class="z-variable z-other z-constant"> LED_WIDTH</span><span>,</span><span class="z-constant"> height</span><span class="z-constant">:</span><span class="z-constant"> 20</span><span>,</span><span class="z-constant"> rx</span><span class="z-constant">:</span><span class="z-constant"> 3</span><span>,</span><span class="z-constant"> fill</span><span class="z-constant">:</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">green</span><span class="z-punctuation z-definition z-string">&quot;</span></span>
+<span class="giallo-l"><span class="z-keyword">  end</span></span>
+<span class="giallo-l"><span class="z-keyword">end</span><span>.</span><span class="z-variable z-other z-constant">Save</span></span>
+<span class="giallo-l"></span></code></pre>
+    </div>
+    <div class="theme-dark">
+<pre class="giallo z-code"><code data-lang="ruby"><span class="giallo-l"><span class="z-punctuation z-definition z-comment">#</span><span class="z-comment">!/usr/bin/env -S ruby -S sevgi</span></span>
+<span class="giallo-l"><span class="z-punctuation z-definition z-comment">#</span><span class="z-comment"> frozen_string_literal: true</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span class="z-variable z-other z-constant">LED_COUNT</span><span class="z-keyword"> =</span><span class="z-constant"> 10</span></span>
+<span class="giallo-l"><span class="z-variable z-other z-constant">LED_GAP</span><span class="z-keyword"> =</span><span class="z-constant"> 2</span></span>
+<span class="giallo-l"><span class="z-variable z-other z-constant">LED_WIDTH</span><span class="z-keyword"> =</span><span class="z-constant"> 10</span></span>
+<span class="giallo-l"><span class="z-variable z-other z-constant">TOTAL_WIDTH</span><span class="z-keyword"> =</span><span> (</span><span class="z-variable z-other z-constant">LED_COUNT</span><span class="z-keyword"> *</span><span> (</span><span class="z-variable z-other z-constant">LED_WIDTH</span><span class="z-keyword"> +</span><span class="z-variable z-other z-constant"> LED_GAP</span><span>)</span><span>)</span><span class="z-keyword"> +</span><span class="z-constant"> 8</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span class="z-variable">dim</span><span class="z-keyword"> =</span><span class="z-support"> proc</span><span class="z-keyword"> do</span><span> |</span><span class="z-variable z-other">led</span><span>,</span><span class="z-variable z-other"> x</span><span>:</span><span>,</span><span> **</span><span>|</span></span>
+<span class="giallo-l"><span>  led</span><span>[</span><span class="z-constant">:&quot;</span><span class="z-constant">fill-opacity</span><span class="z-constant">&quot;</span><span>]</span><span class="z-keyword"> =</span><span class="z-constant"> 0.3</span><span class="z-keyword"> if</span><span> x </span><span class="z-keyword">&gt;=</span><span class="z-constant"> 7</span></span>
+<span class="giallo-l"><span class="z-keyword">end</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span class="z-variable z-other z-constant">SVG</span><span class="z-constant"> :</span><span class="z-constant">minimal</span><span>,</span><span class="z-constant"> width</span><span class="z-constant">:</span><span class="z-variable z-other z-constant"> TOTAL_WIDTH</span><span>,</span><span class="z-constant"> height</span><span class="z-constant">:</span><span class="z-constant"> 30</span><span>,</span><span class="z-constant"> viewBox</span><span class="z-constant">:</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">0 0 </span><span class="z-string">#{</span><span class="z-variable z-other z-constant">TOTAL_WIDTH</span><span class="z-string">}</span><span class="z-string"> 30</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-keyword"> do</span></span>
+<span class="giallo-l"><span>  rect </span><span class="z-constant">x</span><span class="z-constant">:</span><span class="z-constant"> 2</span><span>,</span><span class="z-constant"> y</span><span class="z-constant">:</span><span class="z-constant"> 2</span><span>,</span><span class="z-constant"> width</span><span class="z-constant">:</span><span class="z-variable z-other z-constant"> TOTAL_WIDTH</span><span class="z-keyword"> -</span><span class="z-constant"> 4</span><span>,</span><span class="z-constant"> height</span><span class="z-constant">:</span><span class="z-constant"> 26</span><span>,</span></span>
+<span class="giallo-l"><span class="z-constant">       rx</span><span class="z-constant">:</span><span class="z-constant"> 4</span><span>,</span><span class="z-constant"> fill</span><span class="z-constant">:</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">none</span><span class="z-punctuation z-definition z-string">&quot;</span><span>,</span><span class="z-constant"> stroke</span><span class="z-constant">:</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">#d8d8d8</span><span class="z-punctuation z-definition z-string">&quot;</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span class="z-variable z-other z-constant">  TileX</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">led</span><span class="z-punctuation z-definition z-string">&quot;</span><span>,</span><span class="z-constant"> n</span><span class="z-constant">:</span><span class="z-variable z-other z-constant"> LED_COUNT</span><span>,</span><span class="z-constant"> d</span><span class="z-constant">:</span><span class="z-variable z-other z-constant"> LED_WIDTH</span><span class="z-keyword"> +</span><span class="z-variable z-other z-constant"> LED_GAP</span><span>,</span><span class="z-constant"> o</span><span class="z-constant">:</span><span class="z-constant"> 5</span><span>,</span><span class="z-constant"> proc</span><span class="z-constant">:</span><span> dim </span><span class="z-keyword">do</span></span>
+<span class="giallo-l"><span>    rect </span><span class="z-constant">y</span><span class="z-constant">:</span><span class="z-constant"> 5</span><span>,</span><span class="z-constant"> width</span><span class="z-constant">:</span><span class="z-variable z-other z-constant"> LED_WIDTH</span><span>,</span><span class="z-constant"> height</span><span class="z-constant">:</span><span class="z-constant"> 20</span><span>,</span><span class="z-constant"> rx</span><span class="z-constant">:</span><span class="z-constant"> 3</span><span>,</span><span class="z-constant"> fill</span><span class="z-constant">:</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">#7bd88f</span><span class="z-punctuation z-definition z-string">&quot;</span></span>
+<span class="giallo-l"><span class="z-keyword">  end</span></span>
+<span class="giallo-l"><span class="z-keyword">end</span><span>.</span><span class="z-variable z-other z-constant">Save</span></span>
+<span class="giallo-l"></span></code></pre>
+    </div>
+  </div>
+  
+  <input class="input" name="tabs-meter" type="radio" id="tab-meter-xml-input" tabindex="-1" aria-hidden="true"/>
+  <label class="label" for="tab-meter-xml-input" id="tab-meter-xml" title="XML Code" role="tab" tabindex="0" aria-selected="false" aria-controls="panel-meter-xml" aria-label="XML Code" data-tab-input="tab-meter-xml-input" data-tab-panel="panel-meter-xml"><i class="fa-solid fa-code" aria-hidden="true"></i></label>
+  <div class="panel code-panel svg-code-panel" id="panel-meter-xml" role="tabpanel" aria-labelledby="tab-meter-xml">
+    <div class="theme-light">
+<pre class="giallo z-code"><code data-lang="xml"><span class="giallo-l"><span>&lt;</span><span class="z-entity z-name z-tag">svg</span><span class="z-entity"> width</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">128</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> height</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">30</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> viewBox</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">0 0 128 30</span><span class="z-punctuation z-definition z-string">&quot;</span><span>&gt;</span></span>
+<span class="giallo-l"><span>  &lt;</span><span class="z-entity z-name z-tag">rect</span><span class="z-entity"> x</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">2</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> y</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">2</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> width</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">124</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> height</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">26</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> rx</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">4</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> fill</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">none</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> stroke</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">#666</span><span class="z-punctuation z-definition z-string">&quot;</span><span>/&gt;</span></span>
+<span class="giallo-l"><span>  &lt;</span><span class="z-entity z-name z-tag">defs</span><span>&gt;</span></span>
+<span class="giallo-l"><span>    &lt;</span><span class="z-entity z-name z-tag">g</span><span class="z-entity"> id</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">led</span><span class="z-punctuation z-definition z-string">&quot;</span><span>&gt;</span></span>
+<span class="giallo-l"><span>      &lt;</span><span class="z-entity z-name z-tag">rect</span><span class="z-entity"> y</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">5</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> width</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">10</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> height</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">20</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> rx</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">3</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> fill</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">green</span><span class="z-punctuation z-definition z-string">&quot;</span><span>/&gt;</span></span>
+<span class="giallo-l"><span>    &lt;/</span><span class="z-entity z-name z-tag">g</span><span>&gt;</span></span>
+<span class="giallo-l"><span>  &lt;/</span><span class="z-entity z-name z-tag">defs</span><span>&gt;</span></span>
+<span class="giallo-l"><span>  &lt;</span><span class="z-entity z-name z-tag">use</span><span class="z-entity"> id</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">led-1</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> href</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">#led</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> class</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">tile-col-1 tile-col-first</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> x</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">5</span><span class="z-punctuation z-definition z-string">&quot;</span><span>/&gt;</span></span>
+<span class="giallo-l"><span>  &lt;</span><span class="z-entity z-name z-tag">use</span><span class="z-entity"> id</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">led-2</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> href</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">#led</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> class</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">tile-col-2</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> x</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">17</span><span class="z-punctuation z-definition z-string">&quot;</span><span>/&gt;</span></span>
+<span class="giallo-l"><span>  &lt;</span><span class="z-entity z-name z-tag">use</span><span class="z-entity"> id</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">led-3</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> href</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">#led</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> class</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">tile-col-3</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> x</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">29</span><span class="z-punctuation z-definition z-string">&quot;</span><span>/&gt;</span></span>
+<span class="giallo-l"><span>  &lt;</span><span class="z-entity z-name z-tag">use</span><span class="z-entity"> id</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">led-4</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> href</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">#led</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> class</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">tile-col-4</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> x</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">41</span><span class="z-punctuation z-definition z-string">&quot;</span><span>/&gt;</span></span>
+<span class="giallo-l"><span>  &lt;</span><span class="z-entity z-name z-tag">use</span><span class="z-entity"> id</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">led-5</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> href</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">#led</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> class</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">tile-col-5</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> x</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">53</span><span class="z-punctuation z-definition z-string">&quot;</span><span>/&gt;</span></span>
+<span class="giallo-l"><span>  &lt;</span><span class="z-entity z-name z-tag">use</span><span class="z-entity"> id</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">led-6</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> href</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">#led</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> class</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">tile-col-6</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> x</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">65</span><span class="z-punctuation z-definition z-string">&quot;</span><span>/&gt;</span></span>
+<span class="giallo-l"><span>  &lt;</span><span class="z-entity z-name z-tag">use</span><span class="z-entity"> id</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">led-7</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> href</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">#led</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> class</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">tile-col-7</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> x</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">77</span><span class="z-punctuation z-definition z-string">&quot;</span><span>/&gt;</span></span>
+<span class="giallo-l"><span>  &lt;</span><span class="z-entity z-name z-tag">use</span><span class="z-entity"> id</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">led-8</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> href</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">#led</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> class</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">tile-col-8</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> x</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">89</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> fill-opacity</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">0.3</span><span class="z-punctuation z-definition z-string">&quot;</span><span>/&gt;</span></span>
+<span class="giallo-l"><span>  &lt;</span><span class="z-entity z-name z-tag">use</span><span class="z-entity"> id</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">led-9</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> href</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">#led</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> class</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">tile-col-9</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> x</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">101</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> fill-opacity</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">0.3</span><span class="z-punctuation z-definition z-string">&quot;</span><span>/&gt;</span></span>
+<span class="giallo-l"><span>  &lt;</span><span class="z-entity z-name z-tag">use</span><span class="z-entity"> id</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">led-10</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> href</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">#led</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> class</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">tile-col-10 tile-col-last</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> x</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">113</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> fill-opacity</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">0.3</span><span class="z-punctuation z-definition z-string">&quot;</span><span>/&gt;</span></span>
+<span class="giallo-l"><span>&lt;/</span><span class="z-entity z-name z-tag">svg</span><span>&gt;</span></span>
+<span class="giallo-l"></span></code></pre>
+    </div>
+    <div class="theme-dark">
+<pre class="giallo z-code"><code data-lang="xml"><span class="giallo-l"><span>&lt;</span><span class="z-entity z-name z-tag">svg</span><span class="z-entity"> width</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">128</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> height</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">30</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> viewBox</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">0 0 128 30</span><span class="z-punctuation z-definition z-string">&quot;</span><span>&gt;</span></span>
+<span class="giallo-l"><span>  &lt;</span><span class="z-entity z-name z-tag">rect</span><span class="z-entity"> x</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">2</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> y</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">2</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> width</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">124</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> height</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">26</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> rx</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">4</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> fill</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">none</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> stroke</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">#d8d8d8</span><span class="z-punctuation z-definition z-string">&quot;</span><span>/&gt;</span></span>
+<span class="giallo-l"><span>  &lt;</span><span class="z-entity z-name z-tag">defs</span><span>&gt;</span></span>
+<span class="giallo-l"><span>    &lt;</span><span class="z-entity z-name z-tag">g</span><span class="z-entity"> id</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">led</span><span class="z-punctuation z-definition z-string">&quot;</span><span>&gt;</span></span>
+<span class="giallo-l"><span>      &lt;</span><span class="z-entity z-name z-tag">rect</span><span class="z-entity"> y</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">5</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> width</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">10</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> height</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">20</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> rx</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">3</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> fill</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">#7bd88f</span><span class="z-punctuation z-definition z-string">&quot;</span><span>/&gt;</span></span>
+<span class="giallo-l"><span>    &lt;/</span><span class="z-entity z-name z-tag">g</span><span>&gt;</span></span>
+<span class="giallo-l"><span>  &lt;/</span><span class="z-entity z-name z-tag">defs</span><span>&gt;</span></span>
+<span class="giallo-l"><span>  &lt;</span><span class="z-entity z-name z-tag">use</span><span class="z-entity"> id</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">led-1</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> href</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">#led</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> class</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">tile-col-1 tile-col-first</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> x</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">5</span><span class="z-punctuation z-definition z-string">&quot;</span><span>/&gt;</span></span>
+<span class="giallo-l"><span>  &lt;</span><span class="z-entity z-name z-tag">use</span><span class="z-entity"> id</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">led-2</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> href</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">#led</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> class</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">tile-col-2</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> x</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">17</span><span class="z-punctuation z-definition z-string">&quot;</span><span>/&gt;</span></span>
+<span class="giallo-l"><span>  &lt;</span><span class="z-entity z-name z-tag">use</span><span class="z-entity"> id</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">led-3</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> href</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">#led</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> class</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">tile-col-3</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> x</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">29</span><span class="z-punctuation z-definition z-string">&quot;</span><span>/&gt;</span></span>
+<span class="giallo-l"><span>  &lt;</span><span class="z-entity z-name z-tag">use</span><span class="z-entity"> id</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">led-4</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> href</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">#led</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> class</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">tile-col-4</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> x</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">41</span><span class="z-punctuation z-definition z-string">&quot;</span><span>/&gt;</span></span>
+<span class="giallo-l"><span>  &lt;</span><span class="z-entity z-name z-tag">use</span><span class="z-entity"> id</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">led-5</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> href</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">#led</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> class</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">tile-col-5</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> x</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">53</span><span class="z-punctuation z-definition z-string">&quot;</span><span>/&gt;</span></span>
+<span class="giallo-l"><span>  &lt;</span><span class="z-entity z-name z-tag">use</span><span class="z-entity"> id</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">led-6</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> href</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">#led</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> class</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">tile-col-6</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> x</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">65</span><span class="z-punctuation z-definition z-string">&quot;</span><span>/&gt;</span></span>
+<span class="giallo-l"><span>  &lt;</span><span class="z-entity z-name z-tag">use</span><span class="z-entity"> id</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">led-7</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> href</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">#led</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> class</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">tile-col-7</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> x</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">77</span><span class="z-punctuation z-definition z-string">&quot;</span><span>/&gt;</span></span>
+<span class="giallo-l"><span>  &lt;</span><span class="z-entity z-name z-tag">use</span><span class="z-entity"> id</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">led-8</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> href</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">#led</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> class</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">tile-col-8</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> x</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">89</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> fill-opacity</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">0.3</span><span class="z-punctuation z-definition z-string">&quot;</span><span>/&gt;</span></span>
+<span class="giallo-l"><span>  &lt;</span><span class="z-entity z-name z-tag">use</span><span class="z-entity"> id</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">led-9</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> href</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">#led</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> class</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">tile-col-9</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> x</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">101</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> fill-opacity</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">0.3</span><span class="z-punctuation z-definition z-string">&quot;</span><span>/&gt;</span></span>
+<span class="giallo-l"><span>  &lt;</span><span class="z-entity z-name z-tag">use</span><span class="z-entity"> id</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">led-10</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> href</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">#led</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> class</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">tile-col-10 tile-col-last</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> x</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">113</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> fill-opacity</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">0.3</span><span class="z-punctuation z-definition z-string">&quot;</span><span>/&gt;</span></span>
+<span class="giallo-l"><span>&lt;/</span><span class="z-entity z-name z-tag">svg</span><span>&gt;</span></span>
+<span class="giallo-l"></span></code></pre>
+    </div>
+  </div>
+  
+</div>
+<h2 id="run-an-example"><a class="zola-anchor" href="#run-an-example" aria-label="Anchor link for: run-an-example">Run an example</a></h2>
+<p>From a checkout, run the showcase scripts with Bundler:</p>
+<pre class="giallo z-code"><code data-lang="shellscript"><span class="giallo-l"><span class="z-entity z-name">bundle</span><span class="z-string"> exec</span><span class="z-string"> showcase/srv/meter.sevgi</span></span></code></pre>
+<p>The script writes <code>showcase/srv/meter.svg</code> because it ends with <code>Save</code>. To write SVG to standard output instead,
+use <code>Out</code> in the script.</p>
+<h2 id="install-sevgi"><a class="zola-anchor" href="#install-sevgi" aria-label="Anchor link for: install-sevgi">Install Sevgi</a></h2>
+<p>For the complete command-line toolkit, install Sevgi through Homebrew on macOS or Linux:</p>
+<pre class="giallo z-code"><code data-lang="shellscript"><span class="giallo-l"><span class="z-entity z-name">brew</span><span class="z-string"> install</span><span class="z-string"> roktas/tap/sevgi</span></span></code></pre>
+<p>This installs the <code>sevgi</code> executable, Ruby, the native PDF and PNG export stack, and the headless pdfcpu and Poppler
+tools. Inkscape remains an optional external backend.</p>
+<p>When Sevgi is a dependency of a Ruby application, add the umbrella gem to its bundle instead:</p>
+<pre class="giallo z-code"><code data-lang="ruby"><span class="giallo-l"><span>gem </span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">sevgi</span><span class="z-punctuation z-definition z-string">&quot;</span></span></code></pre>
+<p>The umbrella gem is the right choice for most applications and drawing scripts. It installs the script runner, the
+<code>SVG</code> facade, the Appendix development extras, and all runtime components.</p>
+<h3 id="choose-a-gem"><a class="zola-anchor" href="#choose-a-gem" aria-label="Anchor link for: choose-a-gem">Choose a gem</a></h3>
+<p>Libraries that need a smaller dependency surface can install focused component gems:</p>
+<table><thead><tr><th>Scenario</th><th>Install</th><th>Entry point</th></tr></thead><tbody>
+<tr><td>Build and render SVG only</td><td><code>sevgi-graphics</code></td><td><code>require "sevgi/graphics"</code></td></tr>
+<tr><td>Build and validate SVG without the full toolkit</td><td><code>sevgi-graphics sevgi-standard</code></td><td><code>require "sevgi/graphics"</code></td></tr>
+<tr><td>Use geometry values and transformations without the DSL</td><td><code>sevgi-geometry</code></td><td><code>require "sevgi/geometry"</code></td></tr>
+<tr><td>Convert SVG or XML back into Sevgi source</td><td><code>sevgi-derender</code></td><td><code>require "sevgi/derender"</code></td></tr>
+<tr><td>Use grids, rulers, tiles, or export integrations</td><td><code>sevgi-sundries</code></td><td><code>require "sevgi/sundries"</code></td></tr>
+<tr><td>Package the agent skill or lint <code>.sevgi</code> source</td><td><code>sevgi-appendix</code></td><td><code>require "sevgi/appendix"</code> or the RuboCop plugin</td></tr>
+</tbody></table>
+<p>For example, a service that only builds SVG can install <code>sevgi-graphics</code> and use
+<code>Sevgi::Graphics.SVG(...)</code>. The full <code>SVG</code> facade and the <code>sevgi</code> executable belong to the umbrella gem. Add
+<code>sevgi-standard</code> when the service should validate element and attribute names. Bundler installs shared support gems
+such as <code>sevgi-function</code> as transitive dependencies of the components that use them. The umbrella gem adds the
+<code>sevgi --skill</code> query for locating the matching Appendix skill.</p>
+<p>SVG-only library use needs no native graphics packages. Applications that install gems directly and use PDF or PNG
+export must provide the optional <code>cairo</code>, <code>rsvg2</code>, and <code>hexapdf</code> gems and their system libraries themselves. See the
+<a rel="external" href="https://github.com/roktas/sevgi/tree/main/sundries"><code>sevgi-sundries</code> package guide</a> for those prerequisites.</p>
+<p>The full installation also packages Sevgi's agent skill. Run <code>sevgi --skill</code> to locate it, then follow the
+<a rel="external" href="https://github.com/roktas/sevgi/tree/main/appendix">Appendix setup guide</a>.</p>
+<h2 id="choose-a-document-profile"><a class="zola-anchor" href="#choose-a-document-profile" aria-label="Anchor link for: choose-a-document-profile">Choose a document profile</a></h2>
+<p><code>SVG</code> accepts a document profile. <code>:minimal</code> produces compact output, <code>:default</code> writes a standalone SVG document,
+<code>:html</code> is suitable for embedding, and <code>:inkscape</code> adds editor metadata and helpers. See the
+<a href="https://sevgi.roktas.dev/svg/#document-profiles">document-profile matrix</a> for the exact capabilities.</p>
+
+
+
+
+
+
+
+  
+  
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="tabs" data-tab-base="snowflake" role="tablist" aria-label="snowflake example views">
+  <input class="input" name="tabs-snowflake" type="radio" id="tab-snowflake-svg-input" checked="checked" tabindex="-1" aria-hidden="true"/>
+  <label class="label" for="tab-snowflake-svg-input" id="tab-snowflake-svg" title="SVG Output" role="tab" tabindex="0" aria-selected="true" aria-controls="panel-snowflake-svg" aria-label="SVG Output" data-tab-input="tab-snowflake-svg-input" data-tab-panel="panel-snowflake-svg"><i class="fa-solid fa-image" aria-hidden="true"></i></label>
+  <div class="panel svg-panel" id="panel-snowflake-svg" role="tabpanel" aria-labelledby="tab-snowflake-svg">
+    <template id="svg-light-snowflake">
+      <svg width="200" height="200" viewBox="-100 -100 200 200">
+  <path
+    id="branch"
+    stroke="purple"
+    stroke-width="5"
+    d="M 0 0 L 0 -90
+M 0 -20 L 20 -34
+M 0 -20 L -20 -34
+M 0 -40 L 20 -54
+M 0 -40 L -20 -54
+M 0 -60 L 20 -74
+M 0 -60 L -20 -74
+"
+  />
+  <use href="#branch" transform="rotate(60)"/>
+  <use href="#branch" transform="rotate(120)"/>
+  <use href="#branch" transform="rotate(180)"/>
+  <use href="#branch" transform="rotate(240)"/>
+  <use href="#branch" transform="rotate(300)"/>
+</svg>
+
+    </template>
+    <template id="svg-dark-snowflake">
+      <svg width="200" height="200" viewBox="-100 -100 200 200">
+  <path
+    id="branch"
+    stroke="#e5c39c"
+    stroke-width="5"
+    d="M 0 0 L 0 -90
+M 0 -20 L 20 -34
+M 0 -20 L -20 -34
+M 0 -40 L 20 -54
+M 0 -40 L -20 -54
+M 0 -60 L 20 -74
+M 0 -60 L -20 -74
+"
+  />
+  <use href="#branch" transform="rotate(60)"/>
+  <use href="#branch" transform="rotate(120)"/>
+  <use href="#branch" transform="rotate(180)"/>
+  <use href="#branch" transform="rotate(240)"/>
+  <use href="#branch" transform="rotate(300)"/>
+</svg>
+
+    </template>
+    <div class="svg-output" data-light-template="svg-light-snowflake" data-dark-template="svg-dark-snowflake">
+      <noscript>
+        <svg width="200" height="200" viewBox="-100 -100 200 200">
+  <path
+    id="branch"
+    stroke="purple"
+    stroke-width="5"
+    d="M 0 0 L 0 -90
+M 0 -20 L 20 -34
+M 0 -20 L -20 -34
+M 0 -40 L 20 -54
+M 0 -40 L -20 -54
+M 0 -60 L 20 -74
+M 0 -60 L -20 -74
+"
+  />
+  <use href="#branch" transform="rotate(60)"/>
+  <use href="#branch" transform="rotate(120)"/>
+  <use href="#branch" transform="rotate(180)"/>
+  <use href="#branch" transform="rotate(240)"/>
+  <use href="#branch" transform="rotate(300)"/>
+</svg>
+
+      </noscript>
+    </div>
+  </div>
+
+  <input class="input" name="tabs-snowflake" type="radio" id="tab-snowflake-ruby-input" tabindex="-1" aria-hidden="true"/>
+  <label class="label" for="tab-snowflake-ruby-input" id="tab-snowflake-ruby" title="Ruby Code" role="tab" tabindex="0" aria-selected="false" aria-controls="panel-snowflake-ruby" aria-label="Ruby Code" data-tab-input="tab-snowflake-ruby-input" data-tab-panel="panel-snowflake-ruby"><i class="fa-solid fa-gem" aria-hidden="true"></i></label>
+  <div class="panel code-panel ruby-panel" id="panel-snowflake-ruby" role="tabpanel" aria-labelledby="tab-snowflake-ruby">
+    <div class="theme-light">
+<pre class="giallo z-code"><code data-lang="ruby"><span class="giallo-l"><span class="z-punctuation z-definition z-comment">#</span><span class="z-comment">!/usr/bin/env -S ruby -S sevgi</span></span>
+<span class="giallo-l"><span class="z-punctuation z-definition z-comment">#</span><span class="z-comment"> frozen_string_literal: true</span></span>
+<span class="giallo-l"><span class="z-punctuation z-definition z-comment">#</span><span class="z-comment"> Example taken from: https://svg-tutorial.com/svg/use</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span class="z-variable z-other z-constant">SVG</span><span class="z-constant"> :</span><span class="z-constant">minimal</span><span>,</span><span class="z-constant"> width</span><span class="z-constant">:</span><span class="z-constant"> 200</span><span>,</span><span class="z-constant"> height</span><span class="z-constant">:</span><span class="z-constant"> 200</span><span>,</span><span class="z-constant"> viewBox</span><span class="z-constant">:</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">-100 -100 200 200</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-keyword"> do</span></span>
+<span class="giallo-l"><span>  path </span><span class="z-constant">id</span><span class="z-constant">:</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">branch</span><span class="z-punctuation z-definition z-string">&quot;</span><span>,</span><span class="z-constant"> stroke</span><span class="z-constant">:</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">purple</span><span class="z-punctuation z-definition z-string">&quot;</span><span>,</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">stroke-width</span><span class="z-punctuation z-definition z-string">&quot;</span><span>:</span><span class="z-constant"> 5</span><span>,</span><span class="z-constant"> d</span><span class="z-constant">:</span><span class="z-string"> &lt;&lt;~PATH</span></span>
+<span class="giallo-l"><span class="z-string">    M 0 0 L 0 -90</span></span>
+<span class="giallo-l"><span class="z-string">    M 0 -20 L 20 -34</span></span>
+<span class="giallo-l"><span class="z-string">    M 0 -20 L -20 -34</span></span>
+<span class="giallo-l"><span class="z-string">    M 0 -40 L 20 -54</span></span>
+<span class="giallo-l"><span class="z-string">    M 0 -40 L -20 -54</span></span>
+<span class="giallo-l"><span class="z-string">    M 0 -60 L 20 -74</span></span>
+<span class="giallo-l"><span class="z-string">    M 0 -60 L -20 -74</span></span>
+<span class="giallo-l"><span class="z-string">  PATH</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span class="z-constant">  60</span><span>.</span><span class="z-entity z-name">step</span><span>(</span><span class="z-constant">300</span><span>,</span><span class="z-constant"> 60</span><span>)</span><span> {</span><span class="z-entity z-name"> use</span><span>(</span><span class="z-constant">href</span><span class="z-constant">:</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">#branch</span><span class="z-punctuation z-definition z-string">&quot;</span><span>)</span><span>.</span><span class="z-variable z-other z-constant">Rotate</span><span> it </span><span>}</span></span>
+<span class="giallo-l"><span class="z-keyword">end</span><span>.</span><span class="z-variable z-other z-constant">Save</span></span>
+<span class="giallo-l"></span></code></pre>
+    </div>
+    <div class="theme-dark">
+<pre class="giallo z-code"><code data-lang="ruby"><span class="giallo-l"><span class="z-punctuation z-definition z-comment">#</span><span class="z-comment">!/usr/bin/env -S ruby -S sevgi</span></span>
+<span class="giallo-l"><span class="z-punctuation z-definition z-comment">#</span><span class="z-comment"> frozen_string_literal: true</span></span>
+<span class="giallo-l"><span class="z-punctuation z-definition z-comment">#</span><span class="z-comment"> Example taken from: https://svg-tutorial.com/svg/use</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span class="z-variable z-other z-constant">SVG</span><span class="z-constant"> :</span><span class="z-constant">minimal</span><span>,</span><span class="z-constant"> width</span><span class="z-constant">:</span><span class="z-constant"> 200</span><span>,</span><span class="z-constant"> height</span><span class="z-constant">:</span><span class="z-constant"> 200</span><span>,</span><span class="z-constant"> viewBox</span><span class="z-constant">:</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">-100 -100 200 200</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-keyword"> do</span></span>
+<span class="giallo-l"><span>  path </span><span class="z-constant">id</span><span class="z-constant">:</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">branch</span><span class="z-punctuation z-definition z-string">&quot;</span><span>,</span><span class="z-constant"> stroke</span><span class="z-constant">:</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">#e5c39c</span><span class="z-punctuation z-definition z-string">&quot;</span><span>,</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">stroke-width</span><span class="z-punctuation z-definition z-string">&quot;</span><span>:</span><span class="z-constant"> 5</span><span>,</span><span class="z-constant"> d</span><span class="z-constant">:</span><span class="z-string"> &lt;&lt;~PATH</span></span>
+<span class="giallo-l"><span class="z-string">    M 0 0 L 0 -90</span></span>
+<span class="giallo-l"><span class="z-string">    M 0 -20 L 20 -34</span></span>
+<span class="giallo-l"><span class="z-string">    M 0 -20 L -20 -34</span></span>
+<span class="giallo-l"><span class="z-string">    M 0 -40 L 20 -54</span></span>
+<span class="giallo-l"><span class="z-string">    M 0 -40 L -20 -54</span></span>
+<span class="giallo-l"><span class="z-string">    M 0 -60 L 20 -74</span></span>
+<span class="giallo-l"><span class="z-string">    M 0 -60 L -20 -74</span></span>
+<span class="giallo-l"><span class="z-string">  PATH</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span class="z-constant">  60</span><span>.</span><span class="z-entity z-name">step</span><span>(</span><span class="z-constant">300</span><span>,</span><span class="z-constant"> 60</span><span>)</span><span> {</span><span class="z-entity z-name"> use</span><span>(</span><span class="z-constant">href</span><span class="z-constant">:</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">#branch</span><span class="z-punctuation z-definition z-string">&quot;</span><span>)</span><span>.</span><span class="z-variable z-other z-constant">Rotate</span><span> it </span><span>}</span></span>
+<span class="giallo-l"><span class="z-keyword">end</span><span>.</span><span class="z-variable z-other z-constant">Save</span></span>
+<span class="giallo-l"></span></code></pre>
+    </div>
+  </div>
+  
+  <input class="input" name="tabs-snowflake" type="radio" id="tab-snowflake-xml-input" tabindex="-1" aria-hidden="true"/>
+  <label class="label" for="tab-snowflake-xml-input" id="tab-snowflake-xml" title="XML Code" role="tab" tabindex="0" aria-selected="false" aria-controls="panel-snowflake-xml" aria-label="XML Code" data-tab-input="tab-snowflake-xml-input" data-tab-panel="panel-snowflake-xml"><i class="fa-solid fa-code" aria-hidden="true"></i></label>
+  <div class="panel code-panel svg-code-panel" id="panel-snowflake-xml" role="tabpanel" aria-labelledby="tab-snowflake-xml">
+    <div class="theme-light">
+<pre class="giallo z-code"><code data-lang="xml"><span class="giallo-l"><span>&lt;</span><span class="z-entity z-name z-tag">svg</span><span class="z-entity"> width</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">200</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> height</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">200</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> viewBox</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">-100 -100 200 200</span><span class="z-punctuation z-definition z-string">&quot;</span><span>&gt;</span></span>
+<span class="giallo-l"><span>  &lt;</span><span class="z-entity z-name z-tag">path</span></span>
+<span class="giallo-l"><span class="z-entity">    id</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">branch</span><span class="z-punctuation z-definition z-string">&quot;</span></span>
+<span class="giallo-l"><span class="z-entity">    stroke</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">purple</span><span class="z-punctuation z-definition z-string">&quot;</span></span>
+<span class="giallo-l"><span class="z-entity">    stroke-width</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">5</span><span class="z-punctuation z-definition z-string">&quot;</span></span>
+<span class="giallo-l"><span class="z-entity">    d</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">M 0 0 L 0 -90</span></span>
+<span class="giallo-l"><span class="z-string">M 0 -20 L 20 -34</span></span>
+<span class="giallo-l"><span class="z-string">M 0 -20 L -20 -34</span></span>
+<span class="giallo-l"><span class="z-string">M 0 -40 L 20 -54</span></span>
+<span class="giallo-l"><span class="z-string">M 0 -40 L -20 -54</span></span>
+<span class="giallo-l"><span class="z-string">M 0 -60 L 20 -74</span></span>
+<span class="giallo-l"><span class="z-string">M 0 -60 L -20 -74</span></span>
+<span class="giallo-l"><span class="z-punctuation z-definition z-string">&quot;</span></span>
+<span class="giallo-l"><span>  /&gt;</span></span>
+<span class="giallo-l"><span>  &lt;</span><span class="z-entity z-name z-tag">use</span><span class="z-entity"> href</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">#branch</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> transform</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">rotate(60)</span><span class="z-punctuation z-definition z-string">&quot;</span><span>/&gt;</span></span>
+<span class="giallo-l"><span>  &lt;</span><span class="z-entity z-name z-tag">use</span><span class="z-entity"> href</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">#branch</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> transform</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">rotate(120)</span><span class="z-punctuation z-definition z-string">&quot;</span><span>/&gt;</span></span>
+<span class="giallo-l"><span>  &lt;</span><span class="z-entity z-name z-tag">use</span><span class="z-entity"> href</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">#branch</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> transform</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">rotate(180)</span><span class="z-punctuation z-definition z-string">&quot;</span><span>/&gt;</span></span>
+<span class="giallo-l"><span>  &lt;</span><span class="z-entity z-name z-tag">use</span><span class="z-entity"> href</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">#branch</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> transform</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">rotate(240)</span><span class="z-punctuation z-definition z-string">&quot;</span><span>/&gt;</span></span>
+<span class="giallo-l"><span>  &lt;</span><span class="z-entity z-name z-tag">use</span><span class="z-entity"> href</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">#branch</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> transform</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">rotate(300)</span><span class="z-punctuation z-definition z-string">&quot;</span><span>/&gt;</span></span>
+<span class="giallo-l"><span>&lt;/</span><span class="z-entity z-name z-tag">svg</span><span>&gt;</span></span>
+<span class="giallo-l"></span></code></pre>
+    </div>
+    <div class="theme-dark">
+<pre class="giallo z-code"><code data-lang="xml"><span class="giallo-l"><span>&lt;</span><span class="z-entity z-name z-tag">svg</span><span class="z-entity"> width</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">200</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> height</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">200</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> viewBox</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">-100 -100 200 200</span><span class="z-punctuation z-definition z-string">&quot;</span><span>&gt;</span></span>
+<span class="giallo-l"><span>  &lt;</span><span class="z-entity z-name z-tag">path</span></span>
+<span class="giallo-l"><span class="z-entity">    id</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">branch</span><span class="z-punctuation z-definition z-string">&quot;</span></span>
+<span class="giallo-l"><span class="z-entity">    stroke</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">#e5c39c</span><span class="z-punctuation z-definition z-string">&quot;</span></span>
+<span class="giallo-l"><span class="z-entity">    stroke-width</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">5</span><span class="z-punctuation z-definition z-string">&quot;</span></span>
+<span class="giallo-l"><span class="z-entity">    d</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">M 0 0 L 0 -90</span></span>
+<span class="giallo-l"><span class="z-string">M 0 -20 L 20 -34</span></span>
+<span class="giallo-l"><span class="z-string">M 0 -20 L -20 -34</span></span>
+<span class="giallo-l"><span class="z-string">M 0 -40 L 20 -54</span></span>
+<span class="giallo-l"><span class="z-string">M 0 -40 L -20 -54</span></span>
+<span class="giallo-l"><span class="z-string">M 0 -60 L 20 -74</span></span>
+<span class="giallo-l"><span class="z-string">M 0 -60 L -20 -74</span></span>
+<span class="giallo-l"><span class="z-punctuation z-definition z-string">&quot;</span></span>
+<span class="giallo-l"><span>  /&gt;</span></span>
+<span class="giallo-l"><span>  &lt;</span><span class="z-entity z-name z-tag">use</span><span class="z-entity"> href</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">#branch</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> transform</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">rotate(60)</span><span class="z-punctuation z-definition z-string">&quot;</span><span>/&gt;</span></span>
+<span class="giallo-l"><span>  &lt;</span><span class="z-entity z-name z-tag">use</span><span class="z-entity"> href</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">#branch</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> transform</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">rotate(120)</span><span class="z-punctuation z-definition z-string">&quot;</span><span>/&gt;</span></span>
+<span class="giallo-l"><span>  &lt;</span><span class="z-entity z-name z-tag">use</span><span class="z-entity"> href</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">#branch</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> transform</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">rotate(180)</span><span class="z-punctuation z-definition z-string">&quot;</span><span>/&gt;</span></span>
+<span class="giallo-l"><span>  &lt;</span><span class="z-entity z-name z-tag">use</span><span class="z-entity"> href</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">#branch</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> transform</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">rotate(240)</span><span class="z-punctuation z-definition z-string">&quot;</span><span>/&gt;</span></span>
+<span class="giallo-l"><span>  &lt;</span><span class="z-entity z-name z-tag">use</span><span class="z-entity"> href</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">#branch</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-entity"> transform</span><span>=</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">rotate(300)</span><span class="z-punctuation z-definition z-string">&quot;</span><span>/&gt;</span></span>
+<span class="giallo-l"><span>&lt;/</span><span class="z-entity z-name z-tag">svg</span><span>&gt;</span></span>
+<span class="giallo-l"></span></code></pre>
+    </div>
+  </div>
+  
+</div>
+
+
+
+
+
+
+
+    
+    
+        
+    
+    
+
+    
+        
+    
+    
+    
+
+    
+    
+    
+
+    
+    
+    
+
+    
+    
+    
+
+    
+    
+    
+
+    
+    
+    
+
+    
+    
+    
+
+    
+    
+    
+
+    
+    
+    
+
+    
+    
+    
+
+    
+    
+    
+
+    
+    
+    
+
+
+<div class="page-nav">
+    
+    <span></span>
+    
+
+    
+    <a href="https://sevgi.roktas.dev/script-mode/">Script Mode →</a>
+    
+</div>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-social">
+            <a href="https://github.com/roktas/sevgi" aria-label="GitHub" title="GitHub">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.399 1.02 0 2.047.133 3.006.4 2.29-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                </svg>
+            </a>
+        </div>
+    </footer>
+</body>
+</html>

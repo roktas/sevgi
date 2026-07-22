@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Derender | Sevgi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <link rel="icon" type="image/png" href="/img/favicon.png">
+    <link rel="icon" type="image/svg+xml" href="/img/favicon.svg">
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+
+    <style>
+    :root {
+        /* Fonts */
+        --wt-font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+        --wt-font-head: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+        --wt-font-mono: 'JetBrains Mono', monospace;
+
+        /* Base Colors */
+        --wt-color-bg: #ffffff;
+        --wt-color-bg-soft: #fafafa;
+        --wt-color-bg-elevated: #ffffff;
+        --wt-color-text: #1a1a1a;
+        --wt-color-text-muted: #666666;
+        --wt-color-text-soft: #737373;
+        --wt-color-border-subtle: #e5e5e5;
+        --wt-color-link: #800080; /* Link color aligned with theme */
+        
+        /* Accent Colors */
+        --wt-color-accent: #800080; /* Primary Purple */
+        --wt-color-accent-soft: #f8e6f8; /* Very soft purple (for backgrounds) */
+        --wt-color-accent-strong: #600060; /* Darker purple (for hover states) */
+        --wt-color-on-accent: #ffffff;
+        --wt-logo-active: #800080;
+        --wt-logo-passive: #d3d3d3;
+        
+        /* Code Blocks */
+        --wt-color-code-bg: #f5f5f5;
+        --wt-color-code-border: #e5e5e5;
+        
+        /* Shadows */
+        --wt-shadow-soft: rgba(0, 0, 0, 0.05);
+        --wt-shadow-medium: rgba(0, 0, 0, 0.1);
+        --wt-shadow-accent: rgba(128, 0, 128, 0.2);
+        --wt-shadow-accent-strong: rgba(128, 0, 128, 0.32);
+
+        /* Hero */
+        --wt-hero-background:
+            radial-gradient(ellipse 80% 60% at 70% 40%, rgba(254, 243, 199, 0.7) 0%, transparent 60%),
+            radial-gradient(ellipse 50% 40% at 30% 70%, rgba(251, 243, 219, 0.5) 0%, transparent 50%),
+            var(--wt-color-bg-soft);
+        --wt-hero-shadow: rgba(217, 119, 6, 0.15);
+        --wt-hero-shadow-strong: rgba(217, 119, 6, 0.25);
+        
+        /* Dimensions */
+        --wt-header-height: 64px;
+        --wt-main-padding-top: 40px;
+    }
+
+    /* Dark Mode Variables */
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --wt-color-bg: #111111;
+            --wt-color-bg-soft: #1a1a1a;
+            --wt-color-bg-elevated: #222222;
+            --wt-color-text: #e5e5e5;
+            --wt-color-text-muted: #a3a3a3;
+            --wt-color-text-soft: #8f8f8f;
+            --wt-color-border-subtle: #333333;
+            --wt-color-link: #e5c39c;
+            --wt-color-accent: #e5c39c;
+            --wt-color-accent-soft: #2c251e;
+            --wt-color-accent-strong: #f0d6b8;
+            --wt-color-on-accent: #111111;
+            --wt-logo-active: #e5c39c;
+            --wt-logo-passive: #52525b;
+            
+            --wt-color-code-bg: #1a1a1a;
+            --wt-color-code-border: #333333;
+            
+            --wt-shadow-soft: rgba(0, 0, 0, 0.3);
+            --wt-shadow-medium: rgba(0, 0, 0, 0.5);
+            --wt-shadow-accent: rgba(229, 195, 156, 0.24);
+            --wt-shadow-accent-strong: rgba(229, 195, 156, 0.36);
+            --wt-hero-background:
+                radial-gradient(ellipse 60% 50% at 50% 30%, rgba(229, 195, 156, 0.08) 0%, transparent 70%),
+                var(--wt-color-bg-soft);
+            --wt-hero-shadow: rgba(229, 195, 156, 0.2);
+            --wt-hero-shadow-strong: rgba(229, 195, 156, 0.3);
+        }
+    }
+
+    /* Manual Theme Overrides */
+    html[data-theme="dark"] {
+        --wt-color-bg: #111111;
+        --wt-color-bg-soft: #1a1a1a;
+        --wt-color-bg-elevated: #222222;
+        --wt-color-text: #e5e5e5;
+        --wt-color-text-muted: #a3a3a3;
+        --wt-color-text-soft: #8f8f8f;
+        --wt-color-border-subtle: #333333;
+        --wt-color-link: #e5c39c;
+        --wt-color-accent: #e5c39c;
+        --wt-color-accent-soft: #2c251e;
+        --wt-color-accent-strong: #f0d6b8;
+        --wt-color-on-accent: #111111;
+        --wt-logo-active: #e5c39c;
+        --wt-logo-passive: #52525b;
+        --wt-color-code-bg: #1a1a1a;
+        --wt-color-code-border: #333333;
+        --wt-shadow-soft: rgba(0, 0, 0, 0.3);
+        --wt-shadow-medium: rgba(0, 0, 0, 0.5);
+        --wt-shadow-accent: rgba(229, 195, 156, 0.24);
+        --wt-shadow-accent-strong: rgba(229, 195, 156, 0.36);
+        --wt-hero-background:
+            radial-gradient(ellipse 60% 50% at 50% 30%, rgba(229, 195, 156, 0.08) 0%, transparent 70%),
+            var(--wt-color-bg-soft);
+        --wt-hero-shadow: rgba(229, 195, 156, 0.2);
+        --wt-hero-shadow-strong: rgba(229, 195, 156, 0.3);
+    }
+
+    html[data-theme="light"] {
+        --wt-color-bg: #ffffff;
+        --wt-color-bg-soft: #fafafa;
+        --wt-color-bg-elevated: #ffffff;
+        --wt-color-text: #1a1a1a;
+        --wt-color-text-muted: #666666;
+        --wt-color-text-soft: #737373;
+        --wt-color-border-subtle: #e5e5e5;
+        --wt-color-link: #800080;
+        --wt-color-accent: #800080;
+        --wt-color-accent-soft: #f8e6f8;
+        --wt-color-accent-strong: #600060;
+        --wt-color-on-accent: #ffffff;
+        --wt-logo-active: #800080;
+        --wt-logo-passive: #d3d3d3;
+        --wt-color-code-bg: #f5f5f5;
+        --wt-color-code-border: #e5e5e5;
+        --wt-shadow-soft: rgba(0, 0, 0, 0.05);
+        --wt-shadow-medium: rgba(0, 0, 0, 0.1);
+        --wt-shadow-accent: rgba(128, 0, 128, 0.2);
+        --wt-shadow-accent-strong: rgba(128, 0, 128, 0.32);
+        --wt-hero-background:
+            radial-gradient(ellipse 80% 60% at 70% 40%, rgba(254, 243, 199, 0.7) 0%, transparent 60%),
+            radial-gradient(ellipse 50% 40% at 30% 70%, rgba(251, 243, 219, 0.5) 0%, transparent 50%),
+            var(--wt-color-bg-soft);
+        --wt-hero-shadow: rgba(217, 119, 6, 0.15);
+        --wt-hero-shadow-strong: rgba(217, 119, 6, 0.25);
+    }
+</style>
+
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+    <script>
+    // iOS viewport jank fix
+    (function() {
+        var isIOS = /iP(hone|ad|od)/.test(navigator.platform) ||
+                    (/Macintosh/.test(navigator.userAgent) && 'ontouchend' in document);
+        if (!isIOS) return;
+
+        var h = window.innerHeight;
+        if (h) {
+            document.documentElement.style.setProperty('--vh-full', h + 'px');
+        }
+
+        window.addEventListener('orientationchange', function() {
+            setTimeout(function() {
+                var newH = window.innerHeight;
+                if (newH) {
+                    document.documentElement.style.setProperty('--vh-full', newH + 'px');
+                }
+            }, 100);
+        });
+    })();
+    </script>
+    <meta name="view-transition" content="same-origin">
+    <meta name="description" content="Create SVG with Ruby.">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https:&#x2F;&#x2F;sevgi.roktas.dev&#x2F;derender&#x2F;">
+    <meta property="og:title" content="Derender | Sevgi">
+    <meta property="og:description" content="Create SVG with Ruby.">
+    <meta property="og:image" content="https://sevgi.roktas.dev/img/logo@2x.png">
+    <meta property="og:image:width" content="1024">
+    <meta property="og:image:height" content="1024">
+
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Derender | Sevgi">
+    <meta name="twitter:description" content="Create SVG with Ruby.">
+    <meta name="twitter:image" content="https://sevgi.roktas.dev/img/logo@2x.png">
+
+    
+    
+    <link rel="stylesheet" href="https://sevgi.roktas.dev/css/normalize.css?h=580818700724d42d7fcc">
+    <link rel="preload" href="https://sevgi.roktas.dev/css/main.css?h=6bbbd93d59b6321975a3" as="style">
+    <link rel="stylesheet" href="https://sevgi.roktas.dev/css/main.css?h=6bbbd93d59b6321975a3">
+    
+    <link rel="stylesheet" href="https://sevgi.roktas.dev/giallo-light.css?h=5cefe4954cda1947c74d" id="syntax-light">
+    <link rel="stylesheet" href="https://sevgi.roktas.dev/giallo-dark.css?h=fb6bfef1747cf20d61d5" id="syntax-dark">
+    
+    <script src="https://sevgi.roktas.dev/js/toggle.js?h=77918af59eeb33c2936b"></script>
+    
+    <script>
+    // Keep DSL search results pointed at their catalog entries.
+    window.sevgiDslAnchors = [
+    
+    
+        ["_", "text-content"],
+    
+    
+    
+        ["Adopt", "adopt"],
+    
+        ["AdoptFirst", "adopt-first"],
+    
+        ["Align", "align"],
+    
+        ["Ancestral", "ancestral"],
+    
+        ["Append", "append"],
+    
+    
+    
+        ["base", "base"],
+    
+    
+    
+        ["Call", "call"],
+    
+        ["Canvas", "canvas"],
+    
+        ["CData", "cdata"],
+    
+        ["Classify", "classify"],
+    
+        ["Comment", "comment"],
+    
+        ["css", "css"],
+    
+    
+    
+        ["Document", "document"],
+    
+        ["Document!", "document-bang"],
+    
+        ["Decompile", "decompile"],
+    
+        ["DecompileFile", "decompile-file"],
+    
+        ["Defaults", "defaults"],
+    
+        ["Derender", "derender"],
+    
+        ["DerenderFile", "derender-file"],
+    
+        ["Disidentify", "disidentify"],
+    
+        ["Draw", "draw"],
+    
+        ["Duplicate", "duplicate"],
+    
+        ["DuplicateX", "duplicate-x"],
+    
+        ["DuplicateY", "duplicate-y"],
+    
+    
+    
+        ["Element", "element"],
+    
+        ["Evaluate", "evaluate"],
+    
+        ["EvaluateChildren", "evaluate-children"],
+    
+        ["EvaluateChildrenFile", "evaluate-children-file"],
+    
+        ["EvaluateFile", "evaluate-file"],
+    
+    
+    
+        ["Flip", "flip"],
+    
+        ["FlipX", "flip-x"],
+    
+        ["FlipY", "flip-y"],
+    
+        ["Forward", "forward"],
+    
+    
+    
+        ["Grid", "grid"],
+    
+        ["Group", "group"],
+    
+    
+    
+        ["Hatch", "hatch"],
+    
+        ["HLineBy", "h-line-by"],
+    
+        ["HLineTo", "h-line-to"],
+    
+    
+    
+        ["Identifiers", "identifiers"],
+    
+        ["Include", "include"],
+    
+        ["IncludeChildren", "include-children"],
+    
+        ["InkscapeTemplateInfo", "inkscape-template-info"],
+    
+        ["Is?", "is-predicate"],
+    
+    
+    
+        ["layer", "layer"],
+    
+        ["Layer", "layer-callable"],
+    
+        ["layer!", "layer-bang"],
+    
+        ["Layer!", "layer-callable-bang"],
+    
+        ["License", "license"],
+    
+        ["License_CC0", "license-cc0"],
+    
+        ["License_CC_BY", "license-cc-by"],
+    
+        ["License_CC_BY_NC", "license-cc-by-nc"],
+    
+        ["License_CC_BY_NC_ND", "license-cc-by-nc-nd"],
+    
+        ["License_CC_BY_NC_SA", "license-cc-by-nc-sa"],
+    
+        ["License_CC_BY_ND", "license-cc-by-nd"],
+    
+        ["License_CC_BY_SA", "license-cc-by-sa"],
+    
+        ["License_LAL", "license-lal"],
+    
+        ["LineBy", "line-by"],
+    
+        ["LineTo", "line-to"],
+    
+        ["Lint", "lint"],
+    
+        ["Load", "load"],
+    
+    
+    
+        ["Matrix", "matrix"],
+    
+        ["Mixin", "mixin"],
+    
+    
+    
+        ["NS?", "ns-predicate"],
+    
+    
+    
+        ["Orphan", "orphan"],
+    
+        ["Out", "out"],
+    
+    
+    
+        ["Pages", "pages"],
+    
+        ["PagesTabular", "pages-tabular"],
+    
+        ["Paper", "paper"],
+    
+        ["Paper!", "paper-bang"],
+    
+        ["PDF", "pdf"],
+    
+        ["PNG", "png"],
+    
+        ["Prepend", "prepend"],
+    
+        ["PreRender", "pre-render"],
+    
+    
+    
+        ["RDF", "rdf"],
+    
+        ["RDFWork", "rdf-work"],
+    
+        ["Render", "render"],
+    
+        ["RenderChildren", "render-children"],
+    
+        ["Root", "root"],
+    
+        ["Root?", "root-predicate"],
+    
+        ["Rotate", "rotate"],
+    
+        ["RotateLeft", "rotate-left"],
+    
+        ["RotateRight", "rotate-right"],
+    
+    
+    
+        ["Save", "save"],
+    
+        ["Scale", "scale"],
+    
+        ["sevgi", "rake-sevgi"],
+    
+        ["Skew", "skew"],
+    
+        ["SkewX", "skew-x"],
+    
+        ["SkewY", "skew-y"],
+    
+        ["square", "square"],
+    
+        ["Stay", "stay"],
+    
+        ["SVG", "svg"],
+    
+        ["Symbol", "symbol"],
+    
+        ["symbol!", "symbol-bang"],
+    
+        ["Symbols", "symbols"],
+    
+    
+    
+        ["Tile", "tile"],
+    
+        ["TileX", "tile-x"],
+    
+        ["TileY", "tile-y"],
+    
+        ["Translate", "translate"],
+    
+        ["TranslateX", "translate-x"],
+    
+        ["TranslateY", "translate-y"],
+    
+        ["Traverse", "traverse"],
+    
+        ["TraverseUp", "traverse-up"],
+    
+    
+    
+        ["Validate", "validate"],
+    
+        ["VLineBy", "v-line-by"],
+    
+        ["VLineTo", "v-line-to"],
+    
+    
+    
+        ["With", "with"],
+    
+        ["Within", "within"],
+    
+        ["Write", "write"],
+    
+    
+    ];
+    </script>
+    <script src="/elasticlunr.min.js" defer></script>
+    <script src="/search_index.en.js" defer></script>
+    <script src="https://sevgi.roktas.dev/js/search.js?h=1bddf8bddc413c3db88a" defer></script>
+    <script src="https://sevgi.roktas.dev/js/copy.js?h=a5eac946898599ad3fee" defer></script>
+    <script src="https://sevgi.roktas.dev/js/tabs.js?h=81fe713d771c95209dcc" defer></script>
+    <script src="https://sevgi.roktas.dev/js/menu.js?h=a05b0b890d46da60db19" defer></script>
+    <script src="//instant.page/5.2.0" type="module" integrity="sha384-jnZyxPjiipYXnSU0ygqeac2q7CVYMbh84q0uHVRRxEtvFPiQYbXWUorga2aqZJ0z"></script>
+    <script>
+    // 1Password extension bug workaround
+    (function() {
+        var mark = function(el) { el.setAttribute('data-1p-ignore', ''); };
+        new MutationObserver(function(mutations) {
+            mutations.forEach(function(m) {
+                m.addedNodes.forEach(function(n) {
+                    if (n.nodeType === 1) {
+                        if (n.matches && n.matches('code[class*="language-"]')) mark(n);
+                        if (n.querySelectorAll) {
+                            n.querySelectorAll('code[class*="language-"]').forEach(mark);
+                        }
+                    }
+                });
+            });
+        }).observe(document.documentElement, { childList: true, subtree: true });
+    })();
+    </script>
+</head>
+
+<body>
+    <div class="ios-chrome-scrim" aria-hidden="true"></div>
+    <header>
+        <button class="mobile-menu-toggle" aria-label="Open menu" aria-expanded="false">
+            <svg class="menu-icon" aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+            <svg class="close-icon" aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+
+        <a href="/" class="logo-link">
+            <div class="logo">
+                <svg viewBox="0 -2 38.28 61.5" role="img" aria-label="Sevgi logo" shape-rendering="geometricPrecision">
+                    <defs>
+                        <path id="header-logo-master" d="m 30,30 c 0,0 18.39,7.089444 18.39,15 C 48.39,52.910556 30,60 30,60 M 30,0 C 30,0 11.61,7.089442 11.61,14.999998 C 11.61,22.910556 30,30 30,30"></path>
+                    </defs>
+                    <g transform="translate(-10.86,-1.25)" fill="none" stroke-linecap="round" stroke-width="4">
+                        <use href="#header-logo-master" stroke="var(--wt-logo-passive)" transform="matrix(-1,0,0,1,60,0)"></use>
+                        <use href="#header-logo-master" stroke="var(--wt-logo-active)"></use>
+                    </g>
+                </svg>
+                <span class="logo-text">Sevgi</span>
+            </div>
+        </a>
+
+        
+
+        <nav>
+            <div class="search-container">
+                <input id="userinput" type="search" placeholder="Search..." aria-label="Search documentation">
+                <div id="suggestions"></div>
+            </div>
+            
+            <a class="nav-item" href="/api/">Reference</a>
+            
+            <button class="theme-toggle" aria-label="Toggle theme" title="Toggle dark/light mode">
+                <svg class="light-icon theme-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="12" cy="12" r="6" fill="currentColor"></circle>
+                    <path d="m5.6 5.6-2.1-2.1m15 2.1 2.1-2.1m-15 15-2.1 2.1m15-2.1 2.1 2.1M12 4V2.8m0 17.2v1.2M4 12H2.8m17.2 0h1.2" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+                </svg>
+                <i class="fas fa-moon dark-icon" aria-hidden="true"></i>
+            </button>
+        </nav>
+
+        <button class="theme-toggle mobile-theme-toggle" aria-label="Toggle theme" title="Toggle dark/light mode">
+            <svg class="light-icon theme-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="6" fill="currentColor"></circle>
+                <path d="m5.6 5.6-2.1-2.1m15 2.1 2.1-2.1m-15 15-2.1 2.1m15-2.1 2.1 2.1M12 4V2.8m0 17.2v1.2M4 12H2.8m17.2 0h1.2" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+            </svg>
+            <i class="fas fa-moon dark-icon" aria-hidden="true"></i>
+        </button>
+    </header>
+
+    <div class="mobile-menu-overlay" aria-hidden="true"></div>
+    <nav class="mobile-menu" aria-hidden="true">
+        <div class="mobile-menu-content">
+            
+            <div class="mobile-menu-section">
+                
+                <a class="mobile-nav-item" href="/api/">Reference</a>
+                
+            </div>
+            <div class="mobile-menu-divider"></div>
+            
+            <div class="mobile-menu-section mobile-menu-toc">
+                
+                
+                
+
+
+
+
+
+<div class="doc-nav-tree">
+    
+    <details class="nav-section" >
+        <summary class="nav-section-title">Start</summary>
+        <div class="nav-section-pages">
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/getting-started/">
+                Getting Started
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/script-mode/">
+                Script Mode
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/library-mode/">
+                Library Mode
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/execution/">
+                Execution
+            </a>
+
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+        </div>
+    </details>
+    
+    <details class="nav-section" >
+        <summary class="nav-section-title">Core</summary>
+        <div class="nav-section-pages">
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/svg/">
+                SVG Essentials
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/dsl/">
+                DSL Catalog
+            </a>
+
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+        </div>
+    </details>
+    
+    <details class="nav-section" open>
+        <summary class="nav-section-title">Toolkit</summary>
+        <div class="nav-section-pages">
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/geometry/">
+                Geometry
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/sundries/">
+                Sundries
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page active" href="https://sevgi.roktas.dev/derender/">
+                Derender
+            </a>
+
+            
+            <div class="nav-outline">
+                
+                
+                    
+                    <a class="nav-outline-link" href="https://sevgi.roktas.dev/derender/#the-round-trip">The round trip</a>
+                    
+                
+                
+                
+                    
+                    <a class="nav-outline-link" href="https://sevgi.roktas.dev/derender/#generate-source">Generate source</a>
+                    
+                
+                
+                
+                    
+                    <a class="nav-outline-link" href="https://sevgi.roktas.dev/derender/#inspect">Inspect</a>
+                    
+                
+                
+                
+                    
+                    <a class="nav-outline-link" href="https://sevgi.roktas.dev/derender/#evaluate">Evaluate and include</a>
+                    
+                
+                
+            </div>
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/functions/">
+                Functions
+            </a>
+
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+        </div>
+    </details>
+    
+    <details class="nav-section" >
+        <summary class="nav-section-title">More</summary>
+        <div class="nav-section-pages">
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/showcase/">
+                Showcase Examples
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/compatibility/">
+                Supported Usage
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/api/">
+                API
+            </a>
+
+            
+            
+            
+        </div>
+    </details>
+    
+</div>
+
+                
+            </div>
+        </div>
+    </nav>
+
+    <div class="hero">
+        
+    </div>
+
+    <main>
+        
+
+
+<div class="toc">
+    <div class="toc-sticky">
+        
+
+
+
+
+
+<div class="doc-nav-tree">
+    
+    <details class="nav-section" >
+        <summary class="nav-section-title">Start</summary>
+        <div class="nav-section-pages">
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/getting-started/">
+                Getting Started
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/script-mode/">
+                Script Mode
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/library-mode/">
+                Library Mode
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/execution/">
+                Execution
+            </a>
+
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+        </div>
+    </details>
+    
+    <details class="nav-section" >
+        <summary class="nav-section-title">Core</summary>
+        <div class="nav-section-pages">
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/svg/">
+                SVG Essentials
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/dsl/">
+                DSL Catalog
+            </a>
+
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+        </div>
+    </details>
+    
+    <details class="nav-section" open>
+        <summary class="nav-section-title">Toolkit</summary>
+        <div class="nav-section-pages">
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/geometry/">
+                Geometry
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/sundries/">
+                Sundries
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page active" href="https://sevgi.roktas.dev/derender/">
+                Derender
+            </a>
+
+            
+            <div class="nav-outline">
+                
+                
+                    
+                    <a class="nav-outline-link" href="https://sevgi.roktas.dev/derender/#the-round-trip">The round trip</a>
+                    
+                
+                
+                
+                    
+                    <a class="nav-outline-link" href="https://sevgi.roktas.dev/derender/#generate-source">Generate source</a>
+                    
+                
+                
+                
+                    
+                    <a class="nav-outline-link" href="https://sevgi.roktas.dev/derender/#inspect">Inspect</a>
+                    
+                
+                
+                
+                    
+                    <a class="nav-outline-link" href="https://sevgi.roktas.dev/derender/#evaluate">Evaluate and include</a>
+                    
+                
+                
+            </div>
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/functions/">
+                Functions
+            </a>
+
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+        </div>
+    </details>
+    
+    <details class="nav-section" >
+        <summary class="nav-section-title">More</summary>
+        <div class="nav-section-pages">
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/showcase/">
+                Showcase Examples
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/compatibility/">
+                Supported Usage
+            </a>
+
+            
+            
+            
+            
+            
+            
+            <a class="nav-page " href="https://sevgi.roktas.dev/api/">
+                API
+            </a>
+
+            
+            
+            
+        </div>
+    </details>
+    
+</div>
+
+    </div>
+</div>
+
+
+
+        <div
+            class="content "
+            id="derender"
+        >
+            
+<h1 class="heading-text"><a href="#derender" class="heading-anchor">Derender</a></h1>
+<p>Not every useful vector drawing should be produced programmatically. A Bezier-heavy logo, traced illustration, or
+hand-adjusted path may be easier and more faithful to author in a visual editor. Derender brings that SVG or XML into
+Sevgi's element model, where editor-authored geometry can participate in Ruby-driven composition, styling, layout, and
+output.</p>
+<p>Use Derender when SVG/XML is a real input artifact, not as a detour for shapes or relationships that are clearer in the
+Sevgi DSL. Convert inline content or a file, generate source, include part of it, or inspect its tree.</p>
+<h2 id="the-round-trip"><a class="zola-anchor" href="#the-round-trip" aria-label="Anchor link for: the-round-trip">The round trip</a></h2>
+<pre class="giallo z-code"><code data-lang="plain"><span class="giallo-l"><span>SVG/XML content or file → immutable Derender node → Sevgi source → evaluated SVG tree</span></span></code></pre>
+<p>The conversion keeps element names, attributes, text, comments, CDATA, and child order. It represents the XML tree as
+Ruby. It cannot recover the loops, helper methods, or other higher-level code that may have produced the original file.</p>
+<table><thead><tr><th>Operation family</th><th>Inline input</th><th>File input</th><th>Result</th><th>Existing target</th></tr></thead><tbody>
+<tr><td>Inspect</td><td><code>SVG.Decompile</code></td><td><code>SVG.DecompileFile</code></td><td>immutable <code>Sevgi::Derender::Node</code></td><td>no</td></tr>
+<tr><td>Generate source</td><td><code>SVG.Derender</code></td><td><code>SVG.DerenderFile</code></td><td>formatted Ruby string</td><td>no</td></tr>
+<tr><td>Include selection</td><td><code>SVG.Evaluate</code></td><td><code>SVG.EvaluateFile</code></td><td>included element or <code>nil</code></td><td>yes</td></tr>
+<tr><td>Include children</td><td><code>SVG.EvaluateChildren</code></td><td><code>SVG.EvaluateChildrenFile</code></td><td>frozen element snapshot</td><td>yes</td></tr>
+</tbody></table>
+<p>Choose source generation when the converted Ruby should become the maintained representation. Choose evaluation or
+<code>Include</code> when the editor file should remain the source of its geometry and Sevgi should compose it at runtime.</p>
+<p>Library code uses the capitalized facade operations. For example, a consumer can inspect a node and generate only that
+subtree without installing script-mode names:</p>
+<pre class="giallo z-code"><code data-lang="ruby"><span class="giallo-l"><span class="z-variable">xml</span><span class="z-keyword"> =</span><span class="z-punctuation z-definition z-string"> &#39;</span><span class="z-string">&lt;svg&gt;&lt;g id=&quot;mark&quot; style=&quot;fill: red&quot;&gt;&lt;rect width=&quot;4&quot;/&gt;&lt;/g&gt;&lt;/svg&gt;</span><span class="z-punctuation z-definition z-string">&#39;</span></span>
+<span class="giallo-l"><span class="z-variable">mark</span><span class="z-keyword"> =</span><span class="z-support"> SVG</span><span>.</span><span class="z-variable z-other z-constant">Decompile</span><span>(</span><span>xml</span><span>,</span><span class="z-constant"> id</span><span class="z-constant">:</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">mark</span><span class="z-punctuation z-definition z-string">&quot;</span><span>)</span></span>
+<span class="giallo-l"><span class="z-variable">source</span><span class="z-keyword"> =</span><span> mark</span><span>.</span><span class="z-entity z-name">derender</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span class="z-keyword">raise</span><span class="z-keyword"> unless</span><span> mark</span><span>.</span><span class="z-entity z-name">name</span><span class="z-keyword"> ==</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">g</span><span class="z-punctuation z-definition z-string">&quot;</span></span>
+<span class="giallo-l"><span class="z-keyword">raise</span><span class="z-keyword"> unless</span><span> source</span><span>.</span><span class="z-entity z-name">include?</span><span>(</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">rect width: 4</span><span class="z-punctuation z-definition z-string">&quot;</span><span>)</span></span></code></pre><h2 id="generate-source"><a class="zola-anchor" href="#generate-source" aria-label="Anchor link for: generate-source">Generate source</a></h2>
+<p>In a <code>.sevgi</code> script, <code>Derender</code> converts inline content and returns formatted Ruby:</p>
+<pre class="giallo z-code"><code data-lang="ruby"><span class="giallo-l"><span class="z-variable">source</span><span class="z-keyword"> =</span><span class="z-variable z-other z-constant"> Derender</span><span class="z-punctuation z-definition z-string"> &#39;</span><span class="z-string">&lt;path id=&quot;mark&quot; d=&quot;M 0 0 L 8 3&quot;/&gt;</span><span class="z-punctuation z-definition z-string">&#39;</span><span>,</span><span class="z-constant"> id</span><span class="z-constant">:</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">mark</span><span class="z-punctuation z-definition z-string">&quot;</span></span>
+<span class="giallo-l"><span class="z-support">puts</span><span> source</span></span></code></pre>
+<p>Library code writes the same operation as <code>SVG.Derender(...)</code>.</p>
+<p>Use <code>DerenderFile</code> when the source already lives on disk:</p>
+<pre class="giallo z-code"><code data-lang="ruby"><span class="giallo-l"><span class="z-variable">source</span><span class="z-keyword"> =</span><span class="z-variable z-other z-constant"> DerenderFile</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">badge.svg</span><span class="z-punctuation z-definition z-string">&quot;</span><span>,</span><span class="z-constant"> id</span><span class="z-constant">:</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">mark</span><span class="z-punctuation z-definition z-string">&quot;</span></span></code></pre>
+<p>The optional id selects one subtree. Without it, the document root is used. Pass one attribute name or an array to
+<code>omit</code> when editor metadata should not survive the conversion:</p>
+<pre class="giallo z-code"><code data-lang="ruby"><span class="giallo-l"><span class="z-variable">source</span><span class="z-keyword"> =</span><span class="z-variable z-other z-constant"> DerenderFile</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">badge.svg</span><span class="z-punctuation z-definition z-string">&quot;</span><span>,</span><span class="z-constant"> id</span><span class="z-constant">:</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">mark</span><span class="z-punctuation z-definition z-string">&quot;</span><span>,</span><span class="z-constant"> omit</span><span class="z-constant">:</span><span class="z-constant"> %i[</span><span class="z-constant">id style</span><span class="z-constant">]</span></span></code></pre>
+<p>Attribute names may be strings or symbols and match exactly across the selected subtree. Selection happens before
+omission, so an id may select a node without appearing in the result. Namespace declarations and <code>style</code> elements are
+preserved when attributes are omitted.</p>
+<p>The companion <code>igves</code> command prints a file conversion from the shell and accepts a repeatable option:</p>
+<pre class="giallo z-code"><code data-lang="plain"><span class="giallo-l"><span>igves --omit id --omit style badge.svg</span></span></code></pre>
+<p>Both conversion commands read standard input when the file is omitted or <code>-</code>, which makes the same conversion usable
+in a pipeline:</p>
+<pre class="giallo z-code"><code data-lang="plain"><span class="giallo-l"><span>igves --omit id &lt; badge.svg</span></span></code></pre>
+<p>When normalized SVG is the desired result rather than generated Ruby, the umbrella <code>sevgi</code> gem provides <code>igsev</code>. It
+performs the complete SVG-to-Sevgi-to-SVG round trip and accepts the same repeatable omission option:</p>
+<pre class="giallo z-code"><code data-lang="plain"><span class="giallo-l"><span>igsev --omit id --omit style badge.svg &gt; normalized.svg</span></span></code></pre>
+<p>This is a structural formatter, not a byte-preserving XML rewrite: Sevgi rendering determines declaration, whitespace,
+attribute spelling, and other serialized details.</p>
+<h2 id="inspect"><a class="zola-anchor" href="#inspect" aria-label="Anchor link for: inspect">Inspect</a></h2>
+<p><code>Decompile</code> stops one step earlier and returns an immutable node. The node owns snapshots of its attributes,
+namespaces, metadata, content, and descendants:</p>
+<pre class="giallo z-code"><code data-lang="ruby"><span class="giallo-l"><span class="z-variable">xml</span><span class="z-keyword"> =</span><span class="z-string"> &lt;&lt;~SVG</span></span>
+<span class="giallo-l"><span class="z-string">  &lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; xmlns:_=&quot;https://sevgi.roktas.dev/meta&quot;&gt;</span></span>
+<span class="giallo-l"><span class="z-string">    &lt;g id=&quot;mark&quot; _:role=&quot;icon&quot;&gt;&lt;rect width=&quot;4&quot;/&gt;&lt;/g&gt;</span></span>
+<span class="giallo-l"><span class="z-string">  &lt;/svg&gt;</span></span>
+<span class="giallo-l"><span class="z-string">SVG</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span class="z-variable">root</span><span class="z-keyword"> =</span><span class="z-support"> SVG</span><span>.</span><span class="z-variable z-other z-constant">Decompile</span><span>(</span><span>xml</span><span>)</span></span>
+<span class="giallo-l"><span class="z-variable">mark</span><span class="z-keyword"> =</span><span> root</span><span>.</span><span class="z-entity z-name">find</span><span>(</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">mark</span><span class="z-punctuation z-definition z-string">&quot;</span><span>)</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span class="z-keyword">raise</span><span class="z-keyword"> unless</span><span> root</span><span>.</span><span class="z-entity z-name">root?</span></span>
+<span class="giallo-l"><span class="z-keyword">raise</span><span class="z-keyword"> unless</span><span> root</span><span>.</span><span class="z-entity z-name">namespaces</span><span>[</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">xmlns</span><span class="z-punctuation z-definition z-string">&quot;</span><span>]</span><span class="z-keyword"> ==</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">http://www.w3.org/2000/svg</span><span class="z-punctuation z-definition z-string">&quot;</span></span>
+<span class="giallo-l"><span class="z-keyword">raise</span><span class="z-keyword"> unless</span><span> root</span><span>.</span><span class="z-entity z-name">children</span><span>.</span><span class="z-entity z-name">first</span><span>.</span><span class="z-entity z-name">equal?</span><span>(</span><span>mark</span><span>)</span></span>
+<span class="giallo-l"><span class="z-keyword">raise</span><span class="z-keyword"> unless</span><span> mark</span><span>.</span><span class="z-entity z-name">attributes</span><span>[</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">id</span><span class="z-punctuation z-definition z-string">&quot;</span><span>]</span><span class="z-keyword"> ==</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">mark</span><span class="z-punctuation z-definition z-string">&quot;</span></span>
+<span class="giallo-l"><span class="z-keyword">raise</span><span class="z-keyword"> unless</span><span> mark</span><span>.</span><span class="z-entity z-name">meta</span><span>[</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">role</span><span class="z-punctuation z-definition z-string">&quot;</span><span>]</span><span class="z-keyword"> ==</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">icon</span><span class="z-punctuation z-definition z-string">&quot;</span></span>
+<span class="giallo-l"><span class="z-keyword">raise</span><span class="z-keyword"> unless</span><span> mark</span><span>.</span><span class="z-entity z-name">children</span><span>.</span><span class="z-entity z-name">map</span><span>(</span><span class="z-keyword">&amp;</span><span class="z-constant">:</span><span class="z-constant">name</span><span>)</span><span class="z-keyword"> ==</span><span> [</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">rect</span><span class="z-punctuation z-definition z-string">&quot;</span><span>]</span></span>
+<span class="giallo-l"><span class="z-keyword">raise</span><span class="z-keyword"> unless</span><span> mark</span><span>.</span><span class="z-entity z-name">derender</span><span>.</span><span class="z-entity z-name">include?</span><span>(</span><span class="z-punctuation z-definition z-string">&quot;</span><span class="z-string">rect width: 4</span><span class="z-punctuation z-definition z-string">&quot;</span><span>)</span></span></code></pre>
+<p>The file counterpart is explicit:</p>
+<pre class="giallo z-code"><code data-lang="ruby"><span class="giallo-l"><span class="z-variable">node</span><span class="z-keyword"> =</span><span class="z-variable z-other z-constant"> DecompileFile</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">badge.svg</span><span class="z-punctuation z-definition z-string">&quot;</span><span>,</span><span class="z-constant"> id</span><span class="z-constant">:</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">mark</span><span class="z-punctuation z-definition z-string">&quot;</span></span></code></pre>
+<p>Use these methods when you need to examine a selection, its attributes, or its children without generating source.</p>
+<h2 id="evaluate"><a class="zola-anchor" href="#evaluate" aria-label="Anchor link for: evaluate">Evaluate and include</a></h2>
+<p><code>Evaluate</code> imports inline content directly into an existing SVG tree. <code>EvaluateChildren</code> imports only the selected
+node's children:</p>
+<pre class="giallo z-code"><code data-lang="ruby"><span class="giallo-l"><span class="z-variable">drawing</span><span class="z-keyword"> =</span><span class="z-variable z-other z-constant"> SVG</span><span class="z-constant"> :</span><span class="z-constant">minimal</span></span>
+<span class="giallo-l"><span class="z-support">SVG</span><span>.</span><span class="z-variable z-other z-constant">Evaluate</span><span class="z-punctuation z-definition z-string"> &#39;</span><span class="z-string">&lt;circle id=&quot;mark&quot; r=&quot;4&quot;/&gt;</span><span class="z-punctuation z-definition z-string">&#39;</span><span>,</span><span> drawing</span><span>,</span><span class="z-constant"> id</span><span class="z-constant">:</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">mark</span><span class="z-punctuation z-definition z-string">&quot;</span></span>
+<span class="giallo-l"><span>drawing.</span><span class="z-variable z-other z-constant">Render</span></span></code></pre>
+<p>Use <code>EvaluateFile</code> or <code>EvaluateChildrenFile</code> for file input. All conversion and evaluation forms accept <code>omit</code>. Inside
+an <code>SVG</code> block, the established <code>Include</code> and <code>IncludeChildren</code> drawing words remain convenient file-oriented forms
+because their target is already the current element:</p>
+<pre class="giallo z-code"><code data-lang="ruby"><span class="giallo-l"><span class="z-variable z-other z-constant">SVG</span><span class="z-keyword"> do</span></span>
+<span class="giallo-l"><span class="z-variable z-other z-constant">  Include</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">badge.svg</span><span class="z-punctuation z-definition z-string">&quot;</span><span>,</span><span class="z-punctuation z-definition z-string"> &quot;</span><span class="z-string">mark</span><span class="z-punctuation z-definition z-string">&quot;</span><span>,</span><span class="z-constant"> omit</span><span class="z-constant">:</span><span class="z-constant"> %i[</span><span class="z-constant">id style</span><span class="z-constant">]</span></span>
+<span class="giallo-l"><span class="z-keyword">end</span></span></code></pre>
+<p>Applications depending only on <code>sevgi-derender</code> can use the lowercase component API under <code>Sevgi::Derender</code>:
+<code>decompile</code>, <code>derender</code>, <code>evaluate</code>, and <code>evaluate_children</code> accept content; their <code>_file</code> counterparts accept paths.</p>
+<p>All these APIs parse XML as data and build immutable snapshots or graphics elements; they do not execute the generated
+Ruby. This is distinct from <a href="https://sevgi.roktas.dev/execution/"><code>Sevgi.execute</code></a>, which deliberately runs trusted Ruby with the process's
+authority. Parsing untrusted XML still deserves normal resource limits, but it does not grant the source a Ruby
+execution path.</p>
+<p>The catalog links its Derender entries back here because selection, conversion, and evaluation all use this same
+mechanism.</p>
+
+
+
+
+
+
+
+    
+    
+    
+        
+    
+
+    
+    
+    
+        
+    
+
+    
+    
+    
+        
+    
+
+    
+    
+    
+        
+    
+
+    
+    
+    
+        
+    
+
+    
+    
+    
+        
+    
+
+    
+    
+    
+        
+    
+
+    
+    
+    
+        
+    
+
+    
+    
+        
+    
+    
+
+    
+        
+    
+    
+    
+
+    
+    
+    
+
+    
+    
+    
+
+    
+    
+    
+
+
+<div class="page-nav">
+    
+    <a href="https://sevgi.roktas.dev/sundries/">← Sundries</a>
+    
+
+    
+    <a href="https://sevgi.roktas.dev/functions/">Functions →</a>
+    
+</div>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-social">
+            <a href="https://github.com/roktas/sevgi" aria-label="GitHub" title="GitHub">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.399 1.02 0 2.047.133 3.006.4 2.29-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                </svg>
+            </a>
+        </div>
+    </footer>
+</body>
+</html>
