@@ -190,10 +190,28 @@ header {
   font-size: 1.25rem;
   color: var(--wt-color-text);
 }
-.logo img {
+.logo svg {
   width: 44px;
   height: 44px;
-  object-fit: contain;
+}
+header .slogan {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: 0;
+  color: color-mix(in srgb, var(--wt-color-text-soft) 70%, transparent);
+  font-family: var(--wt-font-head);
+  font-size: 1.125rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+  word-spacing: 0.3em;
+}
+header .slogan span {
+  color: var(--wt-logo-active);
+  font-weight: 700;
 }
 nav {
   display: flex;
@@ -224,7 +242,7 @@ nav {
   border: none;
   cursor: pointer;
   padding: 0.4rem;
-  color: var(--wt-color-text-muted);
+  color: var(--wt-color-accent);
   transition: color 150ms;
   display: flex;
   align-items: center;
@@ -232,7 +250,7 @@ nav {
 }
 
 .theme-toggle:hover {
-  color: var(--wt-color-text);
+  color: var(--wt-color-accent-strong);
 }
 
 .theme-toggle i {
@@ -939,18 +957,7 @@ footer {
  */
 
 .hero {
-  /* Warm gradient background with subtle radial glow */
-  background: radial-gradient(
-      ellipse 80% 60% at 70% 40%,
-      rgba(254, 243, 199, 0.7) 0%,
-      rgba(0, 0, 0, 0) 60%
-    ),
-    radial-gradient(
-      ellipse 50% 40% at 30% 70%,
-      rgba(251, 243, 219, 0.5) 0%,
-      rgba(0, 0, 0, 0) 50%
-    ),
-    var(--wt-color-bg-soft);
+  background: var(--wt-hero-background);
   /* iOS jank fix: --vh-full set by JS, fallback to lvh. See base.html. */
   min-height: calc(
     var(--vh-full, 100lvh) - var(--wt-header-height) -
@@ -999,13 +1006,12 @@ footer {
   width: auto;
   aspect-ratio: 28 / 45;
   flex-shrink: 1;
-  /* Subtle glow behind the logo */
-  filter: drop-shadow(0 8px 24px rgba(217, 119, 6, 0.15));
+  filter: drop-shadow(0 8px 24px var(--wt-hero-shadow));
   transition: filter 300ms, transform 300ms;
   animation: logo-animation 2s cubic-bezier(0.25, 0.1, 0.25, 1) both;
 }
 .hero .hero-image:hover {
-  filter: drop-shadow(0 12px 32px rgba(217, 119, 6, 0.25));
+  filter: drop-shadow(0 12px 32px var(--wt-hero-shadow-strong));
   transform: scale(1.02);
 }
 
@@ -1127,17 +1133,9 @@ footer {
   gap: 0.6rem;
 }
 
-/* Feature specific icon colors using theme variable */
+/* Feature icon color */
 .feature-item i {
   color: var(--wt-color-accent-strong);
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .feature-item i {
-    color: #c55bc5;
-  }
-}
-html[data-theme="dark"] .feature-item i {
-  color: #c55bc5;
 }
 
 .feature-item p {
@@ -1147,43 +1145,11 @@ html[data-theme="dark"] .feature-item i {
   margin: 0;
 }
 
-/* Dark mode hero adjustments */
-@media (prefers-color-scheme: dark) {
-  .hero {
-    background: radial-gradient(
-        ellipse 60% 50% at 50% 30%,
-        rgba(144, 0, 144, 0.08) 0%,
-        rgba(0, 0, 0, 0) 70%
-      ),
-      var(--wt-color-bg-soft);
-  }
-  .hero .hero-image {
-    filter: drop-shadow(0 8px 24px rgba(144, 0, 144, 0.2));
-  }
-  .hero .hero-image:hover {
-    filter: drop-shadow(0 12px 32px rgba(144, 0, 144, 0.3));
-  }
-}
-/* Dark mode override for manual theme selection */
-html[data-theme="dark"] .hero {
-  background: radial-gradient(
-      ellipse 60% 50% at 50% 30%,
-      rgba(144, 0, 144, 0.08) 0%,
-      rgba(0, 0, 0, 0) 70%
-    ),
-    var(--wt-color-bg-soft);
-}
-html[data-theme="dark"] .hero .hero-image {
-  filter: drop-shadow(0 8px 24px rgba(144, 0, 144, 0.2));
-}
-html[data-theme="dark"] .hero .hero-image:hover {
-  filter: drop-shadow(0 12px 32px rgba(144, 0, 144, 0.3));
-}
 /* Primary button */
 .button {
   display: inline-block;
   background: var(--wt-color-accent);
-  color: #fff;
+  color: var(--wt-color-on-accent);
   padding: 0.6rem 1.5rem;
   border-radius: 999px;
   font-weight: 600;
@@ -1269,6 +1235,12 @@ figcaption {
 @media screen and (max-width: 1100px) {
   .showcase-flow {
     grid-template-columns: 1fr;
+  }
+}
+
+@media screen and (max-width: 1200px) {
+  header .slogan {
+    display: none;
   }
 }
 
@@ -1564,25 +1536,9 @@ header nav .nav-item:hover::after {
   width: 100%;
 }
 /* Logo hover effect */
-header .logo:hover img {
+header .logo:hover svg {
   filter: drop-shadow(0 0 8px var(--wt-shadow-accent-strong));
   transition: filter 200ms ease;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) header .logo img {
-    filter: brightness(0.88) contrast(0.92) saturate(0.95);
-  }
-  :root:not([data-theme="light"]) header .logo:hover img {
-    filter: brightness(0.9) contrast(0.95) saturate(0.95)
-      drop-shadow(0 0 6px var(--wt-shadow-accent-strong));
-  }
-}
-html[data-theme="dark"] header .logo img {
-  filter: brightness(0.88) contrast(0.92) saturate(0.95);
-}
-html[data-theme="dark"] header .logo:hover img {
-  filter: brightness(0.9) contrast(0.95) saturate(0.95)
-    drop-shadow(0 0 6px var(--wt-shadow-accent-strong));
 }
 /* Explore more bounce animation */
 @keyframes gentle-bounce {
@@ -2180,7 +2136,7 @@ html[data-theme="dark"] .tabs .theme-dark {
   }
   
   /* Logo Icon Sizing - slightly smaller on mobile for better proportions */
-  .logo img {
+  .logo svg {
     height: 32px; 
     width: auto;
   }

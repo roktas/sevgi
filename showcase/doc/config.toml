@@ -10,7 +10,6 @@ light_theme                = "github-light"
 dark_theme                 = "github-dark"
 [extra]
 logo_name                  = "Sevgi"
-logo_path                  = "/img/logo-mark.png"
 github_repo                = "roktas/sevgi"
 site_description           = "Create SVG with Ruby."
 nav_groups                 = ["Start", "Core", "Toolkit", "More"]

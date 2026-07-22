@@ -4,7 +4,7 @@
     <![CDATA[
       .active {
         fill: none;
-        stroke: #d946ef;
+        stroke: #e5c39c;
         stroke-linecap: round;
         stroke-width: 1.5;
       }

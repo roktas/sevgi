@@ -15,10 +15,11 @@
         --wt-color-border-subtle: #e5e5e5;
         --wt-color-link: #800080; /* Link color aligned with theme */
         
-        /* Accent Colors - PURPLE THEME */
+        /* Accent Colors */
         --wt-color-accent: #800080; /* Primary Purple */
         --wt-color-accent-soft: #f8e6f8; /* Very soft purple (for backgrounds) */
         --wt-color-accent-strong: #600060; /* Darker purple (for hover states) */
+        --wt-color-on-accent: #ffffff;
         --wt-logo-active: #800080;
         --wt-logo-passive: #d3d3d3;
         
@@ -26,11 +27,19 @@
         --wt-color-code-bg: #f5f5f5;
         --wt-color-code-border: #e5e5e5;
         
-        /* Shadows (Purple-based opacity) */
+        /* Shadows */
         --wt-shadow-soft: rgba(0, 0, 0, 0.05);
         --wt-shadow-medium: rgba(0, 0, 0, 0.1);
         --wt-shadow-accent: rgba(128, 0, 128, 0.2);
         --wt-shadow-accent-strong: rgba(128, 0, 128, 0.32);
+
+        /* Hero */
+        --wt-hero-background:
+            radial-gradient(ellipse 80% 60% at 70% 40%, rgba(254, 243, 199, 0.7) 0%, transparent 60%),
+            radial-gradient(ellipse 50% 40% at 30% 70%, rgba(251, 243, 219, 0.5) 0%, transparent 50%),
+            var(--wt-color-bg-soft);
+        --wt-hero-shadow: rgba(217, 119, 6, 0.15);
+        --wt-hero-shadow-strong: rgba(217, 119, 6, 0.25);
         
         /* Dimensions */
         --wt-header-height: 64px;
@@ -47,9 +56,12 @@
             --wt-color-text-muted: #a3a3a3;
             --wt-color-text-soft: #8f8f8f;
             --wt-color-border-subtle: #333333;
-            --wt-color-link: #a333a3; /* Lighter purple for dark mode legibility */
-            --wt-color-accent-soft: #2a1a2a;
-            --wt-logo-active: #d946ef;
+            --wt-color-link: #e5c39c;
+            --wt-color-accent: #e5c39c;
+            --wt-color-accent-soft: #2c251e;
+            --wt-color-accent-strong: #f0d6b8;
+            --wt-color-on-accent: #111111;
+            --wt-logo-active: #e5c39c;
             --wt-logo-passive: #52525b;
             
             --wt-color-code-bg: #1a1a1a;
@@ -57,8 +69,13 @@
             
             --wt-shadow-soft: rgba(0, 0, 0, 0.3);
             --wt-shadow-medium: rgba(0, 0, 0, 0.5);
-            --wt-shadow-accent: rgba(163, 51, 163, 0.28);
-            --wt-shadow-accent-strong: rgba(163, 51, 163, 0.42);
+            --wt-shadow-accent: rgba(229, 195, 156, 0.24);
+            --wt-shadow-accent-strong: rgba(229, 195, 156, 0.36);
+            --wt-hero-background:
+                radial-gradient(ellipse 60% 50% at 50% 30%, rgba(229, 195, 156, 0.08) 0%, transparent 70%),
+                var(--wt-color-bg-soft);
+            --wt-hero-shadow: rgba(229, 195, 156, 0.2);
+            --wt-hero-shadow-strong: rgba(229, 195, 156, 0.3);
         }
     }
 
@@ -71,16 +88,24 @@
         --wt-color-text-muted: #a3a3a3;
         --wt-color-text-soft: #8f8f8f;
         --wt-color-border-subtle: #333333;
-        --wt-color-link: #a333a3;
-        --wt-color-accent-soft: #2a1a2a;
-        --wt-logo-active: #d946ef;
+        --wt-color-link: #e5c39c;
+        --wt-color-accent: #e5c39c;
+        --wt-color-accent-soft: #2c251e;
+        --wt-color-accent-strong: #f0d6b8;
+        --wt-color-on-accent: #111111;
+        --wt-logo-active: #e5c39c;
         --wt-logo-passive: #52525b;
         --wt-color-code-bg: #1a1a1a;
         --wt-color-code-border: #333333;
         --wt-shadow-soft: rgba(0, 0, 0, 0.3);
         --wt-shadow-medium: rgba(0, 0, 0, 0.5);
-        --wt-shadow-accent: rgba(163, 51, 163, 0.28);
-        --wt-shadow-accent-strong: rgba(163, 51, 163, 0.42);
+        --wt-shadow-accent: rgba(229, 195, 156, 0.24);
+        --wt-shadow-accent-strong: rgba(229, 195, 156, 0.36);
+        --wt-hero-background:
+            radial-gradient(ellipse 60% 50% at 50% 30%, rgba(229, 195, 156, 0.08) 0%, transparent 70%),
+            var(--wt-color-bg-soft);
+        --wt-hero-shadow: rgba(229, 195, 156, 0.2);
+        --wt-hero-shadow-strong: rgba(229, 195, 156, 0.3);
     }
 
     html[data-theme="light"] {
@@ -92,7 +117,10 @@
         --wt-color-text-soft: #737373;
         --wt-color-border-subtle: #e5e5e5;
         --wt-color-link: #800080;
+        --wt-color-accent: #800080;
         --wt-color-accent-soft: #f8e6f8;
+        --wt-color-accent-strong: #600060;
+        --wt-color-on-accent: #ffffff;
         --wt-logo-active: #800080;
         --wt-logo-passive: #d3d3d3;
         --wt-color-code-bg: #f5f5f5;
@@ -101,5 +129,11 @@
         --wt-shadow-medium: rgba(0, 0, 0, 0.1);
         --wt-shadow-accent: rgba(128, 0, 128, 0.2);
         --wt-shadow-accent-strong: rgba(128, 0, 128, 0.32);
+        --wt-hero-background:
+            radial-gradient(ellipse 80% 60% at 70% 40%, rgba(254, 243, 199, 0.7) 0%, transparent 60%),
+            radial-gradient(ellipse 50% 40% at 30% 70%, rgba(251, 243, 219, 0.5) 0%, transparent 50%),
+            var(--wt-color-bg-soft);
+        --wt-hero-shadow: rgba(217, 119, 6, 0.15);
+        --wt-hero-shadow-strong: rgba(217, 119, 6, 0.25);
     }
 </style>

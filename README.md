@@ -3,6 +3,8 @@
 
 # Sevgi
 
+*Scalable Executable Vector Graphics Interface*
+
 Sevgi is a Ruby toolkit for creating SVG through a compact DSL. It uses SVG element names directly, keeping drawings
 close to their output while retaining Ruby's composition and reuse.
 

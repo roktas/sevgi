@@ -13,5 +13,5 @@ SVG :minimal, width: 120, height: 120, viewBox: "-10 -10 120 120" do
   end
 
   polygon points: %w[-10,120 120,120 120,-10], fill: "#e5c39c"
-  circle cx: 50, cy: 50, r: 50, mask: "url(#heart)", fill: "#d946ef"
+  circle cx: 50, cy: 50, r: 50, mask: "url(#heart)", fill: "#e5c39c"
 end.Save
