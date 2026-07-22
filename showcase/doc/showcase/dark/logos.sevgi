@@ -13,7 +13,7 @@ SVG
 
 STYLE = {
   ".active" => {
-    fill: "none", stroke: "#e879f9", "stroke-linecap": "round", "stroke-width": 2.0
+    fill: "none", stroke: "#e5c39c", "stroke-linecap": "round", "stroke-width": 2.0
   },
   ".passive" => {
     fill: "none", stroke: "#52525b", "stroke-linecap": "round", "stroke-width": 2.0

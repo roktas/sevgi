@@ -3,7 +3,7 @@
     <![CDATA[
       .active {
         fill: none;
-        stroke: #e879f9;
+        stroke: #e5c39c;
         stroke-linecap: round;
         stroke-width: 2.0;
       }
