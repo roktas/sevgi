@@ -56,6 +56,7 @@ document.addEventListener('keydown', function(e) {
 
     var results = index.search(value, {
       bool: "OR",
+      expand: true,
       fields: {
         title: { boost: 2 },
         body: { boost: 1 }
@@ -75,7 +76,7 @@ document.addEventListener('keydown', function(e) {
     results.slice(0, 8).forEach(function(page) {
       if (page.doc.body !== '') {
         var entry = document.createElement('a');
-        entry.href = page.ref;
+        entry.href = resultHref(page.ref, value);
         entry.className = 'search-result';
         entry.innerHTML = '<span class="search-title">' + escapeHtml(page.doc.title) + '</span>' +
                          '<span class="search-excerpt">' + makeTeaser(page.doc.body, items) + '</span>';
@@ -93,6 +94,19 @@ document.addEventListener('keydown', function(e) {
       suggestions.style.display = 'none';
     }
   });
+
+  var dslAnchors = {};
+  (window.sevgiDslAnchors || []).forEach(function(entry) {
+    dslAnchors[entry[0].toLowerCase()] = entry[1];
+  });
+
+  function resultHref(href, query) {
+    var anchor = dslAnchors[query.trim().toLowerCase()];
+    if (anchor && /\/dsl\/?$/.test(href)) {
+      return href + '#' + anchor;
+    }
+    return href;
+  }
 
   function escapeHtml(text) {
     var div = document.createElement('div');

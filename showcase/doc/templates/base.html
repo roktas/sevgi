@@ -65,6 +65,17 @@
     <link rel="stylesheet" href="{{ get_url(path='giallo-dark.css', cachebust=true) | safe }}" id="syntax-dark">
     
     <script src="{{ get_url(path='js/toggle.js', cachebust=true) | safe }}"></script>
+    {% set dsl_catalog = load_data(path="data/dsl.yml") %}
+    <script>
+    // Keep DSL search results pointed at their catalog entries.
+    window.sevgiDslAnchors = [
+    {% for letter, entries in dsl_catalog.letters %}
+    {% for entry in entries %}
+        ["{{ entry.name }}", "{{ entry.anchor }}"],
+    {% endfor %}
+    {% endfor %}
+    ];
+    </script>
     <script src="/elasticlunr.min.js" defer></script>
     <script src="/search_index.en.js" defer></script>
     <script src="{{ get_url(path='js/search.js', cachebust=true) | safe }}" defer></script>
