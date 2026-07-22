@@ -96,7 +96,7 @@ describe "DSL catalog" do
     it "runs the #{entry.fetch("name")} example" do
       Dir.mktmpdir("sevgi-dsl-") do |directory|
         prepare(directory)
-        Dir.chdir(directory) { execute(entry, directory) }
+        capture_io { Dir.chdir(directory) { execute(entry, directory) } }
       end
     end
   end

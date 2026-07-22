@@ -77,7 +77,7 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
-      def test_intersection_explicit_precision_overrides_thread_precision
+      def test_intersection_precision_overrides_thread
         triangle = Triangle[Segment[2, 0], Segment[1, 150]]
         equ = Equation.vertical(1.2)
 

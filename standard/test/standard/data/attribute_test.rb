@@ -44,7 +44,7 @@ module Sevgi
         refute(Attribute.is?(:style, :Core))
       end
 
-      def test_attribute_deprecated_group_excludes_valid_filter_attributes
+      def test_deprecated_group_excludes_valid_filters
         refute(Attribute.is?(:amplitude, :Deprecated))
         assert(Attribute.is?(:amplitude, :FilterTransferFunction))
       end

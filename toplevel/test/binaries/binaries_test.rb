@@ -121,7 +121,7 @@ module Sevgi
         end
       end
 
-      def test_call_skill_requires_a_matching_appendix_before_the_packager_path
+      def test_call_skill_requires_appendix_before_packager_path
         with_skill do |_root, skill|
           error = ::Gem::MissingSpecError.new("sevgi-appendix", "= #{::Sevgi::VERSION}")
 

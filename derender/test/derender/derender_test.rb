@@ -402,7 +402,7 @@ module Sevgi
         assert_equal(expected, actual)
       end
 
-      def test_css_source_and_direct_evaluation_preserve_style_semantics
+      def test_css_source_and_evaluation_preserve_styles
         styles = [
           ".mark { fill: red; }",
           "@media print { .mark { fill: black; } }",
@@ -433,7 +433,7 @@ module Sevgi
         end
       end
 
-      def test_inline_style_source_and_direct_evaluation_preserve_declarations
+      def test_inline_style_preserves_evaluated_declarations
         styles = [
           "fill: red; display: none",
           "display: -webkit-box; display: grid",

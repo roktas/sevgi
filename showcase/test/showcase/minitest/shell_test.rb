@@ -121,8 +121,11 @@ module Sevgi
           Process.stub(:kill, -> (signal, pid) { signals << [signal, pid] }) do
             registry.register(first, 1)
             registry.register(second, 2)
-            registry.send(:dispatch)
-            registry.send(:dispatch)
+            capture_io do
+              registry.send(:dispatch)
+              registry.send(:dispatch)
+            end
+
             registry.unregister(first)
 
             current = Signal.trap("INT", "DEFAULT")

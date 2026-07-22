@@ -196,7 +196,7 @@ module Sevgi
       end
     end
 
-    def test_execute_file_rejects_symlink_cycle_by_canonical_identity
+    def test_execute_file_rejects_symlink_cycles
       Dir.mktmpdir do |dir|
         real = File.join(dir, "real.sevgi")
         alias_file = File.join(dir, "alias.sevgi")
@@ -368,7 +368,7 @@ module Sevgi
       ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
     end
 
-    def test_toplevel_execute_rejects_invalid_main_mode_before_evaluation
+    def test_execute_rejects_invalid_main_mode_before_evaluation
       [nil, Object.new, Module.new, :main].each do |main|
         error = assert_raises(ArgumentError) { Sevgi.execute("raise 'evaluated'", main:) }
 
@@ -376,7 +376,7 @@ module Sevgi
       end
     end
 
-    def test_toplevel_execute_file_rejects_invalid_main_mode_before_reading
+    def test_execute_file_rejects_invalid_main_mode_before_reading
       [nil, Object.new, Module.new, :main].each do |main|
         error = assert_raises(ArgumentError) { Sevgi.execute_file("missing.sevgi", main:) }
 
@@ -460,7 +460,7 @@ module Sevgi
       Signal.trap("INT", original)
     end
 
-    def test_execute_restores_sigint_handler_after_concurrent_execute
+    def test_execute_restores_sigint_handler_concurrently
       original = Signal.trap("INT", "DEFAULT")
       handler = proc { }
 

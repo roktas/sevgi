@@ -39,7 +39,7 @@ module Sevgi
             assert_empty(equ.intersect(Equation.horizontal(1.0)))
           end
 
-          def test_horizontal_intersects_other_linear_categories_in_both_orders
+          def test_horizontal_intersects_linear_categories_both_ways
             horizontal = Equation.horizontal(1)
             diagonal = Equation.diagonal(slope: 1, intercept: 0)
             vertical = Equation.vertical(3)
