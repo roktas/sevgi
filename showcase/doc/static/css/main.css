@@ -257,6 +257,11 @@ nav {
   font-size: 1.1rem;
 }
 
+.theme-toggle .theme-icon {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
 .theme-toggle .light-icon {
   display: none;
 }
