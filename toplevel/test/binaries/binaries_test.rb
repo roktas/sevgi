@@ -51,15 +51,12 @@ module Sevgi
         assert_equal([["script.sevgi", "json", true]], calls)
       end
 
-      def test_call_reports_load_stack_for_script_error
+      def test_executable_reports_load_stack_for_script_error
         fixture = "test/fixtures/executor/test_load_nested.sevgi"
 
-        out, err = capture_io do
-          error = assert_raises(SystemExit) { Sevgi.([fixture]) }
+        out, err, status = run_sevgi(fixture)
 
-          assert_equal(1, error.status)
-        end
-
+        assert_equal(1, status.exitstatus)
         assert_empty(out)
         assert_equal(
           <<~ERR,
