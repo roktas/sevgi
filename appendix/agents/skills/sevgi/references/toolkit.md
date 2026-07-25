@@ -26,7 +26,7 @@ When a Sevgi checkout is available, prefer its canonical sources:
 | Task-oriented user semantics | `showcase/doc/content/` |
 | Runnable complete drawings | examples under `showcase/srv` that are linked from the user docs or DSL catalog |
 | Exact public contracts | the owning component's `lib/` YARD comments |
-| Rendered local YARD | `.cache/ruby/doc/api` after `bundle exec rake doc` |
+| Rendered local YARD | `.local/var/ruby/doc/api` after `bundle exec rake doc` |
 
 ## Lookup Order
 

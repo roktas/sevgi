@@ -94,8 +94,8 @@ module Sevgi
 
       assert_equal(
         [
-          [:remove, File.join(ROOT, ".cache/ruby/doc/api")],
-          [:remove, File.join(ROOT, ".cache/ruby/yardoc")],
+          [:remove, File.join(ROOT, ".local/var/ruby/doc/api")],
+          [:remove, File.join(ROOT, ".local/var/ruby/yardoc")],
           [:run, "yard", "doc", "--fail-on-warning"]
         ],
         calls
@@ -133,7 +133,7 @@ module Sevgi
 
     def test_docs_verify_rejects_exposed_private_pages
       Dir.mktmpdir do |root|
-        page = File.join(root, ".cache/ruby/doc/api/Sevgi/Executor/Scope.html")
+        page = File.join(root, ".local/var/ruby/doc/api/Sevgi/Executor/Scope.html")
         FileUtils.mkdir_p(File.dirname(page))
         File.write(page, "private")
         result = ["Methods: 2 (0 undocumented)\n", "", Status.new(true)]

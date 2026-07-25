@@ -131,7 +131,7 @@ module Sevgi
       assert_includes(::File.read(::File.join(ROOT, "Rakefile")), "task(:coverage)")
 
       root_pkg = ::File.join(ROOT, "pkg/agent-clean.tmp")
-      root_coverage = ::File.join(ROOT, ".cache/ruby/coverage/agent-clean.tmp")
+      root_coverage = ::File.join(ROOT, ".local/var/ruby/coverage/agent-clean.tmp")
       component_pkg = ::File.join(ROOT, "function/pkg/agent-clean.tmp")
       component_coverage = ::File.join(ROOT, "function/coverage/agent-clean.tmp")
 

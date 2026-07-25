@@ -387,7 +387,7 @@ module Sevgi
       assert_includes(::File.read(::File.join(ROOT, ".yardopts")), "--hide-api private")
       assert_includes(workflow, "bundle exec rake doc:check")
       assert_includes(workflow, "actions/upload-artifact")
-      assert_includes(workflow, ".cache/ruby/doc/api")
+      assert_includes(workflow, ".local/var/ruby/doc/api")
     end
 
     def test_yard_sources_cover_every_component

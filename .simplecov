@@ -20,7 +20,7 @@ tracked_glob = File.join(root, "{Rakefile,{#{components.join(",")}}/lib/**/*.rb}
 tracked_files = Dir[tracked_glob].map { |file| File.expand_path(file) }.sort
 
 SimpleCov.root(root)
-SimpleCov.coverage_dir(File.join(root, ".cache/ruby/coverage"))
+SimpleCov.coverage_dir(File.join(root, ".local/var/ruby/coverage"))
 SimpleCov.command_name("#{project}:#{suite}")
 SimpleCov.formatters = [SimpleCov::Formatter::HTMLFormatter, SimpleCov::Formatter::JSONFormatter]
 SimpleCov.at_exit do
