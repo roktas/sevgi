@@ -51,6 +51,21 @@ module Sevgi
         assert_equal([["script.sevgi", "json", true]], calls)
       end
 
+      def test_call_reports_executor_error
+        error = Data.define(:message, :load_backtrace).new("broken", ["first.sevgi:1", "second.sevgi:2"])
+
+        ::Sevgi.stub(:execute_file, Result.new(error)) do
+          out, err = capture_io do
+            exit = assert_raises(SystemExit) { Sevgi.(["script.sevgi"]) }
+
+            assert_equal(1, exit.status)
+          end
+
+          assert_empty(out)
+          assert_equal("broken\n\n  first.sevgi:1\n  second.sevgi:2\n", err)
+        end
+      end
+
       def test_executable_reports_load_stack_for_script_error
         fixture = "test/fixtures/executor/test_load_nested.sevgi"
 
