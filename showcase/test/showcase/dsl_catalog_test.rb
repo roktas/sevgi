@@ -86,6 +86,15 @@ describe "DSL catalog" do
     assert_empty(DSLCatalog::ENTRIES.reject { it.fetch("code").match?(/\S/) })
   end
 
+  it "uses reader-facing provider labels" do
+    providers = DSLCatalog::ENTRIES.map { it.fetch("provider") }.uniq
+
+    assert_empty(providers.reject { it == "RDF" || it == it.downcase })
+    %w[layer symbol!].each do |name|
+      assert_equal("inkscape", DSLCatalog::ENTRIES.find { it.fetch("name") == name }.fetch("provider"))
+    end
+  end
+
   it "marks every callable-module DSL word" do
     names = DSLCatalog::ENTRIES.filter_map { it.fetch("name") if it["contract"] == "callable" }
 

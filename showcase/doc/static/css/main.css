@@ -1673,19 +1673,6 @@ button.explore-more {
   border-radius: 0.6rem;
   background: var(--wt-color-bg-elevated);
 }
-.content pre.mermaid,
-.content pre.mermaid:hover {
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  overflow: visible;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-  color: var(--wt-color-text);
-  text-align: center;
-}
 .mermaid svg {
   max-width: 100%;
   height: auto;

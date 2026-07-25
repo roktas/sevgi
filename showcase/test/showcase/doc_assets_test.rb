@@ -16,7 +16,6 @@ module Sevgi
           giallo-light.css
           js/copy.js
           js/menu.js
-          js/mermaid.js
           js/search.js
           js/tabs.js
           js/toggle.js
@@ -31,6 +30,22 @@ module Sevgi
         source = File.read(File.join(ROOT, "doc/static/js/menu.js"))
 
         assert_includes(source, "window.innerWidth > 1024")
+      end
+
+      def test_mermaid_sources_have_portable_inline_svg
+        {
+          "derender" => "Derender round trip",
+          "validation" => "SVG validation lifecycle"
+        }.each do |name, title|
+          source = File.read(File.join(ROOT, "doc/data/diagrams/#{name}.mmd"))
+          svg = File.read(File.join(ROOT, "doc/data/diagrams/#{name}.svg"))
+
+          assert_includes(source, "@mermaid-js/mermaid-cli 11.16.0", name)
+          assert_includes(source, "\nflowchart ", name)
+          assert_includes(svg, "<title id=\"chart-title-mermaid-#{name}\">#{title}</title>", name)
+          refute_includes(svg, "<foreignObject", name)
+          refute_includes(svg, "Syntax error", name)
+        end
       end
     end
   end

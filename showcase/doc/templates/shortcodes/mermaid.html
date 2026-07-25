@@ -1,5 +1,4 @@
-<div class="mermaid-diagram">
-  <pre class="mermaid">
-{{ body | safe }}
-  </pre>
+{% set diagram = load_data(path="data/diagrams/" ~ name ~ ".svg") %}
+<div class="mermaid mermaid-diagram">
+  {{ diagram | safe }}
 </div>

@@ -3,7 +3,6 @@ title = "Derender"
 weight = 14
 [extra]
 group = "Toolkit"
-mermaid = true
 +++
 
 Not every useful vector drawing should be produced programmatically. A Bezier-heavy logo, traced illustration, or
@@ -16,14 +15,7 @@ Sevgi DSL. Convert inline content or a file, generate source, include part of it
 
 ## The round trip
 
-{% mermaid() %}
-flowchart TD
-  accTitle: Derender round trip
-  accDescr: SVG or XML input becomes an immutable Derender node, then Sevgi source, then an evaluated SVG tree.
-  input["SVG/XML content or file"] --> node["Immutable Derender node"]
-  node --> source["Sevgi source"]
-  source --> tree["Evaluated SVG tree"]
-{% end %}
+{{ mermaid(name="derender") }}
 
 The conversion keeps element names, attributes, text, comments, CDATA, and child order. It represents the XML tree as
 Ruby. It cannot recover the loops, helper methods, or other higher-level code that may have produced the original file.

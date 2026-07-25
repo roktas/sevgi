@@ -1,0 +1,11 @@
+{
+  "flowchart": {
+    "useMaxWidth": true
+  },
+  "htmlLabels": false,
+  "securityLevel": "strict",
+  "theme": "base",
+  "themeVariables": {
+    "fontFamily": "\"Inter\", sans-serif"
+  }
+}

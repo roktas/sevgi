@@ -44,22 +44,23 @@ module Sevgi
         assert_empty(duplicates)
       end
 
-      def test_mermaid_diagrams_render
+      def test_mermaid_diagrams_are_inline
         %w[derender svg].each do |page|
           cli("goto", "http://127.0.0.1:#{@browser.port}/#{page}/")
           state = eval_json(
             <<~JS
-              async () => {
-                const deadline = Date.now() + 5000;
-                while (!document.querySelector('.mermaid svg') && Date.now() < deadline) {
-                  await new Promise((resolve) => setTimeout(resolve, 50));
-                }
+              () => {
                 const diagram = document.querySelector('.mermaid');
                 const svg = diagram && diagram.querySelector('svg');
                 return {
                   diagrams: document.querySelectorAll('.mermaid').length,
                   rendered: document.querySelectorAll('.mermaid svg').length,
-                  width: svg ? svg.getBoundingClientRect().width : 0
+                  width: svg ? svg.getBoundingClientRect().width : 0,
+                  scripts: document.querySelectorAll('script[src*="mermaid"]').length,
+                  foreignObjects: document.querySelectorAll('.mermaid foreignObject').length,
+                  syntaxErrors: Array.from(document.querySelectorAll('.mermaid text')).filter((node) =>
+                    node.textContent.includes('Syntax error')
+                  ).length
                 };
               }
             JS
@@ -68,6 +69,9 @@ module Sevgi
           assert_equal(1, state.fetch("diagrams"), page)
           assert_equal(1, state.fetch("rendered"), page)
           assert_operator(state.fetch("width"), :>, 0, page)
+          assert_equal(0, state.fetch("scripts"), page)
+          assert_equal(0, state.fetch("foreignObjects"), page)
+          assert_equal(0, state.fetch("syntaxErrors"), page)
         end
       end
 

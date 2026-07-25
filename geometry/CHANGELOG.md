@@ -12,9 +12,11 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Changed
 
 - Documented how the `igves` and `igsev` command names reflect their conversion directions.
+- Normalized DSL catalog provider labels to lowercase and simplified polyfill-backed editor entries to `inkscape`.
 
 ### Fixed
 
+- Pre-rendered Mermaid diagrams as inline SVG instead of parsing them in site visitors' browsers.
 - Removed duplicate provider and context labels from DSL catalog entries.
 
 ## 0.98.2 - 2026-07-25

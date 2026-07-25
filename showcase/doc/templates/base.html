@@ -82,11 +82,6 @@
     <script src="{{ get_url(path='js/copy.js', cachebust=true) | safe }}" defer></script>
     <script src="{{ get_url(path='js/tabs.js', cachebust=true) | safe }}" defer></script>
     <script src="{{ get_url(path='js/menu.js', cachebust=true) | safe }}" defer></script>
-    {% if page %}
-    {% if page.extra.mermaid | default(value=false) %}
-    <script src="{{ get_url(path='js/mermaid.js', cachebust=true) | safe }}" type="module"></script>
-    {% endif %}
-    {% endif %}
     <script src="//instant.page/5.2.0" type="module" integrity="sha384-jnZyxPjiipYXnSU0ygqeac2q7CVYMbh84q0uHVRRxEtvFPiQYbXWUorga2aqZJ0z"></script>
     <script>
     // 1Password extension bug workaround
