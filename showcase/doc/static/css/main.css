@@ -1659,6 +1659,65 @@ button.explore-more {
 
 /*
  * -----------------------------------------------------------------------------
+ * Mermaid diagrams
+ * -----------------------------------------------------------------------------
+ */
+
+.mermaid-diagram {
+  display: flex;
+  justify-content: center;
+  margin: 1.5rem 0;
+  padding: 1rem;
+  overflow-x: auto;
+  border: 1px solid var(--wt-color-border-subtle);
+  border-radius: 0.6rem;
+  background: var(--wt-color-bg-elevated);
+}
+.content pre.mermaid,
+.content pre.mermaid:hover {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--wt-color-text);
+  text-align: center;
+}
+.mermaid svg {
+  max-width: 100%;
+  height: auto;
+  font-family: "Inter", sans-serif;
+}
+.mermaid .label-container,
+.mermaid .node polygon,
+.mermaid .node rect {
+  fill: var(--wt-color-accent-soft) !important;
+  stroke: var(--wt-color-accent) !important;
+}
+.mermaid .edgeLabel,
+.mermaid .edgeLabel p {
+  background-color: var(--wt-color-bg-elevated) !important;
+  color: var(--wt-color-text) !important;
+}
+.mermaid .label,
+.mermaid .nodeLabel,
+.mermaid text {
+  color: var(--wt-color-text) !important;
+  fill: var(--wt-color-text) !important;
+}
+.mermaid .flowchart-link {
+  stroke: var(--wt-color-text-muted) !important;
+}
+.mermaid marker path {
+  fill: var(--wt-color-text-muted) !important;
+  stroke: var(--wt-color-text-muted) !important;
+}
+
+/*
+ * -----------------------------------------------------------------------------
  * DSL catalog
  * -----------------------------------------------------------------------------
  */

@@ -3,6 +3,7 @@ title = "SVG Essentials"
 weight = 10
 [extra]
 group = "Core"
+mermaid = true
 +++
 
 An SVG document is an element tree plus a document profile. Lowercase calls add SVG elements to the tree. Capitalized
@@ -106,6 +107,17 @@ method's return value. A custom implementation must escape any data it inserts i
 `Render`, `Save`, and `Out` prepare a document before writing it. Call `PreRender(validate: true, lint: true)` to run
 that phase yourself, or use `Validate()` and `Lint()` for an earlier check. For non-SVG XML, choose a suitable document
 profile or render directly instead of running the standard SVG checks.
+
+{% mermaid() %}
+flowchart TD
+  accTitle: SVG validation lifecycle
+  accDescr: An SVG document is prepared, validated and linted before Render, Save or Out writes it.
+  document["SVG document"] --> prepare["PreRender"]
+  prepare --> validate["Validate"]
+  prepare --> lint["Lint"]
+  validate --> output["Render / Save / Out"]
+  lint --> output
+{% end %}
 
 For the standard vocabulary, use the
 [MDN SVG element reference](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element). For Sevgi operations,

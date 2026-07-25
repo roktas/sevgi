@@ -16,6 +16,7 @@ module Sevgi
           giallo-light.css
           js/copy.js
           js/menu.js
+          js/mermaid.js
           js/search.js
           js/tabs.js
           js/toggle.js

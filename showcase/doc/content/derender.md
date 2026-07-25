@@ -3,6 +3,7 @@ title = "Derender"
 weight = 14
 [extra]
 group = "Toolkit"
+mermaid = true
 +++
 
 Not every useful vector drawing should be produced programmatically. A Bezier-heavy logo, traced illustration, or
@@ -15,9 +16,14 @@ Sevgi DSL. Convert inline content or a file, generate source, include part of it
 
 ## The round trip
 
-```text
-SVG/XML content or file → immutable Derender node → Sevgi source → evaluated SVG tree
-```
+{% mermaid() %}
+flowchart TD
+  accTitle: Derender round trip
+  accDescr: SVG or XML input becomes an immutable Derender node, then Sevgi source, then an evaluated SVG tree.
+  input["SVG/XML content or file"] --> node["Immutable Derender node"]
+  node --> source["Sevgi source"]
+  source --> tree["Evaluated SVG tree"]
+{% end %}
 
 The conversion keeps element names, attributes, text, comments, CDATA, and child order. It represents the XML tree as
 Ruby. It cannot recover the loops, helper methods, or other higher-level code that may have produced the original file.
@@ -72,7 +78,8 @@ Attribute names may be strings or symbols and match exactly across the selected 
 omission, so an id may select a node without appearing in the result. Namespace declarations and `style` elements are
 preserved when attributes are omitted.
 
-The companion `igves` command prints a file conversion from the shell and accepts a repeatable option:
+The companion `igves` (`sevgi` reversed) command prints a file conversion from the shell and accepts a repeatable
+option:
 
 ```text
 igves --omit id --omit style badge.svg
@@ -85,8 +92,9 @@ in a pipeline:
 igves --omit id < badge.svg
 ```
 
-When normalized SVG is the desired result rather than generated Ruby, the umbrella `sevgi` gem provides `igsev`. It
-performs the complete SVG-to-Sevgi-to-SVG round trip and accepts the same repeatable omission option:
+When normalized SVG is the desired result rather than generated Ruby, the umbrella `sevgi` gem provides `igsev`
+(`igves` + `sevgi`). It performs the complete SVG-to-Sevgi-to-SVG round trip and accepts the same repeatable omission
+option:
 
 ```text
 igsev --omit id --omit style badge.svg > normalized.svg
