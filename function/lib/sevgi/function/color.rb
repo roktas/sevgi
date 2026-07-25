@@ -2,7 +2,8 @@
 
 module Sevgi
   module Function
-    # ANSI color and style helpers for terminal output.
+    # ANSI color and style methods promoted to {Sevgi::F}. This module organizes the facade implementation; it is not a
+    # consumer mixin contract.
     module Color
       # Wraps a string in the blue terminal style.
       # @param string [Object] content to style

@@ -8,22 +8,14 @@ Sevgi Showcase packages the executable examples, their SVG output, and support c
 gem install sevgi-showcase
 ```
 
-## Require
+## Contents
 
-```ruby
-require "sevgi/showcase"
-```
-
-## Example
-
-```ruby
-suite = Sevgi::Test::Suite.new("srv")
-suite.valids.map(&:name)
-```
+The gem is an asset package rather than a runtime API. It contains the executable `.sevgi` examples, their expected
+SVG output, and private build support used by the documentation site.
 
 ## Ruby compatibility
 
-Requires Ruby 3.4.0 or newer. CI verifies Ruby 3.4.0 and the current development Ruby from `.ruby-version`.
+Requires Ruby 3.4.0 or newer. CI verifies the current Ruby 3.4 release and the development Ruby from `.ruby-version`.
 
 ## Native prerequisites
 
@@ -47,7 +39,7 @@ gem install cairo rsvg2 hexapdf
 
 ## Links
 
-- Documentation: https://sevgi.roktas.dev
-- API documentation: https://www.rubydoc.info/gems/sevgi-showcase
-- Source: https://github.com/roktas/sevgi/tree/main/showcase
-- Changelog: https://github.com/roktas/sevgi/blob/main/CHANGELOG.md
+- Documentation: <https://sevgi.roktas.dev>
+- API documentation: <https://www.rubydoc.info/gems/sevgi-showcase>
+- Source: <https://github.com/roktas/sevgi/tree/main/showcase>
+- Changelog: <https://github.com/roktas/sevgi/blob/main/CHANGELOG.md>

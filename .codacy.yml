@@ -1,0 +1,9 @@
+---
+engines:
+  lizard:
+    exclude_paths:
+      - "**/*.rb"
+      - "**/*.sevgi"
+  opengrep:
+    exclude_paths:
+      - "**/test/**"

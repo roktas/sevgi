@@ -5,103 +5,95 @@
   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
   shape-rendering="geometricPrecision"
-  width="48.0mm"
-  height="30.0mm"
-  viewBox="0 0 48 30"
+  width="90.0mm"
+  height="60.0mm"
+  viewBox="0 0 90 60"
 >
-  <style type="text/css">
-    <![CDATA[
-      .angle {
-        fill: none;
-        stroke: green;
-        stroke-width: 0.12;
-      }
-      .frame {
-        fill: none;
-        stroke: blue;
-        stroke-width: 0.32;
-      }
-      .major {
-        fill: none;
-        stroke: blue;
-        stroke-width: 0.24;
-      }
-      .minor {
-        fill: none;
-        stroke: magenta;
-        stroke-width: 0.12;
-      }
-    ]]>
-  </style>
   <rect width="100%" height="100%" fill="white"/>
-  <g id="Angles" inkscape:groupmode="layer" sodipodi:insensitive="true">
-    <defs>
-      <g id="slant-row">
-        <path d="M 48 10.95007 L 45.164208 15" class="angle slant"/>
-        <path d="M 48 6.765797 L 42.234349 15" class="angle slant"/>
-        <path d="M 48 2.581525 L 39.30449 15" class="angle slant"/>
-        <path d="M 46.877744 0 L 36.374631 15" class="angle slant"/>
-        <path d="M 43.947885 0 L 33.444772 15" class="angle slant"/>
-        <path d="M 41.018026 0 L 30.514913 15" class="angle slant"/>
-        <path d="M 38.088167 0 L 27.585054 15" class="angle slant"/>
-        <path d="M 35.158308 0 L 24.655195 15" class="angle slant"/>
-        <path d="M 32.228449 0 L 21.725336 15" class="angle slant"/>
-        <path d="M 29.29859 0 L 18.795477 15" class="angle slant"/>
-        <path d="M 26.368731 0 L 15.865618 15" class="angle slant"/>
-        <path d="M 23.438872 0 L 12.935759 15" class="angle slant"/>
-        <path d="M 20.509013 0 L 10.0059 15" class="angle slant"/>
-        <path d="M 17.579154 0 L 7.076041 15" class="angle slant"/>
-        <path d="M 14.649295 0 L 4.146182 15" class="angle slant"/>
-        <path d="M 11.719436 0 L 1.216323 15" class="angle slant"/>
-        <path d="M 8.789577 0 L 0 12.552817" class="angle slant"/>
-        <path d="M 5.859718 0 L 0 8.368545" class="angle slant"/>
-        <path d="M 2.929859 0 L 0 4.184272" class="angle slant"/>
-      </g>
-    </defs>
-    <use id="slant-row-1" href="#slant-row" class="tile-row-1 tile-row-first"/>
-    <use id="slant-row-2" href="#slant-row" class="tile-row-2 tile-row-last" y="15"/>
+  <g id="Guides" inkscape:groupmode="layer" sodipodi:insensitive="true">
+    <style type="text/css">
+      <![CDATA[
+        .angle {
+          fill: none;
+          stroke: green;
+          stroke-width: 0.12;
+        }
+        .frame {
+          fill: none;
+          stroke: blue;
+          stroke-width: 0.6;
+        }
+        .major {
+          fill: none;
+          stroke: blue;
+          stroke-width: 0.4;
+        }
+        .minor {
+          fill: none;
+          stroke: magenta;
+          stroke-width: 0.12;
+        }
+      ]]>
+    </style>
+    <g id="Slants" inkscape:groupmode="layer">
+      <defs>
+        <g id="slant-row">
+          <path d="M 90 28.376891 L 88.863487 30" class="angle slant"/>
+          <path d="M 90 17.91621 L 81.538839 30" class="angle slant"/>
+          <path d="M 90 7.455529 L 74.214192 30" class="angle slant"/>
+          <path d="M 87.89577 0 L 66.889544 30" class="angle slant"/>
+          <path d="M 80.571123 0 L 59.564897 30" class="angle slant"/>
+          <path d="M 73.246475 0 L 52.240249 30" class="angle slant"/>
+          <path d="M 65.921828 0 L 44.915602 30" class="angle slant"/>
+          <path d="M 58.59718 0 L 37.590954 30" class="angle slant"/>
+          <path d="M 51.272533 0 L 30.266307 30" class="angle slant"/>
+          <path d="M 43.947885 0 L 22.941659 30" class="angle slant"/>
+          <path d="M 36.623238 0 L 15.617012 30" class="angle slant"/>
+          <path d="M 29.29859 0 L 8.292364 30" class="angle slant"/>
+          <path d="M 21.973943 0 L 0.967716 30" class="angle slant"/>
+          <path d="M 14.649295 0 L 0 20.921362" class="angle slant"/>
+          <path d="M 7.324648 0 L 0 10.460681" class="angle slant"/>
+        </g>
+      </defs>
+      <use id="slant-row-1" href="#slant-row" class="tile-row-1 tile-row-first"/>
+      <use id="slant-row-2" href="#slant-row" class="tile-row-2 tile-row-last" y="30"/>
+    </g>
+    <g id="Squares" inkscape:groupmode="layer">
+      <path d="M 0 0 L 90 0" class="rule minor horizontal"/>
+      <path d="M 0 6 L 90 6" class="rule minor horizontal"/>
+      <path d="M 0 12 L 90 12" class="rule minor horizontal"/>
+      <path d="M 0 18 L 90 18" class="rule minor horizontal"/>
+      <path d="M 0 24 L 90 24" class="rule minor horizontal"/>
+      <path d="M 0 30 L 90 30" class="rule minor horizontal"/>
+      <path d="M 0 36 L 90 36" class="rule minor horizontal"/>
+      <path d="M 0 42 L 90 42" class="rule minor horizontal"/>
+      <path d="M 0 48 L 90 48" class="rule minor horizontal"/>
+      <path d="M 0 54 L 90 54" class="rule minor horizontal"/>
+      <path d="M 0 60 L 90 60" class="rule minor horizontal"/>
+      <path d="M 0 0 L 0 60" class="rule minor vertical"/>
+      <path d="M 6 0 L 6 60" class="rule minor vertical"/>
+      <path d="M 12 0 L 12 60" class="rule minor vertical"/>
+      <path d="M 18 0 L 18 60" class="rule minor vertical"/>
+      <path d="M 24 0 L 24 60" class="rule minor vertical"/>
+      <path d="M 30 0 L 30 60" class="rule minor vertical"/>
+      <path d="M 36 0 L 36 60" class="rule minor vertical"/>
+      <path d="M 42 0 L 42 60" class="rule minor vertical"/>
+      <path d="M 48 0 L 48 60" class="rule minor vertical"/>
+      <path d="M 54 0 L 54 60" class="rule minor vertical"/>
+      <path d="M 60 0 L 60 60" class="rule minor vertical"/>
+      <path d="M 66 0 L 66 60" class="rule minor vertical"/>
+      <path d="M 72 0 L 72 60" class="rule minor vertical"/>
+      <path d="M 78 0 L 78 60" class="rule minor vertical"/>
+      <path d="M 84 0 L 84 60" class="rule minor vertical"/>
+      <path d="M 90 0 L 90 60" class="rule minor vertical"/>
+      <path d="M 0 0 L 90 0" class="rule major horizontal"/>
+      <path d="M 0 30 L 90 30" class="rule major horizontal"/>
+      <path d="M 0 60 L 90 60" class="rule major horizontal"/>
+      <path d="M 0 0 L 0 60" class="rule major vertical"/>
+      <path d="M 30 0 L 30 60" class="rule major vertical"/>
+      <path d="M 60 0 L 60 60" class="rule major vertical"/>
+      <path d="M 90 0 L 90 60" class="rule major vertical"/>
+    </g>
+    <rect x="0.3" y="0.3" width="89.4" height="59.4" class="frame rule"/>
   </g>
-  <g id="Rules" inkscape:groupmode="layer" sodipodi:insensitive="true">
-    <path d="M 0 0 L 48 0" class="rule minor horizontal"/>
-    <path d="M 0 3 L 48 3" class="rule minor horizontal"/>
-    <path d="M 0 6 L 48 6" class="rule minor horizontal"/>
-    <path d="M 0 9 L 48 9" class="rule minor horizontal"/>
-    <path d="M 0 12 L 48 12" class="rule minor horizontal"/>
-    <path d="M 0 15 L 48 15" class="rule minor horizontal"/>
-    <path d="M 0 18 L 48 18" class="rule minor horizontal"/>
-    <path d="M 0 21 L 48 21" class="rule minor horizontal"/>
-    <path d="M 0 24 L 48 24" class="rule minor horizontal"/>
-    <path d="M 0 27 L 48 27" class="rule minor horizontal"/>
-    <path d="M 0 30 L 48 30" class="rule minor horizontal"/>
-    <path d="M 0 0 L 0 30" class="rule minor vertical"/>
-    <path d="M 2.4 0 L 2.4 30" class="rule minor vertical"/>
-    <path d="M 4.8 0 L 4.8 30" class="rule minor vertical"/>
-    <path d="M 7.2 0 L 7.2 30" class="rule minor vertical"/>
-    <path d="M 9.6 0 L 9.6 30" class="rule minor vertical"/>
-    <path d="M 12 0 L 12 30" class="rule minor vertical"/>
-    <path d="M 14.4 0 L 14.4 30" class="rule minor vertical"/>
-    <path d="M 16.8 0 L 16.8 30" class="rule minor vertical"/>
-    <path d="M 19.2 0 L 19.2 30" class="rule minor vertical"/>
-    <path d="M 21.6 0 L 21.6 30" class="rule minor vertical"/>
-    <path d="M 24 0 L 24 30" class="rule minor vertical"/>
-    <path d="M 26.4 0 L 26.4 30" class="rule minor vertical"/>
-    <path d="M 28.8 0 L 28.8 30" class="rule minor vertical"/>
-    <path d="M 31.2 0 L 31.2 30" class="rule minor vertical"/>
-    <path d="M 33.6 0 L 33.6 30" class="rule minor vertical"/>
-    <path d="M 36 0 L 36 30" class="rule minor vertical"/>
-    <path d="M 38.4 0 L 38.4 30" class="rule minor vertical"/>
-    <path d="M 40.8 0 L 40.8 30" class="rule minor vertical"/>
-    <path d="M 43.2 0 L 43.2 30" class="rule minor vertical"/>
-    <path d="M 45.6 0 L 45.6 30" class="rule minor vertical"/>
-    <path d="M 48 0 L 48 30" class="rule minor vertical"/>
-    <path d="M 0 0 L 48 0" class="rule major horizontal"/>
-    <path d="M 0 15 L 48 15" class="rule major horizontal"/>
-    <path d="M 0 30 L 48 30" class="rule major horizontal"/>
-    <path d="M 0 0 L 0 30" class="rule major vertical"/>
-    <path d="M 12 0 L 12 30" class="rule major vertical"/>
-    <path d="M 24 0 L 24 30" class="rule major vertical"/>
-    <path d="M 36 0 L 36 30" class="rule major vertical"/>
-    <path d="M 48 0 L 48 30" class="rule major vertical"/>
-  </g>
-  <rect x="0.16" y="0.16" width="47.68" height="29.68" class="frame rule"/>
 </svg>

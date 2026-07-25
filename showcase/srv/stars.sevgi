@@ -8,9 +8,12 @@ STAR = <<~PATH
   l 2.067578,-2.066419 2.07848,2.066419
 PATH
 
-SVG :minimal, width: 50, height: 50 do
-  rect width: 50, height: 50, rx: 1, fill: "white"
+MARGIN = 4
+SIZE = 48
+
+SVG :minimal, width: SIZE, height: SIZE do
+  rect width: SIZE, height: SIZE, rx: 1, fill: "white"
 
   Symbol("Star") { path d: STAR, fill: "purple" }
-  Tile "star", nx: 4, dx: 10, ox: 5, ny: 4, dy: 10, oy: 5
+  Tile "star", nx: 4, dx: 10, ox: MARGIN, ny: 4, dy: 10, oy: MARGIN
 end.Save

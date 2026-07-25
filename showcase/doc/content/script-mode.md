@@ -1,12 +1,14 @@
 +++
 title = "Script Mode"
-weight = 3
+weight = 2
 [extra]
 group = "Start"
 +++
 
 A `.sevgi` file is ordinary Ruby run by the `sevgi` command. Before evaluating the file, the runner installs Sevgi's DSL
 words in the script's top-level scope.
+
+Applications embedding the same runner should use the result-oriented [Execution](@/execution.md) API.
 
 ## Script shape
 
@@ -33,15 +35,34 @@ their drawing steps.
 
 `Out` prints SVG to standard output, which suits shell pipelines and tests.
 
+The runner reads a file operand, `-`, or standard input when no file is given. Input from standard input has the
+logical name `output.sevgi`, so an implicit `Save`, `PDF`, or `PNG` writes `output.svg`, `output.pdf`, or `output.png`.
+Use `--as NAME` when the pipeline has a more useful identity. `NAME` is a basename, not a path:
+
+```sh
+sevgi --as badge < drawing.sevgi
+```
+
+That command evaluates the input as `badge.sevgi`, making an implicit `Save` write `badge.svg`. The option also works
+with a file operand and keeps the file's directory, so relative `Load` calls still resolve beside the source:
+
+```sh
+sevgi --as proof drawings/card.sevgi
+```
+
+Here an implicit `Save` writes `drawings/proof.svg`. Explicit destinations such as `Save "build/card.svg"` and an
+explicit `default:` always take precedence over the logical input name.
+
 ## Top-level DSL scope
 
-In a script, call `SVG`, SVG elements such as `rect` and `circle`, and helpers such as `TileX` as plain DSL words. There
-is little reason to spell out Sevgi's object graph in a file whose job is to draw.
+In a script, call `SVG`, SVG elements such as `rect` and `circle`, and capitalized operations such as `Canvas`, `Paper`,
+and `TileX` as plain DSL words. There is little reason to spell out Sevgi's object graph in a file whose job is to draw.
 
 It is still Ruby. Use hashes, loops, calculations, and helper objects wherever they make the drawing easier to read.
 
-The runner installs the full top-level API in a managed scope. The script needs neither `require "sevgi"` nor a
-`Sevgi.` prefix:
+The runner installs the full top-level API through Ruby's main object before evaluating the script in a managed scope.
+This keeps plain toolkit calls available inside helper classes as well as at the top level. The script needs neither
+`require "sevgi"` nor an `SVG.` facade receiver:
 
 ```ruby
 Paper 85, 55, :card
@@ -51,9 +72,9 @@ SVG :minimal, :card do
 end.Save
 ```
 
-Library mode keeps fewer global methods. After `require "sevgi"`, the same `SVG(...)` spelling works, but other entry
-points require an explicit receiver such as `Sevgi.Paper(...)`. A dedicated class or module can instead include
-`Sevgi`. The drawing DSL inside `SVG` is identical in both modes.
+Library code uses the same words through the facade: the example above becomes `SVG.Paper(...)` followed by the same
+`SVG(...)` block. Types and callable-module contracts keep their double-colon spelling in both modes, such as
+`SVG::Canvas` and `SVG::Module`.
 
 ## Load {#load}
 
@@ -63,10 +84,10 @@ and points back to the file that caused it.
 
 ## Top-level API {#top-level-api}
 
-Script mode exposes the document entry points `SVG`, `Paper`, `Paper!`, `Mixin`, `Grid`, and `Load`. Its Derender
-entry points are `Decompile`, `Derender`, `Evaluate`, and `EvaluateChildren`; append `File` to any of those names when
-the input is a file path. Drawing words such as `Rotate` live inside an `SVG` block. The [DSL Catalog](@/dsl.md)
-records the context for every word, including script-only helpers.
+Script mode exposes the document entry points `SVG`, `Canvas`, `Document`, `Document!`, `Paper`, `Paper!`, `Mixin`,
+`Grid`, and `Load`. Its Derender entry points are `Decompile`, `Derender`, `Evaluate`, and `EvaluateChildren`; append
+`File` to any of those names when the input is a file path. Drawing words such as `Rotate` live inside an `SVG` block.
+The [DSL Catalog](@/dsl.md) records the context for every word, including script-only helpers.
 
 ## Rake {#rake}
 

@@ -16,9 +16,9 @@ module FileUtils
   # @param kwargs [Hash] keyword arguments exposed to the script as `ARGH`
   # @return [Sevgi::Executor::Result] immutable execution result
   # @raise [Sevgi::ArgumentError] when the script file cannot be found
-  # @see Sevgi::Executor.execute_file
+  # @see Sevgi.execute_file
   def sevgi(file, *args, **kwargs)
-    Sevgi::Executor.execute_file(Sevgi::F.existing!(file, [Sevgi::EXTENSION])) do
+    Sevgi::Executor.__send__(:execute_file, Sevgi::F.existing!(file, [Sevgi::EXTENSION])) do
       extend(Sevgi)
 
       const_set(:ARGA, args).freeze

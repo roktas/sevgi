@@ -2,10 +2,20 @@
 
 module Sevgi
   module Geometry
-    # Immutable polar segment in SVG/screen coordinates.
+    # Immutable polar displacement in SVG/screen coordinates.
     #
-    # `length` is a distance and `angle` is a clockwise angle in degrees.
-    # Use `Segment[length, angle]` to create a segment from polar components.
+    # A Segment has no position: `length` is a distance and `angle` is a
+    # clockwise direction. Use {#ending} to apply it to a starting point or
+    # {#line} when a placed, finite line is required. `Segment[length, angle]`
+    # starts from polar components; `Segment.(starting, ending)` derives them
+    # from two points.
+    # @example Derive polar components from two points
+    #   segment = Sevgi::Geometry::Segment.([1, 2], [4, 6])
+    #   segment.length # => 5.0
+    #   segment.ending([1, 2]).deconstruct # => [4.0, 6.0]
+    # @example Use a cardinal direction
+    #   Sevgi::Geometry::Segment.upward(3).ending([5, 5]).deconstruct # => [5.0, 2.0]
+    # @see Sevgi::Geometry::Line
     # @!parse
     #   class Segment
     #     # Creates a segment from polar components.

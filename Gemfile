@@ -5,6 +5,7 @@ source "https://rubygems.org"
 ruby ">= 3.4.0"
 
 group :sevgi do
+  gem "sevgi-appendix", path: "appendix"
   gem "sevgi-derender", path: "derender"
   gem "sevgi-function", path: "function"
   gem "sevgi-geometry", path: "geometry"

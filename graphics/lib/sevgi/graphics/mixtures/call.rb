@@ -24,7 +24,7 @@ module Sevgi
     #     def draw(id) = rect id:, class: "widget"
     #   end
     #
-    #   SVG { Call Widget, "box" }
+    #   Sevgi::Graphics.SVG { Call Widget, "box" }
     module Module
       # Ephemeral callable receiver that preserves a module's normal method lookup while forwarding drawing operations
       # to the current element.
@@ -236,7 +236,7 @@ module Sevgi
     #     end
     #   end
     #
-    #   SVG { Call Icons::Alert, "warning" }
+    #   Sevgi::Graphics.SVG { Call Icons::Alert, "warning" }
     # @see Sevgi::Graphics::Module
     module Modules
       # Propagates the recursive contract when a module constant is added.

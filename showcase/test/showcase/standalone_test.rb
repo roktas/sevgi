@@ -8,26 +8,54 @@ require_relative "../test_helper"
 module Sevgi
   module Showcase
     class StandaloneTest < Minitest::Test
-      def test_showcase_entrypoint_loads_and_reports_sevgi_errors_standalone
+      def test_dark_support_entrypoint_loads_standalone
+        script = <<~RUBY
+          require "sevgi/showcase/dark"
+
+          dark = Sevgi::Showcase.const_get(:Dark, false)
+
+          begin
+            dark.apply("fill: 'black'", {"yellow" => "purple"})
+          rescue => error
+            puts "\#{error.class}:\#{error.message}"
+          end
+        RUBY
+
+        out, err, status = Open3.capture3(RbConfig.ruby, *load_path, "-e", script)
+
+        assert_predicate(status, :success?, err)
+        assert_empty(err)
+        assert_equal("Sevgi::ArgumentError:Unapplied dark mapping(s): yellow\n", out)
+      end
+
+      def test_showcase_support_is_explicit_and_standalone
         script = <<~RUBY
           require "sevgi/showcase"
 
-          puts Sevgi::Showcase::Dark.apply("fill: 'black'", {"black" => "white"})
+          puts "entrypoint:#{defined?(Sevgi::Showcase::Dark).nil?}:#{defined?(Sevgi::Showcase::Test).nil?}"
+
+          require "sevgi/showcase/dark"
+          require "sevgi/showcase/minitest"
+
+          dark = Sevgi::Showcase.const_get(:Dark, false)
+          test = Sevgi::Showcase.const_get(:Test, false)
+
+          puts dark.apply("fill: 'black'", {"black" => "white"})
 
           begin
-            Sevgi::Showcase::Dark.apply("fill: 'black'", {"yellow" => "purple"})
+            dark.apply("fill: 'black'", {"yellow" => "purple"})
           rescue => error
             puts "dark:\#{error.class}:\#{error.message}"
           end
 
           begin
-            Sevgi::Test::Script.new("/no/such/showcase.sevgi")
+            test::Script.new("/no/such/showcase.sevgi")
           rescue => error
             puts "script:\#{error.class}:\#{error.message}"
           end
 
-          success = Sevgi::Test::Shell.run(RbConfig.ruby, "-e", "puts 'ok'")
-          failure = Sevgi::Test::Shell.run(RbConfig.ruby, "-e", "exit 3")
+          success = test::Shell.run(RbConfig.ruby, "-e", "puts 'ok'")
+          failure = test::Shell.run(RbConfig.ruby, "-e", "exit 3")
           puts "shell:\#{success.ok?}:\#{success.outline}:\#{failure.notok?}"
         RUBY
 
@@ -35,6 +63,7 @@ module Sevgi
 
         assert_predicate(status, :success?, err)
         assert_empty(err)
+        assert_includes(out, "entrypoint:true:true")
         assert_includes(out, "fill: 'white'")
         assert_includes(out, "dark:Sevgi::ArgumentError:Unapplied dark mapping(s): yellow")
         assert_includes(out, "script:Sevgi::ArgumentError:No such file: /no/such/showcase.sevgi")

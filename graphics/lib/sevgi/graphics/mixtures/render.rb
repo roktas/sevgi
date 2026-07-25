@@ -365,6 +365,8 @@ module Sevgi
         #   descendants in the same text line. Whitespace inside content objects is preserved as given, and encoded
         #   content is XML-escaped unless a verbatim content object is used. SVG `style` elements use block content;
         #   same-named elements under a foreign default namespace retain ordinary inline text formatting.
+        #   @example Keep every attribute on the element's opening line
+        #     SVG(:minimal) { rect id: "card", width: 80, height: 40 }.Render(style: :inline)
         #   @param options [Hash] renderer options
         #   @option options [String] :indent ("  ") XML-whitespace indentation unit
         #   @option options [Integer] :linelength (140) non-negative line length that switches hybrid attributes to block
@@ -378,7 +380,7 @@ module Sevgi
         # Child render output omits document preambles and preserves each child's text whitespace and inline
         # mixed-content formatting.
         # @example Render child fragments with block-style attributes
-        #   SVG(:minimal) { rect id: "one" }.RenderChildren(style: :block, indent: "\t")
+        #   Sevgi::Graphics.SVG(:minimal) { rect id: "one" }.RenderChildren(style: :block, indent: "\t")
         # @param separator [String] separator between child documents
         # @param options [Hash] renderer options applied to every child fragment
         # @option options [String] :indent ("  ") XML-whitespace indentation unit

@@ -3,8 +3,11 @@
 require "sevgi"
 
 module Sevgi
+  # Command-line entrypoint implementations shipped with Sevgi.
+  # @api private
   module Binaries
     # Implements the `igves` executable that converts SVG files into Sevgi DSL source.
+    # @api private
     module Igves
       extend self
 
@@ -14,17 +17,26 @@ module Sevgi
       # Error raised for invalid command-line usage.
       Error = Class.new(::Sevgi::Error)
 
+      FLAGS = {
+        "--exception" => :vomit,
+        "--help" => :help,
+        "--version" => :version,
+        "-h" => :help,
+        "-v" => :version,
+        "-x" => :vomit
+      }.freeze
+      private_constant :FLAGS
+
       # Parsed command-line options for the `igves` executable.
       # @api private
-      Options = Struct.new(:vomit, :help, :version) do
+      Options = Struct.new(:vomit, :help, :version, :omit) do
         # Parses command-line options and removes them from the argv array.
         # @param argv [Array<String>] mutable command-line argument array
         # @return [Sevgi::Binaries::Igves::Options] parsed options
         # @raise [Sevgi::Binaries::Igves::Error] when an option is not recognized
         def self.parse(argv)
           new.tap do |options|
-            until argv.empty?
-              break unless argv.first.start_with?("-")
+            until argv.empty? || argv.first == "-" || !argv.first.start_with?("-")
               if argv.first == "--"
                 argv.shift
                 break
@@ -39,16 +51,11 @@ module Sevgi
           private
 
           def option(argv, options)
-            case (arg = argv.shift)
-            when "-x", "--exception"
-              options.vomit = true
-            when "-h", "--help"
-              options.help = true
-            when "-v", "--version"
-              options.version = true
-            else
-              Error.("Not a valid option: #{arg}")
-            end
+            arg = argv.shift
+            return options[FLAGS[arg]] = true if FLAGS.key?(arg)
+            return (options.omit ||= []) << (argv.shift || Error.("No attribute given for --omit")) if arg == "--omit"
+
+            Error.("Not a valid option: #{arg}")
           end
         end
       end
@@ -61,7 +68,7 @@ module Sevgi
       # @raise [Sevgi::ArgumentError] when the SVG file cannot be found
       # @raise [Sevgi::PanicError] when generated Ruby source cannot be formatted
       # @raise [StandardError] when `--exception` or `SEVGI_VOMIT` requests raw errors
-      # @raise [SystemExit] when argv does not match `[options...] [--] <file>` or command-line usage aborts
+      # @raise [SystemExit] when argv does not match `[options...] [--] [file|-]` or command-line usage aborts
       def call(argv)
         dispatch(Array(argv))
       rescue Binaries::Igves::Error => e
@@ -100,28 +107,32 @@ module Sevgi
 
       def help
         <<~HELP
-          Usage: #{PROGNAME} [options...] [--] <SVG file>
+          Usage: #{PROGNAME} [options...] [--] [SVG file|-]
 
           See documentation for detailed help.
 
           Options:
 
+              --omit ATTRIBUTE  Omit an attribute (repeatable)
           -x, --exception       Raise exception instead of abort
-          --                    Stop option parsing
+              --                Stop option parsing
+
           -h, --help            Show this help
           -v, --version         Display version
         HELP
       end
 
       def operand(argv)
-        file = argv.shift || Error.("No SVG file given.")
+        file = argv.shift
         Error.("Unexpected argument: #{argv.first}") unless argv.empty?
 
-        file
+        file unless file == "-"
       end
 
-      def run(file, _options)
-        Derender.derender_file(file)
+      def run(file, options)
+        return Derender.derender_file(file, omit: options.omit) if file
+
+        Derender.derender($stdin.read, omit: options.omit)
       end
 
       def print_file(file, options)
@@ -139,4 +150,6 @@ module Sevgi
       end
     end
   end
+
+  private_constant :Binaries
 end

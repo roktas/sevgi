@@ -31,8 +31,13 @@ module Sevgi
     #   @return [Sevgi::Geometry::Polyline]
     #   @raise [Sevgi::Geometry::Error] when inputs cannot be coerced or do not form a polyline
     # @example Pair mathematical notation with English conveniences
-    #   Polyline[[2, 0], [1, 90]] == Polyline.from_segments([2, 0], [1, 90])
-    #   Polyline.([0, 0], [2, 0]) == Polyline.from_points([0, 0], [2, 0])
+    #   Sevgi::Geometry::Polyline[[2, 0], [1, 90]] == Sevgi::Geometry::Polyline.from_segments([2, 0], [1, 90])
+    #   Sevgi::Geometry::Polyline.([0, 0], [2, 0]) == Sevgi::Geometry::Polyline.from_points([0, 0], [2, 0])
+    # @example Measure and query an open path
+    #   path = Sevgi::Geometry::Polyline.([0, 0], [3, 0], [3, 4])
+    #   path.length         # => 7.0
+    #   path.on?([2, 0])    # => true
+    #   path.inside?([1, 1]) # => false
     class Polyline < PolylineBase
       private
 

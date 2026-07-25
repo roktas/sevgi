@@ -18,6 +18,8 @@ module Sevgi
     # @raise [Sevgi::ArgumentError] when unit is not a finite positive number
     # @raise [Sevgi::ArgumentError] when multiple is not a positive integer
     # @raise [Sevgi::ArgumentError] when canvas dimensions, margins, and grid intervals cannot fit
+    # @see Sevgi.Grid
+    # @see Sevgi::Sundries::Grid
     def Grid(canvas, unit:, multiple:)
       ArgumentError.("Must be a Canvas: #{canvas}") unless canvas.is_a?(Graphics::Canvas)
 

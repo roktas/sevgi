@@ -13,7 +13,11 @@ module Sevgi
     def test_executor_entrypoint_loads_standalone
       root = ::File.expand_path("../..", __dir__)
       load_paths = %w[function toplevel].map { ::File.join(root, it, "lib") }
-      command = "require \"sevgi/executor\"; abort unless Sevgi::Executor.execute(\"1 + 1\").value == 2"
+      command = <<~RUBY
+        require "sevgi/executor"
+        result = Sevgi::Executor.__send__(:execute, "1 + 1")
+        abort unless result.value == 2
+      RUBY
       args = [::RbConfig.ruby, "--disable-gems", *load_paths.flat_map { ["-I", it] }, "-e", command]
 
       output, error, status = ::Open3.capture3(*args)
@@ -27,9 +31,12 @@ module Sevgi
       assert_raises(PanicError) { Executor.__send__(:load, fixture) }
     end
 
-    def test_executor_exposes_only_execution_entrypoints
-      assert_respond_to(Executor, :execute)
-      assert_respond_to(Executor, :execute_file)
+    def test_executor_keeps_low_level_runners_private
+      %i[execute execute_file].each do |method|
+        refute_respond_to(Executor, method)
+        assert(Executor.singleton_class.private_method_defined?(method))
+      end
+
       %i[instance load shutdown].each { refute_respond_to(Executor, it) }
       assert_raises(NameError) { Executor::State }
     end
@@ -137,7 +144,7 @@ module Sevgi
     end
 
     def test_execute_wraps_required_load_error
-      result = Executor.execute("1", file: "script.sevgi", require: "sevgi_missing_test_library")
+      result = execute("1", file: "script.sevgi", require: "sevgi_missing_test_library")
 
       assert(result.error?)
       assert_instance_of(Executor::Error, result.error)
@@ -151,7 +158,7 @@ module Sevgi
         library = ::File.join(dir, "outer.rb")
         ::File.write(library, "require 'sevgi_missing_nested_dependency'\n")
 
-        result = Executor.execute("1", file: "script.sevgi", require: library.delete_suffix(".rb"))
+        result = execute("1", file: "script.sevgi", require: library.delete_suffix(".rb"))
 
         assert(result.error?)
         assert_instance_of(::LoadError, result.error.cause)
@@ -189,7 +196,7 @@ module Sevgi
       end
     end
 
-    def test_execute_file_rejects_symlink_cycle_by_canonical_identity
+    def test_execute_file_rejects_symlink_cycles
       Dir.mktmpdir do |dir|
         real = File.join(dir, "real.sevgi")
         alias_file = File.join(dir, "alias.sevgi")
@@ -200,6 +207,37 @@ module Sevgi
 
         assert_instance_of(Executor::CycleError, result.error.cause)
         assert_equal([real, alias_file], result.stack)
+      end
+    end
+
+    def test_execute_file_as_preserves_physical_identity
+      Dir.mktmpdir do |dir|
+        file = File.join(dir, "self.sevgi")
+        File.write(
+          file,
+          <<~SEVGI
+            raise "reentered" if const_defined?(:ENTERED)
+            ENTERED = true
+            Load "self"
+          SEVGI
+        )
+
+        result = Sevgi.execute_file(file, as: "alias")
+
+        assert_instance_of(Executor::CycleError, result.error.cause)
+        refute_match(/reentered/, result.error.message)
+      end
+    end
+
+    def test_execute_label_does_not_claim_file_identity
+      Dir.mktmpdir do |dir|
+        file = File.join(dir, "shared.sevgi")
+        File.write(file, "42\n")
+
+        result = Sevgi.execute("Load 'shared'\n", file:)
+
+        assert_predicate(result, :success?)
+        assert_equal(["shared"], result.value)
       end
     end
 
@@ -230,7 +268,7 @@ module Sevgi
       fixture = "#{FIXTURES_DIR}/test_load_shutdown.sevgi"
       result = Sevgi.execute(
         <<~RUBY
-          inner = Sevgi::Executor.execute("")
+          inner = Sevgi::Executor.__send__(:execute, "")
           Load(#{fixture.dump})
           [inner.success?, inner.stack]
         RUBY
@@ -246,9 +284,9 @@ module Sevgi
         receivers = Array.new(2) { Module.new }
         boots = 0
         results = [
-          Executor.execute("", receiver: receivers[0]) { boots += 1 },
+          execute("", receiver: receivers[0]) { boots += 1 },
           Sevgi.execute(""),
-          Executor.execute_file(file, receiver: receivers[1]) { boots += 1 },
+          execute_file(file, receiver: receivers[1]) { boots += 1 },
           Sevgi.execute_file(file)
         ]
 
@@ -269,7 +307,7 @@ module Sevgi
       Signal.trap("INT", handler)
 
       begin
-        Executor.execute("")
+        execute("")
         assert_same(handler, Signal.trap("INT", "DEFAULT"))
       ensure
         Signal.trap("INT", previous)
@@ -279,7 +317,7 @@ module Sevgi
     def test_execute_empty_string_processes_required_library
       receiver = Object.new
       seen = nil
-      result = Executor.execute("", file: "required.sevgi", require: "json", receiver:) { seen = self }
+      result = execute("", file: "required.sevgi", require: "json", receiver:) { seen = self }
 
       assert_instance_of(Executor::Result, result)
       assert_nil(result.value)
@@ -330,7 +368,7 @@ module Sevgi
       ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
     end
 
-    def test_toplevel_execute_rejects_invalid_main_mode_before_evaluation
+    def test_execute_rejects_invalid_main_mode_before_evaluation
       [nil, Object.new, Module.new, :main].each do |main|
         error = assert_raises(ArgumentError) { Sevgi.execute("raise 'evaluated'", main:) }
 
@@ -338,11 +376,17 @@ module Sevgi
       end
     end
 
-    def test_toplevel_execute_file_rejects_invalid_main_mode_before_reading
+    def test_execute_file_rejects_invalid_main_mode_before_reading
       [nil, Object.new, Module.new, :main].each do |main|
         error = assert_raises(ArgumentError) { Sevgi.execute_file("missing.sevgi", main:) }
 
         assert_match(/main mode must be true or false/, error.message)
+      end
+    end
+
+    def test_toplevel_execute_file_rejects_invalid_name
+      [:alias, "", "build/alias"].each do |name|
+        assert_raises(ArgumentError) { Sevgi.execute_file("missing.sevgi", as: name) }
       end
     end
 
@@ -368,7 +412,7 @@ module Sevgi
       fixture = "#{FIXTURES_DIR}/test_load_shutdown.sevgi"
       result = Sevgi.execute(
         <<~RUBY
-          inner = Sevgi::Executor.execute("1", require: "sevgi_missing_test_library")
+          inner = Sevgi::Executor.__send__(:execute, "1", require: "sevgi_missing_test_library")
           Load(#{fixture.dump})
           inner.error?
         RUBY
@@ -381,7 +425,7 @@ module Sevgi
       old = Sevgi.const_get(:Main, false) if Sevgi.const_defined?(:Main, false)
       Sevgi.send(:remove_const, :Main) if Sevgi.const_defined?(:Main, false)
 
-      result = Executor.execute("missing")
+      result = execute("missing")
 
       refute(Sevgi.const_defined?(:Main, false))
       assert_equal("undefined local variable or method 'missing' for module Sevgi::Main", result.error.message)
@@ -409,14 +453,14 @@ module Sevgi
 
       Signal.trap("INT", handler)
 
-      Executor.execute("1")
+      execute("1")
 
       assert_same(handler, Signal.trap("INT", "IGNORE"))
     ensure
       Signal.trap("INT", original)
     end
 
-    def test_execute_restores_sigint_handler_after_concurrent_execute
+    def test_execute_restores_sigint_handler_concurrently
       original = Signal.trap("INT", "DEFAULT")
       handler = proc { }
 
@@ -448,7 +492,7 @@ module Sevgi
     def test_execute_boots_isolated_receiver
       pp(foobar) if respond_to?(:foobar)
       refute_respond_to(self, :foobar)
-      result = Executor.execute("foobar") do
+      result = execute("foobar") do
         extend(Module.new { def foobar = "default" })
       end
 
@@ -462,7 +506,7 @@ module Sevgi
 
       [nil, false, object, mod].each do |receiver|
         seen = nil
-        result = Executor.execute("1", receiver:) { seen = self }
+        result = execute("1", receiver:) { seen = self }
 
         assert_equal(1, result.value)
         if receiver.nil?
@@ -479,9 +523,9 @@ module Sevgi
       inner = false
       seen = []
 
-      result = Executor.execute("42", receiver: outer) do
+      result = execute("42", receiver: outer) do
         seen << self
-        nested = Executor.execute("6 * 7", receiver: inner) { seen << self }
+        nested = Executor.__send__(:execute, "6 * 7", receiver: inner) { seen << self }
         seen << nested.value
       end
 
@@ -514,7 +558,7 @@ module Sevgi
 
     def test_execute_boots_toplevel_receiver
       refute_respond_to(self, :foobar)
-      result = Executor.execute("module A; foobar; end", receiver: TOPLEVEL_BINDING.receiver) do
+      result = execute("module A; foobar; end", receiver: TOPLEVEL_BINDING.receiver) do
         include(Module.new { def foobar = "toplevel" })
       end
 
@@ -526,25 +570,25 @@ module Sevgi
     end
 
     def test_execute_isolates_constants
-      Executor.execute("ISOLATED_CONST = 42")
+      execute("ISOLATED_CONST = 42")
 
       refute(defined?(::ISOLATED_CONST), "Constant should not leak to global namespace")
     end
 
     def test_execute_isolates_classes
-      Executor.execute("class IsolatedClass; end")
+      execute("class IsolatedClass; end")
 
       refute(defined?(::IsolatedClass), "Class should not leak to global namespace")
     end
 
     def test_execute_isolates_methods
-      Executor.execute("def isolated_method = 'test'", file: "methods.rb", line: 1)
+      execute("def isolated_method = 'test'", file: "methods.rb", line: 1)
 
       refute(respond_to?(:isolated_method), "Method should not leak to global scope")
     end
 
     def test_execute_returns_success_for_empty_string
-      result = Executor.execute("")
+      result = execute("")
 
       assert_instance_of(Executor::Result, result)
       assert_predicate(result, :frozen?)
@@ -608,7 +652,7 @@ module Sevgi
     end
 
     def test_execute_returns_failure_status
-      result = Executor.execute("missing", file: "script.sevgi")
+      result = execute("missing", file: "script.sevgi")
 
       refute_predicate(result, :success?)
       assert_predicate(result, :error?)
@@ -617,39 +661,40 @@ module Sevgi
     end
 
     def test_execute_returns_last_expression
-      assert_equal(15, Executor.execute("x = 5\ny = 10\nx + y").value)
+      assert_equal(15, execute("x = 5\ny = 10\nx + y").value)
     end
 
     def test_execute_rejects_invalid_invocation
       calls = [
-        proc { Executor.execute(nil) },
-        proc { Executor.execute("1", file: 1) },
-        proc { Executor.execute("1", line: "1") },
-        proc { Executor.execute("1", line: 0) },
-        proc { Executor.execute("1", line: 2 ** 31) },
-        proc { Executor.execute("1", require: :json) },
-        proc { Executor.execute("1", receiver: BasicObject.new) }
+        proc { execute(nil) },
+        proc { execute("1", file: 1) },
+        proc { execute("1", line: "1") },
+        proc { execute("1", line: 0) },
+        proc { execute("1", line: 2 ** 31) },
+        proc { execute("1", require: :json) },
+        proc { execute("1", receiver: BasicObject.new) }
       ]
 
       calls.each { assert_raises(Sevgi::ArgumentError, &it) }
-      assert_equal(2, Executor.execute("1 + 1").value)
+      assert_equal(2, execute("1 + 1").value)
     end
 
     def test_execute_file_rejects_invalid_invocation
       calls = [
-        proc { Executor.execute_file(nil) },
-        proc { Executor.execute_file("missing.sevgi", require: :json) },
-        proc { Executor.execute_file("missing.sevgi", receiver: BasicObject.new) }
+        proc { execute_file(nil) },
+        proc { execute_file("missing.sevgi", as: :alias) },
+        proc { execute_file("missing.sevgi", require: :json) },
+        proc { execute_file("missing.sevgi", receiver: BasicObject.new) }
       ]
 
       calls.each { assert_raises(Sevgi::ArgumentError, &it) }
-      assert_equal(2, Executor.execute("1 + 1").value)
+      assert_equal(2, execute("1 + 1").value)
     end
 
     def test_execute_error_reports_default_source_location
       syntax_error = "de foo\n  invalid syntax here\nend"
 
-      result = Executor.execute(syntax_error)
+      result = execute(syntax_error)
 
       assert(result.error?)
       assert(result.error.message.start_with?("sevgi:3:"))
@@ -658,7 +703,7 @@ module Sevgi
     def test_execute_error_reports_custom_source_location
       syntax_error = "de foo\n  invalid syntax here\nend"
 
-      result = Executor.execute(syntax_error, file: "test.rb", line: 10)
+      result = execute(syntax_error, file: "test.rb", line: 10)
 
       assert(result.error?)
       assert(result.error.message.start_with?("test.rb:12:"))
@@ -666,10 +711,13 @@ module Sevgi
 
     private
 
+    def execute(...) = Executor.__send__(:execute, ...)
+    def execute_file(...) = Executor.__send__(:execute_file, ...)
+
     def concurrent_boot(receiver, ready, release)
       Thread.new do
         seen = nil
-        result = Executor.execute("1", receiver:) do
+        result = execute("1", receiver:) do
           seen = self
           ready << true
           release.pop
@@ -693,7 +741,7 @@ module Sevgi
         Thread.current[:executor_test_ready] = ready
         Thread.current[:executor_test_go] = go
 
-        Executor.execute(
+        execute(
           <<~RUBY
             Thread.current[:executor_test_ready].push(#{label.inspect})
             Thread.current[:executor_test_go].pop

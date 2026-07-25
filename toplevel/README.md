@@ -22,15 +22,33 @@ SVG :minimal do
 end.call
 ```
 
-## Executable
+## Executables
 
 ```sh
 sevgi drawing.sevgi
+igsev drawing.svg
 ```
+
+Both commands read standard input when the file is omitted or `-`. For `sevgi`, implicit `Save`, `PDF`, and `PNG`
+destinations use `output` as the input name; use `--as NAME` to choose another basename:
+
+```sh
+sevgi --as badge < drawing.sevgi
+igsev < drawing.svg > normalized.svg
+```
+
+`NAME` cannot include a directory. An explicit output path or `default:` argument in the script remains authoritative.
+With a file operand, `--as` keeps the file's source directory so relative `Load` calls continue to resolve there.
+
+`sevgi --skill` prints the validated path of the matching packaged agent skill. See the
+[Appendix documentation](https://github.com/roktas/sevgi/tree/main/appendix) for installation guidance.
+
+`igsev` converts an SVG file to Sevgi source, evaluates it with the complete DSL, and prints the resulting normalized
+SVG. Use `igves` from `sevgi-derender` when the generated Sevgi source itself is the desired output.
 
 ## Ruby compatibility
 
-Requires Ruby 3.4.0 or newer. CI verifies Ruby 3.4.0 and the current development Ruby from `.ruby-version`.
+Requires Ruby 3.4.0 or newer. CI verifies the current Ruby 3.4 release and the development Ruby from `.ruby-version`.
 
 ## Native prerequisites
 
@@ -55,7 +73,7 @@ gem install cairo rsvg2 hexapdf
 
 ## Links
 
-- Documentation: https://sevgi.roktas.dev
-- API documentation: https://www.rubydoc.info/gems/sevgi
-- Source: https://github.com/roktas/sevgi/tree/main/toplevel
-- Changelog: https://github.com/roktas/sevgi/blob/main/CHANGELOG.md
+- Documentation: <https://sevgi.roktas.dev>
+- API documentation: <https://www.rubydoc.info/gems/sevgi>
+- Source: <https://github.com/roktas/sevgi/tree/main/toplevel>
+- Changelog: <https://github.com/roktas/sevgi/blob/main/CHANGELOG.md>

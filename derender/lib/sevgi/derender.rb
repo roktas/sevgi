@@ -11,7 +11,13 @@ require_relative "derender/node"
 require_relative "derender/version"
 
 module Sevgi
-  # Converts SVG/XML content into Sevgi DSL source or evaluates it into graphics elements.
+  # Brings editor-authored SVG/XML into programmatic Sevgi workflows.
+  #
+  # Vector geometry such as a Bezier-heavy logo or hand-adjusted illustration may be better authored in a visual editor
+  # than reconstructed as Ruby. Derender preserves that SVG/XML tree as inspectable data, formatted Sevgi DSL source,
+  # or graphics elements under an existing document. This lets editor-authored geometry participate in programmatic
+  # composition, styling, layout, and output. Use it when SVG/XML is a real input artifact, not as an intermediate
+  # authoring format for ordinary Sevgi drawing code.
   #
   # Generated source uses bare DSL calls only for recognized element names that cannot dispatch to an existing Ruby or
   # Sevgi method. Other XML names use the explicit `Element` DSL word so executing generated source preserves the XML
@@ -27,6 +33,9 @@ module Sevgi
   # Simple CSS rules use the readable `css({...})` DSL form. At-rules, duplicate declarations, and other CSS that cannot
   # be represented losslessly as a Hash remain owned raw style content.
   #
+  # Attribute omission uses exact, case-sensitive names across the selected subtree. ID selection happens first;
+  # namespace declarations remain intact, and omitting the `style` attribute does not omit `style` elements.
+  #
   # @example Inspect, select, and convert an immutable result
   #   result = Sevgi::Derender.decompile('<svg><rect id="mark" width="10"/></svg>')
   #   mark = result.find("mark")
@@ -35,38 +44,67 @@ module Sevgi
   # @example Preserve an at-rule as raw style content
   #   Sevgi::Derender.derender("<style>@media print { rect { fill: black; } }</style>")
   #   #=> "style Sevgi::Graphics::Content.cdata(\"@media print { rect { fill: black; } }\")\n"
+  # @example Select a node while omitting editor-only attributes
+  #   source = '<svg><g id="mark" style="fill: red"><rect/></g></svg>'
+  #   Sevgi::Derender.derender(source, id: "mark", omit: %i[id style])
+  #   #=> "g do\n  rect\nend\n"
+  # @see https://sevgi.roktas.dev/derender/ Derender guide
   module Derender
     private_constant :Attributes, :Document, :Elements
 
     # Converts SVG/XML content into an immutable derender result.
     # @param content [String] SVG/XML source content
     # @param id [String, Symbol, nil] optional SVG id selecting a node inside the source
+    # @param omit [String, Symbol, Array<String, Symbol>, nil] exact attribute name or names omitted from the selected
+    #   subtree after id selection
     # @return [Sevgi::Derender::Node] owned immutable selected node
     # @raise [Sevgi::ArgumentError] when content is malformed or rootless, or when the id is absent
-    def self.decompile(content, id: nil) = Document.new(content).decompile(id)
+    # @example Inspect a selected immutable node
+    #   root = Sevgi::Derender.decompile('<svg><g id="mark"><rect width="4"/></g></svg>')
+    #   mark = root.find("mark")
+    #   mark.name                  #=> "g"
+    #   mark.children.first.name  #=> "rect"
+    #   mark.attributes["id"]     #=> "mark"
+    # @see Sevgi::Derender.decompile_file
+    # @see Sevgi.Decompile
+    def self.decompile(content, id: nil, omit: nil) = Document.new(content).decompile(id, omit:)
 
     # Converts an SVG/XML file into an immutable derender result.
     # @param file [String] path to the source SVG/XML file
     # @param id [String, Symbol, nil] optional SVG id selecting a node inside the source
+    # @param omit [String, Symbol, Array<String, Symbol>, nil] exact attribute name or names omitted from the selected
+    #   subtree after id selection
     # @return [Sevgi::Derender::Node] owned immutable selected node
     # @raise [Sevgi::ArgumentError] when the file cannot be found, file content is malformed or rootless, or the id is
     #   absent
     # @raise [SystemCallError] when the file cannot be read
-    def self.decompile_file(file, id: nil) = Document.load_file(file).decompile(id)
+    # @see Sevgi::Derender.decompile
+    # @see Sevgi.DecompileFile
+    def self.decompile_file(file, id: nil, omit: nil) = Document.load_file(file).decompile(id, omit:)
 
     # Converts SVG/XML content into Sevgi DSL Ruby source.
     # @param content [String] SVG/XML source content
     # @param id [String, Symbol, nil] optional SVG id selecting a node inside the source
+    # @param omit [String, Symbol, Array<String, Symbol>, nil] exact attribute name or names omitted from the selected
+    #   subtree after id selection
     # @return [String] formatted Sevgi DSL source
     # @raise [Sevgi::ArgumentError] when content is malformed or rootless, or when the id is absent
     # @raise [Sevgi::PanicError] when generated Ruby source cannot be formatted
     # @note Namespace-aware dispatch preserves ordinary foreign/qualified nodes and nested SVG elements.
     # @note Unsafe bare Ruby names are emitted through the explicit `Element` DSL word.
-    def self.derender(content, id: nil) = Document.new(content).decompile(id).derender
+    # @example Select first, then omit attributes from generated source
+    #   xml = '<svg><g id="mark" style="fill: red"><rect id="part"/></g></svg>'
+    #   Sevgi::Derender.derender(xml, id: :mark, omit: [:id, "style"])
+    #   #=> "g do\n  rect\nend\n"
+    # @see Sevgi::Derender.derender_file
+    # @see Sevgi.Derender
+    def self.derender(content, id: nil, omit: nil) = Document.new(content).decompile(id, omit:).derender
 
     # Converts an SVG/XML file into Sevgi DSL Ruby source.
     # @param file [String] path to the source SVG/XML file
     # @param id [String, Symbol, nil] optional SVG id selecting a node inside the source
+    # @param omit [String, Symbol, Array<String, Symbol>, nil] exact attribute name or names omitted from the selected
+    #   subtree after id selection
     # @return [String] formatted Sevgi DSL source
     # @raise [Sevgi::ArgumentError] when the file cannot be found, file content is malformed or rootless, or the id is
     #   absent
@@ -74,52 +112,84 @@ module Sevgi
     # @raise [SystemCallError] when the file cannot be read
     # @note Namespace-aware dispatch preserves ordinary foreign/qualified nodes and nested SVG elements.
     # @note Unsafe bare Ruby names are emitted through the explicit `Element` DSL word.
-    def self.derender_file(file, id: nil) = Document.load_file(file).decompile(id).derender
+    # @see Sevgi::Derender.derender
+    # @see Sevgi.DerenderFile
+    def self.derender_file(file, id: nil, omit: nil) = Document.load_file(file).decompile(id, omit:).derender
 
     # Evaluates SVG/XML content under a graphics element, including the selected node.
     # @param content [String] SVG/XML source content
     # @param element [Sevgi::Graphics::Element] target graphics element
     # @param id [String, Symbol, nil] optional SVG id selecting a node inside the source
+    # @param omit [String, Symbol, Array<String, Symbol>, nil] exact attribute name or names omitted from the selected
+    #   subtree after id selection
     # @return [Sevgi::Graphics::Element, nil] included selected/root graphics element, or nil when the selected node
     #   produces no graphics output
     # @raise [Sevgi::ArgumentError] when content is malformed or rootless, or when the id is absent
     # @note Namespace-aware dispatch preserves ordinary foreign/qualified nodes and nested SVG elements.
-    def self.evaluate(content, element, id: nil) = Document.new(content).decompile(id).evaluate(element)
+    # @example Include the selected node under an existing element
+    #   drawing = Sevgi::Graphics.SVG(:minimal)
+    #   included = Sevgi::Derender.evaluate('<circle id="mark" r="4"/>', drawing)
+    #   included.name   #=> :circle
+    #   included[:id]   #=> "mark"
+    # @see Sevgi::Derender.evaluate_file
+    # @see Sevgi.Evaluate
+    def self.evaluate(content, element, id: nil, omit: nil)
+      Document.new(content).decompile(id, omit:).evaluate(element)
+    end
 
     # Evaluates only the selected node's children under a graphics element.
     # @param content [String] SVG/XML source content
     # @param element [Sevgi::Graphics::Element] target graphics element
     # @param id [String, Symbol, nil] optional SVG id selecting a node inside the source
+    # @param omit [String, Symbol, Array<String, Symbol>, nil] exact attribute name or names omitted from the selected
+    #   subtree after id selection
     # @return [Array<Sevgi::Graphics::Element>] immutable included-child snapshot
     # @raise [Sevgi::ArgumentError] when content is malformed or rootless, or when the id is absent
     # @note Namespace-aware dispatch preserves ordinary foreign/qualified nodes and nested SVG elements.
-    def self.evaluate_children(content, element, id: nil)
-      Document.new(content).decompile(id).evaluate_children(element)
+    # @example Include only children and retain an immutable result snapshot
+    #   drawing = Sevgi::Graphics.SVG(:minimal)
+    #   children = Sevgi::Derender.evaluate_children('<g><rect/><circle/></g>', drawing)
+    #   children.map(&:name) #=> [:rect, :circle]
+    #   children.frozen?     #=> true
+    # @see Sevgi::Derender.evaluate_children_file
+    # @see Sevgi.EvaluateChildren
+    def self.evaluate_children(content, element, id: nil, omit: nil)
+      Document.new(content).decompile(id, omit:).evaluate_children(element)
     end
 
     # Evaluates an SVG/XML file under a graphics element, including the selected node.
     # @param file [String] path to the source SVG/XML file
     # @param element [Sevgi::Graphics::Element] target graphics element
     # @param id [String, Symbol, nil] optional SVG id selecting a node inside the source
+    # @param omit [String, Symbol, Array<String, Symbol>, nil] exact attribute name or names omitted from the selected
+    #   subtree after id selection
     # @return [Sevgi::Graphics::Element, nil] included selected/root graphics element, or nil when the selected node
     #   produces no graphics output
     # @raise [Sevgi::ArgumentError] when the file cannot be found, file content is malformed or rootless, or the id is
     #   absent
     # @raise [SystemCallError] when the file cannot be read
     # @note Namespace-aware dispatch preserves ordinary foreign/qualified nodes and nested SVG elements.
-    def self.evaluate_file(file, element, id: nil) = Document.load_file(file).decompile(id).evaluate(element)
+    # @see Sevgi::Derender.evaluate
+    # @see Sevgi.EvaluateFile
+    def self.evaluate_file(file, element, id: nil, omit: nil)
+      Document.load_file(file).decompile(id, omit:).evaluate(element)
+    end
 
     # Evaluates only the selected node's children from an SVG/XML file under a graphics element.
     # @param file [String] path to the source SVG/XML file
     # @param element [Sevgi::Graphics::Element] target graphics element
     # @param id [String, Symbol, nil] optional SVG id selecting a node inside the source
+    # @param omit [String, Symbol, Array<String, Symbol>, nil] exact attribute name or names omitted from the selected
+    #   subtree after id selection
     # @return [Array<Sevgi::Graphics::Element>] immutable included-child snapshot
     # @raise [Sevgi::ArgumentError] when the file cannot be found, file content is malformed or rootless, or the id is
     #   absent
     # @raise [SystemCallError] when the file cannot be read
     # @note Namespace-aware dispatch preserves ordinary foreign/qualified nodes and nested SVG elements.
-    def self.evaluate_children_file(file, element, id: nil)
-      Document.load_file(file).decompile(id).evaluate_children(element)
+    # @see Sevgi::Derender.evaluate_children
+    # @see Sevgi.EvaluateChildrenFile
+    def self.evaluate_children_file(file, element, id: nil, omit: nil)
+      Document.load_file(file).decompile(id, omit:).evaluate_children(element)
     end
   end
 end

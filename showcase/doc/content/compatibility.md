@@ -14,11 +14,18 @@ The public API consists of the documented DSL and component methods. The runnabl
 together. Start there if you are unsure about a task: the examples are short enough to take apart, and the test suite
 executes them against the current source.
 
-Prefer documented DSL words in scripts: `SVG`, SVG element names, and helper methods such as `TileX`. Regular Ruby code
-belongs around the DSL when the drawing needs loops, data structures, calculations, or small helper objects.
+Prefer documented DSL words in scripts: `SVG`, SVG element names, and helper methods such as `TileX`. In library code,
+use capitalized SVG-domain operations through the `SVG` facade, such as `SVG.Canvas`; use double colons for types and
+namespaces, such as `SVG::Canvas`. Regular Ruby code belongs around the DSL when the drawing needs loops, data
+structures, calculations, or small helper objects.
 
 The generated [API reference](https://www.rubydoc.info/gems/sevgi) covers component-level Ruby APIs. This guide is the
 better reference for scripts and drawing tasks.
+
+Advanced extensions may rely on the documented `Sevgi::F` facade and the public values it returns. The supported
+secondary Function surface is `Sevgi::Function::Location`, `Locate`, `Shell::Result`, and the thread-local
+`Math.precision` accessors. Other nested Function modules organize the implementation and are not consumer
+`include`/`extend` contracts.
 
 ## Outside the public API
 

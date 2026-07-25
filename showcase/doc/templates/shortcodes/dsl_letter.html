@@ -6,8 +6,10 @@
 <article class="dsl-entry">
   <h4 id="{{ entry.anchor }}"><a class="dsl-word" href="#{{ entry.anchor }}"><code>{{ entry.name }}</code></a></h4>
   <p class="dsl-meta">
+    {% set provider_key = entry.provider | lower %}
+    {% set context_key = entry.context | lower %}
     <span>{{ entry.provider }}</span>
-    <span>{{ entry.context }}</span>
+    {% if provider_key != context_key %}<span>{{ entry.context }}</span>{% endif %}
     {% for theme in entry.themes %}<a href="#theme-{{ theme }}">{{ theme | replace(from="-", to=" ") }}</a>{% endfor %}
   </p>
   <p>{{ entry.summary }}</p>

@@ -97,7 +97,6 @@ module Sevgi
 
       def test_named_document_lookup_returns_builtin_profiles
         {
-          base: Document::Base,
           minimal: Document::Minimal,
           default: Document::Default,
           html: Document::HTML,
@@ -105,6 +104,33 @@ module Sevgi
         }.each do |name, klass|
           assert_same(klass, Graphics.document(name))
         end
+
+        refute(Document.exist?(:base))
+        assert_nil(Document::Base.profile.name)
+        assert_equal("<svg/>", SVG(Document::Base).Render())
+        assert_raises(Sevgi::ArgumentError) { Graphics.document(:base) }
+        assert_raises(Sevgi::ArgumentError) { SVG(:base) }
+      end
+
+      def test_common_document_extensions_reach_descendant_profiles
+        common = Class.new(Document::Base)
+        minimal = Class.new(common)
+        inkscape = Class.new(common)
+
+        Graphics::Mixtures.mixin(common) do
+          define_method(:Marker) { circle(id: "marker") }
+        end
+
+        [minimal, inkscape].each do |profile|
+          assert_equal("marker", SVG(profile).Marker()[:id])
+        end
+      end
+
+      def test_builtin_profile_lineage_preserves_roles
+        assert_same(Document::Base, Document::Minimal.superclass)
+        assert_same(Document::Base, Document::Default.superclass)
+        assert_same(Document::Default, Document::HTML.superclass)
+        assert_same(Document::Default, Document::Inkscape.superclass)
       end
 
       def test_profile_and_document_lookup_are_distinct
@@ -152,7 +178,7 @@ module Sevgi
 
         assert_raises(NameError) { Document::DEFAULTS }
 
-        custom = Class.new(Document::Minimal) do
+        custom = Class.new(Document::Base) do
           document(
             :private_document_dsl,
             attributes: {viewBox: "0 0 3 3"}

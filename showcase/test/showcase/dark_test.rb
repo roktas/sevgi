@@ -5,7 +5,8 @@ require "yaml"
 
 require_relative "../test_helper"
 
-require "sevgi/showcase"
+require "sevgi/showcase/dark"
+require "sevgi/showcase/minitest"
 
 module Sevgi
   module Showcase

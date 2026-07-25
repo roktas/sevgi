@@ -2,7 +2,8 @@
 
 module Sevgi
   module Function
-    # Small terminal status helpers used by build and release tasks.
+    # Terminal status methods promoted to {Sevgi::F}. This module organizes the facade implementation; it is not a
+    # consumer mixin contract.
     module UI
       # Reports an in-progress status message.
       # @param message [Object] status message

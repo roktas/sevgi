@@ -232,11 +232,13 @@ module Sevgi
 
         # Builds an Inkscape namedview containing page elements.
         # @example Build explicit pages with separate namedview and page attributes
-        #   Pages(
-        #     {x: 0, y: 0, width: 100, height: 50, label: "front"},
-        #     namedview: {id: "views"},
-        #     page: {class: "print"}
-        #   )
+        #   Sevgi::Graphics.SVG(:inkscape) do
+        #     Pages(
+        #       {x: 0, y: 0, width: 100, height: 50, label: "front"},
+        #       namedview: {id: "views"},
+        #       page: {class: "print"}
+        #     )
+        #   end
         # @param pages [Array<Hash>] page attribute hashes; numeric page fields are normalized to SVG numbers
         # @param namedview [Hash] namedview attributes; String and Symbol names are normalized and must not collide
         # @param page [Hash] page defaults; normalized page attributes override these defaults by name
@@ -249,10 +251,12 @@ module Sevgi
 
         # Builds a tabular set of Inkscape pages.
         # @example Build a page grid using the same attribute channels as {#Pages}
-        #   PagesTabular(
-        #     rows: 2, cols: 3, width: 100, height: 50, gap: 5,
-        #     namedview: {id: "views"}, page: {class: "print"}
-        #   )
+        #   Sevgi::Graphics.SVG(:inkscape) do
+        #     PagesTabular(
+        #       rows: 2, cols: 3, width: 100, height: 50, gap: 5,
+        #       namedview: {id: "views"}, page: {class: "print"}
+        #     )
+        #   end
         # @param rows [Integer] number of rows
         # @param cols [Integer] number of columns
         # @param width [Numeric] finite positive page width, normalized to an SVG number

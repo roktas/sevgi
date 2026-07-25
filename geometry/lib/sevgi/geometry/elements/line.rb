@@ -7,7 +7,20 @@ module Sevgi
     LineBase = Element.lined(1, open: true)
     private_constant :LineBase
 
-    # Open lined element with one segment.
+    # Finite, directed line between two endpoints.
+    #
+    # Direction affects {#left?}, {#right?}, and the sign of {#shift}. Use
+    # {#equation} when the corresponding infinite line is required; {#over?}
+    # deliberately tests only the finite extent between the endpoints.
+    # @example Query sides of a directed line in screen coordinates
+    #   line = Sevgi::Geometry::Line.([0, 0], [10, 0])
+    #   line.left?([5, -2])  # => true
+    #   line.right?([5, 2])  # => true
+    #   line.shift(2).starting.deconstruct # => [0.0, -2.0]
+    # @example Distinguish the finite segment from its infinite equation
+    #   line = Sevgi::Geometry::Line.([0, 0], [10, 0])
+    #   line.over?([5, 0])  # => true
+    #   line.over?([15, 0]) # => false
     # @!method self.call(starting, ending)
     #   Builds a line from two endpoints.
     #   @param starting [Sevgi::Geometry::Point, Array<Numeric>] starting point
@@ -29,7 +42,7 @@ module Sevgi
       #   @return [Sevgi::Geometry::Line]
       #   @raise [Sevgi::Geometry::Error] when length, angle, or position cannot be coerced to finite geometry values
       # @example Mathematical notation and English convenience are equivalent
-      #   Line[5, 30] == Line.from_length_angle(5, 30)
+      #   Sevgi::Geometry::Line[5, 30] == Sevgi::Geometry::Line.from_length_angle(5, 30)
       def self.[](length, angle, position: Origin) = new_by_segments(Segment[length, angle], position:)
 
       # Builds a line from length and angle.
@@ -47,7 +60,7 @@ module Sevgi
       #   @return [Sevgi::Geometry::Line]
       #   @raise [Sevgi::Geometry::Error] when either point cannot be coerced
       # @example Mathematical notation and English convenience are equivalent
-      #   Line.([0, 0], [3, 4]) == Line.from_points([0, 0], [3, 4])
+      #   Sevgi::Geometry::Line.([0, 0], [3, 4]) == Sevgi::Geometry::Line.from_points([0, 0], [3, 4])
       def self.from_points(...) = call(...)
 
       private_class_method :from_segments

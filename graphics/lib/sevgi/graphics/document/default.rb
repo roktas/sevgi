@@ -4,7 +4,7 @@ module Sevgi
   module Graphics
     module Document
       # Default SVG document profile with XML preamble and SVG namespace.
-      class Default < Minimal
+      class Default < Base
         document(
           :default,
           attributes: {

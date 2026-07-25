@@ -34,6 +34,13 @@ module Sevgi
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
         end
 
+        def test_pluralize_tables_are_private_and_frozen
+          assert_raises(NameError) { Pluralize::RULES }
+
+          rules = Pluralize.const_get(:RULES, false)
+          assert(rules.all?(&:frozen?))
+        end
+
         def test_pluralize_uses_converted_string
           object = Object.new
 

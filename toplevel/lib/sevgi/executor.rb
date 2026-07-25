@@ -8,7 +8,7 @@ require_relative "executor/scope"
 require_relative "executor/source"
 
 module Sevgi
-  # Executes Sevgi script source inside an isolated module scope.
+  # Internal Sevgi script runtime and namespace for public execution result types.
   #
   # The executor is used by script mode and by the `Load` DSL word to preserve a
   # useful load stack while keeping DSL methods out of the caller's global object
@@ -18,10 +18,11 @@ module Sevgi
   # with a reference-counted critical section and restore the previous handler
   # after the last active execution finishes.
   #
-  # @example Execute source and inspect its result
-  #   result = Sevgi::Executor.execute("6 * 7")
-  #   result.success? #=> true
-  #   result.value    #=> 42
+  # Consumers execute the full DSL through {Sevgi.execute} or {Sevgi.execute_file}, then inspect {Executor::Result},
+  # {Executor::Error}, and {Executor::CycleError}. The custom receiver and boot lifecycle is internal plumbing for the
+  # top-level API and Rake integration.
+  #
+  # @see https://sevgi.roktas.dev/execution/ Execution guide
   class Executor
     private_class_method :new
     private_constant :Scope
@@ -109,6 +110,7 @@ module Sevgi
     #   unused, and the result stack is empty. Supplying `require:` uses the normal boot and evaluation lifecycle.
     # @note Reentrant and concurrent calls keep independent scope stacks per fiber. The temporary SIGINT handler remains
     #   process-global while any execution is active.
+    # @api private
     def self.execute(string, file: nil, line: nil, require: nil, receiver: nil, &block)
       validate_source!(string, file, line)
       validate_context!(require, receiver)
@@ -118,32 +120,37 @@ module Sevgi
 
     # Executes a file inside a managed Sevgi script scope.
     # @param file [String] source file to read and execute
+    # @param as [String, nil] logical source name used for evaluation and diagnostics
     # @param require [String, nil] optional Ruby library to require before execution
     # @param receiver [Object, nil] receiver used verbatim while booting the DSL; nil selects the isolated execution
     #   module, while false and other executable objects remain explicit receivers
     # @yield optional boot block that installs DSL methods before evaluation
     # @yieldreturn [void]
     # @return [Sevgi::Executor::Result] immutable execution result
-    # @raise [Sevgi::ArgumentError] when file, required library, or receiver is invalid
+    # @raise [Sevgi::ArgumentError] when file, logical source name, required library, or receiver is invalid
     # @note File-read, script, and required-library failures are captured in {Sevgi::Executor::Result#error}; inspect
     #   {Sevgi::Executor::Result#stack} for nested loads.
     # @note An empty file without `require:` is a strict no-op: no scope is created, the receiver and boot block are
     #   unused, and the result stack is empty. Supplying `require:` uses the normal boot and evaluation lifecycle.
     # @note Reentrant and concurrent calls keep independent scope stacks per fiber. The temporary SIGINT handler remains
     #   process-global while any execution is active.
-    def self.execute_file(file, require: nil, receiver: nil, &block)
+    # @api private
+    def self.execute_file(file, as: nil, require: nil, receiver: nil, &block)
       ArgumentError.("Executor file must be a String") unless file.is_a?(::String)
+      ArgumentError.("Executor logical file must be a String or nil") unless as.nil? || as.is_a?(::String)
       validate_context!(require, receiver)
 
       source = nil
       begin
-        source = Source.load(file)
+        source = Source.load(file, as:)
       rescue ::SystemCallError => e
-        return capture_error(Source.new(string: "", file:, line: 1), e)
+        return capture_error(Source.new(string: "", file: as || file, line: 1, origin: file), e)
       end
 
       execute_source(source, require:, receiver:, &block)
     end
+
+    private_class_method :execute, :execute_file
 
     class << self
       private

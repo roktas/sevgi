@@ -12,6 +12,10 @@ module Sevgi
           def to_path = raise "broken path"
         end
 
+        def test_default_extension_is_private
+          assert_raises(NameError) { Save::EXT }
+        end
+
         def test_out_writes_rendered_svg_to_stdout
           out, err = capture_io { SVG(:minimal) { rect(id: "one") }.Out() }
 

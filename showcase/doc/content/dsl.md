@@ -26,7 +26,7 @@ SVG :minimal do
 end.Out
 ```
 
-Use [`Element`](#element) for foreign XML, qualified names, or a name that collides with Ruby. See
+Use [`Element`](/dsl/#element) for foreign XML, qualified names, or a name that collides with Ruby. See
 [SVG Essentials](@/svg.md) for the validation lifecycle and the
 [MDN SVG element reference](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element) for the standard
 element vocabulary.

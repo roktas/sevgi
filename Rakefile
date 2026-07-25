@@ -15,6 +15,7 @@ module SevgiRelease
     sevgi-standard
     sevgi-derender
     sevgi-sundries
+    sevgi-appendix
     sevgi
     sevgi-showcase
   ]
@@ -397,6 +398,7 @@ module SevgiBuild
     standard
     derender
     sundries
+    appendix
     toplevel
     showcase
   ].freeze
@@ -434,8 +436,8 @@ module SevgiBuild
     module_function
 
     def build!(root:, remover: FileUtils.method(:rm_rf), runner: method(:run))
-      remover.call(File.join(root, ".cache/ruby/doc/api"))
-      remover.call(File.join(root, ".cache/ruby/yardoc"))
+      remover.call(File.join(root, ".local/var/ruby/doc/api"))
+      remover.call(File.join(root, ".local/var/ruby/yardoc"))
       runner.call("yard", "doc", "--fail-on-warning")
     end
 
@@ -446,7 +448,7 @@ module SevgiBuild
       undocumented = output.lines.grep(/\(\s*[1-9]\d* undocumented\)/)
       raise "Undocumented public API objects:\n#{output}" unless undocumented.empty?
 
-      pages = PRIVATE_PAGES.map { File.join(root, ".cache/ruby/doc/api", it) }
+      pages = PRIVATE_PAGES.map { File.join(root, ".local/var/ruby/doc/api", it) }
       present = pages.select { File.exist?(it) }
       raise "Private API pages are exposed:\n#{present.join("\n")}" unless present.empty?
 
@@ -642,13 +644,13 @@ task(coverage: "coverage:check")
 namespace(:coverage) do
   desc("Run tests with coverage")
   task(:test) do
-    rm_rf(".cache/ruby/coverage")
+    rm_rf(".local/var/ruby/coverage")
     sh({"COVERAGE" => "1"}, "bundle", "exec", "rake", "test")
   end
 
   desc("Check coverage")
   task(check: :test) do
-    report = File.join(rootdir, ".cache/ruby/coverage/coverage.json")
+    report = File.join(rootdir, ".local/var/ruby/coverage/coverage.json")
     SevgiBuild::Coverage.require_files!(report, tracked_sources)
     totals = SevgiBuild::Coverage.totals(report)
     SevgiBuild::Coverage.require_floors!(totals)
@@ -660,7 +662,7 @@ end
 namespace(:clean) do
   desc("Clean coverage reports")
   task(:coverage) do
-    rm_rf(File.join(rootdir, ".cache/ruby/coverage"))
+    rm_rf(File.join(rootdir, ".local/var/ruby/coverage"))
   end
 end
 

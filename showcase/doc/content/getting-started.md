@@ -5,8 +5,51 @@ weight = 1
 group = "Start"
 +++
 
-Sevgi creates SVG with Ruby. The quickest way in is a `.sevgi` script. Write ordinary Ruby, open an `SVG` block, and
-finish with `Save` or `Out`.
+Sevgi creates SVG with Ruby. A drawing can be an executable `.sevgi` script or a value built inside another Ruby
+application.
+
+## Script and library modes
+
+Use script mode when the drawing is the program, such as a generated asset or build job. The runner supplies Sevgi's
+entry points, and the script usually writes or prints its result:
+
+```ruby
+#!/usr/bin/env -S ruby -S sevgi
+
+canvas = Canvas width: 24, height: 24, unit: :px
+
+SVG :minimal, canvas do
+  circle cx: 12, cy: 12, r: 10, fill: "tomato"
+end.Save "badge.svg"
+```
+
+Use library mode when an application owns the drawing and decides where its rendered string goes:
+
+```ruby
+require "sevgi"
+
+canvas = SVG.Canvas width: 24, height: 24, unit: :px
+
+drawing = SVG :minimal, canvas do
+  circle cx: 12, cy: 12, r: 10, fill: "tomato"
+end
+
+File.write "badge.svg", drawing.Render
+```
+
+The `SVG` block is the same in both modes. Operations around it are bare words in a script and capitalized methods on
+the `SVG` facade in library code:
+
+| Role | `.sevgi` script | Ruby library |
+| --- | --- | --- |
+| Build a document | `SVG(...)` | `SVG(...)` |
+| Create a canvas | `Canvas(...)` | `SVG.Canvas(...)` |
+| Refer to the canvas type | `SVG::Canvas` | `SVG::Canvas` |
+
+The script passes its document to `Save`. The application keeps the document and passes its `Render` result to ordinary
+Ruby code. [Script Mode](@/script-mode.md) and [Library Mode](@/library-mode.md) cover each form in detail.
+
+## See a complete drawing
 
 The tabs below come from the same files that the test suite runs. The Ruby tab contains the script; the SVG tab contains
 its output.
@@ -24,37 +67,56 @@ bundle exec showcase/srv/meter.sevgi
 The script writes `showcase/srv/meter.svg` because it ends with `Save`. To write SVG to standard output instead,
 use `Out` in the script.
 
-[Choose a Mode](@/usage.md) compares executable scripts with library calls. Both use the same documents and drawing DSL.
+## Install Sevgi
 
-## Install the CLI
-
-For released versions, install the top-level gem:
+For the complete command-line toolkit, install Sevgi through Homebrew on macOS or Linux:
 
 ```bash
-gem install sevgi
+brew install roktas/tap/sevgi
 ```
 
-This installs the `sevgi` executable and the standard components used by scripts.
+This installs the `sevgi` executable, Ruby, the native PDF and PNG export stack, and the headless pdfcpu and Poppler
+tools. Inkscape remains an optional external backend.
 
-SVG-only scripts do not need native export gems. If a script writes PDF or PNG through Sevgi's native export helpers,
-install the optional native export stack separately. On Debian/Ubuntu:
+When Sevgi is a dependency of a Ruby application, add the umbrella gem to its bundle instead:
 
-```bash
-sudo apt-get update
-sudo apt-get install -y libcairo2-dev libgdk-pixbuf-2.0-dev libgirepository1.0-dev libglib2.0-dev librsvg2-dev pkg-config
-gem install cairo rsvg2 hexapdf
+```ruby
+gem "sevgi"
 ```
 
-On macOS with Homebrew:
+The umbrella gem is the right choice for most applications and drawing scripts. It installs the script runner, the
+`SVG` facade, the Appendix development extras, and all runtime components.
 
-```bash
-brew install cairo gdk-pixbuf gobject-introspection librsvg pkg-config
-gem install cairo rsvg2 hexapdf
-```
+### Choose a gem
+
+Libraries that need a smaller dependency surface can install focused component gems:
+
+| Scenario | Install | Entry point |
+| --- | --- | --- |
+| Build and render SVG only | `sevgi-graphics` | `require "sevgi/graphics"` |
+| Build and validate SVG without the full toolkit | `sevgi-graphics sevgi-standard` | `require "sevgi/graphics"` |
+| Use geometry values and transformations without the DSL | `sevgi-geometry` | `require "sevgi/geometry"` |
+| Convert SVG or XML back into Sevgi source | `sevgi-derender` | `require "sevgi/derender"` |
+| Use grids, rulers, tiles, or export integrations | `sevgi-sundries` | `require "sevgi/sundries"` |
+| Package the agent skill or lint `.sevgi` source | `sevgi-appendix` | `require "sevgi/appendix"` or the RuboCop plugin |
+
+For example, a service that only builds SVG can install `sevgi-graphics` and use
+`Sevgi::Graphics.SVG(...)`. The full `SVG` facade and the `sevgi` executable belong to the umbrella gem. Add
+`sevgi-standard` when the service should validate element and attribute names. Bundler installs shared support gems
+such as `sevgi-function` as transitive dependencies of the components that use them. The umbrella gem adds the
+`sevgi --skill` query for locating the matching Appendix skill.
+
+SVG-only library use needs no native graphics packages. Applications that install gems directly and use PDF or PNG
+export must provide the optional `cairo`, `rsvg2`, and `hexapdf` gems and their system libraries themselves. See the
+[`sevgi-sundries` package guide](https://github.com/roktas/sevgi/tree/main/sundries) for those prerequisites.
+
+The full installation also packages Sevgi's agent skill. Run `sevgi --skill` to locate it, then follow the
+[Appendix setup guide](https://github.com/roktas/sevgi/tree/main/appendix).
 
 ## Choose a document profile
 
-`SVG` accepts a document profile. `:minimal` omits the XML declaration and produces compact output. The default profile
-writes a complete SVG document, while `:inkscape` adds editor-specific namespaces and helpers.
+`SVG` accepts a document profile. `:minimal` produces compact output, `:default` writes a standalone SVG document,
+`:html` is suitable for embedding, and `:inkscape` adds editor metadata and helpers. See the
+[document-profile matrix](@/svg.md#document-profiles) for the exact capabilities.
 
 {{ tabs(base="snowflake", dir="../showcase") }}

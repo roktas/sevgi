@@ -110,6 +110,47 @@ module Sevgi
           ].each_slice(2) { |expected, actual| assert_equal(expected, Function.approx(actual)) }
         end
 
+        def test_trig_returns_exact_quadrantal_values
+          [
+            -450,
+            -1.0,
+            0.0,
+            -360,
+            0.0,
+            1.0,
+            -270,
+            1.0,
+            0.0,
+            -180,
+            0.0,
+            -1.0,
+            -90,
+            -1.0,
+            0.0,
+            0,
+            0.0,
+            1.0,
+            90,
+            1.0,
+            0.0,
+            180,
+            0.0,
+            -1.0,
+            270,
+            -1.0,
+            0.0,
+            360,
+            0.0,
+            1.0,
+            450,
+            1.0,
+            0.0
+          ].each_slice(3) do |degrees, sine, cosine|
+            assert_equal(sine, Function.sin(degrees))
+            assert_equal(cosine, Function.cos(degrees))
+          end
+        end
+
         def test_numeric_helpers_reject_non_finite_real_operands
           invalid = ["oops", Complex(1, 0), Complex(1, 2), Float::NAN, Float::INFINITY]
           unary = %i[acos acot approx asin atan cos cot sin tan to_degrees to_radians zero?]

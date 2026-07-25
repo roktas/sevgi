@@ -1,23 +1,23 @@
 #!/usr/bin/env -S ruby -S sevgi
 # frozen_string_literal: true
 
-CELL_SIZE = 20
+SIZE = 20
 COLORS = %w[#f27b72 #7fdc9c #f1c95b].freeze
 COLS = 9
 ROWS = 4
 
 SVG :minimal,
-    width: COLS * CELL_SIZE,
-    height: ROWS * CELL_SIZE,
-    viewBox: "0 0 #{COLS * CELL_SIZE} #{ROWS * CELL_SIZE}" do
+    width: COLS * SIZE,
+    height: ROWS * SIZE,
+    viewBox: "0 0 #{COLS * SIZE} #{ROWS * SIZE}" do
   css ".cell" => { stroke: "white" }
 
   COLS.times do |col|
     ROWS.times do |row|
       rect class: "cell",
-           x: col * CELL_SIZE, y: row * CELL_SIZE,
-           width: CELL_SIZE, height: CELL_SIZE,
-           rx: (CELL_SIZE * 0.1).round,
+           x: col * SIZE, y: row * SIZE,
+           width: SIZE, height: SIZE,
+           rx: (SIZE * 0.1).round,
            fill: COLORS[(col + row) % COLORS.length]
     end
   end

@@ -80,6 +80,12 @@ module Sevgi
 
         # Appends distinct existing elements as children in argument order.
         # Each element transfers from its current parent. The complete batch is validated before any element moves.
+        # @example Move existing elements into a group
+        #   Sevgi::Graphics.SVG(:minimal) do
+        #     dot = circle r: 2
+        #     label = text "Ready", x: 6
+        #     g(id: "status").Append(dot, label)
+        #   end
         # @param elements [Array<Sevgi::Graphics::Element>] distinct elements to append
         # @return [Sevgi::Graphics::Element] self
         # @raise [Sevgi::ArgumentError] when an argument has a different element class, is repeated, or is this target or its ancestor
@@ -192,6 +198,10 @@ module Sevgi
         def Stay(...) = Stop.send(:new, ...)
 
         # Traverses the subtree depth-first.
+        # @example Find the first circle and stop the traversal
+        #   drawing = Sevgi::Graphics.SVG(:minimal) { g { circle id: "target"; circle id: "later" } }
+        #   found = drawing.Traverse { |node| node.Stay(node) if node.Is? :circle }
+        #   found[:id] # => "target"
         # @param depth [Integer] starting depth
         # @param leave [Proc, nil] optional leave callback
         # @yield [element, depth] visits each element before its children
@@ -231,7 +241,7 @@ module Sevgi
 
         # Evaluates a block in the parent element context.
         # @example Add a sibling while forwarding its id
-        #   root = SVG id: "root"
+        #   root = Sevgi::Graphics.SVG id: "root"
         #   child = root.g id: "child"
         #   child.With("sibling") { |id| line id: }
         # @param args [Array<Object>] positional arguments passed to the block
@@ -254,8 +264,8 @@ module Sevgi
 
         # Evaluates a block in this element context.
         # @example Select a receiver without consuming the block argument
-        #   target = SVG id: "target"
-        #   source = SVG id: "source"
+        #   target = Sevgi::Graphics.SVG id: "target"
+        #   source = Sevgi::Graphics.SVG id: "source"
         #   source.Within("child", receiver: target) { |id| g id: }
         # @param args [Array<Object>] positional arguments passed to the block
         # @param receiver [Object] block receiver

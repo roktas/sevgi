@@ -21,17 +21,20 @@ module Sevgi
           5.0,
           parallelogram.DA.length
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+
+        assert_equal(-15.0, parallelogram.AB.angle)
+        assert_in_delta(-F.atan2(4.0, 3.0), parallelogram.DA.angle)
       end
 
       def test_parallelogram_rejects_unrelated_points
         assert_raises(Error) { Parallelogram.from_points([0, 0], [2, 0], [3, 1], [0, 1]) }
       end
 
-      def test_parallelogram_new_by_height_preserves_tallness
-        [[3.0, 90.0], LengthAngle.new(length: 3.0, angle: 90.0)].each do |tallness|
+      def test_parallelogram_new_by_height_preserves_constraint
+        [[3.0, 90.0], LengthAngle.new(length: 3.0, angle: 90.0)].each do |constraint|
           parallelogram = Parallelogram.new_by_height(
-            horizontal: [4.0, 0.0],
-            tallness:,
+            base: [4.0, 0.0],
+            constraint:,
             position: [1.0, 2.0]
           )
 
@@ -48,11 +51,11 @@ module Sevgi
         end
       end
 
-      def test_parallelogram_new_by_width_preserves_wideness
-        [[4.0, 0.0], LengthAngle.new(length: 4.0, angle: 0.0)].each do |wideness|
+      def test_parallelogram_new_by_width_preserves_constraint
+        [[4.0, 0.0], LengthAngle.new(length: 4.0, angle: 0.0)].each do |constraint|
           parallelogram = Parallelogram.new_by_width(
-            vertical: [3.0, 90.0],
-            wideness:,
+            side: [3.0, 90.0],
+            constraint:,
             position: [1.0, 2.0]
           )
 
@@ -76,8 +79,8 @@ module Sevgi
             LengthAngle.new(length: 3, angle:)
           ].each do |constraint|
             parallelogram = Parallelogram.new_by_height(
-              horizontal: [4, 0],
-              tallness: constraint,
+              base: [4, 0],
+              constraint:,
               position: [1, 2]
             )
 
@@ -97,8 +100,8 @@ module Sevgi
             LengthAngle.new(length: 4, angle:)
           ].each do |constraint|
             parallelogram = Parallelogram.new_by_width(
-              vertical: [3, 90],
-              wideness: constraint,
+              side: [3, 90],
+              constraint:,
               position: [1, 2]
             )
 
@@ -114,16 +117,16 @@ module Sevgi
       def test_parallelogram_rejects_infeasible_constraints
         [
           /height is smaller/,
-          -> (constraint) { Parallelogram.new_by_height(horizontal: [2, 90], tallness: constraint) },
+          -> (constraint) { Parallelogram.new_by_height(base: [2, 90], constraint:) },
           [1, 45],
-          /height angle must have a vertical component/,
-          -> (constraint) { Parallelogram.new_by_height(horizontal: [2, 0], tallness: constraint) },
+          /height constraint must have a vertical component/,
+          -> (constraint) { Parallelogram.new_by_height(base: [2, 0], constraint:) },
           [3, 0],
           /width is smaller/,
-          -> (constraint) { Parallelogram.new_by_width(vertical: [2, 0], wideness: constraint) },
+          -> (constraint) { Parallelogram.new_by_width(side: [2, 0], constraint:) },
           [1, 45],
-          /width angle must have a horizontal component/,
-          -> (constraint) { Parallelogram.new_by_width(vertical: [2, 90], wideness: constraint) },
+          /width constraint must have a horizontal component/,
+          -> (constraint) { Parallelogram.new_by_width(side: [2, 90], constraint:) },
           [3, 90]
         ].each_slice(3) do |message, operation, constraint|
           array_error = assert_raises(Error) { operation.call(constraint) }
@@ -137,8 +140,8 @@ module Sevgi
 
       def test_parallelogram_constraint_forms_share_errors
         factories = [
-          -> (constraint) { Parallelogram.new_by_height(horizontal: [4, 0], tallness: constraint) },
-          -> (constraint) { Parallelogram.new_by_width(vertical: [3, 90], wideness: constraint) }
+          -> (constraint) { Parallelogram.new_by_height(base: [4, 0], constraint:) },
+          -> (constraint) { Parallelogram.new_by_width(side: [3, 90], constraint:) }
         ]
         malformed = [
           [-1, 90],

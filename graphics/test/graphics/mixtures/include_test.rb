@@ -10,22 +10,25 @@ module Sevgi
           receiver = SVG(:minimal)
           calls = []
 
-          ::Sevgi::Derender.stub(:evaluate_file, -> (file, target, id:) { calls << [file, target, id] }) do
-            receiver.Include("source.svg", :node)
+          ::Sevgi::Derender.stub(:evaluate_file, -> (file, target, id:, omit:) { calls << [file, target, id, omit] }) do
+            receiver.Include("source.svg", :node, omit: %i[id style])
           end
 
-          assert_equal([["source.svg", receiver, :node]], calls)
+          assert_equal([["source.svg", receiver, :node, %i[id style]]], calls)
         end
 
         def test_include_children_delegates_to_children
           receiver = SVG(:minimal)
           calls = []
 
-          ::Sevgi::Derender.stub(:evaluate_children_file, -> (file, target, id:) { calls << [file, target, id] }) do
-            receiver.IncludeChildren("source.svg", "node")
+          ::Sevgi::Derender.stub(
+            :evaluate_children_file,
+            -> (file, target, id:, omit:) { calls << [file, target, id, omit] }
+          ) do
+            receiver.IncludeChildren("source.svg", "node", omit: :style)
           end
 
-          assert_equal([["source.svg", receiver, "node"]], calls)
+          assert_equal([["source.svg", receiver, "node", :style]], calls)
         end
       end
     end

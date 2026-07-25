@@ -1,13 +1,14 @@
 --title Sevgi API
 --hide-api private
 --readme README.md
---db .cache/ruby/yardoc
---output-dir .cache/ruby/doc/api
+--db .local/var/ruby/yardoc
+--output-dir .local/var/ruby/doc/api
 function/lib/**/*.rb
 geometry/lib/**/*.rb
 graphics/lib/**/*.rb
 standard/lib/**/*.rb
 derender/lib/**/*.rb
 sundries/lib/**/*.rb
+appendix/lib/**/*.rb
 toplevel/lib/**/*.rb
 showcase/lib/**/*.rb

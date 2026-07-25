@@ -1,0 +1,9 @@
+%% Render with @mermaid-js/mermaid-cli 11.16.0.
+flowchart TD
+  accTitle: SVG validation lifecycle
+  accDescr: An SVG document is prepared, validated and linted before Render, Save or Out writes it.
+  document["SVG document"] --> prepare["PreRender"]
+  prepare --> validate["Validate"]
+  prepare --> lint["Lint"]
+  validate --> output["Render / Save / Out"]
+  lint --> output

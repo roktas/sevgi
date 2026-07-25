@@ -7,6 +7,63 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Added
 
+- Added responsive Mermaid diagrams for the Derender round trip and SVG validation lifecycle.
+
+### Changed
+
+- Documented how the `igves` and `igsev` command names reflect their conversion directions.
+- Normalized DSL catalog provider labels to lowercase and simplified polyfill-backed editor entries to `inkscape`.
+
+### Fixed
+
+- Pre-rendered Mermaid diagrams as inline SVG instead of parsing them in site visitors' browsers.
+- Removed duplicate provider and context labels from DSL catalog entries.
+
+## 0.98.2 - 2026-07-25
+
+### Fixed
+
+- Restored the `sevgi` CLI's main-object scope so bare toolkit calls remain available inside script helper classes.
+
+## 0.98.1 - 2026-07-20
+
+### Changed
+
+- Changed the `sevgi` CLI to use the executor's isolated scope by default.
+
+### Removed
+
+- Removed the redundant `-n` and `--nomain` CLI options; library consumers can still select `main: true` through
+  `Sevgi.execute` and `Sevgi.execute_file` when needed.
+
+## 0.98.0 - 2026-07-20
+
+### Added
+
+- Added standard-input support to `sevgi`, `igves`, and `igsev`; `sevgi --as NAME` and
+  `Sevgi.execute_file(..., as: NAME)` supply the logical source basename used by implicit SVG, PDF, and PNG
+  destinations without changing physical load identity.
+
+## 0.97.0 - 2026-07-19
+
+### Added
+
+- Added `sevgi-appendix`, containing the Sevgi agent skill and a RuboCop plugin for preserving readable `.sevgi` DSL
+  source alongside rubyfmt-formatted Ruby; the umbrella `sevgi` gem installs the matching Appendix version.
+- Added `sevgi --skill` to report the validated path of the matching packaged agent skill for product-neutral setup.
+- Added `igsev` to the umbrella gem for normalizing an SVG file through a complete SVG-to-Sevgi-to-SVG round trip.
+
+### Changed
+
+- Made Homebrew the recommended complete CLI installation while retaining Bundler and focused component gems for Ruby
+  application dependencies.
+
+## 0.96.0 - 2026-07-18
+
+### Added
+
+- Added exact, subtree-wide attribute omission to Derender content/file conversion, evaluation, and inclusion APIs;
+  `igves --omit` exposes the same behavior from the command line.
 - Added `Sevgi.SVG` as the explicit namespaced form of the top-level SVG document entrypoint.
 - Added the opt-in recursive `SVG::Modules` contract for callable drawing namespaces.
 - Added callable drawing-module `base` blocks, document and paper registry introspection, Canvas structural equality,
@@ -16,6 +73,18 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Changed
 
+- Breaking: replaced the `SVG = Sevgi::Graphics` alias with an independent SVG facade. Facade operations now use
+  capitalized names such as `SVG.Canvas` and `SVG.Document`; lowercase component helpers remain on
+  `Sevgi::Graphics`, and the stuttering `SVG.SVG` form was removed.
+- Breaking: made low-level `Executor.execute` and `execute_file` runners private; consumers use
+  `Sevgi.execute` and `Sevgi.execute_file` while retaining the public result and error types.
+- Breaking: removed the abstract `Document::Base` layer from the selectable document-profile registry; `Minimal` and
+  `Default` are now sibling concrete profiles, and custom profile hierarchies should derive from `Base`.
+- Breaking: renamed Parallelogram segment and constraint arguments by geometric role: `base`, `side`, and
+  `constraint` replace axis-implying constructor names.
+- Made degree-based sine and cosine exact at integer quarter turns, eliminating cardinal Geometry residue.
+- Documented complete file-system failure families for file comparison, output, touch, and upward location helpers.
+- Formalized generated Tile ids, positional CSS classes, template placement, and per-use callback signatures.
 - Formalized String and Symbol ids across Derender selection APIs and documented file-read failures consistently.
 - Breaking: made top-level `Decompile`, `Derender`, `Evaluate`, and `EvaluateChildren` consume inline SVG/XML;
   file inputs now use the corresponding `File`-suffixed entrypoints.
@@ -62,6 +131,12 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Removed
 
+- Removed public access to pluralization tables and the internal SVG save extension; pluralization rules are now deeply
+  immutable.
+- Removed public documentation and constant access for command-line implementation modules; the `sevgi` and `igves`
+  executables remain unchanged.
+- Removed eager loading and public documentation of private Showcase build/test support; explicit support entrypoints
+  now keep the harness under the Showcase namespace.
 - Removed public access to document profile name normalizers; registry operations retain them as private plumbing.
 - Removed the redundant `Margin.margin` constructor; use canonical bracket notation.
 - Removed public executor orchestration, obsolete callable-module hooks, the old public attribute syntax constants, and

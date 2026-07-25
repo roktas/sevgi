@@ -7,10 +7,13 @@ module Sevgi
     def test_toplevel_exposes_expected_methods
       assert_equal(
         %i[
+          Canvas
           Decompile
           DecompileFile
           Derender
           DerenderFile
+          Document
+          Document!
           Evaluate
           EvaluateChildren
           EvaluateChildrenFile

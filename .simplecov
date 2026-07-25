@@ -6,6 +6,7 @@ root = File.expand_path(__dir__)
 project = File.basename(Dir.pwd)
 suite = ARGV.any? { |arg| arg.end_with?("integration_test.rb") } ? "integration" : "test"
 components = %w[
+  appendix
   derender
   function
   geometry
@@ -19,13 +20,13 @@ tracked_glob = File.join(root, "{Rakefile,{#{components.join(",")}}/lib/**/*.rb}
 tracked_files = Dir[tracked_glob].map { |file| File.expand_path(file) }.sort
 
 SimpleCov.root(root)
-SimpleCov.coverage_dir(File.join(root, ".cache/ruby/coverage"))
+SimpleCov.coverage_dir(File.join(root, ".local/var/ruby/coverage"))
 SimpleCov.command_name("#{project}:#{suite}")
 SimpleCov.formatters = [SimpleCov::Formatter::HTMLFormatter, SimpleCov::Formatter::JSONFormatter]
 SimpleCov.at_exit do
   result = SimpleCov.result
   missing = tracked_files - result.files.map(&:filename)
-  raise("Coverage result is missing tracked files:\n#{missing.join("\n")}") unless missing.empty?
+  raise "Coverage result is missing tracked files:\n#{missing.join("\n")}" unless missing.empty?
 
   result.format!
 end
@@ -36,6 +37,7 @@ SimpleCov.start do
 
   add_filter("/test/")
 
+  add_group("Appendix", File.join(root, "appendix/lib"))
   add_group("Build", File.join(root, "Rakefile"))
   add_group("Derender", File.join(root, "derender/lib"))
   add_group("Function", File.join(root, "function/lib"))

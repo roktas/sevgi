@@ -5,7 +5,8 @@ require "shellwords"
 
 module Sevgi
   module Function
-    # Shell execution helpers and executable lookup utilities.
+    # Command methods promoted to {Sevgi::F}. This module owns the public immutable {Shell::Result} value but is not
+    # otherwise a consumer mixin contract.
     module Shell
       # Checks whether a program exists and is executable.
       # @param program [Object] program name, absolute path, or relative slash-containing path

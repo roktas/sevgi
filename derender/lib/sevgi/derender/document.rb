@@ -67,9 +67,10 @@ module Sevgi
 
       # Converts the root or selected node into a derender node.
       # @param id [String, Symbol, nil] optional SVG id selecting a node inside the document
+      # @param omit [String, Symbol, Array<String, Symbol>, nil] attribute name or names omitted from the selected subtree
       # @return [Sevgi::Derender::Node] selected node in the derender tree
       # @raise [Sevgi::ArgumentError] when the document has no root element or the id is absent
-      def decompile(id = nil)
+      def decompile(id = nil, omit: nil)
         if id
           if (found = doc.xpath("//*[@id=#{xpath_literal(id)}]") || []).empty?
             ArgumentError.("No such element with id '#{id}' in document")
@@ -82,7 +83,7 @@ module Sevgi
 
         ArgumentError.("XML document has no root element") unless element
 
-        Node.send(:new, element, pres, namespaces: namespace_scope(element))
+        Node.send(:new, element, pres, namespaces: namespace_scope(element), omit: omissions(omit))
       end
 
       # Returns XML declaration and pre-root nodes preserved for root decompilation. The result contains only String
@@ -108,6 +109,10 @@ module Sevgi
         element.namespace_definitions.to_h do |namespace|
           [namespace.prefix ? "xmlns:#{namespace.prefix}" : "xmlns", namespace.href]
         end
+      end
+
+      def omissions(value)
+        Array(value).to_h { [it.to_s.dup.freeze, true] }.freeze
       end
 
       def xpath_literal(value)

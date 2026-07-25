@@ -18,16 +18,17 @@ module Sevgi
       "RUBYLIB" => nil,
       "RUBYOPT" => nil
     }.freeze
-    Component = Data.define(:dir, :name, :entrypoint, :executables)
+    Component = Data.define(:dir, :name, :entrypoint, :executables, :runtime)
     COMPONENTS = [
-      Component["function", "sevgi-function", "sevgi/function", []],
-      Component["geometry", "sevgi-geometry", "sevgi/geometry", []],
-      Component["graphics", "sevgi-graphics", "sevgi/graphics", []],
-      Component["standard", "sevgi-standard", "sevgi/standard", []],
-      Component["derender", "sevgi-derender", "sevgi/derender", %w[igves]],
-      Component["sundries", "sevgi-sundries", "sevgi/sundries", []],
-      Component["toplevel", "sevgi", "sevgi", %w[sevgi]],
-      Component["showcase", "sevgi-showcase", "sevgi/showcase", []]
+      Component["function", "sevgi-function", "sevgi/function", [], true],
+      Component["geometry", "sevgi-geometry", "sevgi/geometry", [], true],
+      Component["graphics", "sevgi-graphics", "sevgi/graphics", [], true],
+      Component["standard", "sevgi-standard", "sevgi/standard", [], true],
+      Component["derender", "sevgi-derender", "sevgi/derender", %w[igves], true],
+      Component["sundries", "sevgi-sundries", "sevgi/sundries", [], true],
+      Component["appendix", "sevgi-appendix", "sevgi/appendix", [], true],
+      Component["toplevel", "sevgi", "sevgi", %w[igsev sevgi], true],
+      Component["showcase", "sevgi-showcase", "sevgi/showcase", [], false]
     ].freeze
 
     def test_archives_are_complete_from_root_and_component_builds
@@ -103,7 +104,12 @@ module Sevgi
 
         refute_includes(readme, "../", component.name)
         assert_includes(readme, "gem install #{component.name}", component.name)
-        assert_includes(readme, "require \"#{component.entrypoint}\"", component.name)
+        if component.runtime
+          assert_includes(readme, "require \"#{component.entrypoint}\"", component.name)
+        else
+          assert_includes(readme, "asset package rather than a runtime API", component.name)
+        end
+
         assert_includes(readme, "Native prerequisites", component.name)
         assert_includes(readme, "Ruby #{MINIMUM_RUBY} or newer", component.name)
         assert_includes(readme, "https://sevgi.roktas.dev", component.name)
@@ -125,7 +131,7 @@ module Sevgi
       assert_includes(::File.read(::File.join(ROOT, "Rakefile")), "task(:coverage)")
 
       root_pkg = ::File.join(ROOT, "pkg/agent-clean.tmp")
-      root_coverage = ::File.join(ROOT, ".cache/ruby/coverage/agent-clean.tmp")
+      root_coverage = ::File.join(ROOT, ".local/var/ruby/coverage/agent-clean.tmp")
       component_pkg = ::File.join(ROOT, "function/pkg/agent-clean.tmp")
       component_coverage = ::File.join(ROOT, "function/coverage/agent-clean.tmp")
 
@@ -203,6 +209,11 @@ module Sevgi
       assert_empty(contents.grep(%r{\A/|\.\.}), component.name)
       refute(contents.any? { |file| file == "AGENTS.md" || file.start_with?(".agents/") }, component.name)
       assert_equal(component.executables, gem.spec.executables.sort)
+
+      return unless component.name == "sevgi-appendix"
+
+      assert_equal("agents/skills/sevgi", gem.spec.metadata.fetch("sevgi_skill_path"))
+      assert_includes(contents, "agents/skills/sevgi/SKILL.md")
     end
 
     def build_component_package(component, dir)
@@ -289,15 +300,36 @@ module Sevgi
     end
 
     def smoke_installed_cli(gem_home)
-      out, err, status = Open3.capture3(smoke_env(gem_home), "sevgi", "--version")
+      %w[igsev igves sevgi].each do |command|
+        out, err, status = Open3.capture3(smoke_env(gem_home), command, "--version")
+
+        assert(status.success?, "#{command}\nstdout:\n#{out}\nstderr:\n#{err}")
+        assert_equal(VERSION, out.strip)
+      end
+
+      out, err, status = Open3.capture3(smoke_env(gem_home), "sevgi", "--skill")
+      skill = out.strip
 
       assert(status.success?, "stdout:\n#{out}\nstderr:\n#{err}")
-      assert_equal(VERSION, out.strip)
+      assert_equal("#{skill}\n", out)
+      assert_empty(err)
+      assert_equal(::File.expand_path(skill), skill)
+      assert(::File.file?(::File.join(skill, "SKILL.md")), skill)
     end
 
     def smoke_installed_gems(gem_home)
       code = <<~RUBY
         require "sevgi"
+        require "sevgi/appendix"
+
+        raise "sevgi loaded RuboCop development tooling" if defined?(RuboCop)
+
+        require "sevgi-appendix"
+
+        context = LintRoller::Context.new(engine: :rubocop, engine_version: RuboCop::Version.version)
+        rules = RuboCop::Sevgi::Plugin.new({}).rules(context)
+        raise "sevgi-appendix rules are missing" unless File.file?(rules.value)
+
         require "sevgi/showcase"
 
         %w[
@@ -307,6 +339,7 @@ module Sevgi
           sevgi-standard
           sevgi-derender
           sevgi-sundries
+          sevgi-appendix
           sevgi
           sevgi-showcase
         ].each do |name|

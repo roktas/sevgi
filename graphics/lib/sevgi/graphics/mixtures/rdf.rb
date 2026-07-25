@@ -6,7 +6,7 @@ module Sevgi
       # DSL helpers for RDF and license metadata.
       #
       # @example Add Creative Commons metadata
-      #   SVG :inkscape do
+      #   Sevgi::Graphics.SVG :inkscape do
       #     License_CC0 title: "Example", creator: "A. Creator"
       #   end
       module RDF

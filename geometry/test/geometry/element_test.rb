@@ -64,7 +64,7 @@ module Sevgi
         refute_respond_to(Rect[1, 2], :draw!)
       end
 
-      def test_lined_factory_builds_constructible_open_and_closed_classes
+      def test_lined_factory_builds_open_and_closed_shapes
         shapes = [
           Element.lined.([0, 0], [1, 0], [0, 1]),
           Element.lined(open: true).([0, 0], [1, 0]),

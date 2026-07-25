@@ -1,0 +1,4 @@
+interface:
+  display_name: "Sevgi"
+  short_description: "Create SVG with the Sevgi DSL"
+  default_prompt: "Use $sevgi to create an SVG drawing with the Sevgi DSL."

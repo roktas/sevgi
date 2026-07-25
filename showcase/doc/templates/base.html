@@ -17,9 +17,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
-    <link rel="preload" href="{{ get_url(path='/img/logo-mark@2x.png') }}" as="image" media="(-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi)">
-    <link rel="preload" href="{{ get_url(path='/img/logo-mark.png') }}" as="image" media="not all and (-webkit-min-device-pixel-ratio: 2), not all and (min-resolution: 192dpi)">
-
     <script>
     // iOS viewport jank fix
     (function() {
@@ -68,6 +65,17 @@
     <link rel="stylesheet" href="{{ get_url(path='giallo-dark.css', cachebust=true) | safe }}" id="syntax-dark">
     
     <script src="{{ get_url(path='js/toggle.js', cachebust=true) | safe }}"></script>
+    {% set dsl_catalog = load_data(path="data/dsl.yml") %}
+    <script>
+    // Keep DSL search results pointed at their catalog entries.
+    window.sevgiDslAnchors = [
+    {% for letter, entries in dsl_catalog.letters %}
+    {% for entry in entries %}
+        ["{{ entry.name }}", "{{ entry.anchor }}"],
+    {% endfor %}
+    {% endfor %}
+    ];
+    </script>
     <script src="/elasticlunr.min.js" defer></script>
     <script src="/search_index.en.js" defer></script>
     <script src="{{ get_url(path='js/search.js', cachebust=true) | safe }}" defer></script>
@@ -112,10 +120,20 @@
 
         <a href="/" class="logo-link">
             <div class="logo">
-                <img src="{{ get_url(path=config.extra.logo_path) }}" srcset="{{ get_url(path='/img/logo-mark.png') }} 1x, {{ get_url(path='/img/logo-mark@2x.png') }} 2x" alt="logo" width="44" height="44" decoding="sync" fetchpriority="high">
+                <svg viewBox="0 -2 38.28 61.5" role="img" aria-label="Sevgi logo" shape-rendering="geometricPrecision">
+                    <defs>
+                        <path id="header-logo-master" d="m 30,30 c 0,0 18.39,7.089444 18.39,15 C 48.39,52.910556 30,60 30,60 M 30,0 C 30,0 11.61,7.089442 11.61,14.999998 C 11.61,22.910556 30,30 30,30"></path>
+                    </defs>
+                    <g transform="translate(-10.86,-1.25)" fill="none" stroke-linecap="round" stroke-width="4">
+                        <use href="#header-logo-master" stroke="var(--wt-logo-passive)" transform="matrix(-1,0,0,1,60,0)"></use>
+                        <use href="#header-logo-master" stroke="var(--wt-logo-active)"></use>
+                    </g>
+                </svg>
                 <span class="logo-text">{{ config.extra.logo_name }}</span>
             </div>
         </a>
+
+        {% block slogan %}{% endblock slogan %}
 
         <nav>
             <div class="search-container">
@@ -126,13 +144,19 @@
             <a class="nav-item" href="{{ menu.link | safe }}">{{ menu.title }}</a>
             {% endfor %}
             <button class="theme-toggle" aria-label="Toggle theme" title="Toggle dark/light mode">
-                <i class="fas fa-sun light-icon" aria-hidden="true"></i>
+                <svg class="light-icon theme-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="12" cy="12" r="6" fill="currentColor"></circle>
+                    <path d="m5.6 5.6-2.1-2.1m15 2.1 2.1-2.1m-15 15-2.1 2.1m15-2.1 2.1 2.1M12 4V2.8m0 17.2v1.2M4 12H2.8m17.2 0h1.2" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+                </svg>
                 <i class="fas fa-moon dark-icon" aria-hidden="true"></i>
             </button>
         </nav>
 
         <button class="theme-toggle mobile-theme-toggle" aria-label="Toggle theme" title="Toggle dark/light mode">
-            <i class="fas fa-sun light-icon" aria-hidden="true"></i>
+            <svg class="light-icon theme-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="6" fill="currentColor"></circle>
+                <path d="m5.6 5.6-2.1-2.1m15 2.1 2.1-2.1m-15 15-2.1 2.1m15-2.1 2.1 2.1M12 4V2.8m0 17.2v1.2M4 12H2.8m17.2 0h1.2" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+            </svg>
             <i class="fas fa-moon dark-icon" aria-hidden="true"></i>
         </button>
     </header>

@@ -333,7 +333,7 @@ module Sevgi
     # to an absent name behaves as replacement, and nil assignments are ignored.
     #
     # @example Inspect and update element attributes
-    #   element = SVG { rect id: "copy", "-source": "original" }.children.first
+    #   element = Sevgi::Graphics.SVG { rect id: "copy", "-source": "original" }.children.first
     #   element.attributes[:"-source"] # => "original"
     #   element.attributes.merge!(fill: "red")
     #   element.attributes.to_h # => { id: "copy", :"-source" => "original", fill: "red" }

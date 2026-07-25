@@ -1,0 +1,7 @@
+%% Render with @mermaid-js/mermaid-cli 11.16.0.
+flowchart TD
+  accTitle: Derender round trip
+  accDescr: SVG or XML input becomes an immutable Derender node, then Sevgi source, then an evaluated SVG tree.
+  input["SVG/XML content or file"] --> node["Immutable Derender node"]
+  node --> source["Sevgi source"]
+  source --> tree["Evaluated SVG tree"]

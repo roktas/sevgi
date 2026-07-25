@@ -48,18 +48,47 @@ module Sevgi
         end
       end
 
-      def test_executable_rejects_extra_operands
-        out, err, status = run_igves("first.svg", "second.svg")
+      def test_executable_reads_stdin_when_file_is_omitted_or_dash
+        [[], ["-"]].each do |args|
+          out, err, status = run_igves(*args, stdin_data: "<svg id=\"root\"/>")
 
-        assert_equal(1, status.exitstatus)
-        assert_empty(out)
-        assert_match(/Unexpected argument: second\.svg/, err)
-        assert_match(/Usage: igves \[options\.\.\.\] \[--\] <SVG file>/, err)
+          assert_predicate(status, :success?)
+          assert_equal("SVG id: \"root\"\n", out)
+          assert_empty(err)
+        end
+      end
+
+      def test_executable_omits_repeated_attributes
+        Dir.mktmpdir do |dir|
+          file = ::File.join(dir, "drawing.svg")
+          ::File.write(file, "<svg id=\"root\" style=\"fill: red\" width=\"10\"/>")
+
+          out, err, status = run_igves("--omit", "id", "--omit", "style", file)
+
+          assert_predicate(status, :success?)
+          assert_equal("SVG width: 10\n", out)
+          assert_empty(err)
+        end
+      end
+
+      def test_executable_rejects_invalid_argv_grammar
+        [
+          [["--unknown"], /Not a valid option: --unknown/],
+          [["--omit"], /No attribute given for --omit/],
+          [%w[first.svg second.svg], /Unexpected argument: second\.svg/]
+        ].each do |args, message|
+          out, err, status = run_igves(*args)
+
+          assert_equal(1, status.exitstatus)
+          assert_empty(out)
+          assert_match(message, err)
+          assert_match(/Usage: igves \[options\.\.\.\] \[--\] \[SVG file\|-\]/, err)
+        end
       end
 
       private
 
-      def run_igves(*args, chdir: nil)
+      def run_igves(*args, chdir: nil, stdin_data: "")
         lib = ::File.expand_path("../../lib", __dir__)
         bin = ::File.expand_path("../../bin/igves", __dir__)
         rubylib = [lib, ENV.fetch("RUBYLIB", nil)].compact.join(::File::PATH_SEPARATOR)
@@ -70,6 +99,7 @@ module Sevgi
           ::RbConfig.ruby,
           bin,
           *args,
+          stdin_data:,
           **options
         )
       end

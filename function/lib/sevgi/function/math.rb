@@ -2,14 +2,17 @@
 
 module Sevgi
   module Function
-    # Numeric and trigonometric helpers used by geometry and DSL code.
+    # Numeric and trigonometric methods promoted to {Sevgi::F}. This module owns the public thread-local
+    # {Math.precision} configuration but is not otherwise a consumer mixin contract.
     module Math
       # Default decimal precision used by approximate comparisons.
       PRECISION = 6
 
       PRECISION_KEY = :sevgi_function_math_precision
+      QUADRANT_COSINES = [1.0, 0.0, -1.0, 0.0].freeze
+      QUADRANT_SINES = [0.0, 1.0, 0.0, -1.0].freeze
 
-      private_constant :PRECISION_KEY
+      private_constant :PRECISION_KEY, :QUADRANT_COSINES, :QUADRANT_SINES
 
       # Returns the current thread's default numeric precision.
       # @return [Integer] current thread precision, or {PRECISION} when no override is set
@@ -74,11 +77,15 @@ module Sevgi
       # @raise [Sevgi::ArgumentError] when an operand is not a finite real number
       def atan2(y, x) = to_degrees(::Math.atan2(finite_real(:y, y), finite_real(:x, x)))
 
-      # Returns the cosine of an angle expressed in degrees.
+      # Returns the cosine of an angle expressed in degrees. Integer quarter turns return exact `-1.0`, `0.0`, or
+      # `1.0`; other angles use Ruby's floating-point Math implementation.
       # @param degrees [Numeric] angle in degrees
       # @return [Float]
       # @raise [Sevgi::ArgumentError] when degrees is not a finite real number
-      def cos(degrees) = ::Math.cos(to_radians(degrees))
+      def cos(degrees)
+        degrees = finite_real(:degrees, degrees)
+        quadrant_value(degrees, QUADRANT_COSINES) { ::Math.cos(radians(degrees)) }
+      end
 
       # Returns the cotangent of an angle expressed in degrees.
       # @param degrees [Numeric] angle in degrees
@@ -149,11 +156,15 @@ module Sevgi
         precision.nil? ? number : number.round(valid_precision(precision))
       end
 
-      # Returns the sine of an angle expressed in degrees.
+      # Returns the sine of an angle expressed in degrees. Integer quarter turns return exact `-1.0`, `0.0`, or `1.0`;
+      # other angles use Ruby's floating-point Math implementation.
       # @param degrees [Numeric] angle in degrees
       # @return [Float]
       # @raise [Sevgi::ArgumentError] when degrees is not a finite real number
-      def sin(degrees) = ::Math.sin(to_radians(degrees))
+      def sin(degrees)
+        degrees = finite_real(:degrees, degrees)
+        quadrant_value(degrees, QUADRANT_SINES) { ::Math.sin(radians(degrees)) }
+      end
 
       # Returns the tangent of an angle expressed in degrees.
       # @param degrees [Numeric] angle in degrees
@@ -171,7 +182,7 @@ module Sevgi
       # @param degrees [Numeric] angle in degrees
       # @return [Float]
       # @raise [Sevgi::ArgumentError] when degrees is not a finite real number
-      def to_radians(degrees) = finite_real(:degrees, degrees) / 180 * ::Math::PI
+      def to_radians(degrees) = radians(finite_real(:degrees, degrees))
 
       # Runs a block with a current-thread precision override.
       # @param precision [Integer, nil] scoped precision, or nil to use {PRECISION}
@@ -180,6 +191,9 @@ module Sevgi
       # @return [Object] block return value
       # @raise [Sevgi::ArgumentError] when no block is given
       # @raise [Sevgi::ArgumentError] when precision is not an Integer or nil
+      # @example Compare values under a temporary precision
+      #   Sevgi::F.with_precision(2) { Sevgi::F.eq?(1.001, 1.0) } # => true
+      #   Sevgi::Function::Math.precision # => 6
       def with_precision(precision, &block)
         ArgumentError.("Block required") unless block
 
@@ -214,6 +228,15 @@ module Sevgi
 
         number
       end
+
+      def quadrant_value(degrees, values)
+        turn = degrees % 360
+        return yield unless (turn % 90).zero?
+
+        values[(turn / 90).to_i]
+      end
+
+      def radians(degrees) = degrees / 180 * ::Math::PI
 
       def valid_precision(precision)
         return precision if precision.is_a?(::Integer)
