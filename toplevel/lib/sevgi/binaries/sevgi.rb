@@ -134,13 +134,13 @@ module Sevgi
 
       def execute_file(file, options)
         name = source_name(options.as) if options.as
-        ::Sevgi.execute_file(file, as: name, require: options.require, main: false)
+        ::Sevgi.execute_file(file, as: name, require: options.require, main: true)
       end
 
       def run(file, options)
         return execute_file(file, options) if file
 
-        ::Sevgi.execute($stdin.read, file: source_name(options.as), require: options.require, main: false)
+        ::Sevgi.execute($stdin.read, file: source_name(options.as), require: options.require, main: true)
       end
 
       def source_name(name)

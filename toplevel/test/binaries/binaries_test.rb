@@ -17,7 +17,7 @@ module Sevgi
 
       GemSpec = Data.define(:full_gem_path, :metadata)
 
-      def test_call_uses_isolated_mode
+      def test_call_uses_main_mode
         calls = []
 
         ::Sevgi.stub(
@@ -31,7 +31,7 @@ module Sevgi
           _out, _err = capture_io { Sevgi.(["script.sevgi"]) }
         end
 
-        assert_equal([["script.sevgi", nil, false]], calls)
+        assert_equal([["script.sevgi", nil, true]], calls)
       end
 
       def test_call_forwards_required_library
@@ -48,7 +48,7 @@ module Sevgi
           _out, _err = capture_io { Sevgi.(["-r", "json", "script.sevgi"]) }
         end
 
-        assert_equal([["script.sevgi", "json", false]], calls)
+        assert_equal([["script.sevgi", "json", true]], calls)
       end
 
       def test_call_reports_load_stack_for_script_error
@@ -237,6 +237,27 @@ module Sevgi
           assert_equal(0, status.exitstatus)
           assert_empty(out)
           assert_empty(err)
+        end
+      end
+
+      def test_executable_exposes_toolkit_to_helper_classes
+        source = <<~SEVGI
+          class Drawing
+            def grid(canvas) = Grid(canvas, unit: 10, multiple: 1)
+          end
+
+          canvas = SVG.Canvas width: 100, height: 100
+          abort unless Drawing.new.grid(canvas).width == 100
+        SEVGI
+
+        with_script(source) do |file|
+          [[[file], ""], [[], source]].each do |args, stdin_data|
+            out, err, status = run_sevgi(*args, stdin_data:)
+
+            assert_predicate(status, :success?)
+            assert_empty(out)
+            assert_empty(err)
+          end
         end
       end
 

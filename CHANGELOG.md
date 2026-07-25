@@ -5,6 +5,10 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## Unreleased
 
+### Fixed
+
+- Restored the `sevgi` CLI's main-object scope so bare toolkit calls remain available inside script helper classes.
+
 ## 0.98.1 - 2026-07-20
 
 ### Changed

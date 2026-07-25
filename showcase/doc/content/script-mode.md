@@ -60,8 +60,9 @@ and `TileX` as plain DSL words. There is little reason to spell out Sevgi's obje
 
 It is still Ruby. Use hashes, loops, calculations, and helper objects wherever they make the drawing easier to read.
 
-The runner installs the full top-level API in a managed scope. The script needs neither `require "sevgi"` nor an
-`SVG.` facade receiver:
+The runner installs the full top-level API through Ruby's main object before evaluating the script in a managed scope.
+This keeps plain toolkit calls available inside helper classes as well as at the top level. The script needs neither
+`require "sevgi"` nor an `SVG.` facade receiver:
 
 ```ruby
 Paper 85, 55, :card
