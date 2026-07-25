@@ -12,6 +12,10 @@ jobs:
     steps:
     - name: Checkout 🛎️
       uses: actions/checkout@9f698171ed81b15d1823a05fc7211befd50c8ae0 # v6.0.3
+    - name: Ruby 🥁
+      uses: ruby/setup-ruby@8e41b362d2589a22a44c1cfa214b3c83052c195b # v1.318.0
+      with:
+        ruby-version: "4.0.6"
     - name: Guard ref and versions 🧯
       run: ruby -rrake -e 'load "Rakefile"; Rake::Task["release:guard"].invoke'
 
