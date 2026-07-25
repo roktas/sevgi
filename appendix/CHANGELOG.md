@@ -5,6 +5,18 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## Unreleased
 
+### Added
+
+- Added responsive Mermaid diagrams for the Derender round trip and SVG validation lifecycle.
+
+### Changed
+
+- Documented how the `igves` and `igsev` command names reflect their conversion directions.
+
+### Fixed
+
+- Removed duplicate provider and context labels from DSL catalog entries.
+
 ## 0.98.2 - 2026-07-25
 
 ### Fixed
