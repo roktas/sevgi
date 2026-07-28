@@ -196,7 +196,7 @@ elements accept initial text and a block together, so inline children such as `t
 ```ruby
 require "sevgi"
 
-radial_label = SVG.Module do
+RadialLabel = SVG.Module do
   def call(value, center:, angle:, radius:, **attributes, &content)
     cx, cy = center
     x = cx + (radius * Sevgi::F.cos(angle))
@@ -210,7 +210,7 @@ radial_label = SVG.Module do
 end
 
 drawing = SVG :minimal, width: 500, height: 500 do
-  Call(radial_label, "Hello, World!", center: [250, 250], angle: 45, radius: 100) do
+  Call RadialLabel, "Hello, World!", center: [250, 250], angle: 45, radius: 100 do
     tspan "cruel"
   end
 end
