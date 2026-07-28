@@ -1,0 +1,30 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 -2 38.28 61.5"
+  shape-rendering="geometricPrecision"
+>
+  <style>
+    .active { stroke: purple; }
+    .passive { stroke: lightgrey; }
+
+    @media (prefers-color-scheme: dark) {
+      .active { stroke: #e5c39c; }
+      .passive { stroke: #52525b; }
+    }
+  </style>
+  <defs>
+    <path
+      id="master"
+      d="m 30,30 c 0,0 18.39,7.089444 18.39,15 C 48.39,52.910556 30,60 30,60 M 30,0 C 30,0 11.61,7.089442 11.61,14.999998 C 11.61,22.910556 30,30 30,30"
+    />
+  </defs>
+  <g
+    transform="translate(-10.86,-1.25)"
+    fill="none"
+    stroke-linecap="round"
+    stroke-width="6"
+  >
+    <use href="#master" class="passive" transform="matrix(-1,0,0,1,60,0)" />
+    <use href="#master" class="active" />
+  </g>
+</svg>
