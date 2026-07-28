@@ -9,7 +9,8 @@
 | `css`, `layer`, `layer!`, `base` | Deliberate lowercase Sevgi words; `base` belongs to callable-module definitions |
 | `SVG(...)` | Build a document in both script and library code |
 | `SVG.Canvas(...)` | Call a full-toolkit facade operation in library code |
-| `SVG.Module { ... }` | Build an anonymous callable module in full-toolkit script or library code |
+| `SVG.Module { ... }` | Build an anonymous callable; public methods are steps and private or protected methods are helpers |
+| `extend SVG::Module` | Apply the same callable contract to an existing or explicitly declared module |
 | `SVG::Canvas` | Refer to a type or namespace |
 | `Canvas(...)` | Call the promoted operation in an executable `.sevgi` script |
 

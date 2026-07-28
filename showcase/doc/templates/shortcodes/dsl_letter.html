@@ -16,6 +16,8 @@
   {% if entry.contract | default(value="") == "callable" %}
   <p>Build an anonymous callable with <code>SVG.Module { ... }</code>. For an existing or explicitly declared module, use
     <code>extend SVG::Module</code>. Use <code>extend SVG::Modules</code> for an owned module tree.</p>
+  <p>Public instance methods are drawing steps; private and protected methods are helpers. Each invocation uses a fresh
+    callable receiver rather than the document object.</p>
   {% endif %}
   {% set example = "```ruby
 " ~ entry.code ~ "

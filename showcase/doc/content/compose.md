@@ -91,8 +91,13 @@ module DrawingParts
 
     RADIUS = 6
 
-    base { circle r: RADIUS, fill: "tomato" }
-    def call(label) = text label, y: 3, "text-anchor": "middle"
+    base { background }
+    def call(label) = caption label
+
+    private
+
+    def background = circle r: RADIUS, fill: "tomato"
+    def caption(label) = text label, y: 3, "text-anchor": "middle"
   end
 
   module StatusIcons
@@ -116,6 +121,9 @@ SVG :minimal do
 end.Render
 ```
 
+`Marker` exposes only `call` as a drawing step. Its private `background` and `caption` methods remain helpers, but they
+can use drawing words such as `circle` and `text`.
+
 Constants assigned directly inside an `SVG.Module` block belong to the surrounding Ruby scope, not to the module it
 creates. In the explicit declaration above, `RADIUS` belongs to `DrawingParts::Marker`, and bare `RADIUS` inside `call`
 finds it there. `SVG.Module` yields the new module as a block argument, so `mod::NAME = value` is possible. A normal
@@ -132,9 +140,30 @@ A callable does not add methods to `SVG::Document::Base` or any profile derived 
 code usable with `:minimal`, `:html`, `:inkscape`, and application-defined document types. The tradeoff is visible at
 the call site: the drawing uses `Call` or another wrapper instead of a bare helper method.
 
-Private and protected methods remain implementation helpers rather than drawing steps. They run in the callable's
-temporary context, not as methods of the document object. This limits helpers that need a document type's private
-state or method behavior; keep those on a [document type or mixture](@/documents.md#document-types).
+Private and protected methods remain implementation helpers rather than drawing steps. Sevgi creates a fresh callable
+receiver for every invocation. The receiver delegates drawing words to the current element, but it is not the document
+object:
+
+```ruby
+Counter = SVG.Module do
+  def call(x) = text next_count.to_s, x: x
+
+  private
+
+  def next_count
+    @count = (@count || 0) + 1
+  end
+end
+
+SVG :minimal do
+  Call Counter, 0
+  Call Counter, 12
+end.Render
+```
+
+The private helper works, but both calls draw `1` because `@count` belongs to a new callable receiver each time. Pass
+changing values as arguments. When a helper must read or change document state, keep it on a
+[document type or mixture](@/documents.md#document-types).
 
 ## Forward nested content {#content}
 

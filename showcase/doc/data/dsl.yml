@@ -628,14 +628,18 @@ letters:
         SVG(profile) { Badge() }.Render
     - name: Module
       anchor: module
-      summary: Build an anonymous callable drawing module through the SVG facade.
+      summary: Build an anonymous callable with public drawing steps and private or protected helpers.
       provider: facade
       context: script
       contract: callable
       themes: [composition, round-trip]
       code: |
         label = SVG.Module do
-          def call(value) = text value
+          def call(value) = draw value
+
+          private
+
+          def draw(value) = text value
         end
         SVG(:minimal) { Call label, "Ready" }.Render
       see: /compose/#callable-modules
