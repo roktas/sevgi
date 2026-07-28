@@ -19,7 +19,9 @@ A typical script has:
 - an `SVG` block followed by `Save`, `Write`, or `Out`
 
 In the checkers example, a Ruby hash stores the piece positions. A callable module holds the drawing steps, and the
-`SVG` block invokes them with `Call`.
+`SVG` block invokes them with `Call`. `CheckerBoard` uses an explicit `module` declaration because it owns constants
+such as `CELL_SIZE`. For a callable that only needs drawing methods and `base` blocks, `SVG.Module { ... }` is the
+shorter form.
 
 Callable modules can put argument-independent SVG in `base` blocks. Sevgi runs inherited bases from parent to child,
 then local bases in registration order. Name a single drawing method `call`; give multiple methods names that describe
@@ -73,8 +75,8 @@ end.Save
 ```
 
 Library code uses the same words through the facade: the example above becomes `SVG.Paper(...)` followed by the same
-`SVG(...)` block. Types and callable-module contracts keep their double-colon spelling in both modes, such as
-`SVG::Canvas` and `SVG::Module`.
+`SVG(...)` block. Types keep their double-colon spelling, such as `SVG::Canvas`. `SVG.Module` builds an anonymous
+callable in both modes; use `extend SVG::Module` for an existing module or one declared with `module`.
 
 ## Load {#load}
 

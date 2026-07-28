@@ -220,7 +220,9 @@ end.Render
 
 `SVG.Module` creates an ordinary Ruby module and installs the callable contract before evaluating its optional
 definition. This makes `base` available inside the block and records public instance methods as drawing steps. To
-configure an existing or named module instead, use `extend SVG::Module` explicitly.
+configure an existing module instead, use `extend SVG::Module` explicitly. Constants assigned inside an `SVG.Module`
+block belong to the surrounding Ruby scope, not to the module it creates. Use an explicit `module` declaration when the
+callable owns constants or nested modules.
 
 Name the method `call` when the module has one drawing step. If it has several public methods, each method becomes a
 separate step. [`base`](/dsl/#base) registers shared, argument-independent drawing that runs before them. The wrapper
