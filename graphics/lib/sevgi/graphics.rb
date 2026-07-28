@@ -25,9 +25,9 @@ module Sevgi
   #     circle cx: 5, cy: 5, r: 4
   #   end
   #   drawing.Render #=> "<svg width=\"10\" height=\"10\">\n  <circle cx=\"5\" cy=\"5\" r=\"4\"/>\n</svg>"
-  # @see https://sevgi.roktas.dev/svg/ SVG construction and profile guide
-  # @see https://sevgi.roktas.dev/library-mode/ Library composition guide
-  # @see https://sevgi.roktas.dev/showcase/ Runnable drawing examples
+  # @see https://sevgi.roktas.dev/documents/ SVG construction and profile guide
+  # @see https://sevgi.roktas.dev/compose/ Composition guide
+  # @see https://sevgi.roktas.dev/examples/ Runnable drawing examples
   # @see Sevgi::Graphics::Document
   # @see Sevgi::Graphics::Canvas
   module Graphics

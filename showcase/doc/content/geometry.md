@@ -2,7 +2,7 @@
 title = "Geometry"
 weight = 12
 [extra]
-group = "Toolkit"
+group = "Guides"
 +++
 
 Geometry supplies a small set of immutable values for calculations the SVG renderer cannot do for you. It uses SVG

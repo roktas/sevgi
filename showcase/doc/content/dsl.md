@@ -1,8 +1,8 @@
 +++
 title = "DSL Catalog"
-weight = 11
+weight = 20
 [extra]
-group = "Core"
+group = "Reference"
 +++
 
 The DSL has two related vocabularies. Lowercase calls such as `rect`, `circle`, and `linearGradient` are SVG element
@@ -27,7 +27,7 @@ end.Out
 ```
 
 Use [`Element`](/dsl/#element) for foreign XML, qualified names, or a name that collides with Ruby. See
-[SVG Essentials](@/svg.md) for the validation lifecycle and the
+[Documents](@/documents.md) for the validation lifecycle and the
 [MDN SVG element reference](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element) for the standard
 element vocabulary.
 

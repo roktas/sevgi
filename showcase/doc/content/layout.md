@@ -1,14 +1,13 @@
 +++
-title = "Sundries"
+title = "Layout"
 weight = 13
 [extra]
-group = "Toolkit"
+group = "Guides"
 +++
 
-Sundries supplies the layout bridge between dimensions and drawings. A ruler fits repeated distances into one span, a
-grid combines two rulers, and a tile repeats one geometry value. They are regular Ruby objects, not another drawing DSL,
-so applications can inspect and test a layout before creating any SVG elements. Export is the separate output-oriented
-part of the component.
+Layout helpers turn dimensions into inspectable rulers, grids, and repeated cells. They are regular Ruby objects, not
+another drawing DSL, so applications can inspect and test a layout before creating SVG elements. For PDF and PNG
+conversion, see [Output](@/output.md).
 
 ## Choose a layout model {#choose-a-layout-model}
 
@@ -50,8 +49,8 @@ length, count, and fitted distance. `su`, `sn`, and `sd` describe the source sub
 
 ## Grid {#grid}
 
-`Grid` combines one horizontal and one vertical ruler. In library mode, `SVG.Grid` builds both rulers from a canvas and
-preserves that canvas's size, unit, and name while replacing its margins with the fitted values:
+`Grid` combines one horizontal and one vertical ruler. `SVG.Grid` builds both rulers from a canvas and preserves that
+canvas's size, unit, and name while replacing its margins with the fitted values:
 
 ```ruby
 canvas = SVG.Canvas width: 80, height: 50, margins: [5]
@@ -113,33 +112,3 @@ tile.box            # bounds of the complete layout
 
 Use this Ruby object when later calculations need the cells or their bounds. Use the DSL words `Tile`, `TileX`, or
 `TileY` instead when the output should define one SVG template and repeat it with `<use>` elements.
-
-## Export {#export}
-
-SVG output needs no native graphics libraries. PDF and PNG export are optional:
-
-```ruby
-canvas = SVG.Canvas width: 40, height: 40, unit: :px
-drawing = SVG :minimal, canvas do
-  circle cx: 20, cy: 20, r: 16, fill: "tomato"
-end
-
-drawing.PNG "badge.png", dpi: 144
-drawing.PDF "badge.pdf"
-```
-
-Applications that keep output policy outside the document can call the component directly. The file suffix selects
-the format when `format:` is omitted, and the return value is the expanded output path:
-
-```ruby
-canvas = SVG.Canvas width: 40, height: 40, unit: :px
-drawing = SVG(:minimal, canvas) { circle cx: 20, cy: 20, r: 16, fill: "tomato" }
-Sevgi::Sundries::Export.call(drawing.Render, "badge.png", width: 320)
-```
-
-Export `width` and `height` control output dimensions; they do not replace the SVG canvas or repair its `viewBox` or
-visible geometry. Define those relationships in the drawing before export. Use `css:` only for deliberate export-only
-styling.
-
-PDF and PNG output uses Cairo, librsvg, and HexaPDF. If one is missing, Sevgi raises a component error. Ordinary SVG
-rendering still works without them.

@@ -1,8 +1,8 @@
 +++
-title = "Showcase Examples"
-weight = 20
+title = "Examples"
+weight = 3
 [extra]
-group = "More"
+group = "Start"
 +++
 
 These examples[^victor-book] are the executable `.sevgi` files from `showcase/srv`, not copies written for the site.

@@ -26,7 +26,8 @@ module Sevgi
   #   cell = Sevgi::Geometry::Rect[8, 4]
   #   Sevgi::Sundries::Tile.new(cell, nx: 3, ny: 2).box.deconstruct
   # @see Sevgi::Graphics::Canvas
-  # @see https://sevgi.roktas.dev/sundries/ Sundries guide
+  # @see https://sevgi.roktas.dev/layout/ Layout guide
+  # @see https://sevgi.roktas.dev/output/ Output guide
   module Sundries
   end
 end

@@ -24,12 +24,12 @@ describe "documentation examples" do
   end
 
   def execute(file, code)
-    if File.basename(file) == "script-mode.md" && code.include?("sevgi/binaries/rake")
+    if code.include?("sevgi/binaries/rake")
       require "rake"
       require "sevgi/binaries/rake"
 
       Object.new.extend(Rake::DSL).extend(FileUtils).instance_eval(code, file, 1)
-    elsif File.basename(file) == "library-mode.md"
+    elsif code.match?(%r{^require "sevgi(?:/graphics)?"$})
       Object.new.instance_eval(code, file, 1)
     else
       source = File.join(Dir.pwd, File.basename(file))

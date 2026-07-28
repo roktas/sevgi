@@ -38,10 +38,11 @@ When a Sevgi checkout is available, prefer its canonical sources:
 
 | Topic | User guide | YARD |
 | --- | --- | --- |
-| Script and library forms | [Getting Started](https://sevgi.roktas.dev/getting-started/), [Library Mode](https://sevgi.roktas.dev/library-mode/) | [`sevgi`](https://www.rubydoc.info/gems/sevgi) |
-| SVG documents and DSL | [SVG Essentials](https://sevgi.roktas.dev/svg/), [DSL Catalog](https://sevgi.roktas.dev/dsl/) | [`sevgi-graphics`](https://www.rubydoc.info/gems/sevgi-graphics) |
+| Script and library forms | [Getting Started](https://sevgi.roktas.dev/start/), [Usage](https://sevgi.roktas.dev/usage/) | [`sevgi`](https://www.rubydoc.info/gems/sevgi) |
+| SVG documents and composition | [Documents](https://sevgi.roktas.dev/documents/), [Compose](https://sevgi.roktas.dev/compose/), [DSL Catalog](https://sevgi.roktas.dev/dsl/) | [`sevgi-graphics`](https://www.rubydoc.info/gems/sevgi-graphics) |
 | Geometry | [Geometry](https://sevgi.roktas.dev/geometry/) | [`sevgi-geometry`](https://www.rubydoc.info/gems/sevgi-geometry) |
-| Rulers, grids, tiles, export | [Sundries](https://sevgi.roktas.dev/sundries/) | [`sevgi-sundries`](https://www.rubydoc.info/gems/sevgi-sundries) |
+| Rulers, grids, and tiles | [Layout](https://sevgi.roktas.dev/layout/) | [`sevgi-sundries`](https://www.rubydoc.info/gems/sevgi-sundries) |
+| SVG, PDF, and PNG output | [Output](https://sevgi.roktas.dev/output/) | [`sevgi-graphics`](https://www.rubydoc.info/gems/sevgi-graphics), [`sevgi-sundries`](https://www.rubydoc.info/gems/sevgi-sundries) |
 | Shared helpers | [Functions](https://sevgi.roktas.dev/functions/) | [`sevgi-function`](https://www.rubydoc.info/gems/sevgi-function) |
 | SVG/XML import and round trip | [Derender](https://sevgi.roktas.dev/derender/) | [`sevgi-derender`](https://www.rubydoc.info/gems/sevgi-derender) |
 

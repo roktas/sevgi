@@ -8,7 +8,7 @@ module Sevgi
       # Use {Sevgi::Sundries::Tile} instead when Ruby code needs inspectable repeated geometry or row/column bounds
       # rather than SVG references.
       # @see Sevgi::Sundries::Tile
-      # @see https://sevgi.roktas.dev/sundries/#choose-a-layout-model Choosing a layout model
+      # @see https://sevgi.roktas.dev/layout/#choose-a-layout-model Choosing a layout model
       module Tile
         # Stable prefix used for generated tile CSS classes.
         PREFIX = "tile"

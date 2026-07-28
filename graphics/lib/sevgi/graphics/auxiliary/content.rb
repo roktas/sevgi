@@ -30,7 +30,7 @@ module Sevgi
     #   Sevgi::Graphics.SVG(:minimal) { text Emphasis["important & safe"] }.Render
     #
     #   # The renderer ignores Emphasis#render's return value. Custom content must escape inserted data itself.
-    # @see https://sevgi.roktas.dev/svg/#content-safety Content safety guide
+    # @see https://sevgi.roktas.dev/documents/#content-safety Content safety guide
     class Content
       private_class_method :new
 

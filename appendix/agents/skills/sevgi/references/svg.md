@@ -29,7 +29,7 @@ Authoritative references:
 
 - [MDN SVG reference](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference)
 - [W3C SVG 2 specification](https://www.w3.org/TR/SVG2/)
-- [Sevgi SVG Essentials](https://sevgi.roktas.dev/svg/)
+- [Sevgi Documents](https://sevgi.roktas.dev/documents/)
 
 Do not invent an SVG name from memory when validation matters. Check MDN and let Sevgi Standard validate known element
 names, attributes, content, and nesting.

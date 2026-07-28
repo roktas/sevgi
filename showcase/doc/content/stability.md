@@ -1,12 +1,13 @@
 +++
-title = "Supported Usage"
-weight = 21
+title = "Stability"
+weight = 22
 [extra]
-group = "More"
+group = "Reference"
 +++
 
-Sevgi supports two public workflows: `.sevgi` scripts and Ruby library calls. You can rely on the DSL and components
-described in this guide, along with the examples that the test suite runs. Internal helpers may change without notice.
+You can rely on the DSL and Ruby methods described in this guide, along with the examples that the test suite runs.
+They cover executable `.sevgi` files, library use, and the public component APIs. Internal helpers may change without
+notice.
 
 ## What is stable
 
@@ -23,7 +24,7 @@ The generated [API reference](https://www.rubydoc.info/gems/sevgi) covers compon
 better reference for scripts and drawing tasks.
 
 Advanced extensions may rely on the documented `Sevgi::F` facade and the public values it returns. The supported
-secondary Function surface is `Sevgi::Function::Location`, `Locate`, `Shell::Result`, and the thread-local
+lower-level Function API is `Sevgi::Function::Location`, `Locate`, `Shell::Result`, and the thread-local
 `Math.precision` accessors. Other nested Function modules organize the implementation and are not consumer
 `include`/`extend` contracts.
 

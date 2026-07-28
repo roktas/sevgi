@@ -2,7 +2,7 @@
 title = "Derender"
 weight = 14
 [extra]
-group = "Toolkit"
+group = "Guides"
 +++
 
 Not every useful vector drawing should be produced programmatically. A Bezier-heavy logo, traced illustration, or
@@ -31,7 +31,7 @@ Choose source generation when the converted Ruby should become the maintained re
 `Include` when the editor file should remain the source of its geometry and Sevgi should compose it at runtime.
 
 Library code uses the capitalized facade operations. For example, a consumer can inspect a node and generate only that
-subtree without installing script-mode names:
+subtree without adding the script runner's top-level names:
 
 ```ruby
 xml = '<svg><g id="mark" style="fill: red"><rect width="4"/></g></svg>'
@@ -152,7 +152,7 @@ Applications depending only on `sevgi-derender` can use the lowercase component 
 `decompile`, `derender`, `evaluate`, and `evaluate_children` accept content; their `_file` counterparts accept paths.
 
 All these APIs parse XML as data and build immutable snapshots or graphics elements; they do not execute the generated
-Ruby. This is distinct from [`Sevgi.execute`](@/execution.md), which deliberately runs trusted Ruby with the process's
+Ruby. This is distinct from [`Sevgi.execute`](@/usage.md#execute), which deliberately runs trusted Ruby with the process's
 authority. Parsing untrusted XML still deserves normal resource limits, but it does not grant the source a Ruby
 execution path.
 

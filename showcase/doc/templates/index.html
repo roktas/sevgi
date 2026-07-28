@@ -12,7 +12,7 @@
       Create SVG <b class="text-nowrap">with Ruby</b>
     </h3>
     <div class="hero-actions">
-      <a class="button" href="/getting-started/">Get Started</a>
+      <a class="button" href="/start/">Get Started</a>
       <a class="button button-secondary" href="/dsl/">DSL Catalog</a>
     </div>
   </section>
@@ -85,7 +85,7 @@
 {% block content %}
 {# Display showcase content directly on homepage #}
 {% set docs_section = get_section(path="_index.md") %}
-{% set showcase = docs_section.pages | filter(attribute="slug", value="showcase") | first %}
+{% set showcase = docs_section.pages | filter(attribute="slug", value="examples") | first %}
 <h1 class="heading-text"><a href="#showcase" class="heading-anchor">{{ showcase.title }}</a></h1>
 {{ showcase.content | safe }}
 {% endblock content %}

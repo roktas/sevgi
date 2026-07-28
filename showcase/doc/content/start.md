@@ -8,10 +8,10 @@ group = "Start"
 Sevgi creates SVG with Ruby. A drawing can be an executable `.sevgi` script or a value built inside another Ruby
 application.
 
-## Script and library modes
+## Create a drawing
 
-Use script mode when the drawing is the program, such as a generated asset or build job. The runner supplies Sevgi's
-entry points, and the script usually writes or prints its result:
+Use a script when the drawing is the program, such as a generated asset or build job. The runner supplies Sevgi's
+names, and the script usually writes or prints its result:
 
 ```ruby
 #!/usr/bin/env -S ruby -S sevgi
@@ -23,7 +23,7 @@ SVG :minimal, canvas do
 end.Save "badge.svg"
 ```
 
-Use library mode when an application owns the drawing and decides where its rendered string goes:
+Build the document as a library value when another application decides where its rendered string goes:
 
 ```ruby
 require "sevgi"
@@ -37,7 +37,7 @@ end
 File.write "badge.svg", drawing.Render
 ```
 
-The `SVG` block is the same in both modes. Operations around it are bare words in a script and capitalized methods on
+The `SVG` block is the same in both forms. Operations around it are bare words in a script and capitalized methods on
 the `SVG` facade in library code:
 
 | Role | `.sevgi` script | Ruby library |
@@ -47,7 +47,8 @@ the `SVG` facade in library code:
 | Refer to the canvas type | `SVG::Canvas` | `SVG::Canvas` |
 
 The script passes its document to `Save`. The application keeps the document and passes its `Render` result to ordinary
-Ruby code. [Script Mode](@/script-mode.md) and [Library Mode](@/library-mode.md) cover each form in detail.
+Ruby code. [Usage](@/usage.md) explains the two forms, their available names, and how applications can run trusted
+`.sevgi` source.
 
 ## See a complete drawing
 
@@ -89,9 +90,9 @@ The umbrella gem is the right choice for most applications and drawing scripts. 
 
 ### Choose a gem
 
-Libraries that need a smaller dependency surface can install focused component gems:
+Libraries that need fewer dependencies can install focused component gems:
 
-| Scenario | Install | Entry point |
+| Scenario | Install | Require |
 | --- | --- | --- |
 | Build and render SVG only | `sevgi-graphics` | `require "sevgi/graphics"` |
 | Build and validate SVG without the full toolkit | `sevgi-graphics sevgi-standard` | `require "sevgi/graphics"` |
@@ -113,10 +114,5 @@ export must provide the optional `cairo`, `rsvg2`, and `hexapdf` gems and their 
 The full installation also packages Sevgi's agent skill. Run `sevgi --skill` to locate it, then follow the
 [Appendix setup guide](https://github.com/roktas/sevgi/tree/main/appendix).
 
-## Choose a document profile
-
-`SVG` accepts a document profile. `:minimal` produces compact output, `:default` writes a standalone SVG document,
-`:html` is suitable for embedding, and `:inkscape` adds editor metadata and helpers. See the
-[document-profile matrix](@/svg.md#document-profiles) for the exact capabilities.
-
-{{ tabs(base="snowflake", dir="../showcase") }}
+Continue with [Documents](@/documents.md) to choose a canvas and document profile, or browse the tested
+[Examples](@/examples.md) for complete drawings.

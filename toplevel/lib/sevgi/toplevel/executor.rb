@@ -24,7 +24,7 @@ module Sevgi
   #   default by installing Sevgi through main before evaluating source in the managed script scope.
   # @note Empty source without `require:` is a strict no-op; the DSL boot block is unused.
   # @note Reentrant and concurrent calls keep independent executor scope stacks per fiber.
-  # @see https://sevgi.roktas.dev/execution/ Execution guide
+  # @see https://sevgi.roktas.dev/usage/#execute Execute source guide
   def self.execute(string, file: nil, line: nil, require: nil, main: false)
     Executor.__send__(:execute, string, file:, line:, require:, receiver: execution_receiver(main), &BootBlock)
   end
@@ -42,7 +42,7 @@ module Sevgi
   #   default by installing Sevgi through main before evaluating source in the managed script scope.
   # @note An empty file without `require:` is a strict no-op; the DSL boot block is unused.
   # @note Reentrant and concurrent calls keep independent executor scope stacks per fiber.
-  # @see https://sevgi.roktas.dev/execution/ Execution guide
+  # @see https://sevgi.roktas.dev/usage/#execute Execute source guide
   def self.execute_file(file, as: nil, require: nil, main: false)
     as = source_name(file, as) if as
     Executor.__send__(:execute_file, file, as:, require:, receiver: execution_receiver(main), &BootBlock)

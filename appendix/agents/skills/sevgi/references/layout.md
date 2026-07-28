@@ -48,7 +48,7 @@ or otherwise explicit line geometry—not merely because a region should look st
 scoped extension, subclass `SVG::Document::Base`, then call `SVG.Mixin :Hatch, profile`; targeting `Base` itself changes
 every descendant profile process-wide.
 
-Read the [Sundries guide](https://sevgi.roktas.dev/sundries/) for Ruler, Grid, and both Tile models; read
+Read the [Layout guide](https://sevgi.roktas.dev/layout/) for Ruler, Grid, and both Tile models; read
 [Geometry sweeps and hatching](https://sevgi.roktas.dev/geometry/#sweeps) for explicit hatch lines; use the
 [DSL Catalog](https://sevgi.roktas.dev/dsl/) for exact drawing words. Exact Ruby contracts live in
 [`sevgi-sundries`](https://www.rubydoc.info/gems/sevgi-sundries) and

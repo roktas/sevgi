@@ -1,8 +1,8 @@
 +++
 title = "Functions"
-weight = 15
+weight = 21
 [extra]
-group = "Toolkit"
+group = "Reference"
 +++
 
 `Sevgi::F` is the supported toolbox shared by Sevgi components and advanced extensions. Check it before reimplementing

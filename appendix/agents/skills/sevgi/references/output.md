@@ -56,6 +56,6 @@ Treat rendered SVGs, PDFs, PNGs, and visual snapshots as derived evidence, not i
 maintained Sevgi or editor-owned SVG/XML source and regenerate. Update expected artifacts only for an intentional output
 change, then review the visible diff before accepting it.
 
-Read [Sundries export](https://sevgi.roktas.dev/sundries/#export) for installation and examples, and
+Read [Output](https://sevgi.roktas.dev/output/) for SVG, PDF, and PNG workflows, and
 [`Sevgi::Sundries::Export`](https://www.rubydoc.info/gems/sevgi-sundries/Sevgi/Sundries/Export) for exact dimensions,
 options, return paths, and errors.

@@ -83,5 +83,6 @@ a nested family of callable modules.
 Ruby arithmetic is appropriate for domain data and values the program must know. It does not supersede the renderer
 ownership rule in [drawing.md](drawing.md): idiomatic Ruby can still be the wrong layer for a rendering calculation.
 
-Use the [Library Mode guide](https://sevgi.roktas.dev/library-mode/) for facade and module composition, and the
-[Script Mode guide](https://sevgi.roktas.dev/script-mode/) for executable source behavior.
+Use [Compose](https://sevgi.roktas.dev/compose/) for callable modules,
+[Documents](https://sevgi.roktas.dev/documents/#document-types) for document classes and mixtures, and
+[Usage](https://sevgi.roktas.dev/usage/) for script and library behavior.

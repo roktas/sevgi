@@ -7,8 +7,7 @@ module Sevgi
   # normally be included directly.
   #
   # @see Sevgi
-  # @see https://sevgi.roktas.dev/library-mode/ Library mode guide
-  # @see https://sevgi.roktas.dev/script-mode/ Script mode guide
+  # @see https://sevgi.roktas.dev/usage/ Usage guide
   module Toplevel
     @promotions = {}
 

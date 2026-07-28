@@ -22,7 +22,7 @@ module Sevgi
     #
     # @see Sevgi.execute
     # @see Sevgi.execute_file
-    # @see https://sevgi.roktas.dev/execution/ Execution guide
+    # @see https://sevgi.roktas.dev/usage/#execute Execute source guide
     Result = Data.define(:value, :error, :stack) do
       # @!attribute [r] value
       #   @return [Object, nil] last value produced, or nil when no value was produced

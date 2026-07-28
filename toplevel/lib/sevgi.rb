@@ -52,9 +52,8 @@ def SVG(...) = Sevgi.SVG(...)
 #   class Drawing
 #     include Sevgi
 #   end
-# @see https://sevgi.roktas.dev/library-mode/ Library mode guide
-# @see https://sevgi.roktas.dev/script-mode/ Script mode guide
-# @see https://sevgi.roktas.dev/execution/ Embedded execution guide
+# @see https://sevgi.roktas.dev/usage/ Usage guide
+# @see https://sevgi.roktas.dev/compose/ Composition guide
 module Sevgi
   # @!method self.Canvas(...)
   #   Builds a canvas from a paper profile or explicit dimensions.

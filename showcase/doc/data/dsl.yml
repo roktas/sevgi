@@ -127,7 +127,7 @@ letters:
           def call(value) = text "$#{value}", x: 8, y: 16
         end
         SVG(:minimal) { Call price, 48 }.Render
-      see: /library-mode/#callable-modules
+      see: /compose/#callable-modules
       see_title: callable modules
     - name: Canvas
       anchor: canvas
@@ -382,7 +382,7 @@ letters:
           Draw grid.x.major.lines, class: %w[guide horizontal]
           Draw grid.y.major.lines, class: %w[guide vertical]
         end.Render
-      see: /sundries/#grid
+      see: /layout/#grid
       see_title: fitted grids
     - name: Group
       anchor: group
@@ -603,7 +603,7 @@ letters:
       code: |
         Load "part"
         SVG(:minimal) { circle r: PART_RADIUS }.Render
-      see: /script-mode/#load
+      see: /usage/#load
       see_title: script loading
 
   M:
@@ -638,7 +638,7 @@ letters:
           def call(value) = text value
         end
         SVG(:minimal) { Call label, "Ready" }.Render
-      see: /library-mode/#callable-modules
+      see: /compose/#callable-modules
       see_title: callable modules
 
   N:
@@ -709,7 +709,7 @@ letters:
       context: script
       themes: [output]
       code: 'SVG(width: 20, height: 20) { circle cx: 10, cy: 10, r: 8 }.PDF "example.pdf"'
-      see: /sundries/#export
+      see: /output/#export
       see_title: export setup
     - name: PNG
       anchor: png
@@ -718,7 +718,7 @@ letters:
       context: script
       themes: [output]
       code: 'SVG(width: 20, height: 20) { circle cx: 10, cy: 10, r: 8 }.PNG "example.png"'
-      see: /sundries/#export
+      see: /output/#export
       see_title: export setup
     - name: Prepend
       anchor: prepend
@@ -841,7 +841,7 @@ letters:
       context: rake
       themes: [script-tools, round-trip]
       code: 'sevgi "drawing", "front", theme: :dark'
-      see: /script-mode/#rake
+      see: /usage/#rake
       see_title: Rake integration
     - name: Skew
       anchor: skew
@@ -894,7 +894,7 @@ letters:
       context: script
       themes: [documents, script-tools]
       code: 'SVG(:minimal) { circle r: 4 }.Render'
-      see: /svg/
+      see: /documents/
       see_title: document construction
     - name: Symbol
       anchor: symbol

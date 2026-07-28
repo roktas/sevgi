@@ -22,7 +22,7 @@ module Sevgi
     # profiles. Targeting Base through {Sevgi::Graphics::Mixtures.mixin} changes every descendant profile process-wide;
     # subclass Base first when an extension should remain scoped.
     #
-    # @see https://sevgi.roktas.dev/svg/#document-profiles Document profiles guide
+    # @see https://sevgi.roktas.dev/documents/#profiles Document profiles guide
     module Document
       # Defensive copy helper for profile metadata snapshots.
       # @api private

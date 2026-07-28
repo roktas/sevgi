@@ -12,7 +12,7 @@ dark_theme                 = "github-dark"
 logo_name                  = "Sevgi"
 github_repo                = "roktas/sevgi"
 site_description           = "Create SVG with Ruby."
-nav_groups                 = ["Start", "Core", "Toolkit", "More"]
+nav_groups                 = ["Start", "Guides", "Reference"]
 extra_menu                 = [
   { title = "Reference", link = "/api/" },
 ]

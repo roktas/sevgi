@@ -27,8 +27,9 @@ module Sevgi
   # @example Distinguish an operation from its result type
   #   canvas = SVG.Canvas width: 24, height: 24, unit: :px
   #   canvas.is_a?(SVG::Canvas) #=> true
-  # @see https://sevgi.roktas.dev/getting-started/ Getting started
-  # @see https://sevgi.roktas.dev/library-mode/ Library mode guide
+  # @see https://sevgi.roktas.dev/start/ Getting started
+  # @see https://sevgi.roktas.dev/usage/ Usage guide
+  # @see https://sevgi.roktas.dev/compose/ Composition guide
   module SVG
     # SVG attribute collection and normalization API.
     Attributes = Graphics::Attributes
