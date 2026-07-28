@@ -101,6 +101,48 @@ The first argument to `SVG` selects the document profile; the optional second ar
 attributes are applied after both. Keep profile and canvas separate when several document dialects share one page size,
 or one document dialect is rendered on several sizes.
 
+### Add helpers to a document class {#document-subclasses}
+
+A library can create a `SVG::Document::Base` subclass when all documents of that type need the same helper methods.
+Pass the class directly to `SVG`. This keeps the helpers on that class instead of adding them to Sevgi's built-in
+document classes or registering a profile name for the whole process:
+
+```ruby
+require "sevgi"
+
+Flowchart = Class.new(SVG::Document::Base) do
+  def Node(label, x:, y:)
+    g transform: "translate(#{x} #{y})" do
+      rect x: -32, y: -12, width: 64, height: 24, rx: 4, fill: "white", stroke: "black"
+      text label, y: 4, "text-anchor": "middle"
+    end
+  end
+end
+
+SVG.Mixin Flowchart do
+  def Link(from:, to:, **attributes)
+    x1, y1 = from
+    x2, y2 = to
+    line x1:, y1:, x2:, y2:, stroke: "black", **attributes
+  end
+end
+
+drawing = SVG Flowchart, width: 200, height: 80 do
+  Link from: [77, 40], to: [113, 40]
+  Node "Parse", x: 45, y: 40
+  Node "Render", x: 145, y: 40
+end
+
+drawing.Render
+```
+
+`Flowchart` defines `Node` itself. `SVG.Mixin` adds `Link` after the class has been created. Both methods can be called
+directly in a `Flowchart` drawing, and subclasses of `Flowchart` inherit them.
+
+Use a [callable module](#callable-modules) when the same drawing helper should work with different document classes
+without adding methods to them. Calling `SVG.Mixin` on `SVG::Document::Base` adds the methods to every subclass. The
+[document-profile guide](@/svg.md#document-profiles) shows this with a named mixture.
+
 ## The same vocabulary with a receiver
 
 The script runner promotes operations such as `Paper`, `Canvas`, and `Grid` into its managed scope. Library code uses
@@ -221,6 +263,23 @@ drawing.Render
 The returned coordinate pair remains available from `Call` when the caller needs it. The definition block keeps normal
 Ruby lexical constant lookup: ordinary library code uses `Sevgi::F`, while executable `.sevgi` scripts may use the
 promoted `F` constant.
+
+### Three ways to add drawing helpers {#callable-ownership}
+
+The [Flowchart example](#document-subclasses) and `RadialLabel` show three ways to add drawing helpers:
+
+| Option | Good for | Cost |
+| --- | --- | --- |
+| `Class.new(SVG::Document::Base)` | Documents that always need the same helper methods | The methods become part of that class and its subclasses |
+| `SVG.Mixin` | Adding methods to an existing document class | It changes that class and its subclasses |
+| `SVG.Module` | Reusing drawing code without adding methods to document classes | It requires `Call`, and every public method is a drawing step |
+
+`SVG.Module` can use private and protected helpers. Every public method is a drawing step, so helper-only methods must be
+private or protected. These helpers can call SVG methods, but they do not run as methods of the SVG document.
+
+Use `SVG.Module` when the helper should work with different document classes. Create a subclass when its helpers should
+always be part of that document type. Use `SVG.Mixin` to add helpers after a class has been defined or from another
+library.
 
 ### Module namespaces {#module-namespaces}
 

@@ -46,6 +46,16 @@ end.Save "mark.svg"
 
 The first form is valid Ruby; the problem is loss of the drawing vocabulary's visual rhythm.
 
+## Choose Where Helpers Live
+
+- Use `SVG.Module` for drawing code that should work with different document profiles without adding methods to them.
+  Invoke it explicitly with `Call` or another callable wrapper. Every public instance method is a drawing step, so keep
+  non-step helpers private or protected. Those helpers run on the callable receiver rather than the SVG document.
+- Subclass `SVG::Document::Base` when every document of a new type should have the same helper methods. The methods can
+  be called directly in the drawing block, and subclasses inherit them.
+- Use `SVG.Mixin` to add methods to a document class after it has been defined or from another library. It changes the
+  target class and its subclasses. Targeting `SVG::Document::Base` changes every descendant profile process-wide.
+
 ## Callable Modules
 
 Build an anonymous callable module with `SVG.Module`, or extend an existing Ruby module with `SVG::Module`. Its public
