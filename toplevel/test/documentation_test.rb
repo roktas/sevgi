@@ -401,7 +401,7 @@ module Sevgi
     end
 
     def test_docs_site_links_generated_api
-      content = ::File.read(::File.join(ROOT, "showcase/doc/content/compatibility.md"))
+      content = ::File.read(::File.join(ROOT, "showcase/doc/content/stability.md"))
 
       assert_includes(content, "https://www.rubydoc.info/gems/sevgi")
     end
