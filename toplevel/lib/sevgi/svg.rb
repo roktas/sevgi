@@ -3,10 +3,11 @@
 module Sevgi
   # Public SVG facade installed by `require "sevgi"`.
   #
-  # Capitalized methods are SVG DSL operations: {SVG.Canvas} creates a canvas,
-  # {SVG.Document} defines a document profile, and {SVG.Paper} registers a
-  # paper size. Double-colon names are Ruby constants and types, such as
-  # {SVG::Canvas} and {SVG::Document}. The global `SVG(...)` method builds a
+  # Capitalized methods are SVG DSL operations and constructors: {SVG.Canvas}
+  # creates a canvas, {SVG.Document} defines a document profile, {SVG.Module}
+  # builds a callable drawing module, and {SVG.Paper} registers a paper size.
+  # Double-colon names are Ruby constants and types, such as {SVG::Canvas},
+  # {SVG::Document}, and {SVG::Module}. The global `SVG(...)` method builds a
   # drawing; there is intentionally no stuttering `SVG.SVG(...)` form.
   #
   # Lowercase constructors remain on {Sevgi::Graphics} for focused component
@@ -123,6 +124,28 @@ module Sevgi
     # @return [Module, nil] anonymous mixture when supplied, otherwise nil
     # @see Sevgi::Toplevel#Mixin
     def self.Mixin(...) = Sevgi.Mixin(...)
+
+    # Builds an anonymous callable drawing module.
+    # The callable contract is installed before the optional definition runs, so `base` and drawing-method tracking
+    # are available throughout the block. The definition keeps its ordinary Ruby lexical constant scope.
+    # @yield [mod] optionally defines the callable module
+    # @yieldparam mod [Module] module being defined
+    # @yieldreturn [Object] ignored definition result
+    # @return [Module] new anonymous module extended with {SVG::Module}
+    # @example Build a callable drawing module
+    #   label = SVG.Module do
+    #     base { circle r: 8, fill: "seagreen" }
+    #     def call(value) = text value
+    #   end
+    #
+    #   SVG(:minimal) { Call label, "OK" }
+    # @see SVG::Module
+    def self.Module(&definition)
+      mod = ::Module.new
+      mod.extend(Graphics::Module)
+      mod.module_eval(&definition) if definition
+      mod
+    end
 
     # Defines or validates a named paper profile.
     # @return [Symbol, String] original paper profile name

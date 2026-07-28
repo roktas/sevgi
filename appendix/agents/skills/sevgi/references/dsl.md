@@ -9,6 +9,7 @@
 | `css`, `layer`, `layer!`, `base` | Deliberate lowercase Sevgi words; `base` belongs to callable-module definitions |
 | `SVG(...)` | Build a document in both script and library code |
 | `SVG.Canvas(...)` | Call a full-toolkit facade operation in library code |
+| `SVG.Module { ... }` | Build an anonymous callable module in full-toolkit script or library code |
 | `SVG::Canvas` | Refer to a type or namespace |
 | `Canvas(...)` | Call the promoted operation in an executable `.sevgi` script |
 
@@ -79,7 +80,7 @@ Prefer non-bang registration; use `Paper!` or `Document!` only for an intentiona
 | Center known inner and outer boxes | element `Align`; use `Sevgi::Geometry::Operation` for edge alignment or a Ruby result |
 | Draw simple line/path wrappers | `LineTo`, `LineBy`, `HLineTo`, `HLineBy`, `VLineTo`, `VLineBy` |
 | Reuse or repeat drawing | `defs`/`use`, `Tile`, `TileX`, `TileY`, `Duplicate` |
-| Compose reusable drawing code | `SVG::Module`, `base`, `Call`; profile-specific `Group`, `Layer`, `Layer!`, `Symbols` |
+| Compose reusable drawing code | `SVG.Module`, `SVG::Module`, `base`, `Call`; profile-specific `Group`, `Layer`, `Layer!`, `Symbols` |
 | Move existing element trees | `Append`, `Prepend`, `Adopt`, `AdoptFirst`, `Orphan` |
 | Draw or hatch Geometry values | `Draw`, `Hatch` on `:inkscape` or an explicitly extended custom profile |
 | Inspect or validate output | `Identifiers`, `Validate`, `Lint` |

@@ -48,18 +48,16 @@ The first form is valid Ruby; the problem is loss of the drawing vocabulary's vi
 
 ## Callable Modules
 
-Extend a Ruby module with `SVG::Module`. Its public instance methods are drawing steps; name the only step `call`, or
-give several steps descriptive names. Private methods remain ordinary implementation helpers. A focused
-`require "sevgi/graphics"` consumer uses `Sevgi::Graphics::Module` and `Sevgi::Graphics::Modules` instead of the full
-facade constants.
+Build an anonymous callable module with `SVG.Module`, or extend an existing Ruby module with `SVG::Module`. Its public
+instance methods are drawing steps; name the only step `call`, or give several steps descriptive names. Private methods
+remain ordinary implementation helpers. A focused `require "sevgi/graphics"` consumer creates an ordinary `Module`
+and extends it with `Sevgi::Graphics::Module`; use `Sevgi::Graphics::Modules` for a named module family.
 
 `base` registers argument-independent invariant SVG content that runs once per invocation before the public drawing
 steps. It is not general initialization or an ordering hook.
 
 ```ruby
-Badge = Module.new do
-  extend SVG::Module
-
+Badge = SVG.Module do
   base { css ".badge" => { fill: "tomato" } }
   def call(label:) = text label, class: "badge"
 end

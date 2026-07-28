@@ -368,6 +368,38 @@ module Sevgi
       ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
     end
 
+    def test_execute_builds_svg_module
+      result = Sevgi.execute(
+        <<~RUBY
+          label = SVG.Module do
+            base { rect id: "base" }
+
+            def call(angle, &content)
+              text F.approx(F.cos(angle), 1).to_s, &content
+            end
+          end
+
+          SVG(:minimal) do
+            Call label, 60 do
+              tspan "nested"
+            end
+          end.Render
+        RUBY
+      )
+
+      assert_predicate(result, :success?)
+      assert_equal(
+        <<~SVG
+          <svg>
+            <rect id="base"/>
+            <text>0.5<tspan>nested</tspan></text>
+          </svg>
+        SVG
+          .chomp,
+        result.value
+      )
+    end
+
     def test_execute_rejects_invalid_main_mode_before_evaluation
       [nil, Object.new, Module.new, :main].each do |main|
         error = assert_raises(ArgumentError) { Sevgi.execute("raise 'evaluated'", main:) }

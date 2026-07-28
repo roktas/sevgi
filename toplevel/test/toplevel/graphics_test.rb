@@ -49,6 +49,7 @@ module Sevgi
         Grid
         Load
         Mixin
+        Module
         Paper
         Paper!
       ]
@@ -56,6 +57,50 @@ module Sevgi
       assert_equal(expected, ::SVG.singleton_methods(false).sort)
       assert_instance_of(Graphics::Canvas, ::SVG.Canvas(width: 4, height: 2))
       assert_operator(::SVG.Document(attributes: {}), :<, Graphics::Document::Base)
+    end
+
+    def test_svg_facade_builds_callable_module
+      yielded = nil
+      callable = ::SVG.Module() do |mod|
+        yielded = mod
+
+        base { rect(id: "base") }
+
+        define_method(:call) do |value, &content|
+          text(value, &content)
+        end
+
+        define_method(:helper) { :private }
+        private(:helper)
+      end
+
+      drawing = Graphics.SVG(:minimal) do
+        Call(callable, "hello") { tspan("world") }
+      end
+
+      assert_same(callable, yielded)
+      assert_instance_of(::Module, callable)
+      assert(callable.is_a?(Graphics::Module))
+      refute(callable.is_a?(Graphics::Modules))
+      assert_includes(callable.private_instance_methods(false), :helper)
+      assert_equal(
+        <<~SVG
+          <svg>
+            <rect id="base"/>
+            <text>hello<tspan>world</tspan></text>
+          </svg>
+        SVG
+          .chomp,
+        drawing.Render()
+      )
+    end
+
+    def test_svg_facade_builds_empty_callable_module
+      callable = ::SVG.Module()
+
+      assert_instance_of(::Module, callable)
+      assert(callable.is_a?(Graphics::Module))
+      assert_nil(Graphics.SVG(:minimal).Call(callable))
     end
 
     def test_svg_facade_omits_component_helpers

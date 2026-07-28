@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Added
 
+- Added `SVG.Module` for building anonymous callable drawing modules with their contract installed before definition.
 - Added responsive Mermaid diagrams for the Derender round trip and SVG validation lifecycle.
 
 ### Changed

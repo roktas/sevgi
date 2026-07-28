@@ -60,9 +60,10 @@ drawing.Render
 `SVG(...)` invokes the global document-builder method. `SVG.Canvas(...)` invokes a facade operation.
 `SVG::Canvas` names the returned type. The facade does not repeat the receiver as `SVG.SVG(...)`.
 
-The same top-level operations also exist on `Sevgi` because script execution and `include Sevgi` use that complete
+Promoted top-level operations also exist on `Sevgi` because script execution and `include Sevgi` use that complete
 toolkit surface. `Sevgi.SVG(...)` and `Sevgi.Canvas(...)` are valid, but the `SVG` facade is the canonical receiver for
-ordinary SVG library work. Execution stays separate as `Sevgi.execute` and `Sevgi.execute_file`.
+ordinary SVG library work. `SVG.Module` is a facade-only convenience constructor. Execution stays separate as
+`Sevgi.execute` and `Sevgi.execute_file`.
 
 ## Canvas and document profiles
 
@@ -160,14 +161,12 @@ dialect; `SVG.Canvas` is the corresponding full-toolkit spelling.
 
 ## Callable modules {#callable-modules}
 
-Callable modules keep related drawing steps together without adding global methods. Before passing a module to
-[`Call`](/dsl/#call), [`Group`](/dsl/#group), [`Layer`](/dsl/#layer-callable),
-[`Layer!`](/dsl/#layer-callable-bang), or [`Symbols`](/dsl/#symbols), extend it with `SVG::Module`:
+Callable modules keep related drawing steps together without adding global methods. Use `SVG.Module` to build an
+anonymous callable before passing it to [`Call`](/dsl/#call), [`Group`](/dsl/#group),
+[`Layer`](/dsl/#layer-callable), [`Layer!`](/dsl/#layer-callable-bang), or [`Symbols`](/dsl/#symbols):
 
 ```ruby
-status = Module.new do
-  extend SVG::Module
-
+status = SVG.Module do
   base { circle r: 10, fill: "seagreen" }
   def call(label:) = text label, y: 4, fill: "white", "text-anchor": "middle"
 end
@@ -177,15 +176,51 @@ SVG :minimal, width: 24, height: 24 do
 end.Render
 ```
 
-`Module.new` creates an ordinary Ruby module. `extend SVG::Module` makes its public instance methods available as
-drawing steps.
+`SVG.Module` creates an ordinary Ruby module and installs the callable contract before evaluating its optional
+definition. This makes `base` available inside the block and records public instance methods as drawing steps. To
+configure an existing or named module instead, use `extend SVG::Module` explicitly.
 
 Name the method `call` when the module has one drawing step. If it has several public methods, each method becomes a
 separate step. [`base`](/dsl/#base) registers shared, argument-independent drawing that runs before them. The wrapper
 word decides whether Sevgi draws the result directly, puts it in a group or layer, or expands it into symbols.
 
 `SVG::Module` aliases the graphics component's callable-module contract. When loading only `sevgi/graphics`, the facade
-is not installed; use `Sevgi::Graphics::Module`.
+and its `SVG.Module` convenience constructor are not installed; create an ordinary `Module` and extend it with
+`Sevgi::Graphics::Module`.
+
+### Forward nested content {#callable-content}
+
+A callable method can accept its caller's block and forward it to the element that owns the nested content. Sevgi
+elements accept initial text and a block together, so inline children such as `tspan` remain nested under `text`:
+
+```ruby
+require "sevgi"
+
+radial_label = SVG.Module do
+  def call(value, center:, angle:, radius:, **attributes, &content)
+    cx, cy = center
+    x = cx + (radius * Sevgi::F.cos(angle))
+    y = cy + (radius * Sevgi::F.sin(angle))
+    defaults = {x:, y:, fill: "black", "text-anchor": "middle"}
+
+    text value, defaults, attributes, &content
+
+    [x, y]
+  end
+end
+
+drawing = SVG :minimal, width: 500, height: 500 do
+  Call(radial_label, "Hello, World!", center: [250, 250], angle: 45, radius: 100) do
+    tspan "cruel"
+  end
+end
+
+drawing.Render
+```
+
+The returned coordinate pair remains available from `Call` when the caller needs it. The definition block keeps normal
+Ruby lexical constant lookup: ordinary library code uses `Sevgi::F`, while executable `.sevgi` scripts may use the
+promoted `F` constant.
 
 ### Module namespaces {#module-namespaces}
 

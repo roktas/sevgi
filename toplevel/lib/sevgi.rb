@@ -36,9 +36,9 @@ def SVG(...) = Sevgi.SVG(...)
 #
 # `require "sevgi"` installs the global document builder `SVG(...)` and the independent {Sevgi::SVG} facade. SVG-domain
 # operations use capitalized method names on that facade, such as `SVG.Canvas`, `SVG.Paper`, and `SVG.Derender`; types
-# and namespaces use Ruby's double-colon notation, such as `SVG::Canvas`. The same operations are available on `Sevgi`
-# for consumers that prefer the full toolkit namespace. Process-level operations such as {Sevgi.execute} remain on
-# `Sevgi` rather than the SVG facade.
+# and namespaces use Ruby's double-colon notation, such as `SVG::Canvas`. Promoted toolkit operations are also
+# available on `Sevgi` for consumers that prefer the full namespace; {SVG.Module} is a facade-only convenience
+# constructor. Process-level operations such as {Sevgi.execute} remain on `Sevgi` rather than the SVG facade.
 #
 # Including this module in a class or module installs the DSL methods plus convenience constants `F`, `Geometry`,
 # `Origin`, and `Export`; script execution provides the same promoted scope. Extending a module does the same. Extending

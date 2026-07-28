@@ -31,9 +31,10 @@ describe "DSL catalog" do
 
   def public_dsl_names
     mixture = mixture_modules.flat_map { it.public_instance_methods(false) }.map(&:to_s)
+    facade = Sevgi::SVG.singleton_methods(false).map(&:to_s)
     toplevel = Sevgi::Toplevel.public_instance_methods(false).map(&:to_s)
 
-    (mixture - DSLCatalog::ORDINARY_ELEMENT_METHODS + toplevel + %w[PreRender base sevgi]).uniq.sort
+    (mixture - DSLCatalog::ORDINARY_ELEMENT_METHODS + facade + toplevel + %w[PreRender base sevgi]).uniq.sort
   end
 
   def prepare(directory)
@@ -98,7 +99,7 @@ describe "DSL catalog" do
   it "marks every callable-module DSL word" do
     names = DSLCatalog::ENTRIES.filter_map { it.fetch("name") if it["contract"] == "callable" }
 
-    assert_equal(%w[Call Group Layer Layer! Symbols base], names.sort)
+    assert_equal(%w[Call Group Layer Layer! Module Symbols base], names.sort)
   end
 
   DSLCatalog::ENTRIES.each do |entry|
