@@ -17,6 +17,7 @@ module Sevgi
             [
               "pdfcpu",
               "nup",
+              "--force",
               "--",
               "form:A4L, border:off",
               "out.pdf",
