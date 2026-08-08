@@ -16,7 +16,7 @@ Start with Pokey for the basic element DSL, then use these examples to trace lar
 | --- | --- |
 | Checkers | Ruby data and callable modules separating board construction from piece placement |
 | Ruler | Ruby ranges, nested layers, labels, and a final element transform in one physical-size drawing |
-| Grid | Fitted ruler queries converted into drawable Geometry lines |
+| Grid | Nested Ruby loops, derived coordinates, and data-driven color selection |
 | Squared and Copperplate | One Grid contract reused for two guidesheets, with Copperplate adding row-bounded hatching |
 | Logos | Repeated drawing parts assembled into several related marks |
 
