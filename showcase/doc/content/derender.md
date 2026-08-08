@@ -15,7 +15,7 @@ Sevgi DSL. Convert inline content or a file, generate source, include part of it
 
 ## The round trip
 
-{{ mermaid(name="derender") }}
+{{<mermaid name="derender" />}}
 
 The conversion keeps element names, attributes, text, comments, CDATA, and child order. It represents the XML tree as
 Ruby. It cannot recover the loops, helper methods, or other higher-level code that may have produced the original file.
@@ -95,7 +95,7 @@ igsev --omit id --omit style badge.svg > normalized.svg
 This is a structural formatter, not a byte-preserving XML rewrite: Sevgi rendering determines declaration, whitespace,
 attribute spelling, and other serialized details.
 
-## Inspect {#inspect}
+## Inspect {{ "{#inspect}" }}
 
 `Decompile` stops one step earlier and returns an immutable node. The node owns snapshots of its attributes,
 namespaces, metadata, content, and descendants:
@@ -127,7 +127,7 @@ node = DecompileFile "badge.svg", id: "mark"
 
 Use these methods when you need to examine a selection, its attributes, or its children without generating source.
 
-## Evaluate and include {#evaluate}
+## Evaluate and include {{ "{#evaluate}" }}
 
 `Evaluate` imports inline content directly into an existing SVG tree. `EvaluateChildren` imports only the selected
 node's children:

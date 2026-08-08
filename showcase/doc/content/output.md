@@ -9,7 +9,7 @@ This page explains how a finished document reaches a Ruby application, a file, o
 SVG text, write SVG directly, or convert the rendered document to PDF or PNG. The drawing's canvas and visible geometry
 should already be correct before output begins.
 
-## SVG {#svg}
+## SVG {{ "{#svg}" }}
 
 Choose the operation by where the result should go:
 
@@ -42,7 +42,7 @@ end.Save
 For `badge.sevgi`, the implicit destination is `badge.svg` in the same directory. `Write "build/badge.svg"` and
 `Save "build/badge.svg"` use the given path instead. `Out` writes the same rendered SVG to standard output.
 
-## Input names {#names}
+## Input names {{ "{#names}" }}
 
 The `sevgi` command reads a file operand, `-`, or standard input when no file is given. Standard input has the logical
 name `output.sevgi`, so an implicit `Save`, `PDF`, or `PNG` writes `output.svg`, `output.pdf`, or `output.png`.
@@ -64,7 +64,7 @@ Here an implicit `Save` writes `drawings/proof.svg`. Explicit destinations and a
 precedence over the logical input name. Applications using `Sevgi.execute_file` can set the same logical basename with
 its `as:` option; see [Usage](@/usage.md#execute).
 
-## PDF and PNG {#export}
+## PDF and PNG {{ "{#export}" }}
 
 SVG output needs no native graphics libraries. PDF and PNG conversion is optional and available through document
 operations:

@@ -9,7 +9,7 @@ Composition combines drawing parts without creating a new document type. Existin
 fragments; callable modules add arguments, shared setup, and reusable drawing steps. Neither approach adds methods to
 the document profile.
 
-## Existing elements {#elements}
+## Existing elements {{ "{#elements}" }}
 
 `Append` and `Prepend` move existing elements into a document. This is enough when each part can be built independently
 and assembled later:
@@ -43,7 +43,7 @@ Use normal SVG `defs`, `symbol`, and `use` elements when the renderer should reu
 independently editable copies instead. `Include` and `IncludeChildren` bring selected content from an external SVG file;
 the [Derender guide](@/derender.md#evaluate) explains how that import works.
 
-## Callable modules {#callable-modules}
+## Callable modules {{ "{#callable-modules}" }}
 
 Callable modules keep related drawing steps together and invoke them explicitly. `SVG.Module` creates an anonymous
 module, makes its public methods callable drawing steps, and evaluates the definition block:
@@ -76,7 +76,7 @@ parent first, followed by local blocks in registration order. The wrapper decide
 `SVG.Module` works in both scripts and libraries. When loading only `sevgi/graphics`, create an ordinary `Module` and
 extend it with `Sevgi::Graphics::Module`.
 
-## Named modules {#named-modules}
+## Named modules {{ "{#named-modules}" }}
 
 Use the factory for a small callable whose state comes through arguments or surrounding Ruby values. Use an explicit
 module declaration when the callable owns constants, nested modules, or other names. One outer namespace can hold both
@@ -165,7 +165,7 @@ The private helper works, but both calls draw `1` because `@count` belongs to a 
 changing values as arguments. When a helper must read or change document state, keep it on a
 [document type or mixture](@/documents.md#document-types).
 
-## Forward nested content {#content}
+## Forward nested content {{ "{#content}" }}
 
 A callable method can accept its caller's block and forward it to the element that owns the nested content. Sevgi
 elements accept initial text and a block together, so inline children such as `tspan` remain nested under `text`:

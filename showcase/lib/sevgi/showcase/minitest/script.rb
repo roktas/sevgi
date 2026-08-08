@@ -32,8 +32,8 @@ module Sevgi
         # @overload run(*args)
         #   Runs the script directly.
         #   @param args [Array<String>] extra command arguments
-        #   @return [Sevgi::Showcase::Test::Shell::Result]
-        def run(*) = Shell.run(file, *)
+        #   @return [Sevgi::Function::Shell::Result]
+        def run(*) = F.sh(file, *)
 
         # Returns the script suite name.
         # @return [String]
@@ -62,10 +62,10 @@ module Sevgi
         # @overload run_passive(*args)
         #   Runs the script without writing Save output to files.
         #   @param args [Array<String>] extra command arguments
-        #   @return [Sevgi::Showcase::Test::Shell::Result]
+        #   @return [Sevgi::Function::Shell::Result]
         def run_passive(*)
           warn("...#{name}")
-          Shell.run("sevgi", "-r", "sevgi/showcase/passive", file, *)
+          F.sh("sevgi", "-r", "sevgi/showcase/passive", file, *)
         end
 
         private

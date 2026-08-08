@@ -38,8 +38,8 @@ module Sevgi
         end
       end
 
-      def test_tabs_shortcode_exposes_named_tab_semantics
-        source = read("doc/templates/shortcodes/tabs.html")
+      def test_tabs_component_exposes_named_tab_semantics
+        source = read("doc/templates/components/tabs.html")
 
         [
           "role=\"tablist\"",

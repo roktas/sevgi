@@ -9,7 +9,7 @@ Layout helpers turn dimensions into inspectable rulers, grids, and repeated cell
 another drawing DSL, so applications can inspect and test a layout before creating SVG elements. For PDF and PNG
 conversion, see [Output](@/output.md).
 
-## Choose a layout model {#choose-a-layout-model}
+## Choose a layout model {{ "{#choose-a-layout-model}" }}
 
 Choose by the value the rest of the program needs, not only by the visible repetition:
 
@@ -21,7 +21,7 @@ Choose by the value the rest of the program needs, not only by the visible repet
 | Fit major and minor intervals into one span | `Ruler` or `RulerEven` | inspectable distances and margins |
 | Combine two fitted rulers | `SVG.Grid` or `Sevgi::Sundries::Grid` | lines, points, cells, and a fitted canvas |
 
-## Rulers {#rulers}
+## Rulers {{ "{#rulers}" }}
 
 `Ruler` fits whole major intervals inside a span. `unit` is the smallest step; `multiple` says how many units form one
 major interval. Requested margins are minimums. Any distance left after fitting whole major intervals is split between
@@ -47,7 +47,7 @@ ruler.waste   # => 13.0 margins plus unfitted remainder
 Use `RulerEven` when the number of major intervals must be even. The compact readers `u`, `n`, and `d` mean interval
 length, count, and fitted distance. `su`, `sn`, and `sd` describe the source subinterval.
 
-## Grid {#grid}
+## Grid {{ "{#grid}" }}
 
 `Grid` combines one horizontal and one vertical ruler. `SVG.Grid` builds both rulers from a canvas and preserves that
 canvas's size, unit, and name while replacing its margins with the fitted values:
@@ -95,7 +95,38 @@ SVG :inkscape, grid.canvas do
 end.Render
 ```
 
-## Tiles {#tiles}
+## Guidesheets {{ "{#guidesheets}" }}
+
+A guidesheet combines the fitted values instead of recalculating coordinates while drawing. Put the reusable drawing
+in a callable module, then choose at the call site whether it belongs in an ordinary group or an Inkscape layer:
+
+```ruby
+require "sevgi"
+
+canvas = SVG.Canvas width: 90, height: 60
+grid = SVG.Grid canvas, unit: 6, multiple: 5
+
+Guidesheet = SVG.Module do
+  def call(grid)
+    Draw grid.x.minor.lines, stroke: "magenta", "stroke-width": 0.12
+    Draw grid.y.minor.lines, stroke: "magenta", "stroke-width": 0.12
+    Draw grid.x.major.lines, stroke: "blue", "stroke-width": 0.4
+    Draw grid.y.major.lines, stroke: "blue", "stroke-width": 0.4
+  end
+end
+
+SVG :inkscape, grid.canvas do
+  rect width: "100%", height: "100%", fill: "white"
+  Layer! Guidesheet, grid, attributes: {id: "Guides"}
+end.Render
+```
+
+The callable receives one inspectable layout object; `Layer!` supplies only placement and editor behavior. The
+[Squared and Copperplate examples](@/examples.md) share this structure. Copperplate adds a clipped `Hatch` to every
+row, while both drawings retain the same fitted frame and major grid. The Ruler example shows the lower-level
+alternative: ordinary Ruby ranges create tick marks and labels directly when no fitted layout object is needed.
+
+## Tiles {{ "{#tiles}" }}
 
 `Tile` arranges copies of one geometry value into rows and columns. The source element's bounding box sets the cell
 pitch, and indexing is row-first:

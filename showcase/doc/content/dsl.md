@@ -13,7 +13,7 @@ Sevgi's own drawing words usually begin with a capital letter, which keeps opera
 `Include` visually distinct from SVG. A few deliberate lowercase words, including `css`, `layer`, and `base`, appear
 here too. Ordinary Ruby methods and exhaustive signatures belong in the API reference.
 
-## SVG elements {#svg-elements}
+## SVG elements {{ "{#svg-elements}" }}
 
 Use SVG element names directly and nest containers naturally:
 
@@ -31,96 +31,96 @@ Use [`Element`](/dsl/#element) for foreign XML, qualified names, or a name that 
 [MDN SVG element reference](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element) for the standard
 element vocabulary.
 
-## Browse by task {#browse-by-task}
+## Browse by task {{ "{#browse-by-task}" }}
 
 Some words appear in more than one group. `Include`, for example, belongs to both composition and round trip. `Grid`
 belongs to layout and script tools.
 
-{{ dsl_index() }}
+{{<dsl_index />}}
 
-## Alphabetical index {#alphabetical-index}
+## Alphabetical index {{ "{#alphabetical-index}" }}
 
 [_](#letter-symbol) · [A](#letter-a) · [B](#letter-b) · [C](#letter-c) · [D](#letter-d) · [E](#letter-e) ·
 [F](#letter-f) · [G](#letter-g) · [H](#letter-h) · [I](#letter-i) · [L](#letter-l) · [M](#letter-m) ·
 [N](#letter-n) · [O](#letter-o) · [P](#letter-p) · [R](#letter-r) · [S](#letter-s) · [T](#letter-t) ·
 [V](#letter-v) · [W](#letter-w)
 
-### _ {#letter-symbol}
+### _ {{ "{#letter-symbol}" }}
 
-{{ dsl_letter(letter="_") }}
+{{<dsl_letter letter="_" />}}
 
-### A {#letter-a}
+### A {{ "{#letter-a}" }}
 
-{{ dsl_letter(letter="A") }}
+{{<dsl_letter letter="A" />}}
 
-### B {#letter-b}
+### B {{ "{#letter-b}" }}
 
-{{ dsl_letter(letter="B") }}
+{{<dsl_letter letter="B" />}}
 
-### C {#letter-c}
+### C {{ "{#letter-c}" }}
 
-{{ dsl_letter(letter="C") }}
+{{<dsl_letter letter="C" />}}
 
-### D {#letter-d}
+### D {{ "{#letter-d}" }}
 
-{{ dsl_letter(letter="D") }}
+{{<dsl_letter letter="D" />}}
 
-### E {#letter-e}
+### E {{ "{#letter-e}" }}
 
-{{ dsl_letter(letter="E") }}
+{{<dsl_letter letter="E" />}}
 
-### F {#letter-f}
+### F {{ "{#letter-f}" }}
 
-{{ dsl_letter(letter="F") }}
+{{<dsl_letter letter="F" />}}
 
-### G {#letter-g}
+### G {{ "{#letter-g}" }}
 
-{{ dsl_letter(letter="G") }}
+{{<dsl_letter letter="G" />}}
 
-### H {#letter-h}
+### H {{ "{#letter-h}" }}
 
-{{ dsl_letter(letter="H") }}
+{{<dsl_letter letter="H" />}}
 
-### I {#letter-i}
+### I {{ "{#letter-i}" }}
 
-{{ dsl_letter(letter="I") }}
+{{<dsl_letter letter="I" />}}
 
-### L {#letter-l}
+### L {{ "{#letter-l}" }}
 
-{{ dsl_letter(letter="L") }}
+{{<dsl_letter letter="L" />}}
 
-### M {#letter-m}
+### M {{ "{#letter-m}" }}
 
-{{ dsl_letter(letter="M") }}
+{{<dsl_letter letter="M" />}}
 
-### N {#letter-n}
+### N {{ "{#letter-n}" }}
 
-{{ dsl_letter(letter="N") }}
+{{<dsl_letter letter="N" />}}
 
-### O {#letter-o}
+### O {{ "{#letter-o}" }}
 
-{{ dsl_letter(letter="O") }}
+{{<dsl_letter letter="O" />}}
 
-### P {#letter-p}
+### P {{ "{#letter-p}" }}
 
-{{ dsl_letter(letter="P") }}
+{{<dsl_letter letter="P" />}}
 
-### R {#letter-r}
+### R {{ "{#letter-r}" }}
 
-{{ dsl_letter(letter="R") }}
+{{<dsl_letter letter="R" />}}
 
-### S {#letter-s}
+### S {{ "{#letter-s}" }}
 
-{{ dsl_letter(letter="S") }}
+{{<dsl_letter letter="S" />}}
 
-### T {#letter-t}
+### T {{ "{#letter-t}" }}
 
-{{ dsl_letter(letter="T") }}
+{{<dsl_letter letter="T" />}}
 
-### V {#letter-v}
+### V {{ "{#letter-v}" }}
 
-{{ dsl_letter(letter="V") }}
+{{<dsl_letter letter="V" />}}
 
-### W {#letter-w}
+### W {{ "{#letter-w}" }}
 
-{{ dsl_letter(letter="W") }}
+{{<dsl_letter letter="W" />}}

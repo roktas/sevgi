@@ -1,4 +1,3 @@
-{% import "macros.html" as macros %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -44,14 +43,14 @@
 
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ current_url | default(value=config.base_url) }}">
-    <meta property="og:title" content="{% if page.title %}{{ page.title }} | {{ config.title }}{% else %}{{ config.title }}{% endif %}">
+    <meta property="og:title" content="{% if page?.title %}{{ page.title }} | {{ config.title }}{% else %}{{ config.title }}{% endif %}">
     <meta property="og:description" content="{{ config.extra.site_description }}">
     <meta property="og:image" content="{{ get_url(path='/img/logo@2x.png') }}">
     <meta property="og:image:width" content="1024">
     <meta property="og:image:height" content="1024">
 
     <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="{% if page.title %}{{ page.title }} | {{ config.title }}{% else %}{{ config.title }}{% endif %}">
+    <meta name="twitter:title" content="{% if page?.title %}{{ page.title }} | {{ config.title }}{% else %}{{ config.title }}{% endif %}">
     <meta name="twitter:description" content="{{ config.extra.site_description }}">
     <meta name="twitter:image" content="{{ get_url(path='/img/logo@2x.png') }}">
 
@@ -175,9 +174,9 @@
             <div class="mobile-menu-section mobile-menu-toc">
                 {% set docs_section = get_section(path="_index.md") %}
                 {% if page %}
-                {{ macros::nav_tree(docs_section=docs_section, current_page=page) }}
+                {{<nav.tree docs_section={docs_section} nav_groups={config.extra.nav_groups} current_page={page} />}}
                 {% else %}
-                {{ macros::nav_tree(docs_section=docs_section) }}
+                {{<nav.tree docs_section={docs_section} nav_groups={config.extra.nav_groups} />}}
                 {% endif %}
             </div>
         </div>
@@ -190,7 +189,7 @@
     <main>
         {% block toc %}
         {% set docs_section = get_section(path="_index.md") %}
-        {{ macros::toc_nav(docs_section=docs_section) }}
+        {{<nav.toc docs_section={docs_section} nav_groups={config.extra.nav_groups} />}}
         {% endblock toc %}
 
         <div

@@ -74,7 +74,7 @@ module Sevgi
           result = script.run_passive
 
           assert_empty(result.err, script.name)
-          assert_equal(File.read(script.svg).chomp, result.to_s, script.name)
+          assert_equal(File.read(script.svg).chomp, result.out, script.name)
         end
       end
 

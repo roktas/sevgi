@@ -12,7 +12,7 @@ Think of the component as the calculation layer beneath a drawing: build values,
 the resulting lines or shapes to `Draw`, `Hatch`, `Align`, or your own Ruby code. No geometry constructor adds an SVG
 element by itself.
 
-## Points and lines {#points-and-lines}
+## Points and lines {{ "{#points-and-lines}" }}
 
 ```ruby
 point = Sevgi::Geometry::Point[3, 4]
@@ -84,7 +84,7 @@ box.outside?([50, 20])   # => true
 open_path.inside?([4, 2]) # => false
 ```
 
-## Alignment {#alignment}
+## Alignment {{ "{#alignment}" }}
 
 Alignment calculates the translation between an inner and outer box. The DSL `Align` helper applies that translation
 as an SVG transform. Library code can request either the offset or a translated geometry value directly:
@@ -112,7 +112,7 @@ SVG :minimal do
 end.Render
 ```
 
-## Drawing {#drawing}
+## Drawing {{ "{#drawing}" }}
 
 In an Inkscape document, `Draw` converts geometry into suitable SVG elements:
 
@@ -125,7 +125,7 @@ SVG :inkscape do
 end.Render
 ```
 
-## Sweeps and hatching {#sweeps}
+## Sweeps and hatching {{ "{#sweeps}" }}
 
 Sweeps intersect parallel lines with a closed geometry shape. `angle` is the direction of the returned lines, while
 `step` is the perpendicular spacing between them. `sweep` may return an empty Array; `sweep!`, used by `Hatch`, requires

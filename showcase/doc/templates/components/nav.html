@@ -1,11 +1,11 @@
-{% macro nav_tree(docs_section, current_page=false) %}
+{% component nav.tree(docs_section, nav_groups, current_page=none) %}
 {% set active_group = "Start" %}
 {% if current_page %}
 {% set active_group = current_page.extra.group | default(value="Start") %}
 {% endif %}
 
 <div class="doc-nav-tree">
-    {% for group in config.extra.nav_groups %}
+    {% for group in nav_groups %}
     <details class="nav-section" {% if group == active_group %}open{% endif %}>
         <summary class="nav-section-title">{{ group }}</summary>
         <div class="nav-section-pages">
@@ -43,12 +43,12 @@
     </details>
     {% endfor %}
 </div>
-{% endmacro nav_tree %}
+{% endcomponent nav.tree %}
 
-{% macro toc_nav(docs_section, current_page=false) %}
+{% component nav.toc(docs_section, nav_groups, current_page=none) %}
 <div class="toc">
     <div class="toc-sticky">
-        {{ self::nav_tree(docs_section=docs_section, current_page=current_page) }}
+        {{<nav.tree docs_section={docs_section} nav_groups={nav_groups} current_page={current_page} />}}
     </div>
 </div>
-{% endmacro toc_nav %}
+{% endcomponent nav.toc %}

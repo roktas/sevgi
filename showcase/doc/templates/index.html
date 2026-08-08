@@ -76,7 +76,7 @@
 
 {% block toc %}
 {% set docs_section = get_section(path="_index.md") %}
-{{ macros::toc_nav(docs_section=docs_section) }}
+{{<nav.toc docs_section={docs_section} nav_groups={config.extra.nav_groups} />}}
 {% endblock toc %}
 
 {% block content_id %}showcase{% endblock content_id %}
@@ -84,8 +84,7 @@
 
 {% block content %}
 {# Display showcase content directly on homepage #}
-{% set docs_section = get_section(path="_index.md") %}
-{% set showcase = docs_section.pages | filter(attribute="slug", value="examples") | first %}
+{% set showcase = get_page(path="examples.md") %}
 <h1 class="heading-text"><a href="#showcase" class="heading-anchor">{{ showcase.title }}</a></h1>
 {{ showcase.content | safe }}
 {% endblock content %}

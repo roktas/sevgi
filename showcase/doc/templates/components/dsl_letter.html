@@ -1,3 +1,4 @@
+{% component dsl_letter(letter) %}
 {% set catalog = load_data(path="data/dsl.yml") %}
 
 {% for key, entries in catalog.letters %}
@@ -28,3 +29,4 @@
     {% endfor %}
   {% endif %}
 {% endfor %}
+{% endcomponent dsl_letter %}

@@ -1,7 +1,4 @@
-{% set base = base | default(value="example") %}
-{% set dir  = dir  | default(value="../../showcase") %}
-{% set ext  = ext  | default(value="sevgi") %}
-{% set title = title | default(value="") %}
+{% component tabs(base="example", dir="../../showcase", ext="sevgi", title="") %}
 
 {# Build file paths with optional directory #}
 {% if dir %}
@@ -61,7 +58,7 @@
 ```" | markdown | safe }}
     </div>
   </div>
-  
+
   <input class="input" name="tabs-{{ base }}" type="radio" id="{{ xml_input }}" tabindex="-1" aria-hidden="true"/>
   <label class="label" for="{{ xml_input }}" id="{{ xml_tab }}" title="XML Code" role="tab" tabindex="0" aria-selected="false" aria-controls="{{ xml_panel }}" aria-label="XML Code" data-tab-input="{{ xml_input }}" data-tab-panel="{{ xml_panel }}"><i class="fa-solid fa-code" aria-hidden="true"></i></label>
   <div class="panel code-panel svg-code-panel" id="{{ xml_panel }}" role="tabpanel" aria-labelledby="{{ xml_tab }}">
@@ -80,3 +77,4 @@
   <h2 class="tabs-title"><a class="tabs-title-link" href="#{{ base }}">{{ title }}</a></h2>
   {% endif %}
 </div>
+{% endcomponent tabs %}

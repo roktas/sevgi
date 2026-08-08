@@ -51,7 +51,7 @@ library code. Types and namespaces keep their double-colon spelling in both form
 Both forms are ordinary Ruby. Use local variables, constants, methods, modules, loops, and data structures wherever
 they make the drawing clearer.
 
-## Scripts {#scripts}
+## Scripts {{ "{#scripts}" }}
 
 A `.sevgi` file is ordinary Ruby run by the `sevgi` command. Before evaluating it, the runner installs Sevgi's DSL
 words in the managed top-level scope. A typical script has a `ruby -S sevgi` shebang, any data or calculations the
@@ -74,7 +74,7 @@ operations are `SVG`, `Canvas`, `Document`, `Document!`, `Paper`, `Paper!`, `Mix
 those names when its input is a path. Drawing words such as `Rotate` live inside an `SVG` block. The
 [DSL Catalog](@/dsl.md) records the context for every word.
 
-### Load {#load}
+### Load {{ "{#load}" }}
 
 `Load "palette"` evaluates `palette.sevgi` relative to the active source, not the process working directory. This lets
 a drawing split across several files move as one directory. Repeated non-recursive loads run again; loading a source
@@ -83,7 +83,7 @@ already active in the same chain raises a captured cycle error.
 If loading fails, the executor result keeps the source stack and points back to the file that caused it. Outside an
 active Sevgi execution, use Ruby's `require` rather than `Load`.
 
-### Rake {#rake}
+### Rake {{ "{#rake}" }}
 
 Require `sevgi/binaries/rake` in a Rakefile to run a script without spawning a shell:
 
@@ -97,14 +97,14 @@ end
 
 Positional arguments arrive as `ARGA`; keyword arguments arrive as `ARGH`.
 
-## Libraries {#libraries}
+## Libraries {{ "{#libraries}" }}
 
 `require "sevgi"` loads the global `SVG(...)` document builder and the `SVG` facade. Facade operations use
 capitalized method names such as `SVG.Canvas`, `SVG.Document`, and `SVG.Derender`; constants and types use double
 colons, such as `SVG::Canvas`. This keeps the full toolkit available without making every Sevgi helper a bare method
 throughout the application.
 
-### Facade grammar {#facade}
+### Facade grammar {{ "{#facade}" }}
 
 ```ruby
 require "sevgi"
@@ -177,7 +177,7 @@ drawing = Sevgi::Graphics.SVG(:minimal, canvas) { circle cx: 12, cy: 12, r: 10 }
 
 Use this form when the smaller gem dependency is the goal. `SVG.Canvas` is the corresponding full-toolkit spelling.
 
-## Execute source {#execute}
+## Execute source {{ "{#execute}" }}
 
 Use `Sevgi.execute` when trusted Ruby source needs the full script scope, or `Sevgi.execute_file` when that source
 already lives in a `.sevgi` file. Both return a result instead of raising failures produced by the script.

@@ -25,7 +25,7 @@ drawing.Render
 Lowercase calls add SVG elements to the tree. Capitalized words create supporting values or operate on elements. In
 library code, operations outside the block use the `SVG.` prefix; types and namespaces use `SVG::`.
 
-## Canvas {#canvas}
+## Canvas {{ "{#canvas}" }}
 
 A canvas keeps dimensions, units, margins, and the resulting `viewBox` together. Its `size` is the outer paper; `inner`
 is the size left after margins. The default `viewBox` shifts by the negative left and top margins, so drawing coordinate
@@ -45,7 +45,7 @@ The canvas describes physical size and drawing coordinates. A profile describes 
 available document methods. Keep them separate when several profiles share one page size or one profile uses several
 sizes.
 
-## Profiles {#profiles}
+## Profiles {{ "{#profiles}" }}
 
 A profile controls document metadata and extra DSL capabilities, not canvas size or checking policy. All four profiles
 use the same validation and lint lifecycle.
@@ -66,7 +66,7 @@ The Inkscape root adds Sevgi, Inkscape, and Sodipodi namespaces plus `shape-rend
 profiles. `SVG::Document::Base` supplies the drawing methods shared by all profiles, but is not itself a selectable
 named profile.
 
-## Define a profile {#define}
+## Define a profile {{ "{#define}" }}
 
 `SVG.Document` creates a profile class derived from `SVG::Document::Base`. Omit the name for a private, one-off class;
 give it a name when other code should select it by symbol:
@@ -89,7 +89,7 @@ existing definition.
 Use this factory when root attributes and preambles are the only differences. When a document also owns DSL methods,
 define a document type or add a mixture to the returned profile class.
 
-## Document types {#document-types}
+## Document types {{ "{#document-types}" }}
 
 A subclass of `SVG::Document::Base` is an unnamed document type with the common SVG DSL. Pass the class itself to
 `SVG`. Methods defined on it are available as bare drawing words and are inherited by its subclasses. `SVG.Mixin` adds
@@ -157,7 +157,7 @@ the extension should stay local. Base subclasses and `SVG.Mixin` change what a d
 [`SVG.Module`](@/compose.md#callable-modules) when drawing code should work across document types without adding methods
 to any of them.
 
-## Element dispatch {#elements}
+## Element dispatch {{ "{#elements}" }}
 
 The DSL recognizes SVG element names dynamically, so it does not need a Ruby method for every element in each SVG
 release. Sevgi validates the resulting standard SVG before checked output. Names are case-sensitive: `linearGradient`
@@ -171,7 +171,7 @@ SVG :minimal do
 end.Render
 ```
 
-## Content safety {#content-safety}
+## Content safety {{ "{#content-safety}" }}
 
 Ordinary String arguments are XML text-encoded automatically. Use a `Content` constructor only when content needs a
 different serialization channel.
@@ -206,7 +206,7 @@ method's return value. A custom implementation must escape any data it inserts i
 that phase yourself, or use `Validate()` and `Lint()` for an earlier check. For non-SVG XML, choose a suitable document
 profile or render directly instead of running the standard SVG checks.
 
-{{ mermaid(name="validation") }}
+{{<mermaid name="validation" />}}
 
 For the standard vocabulary, use the
 [MDN SVG element reference](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element). For Sevgi operations,

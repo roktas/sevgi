@@ -55,7 +55,7 @@ Ruby code. [Usage](@/usage.md) explains the two forms, their available names, an
 The tabs below come from the same files that the test suite runs. The Ruby tab contains the script; the SVG tab contains
 its output.
 
-{{ tabs(base="meter", dir="../showcase") }}
+{{<tabs base="meter" dir="../showcase" />}}
 
 ## Run an example
 

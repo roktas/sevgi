@@ -53,10 +53,6 @@ module Sevgi
           rescue => error
             puts "script:\#{error.class}:\#{error.message}"
           end
-
-          success = test::Shell.run(RbConfig.ruby, "-e", "puts 'ok'")
-          failure = test::Shell.run(RbConfig.ruby, "-e", "exit 3")
-          puts "shell:\#{success.ok?}:\#{success.outline}:\#{failure.notok?}"
         RUBY
 
         out, err, status = Open3.capture3(RbConfig.ruby, *load_path, "-e", script)
@@ -67,7 +63,6 @@ module Sevgi
         assert_includes(out, "fill: 'white'")
         assert_includes(out, "dark:Sevgi::ArgumentError:Unapplied dark mapping(s): yellow")
         assert_includes(out, "script:Sevgi::ArgumentError:No such file: /no/such/showcase.sevgi")
-        assert_includes(out, "shell:true:ok:true")
       end
 
       private
