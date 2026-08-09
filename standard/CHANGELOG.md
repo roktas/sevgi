@@ -5,6 +5,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## Unreleased
 
+## 0.99.0 - 2026-08-09
+
 ### Added
 
 - Added `SVG.Module` for building anonymous callable drawing modules with their contract installed before definition.
@@ -12,11 +14,13 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Changed
 
+- Reorganized the documentation around getting started, usage, composition, documents, layout, output, and examples.
 - Documented how the `igves` and `igsev` command names reflect their conversion directions.
 - Normalized DSL catalog provider labels to lowercase and simplified polyfill-backed editor entries to `inkscape`.
 
 ### Fixed
 
+- Allowed A5-on-A4 pdfcpu conversion to replace an existing output file.
 - Pre-rendered Mermaid diagrams as inline SVG instead of parsing them in site visitors' browsers.
 - Removed duplicate provider and context labels from DSL catalog entries.
 
