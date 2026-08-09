@@ -70,9 +70,9 @@ it inside the document or callable module that owns it; do not merely rename an 
 - Expect paths and other low-level editor geometry to remain low-level. Derender preserves the SVG tree; it cannot
   reconstruct the loops, modules, or design operations that originally created it.
 - Treat parsing and executing as separate trust boundaries. Derender parses XML as data and direct evaluation builds
-  graphics elements without executing generated Ruby. Do not use `eval`, `instance_eval`, or `instance_exec` anywhere
-  in a Derender workflow, even when the input is trusted. When generated Ruby becomes the maintained representation,
-  review it and integrate it statically into the owning source or callable module.
+  graphics elements without executing generated Ruby. Do not pass generated source to Ruby's dynamic evaluation APIs
+  (`eval`, `*_eval`, or `*_exec`), even when the input is trusted. When generated Ruby becomes the maintained
+  representation, review it and integrate it statically into the owning source or callable module.
 - After renaming or removing a selected id or source path, update its consumers, regenerate derived drawings, and check
   for stale references.
 

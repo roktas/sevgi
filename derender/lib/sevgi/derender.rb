@@ -24,7 +24,9 @@ module Sevgi
   # tree without invoking same-named Ruby methods.
   #
   # Evaluation APIs treat SVG/XML as data: they build graphics element trees directly and do not execute generated Ruby
-  # source. Malformed, rootless, or unmatched input is rejected with {Sevgi::ArgumentError}.
+  # source. The String returned by source-generation APIs is ordinary Ruby source; review and integrate it statically
+  # rather than passing it to Ruby's raw dynamic evaluation methods. Malformed, rootless, or unmatched input is rejected
+  # with {Sevgi::ArgumentError}.
   #
   # Namespace dispatch treats qualified and foreign elements as ordinary XML nodes. Their element identity, namespace
   # declarations, qualified attributes, significant text, and nested `svg` elements survive source generation and direct
@@ -82,7 +84,8 @@ module Sevgi
     # @see Sevgi.DecompileFile
     def self.decompile_file(file, id: nil, omit: nil) = Document.load_file(file).decompile(id, omit:)
 
-    # Converts SVG/XML content into Sevgi DSL Ruby source.
+    # Converts SVG/XML content into Sevgi DSL Ruby source. The returned String is ordinary Ruby source; review and
+    # integrate it statically rather than using Ruby's raw dynamic evaluation methods.
     # @param content [String] SVG/XML source content
     # @param id [String, Symbol, nil] optional SVG id selecting a node inside the source
     # @param omit [String, Symbol, Array<String, Symbol>, nil] exact attribute name or names omitted from the selected
@@ -100,7 +103,8 @@ module Sevgi
     # @see Sevgi.Derender
     def self.derender(content, id: nil, omit: nil) = Document.new(content).decompile(id, omit:).derender
 
-    # Converts an SVG/XML file into Sevgi DSL Ruby source.
+    # Converts an SVG/XML file into Sevgi DSL Ruby source. The returned String is ordinary Ruby source; review and
+    # integrate it statically rather than using Ruby's raw dynamic evaluation methods.
     # @param file [String] path to the source SVG/XML file
     # @param id [String, Symbol, nil] optional SVG id selecting a node inside the source
     # @param omit [String, Symbol, Array<String, Symbol>, nil] exact attribute name or names omitted from the selected

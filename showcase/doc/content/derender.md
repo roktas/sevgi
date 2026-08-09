@@ -59,6 +59,10 @@ Use `DerenderFile` when the source already lives on disk:
 source = DerenderFile "badge.svg", id: "mark"
 ```
 
+The String returned by `Derender`, `DerenderFile`, or `Node#derender` is ordinary Ruby source. Review it and place it in
+a maintained `.sevgi` or `.rb` file; do not pass it to `eval`, an `*_eval` method, or an `*_exec` method. If the SVG
+file remains authoritative, use `Evaluate*` or `Include*` so Sevgi imports it as XML data.
+
 The optional id selects one subtree. Without it, the document root is used. Pass one attribute name or an array to
 `omit` when editor metadata should not survive the conversion:
 

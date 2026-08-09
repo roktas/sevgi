@@ -100,7 +100,11 @@ module Sevgi
       "Sevgi::Derender.decompile_file" => {
         raises: ["Sevgi::ArgumentError", "SystemCallError"]
       },
+      "Sevgi::Derender.derender" => {
+        phrases: ["ordinary Ruby source", "dynamic evaluation"]
+      },
       "Sevgi::Derender.derender_file" => {
+        phrases: ["ordinary Ruby source", "dynamic evaluation"],
         raises: ["Sevgi::ArgumentError", "Sevgi::PanicError", "SystemCallError"]
       },
       "Sevgi::Derender.evaluate_children_file" => {
@@ -108,6 +112,9 @@ module Sevgi
       },
       "Sevgi::Derender.evaluate_file" => {
         raises: ["Sevgi::ArgumentError", "SystemCallError"]
+      },
+      "Sevgi::Derender::Node#derender" => {
+        phrases: ["ordinary Ruby source", "dynamic evaluation"]
       },
       "Sevgi::Executor::Error" => {
         phrases: ["visited source", "not the active load stack"]
@@ -217,9 +224,11 @@ module Sevgi
         raises: ["Sevgi::ArgumentError", "SystemCallError"]
       },
       "Sevgi::Toplevel#Derender" => {
+        phrases: ["ordinary Ruby source", "dynamic evaluation"],
         raises: ["Sevgi::ArgumentError", "Sevgi::PanicError"]
       },
       "Sevgi::Toplevel#DerenderFile" => {
+        phrases: ["ordinary Ruby source", "dynamic evaluation"],
         raises: ["Sevgi::ArgumentError", "Sevgi::PanicError", "SystemCallError"]
       },
       "Sevgi::Toplevel#Evaluate" => {

@@ -128,7 +128,8 @@ module Sevgi
 
       alias meta _
 
-      # Converts this node into formatted Sevgi DSL Ruby source.
+      # Converts this node into formatted Sevgi DSL Ruby source. The returned String is ordinary Ruby source; review and
+      # integrate it statically rather than using Ruby's raw dynamic evaluation methods.
       # @return [String] formatted Sevgi DSL source
       # @raise [Sevgi::PanicError] when generated Ruby source cannot be formatted
       # @note Foreign namespace elements use the explicit `Element` DSL path, and nested `svg` nodes remain elements.

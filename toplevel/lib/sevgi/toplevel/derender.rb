@@ -27,7 +27,8 @@ module Sevgi
     # @see Sevgi::Derender.decompile_file
     def DecompileFile(file, id: nil, omit: nil) = Derender.decompile_file(file, id:, omit:)
 
-    # Converts inline SVG/XML content into Sevgi DSL Ruby source.
+    # Converts inline SVG/XML content into Sevgi DSL Ruby source. The returned String is ordinary Ruby source; review
+    # and integrate it statically rather than using Ruby's raw dynamic evaluation methods.
     # @param content [String] SVG/XML source content
     # @param id [String, Symbol, nil] optional SVG id selecting a node inside the source
     # @param omit [String, Symbol, Array<String, Symbol>, nil] exact attribute name or names omitted from the selected
@@ -39,7 +40,8 @@ module Sevgi
     # @see Sevgi::Derender.derender
     def Derender(content, id: nil, omit: nil) = Derender.derender(content, id:, omit:)
 
-    # Converts an SVG/XML file into Sevgi DSL Ruby source.
+    # Converts an SVG/XML file into Sevgi DSL Ruby source. The returned String is ordinary Ruby source; review and
+    # integrate it statically rather than using Ruby's raw dynamic evaluation methods.
     # @param file [String] path to the source SVG/XML file
     # @param id [String, Symbol, nil] optional SVG id selecting a node inside the source
     # @param omit [String, Symbol, Array<String, Symbol>, nil] exact attribute name or names omitted from the selected
