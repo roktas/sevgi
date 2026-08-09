@@ -20,7 +20,9 @@ visible intent.
 3. **Stay native to Sevgi.** Use SVG elements through the Sevgi DSL and prefer Sevgi's existing Graphics, Geometry,
    Sundries, and Function helpers where they fit. Do not generate raw SVG/XML, another graphics format, or an
    intermediate string and then convert it into Sevgi. Use Derender only when existing SVG/XML is a genuine input
-   artifact.
+   artifact. Treat `eval`, `instance_eval`, and `instance_exec` as anti-patterns throughout every Derender workflow;
+   do not use them. Use `Include` or `IncludeChildren` when the editor file remains authoritative, an `Evaluate*`
+   operation when the target must be explicit, or reviewed source integrated statically into the maintained DSL.
 
 ## Workflow
 
