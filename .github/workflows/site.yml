@@ -29,7 +29,7 @@ jobs:
       - name: Checkout 🛎️
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Build 🥁
-        uses: shalzz/zola-deploy-action@06dffc1b49e4f61b31dcf3a6c824194a78216632
+        uses: shalzz/zola-deploy-action@6dd77deda5de42ab2301e9de1fed784243bef64d
         env:
           BUILD_DIR: showcase/doc
           BUILD_ONLY: true
@@ -47,7 +47,7 @@ jobs:
       - name: Checkout 🛎️
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Deploy 🥁
-        uses: shalzz/zola-deploy-action@06dffc1b49e4f61b31dcf3a6c824194a78216632
+        uses: shalzz/zola-deploy-action@6dd77deda5de42ab2301e9de1fed784243bef64d
         env:
           BUILD_DIR: showcase/doc
           PAGES_BRANCH: site
