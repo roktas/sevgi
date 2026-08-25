@@ -17,7 +17,6 @@ module Sevgi
             [
               "pdfcpu",
               "nup",
-              "--force",
               "--",
               "form:A4L, border:off",
               "out.pdf",
@@ -33,7 +32,10 @@ module Sevgi
             infile = File.join(dir, "in.pdf")
             File.write(infile, "old")
 
-            Export.stub(:a5_on_a4, -> (_infile, outfile) { File.write(outfile, "new") }) do
+            Export.stub(:a5_on_a4, -> (_infile, outfile) {
+              refute_path_exists(outfile)
+              File.write(outfile, "new")
+            }) do
               Export.a5_on_a4!(infile)
             end
 
