@@ -71,6 +71,7 @@ module Sevgi
         def test_root_emits_document_preambles
           svg = <<~SVG
             <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+            <!-- license -->
             <svg
               id="Root"
               xmlns="http://www.w3.org/2000/svg"
@@ -92,11 +93,12 @@ module Sevgi
           actual = Derender.derender(svg)
 
           expected = <<~SEVGI
-            SVG.Document preambles: [
+            document = SVG.Document preambles: [
               "<?xml version=\\"1.0\\" encoding=\\"UTF-8\\" standalone=\\"no\\"?>",
+              "<!-- license -->",
             ]
 
-            SVG id: "Root", xmlns: "http://www.w3.org/2000/svg", "xmlns:_": "http://sevgi.roktas.dev", "shape-rendering": "crispEdges", width: "60.0mm", height: "60.0mm", viewBox: "0 0 60 60" do
+            SVG document, id: "Root", xmlns: "http://www.w3.org/2000/svg", "xmlns:_": "http://sevgi.roktas.dev", "shape-rendering": "crispEdges", width: "60.0mm", height: "60.0mm", viewBox: "0 0 60 60" do
               defs id: "Helpers" do
                 clipPath id: "Crop", "_:width": 10.0 do
                   rect width: 60.0, height: 60.0
@@ -106,6 +108,7 @@ module Sevgi
           SEVGI
 
           assert_equal(expected, actual)
+          assert_equal(svg, instance_eval(actual, "generated.sevgi").Render())
         end
 
         def test_root_escapes_document_preambles
@@ -119,15 +122,16 @@ module Sevgi
           actual = Derender.derender(svg)
 
           expected = <<~SEVGI
-            SVG.Document preambles: [
+            document = SVG.Document preambles: [
               "<?xml version=\\"1.0\\"?>",
               "<?app value=\\"a'b\\"?>",
             ]
 
-            SVG
+            SVG document
           SEVGI
 
           assert_equal(expected, actual)
+          assert_equal(svg, instance_eval(actual, "generated.sevgi").Render())
         end
       end
     end

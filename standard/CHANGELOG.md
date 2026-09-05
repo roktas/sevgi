@@ -5,6 +5,17 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## Unreleased
 
+### Changed
+
+- Removed redundant parent scans while duplicating element subtrees.
+
+### Fixed
+
+- Preserved XML declarations, pre-root comments, CDATA sections, inline comments, and namespace-only leaves in
+  Derender output and evaluation.
+- Limited PDF stamp recoloring to replaced text and carried graphics state across a page's content streams.
+- Corrected decimal interval fitting and made Grid point queries honor the active numeric precision.
+
 ## 0.99.0 - 2026-08-09
 
 ### Added

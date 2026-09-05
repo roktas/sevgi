@@ -362,8 +362,8 @@ module Sevgi
             assert(Export.stamp(infile, outfile, stamp: "new", placeholder: "old"))
             assert_equal(
               [
-                "0.101961 0.101961 0.101961 rg BT /F1 12 Tf (new)Tj ET\n" \
-                  "0.101961 0.101961 0.101961 rg BT /F1 12 Tf (new)Tj ET"
+                "1 1 1 rg BT /F1 12 Tf 0.101961 0.101961 0.101961 rg (new)Tj 1 1 1 rg ET\n" \
+                  "1 1 1 rg BT /F1 12 Tf 0.101961 0.101961 0.101961 rg (new)Tj 1 1 1 rg ET"
               ],
               pdf_streams(outfile)
             )
@@ -380,17 +380,18 @@ module Sevgi
             Dir.mktmpdir do |dir|
               infile = File.join(dir, "in.pdf")
               outfile = File.join(dir, "out.pdf")
-              expected = stream.sub("1 1 1 rg", "0.101961 0.101961 0.101961 rg").gsub("(old)", "(new)")
               rewritten, count = Export.send(:stamp_stream, stream, stamp: "new", placeholder: "old")
 
-              assert_equal(expected, rewritten)
               assert_equal(stream.scan("(old)").size, count)
+              assert_equal(count, rewritten.scan("0.101961 0.101961 0.101961 rg").size)
+              assert_equal(count + 1, rewritten.scan("1 1 1 rg").size)
+              refute_includes(rewritten, "(old)")
+              assert_valid_content_stream(rewritten)
 
               write_pdf(infile, stream)
               assert(Export.stamp(infile, outfile, stamp: "new", placeholder: "old"))
 
-              assert_equal([expected], pdf_streams(outfile))
-              assert_valid_content_stream(expected)
+              assert_equal([rewritten], pdf_streams(outfile))
             end
           end
         end
@@ -403,10 +404,11 @@ module Sevgi
             write_pdf_pages(infile, [stream], [stream, stream])
 
             assert(Export.stamp(infile, outfile, stamp: "new", placeholder: "old"))
-            expected = "0.101961 0.101961 0.101961 rg BT /F1 12 Tf (new) Tj ET"
+            streams = pdf_streams(outfile)
 
-            assert_equal([expected, expected, expected], pdf_streams(outfile))
-            pdf_streams(outfile).each { assert_valid_content_stream(it) }
+            assert_equal(2, streams.size)
+            assert_equal([1, 2], streams.map { it.scan("(new)").size })
+            streams.each { assert_valid_content_stream(it) }
           end
         end
 
@@ -418,8 +420,8 @@ module Sevgi
             write_pdf(infile, stream)
 
             assert(Export.stamp(infile, outfile, stamp: "new", placeholder: "old"))
-            expected = "0.101961 0.101961 0.101961 rg q 0 0 0 rg BT /F1 12 Tf (old) Tj ET Q " \
-              "BT /F1 12 Tf (new) Tj ET"
+            expected = "1 1 1 rg q 0 0 0 rg BT /F1 12 Tf (old) Tj ET Q BT /F1 12 Tf " \
+              "0.101961 0.101961 0.101961 rg (new) Tj 1 1 1 rg ET"
 
             assert_equal([expected], pdf_streams(outfile))
             assert_valid_content_stream(expected)
@@ -459,6 +461,35 @@ module Sevgi
           end
         end
 
+        def test_stamp_preserves_shared_artwork_and_other_fill_spaces
+          Dir.mktmpdir do |dir|
+            infile = File.join(dir, "in.pdf")
+            outfile = File.join(dir, "out.pdf")
+            artwork = "1 1 1 rg 0 0 100 100 re f BT /F1 12 Tf (old) Tj ET"
+            write_pdf(infile, artwork)
+
+            assert(Export.stamp(infile, outfile, stamp: "new", placeholder: "old"))
+            stamped = pdf_streams(outfile).fetch(0)
+            assert_includes(stamped, "1 1 1 rg 0 0 100 100 re f")
+            assert_includes(stamped, "0.101961 0.101961 0.101961 rg (new) Tj 1 1 1 rg")
+
+            write_pdf(infile, "1 1 1 rg 0 g BT /F1 12 Tf (old) Tj ET")
+            refute(Export.stamp(infile, outfile, stamp: "new", placeholder: "old"))
+          end
+        end
+
+        def test_stamp_carries_graphics_state_across_page_streams
+          Dir.mktmpdir do |dir|
+            infile = File.join(dir, "in.pdf")
+            outfile = File.join(dir, "out.pdf")
+            write_pdf(infile, "1 1 1 rg", "BT /F1 12 Tf (old) Tj ET")
+
+            assert(Export.stamp(infile, outfile, stamp: "new", placeholder: "old"))
+            assert_equal(1, pdf_streams(outfile).size)
+            assert_includes(pdf_streams(outfile).fetch(0), "(new) Tj")
+          end
+        end
+
         def test_stamp_accepts_decimal_font_size_and_positioned_text
           Dir.mktmpdir do |dir|
             infile = File.join(dir, "in.pdf")
@@ -466,7 +497,10 @@ module Sevgi
             write_pdf(infile, "1 1 1 rg BT /F1 12.5 Tf [(old)] TJ ET")
 
             assert(Export.stamp(infile, outfile, stamp: "new", placeholder: "old"))
-            assert_equal(["0.101961 0.101961 0.101961 rg BT /F1 12.5 Tf [(new)] TJ ET"], pdf_streams(outfile))
+            assert_equal(
+              ["1 1 1 rg BT /F1 12.5 Tf 0.101961 0.101961 0.101961 rg [(new)] TJ 1 1 1 rg ET"],
+              pdf_streams(outfile)
+            )
           end
         end
 
@@ -477,7 +511,13 @@ module Sevgi
             write_pdf(infile, "1 1 1 rg BT /F1 12 Tf (old)Tj ET")
 
             assert(Export.stamp(infile, outfile, stamp: "a (b) \\ c", placeholder: "old"))
-            assert_equal(["0.101961 0.101961 0.101961 rg BT /F1 12 Tf (a \\(b\\) \\\\ c)Tj ET"], pdf_streams(outfile))
+            assert_equal(
+              [
+                "1 1 1 rg BT /F1 12 Tf 0.101961 0.101961 0.101961 rg " \
+                  "(a \\(b\\) \\\\ c)Tj 1 1 1 rg ET"
+              ],
+              pdf_streams(outfile)
+            )
           end
         end
 
@@ -488,7 +528,10 @@ module Sevgi
             write_pdf(infile, "1 1 1 rg BT /F1 12 Tf (old)Tj ET")
 
             assert(Export.stamp(infile, outfile, stamp: "\\1 $&", placeholder: "old"))
-            assert_equal(["0.101961 0.101961 0.101961 rg BT /F1 12 Tf (\\\\1 $&)Tj ET"], pdf_streams(outfile))
+            assert_equal(
+              ["1 1 1 rg BT /F1 12 Tf 0.101961 0.101961 0.101961 rg (\\\\1 $&)Tj 1 1 1 rg ET"],
+              pdf_streams(outfile)
+            )
           end
         end
 

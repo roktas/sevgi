@@ -62,6 +62,8 @@ module Sevgi
           element.instance_variable_set(:@parent, DetachedParent)
         end
 
+        def detached_parent = DetachedParent
+
         def tree_children(element) = element.instance_variable_get(:@children)
 
         def tree_parent(element) = element.instance_variable_get(:@parent)

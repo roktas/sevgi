@@ -556,6 +556,9 @@ module Sevgi
             <svg id="nested-svg">
               <circle/>
             </svg>
+            <foreignObject>
+              <p xmlns="http://www.w3.org/1999/xhtml">Hello</p>
+            </foreignObject>
           </svg>
         SVG
           .chomp
@@ -565,6 +568,18 @@ module Sevgi
 
         assert_xml_tree_equal(xml, generated)
         assert_xml_tree_equal(xml, evaluated)
+      end
+
+      def test_conversions_preserve_cdata_comments_and_order
+        xml = "<svg xmlns=\"http://www.w3.org/2000/svg\">" \
+          "<text>before<![CDATA[a < b]]><!--keep--><tspan>after</tspan></text></svg>"
+
+        generated = instance_eval(Derender.derender(xml), "generated.sevgi").Render()
+        evaluated = Derender.evaluate(xml, SVG(:minimal)).Render()
+
+        expected = [[:text, "before"], [:cdata, "a < b"], [:comment, "keep"], [:element, "after"]]
+        assert_equal(expected, content_signature(generated))
+        assert_equal(expected, content_signature(evaluated))
       end
 
       def test_derender_child_node_preserves_local_namespace
@@ -597,6 +612,23 @@ module Sevgi
         assert_equal(%w[before style after], document.root.element_children.map { it["id"] || it.name })
       end
 
+      def content_signature(xml)
+        document = Nokogiri::XML(xml, &:strict)
+        text = document.at_xpath("//*[local-name()=\"text\"]")
+
+        text.children.filter_map do |node|
+          if node.cdata?
+            [:cdata, node.text]
+          elsif node.comment?
+            [:comment, node.content]
+          elsif node.element?
+            [:element, node.text]
+          elsif node.text? && !node.text.strip.empty?
+            [:text, node.text.strip]
+          end
+        end
+      end
+
       def assert_xml_tree_equal(expected, actual)
         expected = Nokogiri::XML(expected, &:strict).root
         actual = Nokogiri::XML(actual, &:strict).root
@@ -617,7 +649,10 @@ module Sevgi
 
       def xml_child(node)
         return xml_signature(node) if node.element?
-        [:text, node.text] if (node.text? || node.cdata?) && !node.text.strip.empty?
+        return [:comment, node.content] if node.comment?
+        return [:cdata, node.text] if node.cdata?
+
+        [:text, node.text] if node.text? && !node.text.strip.empty?
       end
 
       def xml_children(node) = node.children.filter_map { xml_child(it) }

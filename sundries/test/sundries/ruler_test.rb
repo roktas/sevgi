@@ -137,6 +137,15 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
+      def test_ruler_fits_decimal_intervals_without_rounding_loss
+        ruler = Ruler.new(unit: 0.1, multiple: 1, brut: 0.3)
+
+        assert_equal(3, ruler.n)
+        assert_in_delta(0.3, ruler.d)
+        assert_equal(3, ruler.expand.n)
+        assert_in_delta(0.3, ruler.ms.last)
+      end
+
       def test_ruler_handles_zero_fitting_span
         [Ruler, RulerEven].each do |type|
           r = type.new(unit: 10, multiple: 10, brut: 20, margins: [10])

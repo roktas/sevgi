@@ -130,21 +130,20 @@ module Sevgi
         assert_same(grid.y.line, grid.y.line)
       end
 
-      def test_grid_queries_memoize_lines_points_and_xys
+      def test_grid_queries_apply_current_precision
         grid = Grid.new(
-          x: Ruler.new(unit: 2, multiple: 2, brut: 8),
-          y: Ruler.new(unit: 1, multiple: 2, brut: 6)
+          x: Ruler.new(unit: 0.123456, multiple: 10, brut: 5),
+          y: Ruler.new(unit: 0.123456, multiple: 10, brut: 5)
         )
         query = grid.x.major
 
         assert_same(query.lines, query.lines)
-        assert_same(query.points, query.points)
-        assert_same(query.xys, query.xys)
 
-        F.with_precision(1) do
-          query.lines.map(&:approx).each do |line|
-            assert_equal(line.points.each_cons(2).map { Geometry::Segment.(*it) }, line.segments)
-          end
+        F.with_precision(2) { assert_equal([4.94, 0.0], query.points.first.last.deconstruct) }
+        F.with_precision(5) do
+          expected = [4.93824, 0.0]
+          assert_equal(expected, query.points.first.last.deconstruct)
+          assert_equal(expected, query.xys.first.last)
         end
       end
 

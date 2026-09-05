@@ -12,13 +12,20 @@ module Sevgi
   module Binaries
     class IgsevTest < Minitest::Test
       def test_executable_round_trips_svg
-        with_svg("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"10\"><circle r=\"4\"/></svg>") do |file|
+        source = <<~SVG
+          <?xml version="1.0" standalone="yes"?>
+          <!--license-->
+          <svg xmlns="http://www.w3.org/2000/svg" width="10"><circle r="4"/></svg>
+        SVG
+
+        with_svg(source) do |file|
           out, err, status = run_igsev(file)
 
           assert_predicate(status, :success?)
           assert_equal(
             <<~SVG,
-              <?xml version="1.0" standalone="no"?>
+              <?xml version="1.0" standalone="yes"?>
+              <!--license-->
               <svg xmlns="http://www.w3.org/2000/svg" width="10">
                 <circle r="4"/>
               </svg>

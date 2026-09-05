@@ -10,6 +10,17 @@ module Sevgi
         # @return [Array<String>] empty source lines
         def decompile(*) = []
       end
+
+      # Element strategy for XML comments.
+      # @api private
+      module Comment
+        # Converts a comment into a floating DSL node.
+        # @return [Array<String>] unformatted Ruby source lines
+        def decompile(*)
+          markup = "<!--#{content}-->"
+          ["_ Sevgi::Graphics::Content.verbatim(#{Ruby.literal(markup)})"]
+        end
+      end
     end
   end
 end

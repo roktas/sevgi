@@ -15,15 +15,22 @@ module Sevgi
           lines = super
           return lines unless pres&.any?
 
-          lines.unshift(
-            [
-              "SVG.Document preambles: [",
-              *pres.map { "#{Ruby.literal(it)}," },
-              "]",
-              ""
-            ]
-          )
+          lines[0] = document_call(lines.first)
+
+          lines.unshift(preamble_lines(pres))
         end
+
+        def document_call(line)
+          return line.sub("SVG", "SVG document") if ["SVG", "SVG do"].include?(line)
+
+          line.sub(/\ASVG /, "SVG document, ")
+        end
+
+        def preamble_lines(pres)
+          ["document = SVG.Document preambles: [", *pres.map { "#{Ruby.literal(it)}," }, "]", ""]
+        end
+
+        private :document_call, :preamble_lines
 
         # Returns the root DSL word.
         # @return [String]

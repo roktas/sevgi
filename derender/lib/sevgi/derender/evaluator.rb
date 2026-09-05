@@ -14,19 +14,23 @@ module Sevgi
       # @param node [Sevgi::Derender::Node] derender node
       # @return [Sevgi::Graphics::Element, nil] included element, or nil when the node does not produce graphics output
       def append(node)
-        case node.send(:type)
-        when :CSS
-          append_css(node)
-        when :Text
-          build(:_, node.content)
-        else
-          append_element(node)
-        end
+        type = node.send(:type)
+        return append_css(node) if type == :CSS
+        return build(:_, node.content) if type == :Text
+        return append_cdata(node) if type == :CData
+        return build(:_, Graphics::Content.verbatim("<!--#{node.content}-->")) if type == :Comment
+
+        append_element(node)
       end
 
       private
 
       attr_reader :parent
+
+      def append_cdata(node)
+        body = Graphics.const_get(:XML).cdata(node.content)
+        build(:_, Graphics::Content.verbatim("<![CDATA[#{body}]]>"))
+      end
 
       def append_css(node)
         content = if (hash = Css.rules(node.content))

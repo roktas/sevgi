@@ -53,7 +53,7 @@ module Sevgi
       end
 
       def capture_identity
-        @content = (preserve_space? ? node.content : normalized_content).dup.freeze
+        @content = (literal_content? || preserve_space? ? node.content : normalized_content).dup.freeze
         @name = [node.namespace&.prefix, node.name].compact.join(":").freeze
       end
 
@@ -174,8 +174,10 @@ module Sevgi
         case
         when node.text?
           :Text
+        when node.cdata?
+          :CData
         when node.comment?
-          :Junk
+          :Comment
         when Namespace.svg?(node, "style")
           :CSS
         when @top && Namespace.svg?(node, "svg")
@@ -195,6 +197,8 @@ module Sevgi
             !child.send(:preserve_space?) &&
             !child.send(:inline_text?))
       end
+
+      def literal_content? = node.cdata? || node.comment?
 
       def preserve_space?
         each_node do |current|

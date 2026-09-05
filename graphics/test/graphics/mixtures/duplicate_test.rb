@@ -32,8 +32,15 @@ module Sevgi
         end
 
         def test_duplicate_can_produce_new_id_attribute
+          root_during_copy = parent_during_copy = nil
+
           doc = SVG do
             line(id: "original", "data-var": "main var").Duplicate() do |element|
+              if element[:"-id"] == "original"
+                root_during_copy = element.Root()
+                parent_during_copy = element.parent
+              end
+
               if element[:"#{Attributes::META_PREFIX}id"]
                 element[:id] = "#{element[:"#{Attributes::META_PREFIX}id"]}-copy"
               end
@@ -41,6 +48,8 @@ module Sevgi
           end
 
           assert_equal("original-copy", doc.children[1][:id])
+          assert_same(doc.children[1], root_during_copy)
+          assert_nil(parent_during_copy)
         end
 
         def test_duplicate_preserves_existing_source_ids

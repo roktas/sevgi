@@ -92,24 +92,18 @@ module Sevgi
       # @param placeholder [String] placeholder text to replace
       # @return [Boolean] true when at least one matching placeholder was replaced
       # @raise [Sevgi::Sundries::Export::ExportError] when the PDF cannot be read, rewritten, or stamped
-      # @note Streams with unbalanced graphics-state or text-object operators are left unchanged.
+      # @note Pages with unbalanced graphics-state or text-object operators are left unchanged.
       def stamp(infile, outfile, stamp:, placeholder:)
         doc = HexaPDF::Document.open(infile)
         replacements = 0
 
         doc.pages.each do |page|
-          Array(page[:Contents]).each do |ref|
-            obj = doc.object(ref)
-            next unless obj.respond_to?(:stream)
+          data, count = stamp_stream(page.contents, stamp:, placeholder:)
+          next if count.zero?
 
-            data, count = stamp_stream(obj.stream, stamp:, placeholder:)
-            next if count.zero?
-
-            replacements += count
-
-            obj.stream = data
-            obj.set_filter(:FlateDecode)
-          end
+          replacements += count
+          page.contents = data
+          doc.deref(page[:Contents]).set_filter(:FlateDecode)
         end
 
         doc.write(outfile, optimize: true) if replacements.positive?
@@ -126,7 +120,7 @@ module Sevgi
       # @param placeholder [String] placeholder text to replace
       # @return [Boolean] true when at least one matching placeholder was replaced
       # @raise [Sevgi::Sundries::Export::ExportError] when the PDF cannot be read, rewritten, stamped, or replaced
-      # @note Streams with unbalanced graphics-state or text-object operators are left unchanged.
+      # @note Pages with unbalanced graphics-state or text-object operators are left unchanged.
       def stamp!(infile, stamp:, placeholder:)
         temp = Tempfile.new(%w[stamp .pdf], File.dirname(infile))
         stamped = stamp(infile, temp.path, stamp:, placeholder:)
@@ -185,7 +179,6 @@ module Sevgi
           serializer = HexaPDF::Serializer.new
           operands = []
           state = {
-            fill_span: nil,
             fill_white: false,
             font_size: nil,
             in_text: false,
@@ -227,11 +220,13 @@ module Sevgi
         def process_operator(operator, operands, finish, data, stamp:, placeholder:, serializer:, state:, replacements:)
           case operator
           when :q
-            state[:stack] << state.values_at(:fill_span, :fill_white, :font_size)
+            state[:stack] << state.values_at(:fill_white, :font_size)
           when :Q
             state[:stack].any? ? restore_state(state) : state[:valid] = false
           when :rg
-            set_fill_state(state, operands, finish)
+            set_fill_state(state, operands)
+          when :g, :k, :cs, :sc, :scn
+            state[:fill_white] = false
           when :BT
             state[:valid] = false if state[:in_text]
             state[:in_text] = true
@@ -245,6 +240,7 @@ module Sevgi
               operator,
               operands,
               data,
+              operator_finish: finish,
               stamp:,
               placeholder:,
               serializer:,
@@ -257,31 +253,38 @@ module Sevgi
         end
 
         def restore_state(state)
-          state[:fill_span], state[:fill_white], state[:font_size] = state[:stack].pop
+          state[:fill_white], state[:font_size] = state[:stack].pop
         end
 
-        def set_fill_state(state, operands, finish)
+        def set_fill_state(state, operands)
           state[:fill_white] = operands.size == 3 && operands.all? { |value, _start, _finish| value == 1 }
-          state[:fill_span] = [operands.first[1], finish] if state[:fill_white]
-          state[:fill_span] = nil unless state[:fill_white]
         end
 
-        def add_text_replacement(operator, operands, data, stamp:, placeholder:, serializer:, state:, replacements:)
+        def add_text_replacement(
+          operator,
+          operands,
+          data,
+          operator_finish:,
+          stamp:,
+          placeholder:,
+          serializer:,
+          state:,
+          replacements:
+        )
           replacement = text_replacement(data, operator, operands, stamp:, placeholder:, serializer:, state:)
           return 0 unless replacement
 
-          start, finish, text = replacement
-          replacements[[start, finish]] = text
-          add_color_replacement(data, state, replacements)
+          start, text_finish, text = replacement
+          color_start = operands.first.fetch(1)
+          text = " 0.101961 0.101961 0.101961 rg#{text}" if start == color_start
+          replacements[[start, text_finish]] = text
+          add_color_replacement(color_start, replacements) unless start == color_start
+          replacements[[operator_finish, operator_finish]] ||= " 1 1 1 rg"
           1
         end
 
-        def add_color_replacement(data, state, replacements)
-          return unless state[:fill_span]
-
-          color_start, color_finish = state[:fill_span]
-          prefix = data[color_start...color_finish].to_s[/\A\s*/]
-          replacements[[color_start, color_finish]] ||= "#{prefix}0.101961 0.101961 0.101961 rg"
+        def add_color_replacement(start, replacements)
+          replacements[[start, start]] ||= " 0.101961 0.101961 0.101961 rg"
         end
 
         def text_replacement(data, operator, operands, stamp:, placeholder:, serializer:, state:)

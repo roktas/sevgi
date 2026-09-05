@@ -130,7 +130,7 @@ module Sevgi
           @minor = Minor.send(:new, self, other)
         end
 
-        # Memoized grid line query for an axis.
+        # Grid line query for an axis.
         class Query
           private_class_method :new
 
@@ -144,12 +144,12 @@ module Sevgi
           # Returns grid line endpoints as coordinate pairs.
           # The outer and nested collections are frozen and must be treated as immutable.
           # @return [Array<Array<Array<Float>>>] frozen coordinate pairs
-          def xys = @xys ||= lines.map { it.points(true).map { |point| point.deconstruct.freeze }.freeze }.freeze
+          def xys = lines.map { it.points(true).map { |point| point.deconstruct.freeze }.freeze }.freeze
 
           # Returns grid line endpoints as points.
           # The outer and nested collections are frozen and must be treated as immutable.
           # @return [Array<Array<Sevgi::Geometry::Point>>] frozen point pairs
-          def points = @points ||= lines.map { it.points(true).freeze }.freeze
+          def points = lines.map { it.points(true).freeze }.freeze
 
           # Returns generated grid lines.
           # The memoized collection is frozen and must be treated as immutable.

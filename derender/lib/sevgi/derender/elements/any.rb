@@ -10,7 +10,7 @@ module Sevgi
         # @return [Array<String>] unformatted Ruby source lines
         def decompile(*)
           if children.any?
-            children.one? && children.first.send(:text?) ? Array(leaf(has_attributes: attributes.any?)) : tree
+            children.one? && children.first.send(:text?) ? Array(leaf) : tree
           else
             Array(leaf(has_content: false))
           end

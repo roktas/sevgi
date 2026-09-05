@@ -94,6 +94,7 @@ module Sevgi
       def cot(degrees) = 1.0 / ::Math.tan(to_radians(degrees))
 
       # Counts complete divisions in a length.
+      # A positive quotient one floating-point step below the next integer counts as that integer.
       # @param length [Numeric] finite real total length
       # @param division [Numeric] finite real, non-zero division size
       # @return [Integer]
@@ -103,7 +104,11 @@ module Sevgi
         divisor = finite_real(:division, division)
         ArgumentError.("Division must not be zero") if divisor.zero?
 
-        (length / divisor).to_i
+        quotient = length / divisor
+        whole = quotient.to_i
+        candidate = whole + 1
+
+        quotient.positive? && quotient.next_float >= candidate ? candidate : whole
       end
 
       # Compares two numeric values after approximate rounding.

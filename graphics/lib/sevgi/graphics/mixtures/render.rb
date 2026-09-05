@@ -13,68 +13,6 @@ module Sevgi
           STYLES = %i[hybrid inline block].freeze
           SVG_NAMESPACE = "http://www.w3.org/2000/svg"
 
-          # Attribute rendering strategies.
-          # @api private
-          module Attributes
-            # Block-style attribute renderer.
-            # @api private
-            module Block
-              # Renders attributes in block form.
-              # @param element [Sevgi::Graphics::Element] rendered element
-              # @param depth [Integer] element depth
-              # @return [void]
-              def attributes(element, depth)
-                attributes_block(element, depth, element.attributes.send(:xml_lines))
-              end
-            end
-
-            # Hybrid attribute renderer.
-            # @api private
-            module Hybrid
-              # Renders attributes inline or in block form according to line length.
-              # @param element [Sevgi::Graphics::Element] rendered element
-              # @param depth [Integer] element depth
-              # @return [void]
-              def attributes(element, depth)
-                if attributes_as_block?(lines = element.attributes.send(:xml_lines), depth)
-                  attributes_block(element, depth, lines)
-                else
-                  attributes_inline(element, depth, lines)
-                end
-              end
-
-              # Reports whether attributes should be rendered in block form.
-              # @param lines [Array<String>] rendered attribute lines
-              # @param depth [Integer] element depth
-              # @return [Boolean]
-              def attributes_as_block?(lines, depth)
-                linelength(lines, depth) > options[:linelength]
-              end
-
-              # Returns the effective inline line length.
-              # @param lines [Array<String>] rendered attribute lines
-              # @param depth [Integer] element depth
-              # @return [Integer]
-              def linelength(lines, depth)
-                indent(depth).length + lines.sum(&:length)
-              end
-            end
-
-            # Inline attribute renderer.
-            # @api private
-            module Inline
-              # Renders attributes inline.
-              # @param element [Sevgi::Graphics::Element] rendered element
-              # @param depth [Integer] element depth
-              # @return [void]
-              def attributes(element, depth)
-                attributes_inline(element, depth, element.attributes.send(:xml_lines))
-              end
-            end
-          end
-
-          private_constant :Attributes
-
           ELEMENTS_WITH_INLINE_CONTENT = %i[title].freeze
           ELEMENTS_WITH_BLOCK_CONTENT = %i[style].freeze
           SEPARATOR = "\n"
@@ -102,17 +40,11 @@ module Sevgi
             # Inline mark with start, stop, and depth.
             Mark = Struct.new(:start, :stop, :depth)
 
-            # Creates an inline splice tracker.
-            # @return [void]
             def initialize
               @marks = []
               @stack = []
             end
 
-            # Starts an inline splice range.
-            # @param index [Integer] output index
-            # @param depth [Integer] element depth
-            # @return [Sevgi::Graphics::Mixtures::Render::Renderer::Inlines::Mark] opened mark
             def start(index, depth)
               Mark.new(start: index, depth:).tap do |mark|
                 @marks << mark
@@ -120,10 +52,6 @@ module Sevgi
               end
             end
 
-            # Ends the innermost inline splice range.
-            # @param index [Integer] output index
-            # @return [Integer]
-            # @raise [Sevgi::PanicError] when no inline range is open
             def stop(index)
               mark = @stack.pop
               PanicError.("Inline content range was not opened") unless mark
@@ -131,12 +59,6 @@ module Sevgi
               mark.stop = index
             end
 
-            # Joins marked output ranges into inline content.
-            # @param output [Array<Array<String>, nil>] renderer output buffer
-            # @param indent [String] indentation unit
-            # @param separator [String] line separator
-            # @return [Array<Array<String>, nil>, nil]
-            # @raise [Sevgi::PanicError] when an inline range was not closed
             def join(output, indent:, separator:)
               return if @marks.empty?
 
@@ -175,8 +97,7 @@ module Sevgi
             @options = self.class.send(:validate, **)
             @output = []
             @inlines = Inlines.new
-
-            build
+            unclosed
           end
 
           # @overload call(root, **options)
@@ -246,6 +167,14 @@ module Sevgi
 
           attr_reader :inlines
 
+          def attributes(element, depth)
+            lines = element.attributes.send(:xml_lines)
+            block = options[:style] == :block ||
+              (options[:style] == :hybrid && indent(depth).length + lines.sum(&:length) > options[:linelength])
+
+            block ? attributes_block(element, depth, lines) : attributes_inline(element, depth, lines)
+          end
+
           def attributes_block(element, depth, lines)
             return attributes_inline(element, depth, lines) if lines.empty?
 
@@ -263,19 +192,6 @@ module Sevgi
             else
               append(depth, "#{line}>")
             end
-          end
-
-          def build
-            case options[:style]
-            when :hybrid
-              extend(Attributes::Hybrid)
-            when :inline
-              extend(Attributes::Inline)
-            when :block
-              extend(Attributes::Block)
-            end
-
-            unclosed
           end
 
           def childless?(element)

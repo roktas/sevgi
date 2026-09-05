@@ -87,7 +87,11 @@ module Sevgi
             2,
             Function.count(Rational(5, 1), Rational(2, 1)),
             2,
-            Function.count(5.0, 2)
+            Function.count(5.0, 2),
+            3,
+            Function.count(0.3, 0.1),
+            2,
+            Function.count(0.3.prev_float, 0.1)
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
         end
 

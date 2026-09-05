@@ -27,7 +27,8 @@ module Sevgi
         #   end
         def Duplicate(dx: nil, dy: nil, parent: nil, &block)
           dx, dy, target = Subtree.channels(self, dx, dy, parent)
-          duplicated = Subtree.copy(self)
+          copied_parent = Root?() ? Element.send(:tree_parent, self) : Element.send(:detached_parent)
+          duplicated = Subtree.copy(self, parent: copied_parent)
           Subtree.prepare(duplicated, &block)
           Subtree.translate(duplicated, dx, dy)
           Subtree.attach(duplicated, target)
@@ -82,14 +83,14 @@ module Sevgi
 
           # Builds an independent copy of an element subtree.
           # @param element [Sevgi::Graphics::Element] source subtree root
-          # @param parent [Sevgi::Graphics::Element, Object] parent for the copied root
+          # @param parent [Sevgi::Graphics::Element, nil] parent for a copied descendant
           # @return [Sevgi::Graphics::Element] copied subtree root
-          def self.copy(element, parent = Element.send(:tree_parent, element))
+          def self.copy(element, parent:)
             element.dup.tap do |duplicated|
               duplicated.send(:parent=, parent)
               duplicated.send(:attributes=, element.attributes.dup)
               duplicated.send(:contents=, element.contents.map(&:dup))
-              duplicated.send(:children=, element.children.map { |child| copy(child, duplicated) })
+              duplicated.send(:children=, element.children.map { |child| copy(child, parent: duplicated) })
             end
           end
 

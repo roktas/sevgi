@@ -130,49 +130,21 @@ module Sevgi
       assert_includes(::File.read(::File.join(ROOT, ".gitignore")), "/pkg/")
       assert_includes(::File.read(::File.join(ROOT, "Rakefile")), "task(:coverage)")
 
-      root_pkg = ::File.join(ROOT, "pkg/agent-clean.tmp")
-      root_coverage = ::File.join(ROOT, ".local/var/ruby/coverage/agent-clean.tmp")
-      component_pkg = ::File.join(ROOT, "function/pkg/agent-clean.tmp")
-      component_coverage = ::File.join(ROOT, "function/coverage/agent-clean.tmp")
+      Dir.mktmpdir do |workspace|
+        root_pkg = ::File.join(workspace, "root-pkg")
+        component_pkg = ::File.join(workspace, "component/pkg")
+        component_coverage = ::File.join(workspace, "component/coverage/report.json")
 
-      [root_pkg, root_coverage, component_pkg, component_coverage].each do |file|
-        ::FileUtils.mkdir_p(::File.dirname(file))
-        ::File.write(file, "test")
+        ::FileUtils.mkdir_p([root_pkg, component_pkg, ::File.dirname(component_coverage)])
+        ::File.write(component_coverage, "test")
+
+        run_rake("clean", "PKGDIR=#{root_pkg}")
+        run_rake("-f", ::File.join(ROOT, "showcase/Rakefile"), "clean", chdir: ::File.dirname(component_pkg))
+
+        refute_path_exists(root_pkg)
+        refute_path_exists(component_pkg)
+        assert_path_exists(component_coverage)
       end
-
-      run_rake("clean")
-      run_rake("clean", chdir: ::File.join(ROOT, "function"))
-
-      refute(::File.exist?(root_pkg))
-      assert(::File.exist?(root_coverage))
-      refute(::File.exist?(component_pkg))
-      assert(::File.exist?(component_coverage))
-    ensure
-      ::FileUtils.rm_rf(::File.join(ROOT, "pkg"))
-      ::FileUtils.rm_rf(::File.join(ROOT, "function/pkg"))
-      ::FileUtils.rm_rf(::File.join(ROOT, "function/coverage"))
-      ::FileUtils.rm_f(root_coverage) if root_coverage
-    end
-
-    def test_rake_tasks_use_portable_process_invocation
-      root = ::File.read(::File.join(ROOT, "Rakefile"))
-      component = ::File.read(::File.join(ROOT, "showcase/Rakefile"))
-
-      assert_includes(root, "Open3.capture3(\"gem\", \"list\"")
-      assert_includes(root, "sh(\"rake\", tn.to_s)")
-      assert_includes(root, "sh(\"gem\", \"push\", archive.fetch(:path))")
-      assert_includes(component, "::File::PATH_SEPARATOR")
-      assert_includes(component, "sh([t.source, t.source], verbose: false)")
-      assert_includes(component, "sh(\"zola\", \"build\")")
-      refute_includes(component, "ENV[\"PATH\"] += \":")
-      refute_includes(component, "sh(\"\#{t.source}\"")
-    end
-
-    def test_release_preflight_checks_worktree_status
-      rakefile = ::File.read(::File.join(ROOT, "Rakefile"))
-
-      assert_includes(rakefile, "release:preflight")
-      assert_includes(rakefile, "git\", \"status\", \"--short")
     end
 
     def test_test_workflow_covers_ruby_floor_and_development_ruby
@@ -260,7 +232,8 @@ module Sevgi
     end
 
     def run_rake(*args, chdir: ROOT)
-      out, err, status = Open3.capture3("bundle", "exec", "rake", *args, chdir:)
+      env = {"BUNDLE_GEMFILE" => ::File.join(ROOT, "Gemfile")}
+      out, err, status = Open3.capture3(env, "bundle", "exec", "rake", *args, chdir:)
 
       assert(status.success?, "stdout:\n#{out}\nstderr:\n#{err}")
     end

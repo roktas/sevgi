@@ -64,7 +64,7 @@ module Sevgi
       # @raise [Sevgi::ArgumentError] when length is not numeric
       # @raise [Sevgi::ArgumentError] when length is not finite
       # @raise [Sevgi::ArgumentError] when length is not positive
-      def count(length) = (d / positive_number(length, "Interval count length")).to_i
+      def count(length) = F.count(d, positive_number(length, "Interval count length"))
 
       # Returns the total interval distance.
       # @return [Float]
@@ -244,7 +244,9 @@ module Sevgi
 
       # Returns the unfitted distance distributed outside the fitted span.
       # @return [Float]
-      def waste = @waste ||= brut - d
+      def waste
+        @waste ||= (brut - d).then { it.negative? && d.prev_float <= brut ? 0.0 : it }
+      end
 
       # Returns the source subinterval count.
       # @return [Integer]
@@ -261,7 +263,9 @@ module Sevgi
       private
 
       def fitted_margins(start, finish, span)
-        extra = (span - d) / 2.0
+        extra = span - d
+        extra = 0.0 if extra.negative? && d.prev_float <= span
+        extra /= 2.0
         [start + extra, finish + extra]
       end
 

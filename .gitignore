@@ -1,5 +1,6 @@
 .bundle/
 /.codex
+/PLAN.md
 .playwright-cli/
 /pkg/
 vendor/

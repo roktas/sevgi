@@ -347,8 +347,9 @@ module Sevgi
           # @param index [Integer] requested insertion index
           # @return [Integer] normalized insertion index
           def self.index_for(element, parent, index)
-            same_parent = element.parent.equal?(parent) && parent.children.include?(element)
-            index(index, parent.children.size - (same_parent ? 1 : 0))
+            children = Element.send(:tree_children, parent)
+            same_parent = element.parent.equal?(parent) && children.include?(element)
+            index(index, children.size - (same_parent ? 1 : 0))
           end
 
           def self.validate_batch(elements, parent)

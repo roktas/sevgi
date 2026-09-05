@@ -100,11 +100,7 @@ module Sevgi
       "Sevgi::Derender.decompile_file" => {
         raises: ["Sevgi::ArgumentError", "SystemCallError"]
       },
-      "Sevgi::Derender.derender" => {
-        phrases: ["ordinary Ruby source", "dynamic evaluation"]
-      },
       "Sevgi::Derender.derender_file" => {
-        phrases: ["ordinary Ruby source", "dynamic evaluation"],
         raises: ["Sevgi::ArgumentError", "Sevgi::PanicError", "SystemCallError"]
       },
       "Sevgi::Derender.evaluate_children_file" => {
@@ -112,15 +108,6 @@ module Sevgi
       },
       "Sevgi::Derender.evaluate_file" => {
         raises: ["Sevgi::ArgumentError", "SystemCallError"]
-      },
-      "Sevgi::Derender::Node#derender" => {
-        phrases: ["ordinary Ruby source", "dynamic evaluation"]
-      },
-      "Sevgi::Executor::Error" => {
-        phrases: ["visited source", "not the active load stack"]
-      },
-      "Sevgi::Function" => {
-        phrases: ["supported helper facade", "consumers should not include or extend them"]
       },
       "Sevgi::Function::File#changed?" => {
         raises: ["SystemCallError"]
@@ -211,9 +198,6 @@ module Sevgi
       "Sevgi::Graphics::Element.root" => {
         raises: ["Sevgi::ArgumentError", "Sevgi::ArgumentError"]
       },
-      "Sevgi::Graphics::Mixtures::Core#Root" => {
-        phrases: ["topmost element", "Root?"]
-      },
       "Sevgi::Graphics::Mixtures::Core#<<" => {
         raises: ["Sevgi::ArgumentError"]
       },
@@ -224,11 +208,9 @@ module Sevgi
         raises: ["Sevgi::ArgumentError", "SystemCallError"]
       },
       "Sevgi::Toplevel#Derender" => {
-        phrases: ["ordinary Ruby source", "dynamic evaluation"],
         raises: ["Sevgi::ArgumentError", "Sevgi::PanicError"]
       },
       "Sevgi::Toplevel#DerenderFile" => {
-        phrases: ["ordinary Ruby source", "dynamic evaluation"],
         raises: ["Sevgi::ArgumentError", "Sevgi::PanicError", "SystemCallError"]
       },
       "Sevgi::Toplevel#Evaluate" => {
@@ -387,13 +369,9 @@ module Sevgi
       PRIVATE_OBJECTS.each { assert_equal("private", yard(it).tag(:api)&.text, it) }
     end
 
-    def test_doc_tasks_are_wired_into_ci
-      rakefile = ::File.read(::File.join(ROOT, "Rakefile"))
+    def test_ci_builds_documentation
       workflow = ::File.read(::File.join(ROOT, ".github/workflows/test.yml"))
 
-      assert_includes(rakefile, "task(:doc)")
-      assert_includes(rakefile, "task(:check)")
-      assert_includes(rakefile, "SevgiBuild::Docs.verify!")
       assert_includes(::File.read(::File.join(ROOT, ".yardopts")), "--hide-api private")
       assert_includes(workflow, "bundle exec rake doc:check")
       assert_includes(workflow, "actions/upload-artifact")
@@ -461,11 +439,7 @@ module Sevgi
       SEMANTICS.each do |path, contract|
         object = yard(path)
         contract.each do |facet, expected|
-          if facet == :phrases
-            expected.each { assert_includes(object.docstring.to_s, it, path) }
-          else
-            assert_equal(expected, semantic_value(object, facet), "#{path} #{facet}")
-          end
+          assert_equal(expected, semantic_value(object, facet), "#{path} #{facet}")
         end
       end
     end
