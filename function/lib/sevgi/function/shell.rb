@@ -241,7 +241,7 @@ module Sevgi
 
         private
 
-        # rubocop:disable Lint/RescueException
+        # rubocop:disable-next Lint/RescueException
         def capture(stdin, stdout, stderr, wait_thread, &input)
           registered = false
           Signals.register(self, wait_thread.pid)

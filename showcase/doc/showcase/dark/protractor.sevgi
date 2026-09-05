@@ -1,0 +1,40 @@
+#!/usr/bin/env -S ruby -S sevgi
+# frozen_string_literal: true
+
+CX = 75
+CY = 75
+RADIUS = 70
+
+SVG width: "150mm", height: "85mm", viewBox: "0 0 150 85" do
+  ruler = Sevgi::Sundries::Ruler.new brut: 180, unit: 1, multiple: 10
+
+  g fill: "none", stroke: "white", "stroke-width": 0.2 do
+    ArcTo x1: CX - RADIUS, y1: CY, x2: CX + RADIUS, y2: CY,
+          rx: RADIUS, ry: RADIUS, sweep: true
+    HLineBy x: CX - RADIUS, y: CY, length: 2 * RADIUS
+
+    [
+      [ruler.ms - ruler.ds - ruler.hs, 2],
+      [ruler.hs, 4],
+      [ruler.ds, 6]
+    ].each do |degrees, length|
+      degrees.each do |degree|
+        g transform: "rotate(#{degree} #{CX} #{CY})" do
+          HLineBy x: CX - RADIUS, y: CY, length:
+        end
+      end
+    end
+
+    HLineBy x: CX - 2, y: CY, length: 4
+    VLineBy x: CX, y: CY - 2, length: 4
+  end
+
+  g fill: "white", "font-family": "sans-serif", "font-size": 3, "text-anchor": "middle" do
+    ruler.ds[1...-1].each do |degree|
+      g transform: "rotate(#{degree} #{CX} #{CY})" do
+        text degree.to_i.to_s, x: 15, y: CY, dy: 1,
+             transform: "rotate(#{-degree} 15 #{CY})"
+      end
+    end
+  end
+end.Save

@@ -11,11 +11,11 @@ module Sevgi
         # Default maximum number of sweep iterations.
         LIMIT = 1_000
 
-        # Sweeps parallel lines across a lined element in both directions.
+        # Sweeps parallel lines across a geometry element in both directions.
         #
         # Generated lines are boundary-to-boundary interior spans. A single
-        # sweep position can produce multiple lines for closed concave elements; open paths produce no interior lines.
-        # @param element [Sevgi::Geometry::Element::Lined] element to intersect
+        # sweep position can produce multiple lines for closed concave elements. Open paths produce no interior lines.
+        # @param element [Sevgi::Geometry::Element] element to intersect
         # @param initial [Sevgi::Geometry::Point, Array<Numeric>] point on the initial sweep line
         # @param angle [Numeric] clockwise sweep line angle in degrees
         # @param step [Numeric] signed distance between sweep lines
@@ -38,11 +38,11 @@ module Sevgi
           end
         end
 
-        # Sweeps parallel lines across a lined element and requires at least one result.
+        # Sweeps parallel lines across a geometry element and requires at least one result.
         #
         # Generated lines are boundary-to-boundary interior spans. A single
-        # sweep position can produce multiple lines for closed concave elements; open paths produce no interior lines.
-        # @param element [Sevgi::Geometry::Element::Lined] element to intersect
+        # sweep position can produce multiple lines for closed concave elements. Open paths produce no interior lines.
+        # @param element [Sevgi::Geometry::Element] element to intersect
         # @param initial [Sevgi::Geometry::Point, Array<Numeric>] point on the initial sweep line
         # @param angle [Numeric] clockwise sweep line angle in degrees
         # @param step [Numeric] signed distance between sweep lines
@@ -66,8 +66,8 @@ module Sevgi
         # Sweeps parallel lines in one signed direction from an equation.
         #
         # Generated lines are boundary-to-boundary interior spans. A single
-        # sweep position can produce multiple lines for closed concave elements; open paths produce no interior lines.
-        # @param element [Sevgi::Geometry::Element::Lined] element to intersect
+        # sweep position can produce multiple lines for closed concave elements. Open paths produce no interior lines.
+        # @param element [Sevgi::Geometry::Element] element to intersect
         # @param equation [Sevgi::Geometry::Equation] initial sweep equation
         # @param step [Numeric] signed distance between sweep lines
         # @param limit [Integer] maximum iterations
@@ -97,7 +97,7 @@ module Sevgi
         # @param element [Object] candidate element
         # @return [Boolean]
         def applicable?(element)
-          element.respond_to?(:intersection)
+          element.respond_to?(:intersection) && element.respond_to?(:inside?) && element.respond_to?(:on?)
         end
 
         private

@@ -5,7 +5,7 @@
 
 *Scalable Executable Vector Graphics Interface*
 
-Sevgi is a Ruby toolkit for creating SVG through a compact DSL. It uses SVG element names directly, keeping drawings
+Sevgi is a Ruby toolkit for creating SVG through a compact DSL. It uses SVG element names directly. Drawings stay
 close to their output while retaining Ruby's composition and reuse.
 
 The full guides, DSL catalog, API reference, and rendered examples are at [sevgi.roktas.dev](https://sevgi.roktas.dev).
@@ -18,9 +18,9 @@ For the complete command-line toolkit, Homebrew is the recommended installation 
 brew install roktas/tap/sevgi
 ```
 
-This installs Sevgi with Ruby, the `sevgi`, `igves`, and `igsev` commands, its native PDF and PNG export stack, and the
-headless pdfcpu and Poppler tools. It also gives the packaged agent skill a stable location; `sevgi --skill` prints that
-location for agent setup.
+This installs Sevgi with Ruby and the `sevgi`, `igves`, and `igsev` commands. It also installs the native PDF and PNG
+export stack plus the headless pdfcpu and Poppler tools. The packaged agent skill gets a stable location.
+`sevgi --skill` prints that location for agent setup.
 
 When Sevgi is a dependency of a Ruby application, manage it with Bundler in the application's `Gemfile` instead:
 
@@ -48,7 +48,7 @@ end
 puts drawing.Render
 ```
 
-Library operations use capitalized facade methods such as `SVG.Canvas`; related Ruby types and namespaces use
+Library operations use capitalized facade methods such as `SVG.Canvas`. Related Ruby types and namespaces use
 double-colon names such as `SVG::Canvas`. Executable `.sevgi` scripts promote those operations as bare DSL words.
 
 Sevgi also runs executable `.sevgi` drawing scripts. See [Getting Started](https://sevgi.roktas.dev/start/)
@@ -76,11 +76,17 @@ The components are also published as separate gems for libraries that need a sma
 | Package the agent skill or lint `.sevgi` source | `sevgi-appendix` | `require "sevgi/appendix"` or the RuboCop plugin |
 
 For example, a service that only builds SVG can install `sevgi-graphics`. Its focused API is
-`Sevgi::Graphics.SVG(...)`; the full `SVG` facade and the `sevgi` executable belong to the umbrella gem. Add
-`sevgi-standard` when that focused service should validate element and attribute names. Shared support gems such as
-`sevgi-function` are installed transitively by the components that need them. Native PDF and PNG export gems remain
-optional when using `sevgi-sundries`. The umbrella gem adds the `sevgi --skill` query for locating the matching
-Appendix skill.
+`Sevgi::Graphics.SVG(...)`. The full `SVG` facade and the `sevgi` executable belong to the umbrella gem. Add
+`sevgi-standard` to validate element and attribute names. Components install shared support gems such as
+`sevgi-function` transitively. Native PDF and PNG export gems remain optional with `sevgi-sundries`. The umbrella gem
+adds `sevgi --skill` to locate the matching Appendix skill.
+
+## Geometry and arcs
+
+`ArcTo` and `ArcBy` draw SVG elliptical arcs from endpoints, radii, and flags.
+For calculations, `Sevgi::Geometry::Arc`, `Ellipse`, and `Circle` provide bounds, length, line intersections, and affine transformations.
+See the [Geometry guide](https://sevgi.roktas.dev/geometry/) and the
+[Protractor](https://sevgi.roktas.dev/examples/#protractor) and [Arc](https://sevgi.roktas.dev/examples/#arc) examples.
 
 ## Requirements
 
@@ -89,7 +95,7 @@ optional Cairo, librsvg, and HexaPDF integrations documented in Getting Started.
 
 > [!NOTE]
 >
-> Sevgi is pre-1.0. Public APIs may still change before the 1.0 release.
+> Sevgi is pre-1.0. Public APIs can change before the 1.0 release.
 
 ## Links
 
@@ -100,8 +106,8 @@ optional Cairo, librsvg, and HexaPDF integrations documented in Getting Started.
 
 ## Acknowledgments
 
-Sevgi was inspired by [Victor](https://github.com/DannyBen/victor), which may be a better fit for projects that need a
-smaller API. Some Showcase examples were adapted from Victor's examples with thanks to its author.
+Sevgi was inspired by [Victor](https://github.com/DannyBen/victor). Victor is a smaller alternative for projects that
+need a narrower API. Some Showcase examples were adapted from Victor's examples with thanks to its author.
 
 ## License
 

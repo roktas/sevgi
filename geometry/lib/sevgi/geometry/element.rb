@@ -12,7 +12,7 @@ module Sevgi
 
       # @overload lined(size = Undefined, open: false)
       #   Builds a lined element subclass.
-      #   Instances expose total path `length`; closed classes additionally expose `perimeter`.
+      #   Instances expose total path `length`. Closed classes also expose `perimeter`.
       #   @param size [Integer, Sevgi::Undefined] segment count for fixed-size elements, or Undefined for variable size
       #   @param open [Boolean] true for an open path, false for a closed path
       #   @return [Class] subclass of {Sevgi::Geometry::Element::Lined}
@@ -21,16 +21,6 @@ module Sevgi
       #   Path = Sevgi::Geometry::Element.lined(2, open: true)
       #   Path.([0, 0], [1, 0], [1, 1])
       def self.lined(...) = Lined.send(:build, ...)
-
-      # @overload arced(*args)
-      #   Builds an arced element subclass.
-      #   @api private
-      #   @param args [Array<Object>] arced factory arguments
-      #   @return [Class]
-      #   @raise [NoMethodError] until arced elements are implemented
-      def self.arced(...) = Arced.build(...)
-
-      private_class_method :arced
 
       # Core API
 
@@ -62,7 +52,8 @@ module Sevgi
       # @raise [Sevgi::PanicError] when a subclass does not implement box
       def box = PanicError.("#{self.class}#box must be implemented")
 
-      # Returns equations that define the element boundary.
+      # Returns carrier equations for candidate boundary intersections.
+      # A finite element can represent only part of each carrier.
       # @abstract Subclasses implement element-specific equations.
       # @return [Array<Sevgi::Geometry::Equation>]
       # @raise [Sevgi::PanicError] when a subclass does not implement equations
@@ -72,6 +63,29 @@ module Sevgi
       # @param precision [Integer, nil] decimal precision, or nil for the current function default
       # @return [Boolean]
       def ignorable?(precision: nil) = F.zero?(box.width, precision:) && F.zero?(box.height, precision:)
+
+      # Intersects the element boundary with an equation.
+      #
+      # Precision controls boundary membership, returned-coordinate rounding, and duplicate collapse.
+      # A nil precision uses the current thread's function precision for all three stages.
+      # @example Intersect a rectangle with a vertical line
+      #   rect = Sevgi::Geometry::Rect[8, 4]
+      #   axis = Sevgi::Geometry::Equation.vertical(3)
+      #   rect.intersection(axis).map(&:deconstruct) # => [[3.0, 0.0], [3.0, 4.0]]
+      # @param equation [Sevgi::Geometry::Equation] equation to intersect with
+      # @param precision [Integer, nil] coordinate precision, or nil for the current function default
+      # @return [Array<Sevgi::Geometry::Point>] unique boundary intersection points
+      # @raise [Sevgi::Geometry::Error] when equation is not an equation
+      # @raise [Sevgi::PanicError] when the equation combination is not implemented
+      def intersection(equation, precision: nil)
+        Error.("Must be an equation: #{equation}") unless equation.is_a?(Equation)
+
+        points = equations.flat_map do |candidate|
+          equation.intersect(candidate).select { |point| boundary_point?(point, precision) }
+        end
+
+        points.map { |point| point.approx(precision) }.uniq
+      end
 
       # Returns the element position.
       # @abstract Subclasses implement element-specific positioning.
@@ -87,10 +101,18 @@ module Sevgi
       # @raise [Sevgi::PanicError] when a subclass does not implement translate
       def translate(_x, _y) = PanicError.("#{self.class}#translate must be implemented")
 
+      def boundary_point?(point, precision)
+        return on?(point) if precision.nil?
+
+        F.with_precision(precision) { on?(point) }
+      end
+
+      private :boundary_point?
+
       # Element whose boundary is represented by straight segments.
       #
       # The same path is available as immutable {#points}, {#segments}, and
-      # {#lines} collections. Closed shapes repeat their first point at the end;
+      # {#lines} collections. Closed shapes repeat their first point at the end.
       # open paths do not. Only closed shapes have a filled interior, so
       # `inside?` on an open path is equivalent to testing its boundary.
       # @example Inspect the interchangeable point, segment, and line views
@@ -420,29 +442,6 @@ module Sevgi
         # @return [Array<Sevgi::Geometry::Equation::Linear>] frozen equation collection
         def equations = @equations ||= lines.map(&:equation).freeze
 
-        # Intersects the element boundary with an equation.
-        #
-        # Precision is applied consistently to boundary-membership tolerance, returned-coordinate rounding, and
-        # duplicate collapse. A nil precision uses the current thread's function precision for all three stages.
-        # @example Intersect a rectangle with a vertical line
-        #   rect = Sevgi::Geometry::Rect[8, 4]
-        #   axis = Sevgi::Geometry::Equation.vertical(3)
-        #   rect.intersection(axis).map(&:deconstruct) # => [[3.0, 0.0], [3.0, 4.0]]
-        # @param equation [Sevgi::Geometry::Equation] equation to intersect with
-        # @param precision [Integer, nil] decimal precision for returned points, or nil for the current function default
-        # @return [Array<Sevgi::Geometry::Point>] unique boundary intersection points
-        # @raise [Sevgi::Geometry::Error] when equation is not an equation
-        # @raise [Sevgi::PanicError] when the equation combination is not implemented
-        def intersection(equation, precision: nil)
-          Error.("Must be an equation: #{equation}") unless equation.is_a?(Equation)
-
-          points = equations.flat_map do |candidate|
-            equation.intersect(candidate).select { |point| boundary_point?(point, precision) }
-          end
-
-          points.map { |point| point.approx(precision) }.uniq
-        end
-
         # Properties
 
         # Returns a line by index.
@@ -488,7 +487,7 @@ module Sevgi
 
         # Reports whether a point is inside or on the boundary.
         #
-        # Open paths have no filled interior; for them this predicate is true
+        # Open paths have no filled interior. For them this predicate is true
         # only for points on the actual path boundary.
         # @example Compare closed and open path containment
         #   rect = Sevgi::Geometry::Rect[8, 4]
@@ -524,12 +523,6 @@ module Sevgi
         def outside?(point) = !inside?(point)
 
         private
-
-        def boundary_point?(point, precision)
-          return on?(point) if precision.nil?
-
-          F.with_precision(precision) { on?(point) }
-        end
 
         def calculate_points_from_segments
           Error.("No segments found") unless segments
@@ -600,12 +593,38 @@ module Sevgi
         def validate_geometry! = nil
       end
 
-      # Reserved base for future arced elements.
-      # @api private
+      # Abstract family of circular and elliptical boundary elements.
+      # Arc is open, while Ellipse and Circle have closed boundaries. Concrete values share exact and precision-aware comparisons.
       class Arced < self
+        # Compares canonical fields with coordinate and numeric precision.
+        # @param other [Object] comparison target
+        # @param precision [Integer, nil] decimal precision, or nil for the current function default
+        # @return [Boolean]
+        def eq?(other, precision: nil)
+          other.instance_of?(self.class) &&
+            state.zip(other.send(:state)).all? do |left, right|
+              left.is_a?(::Numeric) ? F.eq?(left, right, precision:) : left.eq?(right, precision:)
+            end
+        end
+
+        # Reports strict equality by concrete class and canonical fields.
+        # @param other [Object] comparison target
+        # @return [Boolean]
+        def eql?(other) = other.instance_of?(self.class) && state == other.send(:state)
+
+        # Returns a hash independent of numeric precision.
+        # @return [Integer]
+        def hash = [self.class, *state].hash
+
+        # Reports whether a point is outside the element.
+        # @param point [Sevgi::Geometry::Point, Array<Numeric>] point to test
+        # @return [Boolean]
+        # @raise [Sevgi::Geometry::Error] when point cannot be coerced
+        def outside?(point) = !inside?(point)
+
+        alias == eql?
       end
 
-      private_constant :Arced
     end
 
     require_relative "elements/line"
@@ -614,5 +633,8 @@ module Sevgi
     require_relative "elements/polyline"
     require_relative "elements/rect"
     require_relative "elements/triangle"
+    require_relative "elements/ellipse"
+    require_relative "elements/circle"
+    require_relative "elements/arc"
   end
 end

@@ -5,9 +5,9 @@ module Sevgi
     # Stateless operations that relate or derive geometry values.
     #
     # `alignment` returns a translation offset, while `align` applies that
-    # offset to a copy. Center alignment works on both axes; edge alignments
+    # offset to a copy. Center alignment works on both axes. Edge alignments
     # change only the named axis and preserve the other coordinate. `sweep`
-    # derives boundary-to-boundary spans from a closed lined element, and
+    # derives boundary-to-boundary spans from a closed geometry element, and
     # `sweep!` additionally requires at least one span.
     module Operation
       extend self
@@ -48,10 +48,10 @@ module Sevgi
       #     #   Sevgi::Geometry::Operation.alignment(inner, outer, :bottom).approx.deconstruct # => [0.0, 13.0]
       #     def alignment(element, other, alignment = :center); end
       #
-      #     # Sweeps parallel lines across a lined element in both directions.
-      #     # `angle` is the direction of the returned lines; `step` is their signed perpendicular spacing.
+      #     # Sweeps parallel lines across a geometry element in both directions.
+      #     # `angle` is the direction of the returned lines. `step` is their signed perpendicular spacing.
       #     # Open paths yield no interior spans.
-      #     # @param element [Sevgi::Geometry::Element::Lined] element to intersect
+      #     # @param element [Sevgi::Geometry::Element] element to intersect
       #     # @param initial [Sevgi::Geometry::Point, Array<Numeric>] point on the initial sweep line
       #     # @param angle [Numeric] clockwise sweep line angle in degrees
       #     # @param step [Numeric] signed distance between sweep lines
@@ -70,9 +70,9 @@ module Sevgi
       #     #   lines.map(&:length).uniq # => [10.0]
       #     def sweep(element, initial:, angle:, step:, limit: Sweep::LIMIT); end
       #
-      #     # Sweeps parallel lines across a lined element and requires at least one result.
-      #     # It has the same geometry as {sweep}, but raises when the result would be empty.
-      #     # @param element [Sevgi::Geometry::Element::Lined] element to intersect
+      #     # Sweeps parallel lines across a geometry element and requires at least one result.
+      #     # It has the same geometry as {sweep}, but raises when the result is empty.
+      #     # @param element [Sevgi::Geometry::Element] element to intersect
       #     # @param initial [Sevgi::Geometry::Point, Array<Numeric>] point on the initial sweep line
       #     # @param angle [Numeric] clockwise sweep line angle in degrees
       #     # @param step [Numeric] signed distance between sweep lines

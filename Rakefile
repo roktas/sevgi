@@ -427,10 +427,8 @@ module SevgiBuild
     PRIVATE_PAGES = %w[
       Sevgi/Executor/Scope.html
       Sevgi/Executor/Source.html
-      Sevgi/Geometry/Equation/Quadratic.html
       Sevgi/Sundries/Export/Renderer.html
-    ]
-      .freeze
+    ].freeze
 
     private_constant :PRIVATE_PAGES
     module_function

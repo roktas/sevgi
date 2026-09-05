@@ -189,7 +189,7 @@ module Sevgi
         raises: ["Sevgi::ArgumentError", "Sevgi::ValidationError", "Sevgi::Graphics::LintError", "SystemCallError"],
         sees: ["Sevgi::Graphics::Document::Proto#call"]
       },
-      "Sevgi::Geometry::Element::Lined#intersection" => {
+      "Sevgi::Geometry::Element#intersection" => {
         raises: ["Sevgi::Geometry::Error", "Sevgi::PanicError"]
       },
       "Sevgi::Graphics::Document::Proto#call" => {
@@ -238,7 +238,6 @@ module Sevgi
       Sevgi::Executor::Scope
       Sevgi::Executor::Source
       Sevgi::Executor::State
-      Sevgi::Geometry::Equation::Quadratic
       Sevgi::Sundries::Export::Renderer
     ]
       .freeze

@@ -44,8 +44,6 @@ module Sevgi
 
       def test_lined_element_hides_incomplete_builders
         assert_respond_to(Element, :lined)
-        refute_respond_to(Element, :arced)
-        refute_includes(Element.constants(false), :Arced)
 
         %i[Open Close SHORTCUTS].each { refute_includes(Element::Lined.constants(false), it) }
         %i[\[\] call from_points from_segments].each { refute_respond_to(Element::Lined, it) }

@@ -6,10 +6,10 @@ module Sevgi
       # DSL helpers for drawing geometry values and geometry-derived hatch lines.
       #
       # `Draw` delegates to each geometry object's drawing protocol. `Hatch`
-      # first sweeps interior spans through a closed lined element, then draws
-      # them. Its `angle` describes line direction; `step` is perpendicular
+      # first sweeps interior spans through a closed geometry element, then draws
+      # them. Its `angle` describes line direction. `step` is perpendicular
       # spacing. The default initial line passes through `element.position`.
-      # The built-in `:inkscape` document profile includes this mixture;
+      # The built-in `:inkscape` document profile includes this mixture.
       # `:minimal`, `:default`, and `:html` do not.
       #
       # Hatch materializes separate finite SVG path elements. When only a repeated visual fill matters, use an SVG
@@ -52,7 +52,7 @@ module Sevgi
         #   Sevgi::Graphics.SVG(:inkscape) do
         #     Hatch region, initial: [2, 8], angle: 0, step: 3
         #   end
-        # @param element [Sevgi::Geometry::Element::Lined] lined geometry element to sweep
+        # @param element [Sevgi::Geometry::Element] geometry element to sweep
         # @param angle [Numeric] hatch angle in degrees
         # @param step [Numeric] distance between hatch lines
         # @param initial [Sevgi::Geometry::Point, Array<Numeric>, nil] initial sweep point, or nil for element.position
@@ -72,7 +72,7 @@ module Sevgi
             MissingComponentError.("sevgi/geometry")
           end
 
-          initial = element.position if initial.nil? && element.is_a?(Geometry::Element::Lined)
+          initial = element.position if initial.nil? && element.is_a?(Geometry::Element)
           Draw(Geometry::Operation.sweep!(element, initial:, angle:, step:), **kwargs)
         end
       end

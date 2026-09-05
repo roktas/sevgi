@@ -2,15 +2,15 @@
 
 {# Build file paths with optional directory #}
 {% if dir %}
-  {% set ruby_file_light = dir ~ "/light/" ~ base ~ "." ~ ext %}
-  {% set ruby_file_dark = dir ~ "/dark/" ~ base ~ "." ~ ext %}
-  {% set svg_file_light = dir ~ "/light/" ~ base ~ ".svg" %}
-  {% set svg_file_dark = dir ~ "/dark/" ~ base ~ ".svg" %}
+{% set ruby_file_light = dir ~ "/light/" ~ base ~ "." ~ ext %}
+{% set ruby_file_dark = dir ~ "/dark/" ~ base ~ "." ~ ext %}
+{% set svg_file_light = dir ~ "/light/" ~ base ~ ".svg" %}
+{% set svg_file_dark = dir ~ "/dark/" ~ base ~ ".svg" %}
 {% else %}
-  {% set ruby_file_light = "light/" ~ base ~ "." ~ ext %}
-  {% set ruby_file_dark = "dark/" ~ base ~ "." ~ ext %}
-  {% set svg_file_light = "light/" ~ base ~ ".svg" %}
-  {% set svg_file_dark = "dark/" ~ base ~ ".svg" %}
+{% set ruby_file_light = "light/" ~ base ~ "." ~ ext %}
+{% set ruby_file_dark = "dark/" ~ base ~ "." ~ ext %}
+{% set svg_file_light = "light/" ~ base ~ ".svg" %}
+{% set svg_file_dark = "dark/" ~ base ~ ".svg" %}
 {% endif %}
 
 {% set ruby_content_light = load_data(path=ruby_file_light) %}
@@ -28,53 +28,53 @@
 {% set xml_panel = "panel-" ~ base ~ "-xml" %}
 
 <div class="tabs{% if title %} titled{% endif %}"{% if title %} id="{{ base }}"{% endif %} data-tab-base="{{ base }}" role="tablist" aria-label="{{ base }} example views">
-  <input class="input" name="tabs-{{ base }}" type="radio" id="{{ svg_input }}" checked="checked" tabindex="-1" aria-hidden="true"/>
-  <label class="label" for="{{ svg_input }}" id="{{ svg_tab }}" title="SVG Output" role="tab" tabindex="0" aria-selected="true" aria-controls="{{ svg_panel }}" aria-label="SVG Output" data-tab-input="{{ svg_input }}" data-tab-panel="{{ svg_panel }}"><i class="fa-solid fa-image" aria-hidden="true"></i></label>
-  <div class="panel svg-panel" id="{{ svg_panel }}" role="tabpanel" aria-labelledby="{{ svg_tab }}">
-    <template id="svg-light-{{ base }}">
-      {{ svg_content_light | safe }}
-    </template>
-    <template id="svg-dark-{{ base }}">
-      {{ svg_content_dark | safe }}
-    </template>
-    <div class="svg-output" data-light-template="svg-light-{{ base }}" data-dark-template="svg-dark-{{ base }}">
-      <noscript>
-        {{ svg_content_light | safe }}
-      </noscript>
-    </div>
-  </div>
+<input class="input" name="tabs-{{ base }}" type="radio" id="{{ svg_input }}" checked="checked" tabindex="-1" aria-hidden="true"/>
+<label class="label" for="{{ svg_input }}" id="{{ svg_tab }}" title="SVG Output" role="tab" tabindex="0" aria-selected="true" aria-controls="{{ svg_panel }}" aria-label="SVG Output" data-tab-input="{{ svg_input }}" data-tab-panel="{{ svg_panel }}"><i class="fa-solid fa-image" aria-hidden="true"></i></label>
+<div class="panel svg-panel" id="{{ svg_panel }}" role="tabpanel" aria-labelledby="{{ svg_tab }}">
+<template id="svg-light-{{ base }}">
+{{ svg_content_light | safe }}
+</template>
+<template id="svg-dark-{{ base }}">
+{{ svg_content_dark | safe }}
+</template>
+<div class="svg-output" data-light-template="svg-light-{{ base }}" data-dark-template="svg-dark-{{ base }}">
+<noscript>
+{{ svg_content_light | safe }}
+</noscript>
+</div>
+</div>
 
-  <input class="input" name="tabs-{{ base }}" type="radio" id="{{ ruby_input }}" tabindex="-1" aria-hidden="true"/>
-  <label class="label" for="{{ ruby_input }}" id="{{ ruby_tab }}" title="Ruby Code" role="tab" tabindex="0" aria-selected="false" aria-controls="{{ ruby_panel }}" aria-label="Ruby Code" data-tab-input="{{ ruby_input }}" data-tab-panel="{{ ruby_panel }}"><i class="fa-solid fa-gem" aria-hidden="true"></i></label>
-  <div class="panel code-panel ruby-panel" id="{{ ruby_panel }}" role="tabpanel" aria-labelledby="{{ ruby_tab }}">
-    <div class="theme-light">
+<input class="input" name="tabs-{{ base }}" type="radio" id="{{ ruby_input }}" tabindex="-1" aria-hidden="true"/>
+<label class="label" for="{{ ruby_input }}" id="{{ ruby_tab }}" title="Ruby Code" role="tab" tabindex="0" aria-selected="false" aria-controls="{{ ruby_panel }}" aria-label="Ruby Code" data-tab-input="{{ ruby_input }}" data-tab-panel="{{ ruby_panel }}"><i class="fa-solid fa-gem" aria-hidden="true"></i></label>
+<div class="panel code-panel ruby-panel" id="{{ ruby_panel }}" role="tabpanel" aria-labelledby="{{ ruby_tab }}">
+<div class="theme-light">
 {{ "```ruby
 " ~ ruby_content_light ~ "
 ```" | markdown | safe }}
-    </div>
-    <div class="theme-dark">
+</div>
+<div class="theme-dark">
 {{ "```ruby
 " ~ ruby_content_dark ~ "
 ```" | markdown | safe }}
-    </div>
-  </div>
+</div>
+</div>
 
-  <input class="input" name="tabs-{{ base }}" type="radio" id="{{ xml_input }}" tabindex="-1" aria-hidden="true"/>
-  <label class="label" for="{{ xml_input }}" id="{{ xml_tab }}" title="XML Code" role="tab" tabindex="0" aria-selected="false" aria-controls="{{ xml_panel }}" aria-label="XML Code" data-tab-input="{{ xml_input }}" data-tab-panel="{{ xml_panel }}"><i class="fa-solid fa-code" aria-hidden="true"></i></label>
-  <div class="panel code-panel svg-code-panel" id="{{ xml_panel }}" role="tabpanel" aria-labelledby="{{ xml_tab }}">
-    <div class="theme-light">
+<input class="input" name="tabs-{{ base }}" type="radio" id="{{ xml_input }}" tabindex="-1" aria-hidden="true"/>
+<label class="label" for="{{ xml_input }}" id="{{ xml_tab }}" title="XML Code" role="tab" tabindex="0" aria-selected="false" aria-controls="{{ xml_panel }}" aria-label="XML Code" data-tab-input="{{ xml_input }}" data-tab-panel="{{ xml_panel }}"><i class="fa-solid fa-code" aria-hidden="true"></i></label>
+<div class="panel code-panel svg-code-panel" id="{{ xml_panel }}" role="tabpanel" aria-labelledby="{{ xml_tab }}">
+<div class="theme-light">
 {{ "```xml
 " ~ svg_content_light ~ "
 ```" | markdown | safe }}
-    </div>
-    <div class="theme-dark">
+</div>
+<div class="theme-dark">
 {{ "```xml
 " ~ svg_content_dark ~ "
 ```" | markdown | safe }}
-    </div>
-  </div>
-  {% if title %}
-  <h2 class="tabs-title"><a class="tabs-title-link" href="#{{ base }}">{{ title }}</a></h2>
-  {% endif %}
+</div>
+</div>
+{% if title %}
+<h2 class="tabs-title"><a class="tabs-title-link" href="#{{ base }}">{{ title }}</a></h2>
+{% endif %}
 </div>
 {% endcomponent tabs %}

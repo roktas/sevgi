@@ -32,10 +32,27 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
-      def test_equation_hides_incomplete_circle_surface
-        assert_respond_to(Equation, :horizontal)
-        refute_includes(Geometry.constants(false), :Circle)
-        refute_includes(Equation.constants(false), :Quadratic)
+      def test_quadratic_carrier_intersects_lines_in_both_orders
+        carrier = Ellipse[5, 3].equation
+        assert_instance_of(Equation::Quadratic, carrier)
+
+        [
+          Equation.horizontal(0),
+          [[-5.0, 0.0], [5.0, 0.0]],
+          Equation.vertical(0),
+          [[0.0, -3.0], [0.0, 3.0]],
+          Equation.horizontal(3),
+          [[0.0, 3.0]],
+          Equation.vertical(5),
+          [[5.0, 0.0]],
+          Equation.horizontal(4),
+          [],
+          Equation.vertical(6),
+          []
+        ].each_slice(2) do |line, expected|
+          assert_equal(expected, carrier.intersect(line).map { it.approx.deconstruct })
+          assert_equal(expected, line.intersect(carrier).map { it.approx.deconstruct })
+        end
       end
 
       def test_linear_equations_are_unoriented
@@ -154,10 +171,45 @@ module Sevgi
         assert_match(/slope/, conversion_error.message)
       end
 
-      def test_unimplemented_intersection_raises_panic_error
-        assert_raises(PanicError) do
-          Equation.horizontal(3).send(:linear_vs_quadratic, Object.new)
+      def test_quadratic_accepts_general_coefficients
+        equation = Equation.quadratic(1, 0, 0, 0, -1, 0)
+
+        assert_equal([4.0], equation.y(2))
+        assert_equal([[-2.0, 4.0], [2.0, 4.0]], equation.intersect(Equation.horizontal(4)).map(&:deconstruct))
+        assert_equal(
+          [[0.0, 0.0], [1.0, 1.0]],
+          equation.intersect(Equation.diagonal(slope: 1, intercept: 0)).map(&:deconstruct)
+        )
+        assert_equal(equation, Equation.quadratic(1, 0, 0, 0, -1, 0))
+        assert_equal(equation.hash, Equation.quadratic(1, 0, 0, 0, -1, 0).hash)
+      end
+
+      def test_quadratic_validates_coefficients
+        [[], [1, 0, 1], [0, 0, 0, 1, 1, 1], [1, 0, 1, 0, 0, Float::NAN]].each do |coefficients|
+          assert_raises(Error) { Equation.quadratic(*coefficients) }
         end
+      end
+
+      def test_quadratic_preserves_small_roots_and_local_origins
+        equation = Equation.quadratic(1, 0, 0, -1e8, -1, 1)
+        points = equation.intersect(Equation.horizontal(0))
+        assert_in_delta(1e-8, points.first.x, 1e-20)
+        assert_in_delta(1e8, points.last.x, 1e-7)
+
+        circle = Circle[2, position: [1e12, -1e12]]
+        assert_equal(
+          [[1e12 - 2, -1e12], [1e12 + 2, -1e12]],
+          circle.intersection(Equation.horizontal(-1e12)).map(&:deconstruct)
+        )
+      end
+
+      def test_quadratic_rejects_overflow_and_omits_coincidence
+        equation = Equation.quadratic(1, 0, 1, 0, 0, -1)
+        assert_raises(Error) { equation.y(1e308) }
+
+        crossed_axes = Equation.quadratic(0, 1, 0, 0, 0, 0)
+        assert_empty(crossed_axes.intersect(Equation.vertical(0)))
+        assert_empty(crossed_axes.intersect(Equation.horizontal(0)))
       end
 
       def test_unknown_equation_intersection_raises_panic_error

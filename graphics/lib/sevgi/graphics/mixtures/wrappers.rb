@@ -5,6 +5,55 @@ module Sevgi
     module Mixtures
       # DSL wrappers for common SVG shapes and content patterns.
       module Wrappers
+        # rubocop:disable Metrics/ParameterLists
+
+        # Builds an elliptical arc path ending at an absolute point.
+        # SVG resolves the ellipse from its endpoints, radii, and flags, including radius correction and zero radii.
+        # @example Draw an upper semicircle in screen coordinates
+        #   Sevgi::Graphics.SVG { ArcTo x1: 0, y1: 10, x2: 20, y2: 10, rx: 10, ry: 10, sweep: true }
+        # @param x2 [Numeric] finite ending x coordinate
+        # @param y2 [Numeric] finite ending y coordinate
+        # @param rx [Numeric] finite local x radius
+        # @param ry [Numeric] finite local y radius
+        # @param x1 [Numeric] finite starting x coordinate
+        # @param y1 [Numeric] finite starting y coordinate
+        # @param rotation [Numeric] clockwise ellipse rotation in degrees
+        # @param large [Boolean] select the arc exceeding a half turn
+        # @param sweep [Boolean] select increasing parameter angles
+        # @return [Sevgi::Graphics::Element] path element
+        # @raise [Sevgi::ArgumentError] when an operand is not finite real or a flag is not Boolean
+        def ArcTo(x2:, y2:, rx:, ry:, x1: 0, y1: 0, rotation: 0, large: false, sweep: false, **)
+          x1, y1, x2, y2, rx, ry, rotation = Scalar.numbers([x1, y1, x2, y2, rx, ry, rotation], context: "absolute arc")
+          unless [large, sweep].all? { it.equal?(true) || it.equal?(false) }
+            ArgumentError.("Arc flags must be Boolean")
+          end
+
+          path(d: "M #{x1} #{y1} A #{rx} #{ry} #{rotation} #{large ? 1 : 0} #{sweep ? 1 : 0} #{x2} #{y2}", **)
+        end
+
+        # Builds an elliptical arc path ending at a relative offset.
+        # @param dx [Numeric] finite x displacement from the starting point
+        # @param dy [Numeric] finite y displacement from the starting point
+        # @param rx [Numeric] finite local x radius
+        # @param ry [Numeric] finite local y radius
+        # @param x [Numeric] finite starting x coordinate
+        # @param y [Numeric] finite starting y coordinate
+        # @param rotation [Numeric] clockwise ellipse rotation in degrees
+        # @param large [Boolean] select the arc exceeding a half turn
+        # @param sweep [Boolean] select increasing parameter angles
+        # @return [Sevgi::Graphics::Element] path element
+        # @raise [Sevgi::ArgumentError] when an operand is not finite real or a flag is not Boolean
+        # @see #ArcTo
+        def ArcBy(dx:, dy:, rx:, ry:, x: 0, y: 0, rotation: 0, large: false, sweep: false, **)
+          x, y, dx, dy, rx, ry, rotation = Scalar.numbers([x, y, dx, dy, rx, ry, rotation], context: "relative arc")
+          unless [large, sweep].all? { it.equal?(true) || it.equal?(false) }
+            ArgumentError.("Arc flags must be Boolean")
+          end
+
+          path(d: "M #{x} #{y} a #{rx} #{ry} #{rotation} #{large ? 1 : 0} #{sweep ? 1 : 0} #{dx} #{dy}", **)
+        end
+        # rubocop:enable Metrics/ParameterLists
+
         # Builds a line path ending at an absolute point.
         # @example Render a rational coordinate as an SVG number
         #   Sevgi::Graphics.SVG { LineTo(x2: Rational(1, 2), y2: 1) }

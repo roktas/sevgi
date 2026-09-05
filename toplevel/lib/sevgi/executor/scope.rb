@@ -132,11 +132,10 @@ module Sevgi
       def execute(source, receiver, &boot)
         active = enter(source)
         @recent = run(source, receiver, &boot)
-        # rubocop:disable Lint/RescueException
+        # rubocop:disable-next Lint/RescueException
       rescue Exception => e
         @error = e
         throw(:result, self)
-        # rubocop:enable Lint/RescueException
       ensure
         leave(active)
       end

@@ -31,7 +31,7 @@ module Sevgi
         @session = "sevgi-browser-#{$PROCESS_ID}-#{@port}"
         @server = spawn_server
         wait_for_server
-        command("open", "http://127.0.0.1:#{@port}/showcase/")
+        command("open", "http://127.0.0.1:#{@port}/examples/")
         @opened = true
         self
       rescue StandardError

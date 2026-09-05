@@ -10,7 +10,7 @@ require "sevgi/geometry"
 
 Minitest::Reporters.use!([Minitest::Reporters::SpecReporter.new])
 
-# rubocop:disable Style/ClassAndModuleChildren
+# rubocop:disable-next Style/ClassAndModuleChildren
 module Sevgi::Geometry
   module Fixtures
     #
@@ -60,4 +60,3 @@ module Sevgi::Geometry
     def vequ3 = @vequ3 ||= Equation::Linear.vertical(3.0)
   end
 end
-# rubocop:enable Style/ClassAndModuleChildren

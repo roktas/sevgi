@@ -22,8 +22,8 @@ line.length             # => 5.0
 point.translate(2, 1)   # => Point[5.0, 5.0]
 ```
 
-Points and lined shapes return new values from `translate`, `rotate`, `scale`, `skew`, and `reflect`; the original value
-does not change. A `Segment` is an unplaced length and direction; a `Line` places that segment between finite endpoints:
+Points and lined shapes return new values from `translate`, `rotate`, `scale`, `skew`, and `reflect`. The original value
+does not change. A `Segment` is an unplaced length and direction. A `Line` places that segment between finite endpoints:
 
 ```ruby
 segment = Sevgi::Geometry::Segment[5, 30]
@@ -34,7 +34,7 @@ line = segment.line([2, 3])
 ## Shapes
 
 `Rect`, `Triangle`, `Parallelogram`, `Polyline`, and `Polygon` provide boxes, points, edges, and affine operations. Pick
-the constructor that matches the information you already have. Brackets take lengths and segments; `.()` takes points:
+the constructor that matches your input. Brackets take lengths and segments. `.()` takes points:
 
 ```ruby
 box = Sevgi::Geometry::Rect[40, 24, position: [6, 8]]
@@ -52,8 +52,8 @@ The English constructors such as `Rect.from_size`, `Rect.from_corners`, `Line.fr
 `Line.from_points` are aliases for the same two input families. Use them when the call site benefits from saying which
 representation it has.
 
-Parallelogram segment names describe geometric roles, not screen axes. `base` runs from A to B and `side` from A to D;
-both begin at `position`. The constrained constructors derive the missing segment while preserving the requested
+Parallelogram segment names describe geometric roles, not screen axes. `base` runs from A to B. `side` runs from A to
+D. Both begin at `position`. The constrained constructors derive the missing segment while preserving the requested
 bounding dimension:
 
 ```ruby
@@ -84,6 +84,48 @@ box.outside?([50, 20])   # => true
 open_path.inside?([4, 2]) # => false
 ```
 
+## Arcs and ellipses {{ "{#arcs-and-ellipses}" }}
+
+`Ellipse` stores a center, two positive radii, and an axis rotation. `Arc` selects a finite, directed part of that ellipse:
+
+```ruby
+ellipse = Sevgi::Geometry::Ellipse[40, 20, position: [50, 30], rotation: 15]
+arc = ellipse.arc starting_angle: 180, extent: 120
+
+arc.starting
+arc.ending
+arc.box
+arc.length
+arc.reverse
+```
+
+The parameter angle belongs to the ellipse's local axes. It is not the polar angle from the center when the radii differ.
+Positive `extent` turns clockwise. Its absolute value must be less than 360 degrees. Zero extent contains only its starting point and draws nothing.
+
+`Circle` is an ellipse with equal radii. Unequal scaling returns an `Ellipse`. Transformations also preserve a finite arc's endpoints and traversal:
+
+```ruby
+circle = Sevgi::Geometry::Circle[20, position: [30, 30]]
+ellipse = circle.scale 2, 1
+arc = circle.arc starting_angle: 180, extent: 180
+stretched = arc.skew_x 20
+```
+
+`inside?` includes the boundary of an ellipse or circle. An arc has no filled interior, so its `inside?` equals `on?`.
+`intersection` filters the complete ellipse equation to the finite arc:
+
+```ruby
+arc = Sevgi::Geometry::Arc[20, starting_angle: 180, extent: 180]
+points = arc.intersection Sevgi::Geometry::Equation.vertical(0)
+points.map(&:deconstruct) # => [[0.0, -20.0]]
+```
+
+Coordinate precision controls membership and rounded intersection points. It does not change stored geometry, bounds, or length accuracy.
+`approx` rounds canonical fields and returns a new value. It raises an error if a radius becomes zero or an extent reaches a full turn.
+
+For drawing alone, `ArcTo` and `ArcBy` use SVG endpoint and radius rules directly. Their `large` and `sweep` flags select the SVG arc.
+They do not require Geometry. The [Protractor example](/examples/) uses `ArcTo` and SVG rotation to place its marks.
+
 ## Alignment {{ "{#alignment}" }}
 
 Alignment calculates the translation between an inner and outer box. The DSL `Align` helper applies that translation
@@ -97,8 +139,8 @@ offset = Sevgi::Geometry::Operation.alignment(inner, outer, :center)
 centered = Sevgi::Geometry::Operation.align(inner, outer, :center)
 ```
 
-`:center` adjusts both coordinates. `:left`, `:right`, `:top`, and `:bottom` adjust only the named axis; this makes it
-possible to align one edge without losing a position already chosen on the other axis.
+`:center` adjusts both coordinates. `:left`, `:right`, `:top`, and `:bottom` adjust only the named axis. Edge alignment
+therefore keeps the existing position on the other axis.
 
 The drawing equivalent is:
 
@@ -127,16 +169,16 @@ end.Render
 
 ## Sweeps and hatching {{ "{#sweeps}" }}
 
-Sweeps intersect parallel lines with a closed geometry shape. `angle` is the direction of the returned lines, while
-`step` is the perpendicular spacing between them. `sweep` may return an empty Array; `sweep!`, used by `Hatch`, requires
-at least one span. Open paths have no interior and therefore produce no sweep spans:
+Sweeps intersect parallel lines with a closed geometry shape. `angle` is the direction of the returned lines. `step` is
+their perpendicular spacing. `sweep` can return an empty Array. `sweep!`, which `Hatch` uses, requires at least one
+span. Open paths have no interior and therefore produce no sweep spans:
 
 ```ruby
 region = Sevgi::Geometry::Rect[48, 18, position: [6, 6]]
 lines = Sevgi::Geometry::Operation.sweep(region, initial: region.position, angle: 30, step: 3)
 ```
 
-The same geometry can be sent to a document; `Hatch` uses `region.position` as its initial line unless `initial:` is
+The same geometry can be sent to a document. `Hatch` uses `region.position` as its initial line unless `initial:` is
 given:
 
 ```ruby
@@ -152,4 +194,4 @@ inspectable, or available as explicit geometry. If only the rendered striped fil
 [`pattern`](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/pattern) and let the renderer repeat and
 clip it.
 
-Arc and curve preparation is still incomplete, so those APIs are not supported yet.
+Closed ellipses and circles also support sweeps. An open arc produces no interior spans.

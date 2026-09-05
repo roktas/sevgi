@@ -2,9 +2,8 @@
 
 require "sevgi"
 
-# rubocop:disable Style/MixinUsage
+# rubocop:disable-next Style/MixinUsage
 include Sevgi
-# rubocop:enable Style/MixinUsage
 
 SVG do
   rect width: 3, height: 5

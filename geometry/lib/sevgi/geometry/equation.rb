@@ -4,15 +4,15 @@ module Sevgi
   module Geometry
     # Abstract base class for geometry equations used in boundary intersections.
     #
-    # The supported public factories build horizontal, vertical, and diagonal
-    # linear equations. {#intersect} always returns an Array: no intersection is
+    # Public factories build linear and implicit quadratic equations.
+    # Linear/quadratic intersection is supported in either order. {#intersect} returns an Array: no intersection is
     # `[]`, while one crossing is a one-item Array. Coincident parallel lines do
     # not represent a finite intersection and also return an empty Array.
     # @example Intersect two linear equations
     #   diagonal = Sevgi::Geometry::Equation.diagonal(slope: 1, intercept: 0)
     #   vertical = Sevgi::Geometry::Equation.vertical(3)
     #   diagonal.intersect(vertical).map(&:deconstruct) # => [[3.0, 3.0]]
-    # @see Sevgi::Geometry::Element::Lined#intersection
+    # @see Sevgi::Geometry::Element#intersection
     class Equation
       private_class_method :new
 
@@ -35,10 +35,18 @@ module Sevgi
       # @raise [Sevgi::Geometry::Error] when const is not a finite Numeric
       def self.vertical(const) = Linear::Vertical.new(const)
 
+      # Builds an implicit quadratic carrier around an optional local origin.
+      # Coefficients follow `a*x*x + b*x*y + c*y*y + d*x + e*y + f = 0` in coordinates relative to origin.
+      # @param coefficients [Array<Numeric>] six finite coefficients in a, b, c, d, e, f order
+      # @param origin [Sevgi::Geometry::Point, Array<Numeric>] local coordinate origin
+      # @return [Sevgi::Geometry::Equation::Quadratic]
+      # @raise [Sevgi::Geometry::Error] when coefficients or origin are invalid, or the degree is less than two
+      def self.quadratic(*coefficients, origin: Origin) = Quadratic.new(*coefficients, origin:)
+
       # Intersects this equation with another equation.
       # @param other [Sevgi::Geometry::Equation] equation to intersect with
       # @return [Array<Sevgi::Geometry::Point>] intersection points
-      # @raise [Sevgi::Geometry::Error] when other is not an equation
+      # @raise [Sevgi::Geometry::Error] when other is not an equation or quadratic/quadratic intersection is requested
       # @raise [Sevgi::PanicError] when the equation combination is not implemented
       def intersect(other)
         Error.("Must be an equation: #{other}") unless other.is_a?(Equation)
@@ -48,6 +56,8 @@ module Sevgi
           linear_vs_linear(other)
         in [Linear, Quadratic]
           linear_vs_quadratic(other)
+        in [Quadratic, Linear]
+          other.intersect(self)
         in [Quadratic, Quadratic]
           quadratic_vs_quadratic(other)
         else
@@ -60,7 +70,7 @@ module Sevgi
       # Evaluates y for an x coordinate.
       # @abstract Subclasses implement equation-specific mapping.
       # @param _x [Numeric] x coordinate
-      # @return [Float]
+      # @return [Float, Array<Float>] one value for a linear equation, or zero to two roots for a quadratic
       # @raise [Sevgi::PanicError] when a subclass does not implement y
       def y(_x, ...) = PanicError.("#{self.class}#y must be implemented")
 
@@ -100,12 +110,10 @@ module Sevgi
         Point[x, nonvertical.y(x)]
       end
 
-      def linear_vs_quadratic(...)
-        PanicError.("Linear/quadratic intersection must be implemented")
-      end
+      def linear_vs_quadratic(other) = other.send(:intersect_linear, self)
 
       def quadratic_vs_quadratic(...)
-        PanicError.("Quadratic/quadratic intersection must be implemented")
+        Error.("Quadratic/quadratic intersection is not supported")
       end
     end
 

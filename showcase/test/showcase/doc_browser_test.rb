@@ -45,7 +45,7 @@ module Sevgi
       end
 
       def test_mermaid_diagrams_are_inline
-        %w[derender svg].each do |page|
+        %w[derender documents].each do |page|
           cli("goto", "http://127.0.0.1:#{@browser.port}/#{page}/")
           state = eval_json(
             <<~JS
@@ -171,6 +171,7 @@ module Sevgi
             JS
           )
 
+          assert_operator(fixtures.size, :>=, 18)
           fixtures.each do |fixture|
             base = "#{width}px #{fixture.fetch("base")}"
             card = fixture.fetch("card")

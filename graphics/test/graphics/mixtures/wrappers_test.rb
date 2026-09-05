@@ -18,6 +18,60 @@ module Sevgi
           def to_f = @value.to_f
         end
 
+        def test_arc_wrappers_render_absolute_and_relative_paths
+          actual = SVG(DOC) do
+            ArcTo(x1: 1, y1: 2, x2: 5, y2: 6, rx: 3, ry: 4, rotation: 30, large: true, id: "absolute")
+            ArcBy(dx: 4, dy: -3, rx: 2, ry: 1, x: 5, y: 6, sweep: true, id: "relative")
+          end
+            .Render()
+
+          assert_includes(actual, "<path id=\"absolute\" d=\"M 1 2 A 3 4 30 1 0 5 6\"/>")
+          assert_includes(actual, "<path id=\"relative\" d=\"M 5 6 a 2 1 0 0 1 4 -3\"/>")
+        end
+
+        def test_arc_wrappers_preserve_svg_radius_handling
+          actual = SVG(DOC) do
+            ArcTo(x2: 100, y2: 0, rx: 1, ry: 1)
+            ArcBy(dx: 10, dy: 5, rx: 0, ry: -2)
+            ArcTo(x2: 0, y2: 0, rx: 1, ry: 1)
+          end
+            .Render()
+
+          ["M 0 0 A 1 1 0 0 0 100 0", "M 0 0 a 0 -2 0 0 0 10 5", "M 0 0 A 1 1 0 0 0 0 0"].each do |data|
+            assert_includes(actual, "d=\"#{data}\"")
+          end
+        end
+
+        def test_arc_wrappers_reject_invalid_operands_before_drawing
+          [
+            [:ArcTo, {x1: 0, y1: 0, x2: 1, y2: 2, rx: 3, ry: 4, rotation: 0}],
+            [:ArcBy, {x: 0, y: 0, dx: 1, dy: 2, rx: 3, ry: 4, rotation: 0}]
+          ].each do |method, arguments|
+            arguments.keys.product(["1", Complex(1, 0), Float::INFINITY, Float::NAN]).each do |field, value|
+              document = SVG(DOC)
+              assert_raises(Sevgi::ArgumentError) { document.public_send(method, **arguments, field => value) }
+              assert_empty(document.children)
+            end
+
+            %i[large sweep].product([nil, 0, 1, "false"]).each do |field, value|
+              document = SVG(DOC)
+              assert_raises(Sevgi::ArgumentError) { document.public_send(method, **arguments, field => value) }
+              assert_empty(document.children)
+            end
+          end
+        end
+
+        def test_arc_wrappers_normalize_svg_numbers
+          actual = SVG(DOC) do
+            ArcTo(x2: Rational(1, 2), y2: BigDecimal("1.5"), rx: Number.new(2), ry: BigDecimal("3"))
+            ArcBy(dx: Rational(1, 2), dy: BigDecimal("1.5"), rx: Number.new(2), ry: BigDecimal("3"))
+          end
+            .Render()
+
+          assert_includes(actual, "d=\"M 0 0 A 2 3 0 0 0 0.5 1.5\"")
+          assert_includes(actual, "d=\"M 0 0 a 2 3 0 0 0 0.5 1.5\"")
+        end
+
         def test_line_wrappers_build_path_commands
           expected = <<~SVG
             <svg>

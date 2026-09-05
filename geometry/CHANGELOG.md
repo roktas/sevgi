@@ -5,12 +5,20 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## Unreleased
 
+### Added
+
+- Added `ArcTo` and `ArcBy` for SVG-native elliptical arc paths.
+- Added Geometry `Arc`, `Ellipse`, and `Circle` with bounds, length, predicates, affine transformations, and
+  linear/quadratic intersections. Closed ellipses and circles support sweeps and hatching.
+- Added Protractor and Arc examples and documented the drawing and calculation APIs.
+
 ### Changed
 
 - Removed redundant parent scans while duplicating element subtrees.
 
 ### Fixed
 
+- Preserved Showcase card HTML through Markdown rendering so all examples and their tabs remain visible.
 - Preserved XML declarations, pre-root comments, CDATA sections, inline comments, and namespace-only leaves in
   Derender output and evaluation.
 - Limited PDF stamp recoloring to replaced text and carried graphics state across a page's content streams.
