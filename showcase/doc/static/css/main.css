@@ -561,9 +561,14 @@ main {
  * -----------------------------------------------------------------------------
  */
 
-/* Override syntect's background to use our theme colors */
-.z-code {
-  background-color: rgba(0, 0, 0, 0);
+.giallo-l {
+  display: inline-block;
+  min-height: 1lh;
+  vertical-align: top;
+  width: 100%;
+}
+.giallo-l:last-child:empty {
+  display: none;
 }
 /* Shared styles for code blocks and terminal output */
 .terminal,
@@ -688,7 +693,7 @@ main {
 /* Tables use display: block + overflow-x: auto for horizontal scrolling within
    the content area. This prevents tables from breaking out of the container.
    border-collapse: separate + overflow: clip on inner tbody handles border-radius. */
-.content > table {
+:is(.content, .example-index) > table {
   display: block;
   overflow-x: auto;
   width: fit-content;
@@ -699,8 +704,8 @@ main {
   border-radius: 0.5rem;
   border: 1px solid var(--wt-color-border-subtle);
 }
-.content > table th,
-.content > table td {
+:is(.content, .example-index) > table th,
+:is(.content, .example-index) > table td {
   border: 1px solid var(--wt-color-border-subtle);
   border-top: none;
   border-left: none;
@@ -709,15 +714,15 @@ main {
   vertical-align: top;
 }
 /* Remove right border on last column (table border handles it) */
-.content > table th:last-child,
-.content > table td:last-child {
+:is(.content, .example-index) > table th:last-child,
+:is(.content, .example-index) > table td:last-child {
   border-right: none;
 }
 /* Remove bottom border on last row (table border handles it) */
-.content > table tr:last-child td {
+:is(.content, .example-index) > table tr:last-child td {
   border-bottom: none;
 }
-.content > table th {
+:is(.content, .example-index) > table th {
   background-color: var(--wt-color-bg-soft);
   font-size: 0.8rem;
   font-weight: 600;
@@ -725,23 +730,23 @@ main {
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
-.content > table td {
+:is(.content, .example-index) > table td {
   font-size: 0.9rem;
 }
 /* Prevent inline code from wrapping (paths, commands) */
-.content > table td code {
+:is(.content, .example-index) > table td code {
   white-space: nowrap;
 }
 /* But allow multiline code blocks in tables to wrap */
-.content > table td pre code {
+:is(.content, .example-index) > table td pre code {
   white-space: pre;
 }
 /* Plain multiline code without block styling */
-.content > table td code.multiline {
+:is(.content, .example-index) > table td code.multiline {
   white-space: pre;
   display: block;
 }
-.content > table td:first-child {
+:is(.content, .example-index) > table td:first-child {
   font-weight: 550;
   color: var(--wt-color-text);
 }
@@ -1638,7 +1643,7 @@ button.explore-more {
     background: #f5f5f5 !important;
   }
   /* Tables */
-  .content > table {
+  :is(.content, .example-index) > table {
     page-break-inside: avoid;
   }
   /* Headings - keep with following content */
@@ -1843,6 +1848,30 @@ button.explore-more {
  * Tabs
  * -----------------------------------------------------------------------------
  */
+
+.example-index {
+  margin: 1.5rem 0;
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--wt-color-border-subtle);
+  border-radius: 0.5rem;
+  background: var(--wt-color-bg-elevated);
+}
+.example-index > summary {
+  cursor: pointer;
+  font-weight: 500;
+}
+.example-index > summary:focus-visible {
+  outline: 2px solid var(--wt-color-accent);
+  outline-offset: 4px;
+}
+.example-index > table {
+  width: 100%;
+}
+.example-index > table th:first-child,
+.example-index > table td:first-child {
+  width: 1%;
+  white-space: nowrap;
+}
 
 .tabs {
   display: flex;

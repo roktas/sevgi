@@ -48,14 +48,14 @@
 <label class="label" for="{{ ruby_input }}" id="{{ ruby_tab }}" title="Ruby Code" role="tab" tabindex="0" aria-selected="false" aria-controls="{{ ruby_panel }}" aria-label="Ruby Code" data-tab-input="{{ ruby_input }}" data-tab-panel="{{ ruby_panel }}"><i class="fa-solid fa-gem" aria-hidden="true"></i></label>
 <div class="panel code-panel ruby-panel" id="{{ ruby_panel }}" role="tabpanel" aria-labelledby="{{ ruby_tab }}">
 <div class="theme-light">
-{{ "```ruby
+{{ ("```ruby
 " ~ ruby_content_light ~ "
-```" | markdown | safe }}
+```") | markdown | safe }}
 </div>
 <div class="theme-dark">
-{{ "```ruby
+{{ ("```ruby
 " ~ ruby_content_dark ~ "
-```" | markdown | safe }}
+```") | markdown | safe }}
 </div>
 </div>
 
@@ -63,14 +63,14 @@
 <label class="label" for="{{ xml_input }}" id="{{ xml_tab }}" title="XML Code" role="tab" tabindex="0" aria-selected="false" aria-controls="{{ xml_panel }}" aria-label="XML Code" data-tab-input="{{ xml_input }}" data-tab-panel="{{ xml_panel }}"><i class="fa-solid fa-code" aria-hidden="true"></i></label>
 <div class="panel code-panel svg-code-panel" id="{{ xml_panel }}" role="tabpanel" aria-labelledby="{{ xml_tab }}">
 <div class="theme-light">
-{{ "```xml
+{{ ("```xml
 " ~ svg_content_light ~ "
-```" | markdown | safe }}
+```") | markdown | safe }}
 </div>
 <div class="theme-dark">
-{{ "```xml
+{{ ("```xml
 " ~ svg_content_dark ~ "
-```" | markdown | safe }}
+```") | markdown | safe }}
 </div>
 </div>
 {% if title %}

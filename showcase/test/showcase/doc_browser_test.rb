@@ -44,6 +44,98 @@ module Sevgi
         assert_empty(duplicates)
       end
 
+      def test_code_blocks_preserve_source_and_highlighting
+        cli("resize", "1440", "1000")
+        cli("goto", "http://127.0.0.1:#{@browser.port}/start/")
+        %w[light dark].each do |theme|
+          cli("eval", "() => localStorage.setItem('theme', '#{theme}')")
+          cli("reload")
+          blocks = eval_json(
+            <<~JS
+              () => Array.from(document.querySelectorAll('.content pre code')).map((code) => ({
+                language: code.dataset.lang,
+                colors: new Set(Array.from(code.querySelectorAll('span'), (span) =>
+                  getComputedStyle(span).color
+                )).size,
+                markup: code.querySelectorAll('svg, a, pre').length
+              }))
+            JS
+          )
+          blocks.each do |block|
+            label = "start #{theme} #{block.fetch("language", "plain")}"
+            assert_equal(0, block.fetch("markup"), label)
+            next unless %w[ruby xml bash sh].include?(block["language"])
+
+            assert_operator(block.fetch("colors"), :>, 1, label)
+          end
+        end
+
+        cli("goto", "http://127.0.0.1:#{@browser.port}/examples/")
+        sources = eval_json(
+          <<~JS
+            () => Array.from(document.querySelectorAll('.tabs .code-panel')).flatMap((panel) =>
+              ['light', 'dark'].map((theme) => ({
+                base: panel.closest('.tabs').dataset.tabBase,
+                theme,
+                extension: panel.classList.contains('ruby-panel') ? 'sevgi' : 'svg',
+                source: panel.querySelector('.theme-' + theme + ' pre code')?.textContent
+              }))
+            )
+          JS
+        )
+        assert_operator(sources.size, :>=, 72)
+        sources.each do |source|
+          path = "doc/showcase/#{source.fetch("theme")}/#{source.fetch("base")}.#{source.fetch("extension")}"
+          assert_equal(File.read(File.join(ROOT, path)).rstrip, source.fetch("source").to_s.rstrip, path)
+        end
+      end
+
+      def test_dsl_task_links_and_examples_render_as_html
+        cli("goto", "http://127.0.0.1:#{@browser.port}/dsl/")
+        state = eval_json(
+          <<~JS
+            () => ({
+              links: Array.from(document.querySelectorAll('.dsl-links a')).every((link) =>
+                link.querySelector('code') && document.getElementById(link.hash.slice(1))
+              ),
+              count: document.querySelectorAll('.dsl-links a').length,
+              entries: Array.from(document.querySelectorAll('.dsl-entry')).every((entry) =>
+                entry.querySelector('.dsl-meta > span') && entry.querySelector('pre code[data-lang="ruby"]')
+              ),
+              raw: document.querySelectorAll('.dsl-themes pre, .dsl-entry pre code[data-lang="plain"]').length,
+              trailing: Array.from(document.querySelectorAll('.dsl-entry pre code')).filter((code) => {
+                const line = code.lastElementChild;
+                return line && !line.textContent && getComputedStyle(line).display !== 'none';
+              }).length
+            })
+          JS
+        )
+        assert_operator(state.fetch("count"), :>, 0)
+        assert(state.fetch("links"))
+        assert(state.fetch("entries"))
+        assert_equal(0, state.fetch("raw"))
+        assert_equal(0, state.fetch("trailing"))
+      end
+
+      def test_example_index_toggles_and_links_to_every_card
+        state = eval_json(
+          <<~JS
+            () => ({
+              open: document.querySelector('.example-index').open,
+              links: Array.from(document.querySelectorAll('.example-index a'), (link) => link.hash.slice(1)),
+              cards: Array.from(document.querySelectorAll('.showcase-flow > .tabs'), (card) => card.id)
+            })
+          JS
+        )
+        refute(state.fetch("open"))
+        assert_equal(state.fetch("cards"), state.fetch("links"))
+        cli("eval", "() => document.querySelector('.example-index > summary').focus()")
+        cli("press", "Enter")
+        assert(eval_json("() => document.querySelector('.example-index').open"))
+        cli("press", "Enter")
+        refute(eval_json("() => document.querySelector('.example-index').open"))
+      end
+
       def test_mermaid_diagrams_are_inline
         %w[derender documents].each do |page|
           cli("goto", "http://127.0.0.1:#{@browser.port}/#{page}/")

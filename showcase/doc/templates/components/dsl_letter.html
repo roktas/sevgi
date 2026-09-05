@@ -2,31 +2,28 @@
 {% set catalog = load_data(path="data/dsl.yml") %}
 
 {% for key, entries in catalog.letters %}
-  {% if key == letter %}
-    {% for entry in entries %}
+{% if key == letter %}
+{% for entry in entries %}
 <article class="dsl-entry">
-  <h4 id="{{ entry.anchor }}"><a class="dsl-word" href="#{{ entry.anchor }}"><code>{{ entry.name }}</code></a></h4>
-  <p class="dsl-meta">
-    {% set provider_key = entry.provider | lower %}
-    {% set context_key = entry.context | lower %}
-    <span>{{ entry.provider }}</span>
-    {% if provider_key != context_key %}<span>{{ entry.context }}</span>{% endif %}
-    {% for theme in entry.themes %}<a href="#theme-{{ theme }}">{{ theme | replace(from="-", to=" ") }}</a>{% endfor %}
-  </p>
-  <p>{{ entry.summary }}</p>
-  {% if entry.contract | default(value="") == "callable" %}
-  <p>Build an anonymous callable with <code>SVG.Module { ... }</code>. For an existing or explicitly declared module, use
-    <code>extend SVG::Module</code>. Use <code>extend SVG::Modules</code> for an owned module tree.</p>
-  <p>Public instance methods are drawing steps; private and protected methods are helpers. Each invocation uses a fresh
-    callable receiver rather than the document object.</p>
-  {% endif %}
-  {% set example = "```ruby
-" ~ entry.code ~ "
+<h4 id="{{ entry.anchor }}"><a class="dsl-word" href="#{{ entry.anchor }}"><code>{{ entry.name }}</code></a></h4>
+{% set provider_key = entry.provider | lower %}
+{% set context_key = entry.context | lower %}
+<div class="dsl-meta"><span>{{ entry.provider }}</span>{% if provider_key != context_key %}<span>{{ entry.context }}</span>{% endif %}{% for theme in entry.themes %}<a href="#theme-{{ theme }}">{{ theme | replace(from="-", to=" ") }}</a>{% endfor %}</div>
+<p>{{ entry.summary }}</p>
+{% if entry.contract | default(value="") == "callable" %}
+<p>Build an anonymous callable with <code>SVG.Module { ... }</code>. For an existing or explicitly declared module, use
+<code>extend SVG::Module</code>. Use <code>extend SVG::Modules</code> for an owned module tree.</p>
+<p>Public instance methods are drawing steps; private and protected methods are helpers. Each invocation uses a fresh
+callable receiver rather than the document object.</p>
+{% endif %}
+{% set code = entry.code | trim_end %}
+{% set example = "```ruby
+" ~ code ~ "
 ```" %}
-  {{ example | markdown | safe }}
-  {% if entry.see %}<p class="dsl-see">See <a href="{{ entry.see }}">{{ entry.see_title }}</a>.</p>{% endif %}
+{{ example | markdown | safe }}
+{% if entry.see %}<p class="dsl-see">See <a href="{{ entry.see }}">{{ entry.see_title }}</a>.</p>{% endif %}
 </article>
-    {% endfor %}
-  {% endif %}
+{% endfor %}
+{% endif %}
 {% endfor %}
 {% endcomponent dsl_letter %}

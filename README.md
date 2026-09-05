@@ -81,13 +81,6 @@ For example, a service that only builds SVG can install `sevgi-graphics`. Its fo
 `sevgi-function` transitively. Native PDF and PNG export gems remain optional with `sevgi-sundries`. The umbrella gem
 adds `sevgi --skill` to locate the matching Appendix skill.
 
-## Geometry and arcs
-
-`ArcTo` and `ArcBy` draw SVG elliptical arcs from endpoints, radii, and flags.
-For calculations, `Sevgi::Geometry::Arc`, `Ellipse`, and `Circle` provide bounds, length, line intersections, and affine transformations.
-See the [Geometry guide](https://sevgi.roktas.dev/geometry/) and the
-[Protractor](https://sevgi.roktas.dev/examples/#protractor) and [Arc](https://sevgi.roktas.dev/examples/#arc) examples.
-
 ## Requirements
 
 Sevgi requires Ruby 3.4 or newer. SVG output has no native graphics dependencies. Gem-based PDF and PNG export uses

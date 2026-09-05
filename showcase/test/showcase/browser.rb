@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
 require "English"
+require "fileutils"
 require "open3"
 require "socket"
 require "timeout"
+require "tmpdir"
 
 module Sevgi
   module Showcase
@@ -76,11 +78,15 @@ module Sevgi
       end
 
       def spawn_server
+        @output = Dir.mktmpdir("sevgi-browser-")
         Process.spawn(
           "zola",
           "serve",
           "--port",
           @port.to_s,
+          "--output-dir",
+          @output,
+          "--force",
           chdir: @root,
           out: File::NULL,
           err: File::NULL
@@ -115,6 +121,8 @@ module Sevgi
       ensure
         reap_server(server) if server
         @server = nil
+        FileUtils.remove_entry(@output) if @output
+        @output = nil
       end
 
       def reap_server(server)

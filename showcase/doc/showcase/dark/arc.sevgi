@@ -10,13 +10,11 @@ SVG :inkscape, width: "150mm", height: "100mm", viewBox: "0 0 150 100" do
     Draw arc.box
   end
 
-  Draw arc, fill: "none", stroke: "tomato", "stroke-width": 1
+  Draw arc, fill: "none", stroke: "#e5c39c", "stroke-width": 1
 
   [arc.starting, arc.reverse.starting].each do |point|
-    circle cx: point.x, cy: point.y, r: 1.5, fill: "tomato"
+    circle cx: point.x, cy: point.y, r: 1.5, fill: "#e5c39c"
   end
 
   circle cx: arc.center.x, cy: arc.center.y, r: 1, fill: "white"
-  text "Length: #{F.approx(arc.length, 2)}", x: 75, y: 92,
-       fill: "white", "font-family": "sans-serif", "font-size": 4, "text-anchor": "middle"
 end.Save

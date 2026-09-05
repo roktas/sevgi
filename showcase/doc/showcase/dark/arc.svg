@@ -13,9 +13,8 @@
     <ellipse cx="75.0" cy="48.0" rx="55.0" ry="30.0" transform="rotate(-15.0 75.0 48.0)"/>
     <rect x="21.309666" y="15.714585" width="107.38066800000001" height="46.520462"/>
   </g>
-  <path d="M 21.874079554101243 62.23504748063864 A 55 30 -15 1 1 124.89068238211725 50.16097465202529" fill="none" stroke="tomato" stroke-width="1"/>
-  <circle cx="21.874079554101243" cy="62.23504748063864" r="1.5" fill="tomato"/>
-  <circle cx="124.89068238211725" cy="50.16097465202529" r="1.5" fill="tomato"/>
+  <path d="M 21.874079554101243 62.23504748063864 A 55 30 -15 1 1 124.89068238211725 50.16097465202529" fill="none" stroke="#e5c39c" stroke-width="1"/>
+  <circle cx="21.874079554101243" cy="62.23504748063864" r="1.5" fill="#e5c39c"/>
+  <circle cx="124.89068238211725" cy="50.16097465202529" r="1.5" fill="#e5c39c"/>
   <circle cx="75.0" cy="48.0" r="1" fill="white"/>
-  <text x="75" y="92" fill="white" font-family="sans-serif" font-size="4" text-anchor="middle">Length: 153.61</text>
 </svg>

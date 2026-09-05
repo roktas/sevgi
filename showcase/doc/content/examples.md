@@ -10,18 +10,33 @@ runs each file and compares its output. Open the Ruby panel for the script. Open
 examples are short, but several show how a complete drawing fits together. Some are adapted from the
 [Victor Book examples](https://github.com/DannyBen/victor-book/tree/master/src/examples).
 
-Start with Pokey for the basic element DSL, then use these examples to trace larger ideas:
+Start with [Pokey](#pokey) for the basic element DSL.
+
+<details class="example-index">
+<summary>Explore examples</summary>
 
 | Example | What to inspect |
 | --- | --- |
-| Pacman | Plain SVG elements, nested groups, transforms, and repeated scene objects in a compact script |
-| Checkers | Ruby data and callable modules separating board construction from piece placement |
-| Ruler | Ruby ranges, nested layers, labels, and a final element transform in one physical-size drawing |
-| Protractor | SVG rotation places angular marks from Ruler divisions without trigonometry in Ruby |
-| Arc | Geometry calculates a finite elliptical arc, its endpoints, bounds, and length |
-| Grid | Nested Ruby loops, derived coordinates, and data-driven color selection |
-| Squared and Copperplate | One Grid contract reused for two guidesheets, with Copperplate adding row-bounded hatching |
-| Logos | Repeated drawing parts assembled into several related marks |
+| [Pokey](#pokey) | Basic SVG elements and a path |
+| [Grid](#grid) | Nested Ruby loops, derived coordinates, and data-driven color selection |
+| [Stars](#stars) | A symbol repeated in a tile grid |
+| [Snowflake](#snowflake) | Repeated branches and rotation |
+| [Clover](#clover) | Repeated shapes and transforms |
+| [Tulips](#tulips) | Repeated flower shapes |
+| [Pacman](#pacman) | Plain SVG elements, nested groups, transforms, and repeated scene objects in a compact script |
+| [Meter](#meter) | Repeated LEDs with position-dependent opacity |
+| [Heart](#heart) | A curved path used as a mask |
+| [Gear](#gear) | Repeated teeth around a circle |
+| [Logo](#logo) | A reusable path |
+| [Logos](#logos) | Repeated drawing parts assembled into several related marks |
+| [Checkers](#checkers) | Ruby data and callable modules separating board construction from piece placement |
+| [Ruler](#ruler) | Ruby ranges, nested layers, labels, and a final element transform in one physical-size drawing |
+| [Protractor](#protractor) | SVG rotation places angular marks from Ruler divisions without trigonometry in Ruby |
+| [Arc](#arc) | Geometry calculates a finite elliptical arc, its endpoints, and bounds |
+| [Squared](#squared) | A Grid defines a squared guidesheet |
+| [Copperplate](#copperplate) | The same Grid contract adds row-bounded hatching |
+
+</details>
 
 <div class="showcase-flow">
 {{<tabs base="pokey" dir="../showcase" title="Pokey" />}}
