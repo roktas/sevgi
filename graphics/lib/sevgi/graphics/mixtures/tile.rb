@@ -30,7 +30,7 @@ module Sevgi
         # @param dy [Numeric] finite vertical spacing, normalized before coordinates are rendered
         # @param oy [Numeric] finite vertical offset, normalized before coordinates are rendered
         # @param proc [Proc, nil] optional callback invoked for each use as `(element, x:, y:, nx:, ny:)`, with
-        #   zero-based coordinates and total counts; the callback may mutate the element and its return value is ignored
+        #   zero-based coordinates and total counts. The callback can mutate the element. Its return value is ignored
         # @yield evaluates the template drawing DSL in a generated `defs` group named by id
         # @yieldreturn [Object] ignored block result
         # @return [Sevgi::Graphics::Element] self
@@ -83,7 +83,7 @@ module Sevgi
         # @param d [Numeric] finite horizontal spacing, normalized before coordinates are rendered
         # @param o [Numeric] finite horizontal offset, normalized before coordinates are rendered
         # @param proc [Proc, nil] optional callback invoked for each use as `(element, x:, n:)`, with a zero-based column
-        #   and total count; the callback may mutate the element and its return value is ignored
+        #   and total count. The callback can mutate the element. Its return value is ignored
         # @yield evaluates the template drawing DSL in a generated `defs` group named by id
         # @yieldreturn [Object] ignored block result
         # @return [Sevgi::Graphics::Element] self
@@ -117,7 +117,7 @@ module Sevgi
         # @param d [Numeric] finite vertical spacing, normalized before coordinates are rendered
         # @param o [Numeric] finite vertical offset, normalized before coordinates are rendered
         # @param proc [Proc, nil] optional callback invoked for each use as `(element, y:, n:)`, with a zero-based row and
-        #   total count; the callback may mutate the element and its return value is ignored
+        #   total count. The callback can mutate the element. Its return value is ignored
         # @yield evaluates the template drawing DSL in a generated `defs` group named by id
         # @yieldreturn [Object] ignored block result
         # @return [Sevgi::Graphics::Element] self

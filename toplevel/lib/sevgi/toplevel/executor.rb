@@ -22,7 +22,7 @@ module Sevgi
   # @note Script and required-library failures are captured in {Sevgi::Executor::Result#error}.
   # @note The default isolated mode does not modify Ruby's top-level main object. `main: true` preserves the command-line
   #   default by installing Sevgi through main before evaluating source in the managed script scope.
-  # @note Empty source without `require:` is a strict no-op; the DSL boot block is unused.
+  # @note Empty source without `require:` is a strict no-op. The DSL boot block is unused.
   # @note Reentrant and concurrent calls keep independent executor scope stacks per fiber.
   # @see https://sevgi.roktas.dev/usage/#execute Execute source guide
   def self.execute(string, file: nil, line: nil, require: nil, main: false)
@@ -31,7 +31,7 @@ module Sevgi
 
   # Executes a Sevgi script file with the full top-level DSL installed.
   # @param file [String] source file to read and execute
-  # @param as [String, nil] source basename used for evaluation, diagnostics, and caller-derived output defaults;
+  # @param as [String, nil] source basename used for evaluation, diagnostics, and caller-derived output defaults.
   #   its extension is replaced with `.sevgi` and the input file's directory is retained
   # @param require [String, nil] optional Ruby library to require before execution
   # @param main [Boolean] whether to install the DSL through Ruby's top-level main object
@@ -40,7 +40,7 @@ module Sevgi
   # @note File-read, script, and required-library failures are captured in {Sevgi::Executor::Result#error}.
   # @note The default isolated mode does not modify Ruby's top-level main object. `main: true` preserves the command-line
   #   default by installing Sevgi through main before evaluating source in the managed script scope.
-  # @note An empty file without `require:` is a strict no-op; the DSL boot block is unused.
+  # @note An empty file without `require:` is a strict no-op. The DSL boot block is unused.
   # @note Reentrant and concurrent calls keep independent executor scope stacks per fiber.
   # @see https://sevgi.roktas.dev/usage/#execute Execute source guide
   def self.execute_file(file, as: nil, require: nil, main: false)
@@ -71,7 +71,7 @@ module Sevgi
     # @raise [Sevgi::PanicError] when called without an active executor scope
     # @raise [Sevgi::Error] when a file cannot be located
     # @note `Load` resolves against the active executor scope in the current fiber.
-    # @note Ordinary library code should use Ruby `require`; `Load` is available only during Sevgi script execution.
+    # @note Ordinary library code uses Ruby `require`. `Load` is available only during Sevgi script execution.
     # @see Sevgi.Load
     # @see Sevgi.execute_file
     def Load(*files)

@@ -35,18 +35,18 @@ def SVG(...) = Sevgi.SVG(...)
 # Full top-level API for Sevgi library and script consumers.
 #
 # `require "sevgi"` installs the global document builder `SVG(...)` and the independent {Sevgi::SVG} facade. SVG-domain
-# operations use capitalized method names on that facade, such as `SVG.Canvas`, `SVG.Paper`, and `SVG.Derender`; types
+# operations use capitalized method names on that facade, such as `SVG.Canvas`, `SVG.Paper`, and `SVG.Derender`. Types
 # and namespaces use Ruby's double-colon notation, such as `SVG::Canvas`. Promoted toolkit operations are also
-# available on `Sevgi` for consumers that prefer the full namespace; {SVG.Module} is a facade-only convenience
-# constructor. Process-level operations such as {Sevgi.execute} remain on `Sevgi` rather than the SVG facade.
+# available on `Sevgi` for consumers that prefer the full namespace. {SVG.Module} is a facade-only convenience
+# constructor. Process-level operations such as {Sevgi.execute} remain on `Sevgi`, not the SVG facade.
 #
 # Including this module in a class or module installs the DSL methods plus convenience constants `F`, `Geometry`,
-# `Origin`, and `Export`; script execution provides the same promoted scope. Extending a module does the same. Extending
+# `Origin`, and `Export`. Script execution provides the same promoted scope. Extending a module does the same. Extending
 # an ordinary object installs methods only and does not write promoted constants to `Object`. Focused component requires
 # expose their namespaced component APIs instead of this full top-level surface.
 #
 # `Load` is meaningful only during {Sevgi.execute}, {Sevgi.execute_file}, or command-line script execution. It resolves
-# nested `.sevgi` files through the active executor scope; it is not a general-purpose replacement for Ruby `require`.
+# nested `.sevgi` files through the active executor scope. It is not a general-purpose replacement for Ruby `require`.
 #
 # @example Include the DSL in an object
 #   class Drawing

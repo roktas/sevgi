@@ -10,8 +10,9 @@ gem install sevgi-showcase
 
 ## Contents
 
-The gem is an asset package rather than a runtime API. It contains the executable `.sevgi` examples, their expected
-SVG output, and private build support used by the documentation site.
+The gem is an asset package rather than a runtime API. It contains executable `.sevgi` examples and their expected SVG
+output. It also contains private build support for the documentation site. The test suite runs each example and
+compares its output.
 
 ## Ruby compatibility
 

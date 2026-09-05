@@ -5,8 +5,8 @@ weight = 1
 group = "Start"
 +++
 
-Sevgi creates SVG with Ruby. A drawing can be an executable `.sevgi` script or a value built inside another Ruby
-application.
+Sevgi creates SVG with Ruby. Use an executable `.sevgi` script for a drawing program. Build a value when another Ruby
+application owns the output.
 
 ## Create a drawing
 
@@ -52,8 +52,7 @@ Ruby code. [Usage](@/usage.md) explains the two forms, their available names, an
 
 ## See a complete drawing
 
-The tabs below come from the same files that the test suite runs. The Ruby tab contains the script; the SVG tab contains
-its output.
+The tabs below use the same files as the test suite. The Ruby tab contains the script. The SVG tab contains its output.
 
 {{<tabs base="meter" dir="../showcase" />}}
 
@@ -76,8 +75,8 @@ For the complete command-line toolkit, install Sevgi through Homebrew on macOS o
 brew install roktas/tap/sevgi
 ```
 
-This installs the `sevgi` executable, Ruby, the native PDF and PNG export stack, and the headless pdfcpu and Poppler
-tools. Inkscape remains an optional external backend.
+This installs the `sevgi` executable and Ruby. It also installs the native PDF and PNG export stack. The package
+includes the headless pdfcpu and Poppler tools. Inkscape remains an optional external backend.
 
 When Sevgi is a dependency of a Ruby application, add the umbrella gem to its bundle instead:
 
@@ -103,9 +102,9 @@ Libraries that need fewer dependencies can install focused component gems:
 
 For example, a service that only builds SVG can install `sevgi-graphics` and use
 `Sevgi::Graphics.SVG(...)`. The full `SVG` facade and the `sevgi` executable belong to the umbrella gem. Add
-`sevgi-standard` when the service should validate element and attribute names. Bundler installs shared support gems
-such as `sevgi-function` as transitive dependencies of the components that use them. The umbrella gem adds the
-`sevgi --skill` query for locating the matching Appendix skill.
+`sevgi-standard` to validate element and attribute names. Bundler installs shared support gems such as
+`sevgi-function` as transitive dependencies. The umbrella gem adds `sevgi --skill` to locate the matching Appendix
+skill.
 
 SVG-only library use needs no native graphics packages. Applications that install gems directly and use PDF or PNG
 export must provide the optional `cairo`, `rsvg2`, and `hexapdf` gems and their system libraries themselves. See the

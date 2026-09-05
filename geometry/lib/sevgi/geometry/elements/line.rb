@@ -10,7 +10,7 @@ module Sevgi
     # Finite, directed line between two endpoints.
     #
     # Direction affects {#left?}, {#right?}, and the sign of {#shift}. Use
-    # {#equation} when the corresponding infinite line is required; {#over?}
+    # {#equation} when the corresponding infinite line is required. {#over?}
     # deliberately tests only the finite extent between the endpoints.
     # @example Query sides of a directed line in screen coordinates
     #   line = Sevgi::Geometry::Line.([0, 0], [10, 0])
@@ -109,7 +109,7 @@ module Sevgi
       end
 
       # Returns a parallel line shifted by a signed perpendicular offset.
-      # Positive distance moves to the directed line's left in screen coordinates; reversing the endpoints reverses the
+      # Positive distance moves to the directed line's left in screen coordinates. Reversing the endpoints reverses the
       # shift direction.
       # @param distance [Numeric] signed perpendicular offset
       # @return [Sevgi::Geometry::Line]

@@ -39,7 +39,7 @@ module Sevgi
     end
   end
 
-  # Error raised for internal invariants and implementation paths that should be unreachable.
+  # Error raised for broken internal invariants and unreachable implementation paths.
   PanicError = Class.new(Error) unless defined?(self::PanicError)
 
   # Error raised for invalid public API usage.

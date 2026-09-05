@@ -8,7 +8,7 @@ module Sevgi
   # builds a callable drawing module, and {SVG.Paper} registers a paper size.
   # Double-colon names are Ruby constants and types, such as {SVG::Canvas},
   # {SVG::Document}, and {SVG::Module}. The global `SVG(...)` method builds a
-  # drawing; there is intentionally no stuttering `SVG.SVG(...)` form.
+  # drawing. There is intentionally no stuttering `SVG.SVG(...)` form.
   #
   # Lowercase constructors remain on {Sevgi::Graphics} for focused component
   # use. Script execution belongs to {Sevgi.execute} and is not part of this

@@ -5,10 +5,9 @@ weight = 14
 group = "Guides"
 +++
 
-Not every useful vector drawing should be produced programmatically. A Bezier-heavy logo, traced illustration, or
-hand-adjusted path may be easier and more faithful to author in a visual editor. Derender brings that SVG or XML into
-Sevgi's element model, where editor-authored geometry can participate in Ruby-driven composition, styling, layout, and
-output.
+Some vector drawings are easier to create in a visual editor. Examples include a Bezier-heavy logo, a traced
+illustration, and a hand-adjusted path. Derender brings that SVG or XML into Sevgi's element model. The geometry can
+then participate in Ruby-driven composition, styling, layout, and output.
 
 Use Derender when SVG/XML is a real input artifact, not as a detour for shapes or relationships that are clearer in the
 Sevgi DSL. Convert inline content or a file, generate source, include part of it, or inspect its tree.
@@ -18,7 +17,7 @@ Sevgi DSL. Convert inline content or a file, generate source, include part of it
 {{<mermaid name="derender" />}}
 
 The conversion keeps element names, attributes, text, comments, CDATA, and child order. It represents the XML tree as
-Ruby. It cannot recover the loops, helper methods, or other higher-level code that may have produced the original file.
+Ruby. It cannot recover loops, helper methods, or other higher-level source code from the original file.
 
 | Operation family | Inline input | File input | Result | Existing target |
 | --- | --- | --- | --- | --- |
@@ -27,8 +26,8 @@ Ruby. It cannot recover the loops, helper methods, or other higher-level code th
 | Include selection | `SVG.Evaluate` | `SVG.EvaluateFile` | included element or `nil` | yes |
 | Include children | `SVG.EvaluateChildren` | `SVG.EvaluateChildrenFile` | frozen element snapshot | yes |
 
-Choose source generation when the converted Ruby should become the maintained representation. Choose evaluation or
-`Include` when the editor file should remain the source of its geometry and Sevgi should compose it at runtime.
+Choose source generation when the converted Ruby becomes the maintained representation. Choose evaluation or
+`Include` when the editor file remains the geometry source. Sevgi then composes it at runtime.
 
 Library code uses the capitalized facade operations. For example, a consumer can inspect a node and generate only that
 subtree without adding the script runner's top-level names:
@@ -60,19 +59,19 @@ source = DerenderFile "badge.svg", id: "mark"
 ```
 
 The String returned by `Derender`, `DerenderFile`, or `Node#derender` is ordinary Ruby source. Review it and place it in
-a maintained `.sevgi` or `.rb` file; do not pass it to `eval`, an `*_eval` method, or an `*_exec` method. If the SVG
-file remains authoritative, use `Evaluate*` or `Include*` so Sevgi imports it as XML data.
+a maintained `.sevgi` or `.rb` file. Do not pass it to `eval`, an `*_eval` method, or an `*_exec` method. If the SVG
+file remains authoritative, use `Evaluate*` or `Include*`. Sevgi then imports it as XML data.
 
-The optional id selects one subtree. Without it, the document root is used. Pass one attribute name or an array to
-`omit` when editor metadata should not survive the conversion:
+The optional id selects one subtree. Without it, the conversion uses the document root. Pass one attribute name or an
+array to `omit` to remove unwanted editor metadata:
 
 ```ruby
 source = DerenderFile "badge.svg", id: "mark", omit: %i[id style]
 ```
 
-Attribute names may be strings or symbols and match exactly across the selected subtree. Selection happens before
-omission, so an id may select a node without appearing in the result. Namespace declarations and `style` elements are
-preserved when attributes are omitted.
+Attribute names can be strings or symbols. They match exactly across the selected subtree. Selection happens before
+omission, so an id can select a node without appearing in the result. Attribute omission preserves namespace
+declarations and `style` elements.
 
 The companion `igves` (`sevgi` reversed) command prints a file conversion from the shell and accepts a repeatable
 option:
@@ -96,8 +95,8 @@ option:
 igsev --omit id --omit style badge.svg > normalized.svg
 ```
 
-This is a structural formatter, not a byte-preserving XML rewrite: Sevgi rendering determines declaration, whitespace,
-attribute spelling, and other serialized details.
+This is a structural formatter, not a byte-preserving XML rewrite. Sevgi rendering determines declarations,
+whitespace, attribute spelling, and other serialized details.
 
 ## Inspect {{ "{#inspect}" }}
 
@@ -152,13 +151,12 @@ SVG do
 end
 ```
 
-Applications depending only on `sevgi-derender` can use the lowercase component API under `Sevgi::Derender`:
-`decompile`, `derender`, `evaluate`, and `evaluate_children` accept content; their `_file` counterparts accept paths.
+Applications depending only on `sevgi-derender` can use the lowercase API under `Sevgi::Derender`. `decompile`,
+`derender`, `evaluate`, and `evaluate_children` accept content. Their `_file` counterparts accept paths.
 
-All these APIs parse XML as data and build immutable snapshots or graphics elements; they do not execute the generated
-Ruby. This is distinct from [`Sevgi.execute`](@/usage.md#execute), which deliberately runs trusted Ruby with the process's
-authority. Parsing untrusted XML still deserves normal resource limits, but it does not grant the source a Ruby
-execution path.
+All these APIs parse XML as data. They build immutable snapshots or graphics elements without executing generated Ruby.
+This differs from [`Sevgi.execute`](@/usage.md#execute), which runs trusted Ruby with the process's authority. Apply
+normal resource limits when parsing untrusted XML. Parsing alone does not grant the source a Ruby execution path.
 
 The catalog links its Derender entries back here because selection, conversion, and evaluation all use this same
 mechanism.

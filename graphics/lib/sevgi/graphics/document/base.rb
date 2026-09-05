@@ -4,8 +4,8 @@ module Sevgi
   module Graphics
     module Document
       # Abstract common document layer with the profile-independent DSL mixture set. It is not registered as a
-      # selectable profile. Advanced extensions may target this class through {Sevgi::Graphics::Mixtures.mixin}; doing
-      # so changes every descendant profile process-wide. Subclass it first when an extension should remain scoped.
+      # selectable profile. Advanced extensions can target this class through {Sevgi::Graphics::Mixtures.mixin}. This
+      # changes every descendant profile process-wide. Subclass it first to keep an extension scoped.
       class Base < Proto
         document nil, register: false
 

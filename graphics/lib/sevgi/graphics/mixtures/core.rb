@@ -94,7 +94,7 @@ module Sevgi
         end
 
         # Adds CSS classes without duplicating existing values.
-        # @param classes [Array<String, Symbol, Array>] class tokens; strings are split on whitespace
+        # @param classes [Array<String, Symbol, Array>] class tokens. Strings are split on whitespace
         # @return [Sevgi::Graphics::Element] self
         def Classify(*classes)
           tap do
@@ -128,7 +128,7 @@ module Sevgi
 
         # Builds a child element with an explicit tag name.
         # @param tag [Symbol, String] SVG tag name
-        # @param contents [Array<Object>] text or content objects; non-content objects are stringified and XML-encoded
+        # @param contents [Array<Object>] text or content objects. Non-content objects are stringified and XML-encoded
         # @param attributes [Hash] SVG attributes
         # @yield evaluates the drawing DSL in the new child element
         # @yieldreturn [Object] ignored block result
@@ -176,7 +176,7 @@ module Sevgi
         end
 
         # Returns the topmost element in this tree.
-        # A detached subtree returns its detached topmost element; use {#Root?} to distinguish a document root.
+        # A detached subtree returns its detached topmost element. Use {#Root?} to distinguish a document root.
         # @return [Sevgi::Graphics::Element] document root or detached topmost element
         def Root
           element = self
@@ -283,7 +283,7 @@ module Sevgi
         # Appends an element as a child.
         # @param element [Sevgi::Graphics::Element] element to append
         # @return [Sevgi::Graphics::Element] self
-        # @raise [Sevgi::ArgumentError] when the element has a different concrete class or would create a tree cycle
+        # @raise [Sevgi::ArgumentError] when the element has a different concrete class or creates a tree cycle
         def <<(element)
           Append(element)
         end
@@ -296,7 +296,7 @@ module Sevgi
           # @param parent [Sevgi::Graphics::Element] target parent
           # @param front [Boolean] whether to prepend instead of append
           # @return [void]
-          # @raise [Sevgi::ArgumentError] when an argument is incompatible, repeated, or would create a cycle
+          # @raise [Sevgi::ArgumentError] when an argument is incompatible, repeated, or creates a cycle
           def self.batch(elements, parent, front:)
             validate_batch(elements, parent)
 
@@ -307,11 +307,11 @@ module Sevgi
             end
           end
 
-          # Rejects target parents that would create a cycle.
+          # Rejects target parents that create a cycle.
           # @param element [Sevgi::Graphics::Element] element being moved
           # @param parent [Sevgi::Graphics::Element, Object] target parent
           # @return [void]
-          # @raise [Sevgi::ArgumentError] when the parent is incompatible or would create a cycle
+          # @raise [Sevgi::ArgumentError] when the parent is incompatible or creates a cycle
           def self.validate(element, parent)
             unless element.instance_of?(parent.class)
               ArgumentError.("Element type does not match the new parent type: #{element.class}")

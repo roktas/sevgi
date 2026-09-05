@@ -13,7 +13,7 @@ require_relative "standard/version"
 module Sevgi
   # SVG standard data and validation helpers.
   # The registry is a Sevgi compatibility set based on SVG 2 plus the split-out SVG modules and legacy entries already
-  # modeled in the bundled specifications. Supported element names must have matching specification data; abandoned or
+  # modeled in the bundled specifications. Supported element names must have matching specification data. Abandoned or
   # unspecified proposal entries are not exposed as supported elements.
   #
   # @example Validate an SVG element usage
@@ -89,7 +89,7 @@ module Sevgi
     def model?(...) = Specification.model?(...)
 
     # Returns the expanded standard contract for an SVG element.
-    # The returned hash and nested arrays are mutation-isolated snapshots; changing them does not alter the registry.
+    # The returned hash and nested arrays are mutation-isolated snapshots. Changing them does not alter the registry.
     # @param name [String, Symbol] SVG element name
     # @return [Hash, nil] expanded specification snapshot, or nil when name is unknown
     # @raise [Sevgi::ArgumentError] when name is not a String or Symbol

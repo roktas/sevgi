@@ -18,8 +18,11 @@ require "sevgi/graphics"
 
 ```ruby
 doc = Sevgi::Graphics.SVG(:minimal) { rect width: 3, height: 5 }
-doc.call
+puts doc.Render
 ```
+
+This focused gem exposes `Sevgi::Graphics.SVG` and lowercase component constructors. Install the umbrella `sevgi` gem
+when you need the global `SVG` facade or the `.sevgi` script runner.
 
 ## Ruby compatibility
 

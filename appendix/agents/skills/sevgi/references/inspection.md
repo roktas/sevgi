@@ -16,7 +16,7 @@ State the question before selecting a tool:
 | Where does it appear after layout and transforms? | Browser `getBoundingClientRect()` or an equivalent automation API | Viewport-relative CSS pixels |
 | What is a path's renderer-computed length or point? | `getTotalLength()` or `getPointAtLength()` | SVG user units |
 | Which pixels were actually painted? | A deterministic PNG or browser screenshot inspected as raster data | Raster pixels |
-| Does the result have the intended balance or density? | Visual inspection at representative outputs | Perceptual; no single bounding box proves it |
+| Does the result have the intended balance or density? | Visual inspection at representative outputs | Perceptual because no single bounding box proves it |
 
 Do not compare values from different spaces as if they shared units. Label every recorded measurement with:
 
@@ -46,7 +46,7 @@ and integration-context checks.
 
 `getBBox()` applies geometry attributes but does not apply transforms on the element or its parents.
 `getBoundingClientRect()` is an axis-aligned CSS-pixel rectangle after layout and transforms. Do not treat either value
-as the exact painted-pixel boundary: strokes, markers, clipping, filters, font rasterization, and antialiasing may require
+as the exact painted-pixel boundary. Strokes, markers, clipping, filters, font rasterization, and antialiasing can require
 raster evidence. With rotated or skewed content, transform all relevant corners instead of scaling a width and height.
 
 ## Raster Recipe
@@ -59,7 +59,7 @@ regression.
 2. Inspect the image visually before reducing it to numbers. Confirm that the selected image contains the intended
    context and that no crop already concealed the defect.
 3. When ImageMagick or an equivalent tool is available, derive the occupied-pixel box from the alpha channel or a known
-   background. Record the transparency threshold or color tolerance; antialiased edge pixels make that policy part of
+   background. Record the transparency threshold or color tolerance. Antialiased edge pixels make that policy part of
    the measurement.
 4. Compare occupied bounds, edge margins, and clipping against the stated acceptance criterion. Pixel counts and boxes
    do not measure perceived weight or balance by themselves.
@@ -74,9 +74,9 @@ renderer and apply the same fixed-context checks. Do not convert a raster observ
 - Wrong SVG-user-unit geometry points to coordinates, repetition, transforms, or a Sevgi layout helper.
 - Correct geometry but wrong CSS-pixel placement points to the viewport, host layout, responsive CSS, or transforms.
 - Stable browser boxes but different raster bounds point to paint, clipping, filters, fonts, or renderer behavior.
-- Equal boxes with visibly unequal results point to spacing, stroke weight, contrast, or density; keep visual inspection
+- Equal boxes with visibly unequal results point to spacing, stroke weight, contrast, or density. Keep visual inspection
   as the acceptance criterion.
 
 Do not measure routine API or source-only changes merely because a browser or image tool is available. Stop when the
-chosen evidence answers the original question; extra metrics add confidence only when they test another relevant
+chosen evidence answers the original question. Extra metrics add confidence only when they test another relevant
 contract.

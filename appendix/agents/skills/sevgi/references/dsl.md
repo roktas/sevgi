@@ -4,12 +4,12 @@
 
 | Form | Meaning |
 | --- | --- |
-| `rect`, `circle`, `linearGradient`, `clipPath`, ... | Standard SVG elements created directly by exact, case-sensitive names; they normally start lowercase |
+| `rect`, `circle`, `linearGradient`, `clipPath`, ... | Standard SVG elements created by exact, case-sensitive names that normally start lowercase |
 | `Translate`, `Tile`, `Call`, `Render`, ... | Sevgi operations, normally capitalized to stand apart from SVG elements |
-| `css`, `layer`, `layer!`, `base` | Deliberate lowercase Sevgi words; `base` belongs to callable-module definitions |
+| `css`, `layer`, `layer!`, `base` | Deliberate lowercase Sevgi words, with `base` used in callable-module definitions |
 | `SVG(...)` | Build a document in both script and library code |
 | `SVG.Canvas(...)` | Call a full-toolkit facade operation in library code |
-| `SVG.Module { ... }` | Build an anonymous callable; public methods are steps and private or protected methods are helpers |
+| `SVG.Module { ... }` | Build an anonymous callable with public steps and private or protected helpers |
 | `extend SVG::Module` | Apply the same callable contract to an existing or explicitly declared module |
 | `SVG::Canvas` | Refer to a type or namespace |
 | `Canvas(...)` | Call the promoted operation in an executable `.sevgi` script |
@@ -26,7 +26,7 @@ text "Ready", x: 12, y: 16, "text-anchor": "middle", "font-weight": "bold"
 | --- | --- | --- |
 | Executable script | `ruby -S sevgi` through the `.sevgi` shebang | bare promoted operations such as `Canvas`, `Paper`, and `Grid` |
 | Full-toolkit library | `require "sevgi"` | `SVG(...)` plus facade operations such as `SVG.Canvas` and `SVG.Grid` |
-| Focused graphics library | `require "sevgi/graphics"` | `Sevgi::Graphics.SVG` and lowercase component constructors; no full `SVG` facade |
+| Focused graphics library | `require "sevgi/graphics"` | `Sevgi::Graphics.SVG` and lowercase component constructors without the full `SVG` facade |
 
 Follow the consumer's declared gems and existing dialect. Do not require the full toolkit merely to obtain facade
 spelling, and do not use facade operations when only a focused component is installed.
@@ -66,26 +66,26 @@ Keep physical size and serialization dialect independent:
 | Build one drawing surface | `SVG.Canvas` / script `Canvas` | size, margins, unit, name, and resulting `viewBox` |
 | Define or select an SVG document profile | `SVG.Document` / script `Document` | root attributes and preambles |
 
-The first argument to `SVG` selects a document profile; the optional second argument supplies a canvas. Use an
-anonymous `Document` for one-off metadata and a named profile only for shared process-wide vocabulary.
-Prefer non-bang registration; use `Paper!` or `Document!` only for an intentional overwrite.
+The first argument to `SVG` selects a document profile. The optional second argument supplies a canvas. Use an
+anonymous `Document` for one-off metadata. Use a named profile only for shared process-wide vocabulary. Prefer
+non-bang registration. Use `Paper!` or `Document!` only for an intentional overwrite.
 
 ## Task-to-Word Map
 
 | Task | Start with |
 | --- | --- |
-| Create SVG structure | SVG element names; nest containers with blocks |
-| Choose page dimensions and document metadata | `Paper`, `Canvas`, `Document`; keep their responsibilities separate |
+| Create SVG structure | SVG element names with blocks for nested containers |
+| Choose page dimensions and document metadata | `Paper`, `Canvas`, and `Document` with separate responsibilities |
 | Set reusable styles | `css`, classes, presentation attributes |
 | Transform an element or group | `Translate`, `Rotate`, `Scale`, `Skew`, `Flip` |
-| Center known inner and outer boxes | element `Align`; use `Sevgi::Geometry::Operation` for edge alignment or a Ruby result |
+| Center known inner and outer boxes | element `Align`, or `Sevgi::Geometry::Operation` for edge alignment or a Ruby result |
 | Draw simple line/path wrappers | `LineTo`, `LineBy`, `HLineTo`, `HLineBy`, `VLineTo`, `VLineBy` |
 | Reuse or repeat drawing | `defs`/`use`, `Tile`, `TileX`, `TileY`, `Duplicate` |
-| Compose reusable drawing code | `SVG.Module`, `SVG::Module`, `base`, `Call`; profile-specific `Group`, `Layer`, `Layer!`, `Symbols` |
+| Compose reusable drawing code | `SVG.Module`, `SVG::Module`, `base`, `Call`, and profile-specific wrappers |
 | Move existing element trees | `Append`, `Prepend`, `Adopt`, `AdoptFirst`, `Orphan` |
 | Draw or hatch Geometry values | `Draw`, `Hatch` on `:inkscape` or an explicitly extended custom profile |
 | Inspect or validate output | `Identifiers`, `Validate`, `Lint` |
-| Produce output | `Render`, `Out`, `Save`; optional `PDF` and `PNG` export |
+| Produce output | `Render`, `Out`, `Save`, and optional `PDF` or `PNG` export |
 | Import existing SVG/XML | `Include`, `Evaluate`, `Derender`, `Decompile` and their file variants |
 
 ## Profiles

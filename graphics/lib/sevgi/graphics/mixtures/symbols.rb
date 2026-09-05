@@ -65,7 +65,7 @@ module Sevgi
 
         private_constant :Expansion
 
-        # Renders module callables as symbols under defs. Named modules default the defs id to their final constant name;
+        # Renders module callables as symbols under defs. Named modules default the defs id to their final constant name.
         # anonymous modules omit the id unless supplied.
         # @param mod [Module] module extended with {Sevgi::Graphics::Module}
         # @param args [Array<Object>] callable arguments
@@ -78,7 +78,7 @@ module Sevgi
         #     def tick = path d: "M 0 2 L 2 4 L 6 0"
         #   end
         #   Sevgi::Graphics.SVG(:minimal) { Symbols icons }
-        # @param attributes [Hash] defs attributes; String and Symbol names are normalized and must not collide
+        # @param attributes [Hash] defs attributes. String and Symbol names are normalized and must not collide
         # @param ids [#call, nil] optional callable mapping each method name to a symbol id
         # @param kwargs [Hash] callable keyword arguments
         # @yield forwarded to each callable

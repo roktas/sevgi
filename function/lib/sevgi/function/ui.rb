@@ -2,7 +2,7 @@
 
 module Sevgi
   module Function
-    # Terminal status methods promoted to {Sevgi::F}. This module organizes the facade implementation; it is not a
+    # Terminal status methods promoted to {Sevgi::F}. This module organizes the facade implementation. It is not a
     # consumer mixin contract.
     module UI
       # Reports an in-progress status message.

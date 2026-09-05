@@ -172,7 +172,7 @@ module Sevgi
       # @api private
       class Store
         # Creates an attribute store from recursively owned snapshots. Mutable non-container leaves are stringified
-        # once; later caller mutation cannot change the store.
+        # once. Later caller mutation cannot change the store.
         # @param attributes [Hash] initial attributes
         # @return [void]
         # @raise [Sevgi::ArgumentError] when input is not a Hash or a name/value is invalid, cyclic, colliding, or cannot
@@ -205,7 +205,7 @@ module Sevgi
 
         # Assigns a recursively owned attribute snapshot. Mutable non-container leaves are stringified once.
         # @param key [String, Symbol] attribute key
-        # @param value [Object, nil] attribute value; nil is ignored
+        # @param value [Object, nil] attribute value. Nil is ignored
         # @return [Object, nil] stored snapshot or nil
         # @raise [Sevgi::ArgumentError] when update syntax receives incompatible values
         # @raise [Sevgi::ArgumentError] when update syntax receives an unsupported value type
@@ -354,7 +354,7 @@ module Sevgi
 
       # Assigns or updates a recursively owned attribute value.
       # @param key [String, Symbol] attribute key, optionally ending in {UPDATE_SUFFIX}
-      # @param value [Object, nil] attribute value; nil is ignored
+      # @param value [Object, nil] attribute value. Nil is ignored
       # @return [Object, nil] recursively owned resulting value or nil when absent
       # @raise [Sevgi::ArgumentError] when the name or value is invalid, or an existing update uses incompatible or
       #   unsupported value families
@@ -392,7 +392,7 @@ module Sevgi
       def keys = @store.list.freeze
 
       # Atomically assigns or updates recursively owned attributes.
-      # @param attributes [Hash] attributes and non-rendering metadata; names may end in {UPDATE_SUFFIX}
+      # @param attributes [Hash] attributes and non-rendering metadata. Names can end in {UPDATE_SUFFIX}
       # @return [Sevgi::Graphics::Attributes] self
       # @raise [Sevgi::ArgumentError] when input is not a Hash, names collide, a name or value is invalid, or an existing
       #   update uses incompatible or unsupported value families

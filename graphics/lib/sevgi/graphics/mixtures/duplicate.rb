@@ -10,8 +10,8 @@ module Sevgi
         # moved to non-rendering `-id` metadata before the optional block runs, allowing the block to derive replacement
         # ids without rendering duplicates. A pre-existing `-id` takes precedence over the visible id.
         # Translation and parent channels are validated before the subtree is copied or the customization block runs.
-        # @param dx [Numeric, nil] finite x translation; nil omits the axis
-        # @param dy [Numeric, nil] finite y translation; nil omits the axis
+        # @param dx [Numeric, nil] finite x translation. Nil omits the axis
+        # @param dy [Numeric, nil] finite y translation. Nil omits the axis
         # @param parent [Sevgi::Graphics::Element, nil] explicit parent, or the source parent when nil
         # @yield [element] optional customization hook for each copied element
         # @yieldparam element [Sevgi::Graphics::Element] copied element

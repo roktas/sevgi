@@ -30,7 +30,7 @@ igsev drawing.svg
 ```
 
 Both commands read standard input when the file is omitted or `-`. For `sevgi`, implicit `Save`, `PDF`, and `PNG`
-destinations use `output` as the input name; use `--as NAME` to choose another basename:
+destinations use `output` as the input name. Use `--as NAME` to choose another basename:
 
 ```sh
 sevgi --as badge < drawing.sevgi

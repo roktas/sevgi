@@ -98,13 +98,13 @@ module Sevgi
     # @param file [String, nil] source file name used for errors and backtraces
     # @param line [Integer, nil] starting source line used for errors and backtraces
     # @param require [String, nil] optional Ruby library to require before execution
-    # @param receiver [Object, nil] receiver used verbatim while booting the DSL; nil selects the isolated execution
+    # @param receiver [Object, nil] receiver used verbatim while booting the DSL. Nil selects the isolated execution
     #   module, while false and other executable objects remain explicit receivers
     # @yield optional boot block that installs DSL methods before evaluation
     # @yieldreturn [void]
     # @return [Sevgi::Executor::Result] immutable execution result
     # @raise [Sevgi::ArgumentError] when source, file, line, required library, or receiver is invalid
-    # @note Script and required-library failures are captured in {Sevgi::Executor::Result#error}; inspect
+    # @note Script and required-library failures are captured in {Sevgi::Executor::Result#error}. Inspect
     #   {Sevgi::Executor::Error#cause} for the original exception.
     # @note Empty source without `require:` is a strict no-op: no scope is created, the receiver and boot block are
     #   unused, and the result stack is empty. Supplying `require:` uses the normal boot and evaluation lifecycle.
@@ -122,13 +122,13 @@ module Sevgi
     # @param file [String] source file to read and execute
     # @param as [String, nil] logical source name used for evaluation and diagnostics
     # @param require [String, nil] optional Ruby library to require before execution
-    # @param receiver [Object, nil] receiver used verbatim while booting the DSL; nil selects the isolated execution
+    # @param receiver [Object, nil] receiver used verbatim while booting the DSL. Nil selects the isolated execution
     #   module, while false and other executable objects remain explicit receivers
     # @yield optional boot block that installs DSL methods before evaluation
     # @yieldreturn [void]
     # @return [Sevgi::Executor::Result] immutable execution result
     # @raise [Sevgi::ArgumentError] when file, logical source name, required library, or receiver is invalid
-    # @note File-read, script, and required-library failures are captured in {Sevgi::Executor::Result#error}; inspect
+    # @note File-read, script, and required-library failures are captured in {Sevgi::Executor::Result#error}. Inspect
     #   {Sevgi::Executor::Result#stack} for nested loads.
     # @note An empty file without `require:` is a strict no-op: no scope is created, the receiver and boot block are
     #   unused, and the result stack is empty. Supplying `require:` uses the normal boot and evaluation lifecycle.

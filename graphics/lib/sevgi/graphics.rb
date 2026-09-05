@@ -15,7 +15,7 @@ require_relative "graphics/version"
 module Sevgi
   # SVG document builder and DSL namespace.
   #
-  # A document profile controls root metadata and preambles; a {Canvas} controls
+  # A document profile controls root metadata and preambles. A {Canvas} controls
   # physical size, margins, viewport, and viewBox. {Graphics.SVG} combines them
   # into an element tree. Library code keeps that tree as an object until it
   # explicitly renders, validates, saves, or exports it.
@@ -63,19 +63,18 @@ module Sevgi
     #   Looks up a named profile when both definition keywords are omitted. Supplying `preambles:` or `attributes:`
     #   defines a named profile, or returns an existing profile when every explicitly supplied field matches. Omitted
     #   fields are ignored during existing-profile comparison. Profile containers and strings are copied into the
-    #   process-global, thread-atomic registry; attribute names and nested Hash keys are normalized, nil attributes are
-    #   omitted, update suffixes are retained for document-class inheritance, and mutable non-container values are
-    #   stringified once before registration. Concurrent identical definitions return the same canonical registered
-    #   class.
+    #   process-global, thread-atomic registry. Attribute names and nested Hash keys are normalized. Nil attributes are
+    #   omitted. Update suffixes remain available for document-class inheritance. Mutable non-container values are
+    #   stringified once before registration. Concurrent identical definitions return the same registered class.
     #   @param name [Symbol, String] profile name
     #   @param preambles [Array<String>, nil, Sevgi::Undefined] document preamble lines
-    #   @param attributes [Hash, nil, Sevgi::Undefined] default root attributes; nil means an empty Hash
+    #   @param attributes [Hash, nil, Sevgi::Undefined] default root attributes. Nil means an empty Hash
     #   @return [Class] document class
     #   @raise [Sevgi::ArgumentError] when a profile conflicts or metadata is invalid XML, cyclic, or cannot be stringified
     # @overload document(preambles: Undefined, attributes: Undefined)
     #   Defines an anonymous document profile without registering it globally.
     #   @param preambles [Array<String>, nil, Sevgi::Undefined] document preamble lines
-    #   @param attributes [Hash, nil, Sevgi::Undefined] default root attributes; nil means an empty Hash
+    #   @param attributes [Hash, nil, Sevgi::Undefined] default root attributes. Nil means an empty Hash
     #   @return [Class] anonymous document class
     #   @raise [Sevgi::ArgumentError] when metadata is invalid XML, cyclic, or cannot be stringified
     # @return [Class] document class
@@ -96,19 +95,20 @@ module Sevgi
 
     # Defines or replaces a document profile class.
     # Validation and snapshot capture complete before an existing registration is atomically replaced.
-    # Use the non-bang {#document} for ordinary idempotent definitions; this
+    # Use the non-bang {#document} for ordinary idempotent definitions. This
     # bang form is an explicit process-global replacement.
     # @param name [Symbol, String] profile name
     # @param preambles [Array<String>, nil] document preamble lines
-    # @param attributes [Hash, nil] default root attributes; nil means an empty Hash
+    # @param attributes [Hash, nil] default root attributes. Nil means an empty Hash
     # @return [Class] document class
     # @raise [Sevgi::ArgumentError] when the name or metadata is invalid XML, cyclic, or cannot be stringified
     def document!(name, preambles: [], attributes: {})
       Graphics::Document.define(name, preambles:, attributes:, overwrite: true)
     end
 
-    # Defines a paper profile unless the same profile already exists. Registration is process-global and thread-atomic;
-    # an identical concurrent definition is idempotent and a conflicting definition is rejected.
+    # Defines a paper profile unless the same profile already exists.
+    # Registration is process-global and thread-atomic. Identical concurrent definitions are idempotent. Conflicting
+    # definitions are rejected.
     # @param width [Numeric] paper width
     # @param height [Numeric] paper height
     # @param name [Symbol, String] profile name
@@ -135,7 +135,7 @@ module Sevgi
 
     # Builds an SVG root element tree without rendering it.
     #
-    # The first argument selects root metadata; the second supplies physical
+    # The first argument selects root metadata. The second supplies physical
     # canvas attributes. Keyword attributes are applied to the root after both.
     # @param document [Symbol, String, Class] document profile name or document class
     # @param canvas [Sevgi::Graphics::Canvas, Sevgi::Graphics::Paper, Symbol, String, Sevgi::Undefined, nil] canvas input

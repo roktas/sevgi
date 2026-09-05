@@ -54,7 +54,7 @@ module Sevgi
 
         # Saves rendered SVG when its content differs from the destination.
         # Relative destinations are expanded before being returned. When a non-empty backup suffix is given, an
-        # existing destination is copied immediately before replacement; unchanged saves leave both files untouched.
+        # existing destination is copied immediately before replacement. Unchanged saves leave both files untouched.
         # Missing parent directories are created. An existing directory target uses the default file name.
         # @example Save to a relative destination
         #   path = Sevgi::Graphics.SVG(:minimal).Save("build/drawing.svg")

@@ -6,7 +6,7 @@ group = "Guides"
 +++
 
 Layout helpers turn dimensions into inspectable rulers, grids, and repeated cells. They are regular Ruby objects, not
-another drawing DSL, so applications can inspect and test a layout before creating SVG elements. For PDF and PNG
+another drawing DSL. Applications can inspect and test a layout before creating SVG elements. For PDF and PNG
 conversion, see [Output](@/output.md).
 
 ## Choose a layout model {{ "{#choose-a-layout-model}" }}
@@ -23,8 +23,8 @@ Choose by the value the rest of the program needs, not only by the visible repet
 
 ## Rulers {{ "{#rulers}" }}
 
-`Ruler` fits whole major intervals inside a span. `unit` is the smallest step; `multiple` says how many units form one
-major interval. Requested margins are minimums. Any distance left after fitting whole major intervals is split between
+`Ruler` fits whole major intervals inside a span. `unit` is the smallest step. `multiple` gives the number of units in
+one major interval. Requested margins are minimums. Any distance left after fitting whole major intervals is split between
 them while preserving an asymmetric start/end difference:
 
 ```ruby
@@ -83,8 +83,11 @@ grid.x.halve.points # endpoint Point pairs
 grid.y.minor.xys    # plain coordinate pairs
 ```
 
-`Grid` also inherits tile accessors. `grid.rowbox(i)` and `grid.colbox(i)` are useful when a hatch or another operation
-should be constrained to one row or column. This is the pattern used by guide-sheet consumers:
+`lines` keeps one exact geometry snapshot. `points` and `xys` apply the active `Sevgi::F` precision when read. Use
+`Sevgi::F.with_precision` when a data consumer needs a specific number of decimal places.
+
+`Grid` also inherits tile accessors. Use `grid.rowbox(i)` or `grid.colbox(i)` to constrain an operation to one row or
+column. Guide-sheet consumers use this pattern:
 
 ```ruby
 canvas = SVG.Canvas width: 80, height: 50, margins: [5]
@@ -121,7 +124,7 @@ SVG :inkscape, grid.canvas do
 end.Render
 ```
 
-The callable receives one inspectable layout object; `Layer!` supplies only placement and editor behavior. The
+The callable receives one inspectable layout object. `Layer!` supplies only placement and editor behavior. The
 [Squared and Copperplate examples](@/examples.md) share this structure. Copperplate adds a clipped `Hatch` to every
 row, while both drawings retain the same fitted frame and major grid. The Ruler example shows the lower-level
 alternative: ordinary Ruby ranges create tick marks and labels directly when no fitted layout object is needed.
@@ -142,4 +145,4 @@ tile.box            # bounds of the complete layout
 ```
 
 Use this Ruby object when later calculations need the cells or their bounds. Use the DSL words `Tile`, `TileX`, or
-`TileY` instead when the output should define one SVG template and repeat it with `<use>` elements.
+`TileY` when the output needs one SVG template and repeated `<use>` elements.

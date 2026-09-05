@@ -15,8 +15,8 @@ require_relative "sundries/version"
 module Sevgi
   # Layout, tiling, grid, and export helpers shared by Sevgi consumers.
   #
-  # {Ruler} fits repeatable distances into a span; {Grid} combines two rulers
-  # and exposes drawable lines; {Tile} repeats geometry by rows and columns.
+  # {Ruler} fits repeatable distances into a span. {Grid} combines two rulers
+  # and exposes drawable lines. {Tile} repeats geometry by rows and columns.
   # These layout values can be computed without an SVG document and then passed
   # to Graphics. Native PDF/PNG dependencies remain lazy and are loaded only by
   # {Export}.

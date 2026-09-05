@@ -22,8 +22,8 @@ Sevgi is released as focused gems, so consumers can depend only on the layers th
 | Reuse precision, discovery, shell, or status behavior | [Functions](@/functions.md) | [`sevgi-function`](https://www.rubydoc.info/gems/sevgi-function) |
 
 The executable [DSL Catalog](@/dsl.md) is the canonical inventory of drawing words. It complements the YARD component
-references rather than being repeated in them. In the full toolkit, capitalized SVG-domain operations live on the
-`SVG` facade and types live beneath `SVG::`; focused component references retain their conventional lowercase APIs.
+references instead of repeating them. In the full toolkit, capitalized SVG-domain operations live on the `SVG` facade.
+Types live beneath `SVG::`. Focused component references retain their conventional lowercase APIs.
 
 ## Component index
 

@@ -48,7 +48,7 @@ module Sevgi
         #   Sevgi::Graphics.SVG(:inkscape) { Group drawing, attributes: {id: "drawing"} }
         # @param mod [Module] module extended with {Sevgi::Graphics::Module}
         # @param args [Array<Object>] callable arguments
-        # @param attributes [Hash] group attributes; String and Symbol names are normalized and must not collide
+        # @param attributes [Hash] group attributes. String and Symbol names are normalized and must not collide
         # @param kwargs [Hash] callable keyword arguments
         # @yield forwards customization to the callable module
         # @yieldreturn [Object] callable customization result
@@ -65,7 +65,7 @@ module Sevgi
         # Named modules default the layer id to their final constant name. Anonymous modules omit the id unless supplied.
         # @param mod [Module] module extended with {Sevgi::Graphics::Module}
         # @param args [Array<Object>] callable arguments
-        # @param attributes [Hash] layer attributes; String and Symbol names are normalized and must not collide
+        # @param attributes [Hash] layer attributes. String and Symbol names are normalized and must not collide
         # @param kwargs [Hash] callable keyword arguments
         # @yield forwards customization to the callable module
         # @yieldreturn [Object] callable customization result
@@ -82,7 +82,7 @@ module Sevgi
         # Named modules default the layer id to their final constant name. Anonymous modules omit the id unless supplied.
         # @param mod [Module] module extended with {Sevgi::Graphics::Module}
         # @param args [Array<Object>] callable arguments
-        # @param attributes [Hash] layer attributes; String and Symbol names are normalized and must not collide
+        # @param attributes [Hash] layer attributes. String and Symbol names are normalized and must not collide
         # @param kwargs [Hash] callable keyword arguments
         # @yield forwards customization to the callable module
         # @yieldreturn [Object] callable customization result
@@ -239,9 +239,9 @@ module Sevgi
         #       page: {class: "print"}
         #     )
         #   end
-        # @param pages [Array<Hash>] page attribute hashes; numeric page fields are normalized to SVG numbers
-        # @param namedview [Hash] namedview attributes; String and Symbol names are normalized and must not collide
-        # @param page [Hash] page defaults; normalized page attributes override these defaults by name
+        # @param pages [Array<Hash>] page attribute hashes. Numeric page fields are normalized to SVG numbers
+        # @param namedview [Hash] namedview attributes. String and Symbol names are normalized and must not collide
+        # @param page [Hash] page defaults. Normalized page attributes override these defaults by name
         # @yield [page] customizes each generated page element
         # @yieldparam page [Sevgi::Graphics::Element] generated page element
         # @yieldreturn [Object] ignored customization result
@@ -262,8 +262,8 @@ module Sevgi
         # @param width [Numeric] finite positive page width, normalized to an SVG number
         # @param height [Numeric] finite positive page height, normalized to an SVG number
         # @param gap [Numeric] finite non-negative gap, normalized to an SVG number
-        # @param namedview [Hash] namedview attributes; String and Symbol names are normalized and must not collide
-        # @param page [Hash] page defaults; normalized page attributes override these defaults by name
+        # @param namedview [Hash] namedview attributes. String and Symbol names are normalized and must not collide
+        # @param page [Hash] page defaults. Normalized page attributes override these defaults by name
         # @yield [page] customizes each generated page element
         # @yieldparam page [Sevgi::Graphics::Element] generated page element
         # @yieldreturn [Object] ignored customization result

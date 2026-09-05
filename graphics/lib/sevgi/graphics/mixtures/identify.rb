@@ -6,7 +6,7 @@ module Sevgi
       # DSL helpers for collecting and hiding SVG ids.
       module Identify
         # Immutable snapshot of every rendered element id under a subtree. Keys are the serialized id values, including
-        # `"false"` and the empty String. Keys and containers are owned by the index; values retain references to the
+        # `"false"` and the empty String. Keys and containers are owned by the index. Values retain references to the
         # elements present when the snapshot is built. Later tree changes require a new index.
         class Identifiers
           # @return [Sevgi::Graphics::Element] indexed root element

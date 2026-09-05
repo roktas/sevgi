@@ -18,7 +18,7 @@ module Sevgi
   #
   # Coordinates follow SVG screen conventions: +x points right, +y points down,
   # and positive angles turn clockwise. Constructors accept Point and Segment
-  # objects or their two-number Array forms. Transformations return new values;
+  # objects or their two-number Array forms. Transformations return new values.
   # they do not mutate their receiver.
   #
   # Shape constructors have two complementary notations: `Shape[...]` accepts
@@ -27,7 +27,7 @@ module Sevgi
   # when a call site benefits from spelling it out.
   #
   # Trigonometric construction can retain ordinary floating-point noise. Use
-  # `approx` for presentation values and `eq?` for precision-aware comparison;
+  # `approx` for presentation values and `eq?` for precision-aware comparison.
   # strict `==` intentionally compares the exact immutable value.
   #
   # @example Measure and move a line

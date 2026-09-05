@@ -30,9 +30,9 @@ Locate the skill without guessing a Homebrew prefix or Cellar version:
 sevgi --skill
 ```
 
-The command prints one validated absolute path and nothing else. It fails if the installed `sevgi-appendix` version
-does not match Sevgi or its `SKILL.md` is missing. Homebrew reports a stable path below its `opt` tree, so an agent's
-skill directory may safely link to it. Homebrew keeps that path current across upgrades.
+The command prints one validated absolute path and nothing else. It fails when the `sevgi-appendix` version does not
+match Sevgi. It also fails when `SKILL.md` is missing. Homebrew reports a stable path below its `opt` tree. An agent's
+skill directory can safely link to it. Homebrew keeps that path current across upgrades.
 
 Coding agents look for skills in different directories. Paste this prompt into the agent you want to configure:
 

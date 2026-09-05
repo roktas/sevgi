@@ -6,7 +6,7 @@ group = "Guides"
 +++
 
 Composition combines drawing parts without creating a new document type. Existing elements work well for fixed
-fragments; callable modules add arguments, shared setup, and reusable drawing steps. Neither approach adds methods to
+fragments. Callable modules add arguments, shared setup, and reusable drawing steps. Neither approach adds methods to
 the document profile.
 
 ## Existing elements {{ "{#elements}" }}
@@ -39,9 +39,9 @@ drawing.Render
 The background moves before the original text, while the status icon moves after it. The same operations also reorder
 elements that already share a parent.
 
-Use normal SVG `defs`, `symbol`, and `use` elements when the renderer should reuse one definition. `Duplicate` creates
-independently editable copies instead. `Include` and `IncludeChildren` bring selected content from an external SVG file;
-the [Derender guide](@/derender.md#evaluate) explains how that import works.
+Use normal SVG `defs`, `symbol`, and `use` elements to let the renderer reuse one definition. `Duplicate` creates
+independently editable copies instead. `Include` and `IncludeChildren` bring selected content from an external SVG
+file. The [Derender guide](@/derender.md#evaluate) explains this import.
 
 ## Callable modules {{ "{#callable-modules}" }}
 
@@ -131,8 +131,8 @@ finds it there. `SVG.Module` yields the new module as a block argument, so `mod:
 when methods refer to module-owned constants.
 
 `extend SVG::Modules` makes module constants inside `StatusIcons` callable, including descendants defined later.
-Classes, autoloaded constants, and aliases to modules defined elsewhere are left unchanged. Extend an external module
-with `SVG::Module` yourself when it should participate.
+Classes, autoloaded constants, and aliases to modules defined elsewhere remain unchanged. Extend an external module
+with `SVG::Module` to make it callable.
 
 ### Callable scope
 
@@ -195,5 +195,5 @@ end
 drawing.Render
 ```
 
-The coordinate pair returned by `call` remains available from `Call`. Ruby still looks up constants from where the
-method was defined: library code uses `Sevgi::F`, while executable `.sevgi` scripts may use the promoted `F` constant.
+The coordinate pair returned by `call` remains available from `Call`. Ruby still looks up constants from the method's
+definition scope. Library code uses `Sevgi::F`. Executable `.sevgi` scripts can use the promoted `F` constant.

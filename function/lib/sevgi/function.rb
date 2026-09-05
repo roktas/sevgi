@@ -13,13 +13,13 @@ require_relative "function/ui"
 require_relative "function/version"
 
 module Sevgi
-  # Support toolbox for Sevgi components and advanced extensions. The supported helper facade is {Sevgi::F}; it
+  # Support toolbox for Sevgi components and advanced extensions. The supported helper facade is {Sevgi::F}. It
   # provides degree-based trigonometry and precision, file discovery and output, argv-safe commands, naming helpers,
   # and small terminal status tools. It is not intended as a general-purpose utility library.
   #
   # {Function::Location}, {Function::Locate}, and {Function::Shell::Result} are public supporting values. The
   # thread-local precision accessors remain on {Function::Math.precision}. Other nested helper modules organize the
-  # facade implementation and its method documentation; consumers should not include or extend them.
+  # facade implementation and its method documentation. Consumers do not include or extend them.
   #
   # @example Use the supported facade in library code
   #   Sevgi::F.with_precision(3) do

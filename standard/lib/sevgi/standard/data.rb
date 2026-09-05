@@ -86,7 +86,7 @@ module Sevgi
 
       # Removes ignored names from a list.
       # @param names [Array<Symbol>, nil] names to filter
-      # @return [Array<Symbol>, nil] names that should be validated
+      # @return [Array<Symbol>, nil] names selected for validation
       def concerns(names) = names ? names.reject { ignore?(it) } : names
 
       # Installs low-level list helpers into data modules.

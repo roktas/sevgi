@@ -113,12 +113,12 @@ module Sevgi
 
       # @overload attributes(origin = Undefined)
       #   Returns SVG root viewport attributes.
-      #   Omission uses the negative left and top margins; nil uses zero for both coordinates.
+      #   Omission uses the negative left and top margins. Nil uses zero for both coordinates.
       #   @example Compare margin-aware and zero-origin viewBoxes
       #     canvas = Sevgi::Graphics::Canvas.call(width: 80, height: 50, margins: [5, 10])
       #     canvas.attributes[:viewBox] # => "-10 -5 80 50"
       #     canvas.attributes(nil)[:viewBox] # => "0 0 80 50"
-      #   @param origin [Numeric, Array<Numeric>, nil, Sevgi::Undefined] viewBox origin; a scalar sets both coordinates
+      #   @param origin [Numeric, Array<Numeric>, nil, Sevgi::Undefined] viewBox origin. A scalar sets both coordinates
       #   @return [Hash{Symbol => String}] SVG viewport and viewBox attributes
       #   @raise [Sevgi::ArgumentError] when origin is invalid
       def attributes(...) = {**viewport, viewBox: viewbox(...)}
@@ -142,8 +142,8 @@ module Sevgi
       def viewport = {width: "#{width}#{unit}", height: "#{height}#{unit}"}
 
       # Returns the SVG viewBox string.
-      # Omission uses the negative left and top margins; nil uses zero for both coordinates.
-      # @param origin [Numeric, Array<Numeric>, nil, Sevgi::Undefined] viewBox origin; a scalar sets both coordinates
+      # Omission uses the negative left and top margins. Nil uses zero for both coordinates.
+      # @param origin [Numeric, Array<Numeric>, nil, Sevgi::Undefined] viewBox origin. A scalar sets both coordinates
       # @return [String]
       # @raise [Sevgi::ArgumentError] when origin is invalid
       def viewbox(origin = Undefined) = prettify(*originate(origin), width, height).join(" ")

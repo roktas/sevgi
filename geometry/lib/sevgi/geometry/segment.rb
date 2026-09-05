@@ -7,7 +7,7 @@ module Sevgi
     # A Segment has no position: `length` is a distance and `angle` is a
     # clockwise direction. Use {#ending} to apply it to a starting point or
     # {#line} when a placed, finite line is required. `Segment[length, angle]`
-    # starts from polar components; `Segment.(starting, ending)` derives them
+    # starts from polar components. `Segment.(starting, ending)` derives them
     # from two points.
     # @example Derive polar components from two points
     #   segment = Sevgi::Geometry::Segment.([1, 2], [4, 6])

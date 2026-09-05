@@ -5,9 +5,9 @@ weight = 10
 group = "Guides"
 +++
 
-Documents are SVG element trees built with a canvas and a document profile. This page explains those parts, shows how
-to define application-specific profiles and document types, and describes the checks that run before output. Reusable
-drawing code that does not belong to one document type is covered in [Compose](@/compose.md).
+Documents are SVG element trees built with a canvas and a document profile. This page explains both parts. It also
+shows application-specific profiles, document types, and checks that run before output. [Compose](@/compose.md) covers
+reusable drawing code that does not belong to one document type.
 
 ## Construct a document
 
@@ -23,12 +23,12 @@ drawing.Render
 ```
 
 Lowercase calls add SVG elements to the tree. Capitalized words create supporting values or operate on elements. In
-library code, operations outside the block use the `SVG.` prefix; types and namespaces use `SVG::`.
+library code, operations outside the block use the `SVG.` prefix. Types and namespaces use `SVG::`.
 
 ## Canvas {{ "{#canvas}" }}
 
-A canvas keeps dimensions, units, margins, and the resulting `viewBox` together. Its `size` is the outer paper; `inner`
-is the size left after margins. The default `viewBox` shifts by the negative left and top margins, so drawing coordinate
+A canvas keeps dimensions, units, margins, and the resulting `viewBox` together. Its `size` is the outer paper.
+`inner` is the size left after margins. The default `viewBox` shifts by the negative left and top margins. Drawing coordinate
 `(0, 0)` starts at the inner area's top-left while the viewport still includes the margins:
 
 ```ruby
@@ -47,15 +47,15 @@ sizes.
 
 ## Profiles {{ "{#profiles}" }}
 
-A profile controls document metadata and extra DSL capabilities, not canvas size or checking policy. All four profiles
-use the same validation and lint lifecycle.
+A profile controls document metadata and extra DSL capabilities. It does not control canvas size or checking policy.
+All four profiles use the same validation and lint lifecycle.
 
 | Profile | Preamble | Root metadata | Additional DSL |
 | --- | --- | --- | --- |
 | `:minimal` | none | none | common document DSL |
 | `:default` | XML declaration | SVG namespace | common document DSL |
 | `:html` | none | SVG namespace | common document DSL |
-| `:inkscape` | XML declaration | SVG and editor namespaces; crisp edges | `Draw`, `Hatch`, and editor/RDF helpers |
+| `:inkscape` | XML declaration | SVG and editor namespaces with crisp edges | `Draw`, `Hatch`, and editor/RDF helpers |
 
 Use `:minimal` for compact output, `:default` for a standalone SVG file, `:html` for SVG embedded in HTML, and
 `:inkscape` when editor metadata or its additional helpers belong to the drawing.
@@ -68,8 +68,8 @@ named profile.
 
 ## Define a profile {{ "{#define}" }}
 
-`SVG.Document` creates a profile class derived from `SVG::Document::Base`. Omit the name for a private, one-off class;
-give it a name when other code should select it by symbol:
+`SVG.Document` creates a profile class derived from `SVG::Document::Base`. Omit the name for a private, one-off class.
+Give it a name when other code must select it by symbol:
 
 ```ruby
 require "sevgi"
@@ -82,9 +82,9 @@ SVG(:badge) { text "OK", x: 20, y: 12, "text-anchor": "middle" }.Render
 ```
 
 Anonymous profiles stay local to the code that holds their class. Named profiles are registered for the current Ruby
-process, so use them for shared document vocabulary rather than request-specific options. Repeating `SVG.Document`
-with the same name and metadata is safe; conflicting metadata raises an error. `SVG.Document!` explicitly replaces an
-existing definition.
+process. Use them for shared document vocabulary, not request-specific values. Repeating `SVG.Document` with the same
+name and metadata is safe. Conflicting metadata raises an error. `SVG.Document!` explicitly replaces an existing
+definition.
 
 Use this factory when root attributes and preambles are the only differences. When a document also owns DSL methods,
 define a document type or add a mixture to the returned profile class.
@@ -127,7 +127,7 @@ end
 drawing.Render
 ```
 
-`Flowchart` owns `Node`; the mixture adds `Link`. Both run as document methods, so they can use the document's DSL and
+`Flowchart` owns `Node`. The mixture adds `Link`. Both run as document methods, so they can use the document's DSL and
 private helpers directly. Their names become methods of this document type.
 
 The choice depends on what the application is defining:
@@ -152,16 +152,15 @@ SVG(profile) do
 end.Render
 ```
 
-Targeting `SVG::Document::Base` itself changes every descendant profile for the whole process. Subclass it first when
-the extension should stay local. Base subclasses and `SVG.Mixin` change what a document type can do. Use
-[`SVG.Module`](@/compose.md#callable-modules) when drawing code should work across document types without adding methods
-to any of them.
+Targeting `SVG::Document::Base` changes every descendant profile for the whole process. Subclass it first to keep the
+extension local. Base subclasses and `SVG.Mixin` change what a document type can do. Use
+[`SVG.Module`](@/compose.md#callable-modules) for drawing code that works across document types without adding methods.
 
 ## Element dispatch {{ "{#elements}" }}
 
 The DSL recognizes SVG element names dynamically, so it does not need a Ruby method for every element in each SVG
-release. Sevgi validates the resulting standard SVG before checked output. Names are case-sensitive: `linearGradient`
-is an SVG element, while `LinearGradient` would be a different Ruby call.
+release. Sevgi validates the resulting standard SVG before checked output. Names are case-sensitive. `linearGradient`
+is an SVG element, while `LinearGradient` is a different Ruby call.
 
 Use `Element` when producing foreign XML or when a qualified name cannot be expressed as a bare Ruby call:
 
@@ -182,7 +181,7 @@ different serialization channel.
 | Explicit reusable text content | `Content.encoded` | XML text-encoded |
 | Literal text body in a CDATA section | `Content.cdata` | CDATA terminators split safely |
 | CSS rules expressed as a Hash | `Content.css` | rendered as CSS inside CDATA |
-| Already serialized trusted markup | `Content.verbatim` | deliberately unescaped; caller owns well-formedness and escaping |
+| Already serialized trusted markup | `Content.verbatim` | unescaped markup whose caller owns well-formedness and escaping |
 
 ```ruby
 drawing = SVG :minimal do
@@ -196,9 +195,9 @@ end
 drawing.Render
 ```
 
-Advanced consumers may subclass `SVG::Content` and implement `render(output, depth)`. The rendering engine ignores the
-method's return value. A custom implementation must escape any data it inserts into markup; use
-`SVG::Content.encoded(...).to_s` rather than interpolating caller text directly.
+Advanced consumers can subclass `SVG::Content` and implement `render(output, depth)`. The rendering engine ignores the
+method's return value. A custom implementation must escape all data that it inserts into markup. Use
+`SVG::Content.encoded(...).to_s` instead of interpolating caller text directly.
 
 ## Validation lifecycle
 

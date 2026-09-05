@@ -8,7 +8,7 @@ module Sevgi
     private_constant :TriangleBase
 
     # Closed three-sided element built from non-collinear segments or points. Every construction path rejects
-    # degenerate triangles; affine operations retain Triangle when the transformed points remain non-degenerate.
+    # degenerate triangles. Affine operations retain Triangle when the transformed points remain non-degenerate.
     # @!method self.call(*points)
     #   Builds a triangle from three boundary points.
     #   @param points [Array<Sevgi::Geometry::Point, Array<Numeric>>] three boundary points
@@ -53,7 +53,7 @@ module Sevgi
       # Builds a triangle from two adjacent segments.
       #
       # The closing segment is the direct vector from the end of `segment_b`
-      # back to `position`. Segment order controls orientation; reversing the
+      # back to `position`. Segment order controls orientation. Reversing the
       # inputs returns the corresponding opposite orientation. Zero-length or
       # collinear inputs are rejected using the current numeric precision.
       # @param segment_a [Sevgi::Geometry::Segment, Array<Numeric>] first segment

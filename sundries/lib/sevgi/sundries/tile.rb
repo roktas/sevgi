@@ -6,7 +6,7 @@ module Sevgi
     #
     # The source element's bounding-box width and height become the cell pitch.
     # Indexing is row-first: `tile[row][column]`. Generated cells and collection
-    # snapshots are immutable geometry values; no SVG elements are created.
+    # snapshots are immutable geometry values. No SVG elements are created.
     # @example Address cells by row and column
     #   cell = Sevgi::Geometry::Rect[8, 4]
     #   tile = Sevgi::Sundries::Tile.new(cell, position: [10, 20], nx: 3, ny: 2)

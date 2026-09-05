@@ -277,9 +277,9 @@ module Sevgi
 
         # @overload Render(**options)
         #   Renders this element as SVG source.
-        #   Elements with inline text content may also contain inline children such as `tspan`; the renderer keeps those
+        #   Elements with inline text content can also contain inline children such as `tspan`. The renderer keeps those
         #   descendants in the same text line. Whitespace inside content objects is preserved as given, and encoded
-        #   content is XML-escaped unless a verbatim content object is used. SVG `style` elements use block content;
+        #   content is XML-escaped unless a verbatim content object is used. SVG `style` elements use block content.
         #   same-named elements under a foreign default namespace retain ordinary inline text formatting.
         #   @example Keep every attribute on the element's opening line
         #     SVG(:minimal) { rect id: "card", width: 80, height: 40 }.Render(style: :inline)

@@ -6,8 +6,8 @@ group = "Start"
 +++
 
 Sevgi can run a drawing as an executable `.sevgi` program or build it inside a Ruby application. The drawing block is
-the same in both forms; what changes is who provides the surrounding names and who owns the result. This page also
-covers applications that need to execute complete, trusted Sevgi source.
+the same in both forms. The host determines which surrounding names exist and who owns the result. This page also
+explains how an application runs complete, trusted Sevgi source.
 
 ## Choose a form
 
@@ -68,17 +68,17 @@ SVG :minimal, :card do
 end.Save
 ```
 
-The runner makes the full top-level API available both at the top of the file and inside helper classes. The document
-operations are `SVG`, `Canvas`, `Document`, `Document!`, `Paper`, `Paper!`, `Mixin`,
-`Grid`, and `Load`. Derender adds `Decompile`, `Derender`, `Evaluate`, and `EvaluateChildren`; append `File` to one of
-those names when its input is a path. Drawing words such as `Rotate` live inside an `SVG` block. The
+The runner makes the full top-level API available at the top of the file and inside helper classes. The document
+operations are `SVG`, `Canvas`, `Document`, `Document!`, `Paper`, `Paper!`, `Mixin`, `Grid`, and `Load`. Derender adds
+`Decompile`, `Derender`, `Evaluate`, and `EvaluateChildren`. Append `File` when the input is a path. Drawing words such
+as `Rotate` live inside an `SVG` block. The
 [DSL Catalog](@/dsl.md) records the context for every word.
 
 ### Load {{ "{#load}" }}
 
-`Load "palette"` evaluates `palette.sevgi` relative to the active source, not the process working directory. This lets
-a drawing split across several files move as one directory. Repeated non-recursive loads run again; loading a source
-already active in the same chain raises a captured cycle error.
+`Load "palette"` evaluates `palette.sevgi` relative to the active source, not the process working directory. A drawing
+split across several files can then move as one directory. Repeated non-recursive loads run again. Loading a source
+that is already active in the same chain raises a captured cycle error.
 
 If loading fails, the executor result keeps the source stack and points back to the file that caused it. Outside an
 active Sevgi execution, use Ruby's `require` rather than `Load`.
@@ -95,14 +95,14 @@ file "card.svg" => "card.sevgi" do
 end
 ```
 
-Positional arguments arrive as `ARGA`; keyword arguments arrive as `ARGH`.
+Positional arguments arrive as `ARGA`. Keyword arguments arrive as `ARGH`.
 
 ## Libraries {{ "{#libraries}" }}
 
-`require "sevgi"` loads the global `SVG(...)` document builder and the `SVG` facade. Facade operations use
-capitalized method names such as `SVG.Canvas`, `SVG.Document`, and `SVG.Derender`; constants and types use double
-colons, such as `SVG::Canvas`. This keeps the full toolkit available without making every Sevgi helper a bare method
-throughout the application.
+`require "sevgi"` loads the global `SVG(...)` document builder and the `SVG` facade. A facade is an object that groups
+public operations. These operations use capitalized names such as `SVG.Canvas`, `SVG.Document`, and `SVG.Derender`.
+Constants and types use double colons, such as `SVG::Canvas`. This keeps Sevgi helpers out of the application's general
+method scope.
 
 ### Facade grammar {{ "{#facade}" }}
 
@@ -196,10 +196,9 @@ else
 end
 ```
 
-`success?` and `error?` describe the outcome. `value` is the last expression on success; `error` is an
-`Executor::Error` on failure; `stack` is the immutable list of visited Sevgi sources. For diagnostics,
-`result.error.cause` is the original exception and `result.error.load_backtrace` keeps entries belonging to those
-sources.
+`success?` and `error?` describe the outcome. On success, `value` is the last expression. On failure, `error` is an
+`Executor::Error`. `stack` is the immutable list of visited Sevgi sources. For diagnostics, `result.error.cause` is the
+original exception. `result.error.load_backtrace` keeps entries that belong to those sources.
 
 The public result types are `Sevgi::Executor::Result`, `Sevgi::Executor::Error`, and
 `Sevgi::Executor::CycleError`.
@@ -212,7 +211,7 @@ The public result types are `Sevgi::Executor::Result`, `Sevgi::Executor::Error`,
 | `line:` | Starting line used in inline-source errors and backtraces |
 | `as:` | Basename used by `execute_file` for evaluation, diagnostics, and caller-derived output defaults |
 | `require:` | Ruby library loaded before the Sevgi source |
-| `main: false` | Default isolated module scope; does not install the DSL on Ruby's main object |
+| `main: false` | Default isolated module scope without the DSL on Ruby's main object |
 | `main: true` | Command-line-compatible main-object mode for consumers that deliberately need it |
 
 `execute_file` also accepts `as:`. Its extension becomes `.sevgi`, while the physical input directory and load-cycle

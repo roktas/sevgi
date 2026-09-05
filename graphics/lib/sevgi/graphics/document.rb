@@ -5,7 +5,7 @@ module Sevgi
     # SVG document profile factory and process-global named-profile registry.
     #
     # A profile owns SVG root attributes and optional preamble lines, but not canvas size. Built-in and named profiles
-    # can be passed to {Sevgi::Graphics.SVG}; an anonymous profile class is useful when library code needs one-off
+    # can be passed to {Sevgi::Graphics.SVG}. An anonymous profile class is useful when library code needs one-off
     # metadata without adding a global name.
     #
     # | Profile | Preamble | Root metadata | Additional DSL |
@@ -13,14 +13,14 @@ module Sevgi
     # | `:minimal` | none | none | common document DSL |
     # | `:default` | XML declaration | SVG namespace | common document DSL |
     # | `:html` | none | SVG namespace | common document DSL |
-    # | `:inkscape` | XML declaration | SVG and editor namespaces; crisp edges | `Draw`, `Hatch`, and editor/RDF helpers |
+    # | `:inkscape` | XML declaration | SVG and editor namespaces with crisp edges | `Draw`, `Hatch`, and editor/RDF helpers |
     #
     # The Inkscape root adds Sevgi, Inkscape, and Sodipodi namespaces plus `shape-rendering="crispEdges"`. Every
-    # selectable profile has the same validation and lint lifecycle; `:minimal` changes serialization metadata, not
+    # selectable profile has the same validation and lint lifecycle. `:minimal` changes serialization metadata, not
     # checking policy. {Base} is the public common extension layer rather than a selectable profile. {Minimal} and
     # {Default} are sibling concrete profiles: Minimal contributes no metadata and is not the semantic base of the other
-    # profiles. Targeting Base through {Sevgi::Graphics::Mixtures.mixin} changes every descendant profile process-wide;
-    # subclass Base first when an extension should remain scoped.
+    # profiles. Targeting Base through {Sevgi::Graphics::Mixtures.mixin} changes every descendant profile process-wide.
+    # Subclass Base first to keep an extension scoped.
     #
     # @see https://sevgi.roktas.dev/documents/#profiles Document profiles guide
     module Document
@@ -194,7 +194,7 @@ module Sevgi
       # A name without metadata performs lookup. A name plus either metadata
       # keyword defines or compatibly reuses a named profile. Omitting the name
       # creates an anonymous class and leaves the registry unchanged. Named
-      # profiles are process-global; use them for shared vocabulary rather than
+      # profiles are process-global. Use them for shared vocabulary rather than
       # per-call configuration.
       # Profile metadata is captured before class or thread-atomic registry mutation. Mutable non-container attribute
       # values are stringified once, attribute names and nested Hash keys are normalized, and nil attributes are omitted
@@ -324,7 +324,7 @@ module Sevgi
       private_constant :Registry
 
       # Immutable, read-only document profile metadata exposed by document classes. Process-global lookup and registration
-      # are thread-atomic. Metadata containers and strings are captured recursively; other mutable attribute values are
+      # are thread-atomic. Metadata containers and strings are captured recursively. Other mutable attribute values are
       # stringified once during construction. Attribute names and nested Hash keys are normalized to Symbols, nil values
       # are omitted, and update-suffix intent is retained for inheritance.
       # Returned attribute and preamble collections are caller-owned snapshots,
@@ -336,7 +336,7 @@ module Sevgi
 
         # Creates profile metadata.
         # @param name [Object, nil] profile name
-        # @param attributes [Hash, nil] default root attributes; nil means an empty Hash
+        # @param attributes [Hash, nil] default root attributes. Nil means an empty Hash
         # @param preambles [Array<String>, nil] preamble lines
         # @return [void]
         # @raise [Sevgi::ArgumentError] when name or metadata is invalid XML, cyclic, or cannot be stringified

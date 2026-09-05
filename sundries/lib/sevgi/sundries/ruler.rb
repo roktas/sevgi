@@ -157,7 +157,7 @@ module Sevgi
     # `brut` is the full available span. `unit * multiple` becomes the major
     # interval, and `sd/su/sn` describe that source subinterval. Requested
     # margins are minimums: leftover space is split between them while their
-    # start/end difference is preserved. The fitted `d` excludes those margins;
+    # start/end difference is preserved. The fitted `d` excludes those margins.
     # `waste` includes them and any remainder.
     #
     # @example Ruler geometry
@@ -300,7 +300,7 @@ module Sevgi
     #
     # If ordinary fitting produces an odd count, one complete major interval is
     # removed and the additional space is distributed through the margins.
-    # @example Reserve symmetric waste when an odd count would fit
+    # @example Reserve symmetric waste when ordinary fitting produces an odd count
     #   ruler = Sevgi::Sundries::RulerEven.new(brut: 50, unit: 1, multiple: 10)
     #   ruler.n       # => 4
     #   ruler.margins # => [5.0, 5.0]

@@ -4,10 +4,10 @@ module Sevgi
   module Graphics
     # Callable drawing module support.
     # Extend a plain Ruby module with this API to make its public instance methods callable drawing steps. Name the
-    # method `call` when the module has a single drawing step; use descriptive method names when it has multiple steps.
+    # method `call` when the module has a single drawing step. Use descriptive method names for multiple steps.
     # Base blocks add argument-independent shared SVG content once per invocation before the public drawing methods.
-    # Invocation does not change the configured module, so it may be frozen after its drawing steps are defined. A
-    # duplicate or clone owns an independent configuration snapshot; freezing a callable module prevents later base
+    # Invocation does not change the configured module, so it can be frozen after its drawing steps are defined. A
+    # duplicate or clone owns an independent configuration snapshot. Freezing a callable module prevents later base
     # registration while leaving invocation available.
     # @example Define and call a drawing module
     #   Widget = Module.new do
@@ -133,7 +133,7 @@ module Sevgi
           invoke(context, receiver, methods, ...)
         end
 
-        # Returns the methods that should be executed for a callable module.
+        # Returns the executable drawing methods for a callable module.
         # @param mod [Module] module extended with {Sevgi::Graphics::Module}
         # @return [Array<UnboundMethod>]
         # @raise [Sevgi::ArgumentError] when mod is not a callable drawing module

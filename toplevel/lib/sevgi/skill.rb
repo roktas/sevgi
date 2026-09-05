@@ -14,7 +14,7 @@ module Sevgi
     def path
       spec = ::Gem::Specification.find_by_name("sevgi-appendix", "= #{::Sevgi::VERSION}")
       packaged = packaged_path(spec)
-      # Package managers may replace a versioned gem path with their stable prefix.
+      # Package managers can replace a versioned gem path with their stable prefix.
       path = ::File.expand_path(ENV.fetch("SEVGI_SKILL", packaged))
 
       Error.("Sevgi skill is unavailable at #{path}.") unless ::File.file?(::File.join(path, "SKILL.md"))

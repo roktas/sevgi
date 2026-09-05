@@ -11,7 +11,7 @@ module Sevgi
       # Checks whether a program exists and is executable.
       # @param program [Object] program name, absolute path, or relative slash-containing path
       # @return [Boolean] true when an executable regular file is found
-      # @note PATH is evaluated on every call; empty PATH segments mean the current directory.
+      # @note PATH is evaluated on every call. Empty PATH segments mean the current directory.
       def executable?(program)
         program = program.to_s
         return false if program.empty?
@@ -26,7 +26,7 @@ module Sevgi
       # @param args [Array<Object>] command arguments
       # @return [nil]
       # @raise [Sevgi::Error] when the program cannot be found in PATH
-      # @note The first argument is checked as one exact argv entry; it is never shell-split.
+      # @note The first argument is checked as one exact argv entry. It is never shell-split.
       def executable!(*args)
         program = args.first.to_s
         Error.("Missing executable: #{program}") unless executable?(program)
@@ -256,7 +256,6 @@ module Sevgi
           close_input(stdin)
           Signals.unregister(self) if registered
         end
-        # rubocop:enable Lint/RescueException
 
         def start_readers(stdout, stderr)
           [
@@ -336,11 +335,11 @@ module Sevgi
       #   Runs a command and captures stdout, stderr, and exit status.
       #   @param args [Array<String>] command and arguments
       #   @yield optional stdin producer, evaluated once after output readers start
-      #   @yieldreturn [String, nil] content to write to stdin; nil writes nothing
+      #   @yieldreturn [String, nil] content to write to stdin. Nil writes nothing
       #   @return [Sevgi::Function::Shell::Result]
       #   @raise [Sevgi::ArgumentError] when no command is given
       #   @raise [SystemCallError] when the executable cannot be spawned or process pipes cannot be opened
-      #   @raise [StandardError] when the input block raises; the child is terminated and reaped before propagation
+      #   @raise [StandardError] when the input block raises. The child is terminated and reaped before propagation
       #   @note The child's stdin is closed after the input block. During execution, the first SIGINT sends TERM to the
       #     child process and the second SIGINT as KILL to each active child outside trap context, then restores the
       #     previous handler.
@@ -349,12 +348,12 @@ module Sevgi
       # Runs a command, requiring both executable lookup and successful exit status.
       # @param args [Array<String>] command and arguments
       # @yield optional stdin producer, evaluated once after output readers start
-      # @yieldreturn [String, nil] content to write to stdin; nil writes nothing
+      # @yieldreturn [String, nil] content to write to stdin. Nil writes nothing
       # @return [Sevgi::Function::Shell::Result]
       # @raise [Sevgi::ArgumentError] when no command is given
       # @raise [Sevgi::Error] when the executable is missing or the command fails
       # @raise [SystemCallError] when the executable cannot be spawned or process pipes cannot be opened
-      # @raise [StandardError] when the input block raises; the child is terminated and reaped before propagation
+      # @raise [StandardError] when the input block raises. The child is terminated and reaped before propagation
       # @note The child's stdin is closed after the input block. During execution, the first SIGINT sends TERM to the
       #   child process and the second SIGINT as KILL to each active child outside trap context, then restores the previous
       #   handler.

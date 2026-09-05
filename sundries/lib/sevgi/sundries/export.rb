@@ -10,7 +10,7 @@ module Sevgi
     #
     # Native PDF/PNG rendering is loaded lazily so installing `sevgi-sundries` for SVG-only helpers does not require the
     # Cairo, RSVG, or HexaPDF gems. Native export entrypoints raise {Sevgi::MissingComponentError} when those optional
-    # gems are unavailable. Omit `format:` to infer it from the output suffix;
+    # gems are unavailable. Omit `format:` to infer it from the output suffix.
     # width and height are output dimensions rather than changes to the SVG
     # viewBox. The return value is the expanded path that was written.
     #
@@ -56,7 +56,7 @@ module Sevgi
       #   @param format [Symbol, String, nil] explicit output format, or nil to infer from output extension
       #   @param width [Numeric, nil] target width in output pixels for PNG, or CSS pixels before PDF point conversion
       #   @param height [Numeric, nil] target height in output pixels for PNG, or CSS pixels before PDF point conversion
-      #   @param dpi [Numeric] finite positive CSS pixel density; omission uses {DEFAULT_DPI}, but explicit nil is invalid
+      #   @param dpi [Numeric] finite positive CSS pixel density. Omission uses {DEFAULT_DPI}, but explicit nil is invalid
       #   @param css [String, nil] CSS inserted before the closing svg tag before rendering
       #   @yield [svg] optional source transformation applied before rendering
       #   @yieldparam svg [String] SVG source after optional CSS injection
@@ -101,6 +101,8 @@ module Sevgi
       private :format_for, :normalize_format, :styled
 
       # Replaces exact placeholder text objects in PDF streams.
+      # The placeholder must be a PDF literal string inside a white text object that matches Sevgi's stamp pattern.
+      # Replacement text is escaped as a PDF literal string. When no match exists, the method writes no output file.
       # @param infile [String] source PDF file path
       # @param outfile [String] destination PDF file path
       # @param stamp [String] replacement text
@@ -112,6 +114,7 @@ module Sevgi
       def stamp(infile, outfile, stamp:, placeholder:) = native!.stamp(infile, outfile, stamp:, placeholder:)
 
       # Replaces exact placeholder text objects inside a PDF file in place.
+      # The input file changes only after at least one exact match produces a nonempty output file.
       # @param infile [String] PDF file path to modify
       # @param stamp [String] replacement text
       # @param placeholder [String] placeholder text to replace

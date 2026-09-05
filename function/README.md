@@ -1,8 +1,8 @@
 # Sevgi Function
 
 Sevgi Function contains the supported `Sevgi::F` toolbox shared by Sevgi components and advanced extensions. It is not
-intended as a general-purpose utility library; nested helper modules organize the facade implementation and are not
-consumer mixins.
+a general-purpose utility library. Nested helper modules organize the facade implementation and are not consumer
+mixins.
 
 ## Install
 
@@ -19,8 +19,13 @@ require "sevgi/function"
 ## Example
 
 ```ruby
-Sevgi::F.eq?(0.1 + 0.2, 0.3, precision: 12)
+Sevgi::F.with_precision(12) do
+  Sevgi::F.eq?(0.1 + 0.2, 0.3) # => true
+end
 ```
+
+The facade also provides `.sevgi` file discovery, generated-file output, argv-safe child processes, naming helpers,
+and terminal status output. Use the linked API documentation for exact results and failure contracts.
 
 ## Ruby compatibility
 

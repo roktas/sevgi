@@ -5,9 +5,9 @@ module Sevgi
     # Describes the outcome of one executor invocation.
     #
     # A successful result has a value and no error. A captured script, file, or
-    # library failure has an {Executor::Error} and may retain a value produced
+    # library failure has an {Executor::Error} and can retain a value produced
     # before the failure. The source stack is an immutable snapshot in load
-    # order; it is never shared with the executor's internal mutable state.
+    # order. It is never shared with the executor's internal mutable state.
     #
     # @example Inspect successful execution
     #   result = Sevgi.execute("6 * 7")

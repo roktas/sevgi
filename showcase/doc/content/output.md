@@ -6,12 +6,12 @@ group = "Guides"
 +++
 
 This page explains how a finished document reaches a Ruby application, a file, or a shell pipeline. Sevgi can return
-SVG text, write SVG directly, or convert the rendered document to PDF or PNG. The drawing's canvas and visible geometry
-should already be correct before output begins.
+SVG text, write SVG directly, or convert the rendered document to PDF or PNG. Fix the canvas and visible geometry
+before output begins.
 
 ## SVG {{ "{#svg}" }}
 
-Choose the operation by where the result should go:
+Choose the operation by its destination:
 
 | Need | Use |
 | --- | --- |
@@ -62,7 +62,7 @@ sevgi --as proof drawings/card.sevgi
 
 Here an implicit `Save` writes `drawings/proof.svg`. Explicit destinations and an explicit `default:` always take
 precedence over the logical input name. Applications using `Sevgi.execute_file` can set the same logical basename with
-its `as:` option; see [Usage](@/usage.md#execute).
+its `as:` option. See [Usage](@/usage.md#execute).
 
 ## PDF and PNG {{ "{#export}" }}
 
@@ -98,3 +98,13 @@ deliberate export-only styling, and use `dpi:` when CSS pixels need a different 
 
 PDF and PNG output uses Cairo, librsvg, and HexaPDF. If one is missing, Sevgi raises a component error. Ordinary SVG
 rendering continues to work without these optional dependencies.
+
+## Replace PDF placeholders {{ "{#pdf-placeholders}" }}
+
+`Export.stamp` replaces exact placeholder text in a PDF. The placeholder must be a literal string inside a white text
+object that matches Sevgi's stamp pattern. For example, use
+`Export.stamp("certificate.pdf", "certificate-aylin.pdf", placeholder: "RECIPIENT", stamp: "Aylin")`.
+A successful replacement writes the destination file and returns `true`.
+
+The method returns `false` and writes no output when it finds no match. Use `Export.stamp!` to replace the input file
+only after a successful, nonempty rewrite.

@@ -106,7 +106,7 @@ module Sevgi
       # @return [Object] wrapped content snapshot
       def content = Snapshot.copy(@content)
 
-      # Creates immutable content from a deep payload snapshot. Strings and containers are copied recursively; mutable
+      # Creates immutable content from a deep payload snapshot. Strings and containers are copied recursively. Mutable
       # non-container objects are stringified once during construction. The caller's objects are never retained.
       # @param content [Object] wrapped content
       # @return [void]
@@ -185,7 +185,7 @@ module Sevgi
       def self.verbatim(...) = Verbatim.send(:new, ...)
 
       # CDATA section content backed by an immutable payload snapshot. Mutable leaf objects are stringified during
-      # construction; embedded terminators are split during rendering.
+      # construction. Embedded terminators are split during rendering.
       # @see Content.cdata
       class CData < Content
         # Renders CDATA content.
@@ -206,7 +206,7 @@ module Sevgi
         def safe(value) = XML.cdata(value)
       end
 
-      # CSS content rendered inside a CDATA section. Rules are captured recursively during construction; mutable
+      # CSS content rendered inside a CDATA section. Rules are captured recursively during construction. Mutable
       # selectors, property names, and values are stringified once, and embedded CDATA terminators are split safely.
       # @see Content.css
       class CSS < Content
@@ -281,7 +281,7 @@ module Sevgi
       end
 
       # Verbatim content backed by an immutable payload snapshot. Mutable leaf objects are stringified during
-      # construction. Verbatim content bypasses XML escaping; validation guarantees encoding and legal XML 1.0 code
+      # construction. Verbatim content bypasses XML escaping. Validation guarantees encoding and legal XML 1.0 code
       # points, not well-formed markup supplied by the caller.
       # @see Content.verbatim
       class Verbatim < Content

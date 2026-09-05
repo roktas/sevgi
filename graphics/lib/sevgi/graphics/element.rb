@@ -6,16 +6,16 @@ module Sevgi
     #
     # @!method self.valid?(name)
     #   Reports whether a candidate can dispatch as an SVG element name.
-    #   With Standard loaded, the name must be known; standalone Graphics accepts any valid XML name.
+    #   With Standard loaded, the name must be known. Standalone Graphics accepts any valid XML name.
     #   @param name [Object] candidate element name
     #   @return [Boolean]
     #
     # Dynamic SVG element methods accept text, content objects, and any number of attribute Hashes in one call. Hashes
-    # are applied from left to right; later values replace earlier values unless their names use the `+` update suffix.
+    # are applied from left to right. Later values replace earlier values unless their names use the `+` update suffix.
     class Element
       # Builds an element node.
       # @param name [Symbol, String] SVG element name
-      # @param arguments [Array<Hash, String, Sevgi::Graphics::Content>] ordered content and attribute channels; every
+      # @param arguments [Array<Hash, String, Sevgi::Graphics::Content>] ordered content and attribute channels. Every
       #   Hash is applied through {Sevgi::Graphics::Attributes} from left to right
       # @param parent [Sevgi::Graphics::Element] parent element
       # @yield evaluates the drawing DSL in the new element
@@ -182,7 +182,7 @@ module Sevgi
 
       # Dispatches SVG element DSL calls and caches valid element methods.
       # @param name [Symbol] missing method name
-      # @param arguments [Array<Hash, String, Sevgi::Graphics::Content>] ordered content and attribute channels; later
+      # @param arguments [Array<Hash, String, Sevgi::Graphics::Content>] ordered content and attribute channels. Later
       #   Hashes replace or update attributes assigned by earlier Hashes
       # @yield evaluates the drawing DSL in the dispatched child element
       # @yieldreturn [Object] ignored block result
@@ -234,7 +234,7 @@ module Sevgi
 
         # Parses element DSL arguments.
         # @param name [Symbol] SVG element name
-        # @param args [Array<Object>] positional DSL arguments; Hashes are imported from left to right
+        # @param args [Array<Object>] positional DSL arguments. Hashes are imported from left to right
         # @return [Hash] parsed :attributes and :contents
         # @raise [Sevgi::ArgumentError] when an argument is not a Hash, String, or Content
         def parse(name, *args)

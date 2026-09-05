@@ -18,7 +18,7 @@ module Sevgi
         # Adds an XML comment.
         # @param comment [Object] comment text
         # @return [Sevgi::Graphics::Element] floating comment element
-        # @raise [Sevgi::ArgumentError] when comment cannot be stringified as valid XML or would form malformed markup
+        # @raise [Sevgi::ArgumentError] when comment cannot be stringified as valid XML or forms malformed markup
         def Comment(comment)
           comment = XML.text(comment, context: "XML comment")
 
@@ -29,7 +29,7 @@ module Sevgi
         end
 
         # Merges `-context` metadata from the document root, ancestors, and this element.
-        # Only the direct root-to-self ancestor chain participates; sibling subtrees are ignored. When the same key is
+        # Only the direct root-to-self ancestor chain participates. Sibling subtrees are ignored. When the same key is
         # present on multiple chain elements, the nearest element to the receiver wins. Context remains available in
         # memory but is omitted from rendered SVG. It is unrelated to the `_:` XML namespace syntax preserved by
         # Derender.

@@ -17,10 +17,16 @@ require "sevgi/sundries"
 ## Example
 
 ```ruby
-rect = Sevgi::Geometry::Rect[3, 5]
-tile = Sevgi::Sundries::Tile.new(rect)
-tile.box.height
+x = Sevgi::Sundries::Ruler.new(brut: 80, unit: 1, multiple: 10, margins: [5])
+y = Sevgi::Sundries::Ruler.new(brut: 50, unit: 1, multiple: 10, margins: [5])
+grid = Sevgi::Sundries::Grid[x, y]
+
+grid.x.major.lines.size # => 5
+grid.canvas.margin.to_a # => [5.0, 5.0, 5.0, 5.0]
 ```
+
+Rulers, grids, and tiles are inspectable Ruby values. They create no SVG elements by themselves. Pass their geometry
+to Sevgi Graphics when the document needs it.
 
 ## Ruby compatibility
 

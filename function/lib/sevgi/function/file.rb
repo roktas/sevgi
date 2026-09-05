@@ -4,10 +4,10 @@ require "fileutils"
 
 module Sevgi
   module Function
-    # File-system methods promoted to {Sevgi::F}. This module organizes the facade implementation; it is not a consumer
+    # File-system methods promoted to {Sevgi::F}. This module organizes the facade implementation. It is not a consumer
     # mixin contract.
     module File
-      # Checks whether a file would change if written with content.
+      # Checks whether a file differs from the supplied content.
       # @param file [String] file path to compare
       # @param content [String] proposed file content
       # @yield optional normalization filter applied to both old and new content

@@ -8,7 +8,7 @@ module Sevgi
     private_constant :ParallelogramBase
 
     # Closed four-sided element whose opposite sides are equal and parallel. Every construction path rejects
-    # degenerate or unrelated side pairs; affine operations preserve the class while that invariant holds.
+    # degenerate or unrelated side pairs. Affine operations preserve the class while that invariant holds.
     # @!method self.call(*points)
     #   Builds a parallelogram from four boundary points.
     #   @param points [Array<Sevgi::Geometry::Point, Array<Numeric>>] four boundary points
@@ -56,7 +56,7 @@ module Sevgi
     #   shape.box.width     # => 6.0
     #   shape.box.height    # => 3.0
     class Parallelogram < ParallelogramBase
-      # Builds a parallelogram from adjacent base and side segments. Both segments originate at `position`; `base`
+      # Builds a parallelogram from adjacent base and side segments. Both segments originate at `position`. `base`
       # defines AB and `side` defines AD, regardless of their angles.
       # @param base [Sevgi::Geometry::Segment, Array<Numeric>] segment from A to B
       # @param side [Sevgi::Geometry::Segment, Array<Numeric>] segment from A to D
@@ -69,7 +69,7 @@ module Sevgi
         new_by_segments(base, side.reverse, base.reverse, side, position:)
       end
 
-      # Builds a parallelogram from a base and bounding-height constraint. The constraint length is the target height;
+      # Builds a parallelogram from a base and bounding-height constraint. The constraint length is the target height.
       # its signed angle is retained as the direction of the derived side while the component magnitude determines that
       # side's non-negative length.
       # @param base [Sevgi::Geometry::Segment, Array<Numeric>] segment from A to B
@@ -96,7 +96,7 @@ module Sevgi
         self[base, Segment[height / sine.abs, angle], position:]
       end
 
-      # Builds a parallelogram from a side and bounding-width constraint. The constraint length is the target width; its
+      # Builds a parallelogram from a side and bounding-width constraint. The constraint length is the target width. Its
       # signed angle is retained as the direction of the derived base while the component magnitude determines that
       # base's non-negative length.
       # @param side [Sevgi::Geometry::Segment, Array<Numeric>] segment from A to D

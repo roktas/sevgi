@@ -8,12 +8,12 @@ module Sevgi
     end
 
     # Wraps an exception raised while executing Sevgi script source. Its visited source snapshot records every source in
-    # load order; it is not the active load stack at the instant of failure.
+    # load order. It is not the active load stack at the instant of failure.
     # @see https://sevgi.roktas.dev/usage/#execute Execute source guide
     class Error < ::Sevgi::Error
       # Builds an executor error wrapper.
       # @param error [Exception] original exception
-      # @param stack [Array<String>] source file keys visited in load order; the Array and its String entries are copied
+      # @param stack [Array<String>] source file keys visited in load order. The Array and its String entries are copied
       #   and frozen
       # @return [void]
       def initialize(error, stack)

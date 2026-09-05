@@ -9,7 +9,7 @@ module Sevgi
     # The canvas margins are minimum clearances. Any span left after fitting
     # whole major intervals is shared equally between the opposite margins, so
     # their requested difference is preserved. The returned grid starts at
-    # `(0, 0)`; {Sevgi::Sundries::Grid#canvas} exposes the fitted page margins.
+    # `(0, 0)`. {Sevgi::Sundries::Grid#canvas} exposes the fitted page margins.
     # @param canvas [Sevgi::Graphics::Canvas] canvas defining page size and margins
     # @param unit [Numeric] minor grid unit
     # @param multiple [Integer] number of minor units in each major interval

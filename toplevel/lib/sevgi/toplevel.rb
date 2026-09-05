@@ -3,7 +3,7 @@
 module Sevgi
   # Shared implementation for the full Sevgi top-level DSL.
   #
-  # This module is installed by `include Sevgi` or `extend Sevgi`; it should not
+  # This module is installed by `include Sevgi` or `extend Sevgi`. Consumers do not
   # normally be included directly.
   #
   # @see Sevgi

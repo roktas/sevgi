@@ -6,7 +6,7 @@ group = "Reference"
 +++
 
 The DSL has two related vocabularies. Lowercase calls such as `rect`, `circle`, and `linearGradient` are SVG element
-names. The full `sevgi` gem recognizes standard elements and checks their attributes, content, and nesting before
+names. The full `sevgi` gem recognizes standard elements. It checks their attributes, content, and nesting before
 writing the document.
 
 Sevgi's own drawing words usually begin with a capital letter, which keeps operations such as `Tile`, `Rotate`, and

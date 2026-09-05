@@ -78,7 +78,7 @@ module Sevgi
       def atan2(y, x) = to_degrees(::Math.atan2(finite_real(:y, y), finite_real(:x, x)))
 
       # Returns the cosine of an angle expressed in degrees. Integer quarter turns return exact `-1.0`, `0.0`, or
-      # `1.0`; other angles use Ruby's floating-point Math implementation.
+      # `1.0`. Other angles use Ruby's floating-point Math implementation.
       # @param degrees [Numeric] angle in degrees
       # @return [Float]
       # @raise [Sevgi::ArgumentError] when degrees is not a finite real number
@@ -161,7 +161,7 @@ module Sevgi
         precision.nil? ? number : number.round(valid_precision(precision))
       end
 
-      # Returns the sine of an angle expressed in degrees. Integer quarter turns return exact `-1.0`, `0.0`, or `1.0`;
+      # Returns the sine of an angle expressed in degrees. Integer quarter turns return exact `-1.0`, `0.0`, or `1.0`.
       # other angles use Ruby's floating-point Math implementation.
       # @param degrees [Numeric] angle in degrees
       # @return [Float]

@@ -220,7 +220,7 @@ module Sevgi
       end
     end
 
-    # Rectangle with equal width and height. Use {#width} or {#height} for its side length; inherited
+    # Rectangle with equal width and height. Use {#width} or {#height} for its side length. Inherited
     # {Element::Lined#length} returns the complete path length.
     # @example Construct the same square from opposite corners
     #   Sevgi::Geometry::Square.([0, 0], [5, 5]) == Sevgi::Geometry::Square.from_corners([0, 0], [5, 5])

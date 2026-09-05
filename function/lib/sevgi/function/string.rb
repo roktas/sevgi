@@ -2,7 +2,7 @@
 
 module Sevgi
   module Function
-    # String methods promoted to {Sevgi::F}. This module organizes the facade implementation; it is not a consumer mixin
+    # String methods promoted to {Sevgi::F}. This module organizes the facade implementation. It is not a consumer mixin
     # contract.
     module String
       # Returns the final constant name segment from a module path.
@@ -20,10 +20,10 @@ module Sevgi
 
     extend String
 
-    # English pluralization promoted to {Sevgi::F}. This module organizes the facade implementation; it is not a
+    # English pluralization promoted to {Sevgi::F}. This module organizes the facade implementation. It is not a
     # consumer mixin contract.
     module Pluralize
-      # Words that should not be pluralized.
+      # Words excluded from pluralization.
       # @api private
       UNCOUNTABLES = %w[
         equipment

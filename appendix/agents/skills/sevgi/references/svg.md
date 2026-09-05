@@ -1,19 +1,19 @@
 # SVG Routing
 
-Use this page to identify the SVG mechanism, then verify exact behavior in MDN or the SVG specification. Do not turn
-this index into a cookbook of one-off drawing tips.
+Use this page to identify the SVG mechanism. Then make sure that MDN or the SVG specification documents its exact
+behavior. Do not turn this index into a cookbook of one-off drawing tips.
 
 | Rendering concept | Start with |
 | --- | --- |
 | Coordinate system and responsive scaling | `viewBox`, viewport dimensions, `preserveAspectRatio` |
-| Relative placement of an element tree | `transform`; use Sevgi's transform helpers when available |
+| Relative placement of an element tree | `transform` with Sevgi's transform helpers when available |
 | Reusable drawing definitions | `defs`, `symbol`, `use` |
 | Repeated visual fill | `pattern` |
 | Paint | presentation attributes or CSS, gradients, opacity |
-| Visibility boundaries | `clipPath` for hard clipping; `mask` for luminance/alpha compositing |
+| Visibility boundaries | `clipPath` for hard clipping and `mask` for luminance/alpha compositing |
 | Line decoration | `marker`, stroke width, line cap, line join, dash array |
 | Renderer effects | `filter` and filter primitives |
-| Text relationships | text positioning and anchoring attributes; leave font metrics to the renderer |
+| Text relationships | text positioning and anchoring attributes with font metrics left to the renderer |
 
 Resolve questions in this order:
 

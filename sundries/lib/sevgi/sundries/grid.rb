@@ -8,7 +8,7 @@ module Sevgi
     #
     # Axis names describe line direction, not the coordinate used to place a
     # line: `grid.x` produces horizontal lines whose y positions come from the
-    # vertical ruler; `grid.y` produces vertical lines whose x positions come
+    # vertical ruler. `grid.y` produces vertical lines whose x positions come
     # from the horizontal ruler. Each query can return geometry lines, Point
     # endpoint pairs, or plain coordinate pairs for different consumers.
     # @example Query fitted horizontal and vertical lines
@@ -54,7 +54,7 @@ module Sevgi
       # Creates a grid from horizontal and vertical rulers.
       # @param x [Sevgi::Sundries::Ruler] horizontal ruler
       # @param y [Sevgi::Sundries::Ruler] vertical ruler
-      # @param canvas [Sevgi::Graphics::Canvas, nil] source canvas whose identity should be preserved
+      # @param canvas [Sevgi::Graphics::Canvas, nil] optional source canvas whose identity the grid preserves
       # @return [void]
       # @raise [Sevgi::ArgumentError] when either argument is not a ruler
       # @raise [Sevgi::ArgumentError] when the source canvas does not match the ruler spans
@@ -71,7 +71,7 @@ module Sevgi
       end
 
       # Returns a graphics canvas matching the ruler spans and fitted margins.
-      # Horizontal ruler margins become the canvas left/right margins; vertical
+      # Horizontal ruler margins become the canvas left/right margins. Vertical
       # ruler margins become its top/bottom margins.
       # @example Build a drawing with the fitted canvas
       #   x = Sevgi::Sundries::Ruler.new(brut: 80, unit: 1, multiple: 10, margins: [5])
@@ -141,18 +141,18 @@ module Sevgi
           # @api private
           def initialize(this, other) = (@this, @other = this, other)
 
-          # Returns grid line endpoints as coordinate pairs.
-          # The outer and nested collections are frozen and must be treated as immutable.
+          # Returns grid line endpoints as coordinate pairs at the active {Sevgi::F} precision.
+          # Each call reads the current thread precision. The outer and nested collections are frozen.
           # @return [Array<Array<Array<Float>>>] frozen coordinate pairs
           def xys = lines.map { it.points(true).map { |point| point.deconstruct.freeze }.freeze }.freeze
 
-          # Returns grid line endpoints as points.
-          # The outer and nested collections are frozen and must be treated as immutable.
+          # Returns grid line endpoints as points at the active {Sevgi::F} precision.
+          # Each call reads the current thread precision. The outer and nested collections are frozen.
           # @return [Array<Array<Sevgi::Geometry::Point>>] frozen point pairs
           def points = lines.map { it.points(true).freeze }.freeze
 
-          # Returns generated grid lines.
-          # The memoized collection is frozen and must be treated as immutable.
+          # Returns exact generated grid lines.
+          # The collection is computed once and frozen. Use {#points} or {#xys} for precision-rounded coordinates.
           # @return [Array<Sevgi::Geometry::Line>] frozen lines
           def lines = @lines ||= build.freeze
 

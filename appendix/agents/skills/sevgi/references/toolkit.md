@@ -4,12 +4,12 @@
 
 | Need | Component / entry point | Boundary |
 | --- | --- | --- |
-| Build SVG documents and element trees | Graphics; `SVG(...)`, SVG element calls | Default starting point for every drawing |
+| Build SVG documents and element trees | Graphics with `SVG(...)` and SVG element calls | Default starting point for every drawing |
 | Choose paper size, canvas geometry, or root serialization metadata | `SVG.Paper`, `SVG.Canvas`, `SVG.Document` | Keep physical size, drawing surface, and document profile independent |
-| Validate SVG vocabulary and nesting | Standard | Use validation; do not hand-maintain element/attribute allowlists |
+| Validate SVG vocabulary and nesting | Standard | Use validation instead of hand-maintained element/attribute allowlists |
 | Calculate geometry SVG cannot supply | `Sevgi::Geometry` | Use for constructed values, intersections, sweeps, and algorithmic bounds—not renderer layout |
 | Fit rulers, grids, and reusable tile layouts | `Sevgi::Sundries`, `SVG.Grid` | Choose the exact model through `layout.md` |
-| Reuse supported cross-component helpers | `Sevgi::F` | Check before adding a project-local Sevgi helper; it is not a general utility library |
+| Reuse supported cross-component helpers | `Sevgi::F` | Use it before adding a project-local Sevgi helper. Do not treat it as a general utility library |
 | Import or inspect existing SVG/XML | Derender facade methods | Choose the source/evaluation relationship through `derender.md` |
 | Render SVG as PDF or PNG | Sundries export / document `PDF` and `PNG` | Choose the output boundary through `output.md` |
 

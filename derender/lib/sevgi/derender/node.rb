@@ -74,7 +74,7 @@ module Sevgi
 
     # Immutable conversion result for one SVG/XML node.
     #
-    # Attributes, namespaces, content, and descendants are owned snapshots; parser objects and dispatch strategies
+    # Attributes, namespaces, content, and descendants are owned snapshots. Parser objects and dispatch strategies
     # remain internal to Derender. Attributes omitted during decompilation are absent throughout the captured subtree.
     class Node
       include Capture
@@ -90,7 +90,7 @@ module Sevgi
       attr_reader :children
 
       # Returns immutable normalized text content. `xml:space="preserve"` and single-line mixed text retain their exact
-      # text. Other text trims surrounding whitespace; multiline mixed text removes only its outer indentation lines.
+      # text. Other text trims surrounding whitespace. Multiline mixed text removes only its outer indentation lines.
       # @return [String] frozen owned text snapshot
       attr_reader :content
 
@@ -98,8 +98,8 @@ module Sevgi
       # @return [String] owned element name
       attr_reader :name
 
-      # Returns immutable namespace declarations emitted for this node. A conversion root owns its local declarations;
-      # a separately selected node owns all declarations in scope; descendant snapshots own their local declarations.
+      # Returns immutable namespace declarations emitted for this node. A conversion root owns its local declarations.
+      # A separately selected node owns all declarations in scope. Descendant snapshots own their local declarations.
       # @return [Hash{String => String}] frozen owned namespace snapshot
       attr_reader :namespaces
 
@@ -128,7 +128,7 @@ module Sevgi
 
       alias meta _
 
-      # Converts this node into formatted Sevgi DSL Ruby source. The returned String is ordinary Ruby source; review and
+      # Converts this node into formatted Sevgi DSL Ruby source. The returned String is ordinary Ruby source. Review and
       # integrate it statically rather than using Ruby's raw dynamic evaluation methods.
       # @return [String] formatted Sevgi DSL source
       # @raise [Sevgi::PanicError] when generated Ruby source cannot be formatted

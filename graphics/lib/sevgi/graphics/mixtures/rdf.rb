@@ -114,7 +114,7 @@ module Sevgi
         def License_LAL(**kwargs, &block) = License(**kwargs, license: "https://artlibre.org/licence/lal/en/", &block)
 
         # Builds an RDF root element.
-        # @param kwargs [Hash] options; RDF currently accepts none
+        # @param kwargs [Hash] options. RDF currently accepts none
         # @yield evaluates the RDF drawing DSL
         # @yieldreturn [Object] ignored block result
         # @return [Sevgi::Graphics::Element] RDF element

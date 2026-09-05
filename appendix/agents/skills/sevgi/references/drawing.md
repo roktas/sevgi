@@ -22,7 +22,7 @@ and hatching. It is not a parallel rendering engine.
 
 ## Example: Preserve the Ownership Boundary
 
-The Showcase Ruler illustrates the general rule; it does not introduce a text-specific recipe. The desired relationship
+The Showcase Ruler illustrates the general rule. It does not introduce a text-specific recipe. The desired relationship
 is “center each label on this tick,” while the rendered width of a label depends on font metrics known by the SVG
 renderer.
 
@@ -63,8 +63,9 @@ Fix the first contract that is false. Do not make a frame larger to hide unequal
 alignment, clip an overflow caused by wrong geometry, or use a special-case offset that only matches one label or
 viewport.
 
-Verify every rendering context the artifact claims to support. For browser assets this may include representative
-desktop/mobile widths and light/dark themes; for print output it may include page sizes and an independent PDF renderer.
+Make sure that the result works in every rendering context that the artifact supports. Browser assets can require
+representative desktop and mobile widths plus light and dark themes. Print output can require several page sizes and an
+independent PDF renderer.
 Equal SVG dimensions or DOM boxes do not prove equal visible size.
 
 ## Layout Changes

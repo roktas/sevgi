@@ -19,7 +19,11 @@ require "sevgi/standard"
 ```ruby
 Sevgi::Standard.element?(:rect)
 Sevgi::Standard.attribute?(:width)
+Sevgi::Standard.conform(:rect, attributes: %i[width height]) # => true
 ```
+
+The component validates names, attributes, content, and nesting against Sevgi's bundled SVG compatibility data.
+`conform` raises `Sevgi::ValidationError` when a known usage violates that data.
 
 ## Ruby compatibility
 

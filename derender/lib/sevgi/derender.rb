@@ -13,8 +13,8 @@ require_relative "derender/version"
 module Sevgi
   # Brings editor-authored SVG/XML into programmatic Sevgi workflows.
   #
-  # Vector geometry such as a Bezier-heavy logo or hand-adjusted illustration may be better authored in a visual editor
-  # than reconstructed as Ruby. Derender preserves that SVG/XML tree as inspectable data, formatted Sevgi DSL source,
+  # Some vector geometry is easier to create in a visual editor than to reconstruct as Ruby. Examples include a
+  # Bezier-heavy logo and a hand-adjusted illustration. Derender preserves that SVG/XML tree as inspectable data,
   # or graphics elements under an existing document. This lets editor-authored geometry participate in programmatic
   # composition, styling, layout, and output. Use it when SVG/XML is a real input artifact, not as an intermediate
   # authoring format for ordinary Sevgi drawing code.
@@ -24,18 +24,18 @@ module Sevgi
   # tree without invoking same-named Ruby methods.
   #
   # Evaluation APIs treat SVG/XML as data: they build graphics element trees directly and do not execute generated Ruby
-  # source. The String returned by source-generation APIs is ordinary Ruby source; review and integrate it statically
+  # source. The String returned by source-generation APIs is ordinary Ruby source. Review and integrate it statically
   # rather than passing it to Ruby's raw dynamic evaluation methods. Malformed, rootless, or unmatched input is rejected
   # with {Sevgi::ArgumentError}.
   #
   # Namespace dispatch treats qualified and foreign elements as ordinary XML nodes. Their element identity, namespace
   # declarations, qualified attributes, significant text, and nested `svg` elements survive source generation and direct
   # evaluation. CSS specialization applies only to unqualified `style` elements in no namespace or the default SVG
-  # namespace; the document-root strategy additionally requires an unqualified `svg` at the root of the conversion.
+  # namespace. The document-root strategy also requires an unqualified `svg` at the root of the conversion.
   # Simple CSS rules use the readable `css({...})` DSL form. At-rules, duplicate declarations, and other CSS that cannot
   # be represented losslessly as a Hash remain owned raw style content.
   #
-  # Attribute omission uses exact, case-sensitive names across the selected subtree. ID selection happens first;
+  # Attribute omission uses exact, case-sensitive names across the selected subtree. ID selection happens first.
   # namespace declarations remain intact, and omitting the `style` attribute does not omit `style` elements.
   #
   # @example Inspect, select, and convert an immutable result
@@ -84,7 +84,7 @@ module Sevgi
     # @see Sevgi.DecompileFile
     def self.decompile_file(file, id: nil, omit: nil) = Document.load_file(file).decompile(id, omit:)
 
-    # Converts SVG/XML content into Sevgi DSL Ruby source. The returned String is ordinary Ruby source; review and
+    # Converts SVG/XML content into Sevgi DSL Ruby source. The returned String is ordinary Ruby source. Review and
     # integrate it statically rather than using Ruby's raw dynamic evaluation methods.
     # @param content [String] SVG/XML source content
     # @param id [String, Symbol, nil] optional SVG id selecting a node inside the source
@@ -103,7 +103,7 @@ module Sevgi
     # @see Sevgi.Derender
     def self.derender(content, id: nil, omit: nil) = Document.new(content).decompile(id, omit:).derender
 
-    # Converts an SVG/XML file into Sevgi DSL Ruby source. The returned String is ordinary Ruby source; review and
+    # Converts an SVG/XML file into Sevgi DSL Ruby source. The returned String is ordinary Ruby source. Review and
     # integrate it statically rather than using Ruby's raw dynamic evaluation methods.
     # @param file [String] path to the source SVG/XML file
     # @param id [String, Symbol, nil] optional SVG id selecting a node inside the source
