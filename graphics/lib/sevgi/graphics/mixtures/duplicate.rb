@@ -10,6 +10,7 @@ module Sevgi
         # moved to non-rendering `-id` metadata before the optional block runs, allowing the block to derive replacement
         # ids without rendering duplicates. A pre-existing `-id` takes precedence over the visible id.
         # Translation and parent channels are validated before the subtree is copied or the customization block runs.
+        # The copied subtree has no parent during customization and is attached to the target parent afterward.
         # @param dx [Numeric, nil] finite x translation. Nil omits the axis
         # @param dy [Numeric, nil] finite y translation. Nil omits the axis
         # @param parent [Sevgi::Graphics::Element, nil] explicit parent, or the source parent when nil
@@ -83,7 +84,7 @@ module Sevgi
 
           # Builds an independent copy of an element subtree.
           # @param element [Sevgi::Graphics::Element] source subtree root
-          # @param parent [Sevgi::Graphics::Element, nil] parent for a copied descendant
+          # @param parent [Sevgi::Graphics::Element, Object] copied parent or root/detached sentinel
           # @return [Sevgi::Graphics::Element] copied subtree root
           def self.copy(element, parent:)
             element.dup.tap do |duplicated|

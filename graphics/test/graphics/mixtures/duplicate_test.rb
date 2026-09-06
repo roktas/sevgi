@@ -222,6 +222,22 @@ module Sevgi
           assert_equal(1, copy.children.size)
         end
 
+        def test_duplicate_detaches_the_customization_parent
+          doc = SVG do
+            g
+            g
+            g
+          end
+
+          source, temporary, target = doc.children
+          copy = source.Duplicate(parent: target) { |node| node.Adopt(temporary) }
+
+          assert_empty(temporary.children)
+          assert_equal([copy], target.children)
+          assert_same(target, copy.parent)
+          assert_equal([source, temporary, target], doc.children)
+        end
+
         def test_duplicate_operations_stay_in_copied_tree
           copy = copy_branch = copy_leaf = copy_sibling = nil
           original_branch = original_leaf = nil
