@@ -46,7 +46,7 @@ module Sevgi
         contents = contents(node)
 
         build(node.name, *contents, **attributes(node)).tap do |element|
-          node.children.each { self.class.new(element).append(it) } if contents.empty?
+          node.children.each { self.class.new(element).append(it) } unless node.send(:text_leaf?)
         end
       end
 
@@ -59,7 +59,9 @@ module Sevgi
       end
 
       def contents(node)
-        node.children.one? && node.children.first.send(:text?) ? [node.content] : []
+        return [node.content] if node.send(:text_leaf?)
+
+        node.send(:inline_content?) ? [""] : []
       end
 
       def build(name, *contents, **attributes)

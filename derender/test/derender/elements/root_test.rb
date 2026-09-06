@@ -69,6 +69,7 @@ module Sevgi
         end
 
         def test_root_emits_document_preambles
+          default = SVG().Render()
           svg = <<~SVG
             <?xml version="1.0" encoding="UTF-8" standalone="no"?>
             <!-- license -->
@@ -109,6 +110,7 @@ module Sevgi
 
           assert_equal(expected, actual)
           assert_equal(svg, instance_eval(actual, "generated.sevgi").Render())
+          assert_equal(default, SVG().Render())
         end
 
         def test_root_escapes_document_preambles

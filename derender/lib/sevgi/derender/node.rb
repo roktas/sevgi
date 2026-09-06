@@ -191,11 +191,10 @@ module Sevgi
       def element = name
 
       def ignorable_child?(child)
-        child.send(:type) == :Junk ||
-          (child.send(:text?) &&
-            child.content.strip.empty? &&
-            !child.send(:preserve_space?) &&
-            !child.send(:inline_text?))
+        child.send(:text?) &&
+          child.content.strip.empty? &&
+          !child.send(:preserve_space?) &&
+          !child.send(:inline_text?)
       end
 
       def literal_content? = node.cdata? || node.comment?
@@ -215,6 +214,12 @@ module Sevgi
 
       def inline_text? = mixed_text? && !node.content.match?(/[\r\n]/)
 
+      def inline_content?
+        return false unless children.any? { it.send(:text?) || it.send(:type) == :CData }
+
+        preserve_space? || node.children.none? { it.text? && it.content.match?(/[\r\n]/) }
+      end
+
       def normalized_content
         return node.content if mixed_text? && inline_text?
         return node.content.strip unless mixed_text?
@@ -222,7 +227,9 @@ module Sevgi
         node.content.sub(/\A[ \t]*\r?\n[ \t]*/, "").sub(/[ \t]*\r?\n[ \t]*\z/, "")
       end
 
-      def mixed_text? = node.text? && node.parent&.children&.any?(&:element?)
+      def mixed_text?
+        node.text? && node.parent&.children&.any? { it.element? || it.cdata? || it.comment? }
+      end
 
       def local_namespaces
         return {} unless node.respond_to?(:namespace_definitions)
@@ -242,6 +249,8 @@ module Sevgi
       end
 
       def text? = node.text?
+
+      def text_leaf? = children.one? && children.first.send(:text?)
 
       def xml_space(current)
         return unless current.respond_to?(:attribute_nodes)

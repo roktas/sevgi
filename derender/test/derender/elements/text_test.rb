@@ -38,7 +38,7 @@ module Sevgi
           actual = Derender.derender(svg)
 
           expected = <<~SEVGI
-            text do
+            text "" do
               _ "A "
               tspan "B"
               _ " C"
@@ -89,7 +89,7 @@ module Sevgi
           actual = Derender.derender(svg)
 
           expected = <<~SEVGI
-            text do
+            text "" do
               tspan "A"
               _ " "
               tspan "B"
@@ -149,7 +149,7 @@ module Sevgi
           actual = Derender.derender(svg)
 
           expected = <<~SEVGI
-            text "xml:space": "preserve" do
+            text "", "xml:space": "preserve" do
               _ "  You "
               tspan "are"
               _ " here  "
@@ -168,7 +168,7 @@ module Sevgi
           actual = Derender.derender(svg)
 
           expected = <<~SEVGI
-            text "xml:space": "preserve" do
+            text "", "xml:space": "preserve" do
               _ "  "
               tspan "x"
               _ "  "

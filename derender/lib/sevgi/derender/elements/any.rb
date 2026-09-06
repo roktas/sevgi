@@ -10,19 +10,17 @@ module Sevgi
         # @return [Array<String>] unformatted Ruby source lines
         def decompile(*)
           if children.any?
-            children.one? && children.first.send(:text?) ? Array(leaf) : tree
+            text_leaf? ? Array(leaf(Ruby.literal(content))) : tree
           else
-            Array(leaf(has_content: false))
+            Array(leaf)
           end
         end
 
         private
 
-        def leaf(has_content: true, has_attributes: true)
+        def leaf(*args)
           attributes = all_attributes
-          args = []
-          args << Ruby.literal(content) if has_content
-          args << Attributes.decompile(attributes) if has_attributes && attributes.any?
+          args << Attributes.decompile(attributes) if attributes.any?
 
           return explicit_leaf(args) unless bare?
 
@@ -38,8 +36,10 @@ module Sevgi
         end
 
         def tree
+          opening = inline_content? ? leaf(Ruby.literal("")) : leaf
+
           [
-            "#{leaf(has_content: false)} do",
+            "#{opening} do",
             *children.map { it.send(:decompile) }.flatten,
             "end"
           ]

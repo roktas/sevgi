@@ -558,6 +558,7 @@ module Sevgi
             </svg>
             <foreignObject>
               <p xmlns="http://www.w3.org/1999/xhtml">Hello</p>
+              <p xmlns="">Plain</p>
             </foreignObject>
           </svg>
         SVG
@@ -571,15 +572,25 @@ module Sevgi
       end
 
       def test_conversions_preserve_cdata_comments_and_order
-        xml = "<svg xmlns=\"http://www.w3.org/2000/svg\">" \
-          "<text>before<![CDATA[a < b]]><!--keep--><tspan>after</tspan></text></svg>"
+        [
+          [
+            "before<![CDATA[a < b]]><!--keep--><tspan>after</tspan>",
+            [[:text, "before"], [:cdata, "a < b"], [:comment, "keep"], [:element, "after"]]
+          ],
+          [
+            "before <![CDATA[a < b]]> after",
+            [[:text, "before "], [:cdata, "a < b"], [:text, " after"]]
+          ],
+          ["a<!--keep--> b", [[:text, "a"], [:comment, "keep"], [:text, " b"]]],
+          ["<![CDATA[a]]> <![CDATA[b]]>", [[:cdata, "a"], [:text, " "], [:cdata, "b"]]]
+        ].each do |content, expected|
+          xml = "<svg xmlns=\"http://www.w3.org/2000/svg\"><text>#{content}</text></svg>"
+          generated = instance_eval(Derender.derender(xml), "generated.sevgi").Render()
+          evaluated = Derender.evaluate(xml, SVG(:minimal)).Render()
 
-        generated = instance_eval(Derender.derender(xml), "generated.sevgi").Render()
-        evaluated = Derender.evaluate(xml, SVG(:minimal)).Render()
-
-        expected = [[:text, "before"], [:cdata, "a < b"], [:comment, "keep"], [:element, "after"]]
-        assert_equal(expected, content_signature(generated))
-        assert_equal(expected, content_signature(evaluated))
+          assert_equal(expected, content_signature(generated))
+          assert_equal(expected, content_signature(evaluated))
+        end
       end
 
       def test_derender_child_node_preserves_local_namespace
@@ -623,8 +634,8 @@ module Sevgi
             [:comment, node.content]
           elsif node.element?
             [:element, node.text]
-          elsif node.text? && !node.text.strip.empty?
-            [:text, node.text.strip]
+          elsif node.text?
+            [:text, node.text]
           end
         end
       end
