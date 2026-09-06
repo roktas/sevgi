@@ -118,17 +118,6 @@ module Sevgi
         XML.validate(@content)
       end
 
-      # Copies content payload ownership for duplicated element trees.
-      # @param original [Sevgi::Graphics::Content] source content
-      # @return [void]
-      # @api private
-      def initialize_copy(original)
-        @content = Snapshot.capture(original.content)
-        super
-      end
-
-      private :initialize_copy
-
       # Appends this content's serialized XML lines to rendering output.
       # The output collaborator responds to `append(depth, *lines)`, where `depth` is an Integer or nil and every line
       # is a String containing valid serialized XML text. The rendering engine ignores both `append` and `render` return

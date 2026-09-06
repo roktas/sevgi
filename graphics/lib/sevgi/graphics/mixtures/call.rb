@@ -173,26 +173,12 @@ module Sevgi
 
       private
 
-      # Gives a duplicated callable module independent configuration containers.
+      # Gives a copied callable module independent configuration containers.
       # @param original [Module] source callable module
       # @return [void]
       # @api private
-      def initialize_dup(original)
+      def initialize_copy(original)
         super
-        copy_configuration(original)
-      end
-
-      # Gives a cloned callable module independent configuration containers.
-      # @param original [Module] source callable module
-      # @param freeze [Boolean] whether Ruby preserves the source frozen state
-      # @return [void]
-      # @api private
-      def initialize_clone(original, freeze: true)
-        super
-        copy_configuration(original)
-      end
-
-      def copy_configuration(original)
         @sevgi_bases = original.instance_variable_get(:@sevgi_bases).dup
         @sevgi_callables = original.instance_variable_get(:@sevgi_callables).dup
         @sevgi_configuration_owner = object_id
@@ -216,8 +202,6 @@ module Sevgi
         own_configuration
         @sevgi_callables << method
       end
-
-      private :copy_configuration, :own_configuration
     end
 
     # Recursive callable drawing module support. Extend a module with this API when it and the modules defined beneath
