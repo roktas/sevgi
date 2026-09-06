@@ -144,6 +144,8 @@ module Sevgi
           [RulerEven, 9, 6.31, [6, 54, 5.4]]
         ].each do |type, multiple, brut, (major, minor, distance)|
           ruler = type.new(unit: 0.1, multiple:, brut:)
+          queries = %i[d ds h hs ms nds nhs waste margins]
+          before = queries.map { ruler.public_send(it) }
           expanded = ruler.expand
 
           assert_equal(major, ruler.n)
@@ -154,6 +156,12 @@ module Sevgi
           assert_equal(brut, expanded.brut)
           assert_equal(1, expanded.sn)
           assert_instance_of(type, expanded)
+          assert_equal(minor + 1, expanded.ds.size)
+          assert_equal(minor, expanded.hs.size)
+          assert_equal(minor, expanded.nds)
+          assert_equal(minor - 1, expanded.nhs)
+          assert_equal(expanded.ds, expanded.ms)
+          assert_equal(before, queries.map { ruler.public_send(it) })
         end
       end
 

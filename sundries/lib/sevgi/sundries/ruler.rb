@@ -231,16 +231,7 @@ module Sevgi
       #   ruler.expand.n # => 90
       #   ruler.ms.size  # => 91
       # @return [Sevgi::Sundries::Ruler]
-      def expand
-        self.class.allocate.instance_exec(self) do |source|
-          @brut = source.brut
-          @start = source.start
-          @finish = source.finish
-          @sub = Interval.new(source.su, 1)
-          Interval.instance_method(:initialize).bind_call(self, @sub, source.n * source.sn)
-          self
-        end
-      end
+      def expand = dup.expand!
 
       # Returns fitted start and finish margins.
       # @return [Array<Float>] frozen margin pair
@@ -296,6 +287,16 @@ module Sevgi
       end
 
       protected
+
+      # Flattens a copied ruler and clears values derived from its old interval.
+      # @api private
+      def expand!
+        @n *= sn
+        @u = su
+        @sub = Interval.new(@u, 1)
+        @d = @ds = @h = @hs = @ms = @nds = @nhs = @waste = nil
+        self
+      end
 
       # Computes the number of major intervals fitting in the available span.
       # @param unit [Numeric] subinterval unit length
