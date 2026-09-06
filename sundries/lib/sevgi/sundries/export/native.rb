@@ -92,7 +92,7 @@ module Sevgi
       # @param placeholder [String] placeholder text to replace
       # @return [Boolean] true when at least one matching placeholder was replaced
       # @raise [Sevgi::Sundries::Export::ExportError] when the PDF cannot be read, rewritten, or stamped
-      # @note Pages with unbalanced graphics-state or text-object operators are left unchanged.
+      # @note Pages with inline images, unknown operators, or unbalanced graphics-state/text-object operators are left unchanged.
       def stamp(infile, outfile, stamp:, placeholder:)
         doc = HexaPDF::Document.open(infile)
         replacements = 0
@@ -120,7 +120,7 @@ module Sevgi
       # @param placeholder [String] placeholder text to replace
       # @return [Boolean] true when at least one matching placeholder was replaced
       # @raise [Sevgi::Sundries::Export::ExportError] when the PDF cannot be read, rewritten, stamped, or replaced
-      # @note Pages with unbalanced graphics-state or text-object operators are left unchanged.
+      # @note Pages with inline images, unknown operators, or unbalanced graphics-state/text-object operators are left unchanged.
       def stamp!(infile, stamp:, placeholder:)
         temp = Tempfile.new(%w[stamp .pdf], File.dirname(infile))
         stamped = stamp(infile, temp.path, stamp:, placeholder:)
@@ -199,8 +199,12 @@ module Sevgi
               next
             end
 
+            # Inline image bytes are not PDF tokens; never interpret them as operators.
+            operator = object.to_sym
+            return [{}, 0] if operator == :BI || !HexaPDF::Content::Processor::OPERATOR_MESSAGE_NAME_MAP.key?(operator)
+
             count += process_operator(
-              object.to_sym,
+              operator,
               operands,
               finish,
               data,

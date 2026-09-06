@@ -462,19 +462,61 @@ module Sevgi
         end
 
         def test_stamp_preserves_shared_artwork_and_other_fill_spaces
-          Dir.mktmpdir do |dir|
-            infile = File.join(dir, "in.pdf")
-            outfile = File.join(dir, "out.pdf")
-            artwork = "1 1 1 rg 0 0 100 100 re f BT /F1 12 Tf (old) Tj ET"
-            write_pdf(infile, artwork)
+          text = "BT /F1 12 Tf (old) Tj ET"
+          artwork = "0 0 100 100 re f"
+          white = [1, 1, 1]
+          dark = [0.101961, 0.101961, 0.101961]
+          [
+            [
+              ["1 1 1 rg #{artwork} #{text} #{artwork}"],
+              true,
+              [[:f, white], [:Tj, dark], [:f, white]]
+            ],
+            [
+              ["1 1 1 rg #{artwork}", "#{text} #{artwork}"],
+              true,
+              [[:f, white], [:Tj, dark], [:f, white]]
+            ],
+            [["1 1 1 rg 0 g #{text}"], false, [[:Tj, [0]]]],
+            [["1 1 1 rg 0 0 0 1 k #{text}"], false, [[:Tj, [0, 0, 0, 1]]]]
+          ].each do |streams, replaced, expected|
+            Dir.mktmpdir do |dir|
+              infile = File.join(dir, "in.pdf")
+              outfile = File.join(dir, "out.pdf")
+              write_pdf(infile, *streams)
 
-            assert(Export.stamp(infile, outfile, stamp: "new", placeholder: "old"))
-            stamped = pdf_streams(outfile).fetch(0)
-            assert_includes(stamped, "1 1 1 rg 0 0 100 100 re f")
-            assert_includes(stamped, "0.101961 0.101961 0.101961 rg (new) Tj 1 1 1 rg")
+              assert_equal(replaced, Export.stamp(infile, outfile, stamp: "new", placeholder: "old"))
+              refute_path_exists(outfile) unless replaced
+              page = HexaPDF::Document.open(replaced ? outfile : infile).pages[0]
+              processor = HexaPDF::Content::Processor.new(page.resources)
+              operations = []
+              HexaPDF::Content::Parser.parse(page.contents) do |operator, operands|
+                processor.process(operator, operands)
+                next unless %i[f Tj].include?(operator)
 
-            write_pdf(infile, "1 1 1 rg 0 g BT /F1 12 Tf (old) Tj ET")
-            refute(Export.stamp(infile, outfile, stamp: "new", placeholder: "old"))
+                operations << [operator, processor.graphics_state.fill_color.components]
+                assert_equal(replaced ? "new" : "old", operands.first) if operator == :Tj
+              end
+
+              assert_equal(expected, operations)
+            end
+          end
+        end
+
+        def test_stamp_leaves_uninterpretable_pages_unchanged
+          text = "1 1 1 rg BT /F1 12 Tf (old) Tj ET"
+          image = "BI /W #{text.bytesize} /H 1 /CS /G /BPC 8 ID #{text} EI"
+          [image, "#{text} #{image}", "#{text} BX unknown EX"].each do |stream|
+            Dir.mktmpdir do |dir|
+              infile = File.join(dir, "in.pdf")
+              outfile = File.join(dir, "out.pdf")
+              write_pdf(infile, stream)
+              before = File.binread(infile)
+
+              refute(Export.stamp(infile, outfile, stamp: "new", placeholder: "old"))
+              refute_path_exists(outfile)
+              assert_equal(before, File.binread(infile))
+            end
           end
         end
 
@@ -667,6 +709,7 @@ module Sevgi
           doc = HexaPDF::Document.new
           pages.each do |streams|
             page = doc.pages.add
+            page[:Resources] = {Font: {F1: doc.fonts.add("Helvetica").pdf_object}}
             page[:Contents] = streams.map { |stream| doc.add({}, stream:) }
           end
 
