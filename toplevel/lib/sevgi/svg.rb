@@ -116,6 +116,11 @@ module Sevgi
     # @see Sevgi::Toplevel#Grid
     def self.Grid(...) = Sevgi.Grid(...)
 
+    # Fits major and minor intervals into a span.
+    # @return [Sevgi::Sundries::Ruler] fitted ruler
+    # @see Sevgi::Toplevel#Ruler
+    def self.Ruler(...) = Sevgi.Ruler(...)
+
     # Loads nested `.sevgi` files through the active executor scope.
     # @return [Array<String>] requested file names
     # @see Sevgi::Toplevel#Load

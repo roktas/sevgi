@@ -23,6 +23,7 @@ module Sevgi
           Mixin
           Paper
           Paper!
+          Ruler
           SVG
         ],
         Toplevel.public_instance_methods(false).sort

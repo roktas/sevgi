@@ -87,6 +87,10 @@ module Sevgi
   #   Fits a drawable grid to a graphics canvas.
   #   @return [Sevgi::Sundries::Grid] fitted grid
   #   @see Sevgi::Toplevel#Grid
+  # @!method self.Ruler(...)
+  #   Fits major and minor intervals into a span.
+  #   @return [Sevgi::Sundries::Ruler] fitted ruler
+  #   @see Sevgi::Toplevel#Ruler
   # @!method self.Decompile(...)
   #   Converts inline SVG/XML into an immutable Derender node.
   #   @return [Sevgi::Derender::Node] selected node

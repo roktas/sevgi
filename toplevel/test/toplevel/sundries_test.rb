@@ -4,6 +4,18 @@ require_relative "../test_helper"
 
 module Sevgi
   class ToplevelSundriesTest < Minitest::Test
+    def test_ruler_fits_intervals_through_public_modes
+      [Sevgi, ::SVG, Module.new.extend(::Sevgi)].each do |receiver|
+        ruler = receiver.Ruler(brut: 103, unit: 1, multiple: 10, margins: [5])
+
+        assert_instance_of(Sundries::Ruler, ruler)
+        assert_equal(9, ruler.n)
+        assert_equal(90, ruler.ms.size - 1)
+        assert_equal([6.5, 6.5], ruler.margins)
+        assert_raises(ArgumentError) { receiver.Ruler(brut: 10, unit: 0, multiple: 1) }
+      end
+    end
+
     def test_grid_builds_sundries_grid_from_canvas
       receiver = Module.new.extend(::Sevgi)
       canvas = Graphics::Canvas.call(width: 210, height: 297, unit: :px, name: :poster, margins: [10, 20])

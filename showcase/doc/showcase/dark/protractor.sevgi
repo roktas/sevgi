@@ -6,7 +6,7 @@ CY = 75
 RADIUS = 70
 
 SVG width: "150mm", height: "85mm", viewBox: "0 0 150 85" do
-  ruler = Sevgi::Sundries::Ruler.new brut: 180, unit: 1, multiple: 10
+  ruler = Ruler brut: 180, unit: 1, multiple: 10
 
   g fill: "none", stroke: "white", "stroke-width": 0.2 do
     ArcTo x1: CX - RADIUS, y1: CY, x2: CX + RADIUS, y2: CY,

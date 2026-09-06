@@ -27,13 +27,13 @@ Use the exact callback keywords from the selected method's YARD contract. The Ti
 
 | Need | Use |
 | --- | --- |
-| Fit whole major/minor intervals into a span and inspect their distances | `Sevgi::Sundries::Ruler` |
+| Fit whole major/minor intervals into a span and inspect their distances | script `Ruler`, library `SVG.Ruler`, or component `Sevgi::Sundries::Ruler` |
 | Require an even major-interval count | `Sevgi::Sundries::RulerEven` |
 | Combine two fitted rulers and obtain lines, points, cells, or a fitted canvas | `SVG.Grid` or `Sevgi::Sundries::Grid` |
 
-`Ruler` is a Ruby value, not a drawing word. `Grid` is also a Ruby layout model. `Draw` materializes its geometry as SVG
-when lines are required. In a Grid, `grid.x` returns horizontal lines and `grid.y` vertical lines—the names describe
-line direction.
+`Ruler` constructs a Ruby layout value without drawing SVG elements. `Grid` also returns a layout model.
+`Draw` materializes its geometry as SVG when lines are required. In a Grid, `grid.x` returns horizontal lines and
+`grid.y` vertical lines—the names describe line direction.
 
 ## Alignment
 

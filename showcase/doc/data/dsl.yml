@@ -840,6 +840,20 @@ letters:
         line = path d: "M 0 0 L 8 3"
         line.RotateRight
 
+    - name: Ruler
+      anchor: ruler
+      summary: Fit major and minor intervals into a span without drawing SVG elements.
+      provider: toplevel
+      context: script
+      themes: [layout, script-tools]
+      code: |
+        ruler = Ruler brut: 180, unit: 1, multiple: 10
+        SVG do
+          ruler.ds.each { |x| line x1: x, y1: 0, x2: x, y2: 6 }
+        end.Render
+      see: /layout/#rulers
+      see_title: Rulers
+
   S:
     - name: Save
       anchor: save

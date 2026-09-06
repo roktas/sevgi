@@ -4,6 +4,17 @@ require "sevgi/sundries"
 
 module Sevgi
   module Toplevel
+    # Fits major and minor intervals into a span without drawing SVG elements.
+    # @overload Ruler(brut:, unit:, multiple:, margins: [0.0])
+    #   @param brut [Numeric] full available span
+    #   @param unit [Numeric] minor interval length
+    #   @param multiple [Integer] minor intervals per major interval
+    #   @param margins [Array<Numeric>] one symmetric or two start/end minimum margins
+    #   @return [Sevgi::Sundries::Ruler] fitted ruler
+    #   @raise [Sevgi::ArgumentError] when the span, intervals, or margins are invalid
+    # @see Sevgi::Sundries::Ruler#initialize
+    def Ruler(...) = Sundries::Ruler.new(...)
+
     # Builds a drawable grid fitted inside a graphics canvas.
     #
     # The canvas margins are minimum clearances. Any span left after fitting

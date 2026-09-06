@@ -52,6 +52,7 @@ module Sevgi
         Module
         Paper
         Paper!
+        Ruler
       ]
 
       assert_equal(expected, ::SVG.singleton_methods(false).sort)
