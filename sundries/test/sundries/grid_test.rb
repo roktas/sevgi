@@ -136,6 +136,7 @@ module Sevgi
           y: Ruler.new(unit: 0.123456, multiple: 10, brut: 5)
         )
         query = grid.x.major
+        before = query.xys
 
         assert_same(query.lines, query.lines)
 
@@ -145,6 +146,9 @@ module Sevgi
           assert_equal(expected, query.points.first.last.deconstruct)
           assert_equal(expected, query.xys.first.last)
         end
+
+        assert_equal(before, query.xys)
+        assert_equal(before, query.points.map { it.map(&:deconstruct) })
       end
 
       def test_grid_query_collections_are_immutable

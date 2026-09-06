@@ -91,7 +91,15 @@ module Sevgi
             3,
             Function.count(0.3, 0.1),
             2,
-            Function.count(0.3.prev_float, 0.1)
+            Function.count(0.3.prev_float, 0.1),
+            2 ** 52,
+            Function.count(2 ** 52, 1),
+            2 ** 53,
+            Function.count(2 ** 53, 1),
+            -2,
+            Function.count(-0.3, 0.1),
+            -2,
+            Function.count(0.3, -0.1)
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
         end
 

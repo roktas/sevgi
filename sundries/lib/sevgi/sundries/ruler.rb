@@ -225,13 +225,22 @@ module Sevgi
         @start, @finish = fitted_margins(start, finish, span)
       end
 
-      # Returns a ruler where the source subinterval is flattened into units.
+      # Returns a ruler where the source subinterval is flattened into units without refitting the span.
       # @example Expand major intervals into individual units
       #   ruler = Sevgi::Sundries::Ruler.new(brut: 103, unit: 1, multiple: 10, margins: [5])
       #   ruler.expand.n # => 90
       #   ruler.ms.size  # => 91
       # @return [Sevgi::Sundries::Ruler]
-      def expand = self.class.new(unit: sub.u, multiple: 1, brut: d + waste, margins:)
+      def expand
+        self.class.allocate.instance_exec(self) do |source|
+          @brut = source.brut
+          @start = source.start
+          @finish = source.finish
+          @sub = Interval.new(source.su, 1)
+          Interval.instance_method(:initialize).bind_call(self, @sub, source.n * source.sn)
+          self
+        end
+      end
 
       # Returns fitted start and finish margins.
       # @return [Array<Float>] frozen margin pair

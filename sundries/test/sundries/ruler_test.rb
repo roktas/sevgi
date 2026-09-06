@@ -138,12 +138,23 @@ module Sevgi
       end
 
       def test_ruler_fits_decimal_intervals_without_rounding_loss
-        ruler = Ruler.new(unit: 0.1, multiple: 1, brut: 0.3)
+        [
+          [Ruler, 1, 0.3, [3, 3, 0.3]],
+          [Ruler, 9, 6.31, [7, 63, 6.3]],
+          [RulerEven, 9, 6.31, [6, 54, 5.4]]
+        ].each do |type, multiple, brut, (major, minor, distance)|
+          ruler = type.new(unit: 0.1, multiple:, brut:)
+          expanded = ruler.expand
 
-        assert_equal(3, ruler.n)
-        assert_in_delta(0.3, ruler.d)
-        assert_equal(3, ruler.expand.n)
-        assert_in_delta(0.3, ruler.ms.last)
+          assert_equal(major, ruler.n)
+          assert_in_delta(distance, ruler.d)
+          assert_equal(minor, expanded.n)
+          assert_in_delta(distance, ruler.ms.last)
+          assert_equal(ruler.margins, expanded.margins)
+          assert_equal(brut, expanded.brut)
+          assert_equal(1, expanded.sn)
+          assert_instance_of(type, expanded)
+        end
       end
 
       def test_ruler_handles_zero_fitting_span

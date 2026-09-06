@@ -108,7 +108,7 @@ module Sevgi
         whole = quotient.to_i
         candidate = whole + 1
 
-        quotient.positive? && quotient.next_float >= candidate ? candidate : whole
+        quotient > whole && quotient.next_float == candidate ? candidate : whole
       end
 
       # Compares two numeric values after approximate rounding.
