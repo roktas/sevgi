@@ -71,15 +71,12 @@ module Sevgi
       def self.extended(base)
         super
 
-        base.class_exec do
-          @data = {}
-
-          class << self
-            attr_reader :data
-            private :data
-          end
-        end
+        base.instance_variable_set(:@data, {})
       end
+
+      private
+
+      attr_reader :data
     end
 
     private_constant :List
