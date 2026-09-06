@@ -10,6 +10,19 @@ Choose by the value the caller needs after the operation, not merely by the visi
 | Copy and independently edit an existing subtree | `Duplicate`, `DuplicateX`, `DuplicateY` | Independent SVG element trees |
 | Inspect repeated cells or row/column bounds in Ruby | `Sevgi::Sundries::Tile` | Geometry values and boxes, no SVG elements |
 
+The repetition APIs have different block contracts:
+
+| API channel | Runs for | Use |
+| --- | --- | --- |
+| `Tile`, `TileX`, `TileY` block | One template under `defs` | Draw the shared subtree, not each cell |
+| Tile `proc:` | Each generated `use` element | Mutate that element through the callback argument. Row and column indices are zero-based |
+| `Duplicate`, `DuplicateX`, `DuplicateY` block | Every copied element | Customize the yielded element, not a new drawing context |
+
+`Duplicate` moves visible `id` attributes to non-rendering `-id` metadata before customization.
+An existing `-id` takes precedence. Assign replacement IDs explicitly when needed.
+The copied subtree attaches to its target parent after customization. Do not depend on that attachment during the callback.
+Use the exact callback keywords from the selected method's YARD contract. The Tile variants differ.
+
 ## Intervals and Grids
 
 | Need | Use |

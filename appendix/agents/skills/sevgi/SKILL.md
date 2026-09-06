@@ -28,23 +28,25 @@ visible intent.
 
 1. Determine the host and installed dependency surface: executable `.sevgi` script, full-toolkit Ruby library, or a
    focused component. Read [dsl.md](references/dsl.md) for its grammar and facade boundaries.
-2. Choose the component that owns each nontrivial operation. Read [toolkit.md](references/toolkit.md) before writing a
-   project-local substitute for a Sevgi helper.
-3. Structure data, control flow, and reuse as ordinary Ruby while preserving the DSL shape. Read
-   [ruby.md](references/ruby.md).
-4. Identify the owner of each visual result before writing arithmetic, offsets, or scaling. Read
-   [drawing.md](references/drawing.md). Use [svg.md](references/svg.md) when SVG can own the behavior.
-5. Read [layout.md](references/layout.md) for repetition, tiling, alignment, rulers, grids, drawing, or hatching.
+2. Before introducing an operation, make sure that the target version documents its name, signature, required profile, and component.
+   Read [toolkit.md](references/toolkit.md) for lookup paths or before replacing a Sevgi helper.
+   Do not infer an API from an English name or use `Element` to bypass an unknown operation.
+3. Before changing a drawing, state the visible target and the properties that must remain unchanged.
+   Keep these acceptance criteria through verification. Equal canvas dimensions do not substitute for equal visible size.
+4. Read only the references needed for the operation. Use [ruby.md](references/ruby.md) for helpers, callable modules,
+   document extensions, or DSL formatting. Before adding visual arithmetic, offsets, or scaling, read
+   [drawing.md](references/drawing.md). Use [svg.md](references/svg.md) to find a renderer-owned mechanism.
+5. Read [layout.md](references/layout.md) for repetition, tiling, alignment, rulers, grids, `Draw`, or hatching.
 6. For editor-authored SVG/XML, `igves` prints Sevgi source. `igsev` round-trips to normalized SVG. Both accept files or
    standard input. Read [derender.md](references/derender.md). For PDF/PNG output, read [output.md](references/output.md).
-7. Before introducing a Sevgi word or signature, make sure that the DSL catalog or owning YARD documents it. Do not
-   infer an API from an English name. Do not use `Element` to bypass an unknown operation.
-8. Write the smallest clear Sevgi expression. Keep case-sensitive, normally lowercase-leading SVG element calls,
+7. Write the smallest clear Sevgi expression. Keep case-sensitive, normally lowercase-leading SVG element calls,
    capitalized Sevgi operations, ordinary Ruby control flow, and SVG attributes visibly distinct. Do not mechanically
    parenthesize statement-like DSL calls.
-9. Render and inspect the actual output in each context it claims to support. Compare visible bounds and density—not
-   only canvas or DOM dimensions. For size, alignment, clipping, density, or visual-regression evidence, read
-   [inspection.md](references/inspection.md) and identify the measurement space before choosing a tool.
+8. Use the verification boundaries in [dsl.md](references/dsl.md). Report unavailable checks rather than claiming they passed.
+9. For new or visually changed drawings, render and inspect the supported contexts affected by the change.
+   Compare the output against the original acceptance criteria. For size, alignment, clipping, density, or visual-regression
+   evidence, read [inspection.md](references/inspection.md) before choosing a measurement tool.
+   Do not require visual measurements for source-only changes with no effect on rendering.
 10. Re-read the finished source for raw-XML detours, avoidable calculations, magic offsets, duplicated helpers, and
     stale artifacts.
 

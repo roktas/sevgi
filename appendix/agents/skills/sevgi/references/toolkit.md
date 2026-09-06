@@ -28,6 +28,14 @@ When a Sevgi checkout is available, prefer its canonical sources:
 | Exact public contracts | the owning component's `lib/` YARD comments |
 | Rendered local YARD | `.local/var/ruby/doc/api` after `bundle exec rake doc` |
 
+## Installed Gems
+
+Without a checkout, use the consumer's active bundle to locate the owning gem, for example `bundle show sevgi-graphics`.
+Outside Bundler, use `gem which sevgi/graphics` to locate that component's entrypoint.
+Read the adjacent `lib/` sources and YARD comments for the installed contract.
+Use the same Ruby and dependency environment as the drawing.
+Do not assume that the latest online API exists in the installed version.
+
 ## Lookup Order
 
 1. Read the task-relevant user guide for semantics and workflow.

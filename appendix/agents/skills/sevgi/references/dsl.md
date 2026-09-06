@@ -88,6 +88,19 @@ non-bang registration. Use `Paper!` or `Document!` only for an intentional overw
 | Produce output | `Render`, `Out`, `Save`, and optional `PDF` or `PNG` export |
 | Import existing SVG/XML | `Include`, `Evaluate`, `Derender`, `Decompile` and their file variants |
 
+## Verification Boundaries
+
+| Check | Establishes | Does not establish |
+| --- | --- | --- |
+| `Validate` | SVG vocabulary and nesting compliance when Standard is available | Visual correctness; without Standard it returns `nil` and performs no validation |
+| `Lint` | No duplicate visible IDs | Complete reference integrity or SVG standard compliance |
+| `Render` | SVG serialization | Correct appearance in a browser or export engine |
+| Visual inspection | Appearance in the inspected context | Correctness in untested contexts |
+
+For a new or changed drawing, run `Lint` and, when Standard is available, `Validate` before accepting the output.
+Report a missing Standard component as unavailable validation, not a successful check.
+Inspect visually changed output against the user's acceptance criteria.
+
 ## Profiles
 
 | Profile | Use |
