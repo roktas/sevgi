@@ -30,6 +30,15 @@ module Sevgi
     #   @param points [Array<Sevgi::Geometry::Point, Array<Numeric>>] ordered points
     #   @return [Sevgi::Geometry::Polyline]
     #   @raise [Sevgi::Geometry::Error] when inputs cannot be coerced or do not form a polyline
+    # @!method starting
+    #   Returns the first point in the directed path.
+    #   @return [Sevgi::Geometry::Point]
+    # @!method ending
+    #   Returns the last point in the directed path.
+    #   @return [Sevgi::Geometry::Point]
+    # @!method reverse
+    #   Returns the same trace with opposite traversal.
+    #   @return [Sevgi::Geometry::Polyline]
     # @example Pair mathematical notation with English conveniences
     #   Sevgi::Geometry::Polyline[[2, 0], [1, 90]] == Sevgi::Geometry::Polyline.from_segments([2, 0], [1, 90])
     #   Sevgi::Geometry::Polyline.([0, 0], [2, 0]) == Sevgi::Geometry::Polyline.from_points([0, 0], [2, 0])
