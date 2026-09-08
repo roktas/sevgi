@@ -121,12 +121,11 @@ module Sevgi
 
       private
 
-      def cross(ax, ay, bx, by) = (ax * by) - (ay * bx)
       def delta(from, to) = [to.x - from.x, to.y - from.y]
 
       def side(point)
         point = Tuple[Point, point]
-        cross(*delta(starting, ending), *delta(starting, point))
+        Cross[*delta(starting, ending), *delta(starting, point)]
       end
 
       def within_range?(point)
