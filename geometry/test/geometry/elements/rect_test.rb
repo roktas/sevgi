@@ -23,7 +23,7 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
-      def test_rect_exposes_corners_and_sides
+      def test_rect_exposes_corners_sides_and_center
         rect = Rect[3, 4, position: [1, 2]]
 
         [
@@ -35,6 +35,8 @@ module Sevgi
           rect.bottom_right,
           Point[1, 6],
           rect.bottom_left,
+          Point[2.5, 4],
+          rect.center,
           3.0,
           rect.top.length,
           4.0,
@@ -44,6 +46,16 @@ module Sevgi
           4.0,
           rect.left.length
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+      end
+
+      def test_rect_center_handles_degenerate_dimensions_and_affinity
+        rect = Rect[8, 4, position: [1, 3]]
+        rotated = rect.rotate(90)
+
+        assert_equal(Point[1, 5], Rect[0, 4, position: [1, 3]].center)
+        assert_equal(Point[5, 3], Rect[8, 0, position: [1, 3]].center)
+        assert_equal(rect.center.rotate(90).approx, rotated.center.approx)
+        assert_equal(Point[3, 3], Square[4, position: [1, 1]].center)
       end
 
       def test_rect_exposes_vertex_shortcuts
