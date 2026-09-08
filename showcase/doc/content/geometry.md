@@ -108,8 +108,11 @@ A rectangle exposes its geometric center directly. For any other element, use th
 is the intended meaning:
 
 ```ruby
-box.center         # => Point[26.0, 20.0]
-open_path.box.center
+box = Sevgi::Geometry::Rect[40, 24, position: [6, 8]]
+open_path = Sevgi::Geometry::Polyline.([0, 0], [8, 0], [8, 5])
+
+box.center              # => Point[26.0, 20.0]
+open_path.box.center    # => Point[4.0, 2.5]
 ```
 
 ## Arcs and ellipses {{ "{#arcs-and-ellipses}" }}
