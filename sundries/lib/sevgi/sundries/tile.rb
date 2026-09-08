@@ -29,7 +29,7 @@ module Sevgi
       # @return [Sevgi::Geometry::Element]
       attr_reader :element
 
-      # Returns the tile origin.
+      # Returns the upper-left corner of the tile bounds.
       # @return [Sevgi::Geometry::Point]
       attr_reader :position
 
@@ -43,7 +43,7 @@ module Sevgi
 
       # Creates a tile from a source geometry element.
       # @param element [Sevgi::Geometry::Element] geometry element to repeat
-      # @param position [Sevgi::Geometry::Point, Array<Numeric>] tile origin
+      # @param position [Sevgi::Geometry::Point, Array<Numeric>] upper-left corner of the tile bounds
       # @param nx [Integer] number of columns
       # @param ny [Integer] number of rows
       # @return [void]
@@ -57,6 +57,7 @@ module Sevgi
 
         @element = element
         @position = self.class.send(:position, position)
+        @bounds = element.box
 
         @nx = nx
         @ny = ny
@@ -69,7 +70,7 @@ module Sevgi
 
       # Returns the bounding rectangle of the whole tile.
       # @return [Sevgi::Geometry::Rect]
-      def box = @box ||= Geometry::Rect[nx * element.box.width, ny * element.box.height, position:]
+      def box = @box ||= Geometry::Rect[nx * @bounds.width, ny * @bounds.height, position:]
 
       # Returns the first cell in the tile.
       # @return [Sevgi::Geometry::Element]
@@ -78,7 +79,7 @@ module Sevgi
       # Returns the bounding rectangle of a column.
       # @param i [Integer] column index
       # @return [Sevgi::Geometry::Rect]
-      def colbox(i = 0) = Geometry::Rect[element.box.width, box.height, position: coordinate(0, i)]
+      def colbox(i = 0) = Geometry::Rect[@bounds.width, box.height, position: coordinate(0, i)]
 
       # Returns cells grouped by column.
       # The outer and nested collections are frozen and must be treated as immutable.
@@ -112,12 +113,12 @@ module Sevgi
       # Returns the bounding rectangle of a row.
       # @param i [Integer] row index
       # @return [Sevgi::Geometry::Rect]
-      def rowbox(i = 0) = Geometry::Rect[box.width, element.box.height, position: coordinate(i)]
+      def rowbox(i = 0) = Geometry::Rect[box.width, @bounds.height, position: coordinate(i)]
 
       # Returns cells grouped by row.
       # The outer and nested collections are frozen and must be treated as immutable.
       # @return [Array<Array<Sevgi::Geometry::Element>>] frozen rows
-      def rows = @rows ||= (0...ny).map { |i| (0...nx).map { |j| element.at(coordinate(i, j)) }.freeze }.freeze
+      def rows = @rows ||= (0...ny).map { |i| (0...nx).map { |j| cell_at(i, j) }.freeze }.freeze
 
       # Iterates over rows.
       # @return [Enumerator, Array<Array<Sevgi::Geometry::Element>>] enumerator without a block, otherwise rows
@@ -141,7 +142,12 @@ module Sevgi
 
       private_class_method :position
 
-      def coordinate(i, j = 0) = position.translate(j * element.box.width, i * element.box.height)
+      def cell_at(i, j)
+        point = coordinate(i, j)
+        element.translate(point.x - @bounds.position.x, point.y - @bounds.position.y)
+      end
+
+      def coordinate(i, j = 0) = position.translate(j * @bounds.width, i * @bounds.height)
     end
   end
 end

@@ -112,6 +112,29 @@ module Sevgi
         ti.each_with_index { |row, i| assert_geometry_equal(expected[i], row) }
       end
 
+      def test_tile_places_cells_by_their_bounds
+        [
+          Geometry::Circle[2, position: [7, 9]],
+          Geometry::Rect[4, 2, position: [7, 9]].rotate(45),
+          Geometry::Polygon.([7, 9], [5, 11], [9, 11])
+        ].each do |element|
+          tile = Tile.new(element, nx: 2, ny: 2, position: [10, 20])
+          width = element.box.width
+          height = element.box.height
+
+          tile.rows.each_with_index do |row, i|
+            row.each_with_index do |cell, j|
+              expected = Geometry::Rect[width, height, position: [10 + (j * width), 20 + (i * height)]]
+              assert_geometry_equal(expected, cell.box)
+            end
+          end
+
+          assert_geometry_equal(Geometry::Rect[2 * width, 2 * height, position: [10, 20]], tile.box)
+          assert_geometry_equal(Geometry::Rect[2 * width, height, position: [10, 20 + height]], tile.rowbox(1))
+          assert_geometry_equal(Geometry::Rect[width, 2 * height, position: [10 + width, 20]], tile.colbox(1))
+        end
+      end
+
       def test_tile_each_col_enumerates_columns
         ti = Tile.new(Geometry::Rect[3, 5], nx: 2, ny: 3, position: Geometry::Point[1, 2])
 
