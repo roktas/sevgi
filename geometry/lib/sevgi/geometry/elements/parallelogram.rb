@@ -127,12 +127,10 @@ module Sevgi
 
       def validate_geometry!
         a, b, c, d = segments
-        valid = opposite?(a, c) && opposite?(b, d) && !F.zero?(cross(a, b))
+        valid = opposite?(a, c) && opposite?(b, d) && !F.zero?(Cross[a.x, a.y, b.x, b.y])
 
         Error.("Parallelogram sides must be non-degenerate opposite pairs") unless valid
       end
-
-      def cross(a, b) = (a.x * b.y) - (a.y * b.x)
 
       def opposite?(a, b) = F.zero?(a.x + b.x) && F.zero?(a.y + b.y)
     end
