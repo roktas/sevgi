@@ -30,7 +30,7 @@ Geometry uses SVG screen coordinates. Positive x goes right, positive y goes dow
 Operations return new immutable values.
 
 Open lined paths expose `starting`, `ending`, and `reverse`. Closed lined paths repeat their first vertex at the end of
-`points`; `vertices` omits that path-closing repetition.
+`points`. `vertices` omits that path-closing repetition.
 
 `Ellipse` and `Circle` describe closed boundaries. `Arc` selects a finite, directed part of an ellipse:
 
