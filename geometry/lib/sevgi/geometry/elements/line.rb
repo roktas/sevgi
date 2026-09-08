@@ -27,6 +27,9 @@ module Sevgi
     #   @param ending [Sevgi::Geometry::Point, Array<Numeric>] ending point
     #   @return [Sevgi::Geometry::Line]
     #   @raise [Sevgi::Geometry::Error] when either point cannot be coerced
+    # @!method reverse
+    #   Returns the same finite trace with opposite traversal.
+    #   @return [Sevgi::Geometry::Line]
     # @!attribute [r] A
     #   @return [Sevgi::Geometry::Point] starting point
     # @!attribute [r] B
