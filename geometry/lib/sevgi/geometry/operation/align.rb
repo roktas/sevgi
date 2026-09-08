@@ -35,10 +35,7 @@ module Sevgi
 
           case alignment
           when :center
-            Point[
-              that.position.x + ((that.width - this.width) / 2.0) - this.position.x,
-              that.position.y + ((that.height - this.height) / 2.0) - this.position.y
-            ]
+            Point[that.center.x - this.center.x, that.center.y - this.center.y]
           when :left
             Point[that.position.x - this.position.x, 0]
           when :right
