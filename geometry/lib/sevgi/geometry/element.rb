@@ -112,11 +112,13 @@ module Sevgi
       # Element whose boundary is represented by straight segments.
       #
       # The same path is available as immutable {#points}, {#segments}, and
-      # {#lines} collections. Closed shapes repeat their first point at the end.
-      # open paths do not. Only closed shapes have a filled interior, so
-      # `inside?` on an open path is equivalent to testing its boundary.
-      # @example Inspect the interchangeable point, segment, and line views
+      # {#lines} collections. {#vertices} omits the repeated closing point from
+      # closed shapes. Open paths have the same values in `vertices` and `points`.
+      # Only closed shapes have a filled interior, so `inside?` on an open path
+      # is equivalent to testing its boundary.
+      # @example Inspect path and geometric views
       #   rect = Sevgi::Geometry::Rect[8, 4]
+      #   rect.vertices.size # => 4
       #   rect.points.size   # => 5
       #   rect.segments.size # => 4
       #   rect.lines.size    # => 4
@@ -125,6 +127,18 @@ module Sevgi
         # Open lined element base class.
         # @api private
         Open = Class.new(self) do
+          # Returns the first point in the directed path.
+          # @return [Sevgi::Geometry::Point]
+          def starting = points.first
+
+          # Returns the last point in the directed path.
+          # @return [Sevgi::Geometry::Point]
+          def ending = points.last
+
+          # Returns the same trace with opposite traversal.
+          # @return [Sevgi::Geometry::Element::Lined]
+          def reverse = self.class.send(:new_by_points!, *points.reverse)
+
           # Draws the element as an SVG polyline.
           # @param node [Object] graphics node receiving the drawing command
           # @return [Object] graphics node command result
@@ -335,11 +349,21 @@ module Sevgi
           approx.send(:draw!, ...)
         end
 
-        # Returns immutable element points.
+        # Returns immutable element points in path order.
+        # Closed elements repeat the first vertex at the end.
         # @param approximate [Boolean] true to round points with the current function precision
         # @return [Array<Sevgi::Geometry::Point>] frozen point collection
         def points(approximate = false)
           approximate ? rounded_points(nil) : @points
+        end
+
+        # Returns immutable geometric vertices in path order.
+        # Closed elements omit the repeated closing point. Open elements return {#points}.
+        # @return [Array<Sevgi::Geometry::Point>] frozen vertex collection
+        def vertices
+          return points unless self.class.send(:close?)
+
+          @vertices ||= points[...-1].freeze
         end
 
         # Returns the first point.
