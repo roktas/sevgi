@@ -75,12 +75,10 @@ module Sevgi
           Segment.(b.ending(a.ending(Origin)), Origin)
         end
 
-        def cross(a, b) = (a.x * b.y) - (a.y * b.x)
-
         def validate!(a, b)
           if F.zero?(a.length) ||
               F.zero?(b.length) ||
-              F.zero?(cross(a, b))
+              F.zero?(Cross[a.x, a.y, b.x, b.y])
             Error.("Triangle segments must form a non-degenerate triangle")
           end
         end
