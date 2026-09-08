@@ -30,6 +30,7 @@ module Sevgi
       def capture_context(pres, namespaces)
         @pres = pres.map { it.to_s.dup.freeze }.freeze
         @namespaces = snapshot(namespaces || local_namespaces)
+        @scope = snapshot(node.namespaces)
         @type = dispatch
         singleton_class.send(:private, :decompile)
       end
@@ -100,6 +101,7 @@ module Sevgi
 
       # Returns immutable namespace declarations emitted for this node. A conversion root owns its local declarations.
       # A separately selected node owns all declarations in scope. Descendant snapshots own their local declarations.
+      # Independent source conversion and evaluation also emit the inherited declarations captured for that node.
       # @return [Hash{String => String}] frozen owned namespace snapshot
       attr_reader :namespaces
 
@@ -134,15 +136,16 @@ module Sevgi
       # @raise [Sevgi::PanicError] when generated Ruby source cannot be formatted
       # @note Foreign namespace elements use the explicit `Element` DSL path, and nested `svg` nodes remain elements.
       # @note Unsafe bare Ruby names are emitted through the explicit `Element` DSL word.
-      def derender = Ruby.format(decompile(@pres).join("\n"))
+      def derender = Ruby.format(decompile(@pres, namespaces: @scope).join("\n"))
 
       # Evaluates this node under a graphics element.
       # @param element [Sevgi::Graphics::Element] target graphics element
       # @return [Sevgi::Graphics::Element, nil] included current element, or nil when it produces no graphics output
       # @note Namespace declarations, qualified attributes, significant text, and nested `svg` nodes are preserved.
-      def evaluate(element) = Evaluator.new(element).append(self)
+      def evaluate(element) = Evaluator.new(element).append(self, namespaces: @scope)
 
       # Evaluates only this node's children under a graphics element.
+      # Each imported element retains its namespace scope without changing the target parent's declarations.
       # @param element [Sevgi::Graphics::Element] target graphics element
       # @return [Array<Sevgi::Graphics::Element>] immutable included-child snapshot
       def evaluate_children(element) = children.filter_map { it.evaluate(element) }.freeze
@@ -166,7 +169,7 @@ module Sevgi
 
       attr_reader :node, :type
 
-      def all_attributes = {**attributes, **namespaces}.freeze
+      def all_attributes(namespaces = self.namespaces()) = {**attributes, **namespaces}.freeze
 
       def attribute_key(attribute) = [attribute.namespace&.prefix, attribute.name].compact.join(":")
 

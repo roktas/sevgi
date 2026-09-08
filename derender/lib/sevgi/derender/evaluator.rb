@@ -12,15 +12,16 @@ module Sevgi
 
       # Appends a derender node to the target parent.
       # @param node [Sevgi::Derender::Node] derender node
+      # @param namespaces [Hash{String => String}] namespace declarations for the appended node
       # @return [Sevgi::Graphics::Element, nil] included element, or nil when the node does not produce graphics output
-      def append(node)
+      def append(node, namespaces: node.namespaces)
         type = node.send(:type)
-        return append_css(node) if type == :CSS
+        return append_css(node, namespaces) if type == :CSS
         return build(:_, node.content) if type == :Text
         return append_cdata(node) if type == :CData
         return build(:_, Graphics::Content.verbatim("<!--#{node.content}-->")) if type == :Comment
 
-        append_element(node)
+        append_element(node, namespaces)
       end
 
       private
@@ -32,26 +33,26 @@ module Sevgi
         build(:_, Graphics::Content.verbatim("<![CDATA[#{body}]]>"))
       end
 
-      def append_css(node)
+      def append_css(node, namespaces)
         content = if (hash = Css.rules(node.content))
           Graphics::Content.css(hash)
         else
           Graphics::Content.cdata(node.content)
         end
 
-        build(:style, content, **node.send(:all_attributes))
+        build(:style, content, **node.send(:all_attributes, namespaces))
       end
 
-      def append_element(node)
+      def append_element(node, namespaces)
         contents = contents(node)
 
-        build(node.name, *contents, **attributes(node)).tap do |element|
+        build(node.name, *contents, **attributes(node, namespaces)).tap do |element|
           node.children.each { self.class.new(element).append(it) } unless node.send(:text_leaf?)
         end
       end
 
-      def attributes(node)
-        attributes = node.send(:all_attributes)
+      def attributes(node, namespaces)
+        attributes = node.send(:all_attributes, namespaces)
         return attributes unless (style = attributes["style"])
         return attributes unless (declarations = Css.declarations(style))
 

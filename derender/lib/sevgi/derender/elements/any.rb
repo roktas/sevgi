@@ -8,18 +8,18 @@ module Sevgi
       module Any
         # Converts this node into unformatted Sevgi DSL lines.
         # @return [Array<String>] unformatted Ruby source lines
-        def decompile(*)
+        def decompile(*, namespaces: self.namespaces())
           if children.any?
-            text_leaf? ? Array(leaf(Ruby.literal(content))) : tree
+            text_leaf? ? Array(leaf(Ruby.literal(content), namespaces:)) : tree(namespaces)
           else
-            Array(leaf)
+            Array(leaf(namespaces:))
           end
         end
 
         private
 
-        def leaf(*args)
-          attributes = all_attributes
+        def leaf(*args, namespaces:)
+          attributes = all_attributes(namespaces)
           args << Attributes.decompile(attributes) if attributes.any?
 
           return explicit_leaf(args) unless bare?
@@ -35,8 +35,8 @@ module Sevgi
           args.empty? ? "#{call})" : "#{call}, #{args.join(", ")})"
         end
 
-        def tree
-          opening = inline_content? ? leaf(Ruby.literal("")) : leaf
+        def tree(namespaces)
+          opening = inline_content? ? leaf(Ruby.literal(""), namespaces:) : leaf(namespaces:)
 
           [
             "#{opening} do",

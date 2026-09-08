@@ -8,21 +8,21 @@ module Sevgi
       module CSS
         # Converts a style node into unformatted Sevgi DSL lines.
         # @return [Array<String>] unformatted Ruby source lines
-        def decompile(*)
-          return raw_style unless (lines = css_lines)
+        def decompile(*, namespaces: self.namespaces())
+          return raw_style(namespaces) unless (lines = css_lines)
 
           [
             "css({",
             *lines,
-            "}, #{css_attributes})",
+            "}, #{css_attributes(namespaces)})",
             ""
           ]
         end
 
         private
 
-        def css_attributes
-          attributes = all_attributes
+        def css_attributes(namespaces)
+          attributes = all_attributes(namespaces)
           source = Attributes.decompile(attributes)
 
           attributes.key?("type") ? source : [source, "type: nil"].reject(&:empty?).join(", ")
@@ -42,9 +42,10 @@ module Sevgi
             .flatten
         end
 
-        def raw_style
+        def raw_style(namespaces)
           arguments = ["Sevgi::Graphics::Content.cdata(#{Ruby.literal(node.content)})"]
-          arguments << Attributes.decompile(all_attributes) if all_attributes.any?
+          attributes = all_attributes(namespaces)
+          arguments << Attributes.decompile(attributes) if attributes.any?
 
           ["style #{arguments.join(", ")}", ""]
         end

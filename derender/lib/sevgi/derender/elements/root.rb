@@ -11,7 +11,7 @@ module Sevgi
         # Converts the SVG root into unformatted Sevgi DSL lines.
         # @param pres [Array<String>] preamble XML lines
         # @return [Array<String>] unformatted Ruby source lines
-        def decompile(pres = [])
+        def decompile(pres = [], **)
           lines = super
           return lines unless pres&.any?
 

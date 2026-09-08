@@ -571,6 +571,74 @@ module Sevgi
         assert_xml_tree_equal(xml, evaluated)
       end
 
+      def test_imported_children_preserve_namespace_scope
+        xml = <<~SVG
+          <svg xmlns="http://www.w3.org/2000/svg" xmlns:q="urn:source">
+            <g id="chunk">
+              <use q:href="#shape"/>
+              <style>.a { fill: red; }</style>
+              <g xmlns:q="urn:local"><q:item/></g>
+              <g xmlns=""><plain/></g>
+            </g>
+          </svg>
+        SVG
+
+        Dir.mktmpdir do |dir|
+          file = ::File.join(dir, "source.svg")
+          ::File.write(file, xml)
+          conversions = [
+            -> (target) { Derender.evaluate_children(xml, target, id: "chunk") },
+            -> (target) { Derender.evaluate_children_file(file, target, id: "chunk") },
+            -> (target) { Derender.decompile(xml).find("chunk").evaluate_children(target) }
+          ]
+
+          conversions.each do |convert|
+            target = SVG(:minimal) { Element(:"q:existing") }
+            target[:xmlns] = "urn:target"
+            target[:"xmlns:q"] = "urn:target"
+            imported = convert.(target)
+            document = Nokogiri::XML(target.Render(), &:strict)
+            existing, use, style, rebound, plain = document.root.element_children
+
+            assert_predicate(imported, :frozen?)
+            assert_equal("urn:target", document.root.namespace.href)
+            assert_equal("urn:target", existing.namespace.href)
+            assert_equal("http://www.w3.org/2000/svg", use.namespace.href)
+            assert_equal("urn:source", use.attribute_nodes.first.namespace.href)
+            assert_equal("http://www.w3.org/2000/svg", style.namespace.href)
+            assert_equal("urn:local", rebound.element_children.first.namespace.href)
+            assert_nil(plain.namespace)
+            assert_nil(plain.element_children.first.namespace)
+          end
+        end
+      end
+
+      def test_detached_nodes_preserve_scope_in_both_conversions
+        xml = <<~SVG
+          <svg xmlns="http://www.w3.org/2000/svg" xmlns:q="urn:source">
+            <g id="chunk"><q:item/></g>
+            <style id="css">.a { fill: red; }</style>
+            <style id="raw">@media print { .a { fill: blue; } }</style>
+          </svg>
+        SVG
+        root = Derender.decompile(xml)
+
+        %w[chunk css raw].each do |id|
+          node = root.find(id)
+          generated = SVG(:minimal)
+          generated.instance_eval(node.derender, "generated.sevgi")
+          evaluated = SVG(:minimal)
+          node.evaluate(evaluated)
+
+          assert_xml_tree_equal(generated.Render(), evaluated.Render())
+          [generated, evaluated].each do |target|
+            child = Nokogiri::XML(target.Render(), &:strict).root.element_children.first
+            assert_equal("http://www.w3.org/2000/svg", child.namespace.href)
+            assert_equal("urn:source", child.namespaces["xmlns:q"])
+          end
+        end
+      end
+
       def test_conversions_preserve_cdata_comments_and_order
         [
           [
