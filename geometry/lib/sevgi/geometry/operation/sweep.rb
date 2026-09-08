@@ -116,7 +116,7 @@ module Sevgi
           return [] unless element.class.send(:close?)
 
           if points.size == 2
-            return [] unless element.inside?(midpoint(*points))
+            return [] unless element.inside?(Point.midpoint(*points))
 
             line = simple_line(points)
 
@@ -124,14 +124,10 @@ module Sevgi
           end
 
           sorted_points(equation, points).each_cons(2).filter_map do |starting, ending|
-            next unless element.inside?(midpoint(starting, ending))
+            next unless element.inside?(Point.midpoint(starting, ending))
 
             simple_line([starting, ending])
           end
-        end
-
-        def midpoint(starting, ending)
-          Point[(starting.x + ending.x) / 2.0, (starting.y + ending.y) / 2.0]
         end
 
         def simple_line(points)
