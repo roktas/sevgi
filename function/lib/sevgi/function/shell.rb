@@ -232,7 +232,7 @@ module Sevgi
           ArgumentError.("Shell command required") if args.empty?
 
           @coathooks = 0
-          outs, errs, status = Open3.popen3(*args) do |stdin, stdout, stderr, wait_thread|
+          outs, errs, status = Open3.popen3(*command(args)) do |stdin, stdout, stderr, wait_thread|
             capture(stdin, stdout, stderr, wait_thread, &input)
           end
 
@@ -240,6 +240,13 @@ module Sevgi
         end
 
         private
+
+        def command(args)
+          args = args.dup
+          index = args.first.is_a?(::Hash) ? 1 : 0
+          args[index] = [args[index], args[index]] unless args[index].is_a?(::Array)
+          args
+        end
 
         # rubocop:disable-next Lint/RescueException
         def capture(stdin, stdout, stderr, wait_thread, &input)

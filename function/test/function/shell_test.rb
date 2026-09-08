@@ -157,6 +157,37 @@ module Sevgi
           assert_raises(ArgumentError) { Function.sh! }
         end
 
+        def test_sh_preserves_literal_executable_paths
+          ["tool with spaces", "tool;literal"].each do |program|
+            with_executable(program) do |path|
+              [Function.sh(path), Function.sh!(path)].each do |result|
+                assert_predicate(result, :ok?)
+                assert_equal([path], result.args)
+              end
+            end
+          end
+        end
+
+        def test_sh_does_not_interpret_shell_syntax
+          assert_raises(Errno::ENOENT) { Function.sh("/bin/echo first; /bin/echo injected") }
+          assert_raises(Errno::ENOENT) { Function.sh({}, "/bin/echo first; /bin/echo injected") }
+          assert_equal("explicit", Function.sh("/bin/sh", "-c", "echo explicit").out)
+        end
+
+        def test_sh_preserves_process_environment
+          result = Function.sh(
+            {"SEVGI_SHELL_VALUE" => "literal"},
+            RbConfig.ruby,
+            "-e",
+            "puts ENV.fetch('SEVGI_SHELL_VALUE')"
+          )
+
+          assert_equal("literal", result.out)
+          with_executable("tool with spaces") do |path|
+            assert_predicate(Function.sh({}, path), :ok?)
+          end
+        end
+
         def test_result_reports_exit_and_signal_status
           success = Function.sh(RbConfig.ruby, "-e", "exit 0")
           failure = Function.sh(RbConfig.ruby, "-e", "exit 7")
