@@ -113,7 +113,7 @@ module Sevgi
         end
 
         def interior_lines(element, equation, points)
-          return [] unless element.class.send(:close?)
+          return [] unless element.closed?
 
           if points.size == 2
             return [] unless element.inside?(Point.midpoint(*points))

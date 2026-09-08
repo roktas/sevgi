@@ -52,6 +52,10 @@ module Sevgi
       # @raise [Sevgi::PanicError] when a subclass does not implement box
       def box = PanicError.("#{self.class}#box must be implemented")
 
+      # Reports whether the element boundary forms a closed path.
+      # @return [Boolean]
+      def closed? = self.class.send(:close?)
+
       # Returns carrier equations for candidate boundary intersections.
       # A finite element can represent only part of each carrier.
       # @abstract Subclasses implement element-specific equations.
@@ -361,7 +365,7 @@ module Sevgi
         # Closed elements omit the repeated closing point. Open elements return {#points}.
         # @return [Array<Sevgi::Geometry::Point>] frozen vertex collection
         def vertices
-          return points unless self.class.send(:close?)
+          return points unless closed?
 
           @vertices ||= points[...-1].freeze
         end
@@ -525,7 +529,7 @@ module Sevgi
         def inside?(point)
           point = Tuple[Point, point]
 
-          return on?(point) unless self.class.send(:close?)
+          return on?(point) unless closed?
 
           on?(point) || pnpoly(points, point)
         end
@@ -595,7 +599,7 @@ module Sevgi
 
         def rounded_points(precision)
           rounded = @points.map { it.approx(precision) }
-          rounded[-1] = rounded.first if self.class.send(:close?)
+          rounded[-1] = rounded.first if closed?
           rounded.freeze
         end
 
@@ -609,7 +613,7 @@ module Sevgi
 
           Error.("Wrong number of points;  expected #{np} where found #{points.size}") unless points.size == np
           Error.("Wrong number of segments; expected #{ns} where found #{segments.size}") unless segments.size == ns
-          return unless self.class.send(:close?) && !points.first.eq?(points.last)
+          return unless closed? && !points.first.eq?(points.last)
 
           Error.("Element points must form a closed path")
         end

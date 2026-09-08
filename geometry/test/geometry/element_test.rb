@@ -75,6 +75,28 @@ module Sevgi
         assert_equal([3, 1, 2, 2, 27], shapes.map { it.segments.size })
       end
 
+      def test_elements_report_whether_their_boundary_is_closed
+        closed = [
+          Element.lined(3).([0, 0], [1, 0], [0, 1]),
+          Rect[2, 3],
+          Square[2],
+          Triangle.([0, 0], [2, 0], [1, 1]),
+          Parallelogram.([0, 0], [2, 0], [3, 1], [1, 1]),
+          Polygon.([0, 0], [2, 0], [1, 1]),
+          Ellipse[2, 1],
+          Circle[2]
+        ]
+        open = [
+          Element.lined(1, open: true).([0, 0], [1, 0]),
+          Line.([0, 0], [1, 0]),
+          Polyline.([0, 0], [1, 0], [1, 1]),
+          Arc[2, extent: 90]
+        ]
+
+        closed.each { assert_predicate(it, :closed?) }
+        open.each { refute_predicate(it, :closed?) }
+      end
+
       def test_lined_shortcuts_stop_at_named_endpoint_boundary
         [
           [25, true, nil],
