@@ -187,6 +187,16 @@ module Sevgi
         ::Math.sqrt(((starting.y - ending.y) ** 2) + ((starting.x - ending.x) ** 2))
       end
 
+      # Returns the midpoint between two points.
+      # @param starting [Sevgi::Geometry::Point, Array<Numeric>] first point
+      # @param ending [Sevgi::Geometry::Point, Array<Numeric>] second point
+      # @return [Sevgi::Geometry::Point] midpoint
+      # @raise [Sevgi::Geometry::Error] when either point cannot be coerced
+      def self.midpoint(starting, ending)
+        starting, ending = Tuples[Point, starting, ending]
+        self[(starting.x + ending.x) / 2.0, (starting.y + ending.y) / 2.0]
+      end
+
       # Returns the origin point.
       # @return [Sevgi::Geometry::Point]
       def self.origin
