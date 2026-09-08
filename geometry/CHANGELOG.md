@@ -15,6 +15,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Changed
 
 - Removed redundant parent scans while duplicating element subtrees.
+- Reused source bounds across Tile cells to reduce repeated calculations and object allocations.
 
 ### Fixed
 
@@ -23,6 +24,10 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   Derender output and evaluation.
 - Limited PDF stamp recoloring to replaced text and carried graphics state across a page's content streams.
 - Corrected decimal interval fitting and made Grid point queries honor the active numeric precision.
+- Prevented implicit shell interpretation of single executable arguments in `F.sh` and `F.sh!`, including paths with spaces or shell metacharacters.
+- Preserved inherited namespaces on detached Derender nodes in generated source and direct evaluation, including imports through `EvaluateChildren` and `IncludeChildren`.
+- Prevented sweep and Hatch lines from crossing the exterior between two tangent vertices of a concave polygon.
+- Aligned Tile cells with their declared bounds for circles, rotated shapes, and polygons whose first vertex differs from their bounding-box origin.
 
 ## 0.99.0 - 2026-08-09
 
