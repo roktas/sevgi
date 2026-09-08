@@ -73,6 +73,24 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_in_delta(expected, actual) }
       end
 
+      def test_point_midpoint_accepts_points_and_arrays
+        [
+          Point[2, 0],
+          Point.midpoint([0, 0], [4, 0]),
+          Point[0, 3],
+          Point.midpoint(Point[0, 0], [0, 6]),
+          Point[2, 3],
+          Point.midpoint([-2, 1], [6, 5])
+        ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+      end
+
+      def test_point_midpoint_rejects_invalid_points
+        [nil, false, [1], [1, 2, 3], ["x", 2], Object.new].each do |point|
+          assert_raises(Error) { Point.midpoint(point, Origin) }
+          assert_raises(Error) { Point.midpoint(Origin, point) }
+        end
+      end
+
       def test_point_affinity_transforms_coordinates
         point = Point[3, 4]
 
