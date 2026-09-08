@@ -27,6 +27,12 @@ module Sevgi
     #   @param ending [Sevgi::Geometry::Point, Array<Numeric>] ending point
     #   @return [Sevgi::Geometry::Line]
     #   @raise [Sevgi::Geometry::Error] when either point cannot be coerced
+    # @!method starting
+    #   Returns the first point in the directed path.
+    #   @return [Sevgi::Geometry::Point]
+    # @!method ending
+    #   Returns the last point in the directed path.
+    #   @return [Sevgi::Geometry::Point]
     # @!method reverse
     #   Returns the same finite trace with opposite traversal.
     #   @return [Sevgi::Geometry::Line]
@@ -72,10 +78,6 @@ module Sevgi
       # @return [Float]
       def angle = head.angle
 
-      # Returns the ending point.
-      # @return [Sevgi::Geometry::Point]
-      def ending = points.last
-
       # Reports whether a point is left of the directed line from {#starting} to {#ending} in screen coordinates.
       # Points on the infinite line are on neither side. A zero-length line has no direction and returns false.
       # @param point [Sevgi::Geometry::Point, Array<Numeric>] point to test
@@ -89,10 +91,6 @@ module Sevgi
       # @return [Boolean]
       # @raise [Sevgi::Geometry::Error] when point cannot be coerced
       def right?(point) = F.gt?(side(point), 0.0)
-
-      # Returns the starting point.
-      # @return [Sevgi::Geometry::Point]
-      def starting = points.first
 
       # Draws the line into a graphics node.
       # @param node [Object] graphics node receiving the drawing command

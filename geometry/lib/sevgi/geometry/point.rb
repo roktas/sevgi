@@ -194,7 +194,7 @@ module Sevgi
       # @raise [Sevgi::Geometry::Error] when either point cannot be coerced
       def self.midpoint(starting, ending)
         starting, ending = Tuples[Point, starting, ending]
-        self[(starting.x + ending.x) / 2.0, (starting.y + ending.y) / 2.0]
+        self[(starting.x / 2.0) + (ending.x / 2.0), (starting.y / 2.0) + (ending.y / 2.0)]
       end
 
       # Returns the origin point.

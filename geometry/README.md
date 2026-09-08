@@ -23,7 +23,7 @@ rect.vertices.size             # => 4
 rect.points.size               # => 5
 rect.translate(2, 1).position # => Point[2.0, 1.0]
 
-midpoint = Sevgi::Geometry::Point.midpoint([0, 0], [3, 5])
+Sevgi::Geometry::Point.midpoint([0, 0], [3, 5]) # => Point[1.5, 2.5]
 ```
 
 Geometry uses SVG screen coordinates. Positive x goes right, positive y goes down, and positive angles turn clockwise.

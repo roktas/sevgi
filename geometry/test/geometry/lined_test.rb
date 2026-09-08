@@ -10,7 +10,7 @@ module Sevgi
         polyline = Polyline.([0, 0], [3, 0], [3, 4])
 
         assert_equal(rect.points[...-1], rect.vertices)
-        assert_same(polyline.points, polyline.vertices)
+        assert_equal(polyline.points, polyline.vertices)
         assert_equal(4, rect.vertices.size)
         assert_equal(5, rect.points.size)
       end

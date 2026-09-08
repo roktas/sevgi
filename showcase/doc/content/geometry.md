@@ -90,7 +90,7 @@ box.vertices == [box.A, box.B, box.C, box.D]  # => true
 box.points == [box.A, box.B, box.C, box.D, box.A] # => true
 ```
 
-Open shapes do not repeat an endpoint, so `vertices` and `points` contain the same objects.
+Open shapes do not repeat an endpoint, so `vertices` and `points` contain the same points.
 
 Closed shapes distinguish interior, boundary, and exterior points. Open paths have no filled interior:
 

@@ -80,7 +80,11 @@ module Sevgi
           Point[0, 3],
           Point.midpoint(Point[0, 0], [0, 6]),
           Point[2, 3],
-          Point.midpoint([-2, 1], [6, 5])
+          Point.midpoint([-2, 1], [6, 5]),
+          Point[Float::MAX, 0],
+          Point.midpoint([Float::MAX, 0], [Float::MAX, 0]),
+          Origin,
+          Point.midpoint([-Float::MAX, 0], [Float::MAX, 0])
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
