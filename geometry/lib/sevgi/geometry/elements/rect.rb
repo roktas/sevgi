@@ -161,6 +161,10 @@ module Sevgi
 
       private :draw!
 
+      # Returns the rectangle center.
+      # @return [Sevgi::Geometry::Point]
+      def center = Point.midpoint(top_left, bottom_right)
+
       # Returns rectangle height.
       # @return [Float]
       def height = @height ||= segments[1].length
