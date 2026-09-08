@@ -15,7 +15,7 @@ module Sevgi
     GUIDE_URL = "https://sevgi.roktas.dev/"
     EXAMPLE_CONTEXT_PATTERNS = {
       "Sevgi::Function" => /(?<![\w:.])F\./,
-      "Sevgi::Geometry" => /(?<![\w:.])(?:Element|Equation|LengthAngle|Line|Operation|Origin|Parallelogram|Point|Polygon|Polyline|Rect|Segment|Square|Triangle)(?=[.\[])/,
+      "Sevgi::Geometry" => /(?<![\w:.])(?:Arc|Circle|Element|Ellipse|Equation|LengthAngle|Line|Operation|Origin|Parallelogram|Point|Polygon|Polyline|Rect|Segment|Square|Triangle)(?=[.\[])/,
       "Sevgi::Graphics" => /(?<![\w:.])(?:Attributes|Canvas|Content|Document|Margin|Paper|SVG)(?=\s|[.:\[(])|(?<![\w:.])document\s*\(/
     }.freeze
     DATA_CLASS_SURFACES = {

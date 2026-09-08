@@ -10,7 +10,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Added `ArcTo` and `ArcBy` for SVG-native elliptical arc paths.
 - Added Geometry `Arc`, `Ellipse`, and `Circle` with bounds, length, predicates, affine transformations, and
   linear/quadratic intersections. Closed ellipses and circles support sweeps and hatching.
-- Added Geometry `Point.midpoint`, lined `vertices`, open-path traversal, and `Rect#center`.
+- Added Geometry `Point.midpoint`, `Element#closed?`, lined `vertices`, open-path traversal, and `Rect#center`.
 - Added Protractor and Arc examples and documented the drawing and calculation APIs.
 
 ### Changed

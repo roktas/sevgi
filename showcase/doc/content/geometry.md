@@ -38,6 +38,7 @@ path = Sevgi::Geometry::Polyline.([0, 0], [8, 0], [8, 5])
 
 path.starting # => Point[0.0, 0.0]
 path.ending   # => Point[8.0, 5.0]
+path.closed? # => false
 path.reverse.points == path.points.reverse # => true
 ```
 
@@ -56,6 +57,9 @@ point_line = Sevgi::Geometry::Line.([2, 3], [12, 8])
 open_path = Sevgi::Geometry::Polyline.([0, 0], [8, 0], [8, 5])
 closed_path = Sevgi::Geometry::Polygon.([0, 0], [8, 0], [8, 5], [0, 5])
 triangle = Sevgi::Geometry::Triangle.([0, 20], [10, 0], [20, 20])
+
+closed_path.closed? # => true
+open_path.closed?   # => false
 ```
 
 The English constructors such as `Rect.from_size`, `Rect.from_corners`, `Line.from_length_angle`, and
@@ -90,7 +94,9 @@ box.vertices == [box.A, box.B, box.C, box.D]  # => true
 box.points == [box.A, box.B, box.C, box.D, box.A] # => true
 ```
 
-Open shapes do not repeat an endpoint, so `vertices` and `points` contain the same points.
+Open shapes do not repeat an endpoint, so `vertices` and `points` contain the same points. Use `closed?` when behavior
+depends on whether the boundary returns to its start. Closure describes the path topology, not whether the shape has
+nonzero area.
 
 Closed shapes distinguish interior, boundary, and exterior points. Open paths have no filled interior:
 

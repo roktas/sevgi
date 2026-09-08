@@ -19,6 +19,7 @@ require "sevgi/geometry"
 ```ruby
 rect = Sevgi::Geometry::Rect[3, 5]
 rect.center                    # => Point[1.5, 2.5]
+rect.closed?                   # => true
 rect.vertices.size             # => 4
 rect.points.size               # => 5
 rect.translate(2, 1).position # => Point[2.0, 1.0]
@@ -29,8 +30,8 @@ Sevgi::Geometry::Point.midpoint([0, 0], [3, 5]) # => Point[1.5, 2.5]
 Geometry uses SVG screen coordinates. Positive x goes right, positive y goes down, and positive angles turn clockwise.
 Operations return new immutable values.
 
-Open lined paths expose `starting`, `ending`, and `reverse`. Closed lined paths repeat their first vertex at the end of
-`points`. `vertices` omits that path-closing repetition.
+Open lined paths expose `starting`, `ending`, and `reverse`. Use `closed?` to distinguish open and closed boundaries.
+Closed lined paths repeat their first vertex at the end of `points`. `vertices` omits that path-closing repetition.
 
 `Ellipse` and `Circle` describe closed boundaries. `Arc` selects a finite, directed part of an ellipse:
 
