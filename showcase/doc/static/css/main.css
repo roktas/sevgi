@@ -194,32 +194,6 @@ header {
   width: 44px;
   height: 44px;
 }
-header .slogan {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  margin: 0;
-  color: color-mix(in srgb, var(--wt-color-text-soft) 70%, transparent);
-  font-family: var(--wt-font-head);
-  font-size: 1.125rem;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  line-height: 1;
-  transform: translate(-50%, -50%);
-  white-space: nowrap;
-  word-spacing: 0.3em;
-}
-header .slogan span {
-  color: var(--wt-logo-active);
-  font-weight: 700;
-}
-header .slogan span:nth-of-type(2),
-header .slogan span:nth-of-type(4) {
-  margin-right: 0.07em;
-}
-header .slogan span:nth-of-type(5) {
-  margin-right: 0.05em;
-}
 nav {
   display: flex;
   align-items: center;
@@ -428,6 +402,16 @@ main {
 .content.home-content {
   max-width: 1180px;
   overflow-x: visible;
+  padding-top: 0.75rem;
+  background-color: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+@media screen and (min-width: 1025px) {
+  .content.home-content {
+    padding-left: 6px;
+    padding-right: 54px;
+  }
 }
 .home-content > p {
   font-size: 1.025rem;
@@ -471,6 +455,11 @@ main {
 }
 .content p:empty {
   display: none;
+}
+.heading-text sup:has([role="doc-noteref"]) {
+  font-size: 0.5em;
+  font-weight: 400;
+  margin-left: 0.15em;
 }
 .content .footnote-definition {
   display: flex;
@@ -1255,12 +1244,6 @@ figcaption {
   }
 }
 
-@media screen and (max-width: 1200px) {
-  header .slogan {
-    display: none;
-  }
-}
-
 /*
  * -----------------------------------------------------------------------------
  * Mobile Menu
@@ -1377,6 +1360,13 @@ body.mobile-menu-open {
 /*
  * Specific breakdown point for Hero Grid
  */
+@media screen and (max-width: 1024px) {
+  .hero-features {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.75rem 1.5rem;
+  }
+}
+
 @media screen and (max-width: 900px) {
   .hero-header {
     flex-direction: column;
@@ -1394,10 +1384,6 @@ body.mobile-menu-open {
   .hero .hero-image {
     display: none;
   }
-  .hero-features {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1.75rem 1.5rem;
-  }
   .hero {
     padding-top: 2rem;
     gap: 2rem;
@@ -1407,15 +1393,7 @@ body.mobile-menu-open {
 @media screen and (max-width: 600px) {
   .hero-features {
     grid-template-columns: 1fr;
-    gap: 1.75rem;
-  }
-  .feature-item h3 {
-    justify-content: center;
-  }
-  .feature-item p {
-    max-width: 34ch;
-    margin: 0 auto;
-    text-align: center;
+    gap: 1.25rem;
   }
 }
 
@@ -1884,6 +1862,28 @@ button.explore-more {
   overflow: hidden;
   /* Space for hover lift animation */
   padding-top: 4px;
+}
+html[data-theme="light"] .showcase-flow > .tabs {
+  --wt-color-bg-soft: #dedede;
+}
+html[data-theme="light"] .showcase-flow > .tabs,
+html[data-theme="light"] .toc-sticky {
+  border-color: #cccccc;
+}
+html[data-theme="light"] .toc-sticky {
+  border-top-color: var(--wt-color-accent);
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .showcase-flow > .tabs {
+    --wt-color-bg-soft: #dedede;
+  }
+  :root:not([data-theme="dark"]) .showcase-flow > .tabs,
+  :root:not([data-theme="dark"]) .toc-sticky {
+    border-color: #cccccc;
+  }
+  :root:not([data-theme="dark"]) .toc-sticky {
+    border-top-color: var(--wt-color-accent);
+  }
 }
 .tabs[id] {
   scroll-margin-top: calc(var(--wt-header-height) + var(--wt-main-padding-top));

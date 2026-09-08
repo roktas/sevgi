@@ -10,7 +10,7 @@
 {% block content_id %}{{ page.slug }}{% endblock content_id %}
 
 {% block content %}
-<h1 class="heading-text"><a href="#{{ page.slug }}" class="heading-anchor">{{ page.title }}</a></h1>
+<h1 class="heading-text"><a href="#{{ page.slug }}" class="heading-anchor">{{ page.title }}</a>{% if page.slug == "examples" %}<sup><a href="#victor" id="victor-reference" role="doc-noteref" aria-label="Source note">†</a></sup>{% endif %}</h1>
 {{ page.content | safe }}
 
 {# Calculate prev/next from section pages #}

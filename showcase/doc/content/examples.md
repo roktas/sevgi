@@ -5,12 +5,8 @@ weight = 3
 group = "Start"
 +++
 
-These examples are the executable `.sevgi` files from `showcase/srv`, not copies written for the site. The test suite
-runs each file and compares its output. Open the Ruby panel for the script. Open the SVG panel for the result. Most
-examples are short, but several show how a complete drawing fits together. Some are adapted from the
-[Victor Book examples](https://github.com/DannyBen/victor-book/tree/master/src/examples).
-
-Start with [Pokey](#pokey) for the basic element DSL.
+Open the Ruby panel for each drawing's source or the SVG panel for its output.
+Start with [Pokey](#pokey) for basic SVG elements.
 
 <details class="example-index">
 <summary>Explore examples</summary>
@@ -57,4 +53,9 @@ Start with [Pokey](#pokey) for the basic element DSL.
 {{<tabs base="arc" dir="../showcase" title="Arc" />}}
 {{<tabs base="squared" dir="../showcase" title="Squared" />}}
 {{<tabs base="copperplate" dir="../showcase" title="Copperplate" />}}
+</div>
+
+<div class="footnote-definition" id="victor" role="doc-footnote">
+<sup class="footnote-definition-label">†</sup>
+<p>These examples run from <code>showcase/srv</code>; the test suite compares their output. Some examples are adapted from the <a href="https://github.com/DannyBen/victor-book/tree/master/src/examples">Victor Book examples</a>. <a href="#victor-reference" role="doc-backlink" aria-label="Back to footnote reference">↩</a></p>
 </div>

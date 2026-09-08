@@ -1,9 +1,5 @@
 {% extends "base.html" %}
 
-{% block slogan %}
-<p class="slogan"><span>S</span>calable <span>E</span>xecutable <span>V</span>ector <span>G</span>raphics <span>I</span>nterface</p>
-{% endblock slogan %}
-
 {% block hero %}
 <div class="hero-header">
   <section class="text-center welcome">
@@ -43,33 +39,33 @@
 
 <div class="hero-features">
   <div class="feature-item">
-    <h3>The power of Ruby <i class="fa-solid fa-bolt"></i></h3>
-    <p>Use Ruby's elegant programming model and computational power to create precise SVG without reaching for a vector editor every time.</p>
+    <h3>SVG in Ruby <i class="fa-solid fa-code"></i></h3>
+    <p>Use familiar SVG elements and attributes directly in Ruby. Your drawing code follows the structure of the SVG it produces.</p>
   </div>
 
   <div class="feature-item">
-    <h3>Rich helpers <i class="fa-solid fa-screwdriver-wrench"></i></h3>
-    <p>Extend the DSL through mixins and use helpers for tiling, hatching, rulers, grids, transforms, and geometry.</p>
+    <h3>Programmable drawings <i class="fa-solid fa-bolt"></i></h3>
+    <p>Turn data and calculations into drawings with Ruby loops and methods. Run them in an application or as executable <code>.sevgi</code> scripts.</p>
   </div>
 
   <div class="feature-item">
-    <h3>Neat output <i class="fa-solid fa-code"></i></h3>
-    <p>Generate properly indented, readable, lightly validated SVG output without artificial bloat.</p>
+    <h3>Reusable components <i class="fa-solid fa-cubes"></i></h3>
+    <p>Define drawing components with parameters and reuse them across documents. Compose them into groups, layers, or SVG symbols.</p>
   </div>
 
   <div class="feature-item">
-    <h3>Script mode <i class="fa-solid fa-terminal"></i></h3>
-    <p>Run executable <code>.sevgi</code> files directly when a drawing belongs in a small, repeatable script.</p>
+    <h3>Geometry and layout <i class="fa-solid fa-drafting-compass"></i></h3>
+    <p>Calculate intersections and bounds, fit rulers and grids, and hatch shapes. Inspect layout values before you turn them into SVG.</p>
   </div>
 
   <div class="feature-item">
-    <h3>Round trip <i class="fa-solid fa-arrows-rotate"></i></h3>
-    <p>Bring existing SVG/XML back into the DSL workflow when a visual editor is part of the process.</p>
+    <h3>SVG round trip <i class="fa-solid fa-arrows-rotate"></i></h3>
+    <p>Convert existing SVG into Ruby source or import selected elements. Combine artwork from a visual editor with layouts built in code.</p>
   </div>
 
   <div class="feature-item">
-    <h3>PDF/PNG export <i class="fa-solid fa-file-export"></i></h3>
-    <p>Export SVG drawings to PDF or PNG through the optional native output pipeline when a workflow needs fixed artifacts.</p>
+    <h3>Export options <i class="fa-solid fa-file-export"></i></h3>
+    <p>Use the same drawing as SVG in an application or file. Add optional PDF and PNG export for print and raster output.</p>
   </div>
 </div>
 {% endblock hero %}
@@ -85,6 +81,6 @@
 {% block content %}
 {# Display showcase content directly on homepage #}
 {% set showcase = get_page(path="examples.md") %}
-<h1 class="heading-text"><a href="#showcase" class="heading-anchor">{{ showcase.title }}</a></h1>
+<h1 class="heading-text"><a href="#showcase" class="heading-anchor">{{ showcase.title }}</a><sup><a href="#victor" id="victor-reference" role="doc-noteref" aria-label="Source note">†</a></sup></h1>
 {{ showcase.content | safe }}
 {% endblock content %}
