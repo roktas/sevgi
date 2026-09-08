@@ -119,6 +119,18 @@ module Sevgi
           assert_empty(lines)
         end
 
+        def test_sweep_skips_exterior_between_tangent_vertices
+          points = [[0, 0], [2, 2], [4, 0], [4, 4], [0, 4]]
+
+          [points, points.reverse].each do |path|
+            polygon = Polygon.(*path)
+
+            assert_empty(Operation.sweep(polygon, initial: [0, 0], angle: 0, step: 10))
+            lines = Operation.sweep(polygon, initial: [0, 1], angle: 0, step: 10)
+            assert_equal([[[0.0, 1.0], [1.0, 1.0]], [[3.0, 1.0], [4.0, 1.0]]], line_spans(lines))
+          end
+        end
+
         def test_sweep_open_polyline_has_no_interiors
           polyline = Polyline.([0, 0], [2, 2], [4, 0])
 

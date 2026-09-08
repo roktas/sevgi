@@ -116,6 +116,8 @@ module Sevgi
           return [] unless element.class.send(:close?)
 
           if points.size == 2
+            return [] unless element.inside?(midpoint(*points))
+
             line = simple_line(points)
 
             return line ? [line] : []
