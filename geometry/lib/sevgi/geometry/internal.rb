@@ -35,6 +35,14 @@ module Sevgi
 
     private_constant :Real
 
+    # Calculates the scalar cross product of two planar component pairs.
+    # @api private
+    module Cross
+      def self.[](ax, ay, bx, by) = (ax * by) - (ay * bx)
+    end
+
+    private_constant :Cross
+
     # Coerces array-like geometry inputs into typed tuple objects.
     # @api private
     module Tuple
