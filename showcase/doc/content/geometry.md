@@ -8,9 +8,8 @@ group = "Guides"
 Geometry supplies a small set of immutable values for calculations the SVG renderer cannot do for you. It uses SVG
 screen coordinates: positive x goes right, positive y goes down, and positive angles turn clockwise.
 
-Think of the component as the calculation layer beneath a drawing: build values, transform or intersect them, then pass
-the resulting lines or shapes to `Draw`, `Hatch`, `Align`, or your own Ruby code. No geometry constructor adds an SVG
-element by itself.
+Think of the component as the calculation layer beneath a drawing. Build values, transform or intersect them, then pass
+the results to `Draw`, `Hatch`, `Align`, or your own Ruby code. No geometry constructor adds an SVG element by itself.
 
 ## Points and lines {{ "{#points-and-lines}" }}
 
@@ -18,8 +17,9 @@ element by itself.
 point = Sevgi::Geometry::Point[3, 4]
 line = Sevgi::Geometry::Line.([0, 0], point)
 
-line.length             # => 5.0
-point.translate(2, 1)   # => Point[5.0, 5.0]
+line.length                                     # => 5.0
+Sevgi::Geometry::Point.midpoint([0, 0], point) # => Point[1.5, 2.0]
+point.translate(2, 1)                           # => Point[5.0, 5.0]
 ```
 
 Points and lined shapes return new values from `translate`, `rotate`, `scale`, `skew`, and `reflect`. The original value
@@ -29,6 +29,16 @@ does not change. A `Segment` is an unplaced length and direction. A `Line` place
 segment = Sevgi::Geometry::Segment[5, 30]
 ending = segment.ending([2, 3])
 line = segment.line([2, 3])
+```
+
+A directed open path exposes its endpoints and can reverse its traversal:
+
+```ruby
+path = Sevgi::Geometry::Polyline.([0, 0], [8, 0], [8, 5])
+
+path.starting # => Point[0.0, 0.0]
+path.ending   # => Point[8.0, 5.0]
+path.reverse.points == path.points.reverse # => true
 ```
 
 ## Shapes
@@ -68,9 +78,19 @@ shape.DA.angle # => 105.0
 shape.box.height # => 8.0
 ```
 
-Every lined shape exposes the same path in three forms: `points` for vertex work, `segments` for reusable polar
-displacements, and `lines` for finite positioned edges. Closed shapes repeat the first point at the end of `points`, so
-a rectangle has five path points but four segments and four lines.
+Every lined shape exposes the same path as `points`, `segments`, and `lines`. `vertices` gives the geometric vertices in
+path order. Closed shapes repeat the first vertex at the end of `points`, but `vertices` omits that closing repetition:
+
+```ruby
+box = Sevgi::Geometry::Rect[40, 24]
+
+box.vertices.size # => 4
+box.points.size   # => 5
+box.vertices      # => [A, B, C, D]
+box.points         # => [A, B, C, D, A]
+```
+
+Open shapes do not repeat an endpoint, so `vertices` and `points` contain the same objects.
 
 Closed shapes distinguish interior, boundary, and exterior points. Open paths have no filled interior:
 
@@ -78,10 +98,18 @@ Closed shapes distinguish interior, boundary, and exterior points. Open paths ha
 box = Sevgi::Geometry::Rect[40, 24, position: [6, 8]]
 open_path = Sevgi::Geometry::Polyline.([0, 0], [8, 0], [8, 5])
 
-box.inside?([20, 20])    # => true
-box.on?([6, 20])         # => true
-box.outside?([50, 20])   # => true
+box.inside?([20, 20])     # => true
+box.on?([6, 20])          # => true
+box.outside?([50, 20])    # => true
 open_path.inside?([4, 2]) # => false
+```
+
+A rectangle exposes its geometric center directly. For any other element, use the center of its bounding box when that
+is the intended meaning:
+
+```ruby
+box.center         # => Point[26.0, 20.0]
+open_path.box.center
 ```
 
 ## Arcs and ellipses {{ "{#arcs-and-ellipses}" }}
@@ -135,6 +163,7 @@ as an SVG transform. Library code can request either the offset or a translated 
 inner = Sevgi::Geometry::Rect[8, 4]
 outer = Sevgi::Geometry::Rect[40, 20, position: [5, 5]]
 
+outer.center # => Point[25.0, 15.0]
 offset = Sevgi::Geometry::Operation.alignment(inner, outer, :center)
 centered = Sevgi::Geometry::Operation.align(inner, outer, :center)
 ```
