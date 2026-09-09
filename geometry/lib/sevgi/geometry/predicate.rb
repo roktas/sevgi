@@ -112,8 +112,11 @@ module Sevgi
       end
 
       def turn_orientations(vertices, precision: nil)
-        vertices.each_index
-          .map { |i| orientation(vertices[i], vertices[(i + 1) % vertices.size], vertices[(i + 2) % vertices.size], precision:) }
+        vertices
+          .each_index
+          .map { |i|
+            orientation(vertices[i], vertices[(i + 1) % vertices.size], vertices[(i + 2) % vertices.size], precision:)
+          }
           .reject(&:zero?)
       end
     end
@@ -128,7 +131,7 @@ module Sevgi
       # @param points [Array<Sevgi::Geometry::Point, Array<Numeric>>] point-like values
       # @param precision [Integer, nil] decimal precision, or nil for the current function default
       # @return [Boolean]
-      # @raise [Sevgi::ArgumentError] when fewer than three points are given
+      # @raise [Sevgi::ArgumentError] when fewer than three points are given or precision is not an Integer or nil
       # @raise [Sevgi::Geometry::Error] when a point cannot be coerced
       # @example Test a point set
       #   Sevgi::Geometry::Point.collinear?([0, 0], [1, 1], [2, 2]) # => true
@@ -146,6 +149,7 @@ module Sevgi
       # touches and overlaps make the polygon non-simple.
       # @param precision [Integer, nil] decimal precision, or nil for the current function default
       # @return [Boolean]
+      # @raise [Sevgi::ArgumentError] when precision is not an Integer or nil
       def simple?(precision: nil) = Predicate.simple?(vertices, precision:)
 
       # Reports whether this is a simple polygon whose non-collinear turns all have one orientation.
@@ -154,6 +158,7 @@ module Sevgi
       # and fully degenerate polygons are not convex.
       # @param precision [Integer, nil] decimal precision, or nil for the current function default
       # @return [Boolean]
+      # @raise [Sevgi::ArgumentError] when precision is not an Integer or nil
       def convex?(precision: nil)
         simple?(precision:) && Predicate.convex_turns?(vertices, precision:)
       end
@@ -163,6 +168,7 @@ module Sevgi
       # Self-intersecting and degenerate polygons are neither convex nor concave.
       # @param precision [Integer, nil] decimal precision, or nil for the current function default
       # @return [Boolean]
+      # @raise [Sevgi::ArgumentError] when precision is not an Integer or nil
       def concave?(precision: nil)
         simple?(precision:) && !Predicate.convex_turns?(vertices, precision:)
       end
