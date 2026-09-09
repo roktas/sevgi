@@ -5,6 +5,15 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## Unreleased
 
+### Changed
+
+- Revised DSL catalog examples and packaged Sevgi skill guidance to use statement-style calls and show inspection results.
+- Clarified active and hovered states in Showcase example tabs.
+
+### Fixed
+
+- Rendered inline code in DSL catalog summaries and kept linked task themes visible below the sticky header.
+
 ## 0.100.0 - 2026-09-09
 
 ### Added
