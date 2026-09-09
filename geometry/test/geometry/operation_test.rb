@@ -9,6 +9,7 @@ module Sevgi
         %i[
           align
           alignment
+          box
           sweep
           sweep!
         ].each do |operation|
