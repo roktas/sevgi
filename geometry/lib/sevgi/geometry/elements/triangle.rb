@@ -76,11 +76,10 @@ module Sevgi
         end
 
         def validate!(a, b)
-          if F.zero?(a.length) ||
-              F.zero?(b.length) ||
-              F.zero?(Cross[a.x, a.y, b.x, b.y])
-            Error.("Triangle segments must form a non-degenerate triangle")
-          end
+          middle = a.ending(Origin)
+          return unless Point.collinear?(Origin, middle, b.ending(middle))
+
+          Error.("Triangle segments must form a non-degenerate triangle")
         end
       end
 
