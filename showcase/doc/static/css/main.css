@@ -319,7 +319,7 @@ html[data-theme="dark"] .theme-toggle .dark-icon {
   color: var(--wt-color-text);
   background: var(--wt-color-bg);
   border: 1px solid var(--wt-color-border-subtle);
-  border-radius: 0.5rem;
+  border-radius: 0.35rem;
   transition: width 150ms, border-color 150ms;
 }
 #userinput::placeholder {
@@ -1455,9 +1455,12 @@ input:focus-visible {
  * -----------------------------------------------------------------------------
  */
 
-/* Search - subtle glow on focus */
+/* Search - keep the focus indicator inside the input */
 #userinput:focus {
-  box-shadow: 0 0 0 3px var(--wt-shadow-accent);
+  box-shadow: none;
+}
+#userinput:focus-visible {
+  outline-offset: -1px;
 }
 /* Content links - animated underline */
 .content a:not(.button):not(.heading-anchor):not(.zola-anchor) {
