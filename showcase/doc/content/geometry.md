@@ -132,8 +132,10 @@ Zero-size elements still contribute their position to `Operation.box`; they are 
 
 ## Relations {{ "{#relations}" }}
 
-`Point.collinear?` tests at least three point-like values. Its baseline joins the minimum and maximum points ordered by
-x, then y. Cross products use the selected decimal precision. Input order does not change the result.
+`Point.collinear?` tests at least three point-like values. Every three-point subset must have a cross product that rounds
+to zero at the selected decimal precision. Its magnitude is twice the triangle area, not a distance tolerance.
+Input order does not change the result. Accepted sets have accepted subsets. Rigid motion preserves triangle area,
+but floating-point error can affect results near the rounding threshold. Large sets can require cubic work.
 `Polygon` adds boundary and shape classification predicates:
 
 ```ruby

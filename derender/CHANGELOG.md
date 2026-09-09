@@ -35,6 +35,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Rejected nil and false aggregate-box inputs with the documented geometry error.
 - Restored precision-aware rejection of zero-length Triangle sides.
 - Made point-set collinearity independent of input order and removed eager polygon edge-pair storage.
+- Applied the collinearity tolerance to every three-point subset, removing coordinate-axis-dependent baseline selection.
 
 ## 0.99.0 - 2026-08-09
 

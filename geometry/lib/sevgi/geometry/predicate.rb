@@ -24,10 +24,10 @@ module Sevgi
       end
 
       def collinear?(points, precision: nil)
-        origin, baseline = points.minmax_by { [it.x, it.y] }
-
-        points.all? { Point.eq?(origin, it, precision:) } ||
-          points.all? { orientation(origin, baseline, it, precision:).zero? }
+        # ponytail: cubic worst-case comparisons; optimize the maximum triangle area if large sets need faster queries.
+        points.sort_by { [it.x, it.y] }.combination(3).all? do |a, b, c|
+          orientation(a, b, c, precision:).zero?
+        end
       end
 
       def convex_turns?(vertices, precision: nil)
@@ -122,10 +122,11 @@ module Sevgi
     class Point
       # Reports whether three or more points lie on one infinite line.
       #
-      # Repeated points are allowed. When every point is equal at the selected
-      # precision, the set is collinear.
-      # The baseline joins the minimum and maximum points ordered by x, then y.
-      # Cross products use the selected decimal precision, so input order does not affect the result.
+      # Every three-point subset must have a cross product that rounds to zero at the selected decimal precision.
+      # The cross-product magnitude is twice the triangle area, not a distance tolerance.
+      # Repeated points are allowed. Input order does not affect the result, and accepted sets have accepted subsets.
+      # Triangle area is invariant under rigid motion, subject to floating-point error near the rounding threshold.
+      # The worst-case number of comparisons is cubic in the point count.
       # @param points [Array<Sevgi::Geometry::Point, Array<Numeric>>] point-like values
       # @param precision [Integer, nil] decimal precision, or nil for the current function default
       # @return [Boolean]

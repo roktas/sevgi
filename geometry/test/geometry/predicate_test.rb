@@ -53,6 +53,27 @@ module Sevgi
         assert_raises(Error) { Point.collinear?([0, 0], [1, 1], Object.new) }
       end
 
+      def test_collinear_rejects_sets_with_noncollinear_subsets
+        points = [[0, 0], [0.00000029, 1.4], [0.00000029, -1.4], [0.0000003, 0]]
+
+        points.permutation.each do |order|
+          refute(Point.collinear?(*order))
+          refute(Point.collinear?(*order.map { |x, y| [-y, x] }))
+        end
+
+        refute(Point.collinear?(*points.take(3)))
+      end
+
+      def test_collinear_acceptance_survives_subsets_and_rotation
+        points = [[0, 0], [0.0000001, 1.4], [0.0000001, -1.4], [0.00000015, 0]]
+
+        [0, 30, 90, 180].each do |angle|
+          rotated = points.map { Point[*it].rotate(angle) }
+          assert(Point.collinear?(*rotated))
+          rotated.combination(3).each { assert(Point.collinear?(*it)) }
+        end
+      end
+
       def test_polygon_simple_classifies_convex_and_concave_boundaries
         convex = Polygon.([0, 0], [4, 0], [4, 4], [0, 4])
         concave = Polygon.([0, 0], [4, 0], [2, 2], [4, 4], [0, 4])
