@@ -9,8 +9,8 @@ module Sevgi
 
     # Raised when nested Sevgi loads exceed the executor's supported active-source depth.
     #
-    # Excessive acyclic nesting usually indicates an indirect recursive load pattern that
-    # escaped ordinary cycle detection through generated or otherwise distinct source files.
+    # The limit is 128 active sources, including the entry source. It does not count Ruby stack frames
+    # or guarantee protection from stack exhaustion within scripts.
     # @see https://sevgi.roktas.dev/usage/#execute Execute source guide
     class LoadDepthError < ::Sevgi::Error
     end

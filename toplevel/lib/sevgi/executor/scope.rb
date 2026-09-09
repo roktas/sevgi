@@ -118,14 +118,13 @@ module Sevgi
       end
 
       def enter(source)
-        if @active.key?(source.identity)
-          raise Executor::CycleError, "Recursive Sevgi load: #{source.file}"
-        end
+        raise Executor::CycleError, "Recursive Sevgi load: #{source.file}" if @active.key?(source.identity)
 
         if @active.size >= MAX_LOAD_DEPTH
-          raise Executor::LoadDepthError,
-            "Sevgi load nesting too deep (maximum #{MAX_LOAD_DEPTH} active sources): #{source.file}; " \
-              "check for indirect recursion"
+          raise(
+            Executor::LoadDepthError,
+            "Sevgi load nesting too deep (maximum #{MAX_LOAD_DEPTH} active sources): #{source.file}"
+          )
         end
 
         @active[source.identity] = source

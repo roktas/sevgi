@@ -80,9 +80,9 @@ as `Rotate` live inside an `SVG` block. The
 split across several files can then move as one directory. Repeated non-recursive loads run again. Loading a source
 that is already active in the same chain raises a captured cycle error.
 
-An active load chain is limited to 128 sources. A deeper cycle-free chain raises a captured `Executor::LoadDepthError`
-before Ruby exhausts its call stack; in practice, such depth usually indicates indirect recursion through distinct
-files. This is a runaway-load safeguard, not a security boundary.
+An active load chain supports up to 128 sources, including the entry source. An attempt to exceed this limit raises
+a captured `Executor::LoadDepthError`. This limit counts sources, not Ruby stack frames. Script calls can exhaust
+Ruby's stack before the source limit. The limit is not a security boundary.
 
 If loading fails, the executor result keeps the source stack and points back to the file that caused it. Outside an
 active Sevgi execution, use Ruby's `require` rather than `Load`.
@@ -242,7 +242,7 @@ end
 ```
 
 The isolated form keeps these top-level names out of the application, but it is not a security sandbox. Both methods
-run trusted Ruby with the current process's file, network, and system authority. The load-depth guard above prevents
-runaway recursive nesting; it does not restrict what trusted Ruby can access. For SVG/XML input, use
+run trusted Ruby with the current process's file, network, and system authority. The load-depth guard only limits active
+sources. It does not restrict what trusted Ruby can access. For SVG/XML input, use
 [Derender](@/derender.md), whose public conversion and inclusion APIs treat XML as data rather than executing the
 generated Ruby.
