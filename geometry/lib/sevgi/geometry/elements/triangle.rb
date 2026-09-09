@@ -77,7 +77,7 @@ module Sevgi
 
         def validate!(a, b)
           middle = a.ending(Origin)
-          return unless Point.collinear?(Origin, middle, b.ending(middle))
+          return unless F.zero?(a.length) || F.zero?(b.length) || Point.collinear?(Origin, middle, b.ending(middle))
 
           Error.("Triangle segments must form a non-degenerate triangle")
         end

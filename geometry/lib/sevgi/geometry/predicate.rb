@@ -24,10 +24,10 @@ module Sevgi
       end
 
       def collinear?(points, precision: nil)
-        origin = points.first
-        baseline = points.drop(1).find { !Point.eq?(origin, it, precision:) }
+        origin, baseline = points.minmax_by { [it.x, it.y] }
 
-        !baseline || points.all? { orientation(origin, baseline, it, precision:).zero? }
+        points.all? { Point.eq?(origin, it, precision:) } ||
+          points.all? { orientation(origin, baseline, it, precision:).zero? }
       end
 
       def convex_turns?(vertices, precision: nil)
@@ -40,15 +40,11 @@ module Sevgi
       end
 
       def nonadjacent_intersection?(vertices, precision: nil)
-        nonadjacent_pairs(edges(vertices)).any? do |a, b|
-          segments_intersect?(*a, *b, precision:)
-        end
-      end
-
-      def nonadjacent_pairs(edges)
-        edges.each_index.flat_map do |i|
-          ((i + 1)...edges.size).filter_map do |j|
-            [edges[i], edges[j]] unless adjacent_indices?(i, j, edges.size)
+        edges = edges(vertices)
+        # ponytail: quadratic comparisons; use a sweep-line algorithm if large polygons need faster queries.
+        edges.each_index.any? do |i|
+          ((i + 1)...edges.size).any? do |j|
+            !adjacent_indices?(i, j, edges.size) && segments_intersect?(*edges[i], *edges[j], precision:)
           end
         end
       end
@@ -128,6 +124,8 @@ module Sevgi
       #
       # Repeated points are allowed. When every point is equal at the selected
       # precision, the set is collinear.
+      # The baseline joins the minimum and maximum points ordered by x, then y.
+      # Cross products use the selected decimal precision, so input order does not affect the result.
       # @param points [Array<Sevgi::Geometry::Point, Array<Numeric>>] point-like values
       # @param precision [Integer, nil] decimal precision, or nil for the current function default
       # @return [Boolean]

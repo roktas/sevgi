@@ -41,8 +41,9 @@ module Sevgi
       def validate_box_elements(elements)
         ArgumentError.("At least one geometric element required") if elements.empty?
 
-        invalid = elements.find { !it.is_a?(Element) }
-        OperationInapplicableError.("Not a Geometric Element: #{invalid}") if invalid
+        elements.each do |element|
+          OperationInapplicableError.("Not a Geometric Element: #{element}") unless element.is_a?(Element)
+        end
       end
     end
   end

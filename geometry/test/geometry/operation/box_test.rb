@@ -40,11 +40,13 @@ module Sevgi
       end
 
       def test_box_rejects_non_geometry_argument
-        error = assert_raises(Operation::OperationInapplicableError) do
-          Operation.box(Rect[1, 1], Object.new)
-        end
+        [nil, false, Object.new].each do |invalid|
+          [[invalid, Rect[1, 1]], [Rect[1, 1], invalid], [nil, invalid]].each do |elements|
+            error = assert_raises(Operation::OperationInapplicableError) { Operation.box(*elements) }
 
-        assert_match(/Not a Geometric Element/, error.message)
+            assert_match(/Not a Geometric Element/, error.message)
+          end
+        end
       end
 
       def test_box_requires_an_element

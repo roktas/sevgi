@@ -36,6 +36,19 @@ module Sevgi
         assert_match(/At least three points/, error.message)
       end
 
+      def test_collinear_is_independent_of_point_order
+        [
+          [false, [[0, 0], [0.001, 0], [1000, 0], [1000, 0.001]]],
+          [false, [[0, 0], [0, 0], [1000, 0], [1000, 0.001]]],
+          [true, [[0, 0], [0.001, 0], [1000, 0], [1000, 0]]],
+          [true, [[0, 0], [0.0001, 0], [0, 0.0001], [0.0001, 0.0001]]]
+        ].each do |expected, points|
+          points.permutation.each do |order|
+            assert_equal(expected, Point.collinear?(*order, precision: 3), order.inspect)
+          end
+        end
+      end
+
       def test_collinear_rejects_invalid_point
         assert_raises(Error) { Point.collinear?([0, 0], [1, 1], Object.new) }
       end

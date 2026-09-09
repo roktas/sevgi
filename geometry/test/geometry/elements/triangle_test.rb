@@ -38,6 +38,19 @@ module Sevgi
         assert_raises(Error) { Triangle.from_points([0, 0], [1, 0], [2, 0]) }
       end
 
+      def test_triangle_rejects_sides_below_current_precision
+        F.with_precision(3) do
+          [[[1000, 0], [0.0001, 90]], [[0.0001, 0], [1000, 90]]].each do |a, b|
+            assert_raises(Error) { Triangle[a, b] }
+            middle = Segment[*a].ending(Origin)
+            assert_raises(Error) { Triangle.from_points(Origin, middle, Segment[*b].ending(middle)) }
+          end
+
+          triangle = Triangle[[1000, 0], [1, 90]]
+          assert_raises(Error) { triangle.scale(1, 0.0001) }
+        end
+      end
+
       def test_triangle_exposes_side_lengths
         triangle = Triangle[
           [5.0, F.atan2(4.0, 3.0)],

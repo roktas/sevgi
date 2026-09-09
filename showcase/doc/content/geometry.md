@@ -132,8 +132,9 @@ Zero-size elements still contribute their position to `Operation.box`; they are 
 
 ## Relations {{ "{#relations}" }}
 
-`Point.collinear?` tests a set of at least three point-like values with the same precision rules as other Geometry
-comparisons. `Polygon` adds boundary and shape classification predicates:
+`Point.collinear?` tests at least three point-like values. Its baseline joins the minimum and maximum points ordered by
+x, then y. Cross products use the selected decimal precision. Input order does not change the result.
+`Polygon` adds boundary and shape classification predicates:
 
 ```ruby
 Sevgi::Geometry::Point.collinear?([0, 0], [2, 2], [4, 4]) # => true
