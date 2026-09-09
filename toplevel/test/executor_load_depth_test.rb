@@ -13,7 +13,7 @@ module Sevgi
       Dir.mktmpdir do |dir|
         files = Array.new(maximum + 1) { |i| File.join(dir, "load_#{i}.sevgi") }
         files.each_cons(2) do |current, following|
-          File.write(current, "Load #{File.basename(following, '.sevgi').dump}\n")
+          File.write(current, "Load #{File.basename(following, ".sevgi").dump}\n")
         end
         File.write(files.last, "42\n")
 
