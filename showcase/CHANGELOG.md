@@ -5,6 +5,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## Unreleased
 
+## 0.100.0 - 2026-09-09
+
 ### Added
 
 - Added `ArcTo` and `ArcBy` for SVG-native elliptical arc paths.
