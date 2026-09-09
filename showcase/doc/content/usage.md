@@ -80,6 +80,10 @@ as `Rotate` live inside an `SVG` block. The
 split across several files can then move as one directory. Repeated non-recursive loads run again. Loading a source
 that is already active in the same chain raises a captured cycle error.
 
+An active load chain is limited to 128 sources. A deeper cycle-free chain raises a captured `Executor::LoadDepthError`
+before Ruby exhausts its call stack; in practice, such depth usually indicates indirect recursion through distinct
+files. This is a runaway-load safeguard, not a security boundary.
+
 If loading fails, the executor result keeps the source stack and points back to the file that caused it. Outside an
 active Sevgi execution, use Ruby's `require` rather than `Load`.
 
@@ -200,8 +204,8 @@ end
 `Executor::Error`. `stack` is the immutable list of visited Sevgi sources. For diagnostics, `result.error.cause` is the
 original exception. `result.error.load_backtrace` keeps entries that belong to those sources.
 
-The public result types are `Sevgi::Executor::Result`, `Sevgi::Executor::Error`, and
-`Sevgi::Executor::CycleError`.
+The public result/error types are `Sevgi::Executor::Result`, `Sevgi::Executor::Error`, `Sevgi::Executor::CycleError`, and
+`Sevgi::Executor::LoadDepthError`.
 
 ### Source context
 
@@ -238,6 +242,7 @@ end
 ```
 
 The isolated form keeps these top-level names out of the application, but it is not a security sandbox. Both methods
-run trusted Ruby with the current process's file, network, and system authority. For SVG/XML input, use
-[Derender](@/derender.md), whose public
-conversion and inclusion APIs treat XML as data rather than executing the generated Ruby.
+run trusted Ruby with the current process's file, network, and system authority. The load-depth guard above prevents
+runaway recursive nesting; it does not restrict what trusted Ruby can access. For SVG/XML input, use
+[Derender](@/derender.md), whose public conversion and inclusion APIs treat XML as data rather than executing the
+generated Ruby.
