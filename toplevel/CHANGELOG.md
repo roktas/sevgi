@@ -8,7 +8,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Changed
 
 - Revised DSL catalog examples and packaged Sevgi skill guidance to use statement-style calls and show inspection results.
-- Clarified active and hovered states in Showcase example tabs.
+- Refined Showcase example tabs, made Ruby and XML views fill their panels, and hid executable preambles from Ruby views.
 - Documented non-rendering element data and clarified the related DSL catalog examples.
 - Refined Showcase heading spacing, page-title colors, and DSL catalog cards across light and dark themes.
 

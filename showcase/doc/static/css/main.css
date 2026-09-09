@@ -2018,12 +2018,16 @@ html[data-theme="dark"] .tabs .tabs-title-link:not(:hover):not(:focus-visible) {
   width: 100%;
   min-height: 200px;
 }
-/* Code panels - no extra padding since pre already has padding */
+/* Code panels reuse pre padding without rendering a card inside the tab. */
 .tabs .panel.code-panel {
-  padding: 1rem;
+  padding: 0;
+  background: var(--wt-color-code-bg);
 }
 .tabs .panel.code-panel pre {
   margin: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
 }
 /* SVG render panel - center the image */
 .tabs .panel.svg-panel {
@@ -2141,9 +2145,6 @@ html[data-theme="dark"] .tabs .theme-dark {
     flex-basis: 100%;
     order: 999; /* All panels at bottom */
     margin: 0;
-  }
-  .tabs .panel.code-panel {
-    padding: 0.75rem;
   }
   .tabs .panel.svg-panel {
     padding: 1.5rem;

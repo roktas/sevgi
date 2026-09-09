@@ -13,8 +13,11 @@
 {% set svg_file_dark = "dark/" ~ base ~ ".svg" %}
 {% endif %}
 
-{% set ruby_content_light = load_data(path=ruby_file_light) %}
-{% set ruby_content_dark = load_data(path=ruby_file_dark) %}
+{% set ruby_preamble = "#!/usr/bin/env -S ruby -S sevgi
+# frozen_string_literal: true
+" %}
+{% set ruby_content_light = load_data(path=ruby_file_light) | replace(from=ruby_preamble, to="") | trim_start %}
+{% set ruby_content_dark = load_data(path=ruby_file_dark) | replace(from=ruby_preamble, to="") | trim_start %}
 {% set svg_content_light = load_data(path=svg_file_light) %}
 {% set svg_content_dark = load_data(path=svg_file_dark) %}
 {% set svg_tab = "tab-" ~ base ~ "-svg" %}
