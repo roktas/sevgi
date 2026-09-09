@@ -8,18 +8,49 @@ module Sevgi
       extend self
 
       def adjacent_overlap?(a, b, c, precision: nil)
-        return false unless orientation(a, b, c, precision:) == 0
+        orientation(a, b, c, precision:).zero? &&
+          (point_on_segment?(c, a, b, precision:) || point_on_segment?(a, b, c, precision:))
+      end
 
-        point_on_segment?(c, a, b, precision:) || point_on_segment?(a, b, c, precision:)
+      def adjacent_overlap_in?(vertices, precision: nil)
+        vertices.each_index.any? do |i|
+          adjacent_overlap?(vertices[i - 1], vertices[i], vertices[(i + 1) % vertices.size], precision:)
+        end
+      end
+
+      def between?(value, a, b, precision: nil)
+        minimum, maximum = [a, b].minmax
+        F.ge?(value, minimum, precision:) && F.le?(value, maximum, precision:)
+      end
+
+      def collinear?(points, precision: nil)
+        origin = points.first
+        baseline = points.drop(1).find { !Point.eq?(origin, it, precision:) }
+
+        !baseline || points.all? { orientation(origin, baseline, it, precision:).zero? }
       end
 
       def convex_turns?(vertices, precision: nil)
-        turns = vertices.each_index.filter_map do |i|
-          turn = orientation(vertices[i], vertices[(i + 1) % vertices.size], vertices[(i + 2) % vertices.size], precision:)
-          turn unless turn.zero?
-        end
+        turns = turn_orientations(vertices, precision:)
+        !turns.empty? && turns.uniq.one?
+      end
 
-        !turns.empty? && turns.all? { it == turns.first }
+      def edges(vertices)
+        vertices.each_index.map { |i| [vertices[i], vertices[(i + 1) % vertices.size]] }
+      end
+
+      def nonadjacent_intersection?(vertices, precision: nil)
+        nonadjacent_pairs(edges(vertices)).any? do |a, b|
+          segments_intersect?(*a, *b, precision:)
+        end
+      end
+
+      def nonadjacent_pairs(edges)
+        edges.each_index.flat_map do |i|
+          ((i + 1)...edges.size).filter_map do |j|
+            [edges[i], edges[j]] unless adjacent_indices?(i, j, edges.size)
+          end
+        end
       end
 
       def orientation(a, b, c, precision: nil)
@@ -31,10 +62,8 @@ module Sevgi
 
       def point_on_segment?(point, a, b, precision: nil)
         orientation(a, b, point, precision:).zero? &&
-          F.ge?(point.x, [a.x, b.x].min, precision:) &&
-          F.le?(point.x, [a.x, b.x].max, precision:) &&
-          F.ge?(point.y, [a.y, b.y].min, precision:) &&
-          F.le?(point.y, [a.y, b.y].max, precision:)
+          between?(point.x, a.x, b.x, precision:) &&
+          between?(point.y, a.y, b.y, precision:)
       end
 
       def repeated_vertex?(vertices, precision: nil)
@@ -44,43 +73,49 @@ module Sevgi
       end
 
       def segments_intersect?(a, b, c, d, precision: nil)
-        abc = orientation(a, b, c, precision:)
-        abd = orientation(a, b, d, precision:)
-        cda = orientation(c, d, a, precision:)
-        cdb = orientation(c, d, b, precision:)
+        turns = segment_orientations(a, b, c, d, precision:)
 
-        return true if abc != abd && cda != cdb && !abc.zero? && !abd.zero? && !cda.zero? && !cdb.zero?
-        return true if abc.zero? && point_on_segment?(c, a, b, precision:)
-        return true if abd.zero? && point_on_segment?(d, a, b, precision:)
-        return true if cda.zero? && point_on_segment?(a, c, d, precision:)
-        return true if cdb.zero? && point_on_segment?(b, c, d, precision:)
-
-        false
+        proper_intersection?(turns) || boundary_intersection?(a, b, c, d, turns, precision:)
       end
 
       def simple?(vertices, precision: nil)
-        return false if repeated_vertex?(vertices, precision:)
+        !repeated_vertex?(vertices, precision:) &&
+          !adjacent_overlap_in?(vertices, precision:) &&
+          !nonadjacent_intersection?(vertices, precision:)
+      end
 
-        vertices.each_index do |i|
-          return false if adjacent_overlap?(
-            vertices[i - 1],
-            vertices[i],
-            vertices[(i + 1) % vertices.size],
-            precision:
-          )
-        end
+      private
 
-        edges = vertices.each_index.map { |i| [vertices[i], vertices[(i + 1) % vertices.size]] }
-        edges.each_index do |i|
-          ((i + 1)...edges.size).each do |j|
-            next if j == i + 1
-            next if i.zero? && j == edges.size - 1
+      def adjacent_indices?(i, j, size) = j == i + 1 || (i.zero? && j == size - 1)
 
-            return false if segments_intersect?(*edges[i], *edges[j], precision:)
-          end
-        end
+      def boundary_intersection?(a, b, c, d, turns, precision: nil)
+        candidates = [
+          [turns[0], c, a, b],
+          [turns[1], d, a, b],
+          [turns[2], a, c, d],
+          [turns[3], b, c, d]
+        ]
 
-        true
+        candidates.any? { |turn, point, first, last| turn.zero? && point_on_segment?(point, first, last, precision:) }
+      end
+
+      def proper_intersection?(turns)
+        turns.none?(&:zero?) && turns[0] != turns[1] && turns[2] != turns[3]
+      end
+
+      def segment_orientations(a, b, c, d, precision: nil)
+        [
+          orientation(a, b, c, precision:),
+          orientation(a, b, d, precision:),
+          orientation(c, d, a, precision:),
+          orientation(c, d, b, precision:)
+        ]
+      end
+
+      def turn_orientations(vertices, precision: nil)
+        vertices.each_index
+          .map { |i| orientation(vertices[i], vertices[(i + 1) % vertices.size], vertices[(i + 2) % vertices.size], precision:) }
+          .reject(&:zero?)
       end
     end
 
@@ -101,22 +136,7 @@ module Sevgi
       def self.collinear?(*points, precision: nil)
         ArgumentError.("At least three points required") if points.size < 3
 
-        points = Tuples[self, *points]
-        origin = points.first
-        baseline = points.drop(1).find { !eq?(origin, it, precision:) }
-        return true unless baseline
-
-        points.all? do |point|
-          F.zero?(
-            Cross[
-              baseline.x - origin.x,
-              baseline.y - origin.y,
-              point.x - origin.x,
-              point.y - origin.y
-            ],
-            precision:
-          )
-        end
+        Predicate.collinear?(Tuples[self, *points], precision:)
       end
     end
 
