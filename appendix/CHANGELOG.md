@@ -31,8 +31,10 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Preserved inherited namespaces on detached Derender nodes in generated source and direct evaluation, including imports through `EvaluateChildren` and `IncludeChildren`.
 - Prevented sweep and Hatch lines from crossing the exterior between two tangent vertices of a concave polygon.
 - Aligned Tile cells with their declared bounds for circles, rotated shapes, and polygons whose first vertex differs from their bounding-box origin.
-- Reported excessively deep acyclic `Load` chains as `Executor::LoadDepthError` before Ruby exhausts its stack while
-  preserving cycle detection and nested load diagnostics.
+- Limited `Load` chains to 128 active sources with `Executor::LoadDepthError`, preserving cycle detection and nested load diagnostics.
+- Rejected nil and false aggregate-box inputs with the documented geometry error.
+- Restored precision-aware rejection of zero-length Triangle sides.
+- Made point-set collinearity independent of input order and removed eager polygon edge-pair storage.
 
 ## 0.99.0 - 2026-08-09
 
