@@ -91,7 +91,8 @@ module Sevgi
       end
 
       def test_dsl_task_links_and_examples_render_as_html
-        cli("goto", "http://127.0.0.1:#{@browser.port}/dsl/")
+        cli("resize", *VIEWPORT.map(&:to_s))
+        cli("goto", "http://127.0.0.1:#{@browser.port}/dsl/#theme-script-tools")
         state = eval_json(
           <<~JS
             () => ({
@@ -102,7 +103,15 @@ module Sevgi
               entries: Array.from(document.querySelectorAll('.dsl-entry')).every((entry) =>
                 entry.querySelector('.dsl-meta > span') && entry.querySelector('pre code[data-lang="ruby"]')
               ),
+              inlineCode: Array.from(document.querySelectorAll('.dsl-theme-intro p, .dsl-entry > p'))
+                .filter((text) => text.textContent.includes('.sevgi'))
+                .map((text) => Boolean(text.querySelector('code'))),
               raw: document.querySelectorAll('.dsl-themes pre, .dsl-entry pre code[data-lang="plain"]').length,
+              rawMarkdown: Array.from(document.querySelectorAll('.dsl-theme-intro p, .dsl-entry > p')).filter((text) =>
+                text.textContent.includes('`')
+              ).length,
+              themeVisible: document.querySelector('#theme-script-tools').getBoundingClientRect().top >=
+                document.querySelector('header').getBoundingClientRect().bottom,
               trailing: Array.from(document.querySelectorAll('.dsl-entry pre code')).filter((code) => {
                 const line = code.lastElementChild;
                 return line && !line.textContent && getComputedStyle(line).display !== 'none';
@@ -113,7 +122,11 @@ module Sevgi
         assert_operator(state.fetch("count"), :>, 0)
         assert(state.fetch("links"))
         assert(state.fetch("entries"))
+        assert_operator(state.fetch("inlineCode").size, :>, 0)
+        assert(state.fetch("inlineCode").all?)
         assert_equal(0, state.fetch("raw"))
+        assert_equal(0, state.fetch("rawMarkdown"))
+        assert(state.fetch("themeVisible"))
         assert_equal(0, state.fetch("trailing"))
       end
 

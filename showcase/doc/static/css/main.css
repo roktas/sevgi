@@ -1888,6 +1888,7 @@ html[data-theme="light"] .toc-sticky {
     border-top-color: var(--wt-color-accent);
   }
 }
+.dsl-theme[id],
 .tabs[id] {
   scroll-margin-top: calc(var(--wt-header-height) + var(--wt-main-padding-top));
 }

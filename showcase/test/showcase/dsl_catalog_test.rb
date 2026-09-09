@@ -102,6 +102,14 @@ describe "DSL catalog" do
     assert_equal(%w[Call Group Layer Layer! Module Symbols base], names.sort)
   end
 
+  it "keeps DSL calls free of optional parentheses" do
+    dsl_names = catalog_names + Sevgi::Standard.elements.map(&:to_s)
+    pattern = Regexp.union(dsl_names.map { /(?<![A-Za-z0-9_])#{Regexp.escape(it)}\(/ })
+    offenders = DSLCatalog::ENTRIES.filter_map { it.fetch("name") if it.fetch("code").match?(pattern) }
+
+    assert_empty(offenders)
+  end
+
   DSLCatalog::ENTRIES.each do |entry|
     it "runs the #{entry.fetch("name")} example" do
       Dir.mktmpdir("sevgi-dsl-") do |directory|

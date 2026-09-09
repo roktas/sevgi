@@ -19,8 +19,8 @@ configuration format. Apply ordinary Ruby design and readability rules unless th
 
 Let drawing code read as a Sevgi program rather than mechanically parenthesized Ruby. Use braces for a one-line block.
 Use `do`/`end` for a multiline block. Omit optional parentheses from statement-like SVG elements and Sevgi operations.
-Keep parentheses when they bind a compact block or chained expression clearly, as in
-`SVG(:minimal) { circle r: 4 }.Render`.
+If braces require parentheses around a statement-like call, use `do`/`end` instead. Keep parentheses only when Ruby
+grammar still requires them.
 
 Avoid:
 
@@ -72,7 +72,9 @@ Badge = SVG.Module do
   def call(label:) = text label, class: "badge"
 end
 
-SVG(:minimal) { Call Badge, label: "OK" }.Render
+SVG :minimal do
+  Call Badge, label: "OK"
+end.Render
 ```
 
 `Call` draws directly. On an Inkscape profile, `Group`, `Layer`, and `Layer!` wrap the same invocation in a group,

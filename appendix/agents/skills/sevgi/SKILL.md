@@ -41,7 +41,7 @@ visible intent.
    standard input. Read [derender.md](references/derender.md). For PDF/PNG output, read [output.md](references/output.md).
 7. Write the smallest clear Sevgi expression. Keep case-sensitive, normally lowercase-leading SVG element calls,
    capitalized Sevgi operations, ordinary Ruby control flow, and SVG attributes visibly distinct. Do not mechanically
-   parenthesize statement-like DSL calls.
+   parenthesize statement-like DSL calls. When braces would require those parentheses, use `do`/`end`.
 8. Use the verification boundaries in [dsl.md](references/dsl.md). Report unavailable checks rather than claiming they passed.
 9. For new or visually changed drawings, render and inspect the supported contexts affected by the change.
    Compare the output against the original acceptance criteria. For size, alignment, clipping, density, or visual-regression

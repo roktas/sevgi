@@ -9,7 +9,7 @@
 {% set provider_key = entry.provider | lower %}
 {% set context_key = entry.context | lower %}
 <div class="dsl-meta"><span>{{ entry.provider }}</span>{% if provider_key != context_key %}<span>{{ entry.context }}</span>{% endif %}{% for theme in entry.themes %}<a href="#theme-{{ theme }}">{{ theme | replace(from="-", to=" ") }}</a>{% endfor %}</div>
-<p>{{ entry.summary }}</p>
+{{ entry.summary | markdown | safe }}
 {% if entry.contract | default(value="") == "callable" %}
 <p>Build an anonymous callable with <code>SVG.Module { ... }</code>. For an existing or explicitly declared module, use
 <code>extend SVG::Module</code>. Use <code>extend SVG::Modules</code> for an owned module tree.</p>

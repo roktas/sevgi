@@ -51,7 +51,9 @@ Ruby library:
 require "sevgi"
 
 canvas = SVG.Canvas width: 24, height: 24, unit: :px
-drawing = SVG(:minimal, canvas) { circle cx: 12, cy: 12, r: 10, fill: "tomato" }
+drawing = SVG :minimal, canvas do
+  circle cx: 12, cy: 12, r: 10, fill: "tomato"
+end
 
 File.write "badge.svg", drawing.Render
 ```

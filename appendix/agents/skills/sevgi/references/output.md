@@ -32,7 +32,9 @@ For an application that owns the rendered SVG and output policy separately:
 
 ```ruby
 canvas = SVG.Canvas width: 40, height: 40, unit: :px
-svg = SVG(:minimal, canvas) { circle cx: 20, cy: 20, r: 16, fill: "tomato" }.Render
+svg = SVG :minimal, canvas do
+  circle cx: 20, cy: 20, r: 16, fill: "tomato"
+end.Render
 Sevgi::Sundries::Export.call(svg, "badge.pdf")
 ```
 
