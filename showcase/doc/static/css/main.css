@@ -431,6 +431,7 @@ main {
   align-self: start;
   height: 360px;
   margin: 0;
+  border-radius: 0.3rem;
 }
 .showcase-flow .tabs .panel {
   height: calc(100% - var(--tabs-header-height));
@@ -598,7 +599,7 @@ main {
   padding: 0.4rem;
   background: var(--wt-color-bg-soft);
   border: 1px solid var(--wt-color-border-subtle);
-  border-radius: 0.3rem;
+  border-radius: 0.2rem;
   cursor: pointer;
   color: var(--wt-color-text-muted);
   opacity: 0;
@@ -1860,11 +1861,10 @@ button.explore-more {
   border: 1px solid var(--wt-color-border-subtle);
   margin: 1.5rem 0;
   overflow: hidden;
-  /* Space for hover lift animation */
   padding-top: 4px;
 }
 html[data-theme="light"] .showcase-flow > .tabs {
-  --wt-color-bg-soft: #dedede;
+  --wt-color-bg-soft: #ededed;
 }
 html[data-theme="light"] .showcase-flow > .tabs,
 html[data-theme="light"] .toc-sticky {
@@ -1875,7 +1875,7 @@ html[data-theme="light"] .toc-sticky {
 }
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) .showcase-flow > .tabs {
-    --wt-color-bg-soft: #dedede;
+    --wt-color-bg-soft: #ededed;
   }
   :root:not([data-theme="dark"]) .showcase-flow > .tabs,
   :root:not([data-theme="dark"]) .toc-sticky {
@@ -1907,7 +1907,7 @@ html[data-theme="light"] .toc-sticky {
 }
 .tabs .tabs-title-link {
   overflow: hidden;
-  color: var(--wt-color-text-muted);
+  color: var(--wt-color-text);
   text-decoration: none;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1937,32 +1937,74 @@ html[data-theme="dark"] .tabs .tabs-title-link:not(:hover):not(:focus-visible) {
   font-weight: 600;
   font-size: 1.1rem;
   color: var(--wt-color-text-muted);
-  transition: background 150ms, color 150ms, transform 150ms;
+  transition: background 150ms, color 150ms;
   border-bottom: 2px solid rgba(0, 0, 0, 0);
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 }
 .tabs .label:hover {
-  background: var(--wt-color-bg);
+  background: color-mix(in srgb, var(--wt-color-bg) 30%, var(--wt-color-bg-soft));
   color: var(--wt-color-text);
-  transform: translateY(-2px);
+}
+html[data-theme="light"] .showcase-flow > .tabs .input:not(:checked) + .label:hover {
+  background: color-mix(in srgb, var(--wt-color-bg) 60%, var(--wt-color-bg-soft));
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .showcase-flow > .tabs .input:not(:checked) + .label:hover {
+    background: color-mix(in srgb, var(--wt-color-bg) 60%, var(--wt-color-bg-soft));
+  }
+}
+.tabs .input:not(:checked) + .label:hover {
+  border-bottom-color: transparent;
+}
+.tabs .input:not(:checked) + .label:is(:hover, :focus-visible, :active) {
+  border-radius: 0.3rem 0.3rem 0 0;
+}
+.tabs .input:not(:checked) + .label:is(:hover, :focus-visible, :active)::after,
+.tabs .input:checked + .label::after {
+  content: "";
+  position: absolute;
+  right: 0.5rem;
+  bottom: 0;
+  left: 0.5rem;
+  height: 2px;
+  pointer-events: none;
+}
+.tabs .input:not(:checked) + .label:is(:hover, :focus-visible, :active)::after {
+  background: var(--wt-color-text-muted);
+}
+.tabs .input:checked + .label {
+  border-bottom-color: transparent;
+  border-radius: 0.3rem 0.3rem 0 0;
+}
+.tabs .input:checked + .label::after {
+  background: var(--wt-color-accent);
+}
+.tabs .input:checked + .label:is(:hover, :focus-visible, :active) {
+  z-index: 1;
+  outline: 2px solid var(--wt-color-accent);
+  outline-offset: -2px;
+  border-radius: 0.3rem 0.3rem 0 0;
+}
+.tabs .input:checked + .label:is(:hover, :focus-visible, :active)::after {
+  background: transparent;
 }
 .tabs .label:active {
   background: var(--wt-color-bg-elevated);
-  transform: translateY(0);
 }
 /* FontAwesome icon styling */
 .tabs .label i {
   color: inherit;
   font-size: inherit;
 }
-.tabs .input:focus + .label {
+.tabs .input:not(:checked):focus + .label {
   z-index: 1;
   outline: 2px solid var(--wt-color-accent);
   outline-offset: -2px;
 }
-.tabs .label:focus-visible {
+.tabs .input:not(:checked) + .label:focus-visible {
   z-index: 1;
   outline: 2px solid var(--wt-color-accent);
   outline-offset: -2px;
@@ -1970,7 +2012,6 @@ html[data-theme="dark"] .tabs .tabs-title-link:not(:hover):not(:focus-visible) {
 .tabs .input:checked + .label {
   background: var(--wt-color-bg-elevated);
   color: var(--wt-color-text);
-  border-bottom-color: var(--wt-color-accent);
 }
 @media (min-width: 600px) {
   .tabs .label {
@@ -2116,6 +2157,9 @@ html[data-theme="dark"] .tabs .theme-dark {
     border-radius: 0;
     font-size: 1.05rem;
   }
+  .showcase-flow .tabs.titled .input:checked + .label {
+    border-radius: 0.3rem 0.3rem 0 0;
+  }
   .showcase-flow .tabs .panel.svg-panel {
     padding: 0.75rem;
   }
@@ -2123,15 +2167,11 @@ html[data-theme="dark"] .tabs .theme-dark {
     width: 100%;
     height: 100%;
   }
-  .tabs .label:hover {
-    transform: none;
-  }
   .tabs .label i {
     color: inherit;
   }
   .tabs .input:checked + .label {
     background: var(--wt-color-bg-elevated);
-    border-bottom: 3px solid var(--wt-color-accent);
   }
   .tabs .panel {
     display: none;
