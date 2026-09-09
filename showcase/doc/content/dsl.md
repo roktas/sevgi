@@ -31,6 +31,12 @@ Use [`Element`](/dsl/#element) for foreign XML, qualified names, or a name that 
 [MDN SVG element reference](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element) for the standard
 element vocabulary.
 
+### Internal element data
+
+An attribute name that starts with `-` stores internal element data. Sevgi keeps the value in memory, but does not write
+it to SVG. Use `-context` with [`Ancestral`](#ancestral). [`Duplicate`](#duplicate) and
+[`Disidentify`](#disidentify) use `-id` to retain a source id without rendering it.
+
 ## Browse by task {{ "{#browse-by-task}" }}
 
 Some words appear in more than one group. `Include`, for example, belongs to both composition and round trip. `Grid`

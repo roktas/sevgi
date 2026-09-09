@@ -79,15 +79,15 @@ letters:
       see_title: geometry alignment
     - name: Ancestral
       anchor: ancestral
-      summary: Read inherited `-context` data. The nearest ancestor wins when keys repeat.
+      summary: Read merged `-context` data from the current element and its ancestors. The leading `-` keeps this data in memory and out of SVG output. The nearest element wins when keys repeat.
       provider: underscore
       context: document
       themes: [context, composition]
       code: |
-        g "-context": {fill: "tomato", stroke: "black"} do
-          g "-context": {fill: "gold"} do
-            style = self.Ancestral
-            rect width: 40, height: 20, **style
+        g "-context": {radius: 10, tone: "tomato"} do
+          g "-context": {tone: "gold"} do
+            context = self.Ancestral # internal, not rendered
+            circle r: context[:radius], fill: context[:tone]
           end
         end
     - name: Append
@@ -273,7 +273,7 @@ letters:
       see_title: the Derender guide
     - name: Disidentify
       anchor: disidentify
-      summary: Hide rendered ids as internal metadata while retaining their source identity.
+      summary: Move rendered `id` values to `-id` data while retaining their source identity. The leading `-` keeps the values in memory and out of SVG output.
       provider: identify
       context: document
       themes: [quality, composition]
@@ -294,7 +294,7 @@ letters:
       see_title: drawing geometry
     - name: Duplicate
       anchor: duplicate
-      summary: Copy an independent subtree and optionally translate or customize it.
+      summary: Copy an independent subtree and optionally translate or customize it. Copied `id` values move to `-id`; the leading `-` keeps them in memory and out of SVG output.
       provider: duplicate
       context: document
       themes: [composition, layout]
