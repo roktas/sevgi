@@ -63,6 +63,12 @@ module Sevgi
         refute_predicate(polygon, :simple?)
       end
 
+      def test_polygon_simple_rejects_nonadjacent_edge_overlap
+        polygon = Polygon.([0, 0], [4, 0], [4, 4], [0, 4], [0, 2], [3, 2], [3, 0], [1, 0])
+
+        refute_predicate(polygon, :simple?)
+      end
+
       def test_polygon_convex_accepts_both_orientations
         points = [[0, 0], [4, 0], [4, 4], [0, 4]]
 
@@ -102,7 +108,7 @@ module Sevgi
       end
 
       def test_polygon_classification_respects_precision
-        polygon = Polygon.([0, 0], [4, 0], [4, 4], [2, 3.9996], [0, 4])
+        polygon = Polygon.([0, 0], [4, 0], [4, 4], [2, 3.99996], [0, 4])
 
         assert(polygon.convex?(precision: 3))
         refute(polygon.concave?(precision: 3))
