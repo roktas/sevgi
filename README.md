@@ -86,10 +86,6 @@ adds `sevgi --skill` to locate the matching Appendix skill.
 Sevgi requires Ruby 3.4 or newer. SVG output has no native graphics dependencies. Gem-based PDF and PNG export uses
 optional Cairo, librsvg, and HexaPDF integrations documented in Getting Started.
 
-> [!NOTE]
->
-> Sevgi is pre-1.0. Public APIs can change before the 1.0 release.
-
 ## Links
 
 - [Documentation](https://sevgi.roktas.dev)
