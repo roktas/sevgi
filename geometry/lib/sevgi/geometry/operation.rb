@@ -112,4 +112,5 @@ module Sevgi
 end
 
 require_relative "operation/align"
+require_relative "operation/box"
 require_relative "operation/sweep"
