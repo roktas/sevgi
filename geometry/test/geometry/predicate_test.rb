@@ -18,13 +18,16 @@ module Sevgi
       def test_collinear_handles_repeated_points
         assert(Point.collinear?([0, 0], [0, 0], [2, 2], [4, 4]))
         assert(Point.collinear?([3, 3], [3, 3], [3, 3]))
+        refute(Point.collinear?([0, 0], [0, 0], [2, 2], [2, 3]))
       end
 
       def test_collinear_respects_precision
         points = [[0, 0], [1, 1], [2, 2.0004]]
 
-        assert(Point.collinear?(*points, precision: 3))
-        refute(Point.collinear?(*points, precision: 4))
+        F.with_precision(4) do
+          assert(Point.collinear?(*points, precision: 3))
+          refute(Point.collinear?(*points))
+        end
       end
 
       def test_collinear_requires_three_points
@@ -57,6 +60,12 @@ module Sevgi
         refute_predicate(polygon, :simple?)
       end
 
+      def test_polygon_simple_rejects_nonadjacent_vertex_touch
+        polygon = Polygon.([0, 0], [4, 0], [4, 4], [2, 0], [0, 4])
+
+        refute_predicate(polygon, :simple?)
+      end
+
       def test_polygon_simple_rejects_adjacent_edge_overlap
         polygon = Polygon.([0, 0], [4, 0], [2, 0], [4, 4], [0, 4])
 
@@ -72,6 +81,7 @@ module Sevgi
       def test_polygon_convex_accepts_both_orientations
         points = [[0, 0], [4, 0], [4, 4], [0, 4]]
 
+        assert(Polygon.([0, 0], [4, 0], [2, 3]).convex?)
         assert(Polygon.(*points).convex?)
         assert(Polygon.(*points.reverse).convex?)
       end

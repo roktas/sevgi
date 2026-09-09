@@ -56,11 +56,11 @@ module Sevgi
       def test_box_does_not_mutate_inputs
         a = Rect[2, 3, position: [1, 2]]
         b = Line.([8, 9], [12, 7])
-        before = [a, b].map { it }
+        before = [a, b].map { it.points.map(&:deconstruct) }
 
         Operation.box(a, b)
 
-        assert_equal(before, [a, b])
+        assert_equal(before, [a, b].map { it.points.map(&:deconstruct) })
       end
     end
   end
