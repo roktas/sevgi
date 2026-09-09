@@ -8,6 +8,9 @@ module Sevgi
     # fiber's executor stack. They are not shared between concurrent executions.
     # @api private
     class Scope
+      MAX_LOAD_DEPTH = 128
+      private_constant :MAX_LOAD_DEPTH
+
       # @!attribute [r] scope
       #   @return [Module] isolated module where script source is evaluated
       # @!attribute [r] recent
@@ -117,6 +120,12 @@ module Sevgi
       def enter(source)
         if @active.key?(source.identity)
           raise Executor::CycleError, "Recursive Sevgi load: #{source.file}"
+        end
+
+        if @active.size >= MAX_LOAD_DEPTH
+          raise Executor::LoadDepthError,
+            "Sevgi load nesting too deep (maximum #{MAX_LOAD_DEPTH} active sources): #{source.file}; " \
+              "check for indirect recursion"
         end
 
         @active[source.identity] = source
