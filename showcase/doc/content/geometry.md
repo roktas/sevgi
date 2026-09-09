@@ -111,15 +111,49 @@ open_path.inside?([4, 2]) # => false
 ```
 
 A rectangle exposes its geometric center directly. For any other element, use the center of its bounding box when that
-is the intended meaning:
+is the intended meaning. `Operation.box` combines the existing boxes of several elements into their smallest common
+axis-aligned rectangle:
 
 ```ruby
 box = Sevgi::Geometry::Rect[40, 24, position: [6, 8]]
 open_path = Sevgi::Geometry::Polyline.([0, 0], [8, 0], [8, 5])
 
-box.center              # => Point[26.0, 20.0]
-open_path.box.center    # => Point[4.0, 2.5]
+box.center           # => Point[26.0, 20.0]
+open_path.box.center # => Point[4.0, 2.5]
+
+combined = Sevgi::Geometry::Operation.box(box, open_path)
+combined.position # => Point[0.0, 0.0]
+combined.width    # => 46.0
+combined.height   # => 32.0
 ```
+
+Zero-size elements still contribute their position to `Operation.box`; they are not discarded merely because
+`ignorable?` is true.
+
+## Relations {{ "{#relations}" }}
+
+`Point.collinear?` tests a set of at least three point-like values with the same precision rules as other Geometry
+comparisons. `Polygon` adds boundary and shape classification predicates:
+
+```ruby
+Sevgi::Geometry::Point.collinear?([0, 0], [2, 2], [4, 4]) # => true
+
+convex = Sevgi::Geometry::Polygon.([0, 0], [4, 0], [4, 4], [0, 4])
+concave = Sevgi::Geometry::Polygon.([0, 0], [4, 0], [2, 2], [4, 4], [0, 4])
+crossed = Sevgi::Geometry::Polygon.([0, 0], [4, 4], [0, 4], [4, 0])
+
+convex.simple?   # => true
+convex.convex?   # => true
+concave.concave? # => true
+crossed.simple?  # => false
+crossed.convex?  # => false
+crossed.concave? # => false
+```
+
+A simple polygon has no self-intersections, non-adjacent boundary touches, or overlapping edges. Redundant collinear
+vertices along a straight edge do not prevent convexity. A self-intersecting or fully degenerate polygon is neither
+convex nor concave. Pass `precision:` to these predicates when near-collinear coordinates should use an explicit decimal
+precision.
 
 ## Arcs and ellipses {{ "{#arcs-and-ellipses}" }}
 
