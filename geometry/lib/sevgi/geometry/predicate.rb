@@ -73,9 +73,11 @@ module Sevgi
       end
 
       def segments_intersect?(a, b, c, d, precision: nil)
-        turns = segment_orientations(a, b, c, d, precision:)
+        first = [a, b]
+        second = [c, d]
+        turns = segment_orientations(*first, *second, precision:)
 
-        proper_intersection?(turns) || boundary_intersection?(a, b, c, d, turns, precision:)
+        proper_intersection?(turns) || boundary_intersection?(first, second, turns, precision:)
       end
 
       def simple?(vertices, precision: nil)
@@ -88,15 +90,12 @@ module Sevgi
 
       def adjacent_indices?(i, j, size) = j == i + 1 || (i.zero? && j == size - 1)
 
-      def boundary_intersection?(a, b, c, d, turns, precision: nil)
-        candidates = [
-          [turns[0], c, a, b],
-          [turns[1], d, a, b],
-          [turns[2], a, c, d],
-          [turns[3], b, c, d]
-        ]
+      def boundary_intersection?(first, second, turns, precision: nil)
+        a, b = first
+        c, d = second
+        candidates = [[turns[0], c, a, b], [turns[1], d, a, b], [turns[2], a, c, d], [turns[3], b, c, d]]
 
-        candidates.any? { |turn, point, first, last| turn.zero? && point_on_segment?(point, first, last, precision:) }
+        candidates.any? { |turn, point, from, to| turn.zero? && point_on_segment?(point, from, to, precision:) }
       end
 
       def proper_intersection?(turns)
