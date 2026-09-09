@@ -52,7 +52,6 @@ end
 require_relative "mixtures/core"
 
 require_relative "mixtures/call"
-require_relative "mixtures/call_guard"
 require_relative "mixtures/duplicate"
 require_relative "mixtures/export"
 require_relative "mixtures/hatch"
