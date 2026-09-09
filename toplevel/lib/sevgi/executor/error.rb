@@ -7,6 +7,14 @@ module Sevgi
     class CycleError < ::Sevgi::Error
     end
 
+    # Raised when nested Sevgi loads exceed the executor's supported active-source depth.
+    #
+    # Excessive acyclic nesting usually indicates an indirect recursive load pattern that
+    # escaped ordinary cycle detection through generated or otherwise distinct source files.
+    # @see https://sevgi.roktas.dev/usage/#execute Execute source guide
+    class LoadDepthError < ::Sevgi::Error
+    end
+
     # Wraps an exception raised while executing Sevgi script source. Its visited source snapshot records every source in
     # load order. It is not the active load stack at the instant of failure.
     # @see https://sevgi.roktas.dev/usage/#execute Execute source guide
