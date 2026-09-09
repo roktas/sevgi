@@ -1948,19 +1948,10 @@ html[data-theme="dark"] .tabs .tabs-title-link:not(:hover):not(:focus-visible) {
   position: relative;
 }
 .tabs .label:hover {
-  background: color-mix(in srgb, var(--wt-color-bg) 30%, var(--wt-color-bg-soft));
   color: var(--wt-color-text);
 }
-html[data-theme="light"] .showcase-flow > .tabs .input:not(:checked) + .label:hover {
-  background: color-mix(in srgb, var(--wt-color-bg) 60%, var(--wt-color-bg-soft));
-}
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) .showcase-flow > .tabs .input:not(:checked) + .label:hover {
-    background: color-mix(in srgb, var(--wt-color-bg) 60%, var(--wt-color-bg-soft));
-  }
-}
 .tabs .input:not(:checked) + .label:hover {
-  border-bottom-color: transparent;
+  background: var(--wt-color-bg-elevated);
 }
 .tabs .input:not(:checked) + .label:is(:hover, :focus-visible, :active) {
   border-radius: 0.3rem 0.3rem 0 0;
@@ -1979,19 +1970,21 @@ html[data-theme="light"] .showcase-flow > .tabs .input:not(:checked) + .label:ho
   background: var(--wt-color-text-muted);
 }
 .tabs .input:checked + .label {
-  border-bottom-color: transparent;
   border-radius: 0.3rem 0.3rem 0 0;
+  background: var(--wt-color-bg-elevated);
+  color: var(--wt-color-text);
 }
 .tabs .input:checked + .label::after {
   background: var(--wt-color-accent);
 }
-.tabs .input:checked + .label:is(:hover, :focus-visible, :active) {
+.tabs .input:checked + .label:focus-visible,
+.tabs .input:not(:checked):focus + .label,
+.tabs .input:not(:checked) + .label:focus-visible {
   z-index: 1;
   outline: 2px solid var(--wt-color-accent);
   outline-offset: -2px;
-  border-radius: 0.3rem 0.3rem 0 0;
 }
-.tabs .input:checked + .label:is(:hover, :focus-visible, :active)::after {
+.tabs .input:checked + .label:focus-visible::after {
   background: transparent;
 }
 .tabs .label:active {
@@ -2002,19 +1995,8 @@ html[data-theme="light"] .showcase-flow > .tabs .input:not(:checked) + .label:ho
   color: inherit;
   font-size: inherit;
 }
-.tabs .input:not(:checked):focus + .label {
-  z-index: 1;
-  outline: 2px solid var(--wt-color-accent);
-  outline-offset: -2px;
-}
-.tabs .input:not(:checked) + .label:focus-visible {
-  z-index: 1;
-  outline: 2px solid var(--wt-color-accent);
-  outline-offset: -2px;
-}
-.tabs .input:checked + .label {
-  background: var(--wt-color-bg-elevated);
-  color: var(--wt-color-text);
+.showcase-flow > .tabs:has(.input:not(:checked) + .label:hover) .input:checked + .label {
+  background: var(--wt-color-bg-soft);
 }
 @media (min-width: 600px) {
   .tabs .label {
@@ -2039,18 +2021,11 @@ html[data-theme="light"] .showcase-flow > .tabs .input:not(:checked) + .label:ho
 }
 /* SVG render panel - center the image */
 .tabs .panel.svg-panel {
-  display: none;
   align-items: center;
   justify-content: center;
   padding: 2rem;
 }
 .tabs .theme-dark {
-  display: none;
-}
-html[data-theme="light"] .tabs .theme-light {
-  display: block;
-}
-html[data-theme="light"] .tabs .theme-dark {
   display: none;
 }
 html[data-theme="dark"] .tabs .theme-light {
@@ -2090,27 +2065,12 @@ html[data-theme="dark"] .tabs .theme-dark {
 .tabs .input:checked + .label + .panel.svg-panel {
   display: flex;
 }
-.tabs .loading {
-  color: var(--wt-color-text-soft);
-  font-style: italic;
-  padding: 1.25rem 1.5rem;
-}
-.tabs .error {
-  color: var(--red, #a00);
-  padding: 1.25rem 1.5rem;
-}
 /* Mobile responsiveness */
 @media screen and (max-width: 768px) {
   .tabs {
-    padding-top: 0;
     padding: 0;
-    display: block;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
   }
   /* Tab header container */
-  .tabs .input,
   .tabs .label {
     order: -1; /* Put all tabs at top */
   }
@@ -2170,16 +2130,8 @@ html[data-theme="dark"] .tabs .theme-dark {
     width: 100%;
     height: 100%;
   }
-  .tabs .label i {
-    color: inherit;
-  }
-  .tabs .input:checked + .label {
-    background: var(--wt-color-bg-elevated);
-  }
   .tabs .panel {
-    display: none;
     min-height: 150px;
-    width: 100%;
     flex-basis: 100%;
     order: 999; /* All panels at bottom */
     margin: 0;
@@ -2189,12 +2141,6 @@ html[data-theme="dark"] .tabs .theme-dark {
   }
   .tabs .panel.svg-panel {
     padding: 1.5rem;
-  }
-  .tabs .input:checked + .label + .panel {
-    display: block;
-  }
-  .tabs .input:checked + .label + .panel.svg-panel {
-    display: flex;
   }
 }
 
