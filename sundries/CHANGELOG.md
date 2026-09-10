@@ -276,7 +276,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Changed
 
-- Added the checker board example to the documentation showcase flow.
+- Added the checkerboard example to the documentation showcase flow.
 - Consolidated Victor Book attribution for adapted showcase examples into a single documentation note.
 
 ### Fixed
