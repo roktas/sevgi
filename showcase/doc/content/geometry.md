@@ -35,9 +35,9 @@ the results to `Draw`, `Hatch`, `Align`, or your own Ruby code. No geometry cons
 point = Sevgi::Geometry::Point[3, 4]
 line = Sevgi::Geometry::Line.([0, 0], point)
 
-line.length                                      # => 5.0
-Sevgi::Geometry::Point.midpoint([0, 0], point)   # => Point[1.5, 2.0]
-point.translate(2, 1)                            # => Point[5.0, 5.0]
+line.length                                    # => 5.0
+Sevgi::Geometry::Point.midpoint([0, 0], point) # => Point[1.5, 2.0]
+point.translate(2, 1)                          # => Point[5.0, 5.0]
 ```
 
 Points and lined shapes return new values from `translate`, `rotate`, `scale`, `skew`, and `reflect`. The original value
@@ -106,10 +106,10 @@ path order. Closed shapes repeat the first vertex at the end of `points`, but `v
 ```ruby
 box = Sevgi::Geometry::Rect[40, 24]
 
-box.vertices.size == 4                             # => true
-box.points.size == 5                               # => true
-box.vertices == [box.A, box.B, box.C, box.D]       # => true
-box.points == [box.A, box.B, box.C, box.D, box.A]  # => true
+box.vertices.size == 4                            # => true
+box.points.size == 5                              # => true
+box.vertices == [box.A, box.B, box.C, box.D]      # => true
+box.points == [box.A, box.B, box.C, box.D, box.A] # => true
 ```
 
 Open shapes do not repeat an endpoint, so `vertices` and `points` contain the same points. Use `closed?` when behavior
