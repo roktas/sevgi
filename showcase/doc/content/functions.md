@@ -28,7 +28,7 @@ Angles are in degrees. Precision belongs to the current thread. Use `with_precis
 
 ```ruby
 Sevgi::F.with_precision(3) do
-  Sevgi::F.cos(60)     # degree-based trigonometry
+  Sevgi::F.cos(60) # degree-based trigonometry
   Sevgi::F.approx(1.0 / 3)
 end
 ```

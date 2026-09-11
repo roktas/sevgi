@@ -25,7 +25,7 @@ Library code commonly keeps the document and passes `Render` to its own storage 
 ```ruby
 require "sevgi"
 
-drawing = SVG(:minimal) { circle cx: 12, cy: 12, r: 10 }
+drawing = Sevgi.SVG(:minimal) { circle cx: 12, cy: 12, r: 10 }
 File.write "badge.svg", drawing.Render
 ```
 
@@ -73,7 +73,7 @@ operations:
 require "sevgi"
 
 canvas = SVG.Canvas width: 40, height: 40, unit: :px
-drawing = SVG :minimal, canvas do
+drawing = Sevgi.SVG :minimal, canvas do
   circle cx: 20, cy: 20, r: 16, fill: "tomato"
 end
 
@@ -88,7 +88,7 @@ the format when `format:` is omitted, and the return value is the expanded outpu
 require "sevgi"
 
 canvas = SVG.Canvas width: 40, height: 40, unit: :px
-drawing = SVG(:minimal, canvas) { circle cx: 20, cy: 20, r: 16, fill: "tomato" }
+drawing = Sevgi.SVG(:minimal, canvas) { circle cx: 20, cy: 20, r: 16, fill: "tomato" }
 Sevgi::Sundries::Export.call drawing.Render, "badge.png", width: 320
 ```
 

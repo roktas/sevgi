@@ -25,6 +25,16 @@ The executable [DSL Catalog](@/dsl.md) is the canonical inventory of drawing wor
 references instead of repeating them. In the full toolkit, capitalized SVG-domain operations live on the `SVG` facade.
 Types live beneath `SVG::`. Focused component references retain their conventional lowercase APIs.
 
+## Stability
+
+The documented DSL, component references, and runnable examples form the public API. Internal constants, registries,
+generated helpers, caches, and undocumented aliases can change without notice.
+
+Use `Sevgi.SVG` for library documents, capitalized methods on the `SVG` facade for operations, and `SVG::` names for
+types. Advanced extensions can also rely on documented `Sevgi::F` methods and their public return values.
+
+Pin the Sevgi version when generated documents must be reproducible. Inspect the generated SVG after an upgrade.
+
 ## Component index
 
 - [`sevgi`](https://www.rubydoc.info/gems/sevgi): the `SVG` facade, promoted script operations, execution, and the

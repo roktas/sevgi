@@ -31,31 +31,33 @@ require "sevgi"
 
 canvas = SVG.Canvas width: 24, height: 24, unit: :px
 
-drawing = SVG :minimal, canvas do
+drawing = Sevgi.SVG :minimal, canvas do
   circle cx: 12, cy: 12, r: 10, fill: "tomato"
 end
 
 File.write "badge.svg", drawing.Render
 ```
 
-Operations around the document block are bare words in a script and capitalized methods on the `SVG` facade in
-library code. Types and namespaces keep their double-colon spelling in both forms:
+The document constructor is bare `SVG` in a script and `Sevgi.SVG` in library code. Other operations are bare words in
+a script and capitalized methods on the `SVG` facade in library code. Types keep their double-colon spelling:
 
 | Role | `.sevgi` script | Ruby library |
 | --- | --- | --- |
-| Build a document | `SVG(...)` | `SVG(...)` |
-| Create a canvas | `Canvas(...)` | `SVG.Canvas(...)` |
-| Refer to the canvas type | `SVG::Canvas` | `SVG::Canvas` |
-| Create a callable module | `SVG.Module { ... }` | `SVG.Module { ... }` |
+| Document | `SVG(...)` | `Sevgi.SVG(...)` |
+| Canvas | `Canvas(...)` | `SVG.Canvas(...)` |
+| Canvas type | `SVG::Canvas` | `SVG::Canvas` |
+| Callable module | `SVG.Module { ... }` | `SVG.Module { ... }` |
 
 Both forms are ordinary Ruby. Use local variables, constants, methods, modules, loops, and data structures wherever
 they make the drawing clearer.
 
 ## Scripts {{ "{#scripts}" }}
 
-A `.sevgi` file is ordinary Ruby run by the `sevgi` command. Before evaluating it, the runner installs Sevgi's DSL
-words in the managed top-level scope. A typical script has a `ruby -S sevgi` shebang, any data or calculations the
-drawing needs, and an `SVG` block followed by `Save`, `Write`, or `Out`.
+A `.sevgi` file is ordinary Ruby run by the `sevgi` command. Before evaluation, the runner installs Sevgi's DSL words
+in the managed top-level scope. A typical script ends its `SVG` block with `Save`, `Write`, or `Out`.
+
+The examples use `#!/usr/bin/env -S ruby -S sevgi` so editors can detect Ruby syntax. The shorter
+`#!/usr/bin/env sevgi` is the direct executable form, but some editors do not recognize the file as Ruby.
 
 Call `SVG`, SVG elements such as `rect` and `circle`, and operations such as `Canvas`, `Paper`, and `TileX` as plain DSL
 words. The script needs neither `require "sevgi"` nor an `SVG.` prefix:
@@ -71,12 +73,13 @@ end.Save
 The runner makes the full top-level API available at the top of the file and inside helper classes. The document
 operations are `SVG`, `Canvas`, `Document`, `Document!`, `Paper`, `Paper!`, `Mixin`, `Grid`, and `Load`. Derender adds
 `Decompile`, `Derender`, `Evaluate`, and `EvaluateChildren`. Append `File` when the input is a path. Drawing words such
-as `Rotate` live inside an `SVG` block. The
-[DSL Catalog](@/dsl.md) records the context for every word.
+as `Rotate` live inside an `SVG` block. The [DSL Catalog](@/dsl.md) shows where each word is available: at script top
+level, inside an `SVG` block, or on the `SVG` facade. Every entry includes a runnable example.
 
 ### Load {{ "{#load}" }}
 
-`Load "palette"` evaluates `palette.sevgi` relative to the active source, not the process working directory. A drawing
+`Load` evaluates another `.sevgi` source during the current script execution. The name in `Load "palette"` is only an
+example. This call finds `palette.sevgi` relative to the active source, not the process working directory. A drawing
 split across several files can then move as one directory. Repeated non-recursive loads run again. Loading a source
 that is already active in the same chain raises a captured cycle error.
 
@@ -99,14 +102,15 @@ file "card.svg" => "card.sevgi" do
 end
 ```
 
-Positional arguments arrive as `ARGA`. Keyword arguments arrive as `ARGH`.
+The call above gives the script `ARGA == ["front"]` and `ARGH == {theme: :dark}`. `ARGA` keeps positional arguments in
+order. `ARGH` keeps keyword arguments by name. The script can read them like ordinary frozen Ruby values.
 
 ## Libraries {{ "{#libraries}" }}
 
-`require "sevgi"` loads the global `SVG(...)` document builder and the `SVG` facade. A facade is an object that groups
-public operations. These operations use capitalized names such as `SVG.Canvas`, `SVG.Document`, and `SVG.Derender`.
-Constants and types use double colons, such as `SVG::Canvas`. This keeps Sevgi helpers out of the application's general
-method scope.
+`require "sevgi"` loads the explicit `Sevgi.SVG(...)` document builder, its global `SVG(...)` shorthand, and the `SVG`
+facade. A facade is an object that groups public operations. These operations use capitalized names such as
+`SVG.Canvas`, `SVG.Document`, and `SVG.Derender`. Constants and types use double colons, such as `SVG::Canvas`. This
+keeps Sevgi helpers out of the application's general method scope.
 
 ### Facade grammar {{ "{#facade}" }}
 
@@ -114,14 +118,14 @@ method scope.
 require "sevgi"
 
 canvas = SVG.Canvas width: 24, height: 24, unit: :px
-drawing = SVG(:minimal, canvas) { circle cx: 12, cy: 12, r: 10 }
+drawing = Sevgi.SVG(:minimal, canvas) { circle cx: 12, cy: 12, r: 10 }
 
 canvas.is_a?(SVG::Canvas) # => true
 drawing.Render
 ```
 
-`SVG(...)` invokes the global document builder. `SVG.Canvas(...)` invokes a facade operation, and `SVG::Canvas` names
-the returned type. The facade does not repeat the name as `SVG.SVG(...)`.
+`Sevgi.SVG(...)` invokes the explicit document builder. `SVG(...)` is its global shorthand. `SVG.Canvas(...)` invokes a
+facade operation, and `SVG::Canvas` names the returned type. The facade does not repeat the name as `SVG.SVG(...)`.
 
 Promoted operations also exist on `Sevgi` because script execution and `include Sevgi` use that complete set of
 methods. `Sevgi.SVG(...)` and `Sevgi.Canvas(...)` are valid, but library code usually uses the shorter `SVG` facade.
@@ -136,15 +140,15 @@ require "sevgi"
 SVG.Paper 85, 55, :card
 canvas = SVG.Canvas :card, margins: 4
 
-card = SVG :minimal, canvas do
+card = Sevgi.SVG :minimal, canvas do
   rect width: "100%", height: "100%", rx: 3
 end
 
 File.write "card.svg", card.Render
 ```
 
-The equivalent script drops only the `SVG.` prefix. `Paper(...)` and `Canvas(...)` become bare words, while the
-`SVG(...)` block stays unchanged.
+The equivalent script uses `SVG(...)` instead of `Sevgi.SVG(...)`. It also drops the `SVG.` prefix from `Paper(...)`
+and `Canvas(...)`.
 
 ### Import the top level
 

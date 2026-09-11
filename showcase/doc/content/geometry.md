@@ -8,6 +8,24 @@ group = "Guides"
 Geometry supplies a small set of immutable values for calculations the SVG renderer cannot do for you. It uses SVG
 screen coordinates: positive x goes right, positive y goes down, and positive angles turn clockwise.
 
+<svg viewBox="0 0 320 190" role="img" aria-label="SVG coordinates: positive x goes right, positive y goes down, and positive angles turn clockwise" style="display: block; width: min(100%, 22rem); height: auto; margin: 1rem auto 1.5rem; color: var(--wt-color-text-muted);">
+  <g fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M44 36H268" />
+    <path d="M258 30L268 36L258 42" />
+    <path d="M44 36V156" />
+    <path d="M38 146L44 156L50 146" />
+  </g>
+  <g fill="var(--wt-color-text)" style="font: 14px var(--wt-font-mono);">
+    <text x="278" y="41">+x</text>
+    <text x="35" y="178">+y</text>
+    <text x="28" y="27">0</text>
+  </g>
+  <path d="M112 36A68 68 0 0 1 44 104" fill="none" stroke="var(--wt-color-accent)" stroke-width="3" />
+  <path d="M44 104L54 98L54 110Z" fill="var(--wt-color-accent)" />
+  <text x="100" y="92" fill="var(--wt-color-accent)" style="font: 16px var(--wt-font-mono);">+θ</text>
+  <circle cx="44" cy="36" r="3" fill="var(--wt-color-text)" />
+</svg>
+
 Think of the component as the calculation layer beneath a drawing. Build values, transform or intersect them, then pass
 the results to `Draw`, `Hatch`, `Align`, or your own Ruby code. No geometry constructor adds an SVG element by itself.
 
@@ -17,9 +35,9 @@ the results to `Draw`, `Hatch`, `Align`, or your own Ruby code. No geometry cons
 point = Sevgi::Geometry::Point[3, 4]
 line = Sevgi::Geometry::Line.([0, 0], point)
 
-line.length                                     # => 5.0
-Sevgi::Geometry::Point.midpoint([0, 0], point) # => Point[1.5, 2.0]
-point.translate(2, 1)                           # => Point[5.0, 5.0]
+line.length                                      # => 5.0
+Sevgi::Geometry::Point.midpoint([0, 0], point)   # => Point[1.5, 2.0]
+point.translate(2, 1)                            # => Point[5.0, 5.0]
 ```
 
 Points and lined shapes return new values from `translate`, `rotate`, `scale`, `skew`, and `reflect`. The original value
@@ -36,9 +54,9 @@ A directed open path exposes its endpoints and can reverse its traversal:
 ```ruby
 path = Sevgi::Geometry::Polyline.([0, 0], [8, 0], [8, 5])
 
-path.starting # => Point[0.0, 0.0]
-path.ending   # => Point[8.0, 5.0]
-path.closed? # => false
+path.starting                              # => Point[0.0, 0.0]
+path.ending                                # => Point[8.0, 5.0]
+path.closed?                               # => false
 path.reverse.points == path.points.reverse # => true
 ```
 
@@ -77,8 +95,8 @@ shape = Sevgi::Geometry::Parallelogram.new_by_height(
   position: [2, 3]
 )
 
-shape.AB.angle # => 15.0
-shape.DA.angle # => 105.0
+shape.AB.angle   # => 15.0
+shape.DA.angle   # => 105.0
 shape.box.height # => 8.0
 ```
 
@@ -88,10 +106,10 @@ path order. Closed shapes repeat the first vertex at the end of `points`, but `v
 ```ruby
 box = Sevgi::Geometry::Rect[40, 24]
 
-box.vertices.size == 4                         # => true
-box.points.size == 5                           # => true
-box.vertices == [box.A, box.B, box.C, box.D]  # => true
-box.points == [box.A, box.B, box.C, box.D, box.A] # => true
+box.vertices.size == 4                             # => true
+box.points.size == 5                               # => true
+box.vertices == [box.A, box.B, box.C, box.D]       # => true
+box.points == [box.A, box.B, box.C, box.D, box.A]  # => true
 ```
 
 Open shapes do not repeat an endpoint, so `vertices` and `points` contain the same points. Use `closed?` when behavior
@@ -223,7 +241,7 @@ The drawing equivalent is:
 inner = Sevgi::Geometry::Rect[8, 4]
 outer = Sevgi::Geometry::Rect[40, 20, position: [5, 5]]
 
-SVG :minimal do
+Sevgi.SVG :minimal do
   shape = rect width: 8, height: 4
   shape.Align :center, inner:, outer:
 end.Render
@@ -236,7 +254,7 @@ In an Inkscape document, `Draw` converts geometry into suitable SVG elements:
 ```ruby
 region = Sevgi::Geometry::Rect[48, 18, position: [6, 6]]
 
-SVG :inkscape do
+Sevgi.SVG :inkscape do
   trim = Sevgi::Geometry::Rect[80, 50, position: [5, 5]]
   Draw trim.lines, class: %w[guide trim], stroke: "tomato"
 end.Render
@@ -259,7 +277,7 @@ given:
 ```ruby
 region = Sevgi::Geometry::Rect[48, 18, position: [6, 6]]
 
-SVG :inkscape do
+Sevgi.SVG :inkscape do
   Hatch region, angle: 30, step: 3, class: %w[guide no-print], stroke: "black"
 end.Render
 ```

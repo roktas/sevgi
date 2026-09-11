@@ -12,7 +12,9 @@ reusable drawing code that does not belong to one document type.
 ## Construct a document
 
 ```ruby
-drawing = SVG :minimal, width: 32, height: 20 do
+require "sevgi"
+
+drawing = Sevgi.SVG :minimal, width: 32, height: 20 do
   g id: "badge" do
     rect width: 32, height: 20, rx: 4, fill: "gold"
     text "S", x: 16, y: 14, "text-anchor": "middle"
@@ -23,7 +25,8 @@ drawing.Render
 ```
 
 Lowercase calls add SVG elements to the tree. Capitalized words create supporting values or operate on elements. In
-library code, operations outside the block use the `SVG.` prefix. Types and namespaces use `SVG::`.
+library code, use `Sevgi.SVG` for the document constructor and `SVG.` for surrounding operations. Types and namespaces
+use `SVG::`.
 
 ## Canvas {{ "{#canvas}" }}
 
@@ -36,7 +39,7 @@ require "sevgi"
 
 canvas = SVG.Canvas :a4, margins: [12, 10]
 
-drawing = SVG :minimal, canvas do
+drawing = Sevgi.SVG :minimal, canvas do
   rect width: canvas.inner.width, height: canvas.inner.height
 end
 ```
@@ -75,10 +78,10 @@ Give it a name when other code must select it by symbol:
 require "sevgi"
 
 icon = SVG.Document attributes: {viewBox: "0 0 24 24"}
-SVG(icon) { circle cx: 12, cy: 12, r: 10 }.Render
+Sevgi.SVG(icon) { circle cx: 12, cy: 12, r: 10 }.Render
 
 SVG.Document :badge, attributes: {viewBox: "0 0 40 16"}
-SVG(:badge) { text "OK", x: 20, y: 12, "text-anchor": "middle" }.Render
+Sevgi.SVG(:badge) { text "OK", x: 20, y: 12, "text-anchor": "middle" }.Render
 ```
 
 Anonymous profiles stay local to the code that holds their class. Named profiles are registered for the current Ruby
@@ -118,7 +121,7 @@ SVG.Mixin Flowchart do
   end
 end
 
-drawing = SVG Flowchart, width: 200, height: 80 do
+drawing = Sevgi.SVG Flowchart, width: 200, height: 80 do
   Link from: [77, 40], to: [113, 40]
   Node "Parse", x: 45, y: 40
   Node "Render", x: 145, y: 40
@@ -146,7 +149,7 @@ profile = Class.new(SVG::Document::Base)
 SVG.Mixin :Hatch, profile
 region = Sevgi::Geometry::Rect[24, 12]
 
-SVG(profile) do
+Sevgi.SVG(profile) do
   Draw region.lines, stroke: "silver"
   Hatch region, angle: 30, step: 3, stroke: "black"
 end.Render
@@ -165,7 +168,7 @@ is an SVG element, while `LinearGradient` is a different Ruby call.
 Use `Element` when producing foreign XML or when a qualified name cannot be expressed as a bare Ruby call:
 
 ```ruby
-SVG :minimal do
+Sevgi.SVG :minimal do
   Element "catalog:item", "featured", "catalog:rank": 1
 end.Render
 ```
@@ -184,7 +187,7 @@ different serialization channel.
 | Already serialized trusted markup | `Content.verbatim` | unescaped markup whose caller owns well-formedness and escaping |
 
 ```ruby
-drawing = SVG :minimal do
+drawing = Sevgi.SVG :minimal do
   text "A & B"
   text SVG::Content.encoded("A & B")
   style SVG::Content.cdata(".note { fill: red; }")

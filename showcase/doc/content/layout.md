@@ -15,7 +15,7 @@ Choose by the value the rest of the program needs, not only by the visible repet
 
 | Need | Use | Result |
 | --- | --- | --- |
-| Repeat one SVG template in the document | DSL `Tile`, `TileX`, or `TileY` | `<defs>` plus positioned `<use>` elements |
+| Repeat one SVG template in the document | `Tile`, `TileX`, or `TileY` | `<defs>` plus positioned `<use>` elements |
 | Copy independently editable SVG subtrees | `Duplicate`, `DuplicateX`, or `DuplicateY` | separate element trees |
 | Inspect repeated cells and their bounds in Ruby | `Sevgi::Sundries::Tile` | geometry values without SVG output |
 | Fit major and minor intervals into one span | `Ruler` or `RulerEven` | inspectable distances and margins |
@@ -56,7 +56,7 @@ canvas's size, unit, and name while replacing its margins with the fitted values
 canvas = SVG.Canvas width: 80, height: 50, margins: [5]
 grid = SVG.Grid canvas, unit: 1, multiple: 10
 
-drawing = SVG :inkscape, grid.canvas do
+drawing = Sevgi.SVG :inkscape, grid.canvas do
   Draw grid.x.major.lines, class: %w[guide horizontal], stroke: "silver"
   Draw grid.y.major.lines, class: %w[guide vertical], stroke: "silver"
 end
@@ -93,7 +93,7 @@ column. Guide-sheet consumers use this pattern:
 canvas = SVG.Canvas width: 80, height: 50, margins: [5]
 grid = SVG.Grid canvas, unit: 1, multiple: 10
 
-SVG :inkscape, grid.canvas do
+Sevgi.SVG :inkscape, grid.canvas do
   Hatch grid.rowbox(0), angle: -30, step: grid.x.su, stroke: "silver"
 end.Render
 ```
@@ -118,7 +118,7 @@ Guidesheet = SVG.Module do
   end
 end
 
-SVG :inkscape, grid.canvas do
+Sevgi.SVG :inkscape, grid.canvas do
   rect width: "100%", height: "100%", fill: "white"
   Layer! Guidesheet, grid, attributes: {id: "Guides"}
 end.Render

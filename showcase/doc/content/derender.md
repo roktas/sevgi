@@ -136,7 +136,7 @@ Use these methods when you need to examine a selection, its attributes, or its c
 node's children:
 
 ```ruby
-drawing = SVG :minimal
+drawing = Sevgi.SVG :minimal
 SVG.Evaluate '<circle id="mark" r="4"/>', drawing, id: "mark"
 drawing.Render
 ```
@@ -146,7 +146,7 @@ an `SVG` block, the established `Include` and `IncludeChildren` drawing words re
 because their target is already the current element:
 
 ```ruby
-SVG do
+Sevgi.SVG do
   Include "badge.svg", "mark", omit: %i[id style]
 end
 ```
