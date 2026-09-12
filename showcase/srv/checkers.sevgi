@@ -71,7 +71,7 @@ placement = {
   }
 }
 
-SVG :minimal,
+SVG :default,
     width: CheckerBoard::SIZE,
     height: CheckerBoard::SIZE,
     viewBox: "0 0 #{CheckerBoard::SIZE} #{CheckerBoard::SIZE}" do

@@ -5,51 +5,38 @@ weight = 1
 group = "Start"
 +++
 
-Sevgi creates SVG with Ruby. Use an executable `.sevgi` script when the drawing is the program. Use the library form
-when another Ruby application needs the document as a value. The application then decides when and where to render or
-write it.
+Sevgi creates SVG with Ruby. Install the command-line toolkit, save the example below, and open its output in a browser.
 
-## Create a drawing
+## Install and run
 
-Use a script when the drawing is the program, such as a generated asset or build job. The runner supplies Sevgi's
-names, and the script usually writes or prints its result:
+For macOS and Linux, install the complete toolkit through Homebrew:
+
+```bash
+brew install roktas/tap/sevgi
+```
+
+Save this script as `badge.sevgi`:
 
 ```ruby
 #!/usr/bin/env -S ruby -S sevgi
 
-canvas = Canvas width: 24, height: 24, unit: :px
-
-SVG :minimal, canvas do
-  circle cx: 12, cy: 12, r: 10, fill: "tomato"
+SVG :default, width: 120, height: 60 do
+  rect x: 4, y: 4, width: 112, height: 52, rx: 8, fill: "gold"
+  circle cx: 60, cy: 30, r: 16, fill: "tomato"
 end.Save "badge.svg"
 ```
 
-Build the document as a library value when another application decides where its rendered string goes:
+Run the script:
 
-```ruby
-require "sevgi"
-
-canvas = SVG.Canvas width: 24, height: 24, unit: :px
-
-drawing = Sevgi.SVG :minimal, canvas do
-  circle cx: 12, cy: 12, r: 10, fill: "tomato"
-end
-
-File.write "badge.svg", drawing.Render
+```bash
+sevgi badge.sevgi
 ```
 
-The document block contains the same drawing code in both forms. The constructor and surrounding operations use these
-names:
+Open `badge.svg` in a browser. The gold panel contains a centered red circle.
+The `:default` profile supplies the SVG namespace for a standalone file.
 
-| Role | `.sevgi` script | Ruby library |
-| --- | --- | --- |
-| Document | `SVG(...)` | `Sevgi.SVG(...)` |
-| Canvas | `Canvas(...)` | `SVG.Canvas(...)` |
-| Canvas type | `SVG::Canvas` | `SVG::Canvas` |
-
-The script passes its document to `Save`. The application keeps the document and passes its `Render` result to ordinary
-Ruby code. [Usage](@/usage.md) explains the two forms, their available names, and how applications can run trusted
-`.sevgi` source.
+For Ruby application use, see [Usage](@/usage.md#libraries). That page explains the shared drawing syntax and the
+different script and library operations.
 
 ## See a complete drawing
 
@@ -74,13 +61,7 @@ bundle exec sevgi showcase/srv/meter.sevgi
 The script writes `showcase/srv/meter.svg` because it ends with `Save`. To write SVG to standard output instead,
 use `Out` in the script.
 
-## Install Sevgi
-
-For the complete command-line toolkit, install Sevgi through Homebrew on macOS or Linux:
-
-```bash
-brew install roktas/tap/sevgi
-```
+## Installation details
 
 This installs the `sevgi` executable and Ruby. It also installs the Cairo, librsvg, and HexaPDF export stack. The
 package includes the headless pdfcpu and Poppler tools. Inkscape remains an optional external backend.

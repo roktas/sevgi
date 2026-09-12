@@ -7,6 +7,30 @@ module Sevgi
   module Graphics
     module Mixtures
       class TransformTest < Minitest::Test
+        def test_align_uses_both_box_origins
+          box = Struct.new(:width, :height, :position)
+          point = Struct.new(:x, :y)
+          [
+            [0, 0, 0, 0, "translate(16 8)"],
+            [0, 0, 5, 5, "translate(21 13)"],
+            [2, 3, 0, 0, "translate(14 5)"],
+            [2, 3, 5, 5, "translate(19 10)"]
+          ].each do |ix, iy, ox, oy, expected|
+            element = SVG { rect }.first
+            inner = box.new(8, 4, point.new(ix, iy))
+            outer = box.new(40, 20, point.new(ox, oy))
+            element.Align(:center, inner:, outer:)
+            assert_equal(expected, element[:transform])
+          end
+
+          element = SVG { rect }.first
+          assert_raises(Sevgi::ArgumentError) do
+            element.Align(:center, inner: box.new(8, 4, nil), outer: box.new(40, 20, point.new(0, 0)))
+          end
+
+          assert_nil(element[:transform])
+        end
+
         Number = Class.new(::Numeric) do
           def initialize(value)
             super()

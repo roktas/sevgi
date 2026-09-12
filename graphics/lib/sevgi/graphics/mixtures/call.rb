@@ -73,8 +73,9 @@ module Sevgi
 
       # Registers argument-independent shared drawing steps. Every invocation runs inherited base blocks parent-first,
       # then locally registered base blocks in registration order, before the module's public drawing methods. The block
-      # runs once in the current element context and does not receive the invocation arguments.
-      # @yield evaluates the drawing DSL in the current element context
+      # runs once on the callable receiver, which delegates drawing words to the current SVG element. It receives no
+      # invocation arguments. Callable methods receive those arguments and the caller's block unchanged.
+      # @yield evaluates shared drawing steps on the callable receiver
       # @yieldreturn [Object] ignored block result
       # @return [nil]
       # @raise [Sevgi::ArgumentError] when no block is given

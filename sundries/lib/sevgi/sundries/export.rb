@@ -13,12 +13,16 @@ module Sevgi
     # gems are unavailable. Omit `format:` to infer it from the output suffix.
     # width and height are output dimensions rather than changes to the SVG
     # viewBox. The return value is the expanded path that was written.
+    # Export-only CSS is a last-minute adjustment, not a replacement for document styles or validation. Insertion
+    # requires well-formed SVG ending in an unprefixed `</svg>` followed only by XML whitespace. Self-closing roots,
+    # prefixed roots, and trailing comments are unsupported with CSS. CSS is XML-escaped but not parsed or validated.
+    # The native source callback runs after insertion and before conversion. External backends have no such callback.
     #
     # @example Export SVG source to a sized PNG
-    #   svg = Sevgi::Graphics.SVG(:minimal) { circle cx: 5, cy: 5, r: 4 }.Render
+    #   svg = Sevgi::Graphics.SVG(:default, width: 10, height: 10) { circle cx: 5, cy: 5, r: 4 }.Render
     #   Sevgi::Sundries::Export.call(svg, "drawing.png", width: 320)
     # @example Infer PDF output and inject export-only CSS
-    #   svg = Sevgi::Graphics.SVG(:minimal) { circle class: "accent", r: 4 }.Render
+    #   svg = Sevgi::Graphics.SVG(:default, width: 10, height: 10) { circle class: "accent", cx: 5, cy: 5, r: 4 }.Render
     #   Sevgi::Sundries::Export.call(svg, "drawing.pdf", css: ".accent { fill: tomato; }")
     # @see https://sevgi.roktas.dev/output/#export Export guide
     module Export
@@ -84,10 +88,12 @@ module Sevgi
       end
 
       def styled(svg, css)
-        output = svg.sub("</svg>", "<style>#{css}</style></svg>")
-        ExportError.("Cannot insert CSS: closing svg tag not found") if output == svg
+        ArgumentError.("Export CSS must be valid text") unless css.is_a?(::String) && css.valid_encoding?
+        closing = %r{</svg>[ \t\r\n]*\z}
+        ExportError.("Cannot insert CSS: expected final </svg> root closing tag") unless closing.match?(svg)
 
-        output
+        text = css.gsub(/[&<>]/, "&" => "&amp;", "<" => "&lt;", ">" => "&gt;")
+        svg.sub(closing) { |suffix| "<style>#{text}</style>#{suffix}" }
       end
 
       def normalize_format(format)

@@ -7,6 +7,38 @@ module Sevgi
   module Graphics
     class Element
       class ElementInstanceTest < Minitest::Test
+        def test_copies_own_subtrees_and_preserve_ruby_semantics
+          original = Graphics.SVG() { g(id: "group") { text("original", id: "label") } }
+          def original.drawing_label = :drawing
+          original.freeze
+
+          [original.dup, original.clone, original.clone(freeze: false)].each do |copy|
+            assert(Element.root?(copy))
+            assert_nil(copy.parent)
+            refute_same(original.first, copy.first)
+            assert_same(copy, copy.first.parent)
+            assert_same(copy.first, copy.first.first.parent)
+            assert_equal("group", copy.first[:id])
+            copy.first[:id] = "copy"
+            copy.first.circle(r: 2)
+            assert_equal("group", original.first[:id])
+            assert_equal(1, original.first.children.size)
+            original.first[:fill] = "red"
+            assert_nil(copy.first[:fill])
+            original.first.attributes.delete(:fill)
+          end
+
+          refute_respond_to(original.dup, :drawing_label)
+          assert_equal(:drawing, original.clone.drawing_label)
+          assert(original.clone.frozen?)
+          refute(original.clone(freeze: false).frozen?)
+          refute(original.dup.frozen?)
+          detached = original.first.dup
+          assert_nil(detached.parent)
+          refute(Element.root?(detached))
+          assert_equal("group", detached[:id])
+        end
+
         def test_element_construction_without_block
           root = Element.root("foo", "data-var": 42)
 

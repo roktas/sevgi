@@ -72,16 +72,13 @@ module Sevgi
       # @raise [Sevgi::ArgumentError] when the document has no root element or the id is absent
       def decompile(id = nil, omit: nil)
         if id
-          if (found = doc.xpath("//*[@id=#{xpath_literal(id)}]") || []).empty?
-            ArgumentError.("No such element with id '#{id}' in document")
-          end
-
-          found.first
+          doc.at_xpath("//*[@id=#{xpath_literal(id)}]") || ArgumentError.("No such element with id '#{id}' in document")
         else
           doc.root
         end => element
 
         ArgumentError.("XML document has no root element") unless element
+        validate_selection(element, whole: !id)
 
         Node.send(:new, element, pres, namespaces: namespace_scope(element), omit: omissions(omit))
       end
@@ -98,6 +95,19 @@ module Sevgi
       end
 
       private
+
+      def validate_selection(element, whole:)
+        if whole && doc.root.next_sibling
+          ArgumentError.("XML nodes after the root element are not supported")
+        end
+
+        element.traverse do |node|
+          references = [node, *node.attribute_nodes.flat_map { it.children.to_a }]
+          if references.any? { it.type == Nokogiri::XML::Node::ENTITY_REF_NODE }
+            ArgumentError.("Custom XML entity references are not supported")
+          end
+        end
+      end
 
       def namespace_scope(element)
         element == doc.root ? local_namespaces(element) : element.namespaces

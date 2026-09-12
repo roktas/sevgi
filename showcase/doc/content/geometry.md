@@ -49,6 +49,9 @@ ending = segment.ending([2, 3])
 line = segment.line([2, 3])
 ```
 
+Segment `==` and `eql?` compare both length and direction exactly. `eq?` compares them at the active precision.
+Ordering with `<=>` compares length only, so two segments can sort equally without being equal values.
+
 A directed open path exposes its endpoints and can reverse its traversal:
 
 ```ruby
@@ -241,20 +244,21 @@ The drawing equivalent is:
 inner = Sevgi::Geometry::Rect[8, 4]
 outer = Sevgi::Geometry::Rect[40, 20, position: [5, 5]]
 
-Sevgi.SVG :minimal do
+SVG :minimal do
   shape = rect width: 8, height: 4
   shape.Align :center, inner:, outer:
 end.Render
 ```
+
+`Align :center` includes both box positions. This example adds `translate(21 13)`.
+Objects with only width and height have origin `(0, 0)`. A supplied `position` must contain finite numeric `x` and `y` values.
 
 ## Drawing {{ "{#drawing}" }}
 
 In an Inkscape document, `Draw` converts geometry into suitable SVG elements:
 
 ```ruby
-region = Sevgi::Geometry::Rect[48, 18, position: [6, 6]]
-
-Sevgi.SVG :inkscape do
+SVG :inkscape do
   trim = Sevgi::Geometry::Rect[80, 50, position: [5, 5]]
   Draw trim.lines, class: %w[guide trim], stroke: "tomato"
 end.Render
@@ -277,7 +281,7 @@ given:
 ```ruby
 region = Sevgi::Geometry::Rect[48, 18, position: [6, 6]]
 
-Sevgi.SVG :inkscape do
+SVG :inkscape do
   Hatch region, angle: 30, step: 3, class: %w[guide no-print], stroke: "black"
 end.Render
 ```

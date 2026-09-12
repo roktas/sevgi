@@ -16,8 +16,15 @@ Sevgi DSL. Convert inline content or a file, generate source, include part of it
 
 {{<mermaid name="derender" />}}
 
-The conversion keeps element names, attributes, text, comments, CDATA, and child order. It represents the XML tree as
+The conversion keeps element names, attributes, text, comments, CDATA, processing instructions, and child order. It represents the XML tree as
 Ruby. It cannot recover loops, helper methods, or other higher-level source code from the original file.
+
+Processing instructions retain their target and data as XML markup. Sevgi does not execute them.
+Custom entity references in the selected subtree raise `Sevgi::ArgumentError` before inclusion changes the target.
+Predefined references such as `&amp;` and numeric references such as `&#65;` remain valid.
+
+Whole-document conversion rejects comments and processing instructions after the root element. Trailing whitespace is
+valid. An explicit `id:` selects only that subtree and ignores unrelated document siblings.
 
 | Operation family | Inline input | File input | Result | Existing target |
 | --- | --- | --- | --- | --- |
@@ -136,7 +143,7 @@ Use these methods when you need to examine a selection, its attributes, or its c
 node's children:
 
 ```ruby
-drawing = Sevgi.SVG :minimal
+drawing = SVG :minimal
 SVG.Evaluate '<circle id="mark" r="4"/>', drawing, id: "mark"
 drawing.Render
 ```
@@ -146,7 +153,7 @@ an `SVG` block, the established `Include` and `IncludeChildren` drawing words re
 because their target is already the current element:
 
 ```ruby
-Sevgi.SVG do
+SVG do
   Include "badge.svg", "mark", omit: %i[id style]
 end
 ```

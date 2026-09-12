@@ -56,7 +56,7 @@ canvas's size, unit, and name while replacing its margins with the fitted values
 canvas = SVG.Canvas width: 80, height: 50, margins: [5]
 grid = SVG.Grid canvas, unit: 1, multiple: 10
 
-drawing = Sevgi.SVG :inkscape, grid.canvas do
+drawing = SVG :inkscape, grid.canvas do
   Draw grid.x.major.lines, class: %w[guide horizontal], stroke: "silver"
   Draw grid.y.major.lines, class: %w[guide vertical], stroke: "silver"
 end
@@ -93,7 +93,7 @@ column. Guide-sheet consumers use this pattern:
 canvas = SVG.Canvas width: 80, height: 50, margins: [5]
 grid = SVG.Grid canvas, unit: 1, multiple: 10
 
-Sevgi.SVG :inkscape, grid.canvas do
+SVG :inkscape, grid.canvas do
   Hatch grid.rowbox(0), angle: -30, step: grid.x.su, stroke: "silver"
 end.Render
 ```
@@ -118,7 +118,7 @@ Guidesheet = SVG.Module do
   end
 end
 
-Sevgi.SVG :inkscape, grid.canvas do
+SVG :inkscape, grid.canvas do
   rect width: "100%", height: "100%", fill: "white"
   Layer! Guidesheet, grid, attributes: {id: "Guides"}
 end.Render
@@ -146,3 +146,6 @@ tile.box            # bounds of the complete layout
 
 Use this Ruby object when later calculations need the cells or their bounds. Use the DSL words `Tile`, `TileX`, or
 `TileY` when the output needs one SVG template and repeated `<use>` elements.
+
+`row`, `col`, `[]`, `rowbox`, and `colbox` accept Integer indices. Negative indices count from the end.
+Out-of-range indices return `nil`. Other index types raise `Sevgi::ArgumentError`.

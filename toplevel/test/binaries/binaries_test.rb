@@ -7,6 +7,7 @@ require "open3"
 require "rbconfig"
 require "sevgi/binaries/sevgi"
 require "tmpdir"
+require "timeout"
 
 module Sevgi
   module Binaries
@@ -420,6 +421,27 @@ module Sevgi
 
           assert_equal(1, normal.exitstatus)
           assert_equal(1, exception.exitstatus)
+        end
+      end
+
+      def test_executable_reports_actual_sigint
+        with_script("STDOUT.sync = true; puts \"ready\"; STDIN.read") do |file|
+          bin = ::File.expand_path("../../bin/sevgi", __dir__)
+          Open3.popen3({"SEVGI_VOMIT" => nil}, RbConfig.ruby, bin, file) do |input, output, error, process|
+            Timeout.timeout(10) do
+              assert_equal("ready\n", output.gets)
+              Process.kill("INT", process.pid)
+              assert_equal(1, process.value.exitstatus)
+              assert_match(/\AInterrupt\n/, error.read)
+            end
+
+            input.close
+          ensure
+            if process.alive?
+              Process.kill("KILL", process.pid)
+              process.join
+            end
+          end
         end
       end
 

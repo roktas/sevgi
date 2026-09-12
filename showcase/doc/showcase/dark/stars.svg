@@ -1,4 +1,5 @@
-<svg width="48" height="48">
+<?xml version="1.0" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48">
   <rect width="48" height="48" rx="1" fill="#222222"/>
   <symbol id="star">
     <title>Star</title>

@@ -30,7 +30,7 @@ Types live beneath `SVG::`. Focused component references retain their convention
 The documented DSL, component references, and runnable examples form the public API. Internal constants, registries,
 generated helpers, caches, and undocumented aliases can change without notice.
 
-Use `Sevgi.SVG` for library documents, capitalized methods on the `SVG` facade for operations, and `SVG::` names for
+Use `SVG` for library documents, capitalized methods on the `SVG` facade for operations, and `SVG::` names for
 types. Advanced extensions can also rely on documented `Sevgi::F` methods and their public return values.
 
 Pin the Sevgi version when generated documents must be reproducible. Inspect the generated SVG after an upgrade.

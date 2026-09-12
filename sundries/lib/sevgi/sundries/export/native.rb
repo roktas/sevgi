@@ -44,6 +44,7 @@ module Sevgi
         height = dimension(height, "height")
         dpi = dimension(dpi, "dpi", optional: false)
         ArgumentError.("Export CSS must be a String") unless css.nil? || css.is_a?(String)
+        ArgumentError.("Export CSS must be valid text") if css && !css.valid_encoding?
 
         svg = styled(svg, css) if css && !css.strip.empty?
         svg = block.call(svg) if block
@@ -432,18 +433,6 @@ module Sevgi
       # @api private
       module Renderer
         extend self
-
-        # Returns a renderer method for a format.
-        # @param format [Symbol, String, nil] format name
-        # @return [Method, nil]
-        def [](format)
-          case format&.to_sym
-          when :png
-            method(:png)
-          when :pdf
-            method(:pdf)
-          end
-        end
 
         # Renders SVG data to a PDF surface.
         # @param handle [Rsvg::Handle] parsed SVG handle

@@ -163,7 +163,7 @@ module Sevgi
             def channels(namedview, page)
               ArgumentError.("Namedview attributes must be a Hash") unless namedview.is_a?(::Hash)
               ArgumentError.("Page attributes must be a Hash") unless page.is_a?(::Hash)
-              [Attribute.defaults(namedview, id: "namedview"), Attribute.normalize(page)]
+              [Attribute.defaults(namedview, id: "namedview"), page_attributes(page)]
             end
 
             # Normalizes one explicit or generated page id.
@@ -181,13 +181,26 @@ module Sevgi
             # @api private
             def normalize(attributes, defaults, index)
               ArgumentError.("Page #{index + 1} must be a Hash") unless attributes.is_a?(::Hash)
-              attributes = defaults.merge(Attribute.normalize(attributes))
+              attributes = defaults.merge(page_attributes(attributes))
               %i[x y].each { number(attributes, it, index) }
               %i[width height].each do |field|
                 number(attributes, field, index, positive: true)
               end
 
               identify(attributes, index)
+            end
+
+            # Coerces numeric page fields before attribute snapshots stringify mutable numeric subclasses.
+            def page_attributes(attributes)
+              Attribute.normalize(
+                attributes.to_h do |key, value|
+                  if %w[x y width height].include?(key.to_s) && value.is_a?(::Numeric)
+                    value = Scalar.number(value, context: "page", field: key)
+                  end
+
+                  [key, value]
+                end
+              )
             end
 
             # Validates and normalizes page-grid arguments.

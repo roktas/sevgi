@@ -17,19 +17,19 @@ and assembled later:
 ```ruby
 require "sevgi"
 
-drawing = Sevgi.SVG :minimal, width: 240, height: 64 do
+drawing = SVG :minimal, width: 240, height: 64 do
   text "Payment received", x: 52, y: 27, "font-weight": "bold"
   text "$48.00", x: 52, y: 46, fill: "#166534"
 end
 
-status = Sevgi.SVG :minimal do
+status = SVG :minimal do
   g transform: "translate(28 32)" do
     circle r: 14, fill: "#16a34a"
     path d: "M -6 0 L -2 5 L 7 -6", fill: "none", stroke: "white", "stroke-width": 2
   end
 end.first
 
-background = Sevgi.SVG(:minimal) { rect width: 240, height: 64, rx: 10, fill: "#f0fdf4" }.first
+background = SVG(:minimal) { rect width: 240, height: 64, rx: 10, fill: "#f0fdf4" }.first
 
 drawing.Append status
 drawing.Prepend background
@@ -42,6 +42,10 @@ elements that already share a parent.
 Use normal SVG `defs`, `symbol`, and `use` elements to let the renderer reuse one definition. `Duplicate` creates
 independently editable copies instead. `Include` and `IncludeChildren` bring selected content from an external SVG
 file. The [Derender guide](@/derender.md#evaluate) explains this import.
+
+Ruby `dup` and `clone` also copy an element's complete subtree independently. A copied child is detached, and its IDs
+stay unchanged. A copied document remains a root. `clone` retains Ruby's frozen and singleton-method behavior.
+Use `Duplicate` when the copy must attach to a parent and move IDs to non-rendering metadata before customization.
 
 ## Callable modules {{ "{#callable-modules}" }}
 
@@ -56,7 +60,7 @@ Status = SVG.Module do
   def call(label:) = text label, y: 4, fill: "white", "text-anchor": "middle"
 end
 
-Sevgi.SVG :minimal, width: 24, height: 24 do
+SVG :minimal, width: 24, height: 24 do
   g(transform: "translate(12 12)") { Call Status, label: "OK" }
 end.Render
 ```
@@ -114,7 +118,7 @@ module DrawingParts
   end
 end
 
-Sevgi.SVG :minimal do
+SVG :minimal do
   Call DrawingParts::Marker, "!"
   Call DrawingParts::StatusIcons::Alert, x: 18
   Call DrawingParts::StatusIcons::Ready, x: 30
@@ -155,7 +159,7 @@ Counter = SVG.Module do
   end
 end
 
-Sevgi.SVG :minimal do
+SVG :minimal do
   Call Counter, 0
   Call Counter, 12
 end.Render
@@ -186,7 +190,7 @@ RadialLabel = SVG.Module do
   end
 end
 
-drawing = Sevgi.SVG :minimal, width: 500, height: 500 do
+drawing = SVG :minimal, width: 500, height: 500 do
   Call RadialLabel, "Hello, World!", center: [250, 250], angle: 45, radius: 100 do
     tspan "cruel"
   end

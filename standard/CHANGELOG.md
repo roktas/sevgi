@@ -7,6 +7,11 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Changed
 
+- Made element `dup` and `clone` own independent subtrees while retaining IDs and Ruby copy semantics.
+- Made Segment equality compare length and direction; ordering still compares length only.
+- Limited Tile cell, row, and column queries to the requested geometry and accelerated XML character validation.
+- Simplified the first-run guide, aligned library constructor examples, and added a full-size Protractor view and Arc caption.
+- Updated the packaged skill for canvas origins, alignment, Paper lookup, curved geometry, and export constraints.
 - Revised DSL catalog examples and packaged Sevgi skill guidance to use statement-style calls and show inspection results.
 - Refined Showcase example tabs, made Ruby and XML views fill their panels, and hid executable preambles from Ruby views.
 - Documented non-rendering element data and clarified the related DSL catalog examples.
@@ -14,6 +19,14 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Fixed
 
+- Added SVG namespaces to standalone drawing examples and regenerated their outputs.
+- Made failed Sevgi Rake tasks stop dependent tasks and captured required-library failures in executor results.
+- Removed executor signal-handler replacement so the host and shell retain SIGINT ownership.
+- Escaped late export CSS as XML text and inserted it only at a supported final root closing tag.
+- Preserved Derender processing instructions and rejected custom entity references and unsupported trailing document nodes before inclusion.
+- Included both box origins in `Align`, unified Tile index validation, and isolated custom numeric attribute snapshots.
+- Prevented avoidable overflow and underflow in point distances.
+- Corrected browser source-panel expectations and added executable documentation, YARD, and packaged-skill checks.
 - Rendered inline code in DSL catalog summaries and kept linked task themes visible below the sticky header.
 
 ## 0.100.0 - 2026-09-09

@@ -5,6 +5,20 @@ require_relative "../test_helper"
 module Sevgi
   module Geometry
     class SegmentTest < Minitest::Test
+      def test_equality_includes_direction_but_ordering_uses_length
+        east = Segment[5, 0]
+        south = Segment[5, 90]
+        equal = Segment[5, 0]
+        refute_equal(east, south)
+        refute(east.eql?(south))
+        assert_equal(0, east <=> south)
+        assert_equal(east, equal)
+        assert(east.eql?(equal))
+        assert_equal(east.hash, equal.hash)
+        assert_equal(2, [east, south, equal].uniq.size)
+        assert(east.eq?(Segment[5.00001, 0], precision: 3))
+      end
+
       def test_segment_exposes_length_angle_and_endpoint
         segment = Segment[4, 30]
         [

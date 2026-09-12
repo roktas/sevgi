@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "test_helper"
+require "tmpdir"
 
 module Sevgi
   class DocumentationTest < Minitest::Test
@@ -467,6 +468,24 @@ module Sevgi
       end
 
       assert_empty(errors, errors.join("\n"))
+    end
+
+    def test_selected_yard_examples_produce_the_documented_values
+      examples = yard("Sevgi::Sundries::Tile").tags(:example)
+      first = examples.find { it.name == "Address cells by row and column" }
+      assert_equal([26.0, 24.0], instance_eval(first.text, "yard-example.rb"))
+
+      Dir.mktmpdir do |directory|
+        Dir.chdir(directory) do
+          yard("Sevgi::Sundries::Export").tags(:example).each do |example|
+            instance_eval(example.text, "yard-example.rb")
+          end
+
+          assert_equal("%PDF-", File.binread("drawing.pdf", 5))
+          image = Cairo::ImageSurface.from_png("drawing.png")
+          assert_equal([320, 320], [image.width, image.height])
+        end
+      end
     end
 
     def test_component_examples_use_namespaced_entrypoints

@@ -23,7 +23,8 @@ module Sevgi
   # @note The default isolated mode does not modify Ruby's top-level main object. `main: true` preserves the command-line
   #   default by installing Sevgi through main before evaluating source in the managed script scope.
   # @note Empty source without `require:` is a strict no-op. The DSL boot block is unused.
-  # @note Reentrant and concurrent calls keep independent executor scope stacks per fiber.
+  # @note Reentrant and concurrent calls keep independent executor scope stacks per fiber. The host retains its signal
+  #   handlers. An Interrupt is captured only if it reaches this execution, not redirected from the main thread.
   # @see https://sevgi.roktas.dev/usage/#execute Execute source guide
   def self.execute(string, file: nil, line: nil, require: nil, main: false)
     Executor.__send__(:execute, string, file:, line:, require:, receiver: execution_receiver(main), &BootBlock)
@@ -41,7 +42,8 @@ module Sevgi
   # @note The default isolated mode does not modify Ruby's top-level main object. `main: true` preserves the command-line
   #   default by installing Sevgi through main before evaluating source in the managed script scope.
   # @note An empty file without `require:` is a strict no-op. The DSL boot block is unused.
-  # @note Reentrant and concurrent calls keep independent executor scope stacks per fiber.
+  # @note Reentrant and concurrent calls keep independent executor scope stacks per fiber. The host retains its signal
+  #   handlers. An Interrupt is captured only if it reaches this execution, not redirected from the main thread.
   # @see https://sevgi.roktas.dev/usage/#execute Execute source guide
   def self.execute_file(file, as: nil, require: nil, main: false)
     as = source_name(file, as) if as

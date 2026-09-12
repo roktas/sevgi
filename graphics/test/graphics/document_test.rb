@@ -11,6 +11,28 @@ module Sevgi
     end
 
     class DocumentProfileTest < Minitest::Test
+      def test_numeric_subclasses_are_owned_as_text
+        value = Class
+          .new(Numeric) do
+            attr_accessor(:text)
+            def to_s = text
+          end
+          .new
+        value.text = "red"
+        profile = Graphics.document(attributes: {fill: value})
+        drawing = Graphics.SVG(profile) { rect(fill: value) }
+        value.text = "blue"
+
+        assert_equal("red", profile.attributes[:fill])
+        assert_equal("red", drawing.first[:fill])
+        refute_same(value, drawing.first[:fill])
+        assert_includes(drawing.Render(), "fill=\"red\"")
+        refute_includes(drawing.Render(), "fill=\"blue\"")
+        drawing.first[:stroke] = value
+        value.text = "green"
+        assert_equal("blue", drawing.first[:stroke])
+      end
+
       DOC = :test
 
       class MutableValue

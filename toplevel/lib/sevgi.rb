@@ -24,7 +24,7 @@ SVG = Sevgi::SVG
 #   @param attributes [Hash] root SVG attributes
 #   @yield the document block evaluated in the SVG document context
 #   @yieldreturn [void]
-#   @return [Sevgi::Graphics::Document::Proto] a rendered SVG document object
+#   @return [Sevgi::Graphics::Document::Proto] an SVG document object, ready for separate rendering
 #   @raise [Sevgi::ArgumentError] when the document, paper, or canvas arguments are invalid
 # @example Build through the global library entrypoint
 #   SVG(:minimal) { circle r: 4 }.Render

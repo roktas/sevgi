@@ -51,16 +51,11 @@ module Sevgi
         nil
       end
 
-      # Converts a CSS key into a Ruby hash key.
-      # @param arg [String] CSS key
-      # @return [String] Ruby hash key source
-      def to_key(arg) = arg
-
       # Converts a CSS key/value pair into Ruby hash source.
       # @param key [String] CSS declaration key
       # @param value [String] CSS declaration value
       # @return [String] Ruby hash pair source
-      def to_key_value(key, value) = "#{Ruby.literal(to_key(key))}: #{to_value(value)}"
+      def to_key_value(key, value) = "#{Ruby.literal(key)}: #{to_value(value)}"
 
       # Converts a CSS value into Ruby source.
       # @param arg [String] CSS value

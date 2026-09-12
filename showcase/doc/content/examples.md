@@ -50,7 +50,15 @@ Start with [Pokey](#pokey) for basic SVG elements.
 {{<tabs base="checkers" dir="../showcase" title="Checkers" />}}
 {{<tabs base="ruler" dir="../showcase" title="Ruler" />}}
 {{<tabs base="protractor" dir="../showcase" title="Protractor" />}}
+
+<a data-svg-view="protractor" target="_blank" rel="noopener">Open Protractor at full size (light SVG)</a>
+
 {{<tabs base="arc" dir="../showcase" title="Arc" />}}
+
+The solid curve is a finite elliptical arc. Its two colored dots mark the endpoints, and the small central dot marks the
+ellipse center. The arc starts at 180° and follows a positive 210° sweep, clockwise in SVG screen coordinates.
+The dashed ellipse shows the complete curve. The dashed rectangle bounds only the finite arc.
+`Geometry::Arc` calculates these values in Ruby. For path drawing alone, use `ArcTo` or `ArcBy` and let SVG calculate the curve.
 {{<tabs base="squared" dir="../showcase" title="Squared" />}}
 {{<tabs base="copperplate" dir="../showcase" title="Copperplate" />}}
 </div>

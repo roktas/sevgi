@@ -650,6 +650,8 @@ module Sevgi
             [[:text, "before "], [:cdata, "a < b"], [:text, " after"]]
           ],
           ["a<!--keep--> b", [[:text, "a"], [:comment, "keep"], [:text, " b"]]],
+          ["a<?layout size=\"4\"?> b", [[:text, "a"], [:instruction, "layout", "size=\"4\""], [:text, " b"]]],
+          ["a<?first?><?second data?>", [[:text, "a"], [:instruction, "first", ""], [:instruction, "second", "data"]]],
           ["<![CDATA[a]]> <![CDATA[b]]>", [[:cdata, "a"], [:text, " "], [:cdata, "b"]]]
         ].each do |content, expected|
           xml = "<svg xmlns=\"http://www.w3.org/2000/svg\"><text>#{content}</text></svg>"
@@ -659,6 +661,53 @@ module Sevgi
           assert_equal(expected, content_signature(generated))
           assert_equal(expected, content_signature(evaluated))
         end
+      end
+
+      def test_custom_entities_are_rejected_before_target_mutation
+        ["<text>&custom;</text>", "<rect fill=\"&custom;\"/>"].each do |body|
+          xml = "<!DOCTYPE svg [<!ENTITY custom \"red\">]><svg><g id=\"selected\">#{body}</g></svg>"
+          target = SVG(:minimal) { circle(r: 3) }
+          before = target.Render()
+          assert_raises(Sevgi::ArgumentError) { Derender.derender(xml, id: "selected") }
+          assert_raises(Sevgi::ArgumentError) { Derender.evaluate(xml, target, id: "selected") }
+          assert_raises(Sevgi::ArgumentError) { Derender.evaluate_children(xml, target, id: "selected") }
+          assert_equal(before, target.Render())
+        end
+      end
+
+      def test_style_preserves_processing_instructions_and_comments
+        xml = "<svg xmlns=\"http://www.w3.org/2000/svg\"><style>rect { fill: red; }<?layout keep?><!-- note --></style></svg>"
+        generated = instance_eval(Derender.derender(xml), "generated.sevgi").Render()
+        evaluated = Derender.evaluate(xml, SVG(:minimal)).Render()
+        [generated, evaluated].each do |source|
+          style = Nokogiri::XML(source, &:strict).at_css("style")
+          assert_equal(%w[text layout comment], style.children.reject { it.text? && it.text.strip.empty? }.map(&:name))
+          assert_equal("keep", style.children.find(&:processing_instruction?).content)
+        end
+      end
+
+      def test_selected_subtree_ignores_unrelated_entities_and_trailing_nodes
+        xml = "<!DOCTYPE svg [<!ENTITY custom \"red\">]><svg><text>&custom;</text><text id=\"selected\">&amp;&lt;&#65;&#x42;</text></svg><?after data?>"
+        node = Derender.decompile(xml, id: "selected")
+        target = SVG(:minimal)
+        node.evaluate(target)
+        assert_equal("&<AB", Nokogiri::XML(target.Render(), &:strict).at_css("text").text)
+        generated = SVG(:minimal)
+        generated.instance_eval(node.derender, "generated.sevgi")
+        assert_equal("&<AB", Nokogiri::XML(generated.Render(), &:strict).at_css("text").text)
+      end
+
+      def test_whole_document_rejects_trailing_nodes_but_accepts_whitespace
+        ["<!-- after -->", "<?after data?>"].each do |suffix|
+          xml = "<svg/>#{suffix}"
+          target = SVG(:minimal) { circle(r: 3) }
+          before = target.Render()
+          assert_raises(Sevgi::ArgumentError) { Derender.derender(xml) }
+          assert_raises(Sevgi::ArgumentError) { Derender.evaluate(xml, target) }
+          assert_equal(before, target.Render())
+        end
+
+        assert(Derender.decompile("<svg/> \n\t").root?)
       end
 
       def test_derender_child_node_preserves_local_namespace
@@ -700,6 +749,8 @@ module Sevgi
             [:cdata, node.text]
           elsif node.comment?
             [:comment, node.content]
+          elsif node.processing_instruction?
+            [:instruction, node.name, node.content]
           elsif node.element?
             [:element, node.text]
           elsif node.text?

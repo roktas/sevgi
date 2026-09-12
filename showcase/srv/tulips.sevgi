@@ -14,7 +14,7 @@ ANCHOR = [1.211941, 8.784891].freeze
 CORNER = [CENTER + (SIDE / 2), CENTER - (SIDE / 2)].freeze
 SIZE = 26
 
-SVG :minimal, width: SIZE, height: SIZE do
+SVG :default, width: SIZE, height: SIZE do
   rect width: SIZE, height: SIZE, rx: 0.75, fill: "white"
   defs { path id: "Tulip", d: TULIP, fill: "purple" }
 

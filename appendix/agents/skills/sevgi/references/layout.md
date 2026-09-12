@@ -47,6 +47,26 @@ Geometry alignment accepts `:center`, `:left`, `:right`, `:top`, and `:bottom`. 
 contract accepts only `:center`. Do not calculate font or painted-content bounds only to feed either API. Use these
 APIs when the program already owns meaningful box geometry.
 
+`Align` includes both box origins. Width-and-height-only objects have origin `(0, 0)`.
+An object with `position` must supply finite numeric `x` and `y` coordinates:
+
+```ruby
+inner = Sevgi::Geometry::Rect[8, 4, position: [2, 3]]
+outer = Sevgi::Geometry::Rect[40, 20, position: [5, 5]]
+drawing = SVG :default, width: 50, height: 30 do
+  shape = rect x: 2, y: 3, width: 8, height: 4
+  shape.Align :center, inner:, outer:
+end
+drawing.Render # The rectangle receives translate(19 10).
+```
+
+## Curved Geometry
+
+For an SVG path, use `ArcTo` or `ArcBy`. The renderer resolves their endpoint, radius, `large`, and `sweep` rules.
+Use `Geometry::Circle`, `Geometry::Ellipse`, or `Geometry::Arc` when Ruby needs intersections, endpoints, or bounds.
+An arc has a finite extent and no filled interior. Positive angles run clockwise in screen coordinates, where y
+increases downward. See [Geometry](https://sevgi.roktas.dev/geometry/#arcs-and-ellipses) and the installed Geometry YARD.
+
 ## Drawing and Hatching
 
 | Need | Use |

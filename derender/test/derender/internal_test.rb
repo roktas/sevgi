@@ -95,17 +95,6 @@ module Sevgi
         ].each { assert_nil(Css.declarations(it)) }
       end
 
-      def test_to_key_keeps_plain_key
-        %w[
-          foo
-          foo
-        ].each_slice(2) do |key, expected|
-          actual = Css.to_key(key)
-
-          assert_equal(expected, actual)
-        end
-      end
-
       def test_to_value_quotes_non_numeric_values
         [
           "10",

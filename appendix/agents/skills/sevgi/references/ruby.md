@@ -25,7 +25,7 @@ grammar still requires them.
 Avoid:
 
 ```ruby
-SVG(:minimal) do
+SVG(:default, width: 16, height: 12) do
   g({ id: "mark" }) do
     rect({ x: 2, y: 2, width: 12, height: 8 })
     circle({ cx: 8, cy: 6, r: 3 })
@@ -36,7 +36,7 @@ end.Save("mark.svg")
 Prefer:
 
 ```ruby
-SVG :minimal do
+SVG :default, width: 16, height: 12 do
   g id: "mark" do
     rect x: 2, y: 2, width: 12, height: 8
     circle cx: 8, cy: 6, r: 3

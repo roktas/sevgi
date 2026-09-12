@@ -1,4 +1,5 @@
-<svg width="180" height="90">
+<?xml version="1.0" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="90">
   <rect id="frame" width="180" height="90" rx="5" fill="white"/>
   <circle id="head" cx="70" cy="45" r="40" fill="purple"/>
   <circle id="eye" cx="80" cy="23" r="6" fill="white"/>

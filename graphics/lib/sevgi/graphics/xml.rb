@@ -11,8 +11,9 @@ module Sevgi
       NCNAME_CHAR = "#{NCNAME_START}\\-.0-9\u{B7}\u{300}-\u{36F}\u{203F}-\u{2040}".freeze
       NCNAME = "[#{NCNAME_START}][#{NCNAME_CHAR}]*".freeze
       QNAME = /\A#{NCNAME}(?::#{NCNAME})?\z/u
+      ILLEGAL_CHARACTER = /[^\u0009\u000A\u000D\u0020-\uD7FF\uE000-\uFFFD\u{10000}-\u{10FFFF}]/u
 
-      private_constant :NCNAME, :NCNAME_CHAR, :NCNAME_START, :QNAME
+      private_constant :NCNAME, :NCNAME_CHAR, :NCNAME_START, :QNAME, :ILLEGAL_CHARACTER
 
       class << self
         # Validates an XML 1.0 string representation.
@@ -104,8 +105,8 @@ module Sevgi
           ArgumentError.("#{context} must be valid UTF-8") unless value.valid_encoding?
 
           text = value.encode("UTF-8")
-          if (codepoint = text.each_codepoint.find { !legal_codepoint?(it) })
-            ArgumentError.("#{context} contains illegal character U+#{format("%04X", codepoint)}")
+          if (match = ILLEGAL_CHARACTER.match(text))
+            ArgumentError.("#{context} contains illegal character U+#{format("%04X", match[0].ord)}")
           end
 
           text
@@ -113,12 +114,6 @@ module Sevgi
           ArgumentError.("#{context} must be valid UTF-8: #{e.message}")
         end
 
-        def legal_codepoint?(codepoint)
-          [0x9, 0xA, 0xD].include?(codepoint) ||
-            (0x20..0xD7FF).cover?(codepoint) ||
-            (0xE000..0xFFFD).cover?(codepoint) ||
-            (0x10000..0x10FFFF).cover?(codepoint)
-        end
       end
     end
 

@@ -6,7 +6,7 @@ COLORS = %w[#FF6961 #77DD77 #FFD700].freeze
 COLS = 9
 ROWS = 4
 
-SVG :minimal,
+SVG :default,
     width: COLS * SIZE,
     height: ROWS * SIZE,
     viewBox: "0 0 #{COLS * SIZE} #{ROWS * SIZE}" do

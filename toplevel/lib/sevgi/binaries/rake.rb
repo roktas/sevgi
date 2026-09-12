@@ -16,13 +16,18 @@ module FileUtils
   # @param kwargs [Hash] keyword arguments exposed to the script as `ARGH`
   # @return [Sevgi::Executor::Result] immutable execution result
   # @raise [Sevgi::ArgumentError] when the script file cannot be found
+  # @raise [Sevgi::Executor::Error] when execution fails, so Rake stops dependent tasks
   # @see Sevgi.execute_file
   def sevgi(file, *args, **kwargs)
-    Sevgi::Executor.__send__(:execute_file, Sevgi::F.existing!(file, [Sevgi::EXTENSION])) do
+    result = Sevgi::Executor.__send__(:execute_file, Sevgi::F.existing!(file, [Sevgi::EXTENSION])) do
       extend(Sevgi)
 
       const_set(:ARGA, args).freeze
       const_set(:ARGH, kwargs).freeze
     end
+
+    raise result.error if result.error?
+
+    result
   end
 end

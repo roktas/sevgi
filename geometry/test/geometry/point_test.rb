@@ -5,6 +5,14 @@ require_relative "../test_helper"
 module Sevgi
   module Geometry
     class PointTest < Minitest::Test
+      def test_distance_handles_large_and_tiny_coordinates
+        [1.0, 1e200, 1e-200].each do |scale|
+          distance = Point.length([0, 0], [3 * scale, 4 * scale])
+          assert_in_epsilon(5 * scale, distance, 1e-14)
+          assert_in_epsilon(5 * scale, Segment.([0, 0], [3 * scale, 4 * scale]).length, 1e-14)
+        end
+      end
+
       def test_point_brackets_coerce_coordinates
         point = Point[3, 5]
         [

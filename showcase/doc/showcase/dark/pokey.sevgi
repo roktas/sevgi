@@ -1,7 +1,7 @@
 #!/usr/bin/env -S ruby -S sevgi
 # frozen_string_literal: true
 
-SVG :minimal, width: 100, height: 100 do
+SVG :default, width: 100, height: 100 do
   rect x: 0, y: 0, width: 100, height: 100, fill: "#222222"
   path fill: "#e5c39c", d: %w[
     M10 101 V50 A40 40 0 0 1 90 50 V101

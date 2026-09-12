@@ -28,8 +28,7 @@ module Sevgi
         #   end
         def Duplicate(dx: nil, dy: nil, parent: nil, &block)
           dx, dy, target = Subtree.channels(self, dx, dy, parent)
-          copied_parent = Root?() ? Element.send(:tree_parent, self) : Element.send(:detached_parent)
-          duplicated = Subtree.copy(self, parent: copied_parent)
+          duplicated = dup
           Subtree.prepare(duplicated, &block)
           Subtree.translate(duplicated, dx, dy)
           Subtree.attach(duplicated, target)
@@ -80,19 +79,6 @@ module Sevgi
             dx = Scalar.number(dx, context: "duplicate translation", field: :x) unless dx.nil?
             dy = Scalar.number(dy, context: "duplicate translation", field: :y) unless dy.nil?
             [dx, dy, target]
-          end
-
-          # Builds an independent copy of an element subtree.
-          # @param element [Sevgi::Graphics::Element] source subtree root
-          # @param parent [Sevgi::Graphics::Element, Object] copied parent or root/detached sentinel
-          # @return [Sevgi::Graphics::Element] copied subtree root
-          def self.copy(element, parent:)
-            element.dup.tap do |duplicated|
-              duplicated.send(:parent=, parent)
-              duplicated.send(:attributes=, element.attributes.dup)
-              duplicated.send(:contents=, element.contents.map(&:dup))
-              duplicated.send(:children=, element.children.map { |child| copy(child, parent: duplicated) })
-            end
           end
 
           # Removes copied public ids and applies an optional customization hook.

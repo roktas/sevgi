@@ -83,7 +83,7 @@ module Sevgi
         return puts(::Sevgi::VERSION) if options.version
 
         file = operand(argv)
-        handle(run(file, options), file, options)
+        handle(run(file, options), options)
 
       rescue Skill::Error => e
         abort(e.message)
@@ -93,17 +93,18 @@ module Sevgi
 
       private
 
-      def die(error, _file)
-        warn(error.message, "", *error.load_backtrace.map { "  #{it}" })
+      def die(error)
+        message = error.message.empty? ? error.cause.class.to_s : error.message
+        warn(message, "", *error.load_backtrace.map { "  #{it}" })
         exit(1)
       end
 
-      def handle(result, file, options)
+      def handle(result, options)
         return unless result&.error?
 
         raise result.error if options.vomit || ENV[ENVVOMIT]
 
-        die(result.error, file)
+        die(result.error)
       end
 
       def help

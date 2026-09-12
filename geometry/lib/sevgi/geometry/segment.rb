@@ -128,10 +128,12 @@ module Sevgi
       # @raise [Sevgi::Geometry::Error] when other cannot be coerced
       def eq?(other, precision: nil) = self.class.eq?(self, other, precision:)
 
-      # Reports strict segment equality.
+      # Reports exact length-and-direction equality, also used by ==. Ordering through <=> compares length only.
       # @param other [Object] object to compare
       # @return [Boolean]
       def eql?(other) = self.class == other.class && deconstruct == other.deconstruct
+
+      alias_method :==, :eql?
 
       # Returns a hash compatible with strict equality.
       # @return [Integer]

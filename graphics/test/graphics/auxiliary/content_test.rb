@@ -142,6 +142,21 @@ module Sevgi
         end
       end
 
+      def test_xml_character_range_boundaries_and_first_error
+        [0x9, 0xA, 0xD, 0x20, 0xD7FF, 0xE000, 0xFFFD, 0x10000, 0x10FFFF].each do |codepoint|
+          text = codepoint.chr(Encoding::UTF_8)
+          assert_equal(text, Content.verbatim(text).to_s)
+        end
+
+        [0, 8, 0xB, 0xC, 0xE, 0x1F, 0xFFFE, 0xFFFF].each do |codepoint|
+          error = assert_raises(Sevgi::ArgumentError) do
+            Content.verbatim("valid#{codepoint.chr(Encoding::UTF_8)}\0")
+          end
+
+          assert_includes(error.message, "U+#{format("%04X", codepoint)}")
+        end
+      end
+
       def test_content_owns_nested_payloads
         key = ["key"]
         value = +"value"

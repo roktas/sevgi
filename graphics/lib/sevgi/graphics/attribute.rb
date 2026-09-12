@@ -60,6 +60,9 @@ module Sevgi
       # Owned mutable snapshots for values entering an attribute store.
       # @api private
       module Snapshot
+        SCALARS = [::NilClass, ::TrueClass, ::FalseClass, ::Symbol, ::Integer, ::Float, ::Rational, ::Complex].freeze
+        private_constant :SCALARS
+
         class << self
           def capture(value, normalize_keys: false, seen: {}.compare_by_identity)
             case value
@@ -90,12 +93,7 @@ module Sevgi
 
           def capture_value(value)
             text = XML.text(value, context: "XML attribute value")
-            case value
-            when ::Numeric, ::Symbol, ::NilClass, ::TrueClass, ::FalseClass
-              value
-            else
-              text
-            end
+            SCALARS.include?(value.class) ? value : text
           end
 
           def nested(value, seen)

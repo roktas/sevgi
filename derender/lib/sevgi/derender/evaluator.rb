@@ -20,6 +20,7 @@ module Sevgi
         return build(:_, node.content) if type == :Text
         return append_cdata(node) if type == :CData
         return build(:_, Graphics::Content.verbatim("<!--#{node.content}-->")) if type == :Comment
+        return build(:_, Graphics::Content.verbatim(node.content)) if type == :Instruction
 
         append_element(node, namespaces)
       end

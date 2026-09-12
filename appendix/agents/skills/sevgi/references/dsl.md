@@ -6,7 +6,7 @@
 | --- | --- |
 | `rect`, `circle`, `linearGradient`, `clipPath`, ... | Standard SVG elements created by exact, case-sensitive names that normally start lowercase |
 | `Translate`, `Tile`, `Call`, `Render`, ... | Sevgi operations, normally capitalized to stand apart from SVG elements |
-| `css`, `layer`, `layer!`, `base` | Deliberate lowercase Sevgi words, with `base` used in callable-module definitions |
+| `css`, `square`, `symbol!`, `layer`, `layer!`, `base` | Examples of deliberate lowercase Sevgi words. The DSL catalog owns the full list |
 | `SVG(...)` | Build a document in both script and library code |
 | `SVG.Canvas(...)` | Call a full-toolkit facade operation in library code |
 | `SVG.Module { ... }` | Build an anonymous callable with public steps and private or protected helpers |
@@ -31,6 +31,9 @@ text "Ready", x: 12, y: 16, "text-anchor": "middle", "font-weight": "bold"
 Follow the consumer's declared gems and existing dialect. Do not require the full toolkit merely to obtain facade
 spelling, and do not use facade operations when only a focused component is installed.
 
+`SVG(...)` is the default constructor in library code as well as scripts. If another method shadows that name, use
+`Sevgi.SVG(...)`. The explicit receiver is supported but not required. `SVG.Canvas(...)` is a separate facade operation.
+
 ## Minimal Forms
 
 Executable script:
@@ -40,7 +43,7 @@ Executable script:
 
 canvas = Canvas width: 24, height: 24, unit: :px
 
-SVG :minimal, canvas do
+SVG :default, canvas do
   circle cx: 12, cy: 12, r: 10, fill: "tomato"
 end.Save "badge.svg"
 ```
@@ -51,7 +54,7 @@ Ruby library:
 require "sevgi"
 
 canvas = SVG.Canvas width: 24, height: 24, unit: :px
-drawing = SVG :minimal, canvas do
+drawing = SVG :default, canvas do
   circle cx: 12, cy: 12, r: 10, fill: "tomato"
 end
 
@@ -64,13 +67,18 @@ Keep physical size and serialization dialect independent:
 
 | Need | Use | Owns |
 | --- | --- | --- |
-| Register or look up a named physical size | `SVG.Paper` / script `Paper` | width, height, and unit |
+| Register a named physical size | `SVG.Paper` / script `Paper` | width, height, and unit |
+| Look up a registered physical size | `SVG::Paper.fetch` | the registered size value |
 | Build one drawing surface | `SVG.Canvas` / script `Canvas` | size, margins, unit, name, and resulting `viewBox` |
 | Define or select an SVG document profile | `SVG.Document` / script `Document` | root attributes and preambles |
 
 The first argument to `SVG` selects a document profile. The optional second argument supplies a canvas. Use an
 anonymous `Document` for one-off metadata. Use a named profile only for shared process-wide vocabulary. Prefer
 non-bang registration. Use `Paper!` or `Document!` only for an intentional overwrite.
+
+A canvas's `viewBox` starts at the negative left and top margins. Drawing coordinates remain relative to the inner
+area. For example, `SVG.Canvas(width: 40, height: 20, unit: :px, margins: 2)` starts at `(-2, -2)`.
+With `margins: -2`, it starts at `(2, 2)` instead. Negative margins enlarge the inner area, not the viewport.
 
 ## Task-to-Word Map
 

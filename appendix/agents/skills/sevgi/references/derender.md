@@ -28,7 +28,7 @@ Sevgi in parallel.
 Keep the editor file as the geometry source and compose a selected group in Sevgi:
 
 ```ruby
-SVG :minimal do
+SVG :default do
   Include "brand.svg", "logo", omit: :id
 end.Save "badge.svg"
 ```
@@ -57,6 +57,10 @@ A selected subtree can produce a fragment rather than a standalone `.sevgi` scri
 it inside the document or callable module that owns it. Do not rename an arbitrary fragment to `.sevgi`.
 
 ## Selection and Cleanup
+
+Processing instructions retain their target, data, and order as inert XML markup. Custom entity references in the
+selected subtree raise `Sevgi::ArgumentError` before target mutation. Predefined and numeric references remain valid.
+Whole-document conversion rejects nodes after the root except whitespace. Explicit selection ignores unrelated siblings.
 
 - Give reusable editor groups stable IDs and select one with `id:`. `Include` takes that ID as its second positional
   argument.

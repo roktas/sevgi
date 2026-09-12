@@ -27,6 +27,9 @@ module Sevgi
       # Defensive copy helper for profile metadata snapshots.
       # @api private
       module Snapshot
+        SCALARS = [::NilClass, ::TrueClass, ::FalseClass, ::Symbol, ::Integer, ::Float, ::Rational, ::Complex].freeze
+        private_constant :SCALARS
+
         class << self
           # Captures recursively immutable profile metadata. Mutable non-container values are stringified once.
           # @param value [Object] value to capture
@@ -81,19 +84,8 @@ module Sevgi
           end
 
           def capture_value(value)
-            case value
-            when ::String
-              XML.text(value, context: "Document profile metadata").freeze
-            when ::Numeric, ::Symbol, ::NilClass, ::TrueClass, ::FalseClass
-              XML.text(value, context: "Document profile metadata")
-              value
-            else
-              stringify(value).freeze
-            end
-          end
-
-          def stringify(value)
-            XML.text(value, context: "Document profile metadata")
+            text = XML.text(value, context: "Document profile metadata")
+            SCALARS.include?(value.class) ? value : text.freeze
           end
         end
       end
@@ -221,7 +213,7 @@ module Sevgi
         overwrite!(overwrite)
         return anonymous(attributes:, preambles:) if name == Undefined
 
-        return lookup(name) if preambles == Undefined && attributes == Undefined
+        return fetch(name) if preambles == Undefined && attributes == Undefined
 
         name = Name.normalize!(name)
         current = reuse(name, attributes:, preambles:, overwrite:)
@@ -238,10 +230,6 @@ module Sevgi
         def anonymous(attributes:, preambles:)
           attributes, preambles = defaults(attributes:, preambles:)
           Class.new(Base) { document(Undefined, preambles:, attributes:, register: false) }
-        end
-
-        def lookup(name)
-          fetch(name)
         end
 
         def defaults(attributes:, preambles:)

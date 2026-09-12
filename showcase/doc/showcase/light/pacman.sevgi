@@ -1,7 +1,7 @@
 #!/usr/bin/env -S ruby -S sevgi
 # frozen_string_literal: true
 
-SVG :minimal, width: 180, height: 90 do
+SVG :default, width: 180, height: 90 do
   rect id: "frame", width: 180, height: 90, rx: 5, fill: "white"
 
   circle id: "head", cx: 70, cy: 45, r: 40, fill: "purple"

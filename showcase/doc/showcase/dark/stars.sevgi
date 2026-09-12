@@ -11,7 +11,7 @@ PATH
 MARGIN = 4
 SIZE = 48
 
-SVG :minimal, width: SIZE, height: SIZE do
+SVG :default, width: SIZE, height: SIZE do
   rect width: SIZE, height: SIZE, rx: 1, fill: "#222222"
 
   Symbol("Star") { path d: STAR, fill: "#e5c39c" }

@@ -1,4 +1,5 @@
-<svg width="128" height="30" viewBox="0 0 128 30">
+<?xml version="1.0" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="30" viewBox="0 0 128 30">
   <rect x="2" y="2" width="124" height="26" rx="4" fill="none" stroke="#d8d8d8"/>
   <defs>
     <g id="led">

@@ -10,6 +10,69 @@ module Sevgi
   class ExecutorTest < Minitest::Test
     FIXTURES_DIR = ::File.expand_path("#{__dir__}/fixtures/executor")
 
+    def test_required_library_failures_return_results
+      {"raise 'library failed'" => ::RuntimeError, "def broken(" => ::SyntaxError, "exit 7" => ::SystemExit}.each do |
+          code,
+          kind
+        |
+        Dir.mktmpdir do |dir|
+          library = File.join(dir, "broken.rb")
+          File.write(library, code)
+          result = Sevgi.execute("42", file: "drawing.sevgi", require: library)
+
+          assert_instance_of(Executor::Error, result.error)
+          assert_instance_of(kind, result.error.cause)
+          assert_equal(["drawing.sevgi"], result.stack)
+          assert_includes(result.error.cause.backtrace.join("\n"), library) unless kind == ::SyntaxError
+          assert_equal(42, Sevgi.execute("42").value)
+        end
+      end
+    end
+
+    def test_executor_preserves_shell_signal_ownership
+      script = <<~RUBY
+        require "sevgi"
+        require "timeout"
+        require "rbconfig"
+        Timeout.timeout(10) do
+          [:shell, :executor].each do |first|
+            baseline = proc { }
+            Signal.trap("INT", baseline)
+            ready = Queue.new
+            shell_go = Queue.new
+            executor_go = Queue.new
+            shell = Thread.new do
+              Sevgi::F.sh(RbConfig.ruby, "-e", "STDIN.read") { ready << :shell; shell_go.pop }
+            end
+            raise unless ready.pop == :shell
+            executor = Thread.new do
+              Thread.current[:ready] = ready
+              Thread.current[:release] = executor_go
+              Sevgi.execute("Thread.current[:ready] << :executor; Thread.current[:release].pop")
+            end
+            raise unless ready.pop == :executor
+            if first == :shell
+              shell_go << true
+              raise unless shell.value.ok?
+              executor_go << true
+              raise executor.value.error if executor.value.error?
+            else
+              executor_go << true
+              raise executor.value.error if executor.value.error?
+              shell_go << true
+              raise unless shell.value.ok?
+            end
+            raise "handler changed" unless Signal.trap("INT", "DEFAULT").equal?(baseline)
+          end
+          result = Sevgi.execute('Process.kill("INT", Process.pid); Thread.pass; 42')
+          raise "Interrupt not captured" unless result.error&.cause.is_a?(Interrupt)
+        end
+      RUBY
+      output, error, status = Open3.capture3(RbConfig.ruby, "-e", script)
+
+      assert(status.success?, "stdout:\n#{output}\nstderr:\n#{error}")
+    end
+
     def test_executor_entrypoint_loads_standalone
       root = ::File.expand_path("../..", __dir__)
       load_paths = %w[function toplevel].map { ::File.join(root, it, "lib") }
@@ -301,7 +364,7 @@ module Sevgi
       end
     end
 
-    def test_execute_empty_string_preserves_signal_guard
+    def test_execute_empty_string_preserves_host_signal_handler
       previous = Signal.trap("INT", "DEFAULT")
       handler = proc { }
       Signal.trap("INT", handler)
@@ -479,7 +542,7 @@ module Sevgi
       assert_match(/\bexecutor_test_conflict\b/, result.error.message)
     end
 
-    def test_execute_restores_sigint_handler
+    def test_execute_preserves_host_sigint_handler
       original = Signal.trap("INT", "DEFAULT")
       handler = proc { }
 
@@ -492,7 +555,7 @@ module Sevgi
       Signal.trap("INT", original)
     end
 
-    def test_execute_restores_sigint_handler_concurrently
+    def test_execute_preserves_host_sigint_handler_concurrently
       original = Signal.trap("INT", "DEFAULT")
       handler = proc { }
 
@@ -522,7 +585,6 @@ module Sevgi
     end
 
     def test_execute_boots_isolated_receiver
-      pp(foobar) if respond_to?(:foobar)
       refute_respond_to(self, :foobar)
       result = execute("foobar") do
         extend(Module.new { def foobar = "default" })

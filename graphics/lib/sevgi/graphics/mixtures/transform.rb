@@ -11,13 +11,18 @@ module Sevgi
       #     rect(width: 8, height: 4).Translate(12, 6).Rotate(15, 4, 2)
       #   end
       module Transform
+        # Keep box validation here: mixture helper methods would also enter the SVG DSL namespace.
+        # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
+
         # Aligns an inner box inside an outer box.
         # @param position [Symbol, String, nil] alignment name
-        # @param inner [#width, #height, nil] inner box
-        # @param outer [#width, #height, nil] outer box
+        # @param inner [#width, #height, nil] inner box, with optional position exposing x and y
+        # @param outer [#width, #height, nil] outer box, with optional position exposing x and y
         # @return [Sevgi::Graphics::Element] self
         # @raise [Sevgi::ArgumentError] when alignment is unsupported
         # @raise [Sevgi::ArgumentError] when a box dimension is not a finite real number
+        # @raise [Sevgi::ArgumentError] when a supplied box position does not expose finite real x and y coordinates
+        # @note Size-only boxes have origin (0, 0). Positions describe known box geometry, not renderer-computed bounds.
         def Align(position, inner:, outer:)
           return self unless position && inner && outer
 
@@ -25,11 +30,25 @@ module Sevgi
           when :center
             dimensions = [inner.width, inner.height, outer.width, outer.height]
             iw, ih, ow, oh = dimensions.map { Scalar.number(it, context: "alignment", field: :dimension) }
-            Translate((ow - iw) / 2.0, (oh - ih) / 2.0)
+            origins = [inner, outer].map do |box|
+              next [0, 0] unless box.respond_to?(:position)
+
+              origin = box.position
+              unless origin.respond_to?(:x) && origin.respond_to?(:y)
+                ArgumentError.("Alignment box position must expose x and y")
+              end
+
+              [origin.x, origin.y].map { Scalar.number(it, context: "alignment", field: :position) }
+            end
+
+            (ix, iy), (ox, oy) = origins
+            Translate(ox - ix + ((ow - iw) / 2.0), oy - iy + ((oh - ih) / 2.0))
           else
             ArgumentError.("Unsupported alignment: #{position}")
           end
         end
+
+        # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
 
         # Appends a scale(-1, -1) transform.
         # @return [Sevgi::Graphics::Element] self

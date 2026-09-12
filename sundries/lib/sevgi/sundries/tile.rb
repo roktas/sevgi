@@ -66,7 +66,8 @@ module Sevgi
       # Returns a row by index.
       # @param i [Integer] row index
       # @return [Array<Sevgi::Geometry::Element>, nil]
-      def [](i) = rows[i]
+      # @raise [Sevgi::ArgumentError] when the index is not an Integer
+      def [](i) = row(i)
 
       # Returns the bounding rectangle of the whole tile.
       # @return [Sevgi::Geometry::Rect]
@@ -74,12 +75,17 @@ module Sevgi
 
       # Returns the first cell in the tile.
       # @return [Sevgi::Geometry::Element]
-      def cell = row.first
+      def cell = @cell ||= cell_at(0, 0)
 
       # Returns the bounding rectangle of a column.
       # @param i [Integer] column index
-      # @return [Sevgi::Geometry::Rect]
-      def colbox(i = 0) = Geometry::Rect[@bounds.width, box.height, position: coordinate(0, i)]
+      # Negative indices count from the last column. Out-of-range indices return nil.
+      # @return [Sevgi::Geometry::Rect, nil]
+      # @raise [Sevgi::ArgumentError] when the index is not an Integer
+      def colbox(i = 0)
+        i = index(i, nx)
+        Geometry::Rect[@bounds.width, box.height, position: coordinate(0, i)] if i
+      end
 
       # Returns cells grouped by column.
       # The outer and nested collections are frozen and must be treated as immutable.
@@ -89,7 +95,13 @@ module Sevgi
       # Returns a column by index.
       # @param i [Integer] column index
       # @return [Array<Sevgi::Geometry::Element>, nil]
-      def col(i = 0) = cols[i]
+      # @raise [Sevgi::ArgumentError] when the index is not an Integer
+      def col(i = 0)
+        i = index(i, nx)
+        return unless i
+
+        @cols ? @cols[i] : Array.new(ny) { |j| cell_at(j, i) }.freeze
+      end
 
       # Iterates over rows.
       # @yield [row] each row
@@ -108,12 +120,23 @@ module Sevgi
       # Returns a row by index.
       # @param i [Integer] row index
       # @return [Array<Sevgi::Geometry::Element>, nil]
-      def row(i = 0) = rows[i]
+      # @raise [Sevgi::ArgumentError] when the index is not an Integer
+      def row(i = 0)
+        i = index(i, ny)
+        return unless i
+
+        @rows ? @rows[i] : Array.new(nx) { |j| cell_at(i, j) }.freeze
+      end
 
       # Returns the bounding rectangle of a row.
       # @param i [Integer] row index
-      # @return [Sevgi::Geometry::Rect]
-      def rowbox(i = 0) = Geometry::Rect[box.width, @bounds.height, position: coordinate(i)]
+      # Negative indices count from the last row. Out-of-range indices return nil.
+      # @return [Sevgi::Geometry::Rect, nil]
+      # @raise [Sevgi::ArgumentError] when the index is not an Integer
+      def rowbox(i = 0)
+        i = index(i, ny)
+        Geometry::Rect[box.width, @bounds.height, position: coordinate(i)] if i
+      end
 
       # Returns cells grouped by row.
       # The outer and nested collections are frozen and must be treated as immutable.
@@ -125,6 +148,12 @@ module Sevgi
       alias each_row each
 
       private
+
+      def index(value, count)
+        ArgumentError.("Tile index must be an Integer") unless value.is_a?(::Integer)
+        value += count if value.negative?
+        value if value.between?(0, count - 1)
+      end
 
       # Coerces a public tile position.
       # @param position [Sevgi::Geometry::Point, Array<Numeric>] tile origin

@@ -25,6 +25,14 @@ module Sevgi
     # Captures owned Node state during construction.
     # @api private
     module Capture
+      NODE_TYPES = {
+        Nokogiri::XML::Node::TEXT_NODE => :Text,
+        Nokogiri::XML::Node::CDATA_SECTION_NODE => :CData,
+        Nokogiri::XML::Node::COMMENT_NODE => :Comment,
+        Nokogiri::XML::Node::PI_NODE => :Instruction
+      }.freeze
+      private_constant :NODE_TYPES
+
       private
 
       def capture_context(pres, namespaces)
@@ -54,8 +62,15 @@ module Sevgi
       end
 
       def capture_identity
-        @content = (literal_content? || preserve_space? ? node.content : normalized_content).dup.freeze
+        @content = captured_content.dup.freeze
+
         @name = [node.namespace&.prefix, node.name].compact.join(":").freeze
+      end
+
+      def captured_content
+        return node.to_xml if node.processing_instruction?
+
+        literal_content? || preserve_space? ? node.content : normalized_content
       end
 
       def metadata(key, value)
@@ -92,6 +107,7 @@ module Sevgi
 
       # Returns immutable normalized text content. `xml:space="preserve"` and single-line mixed text retain their exact
       # text. Other text trims surrounding whitespace. Multiline mixed text removes only its outer indentation lines.
+      # For a processing instruction, content is its complete XML markup, including the target and data.
       # @return [String] frozen owned text snapshot
       attr_reader :content
 
@@ -174,21 +190,16 @@ module Sevgi
       def attribute_key(attribute) = [attribute.namespace&.prefix, attribute.name].compact.join(":")
 
       def dispatch
-        case
-        when node.text?
-          :Text
-        when node.cdata?
-          :CData
-        when node.comment?
-          :Comment
-        when Namespace.svg?(node, "style")
+        type = NODE_TYPES[node.type]
+        type ||= if Namespace.svg?(node, "style") && node.children.all? { it.text? || it.cdata? }
           :CSS
-        when @top && Namespace.svg?(node, "svg")
+        elsif @top && Namespace.svg?(node, "svg")
           :Root
         else
           :Any
         end
-          .tap { extend(Elements.const_get(it)) }
+
+        type.tap { extend(Elements.const_get(it)) }
       end
 
       def element = name
@@ -231,7 +242,8 @@ module Sevgi
       end
 
       def mixed_text?
-        node.text? && node.parent&.children&.any? { it.element? || it.cdata? || it.comment? }
+        node.text? &&
+          node.parent&.children&.any? { it.element? || it.cdata? || it.comment? || it.processing_instruction? }
       end
 
       def local_namespaces

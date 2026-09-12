@@ -4,6 +4,8 @@ module Sevgi
   module Graphics
     module Mixtures
       # DSL helpers for native SVG export formats.
+      # Export CSS is a late adjustment after document checks. Its supported XML endings and cascade limitations are
+      # documented in {Sevgi::Sundries::Export}. The source callback receives SVG after CSS insertion.
       module Export
         # Validates the closed export option channel before optional components load or rendering starts.
         # @api private

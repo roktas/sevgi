@@ -25,7 +25,7 @@ Library code commonly keeps the document and passes `Render` to its own storage 
 ```ruby
 require "sevgi"
 
-drawing = Sevgi.SVG(:minimal) { circle cx: 12, cy: 12, r: 10 }
+drawing = SVG(:default, width: 24, height: 24) { circle cx: 12, cy: 12, r: 10 }
 File.write "badge.svg", drawing.Render
 ```
 
@@ -34,7 +34,7 @@ Executable drawings can let the runner derive a path from the source name:
 ```ruby
 #!/usr/bin/env -S ruby -S sevgi
 
-SVG :minimal do
+SVG :default, width: 24, height: 24 do
   circle cx: 12, cy: 12, r: 10
 end.Save
 ```
@@ -73,7 +73,7 @@ operations:
 require "sevgi"
 
 canvas = SVG.Canvas width: 40, height: 40, unit: :px
-drawing = Sevgi.SVG :minimal, canvas do
+drawing = SVG :default, canvas do
   circle cx: 20, cy: 20, r: 16, fill: "tomato"
 end
 
@@ -88,7 +88,7 @@ the format when `format:` is omitted, and the return value is the expanded outpu
 require "sevgi"
 
 canvas = SVG.Canvas width: 40, height: 40, unit: :px
-drawing = Sevgi.SVG(:minimal, canvas) { circle cx: 20, cy: 20, r: 16, fill: "tomato" }
+drawing = SVG(:default, canvas) { circle cx: 20, cy: 20, r: 16, fill: "tomato" }
 Sevgi::Sundries::Export.call drawing.Render, "badge.png", width: 320
 ```
 
@@ -98,6 +98,33 @@ deliberate export-only styling, and use `dpi:` when CSS pixels need a different 
 
 PDF and PNG output uses Cairo, librsvg, and HexaPDF. If one is missing, Sevgi raises a component error. Ordinary SVG
 rendering continues to work without these optional dependencies.
+
+### Last-minute export CSS
+
+The `css:` option adds a stylesheet to the finished SVG just before conversion. For example, it can hide crop guides
+in a PDF without changing the saved SVG:
+
+```ruby
+require "sevgi"
+
+drawing = SVG :default, width: 40, height: 40 do
+  rect width: 40, height: 40, fill: "gold"
+  circle class: "guide", cx: 20, cy: 20, r: 16, fill: "none", stroke: "black"
+end
+drawing.PDF "print.pdf", css: ".guide { display: none; }"
+```
+
+This is an export-only adjustment after Sevgi's document checks. It does not replace document CSS or bypass the CSS
+cascade. Inline styles and `!important` declarations can still take precedence.
+
+CSS insertion accepts well-formed SVG whose final root tag is exactly `</svg>`, followed only by XML whitespace.
+Self-closing roots, prefixed root tags, and comments after the root are unsupported with `css:`.
+Sevgi raises `Sevgi::Sundries::Export::ExportError` before it changes the output file for these endings.
+Without `css:`, this insertion restriction does not apply.
+
+Sevgi escapes the CSS as XML text but does not parse or validate the stylesheet. Native `Export.call` runs its optional
+source callback after CSS insertion and before conversion. External backends do not offer that callback.
+Inspect the final PDF or PNG: export CSS can change size, visibility, and clipping after document validation.
 
 ## Replace PDF placeholders {{ "{#pdf-placeholders}" }}
 

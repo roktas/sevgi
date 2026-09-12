@@ -32,10 +32,13 @@ module Sevgi
             infile = File.join(dir, "in.pdf")
             File.write(infile, "old")
 
-            Export.stub(:a5_on_a4, -> (_infile, outfile) {
-              refute_path_exists(outfile)
-              File.write(outfile, "new")
-            }) do
+            Export.stub(
+              :a5_on_a4,
+              -> (_infile, outfile) {
+                refute_path_exists(outfile)
+                File.write(outfile, "new")
+              }
+            ) do
               Export.a5_on_a4!(infile)
             end
 
@@ -232,7 +235,7 @@ module Sevgi
                 export.call(infile, css: "rect { fill: red; }")
               end
 
-              assert_equal("Cannot insert CSS: closing svg tag not found", error.message)
+              assert_equal("Cannot insert CSS: expected final </svg> root closing tag", error.message)
             end
           end
         end

@@ -184,7 +184,7 @@ module Sevgi
       # @raise [Sevgi::Geometry::Error] when either point cannot be coerced
       def self.length(starting, ending)
         starting, ending = Tuples[Point, starting, ending]
-        ::Math.sqrt(((starting.y - ending.y) ** 2) + ((starting.x - ending.x) ** 2))
+        ::Math.hypot(starting.x - ending.x, starting.y - ending.y)
       end
 
       # Returns the midpoint between two points.

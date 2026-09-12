@@ -14,9 +14,9 @@ module Sevgi
   # useful load stack while keeping DSL methods out of the caller's global object
   # whenever possible. Active scope stacks are isolated per Ruby fiber, so
   # concurrent executions can perform nested `Load` calls without sharing scope
-  # state. The process SIGINT handler is shared by Ruby, so executor runs guard it
-  # with a reference-counted critical section and restore the previous handler
-  # after the last active execution finishes.
+  # state. The host owns process signal handlers. Execution captures an Interrupt
+  # only when Ruby delivers it inside the executing scope; worker executions do
+  # not take ownership of the main thread's signal policy.
   #
   # Consumers execute the full DSL through {Sevgi.execute} or {Sevgi.execute_file}, then inspect {Executor::Result},
   # {Executor::Error}, {Executor::CycleError}, and {Executor::LoadDepthError}. The custom receiver and boot lifecycle is
@@ -33,42 +33,17 @@ module Sevgi
     SOURCE_LINE_MAX = (2 ** 31) - 1
     private_constant :SCOPE_KEY, :SOURCE_LINE_MAX, :Source
 
-    # Owns mutable execution and process-signal state outside the public executor surface.
+    # Owns mutable execution state outside the public executor surface.
     # @api private
     class State
-      def initialize
-        @signal_count = 0
-        @signal_mutex = Mutex.new
-        @signal_previous = nil
-      end
-
       def create(scope = nil) = Scope.new(scope).tap { scopes << it }
       def current = scopes.last
-
-      def restore
-        @signal_mutex.synchronize do
-          next if @signal_count.zero?
-
-          @signal_count -= 1
-          next unless @signal_count.zero?
-
-          Signal.trap("INT", @signal_previous)
-          @signal_previous = nil
-        end
-      end
 
       def shutdown(scope = nil)
         return scopes.pop unless scope
         return scopes.pop if scopes.last.equal?(scope)
 
         scopes.delete(scope)
-      end
-
-      def trap
-        @signal_mutex.synchronize do
-          @signal_previous = Signal.trap("INT") { Kernel.abort("") } if @signal_count.zero?
-          @signal_count += 1
-        end
       end
 
       private
@@ -86,7 +61,7 @@ module Sevgi
     # @note Uses the active executor scope from the current fiber.
     # @api private
     def self.load(file, ...)
-      PanicError.("box stack empty; create a box first") unless STATE.current
+      PanicError.("No active executor scope") unless STATE.current
 
       STATE.current.load(file, ...)
     end
@@ -108,8 +83,7 @@ module Sevgi
     #   {Sevgi::Executor::Error#cause} for the original exception.
     # @note Empty source without `require:` is a strict no-op: no scope is created, the receiver and boot block are
     #   unused, and the result stack is empty. Supplying `require:` uses the normal boot and evaluation lifecycle.
-    # @note Reentrant and concurrent calls keep independent scope stacks per fiber. The temporary SIGINT handler remains
-    #   process-global while any execution is active.
+    # @note Reentrant and concurrent calls keep independent scope stacks per fiber and preserve the host's signal policy.
     # @api private
     def self.execute(string, file: nil, line: nil, require: nil, receiver: nil, &block)
       validate_source!(string, file, line)
@@ -132,8 +106,7 @@ module Sevgi
     #   {Sevgi::Executor::Result#stack} for nested loads.
     # @note An empty file without `require:` is a strict no-op: no scope is created, the receiver and boot block are
     #   unused, and the result stack is empty. Supplying `require:` uses the normal boot and evaluation lifecycle.
-    # @note Reentrant and concurrent calls keep independent scope stacks per fiber. The temporary SIGINT handler remains
-    #   process-global while any execution is active.
+    # @note Reentrant and concurrent calls keep independent scope stacks per fiber and preserve the host's signal policy.
     # @api private
     def self.execute_file(file, as: nil, require: nil, receiver: nil, &block)
       ArgumentError.("Executor file must be a String") unless file.is_a?(::String)
@@ -156,32 +129,29 @@ module Sevgi
       private
 
       def capture_error(source, error)
-        acquired = STATE.trap
         scope = STATE.create
         scope.capture(source, error).result
       ensure
-        STATE.restore if acquired
         STATE.shutdown(scope) if scope
       end
 
       def execute_source(source, require:, receiver:, &block)
-        acquired = false
         return Result.new(value: nil, error: nil, stack: []) if source.string.empty? && require.nil?
 
-        acquired = STATE.trap
         scope = STATE.create
         catch(:result) { run_source(scope, source, require, receiver, &block) }
         scope.result
 
       ensure
-        STATE.restore if acquired
         STATE.shutdown(scope) if scope
       end
 
       def run_source(scope, source, library, receiver, &block)
         ::Kernel.require(library) if library
         scope.call(source, receiver, &block)
-      rescue ::LoadError => e
+        # Required libraries use the same failure policy as executable script source.
+        # rubocop:disable-next Lint/RescueException
+      rescue ::Exception => e
         scope.capture(source, e)
       end
 

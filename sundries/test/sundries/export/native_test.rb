@@ -59,6 +59,43 @@ module Sevgi
 
             surface = Cairo::ImageSurface.from_png(output)
             assert_equal([10, 10], [surface.width, surface.height])
+            assert_equal(0xffff0000, surface.data.unpack1("L"))
+          end
+        end
+
+        def test_css_insertion_preserves_nested_markup_and_escapes_text
+          Dir.mktmpdir do |dir|
+            source = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"10\" height=\"10\"><!-- </svg> --><svg><rect width=\"10\" height=\"10\"/></svg>"
+            css = "/* A&B <tag> ]]> */ rect { fill: #ff0000; }"
+            expected = "#{source}<style>/* A&amp;B &lt;tag&gt; ]]&gt; */ rect { fill: #ff0000; }</style></svg>\n"
+            output = File.join(dir, "out.png")
+
+            Export.call("#{source}</svg>\n", output, css:) do |styled|
+              assert_equal(expected, styled)
+              styled
+            end
+
+            assert_equal(0xffff0000, Cairo::ImageSurface.from_png(output).data.unpack1("L"))
+          end
+        end
+
+        def test_css_insertion_rejects_unsupported_endings_before_output_changes
+          sources = [
+            "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"10\" height=\"10\"/>",
+            "<s:svg xmlns:s=\"http://www.w3.org/2000/svg\" width=\"10\" height=\"10\"></s:svg>",
+            "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"10\" height=\"10\"></svg><!-- after -->"
+          ]
+
+          Dir.mktmpdir do |dir|
+            output = File.join(dir, "out.png")
+            File.write(output, "old")
+            sources.each do |source|
+              assert_raises(ExportError) do
+                Export.call(source, output, css: "rect { display: none; }") { flunk("Callback must not run") }
+              end
+
+              assert_equal("old", File.read(output))
+            end
           end
         end
 
@@ -221,7 +258,7 @@ module Sevgi
               Export.call("<svg>", output, css: "rect { fill: red; }")
             end
 
-            assert_equal("Cannot insert CSS: closing svg tag not found", error.message)
+            assert_equal("Cannot insert CSS: expected final </svg> root closing tag", error.message)
             refute_path_exists(output)
           end
         end

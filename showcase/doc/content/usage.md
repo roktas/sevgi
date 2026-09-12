@@ -19,7 +19,7 @@ top-level words, and the script usually ends with an [output operation](@/output
 
 canvas = Canvas width: 24, height: 24, unit: :px
 
-SVG :minimal, canvas do
+SVG :default, canvas do
   circle cx: 12, cy: 12, r: 10, fill: "tomato"
 end.Save "badge.svg"
 ```
@@ -31,19 +31,19 @@ require "sevgi"
 
 canvas = SVG.Canvas width: 24, height: 24, unit: :px
 
-drawing = Sevgi.SVG :minimal, canvas do
+drawing = SVG :default, canvas do
   circle cx: 12, cy: 12, r: 10, fill: "tomato"
 end
 
 File.write "badge.svg", drawing.Render
 ```
 
-The document constructor is bare `SVG` in a script and `Sevgi.SVG` in library code. Other operations are bare words in
+The document constructor is `SVG` in both forms. Other operations are bare words in
 a script and capitalized methods on the `SVG` facade in library code. Types keep their double-colon spelling:
 
 | Role | `.sevgi` script | Ruby library |
 | --- | --- | --- |
-| Document | `SVG(...)` | `Sevgi.SVG(...)` |
+| Document | `SVG(...)` | `SVG(...)` |
 | Canvas | `Canvas(...)` | `SVG.Canvas(...)` |
 | Canvas type | `SVG::Canvas` | `SVG::Canvas` |
 | Callable module | `SVG.Module { ... }` | `SVG.Module { ... }` |
@@ -65,7 +65,7 @@ words. The script needs neither `require "sevgi"` nor an `SVG.` prefix:
 ```ruby
 Paper 85, 55, :card
 
-SVG :minimal, :card do
+SVG :default, :card do
   rect width: "100%", height: "100%", rx: 3
 end.Save
 ```
@@ -105,9 +105,12 @@ end
 The call above gives the script `ARGA == ["front"]` and `ARGH == {theme: :dark}`. `ARGA` keeps positional arguments in
 order. `ARGH` keeps keyword arguments by name. The script can read them like ordinary frozen Ruby values.
 
+If the script fails, the Rake helper raises `Sevgi::Executor::Error`. Rake stops dependent tasks.
+The public execution methods below instead return a result that the application must inspect.
+
 ## Libraries {{ "{#libraries}" }}
 
-`require "sevgi"` loads the explicit `Sevgi.SVG(...)` document builder, its global `SVG(...)` shorthand, and the `SVG`
+`require "sevgi"` loads the global `SVG(...)` document builder and the `SVG`
 facade. A facade is an object that groups public operations. These operations use capitalized names such as
 `SVG.Canvas`, `SVG.Document`, and `SVG.Derender`. Constants and types use double colons, such as `SVG::Canvas`. This
 keeps Sevgi helpers out of the application's general method scope.
@@ -118,17 +121,17 @@ keeps Sevgi helpers out of the application's general method scope.
 require "sevgi"
 
 canvas = SVG.Canvas width: 24, height: 24, unit: :px
-drawing = Sevgi.SVG(:minimal, canvas) { circle cx: 12, cy: 12, r: 10 }
+drawing = SVG(:default, canvas) { circle cx: 12, cy: 12, r: 10 }
 
 canvas.is_a?(SVG::Canvas) # => true
 drawing.Render
 ```
 
-`Sevgi.SVG(...)` invokes the explicit document builder. `SVG(...)` is its global shorthand. `SVG.Canvas(...)` invokes a
+`SVG(...)` builds a document. `SVG.Canvas(...)` invokes a
 facade operation, and `SVG::Canvas` names the returned type. The facade does not repeat the name as `SVG.SVG(...)`.
 
-Promoted operations also exist on `Sevgi` because script execution and `include Sevgi` use that complete set of
-methods. `Sevgi.SVG(...)` and `Sevgi.Canvas(...)` are valid, but library code usually uses the shorter `SVG` facade.
+If an application defines another `SVG` method, use `Sevgi.SVG(...)` to call Sevgi's constructor explicitly.
+The explicit form is also available when you prefer a named receiver.
 Execution remains separate as `Sevgi.execute` and `Sevgi.execute_file`.
 
 The script runner promotes operations such as `Paper`, `Canvas`, and `Grid` into its scope. Library code uses the same
@@ -140,14 +143,14 @@ require "sevgi"
 SVG.Paper 85, 55, :card
 canvas = SVG.Canvas :card, margins: 4
 
-card = Sevgi.SVG :minimal, canvas do
+card = SVG :default, canvas do
   rect width: "100%", height: "100%", rx: 3
 end
 
 File.write "card.svg", card.Render
 ```
 
-The equivalent script uses `SVG(...)` instead of `Sevgi.SVG(...)`. It also drops the `SVG.` prefix from `Paper(...)`
+The equivalent script keeps `SVG(...)` and drops the `SVG.` prefix from `Paper(...)`
 and `Canvas(...)`.
 
 ### Import the top level
@@ -161,7 +164,7 @@ badge = Class.new do
   include Sevgi
 
   def render(label)
-    SVG(:minimal) { text label, x: 4, y: 14 }.Render
+    SVG(:default) { text label, x: 4, y: 14 }.Render
   end
 end
 
@@ -180,7 +183,7 @@ does not install the full `SVG` facade:
 require "sevgi/graphics"
 
 canvas = Sevgi::Graphics.canvas width: 24, height: 24, unit: :px
-drawing = Sevgi::Graphics.SVG(:minimal, canvas) { circle cx: 12, cy: 12, r: 10 }
+drawing = Sevgi::Graphics.SVG(:default, canvas) { circle cx: 12, cy: 12, r: 10 }
 ```
 
 Use this form when the smaller gem dependency is the goal. `SVG.Canvas` is the corresponding full-toolkit spelling.
@@ -192,7 +195,7 @@ already lives in a `.sevgi` file. Both return a result instead of raising failur
 
 ```ruby
 result = Sevgi.execute(
-  'SVG(:minimal) { circle r: 4 }.Render',
+  'SVG(:default) { circle r: 4 }.Render',
   file: "inline-icon.sevgi",
   line: 12
 )
@@ -207,6 +210,10 @@ end
 `success?` and `error?` describe the outcome. On success, `value` is the last expression. On failure, `error` is an
 `Executor::Error`. `stack` is the immutable list of visited Sevgi sources. For diagnostics, `result.error.cause` is the
 original exception. `result.error.load_backtrace` keeps entries that belong to those sources.
+
+Failures in a library named by `require:` use the same result, including syntax errors and explicit exits.
+The executor does not install or restore process signal handlers. The host retains control of SIGINT.
+An `Interrupt` becomes a failed result only when Ruby delivers it inside the executing scope.
 
 The public result/error types are `Sevgi::Executor::Result`, `Sevgi::Executor::Error`, `Sevgi::Executor::CycleError`, and
 `Sevgi::Executor::LoadDepthError`.
@@ -237,7 +244,7 @@ Dir.mktmpdir do |dir|
   File.write File.join(dir, "palette.sevgi"), '@ink = "tomato"'
   File.write(
     File.join(dir, "icon.sevgi"),
-    "Load 'palette'\nSVG(:minimal) { circle r: 4, fill: @ink }.Render\n"
+    "Load 'palette'\nSVG(:default) { circle r: 4, fill: @ink }.Render\n"
   )
 
   result = Sevgi.execute_file File.join(dir, "icon.sevgi")

@@ -21,7 +21,7 @@ For a document, use the convenience operation:
 
 ```ruby
 canvas = SVG.Canvas width: 40, height: 40, unit: :px
-drawing = SVG :minimal, canvas do
+drawing = SVG :default, canvas do
   circle cx: 20, cy: 20, r: 16, fill: "tomato"
 end
 
@@ -32,7 +32,7 @@ For an application that owns the rendered SVG and output policy separately:
 
 ```ruby
 canvas = SVG.Canvas width: 40, height: 40, unit: :px
-svg = SVG :minimal, canvas do
+svg = SVG :default, canvas do
   circle cx: 20, cy: 20, r: 16, fill: "tomato"
 end.Render
 Sevgi::Sundries::Export.call(svg, "badge.pdf")
@@ -41,6 +41,12 @@ Sevgi::Sundries::Export.call(svg, "badge.pdf")
 The output suffix selects PDF when `format:` is omitted. `width:` and `height:` are export dimensions. They do not
 repair or replace the drawing's canvas, `viewBox`, or visible geometry. Fix those in the SVG document. Use `css:` only
 for deliberate export-only styling, and use `dpi:` when the CSS-pixel-to-output conversion policy must differ.
+
+Export CSS is a last-minute adjustment after document validation. It still obeys the CSS cascade.
+Insertion requires well-formed SVG ending in an unprefixed `</svg>` plus optional XML whitespace.
+Self-closing or prefixed roots and comments after the root are unsupported with `css:`. Without CSS, this restriction
+does not apply. Sevgi escapes CSS as XML text but does not validate the stylesheet. Native `Export.call` runs its source
+callback after insertion and before conversion. Inspect the final output for changed visibility, size, and clipping.
 
 SVG output has no native graphics dependency. PDF and PNG export lazily require Cairo, RSVG, and HexaPDF. Report a
 missing optional component rather than replacing the path with an unrequested external command or raster workaround.

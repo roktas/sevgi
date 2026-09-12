@@ -88,10 +88,10 @@ module Sevgi
       rescue ::StandardError => e
         raise if raw_error?(options)
 
-        die(e, nil)
+        die(e)
       end
 
-      def die(error, _file)
+      def die(error)
         warn(error.message)
         warn("")
         backtrace(error).each { warn("  #{it}") }
@@ -142,7 +142,7 @@ module Sevgi
       rescue ::StandardError => e
         raise if raw_error?(options)
 
-        die(e, file)
+        die(e)
       end
 
       def raw_error?(options)

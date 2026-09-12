@@ -12,6 +12,8 @@ module Sevgi
     #
     # Dynamic SVG element methods accept text, content objects, and any number of attribute Hashes in one call. Hashes
     # are applied from left to right. Later values replace earlier values unless their names use the `+` update suffix.
+    # Ordinary `dup` and `clone` create independent subtrees, preserve IDs, and detach non-root copies from their parent.
+    # Document copies remain roots. Use `Duplicate` for DSL-specific ID remapping and attachment.
     class Element
       # Builds an element node.
       # @param name [Symbol, String] SVG element name
@@ -61,8 +63,6 @@ module Sevgi
           tree_children(parent).delete(element) if parent.is_a?(element.class)
           element.instance_variable_set(:@parent, DetachedParent)
         end
-
-        def detached_parent = DetachedParent
 
         def tree_children(element) = element.instance_variable_get(:@children)
 
@@ -180,6 +180,22 @@ module Sevgi
         instance_exec(&block) if block
       end
 
+      # Copies owned storage and reconnects child copies without attaching to the source tree.
+      # @param original [Sevgi::Graphics::Element] source node
+      # @return [void]
+      # @api private
+      def initialize_copy(original)
+        super
+        @parent = Element.root?(original) ? RootParent : DetachedParent
+        @attributes = original.attributes.dup
+        @contents = original.contents.map(&:dup)
+        @children = original.children.map do |child|
+          child.dup.tap { it.instance_variable_set(:@parent, self) }
+        end
+      end
+
+      private :initialize_copy
+
       # Dispatches SVG element DSL calls and caches valid element methods.
       # @param name [Symbol] missing method name
       # @param arguments [Array<Hash, String, Sevgi::Graphics::Content>] ordered content and attribute channels. Later
@@ -259,9 +275,6 @@ module Sevgi
 
       private_constant :Dispatch
 
-      protected
-
-      attr_writer :attributes, :children, :contents, :parent
     end
   end
 end

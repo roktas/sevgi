@@ -27,6 +27,9 @@ module Sevgi
   # source. The String returned by source-generation APIs is ordinary Ruby source. Review and integrate it statically
   # rather than passing it to Ruby's raw dynamic evaluation methods. Malformed, rootless, or unmatched input is rejected
   # with {Sevgi::ArgumentError}.
+  # Processing instructions retain their target, data, and order as inert XML markup. Custom entity references in the
+  # selected subtree are rejected before inclusion changes a target. Predefined and numeric references remain valid.
+  # Whole-document conversion rejects nodes after the root. Explicit id selection ignores unrelated document siblings.
   #
   # Namespace dispatch treats qualified and foreign elements as ordinary XML nodes. Their element identity, namespace
   # declarations, qualified attributes, significant text, and nested `svg` elements survive source generation and direct

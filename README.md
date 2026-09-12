@@ -33,20 +33,22 @@ and versioned gem paths.
 
 ## Quick start
 
-Build and render an SVG document:
+Build a 120-by-60 SVG document and save it as `badge.svg`:
 
 ```ruby
 require "sevgi"
 
-drawing = SVG :minimal do
-  g id: "group" do
-    rect width: 3, height: 5
-    circle r: 1
-  end
+drawing = SVG :default, width: 120, height: 60 do
+  rect x: 4, y: 4, width: 112, height: 52, rx: 8, fill: "gold"
+  circle cx: 60, cy: 30, r: 16, fill: "tomato"
 end
 
-puts drawing.Render
+drawing.Save "badge.svg"
 ```
+
+Open `badge.svg` in a browser. The `:default` profile supplies the SVG namespace and XML declaration.
+For a data-driven drawing, see [Meter](https://sevgi.roktas.dev/start/#see-a-complete-drawing).
+Its [runnable source](showcase/srv/meter.sevgi) builds a row of LEDs and colors each LED through a callback.
 
 Library operations use capitalized facade methods such as `SVG.Canvas`. Related Ruby types and namespaces use
 double-colon names such as `SVG::Canvas`. Executable `.sevgi` scripts promote those operations as bare DSL words.

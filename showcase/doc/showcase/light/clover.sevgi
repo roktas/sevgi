@@ -8,7 +8,7 @@ PATH
 CENTER = 13
 SIZE = 26
 
-SVG :minimal, width: SIZE, height: SIZE do
+SVG :default, width: SIZE, height: SIZE do
   rect width: SIZE, height: SIZE, rx: 0.75, fill: "white"
   defs { path id: "Clover", d: CLOVER, fill: "purple" }
 

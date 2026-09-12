@@ -35,7 +35,6 @@ module Sevgi
 
         {**pre, **hash, **post}
           .map do |key, value|
-            key = Css.to_key(key) if key.is_a?(::String)
 
             if key == "style"
               style = Css.declarations(value)

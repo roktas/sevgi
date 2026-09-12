@@ -5,6 +5,28 @@ require_relative "../test_helper"
 module Sevgi
   module Sundries
     class TileTest < Minitest::Test
+      def test_indexed_cells_and_bounds_agree
+        tile = Tile.new(Geometry::Rect[8, 4], nx: 3, ny: 2)
+        [[0, [0, 0]], [1, [0, 4]], [-1, [0, 4]], [-2, [0, 0]]].each do |index, point|
+          assert_equal(point, tile.row(index).first.position.deconstruct)
+          assert_equal(point, tile.rowbox(index).position.deconstruct)
+          assert_equal(tile.row(index), tile[index])
+        end
+
+        [[0, [0, 0]], [2, [16, 0]], [-1, [16, 0]], [-3, [0, 0]]].each do |index, point|
+          assert_equal(point, tile.col(index).first.position.deconstruct)
+          assert_equal(point, tile.colbox(index).position.deconstruct)
+        end
+
+        %i[row rowbox \[\]].each { |method| [-3, 2].each { assert_nil(tile.public_send(method, it)) } }
+        %i[col colbox].each { |method| [-4, 3].each { assert_nil(tile.public_send(method, it)) } }
+        %i[row rowbox col colbox \[\]].each do |method|
+          [nil, "0", 0.5].each { |index| assert_raises(Sevgi::ArgumentError) { tile.public_send(method, index) } }
+        end
+
+        assert_geometry_equal(Geometry::Rect[8, 4], tile.cell)
+      end
+
       def test_tile_rejects_non_geometry_element
         error = assert_raises(ArgumentError) { Tile.new(Object.new) }
 

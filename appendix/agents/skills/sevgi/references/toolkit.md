@@ -8,6 +8,7 @@
 | Choose paper size, canvas geometry, or root serialization metadata | `SVG.Paper`, `SVG.Canvas`, `SVG.Document` | Keep physical size, drawing surface, and document profile independent |
 | Validate SVG vocabulary and nesting | Standard | Use validation instead of hand-maintained element/attribute allowlists |
 | Calculate geometry SVG cannot supply | `Sevgi::Geometry` | Use for constructed values, intersections, sweeps, and algorithmic bounds—not renderer layout |
+| Inspect circle, ellipse, or finite arc geometry | `Sevgi::Geometry::Circle`, `Ellipse`, `Arc` | See `layout.md` for the distinction from renderer-owned `ArcTo` and `ArcBy` |
 | Fit rulers, grids, and reusable tile layouts | `Sevgi::Sundries`, `SVG.Grid` | Choose the exact model through `layout.md` |
 | Reuse supported cross-component helpers | `Sevgi::F` | Use it before adding a project-local Sevgi helper. Do not treat it as a general utility library |
 | Import or inspect existing SVG/XML | Derender facade methods | Choose the source/evaluation relationship through `derender.md` |
