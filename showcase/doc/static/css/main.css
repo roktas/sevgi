@@ -1800,6 +1800,9 @@ button.explore-more {
 .dsl-entry pre {
   margin-bottom: 0;
 }
+.dsl-entry pre + .dsl-see {
+  margin-top: 0.75rem;
+}
 .dsl-meta {
   display: flex;
   flex-wrap: wrap;
