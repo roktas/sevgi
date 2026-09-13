@@ -130,7 +130,7 @@ Inspect the final PDF or PNG: export CSS can change size, visibility, and clippi
 
 `Export.stamp` replaces exact placeholder text in a PDF. The placeholder must be a literal string inside a white text
 object that matches Sevgi's stamp pattern. For example, use
-`Export.stamp("certificate.pdf", "certificate-aylin.pdf", placeholder: "RECIPIENT", stamp: "Aylin")`.
+`Export.stamp("certificate.pdf", "certificate-jane-doe.pdf", placeholder: "RECIPIENT", stamp: "Jane Doe")`.
 A successful replacement writes the destination file and returns `true`.
 
 The method returns `false` and writes no output when it finds no match. Use `Export.stamp!` to replace the input file
