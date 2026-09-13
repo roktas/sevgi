@@ -1,4 +1,3 @@
-# Zola configuration for Sevgi documentation
 base_url                   = "https://sevgi.roktas.dev/"
 title                      = "Sevgi"
 build_search_index         = true
@@ -10,9 +9,8 @@ light_theme                = "github-light"
 dark_theme                 = "github-dark"
 [extra]
 logo_name                  = "Sevgi"
-github_repo                = "roktas/sevgi"
 site_description           = "Create SVG with Ruby."
-nav_groups                 = ["Start", "Core", "Toolkit", "Reference"]
+nav_groups                 = ["Start", "Guides", "Reference"]
 extra_menu                 = [
   { title = "Reference", link = "/api/" },
 ]

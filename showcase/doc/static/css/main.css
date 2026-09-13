@@ -234,10 +234,6 @@ nav {
   color: var(--wt-color-accent-strong);
 }
 
-.theme-toggle i {
-  font-size: 1.1rem;
-}
-
 .theme-toggle .theme-icon {
   width: 1.1rem;
   height: 1.1rem;

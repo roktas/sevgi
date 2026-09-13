@@ -1,4 +1,3 @@
-// Mobile menu toggle functionality
 (function() {
     const toggle = document.querySelector('.mobile-menu-toggle');
     const menu = document.querySelector('.mobile-menu');
@@ -14,7 +13,6 @@
         overlay.classList.add('active');
         overlay.setAttribute('aria-hidden', 'false');
         document.body.classList.add('mobile-menu-open');
-        // Move focus to first menu link
         var firstLink = menu.querySelector('a');
         if (firstLink) firstLink.focus();
     }
@@ -38,13 +36,9 @@
         }
     }
 
-    // Toggle button click
     toggle.addEventListener('click', toggleMenu);
-
-    // Close on overlay click
     overlay.addEventListener('click', closeMenu);
 
-    // Close on escape key
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
             closeMenu();
@@ -52,14 +46,12 @@
         }
     });
 
-    // Close menu when clicking a link (using event delegation)
     menu.addEventListener('click', function(e) {
         if (e.target.tagName === 'A') {
             closeMenu();
         }
     });
 
-    // Close menu on window resize if viewport becomes larger
     var resizeTimer;
     window.addEventListener('resize', function() {
         clearTimeout(resizeTimer);

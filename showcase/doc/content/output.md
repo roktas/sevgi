@@ -2,7 +2,7 @@
 title = "Output"
 weight = 15
 [extra]
-group = "Toolkit"
+group = "Guides"
 +++
 
 A finished document can return SVG text, write SVG to a file or shell pipeline, or convert to PDF or PNG. Set the

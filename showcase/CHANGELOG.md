@@ -17,11 +17,11 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Refined Showcase example tabs, made Ruby and XML views fill their panels, and hid executable preambles from Ruby views.
 - Documented non-rendering element data and clarified the related DSL catalog examples.
 - Refined Showcase heading spacing, page-title colors, and DSL catalog cards across light and dark themes.
-- Split the documentation guides into Core and Toolkit groups, removed an obsolete ruler example, and deleted unused
-  site code.
+- Removed an obsolete ruler example and unused site code.
 
 ### Fixed
 
+- Corrected the Showcase social image dimensions.
 - Added SVG namespaces to standalone drawing examples and regenerated their outputs.
 - Made failed Sevgi Rake tasks stop dependent tasks and captured required-library failures in executor results.
 - Removed executor signal-handler replacement so the host and shell retain SIGINT ownership.

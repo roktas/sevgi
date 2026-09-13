@@ -2,7 +2,7 @@
 title = "Geometry"
 weight = 12
 [extra]
-group = "Toolkit"
+group = "Guides"
 +++
 
 Geometry supplies a small set of immutable values for calculations the SVG renderer cannot do for you. It uses SVG
@@ -148,7 +148,7 @@ combined.width    # => 46.0
 combined.height   # => 32.0
 ```
 
-Zero-size elements still contribute their position to `Operation.box`; they are not discarded merely because
+Zero-size elements still contribute their position to `Operation.box`. They are not discarded merely because
 `ignorable?` is true.
 
 ## Relations {{ "{#relations}" }}

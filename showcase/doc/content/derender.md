@@ -2,7 +2,7 @@
 title = "Derender"
 weight = 14
 [extra]
-group = "Toolkit"
+group = "Guides"
 +++
 
 Some vector drawings are easier to create in a visual editor. Examples include a Bezier-heavy logo, a traced

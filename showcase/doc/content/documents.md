@@ -2,7 +2,7 @@
 title = "Documents"
 weight = 10
 [extra]
-group = "Core"
+group = "Guides"
 +++
 
 An SVG document is an element tree built with a canvas and a document profile. The canvas defines its dimensions.
@@ -60,7 +60,7 @@ All four profiles use the same validation and lint lifecycle.
 | `:html` | none | SVG namespace | common document DSL |
 | `:inkscape` | XML declaration | SVG and editor namespaces with crisp edges | `Draw`, `Hatch`, and editor/RDF helpers |
 
-Omit the profile for a standalone SVG file; this selects `:default`. Use `:minimal` for syntax examples or XML
+Omit the profile for a standalone SVG file. This selects `:default`. Use `:minimal` for syntax examples or XML
 fragments, `:html` for SVG embedded in HTML, and `:inkscape` when editor metadata or its additional helpers belong
 to the drawing.
 The Inkscape root adds Sevgi, Inkscape, and Sodipodi namespaces plus `shape-rendering="crispEdges"`. The presence of

@@ -2,7 +2,7 @@
 title = "Layout"
 weight = 13
 [extra]
-group = "Toolkit"
+group = "Guides"
 +++
 
 Layout helpers turn dimensions into inspectable rulers, grids, and repeated cells. They are regular Ruby objects, not

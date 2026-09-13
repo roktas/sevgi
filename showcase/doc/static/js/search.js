@@ -1,10 +1,8 @@
-// Search functionality adapted from Adidoks theme
-// Uses Zola's built-in elasticlunr search index
+// Adapted from Adidoks for Zola's elasticlunr search index.
 
 var suggestions = document.getElementById('suggestions');
 var userinput = document.getElementById('userinput');
 
-// Focus search on '/' key, blur on Escape
 document.addEventListener('keydown', function(e) {
   if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
     e.preventDefault();
@@ -16,14 +14,12 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
-// Hide suggestions when clicking outside
 document.addEventListener('click', function(event) {
   if (!suggestions.contains(event.target) && event.target !== userinput) {
     suggestions.style.display = 'none';
   }
 });
 
-// Arrow key navigation through results
 document.addEventListener('keydown', function(e) {
   const focusable = suggestions.querySelectorAll('a');
   if (suggestions.style.display === 'none' || focusable.length === 0) return;
@@ -41,7 +37,6 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
-// Main search functionality
 (function() {
   var index = elasticlunr.Index.load(window.searchIndex);
 

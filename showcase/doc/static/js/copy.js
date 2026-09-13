@@ -1,5 +1,3 @@
-// Copy-to-clipboard for code blocks
-
 document.addEventListener('DOMContentLoaded', function() {
   const codeBlocks = document.querySelectorAll('.content pre');
 
@@ -10,7 +8,6 @@ document.addEventListener('DOMContentLoaded', function() {
     button.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>';
 
     button.addEventListener('click', function() {
-      // Check if this is a bash/shell code block (has language-bash class on code element)
       const codeEl = block.querySelector('code');
       const isBash = codeEl && /language-(bash|sh|shell|zsh)/.test(codeEl.className);
       let text = block.textContent;

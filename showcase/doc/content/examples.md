@@ -57,5 +57,5 @@ Start with [Pokey](#pokey) for basic SVG elements.
 
 <div class="footnote-definition" id="victor" role="doc-footnote">
 <sup class="footnote-definition-label">†</sup>
-<p>These examples run from <code>showcase/srv</code>; the test suite compares their output. Some examples are adapted from the <a href="https://github.com/DannyBen/victor-book/tree/master/src/examples">Victor Book examples</a>. <a href="#victor-reference" role="doc-backlink" aria-label="Back to footnote reference">↩</a></p>
+<p>These examples run from <code>showcase/srv</code>. The test suite compares their output. Some examples are adapted from the <a href="https://github.com/DannyBen/victor-book/tree/master/src/examples">Victor Book examples</a>. <a href="#victor-reference" role="doc-backlink" aria-label="Back to footnote reference">↩</a></p>
 </div>

@@ -15,7 +15,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
     <script>
     // iOS viewport jank fix
     (function() {
@@ -46,8 +45,8 @@
     <meta property="og:title" content="{% if page?.title %}{{ page.title }} | {{ config.title }}{% else %}{{ config.title }}{% endif %}">
     <meta property="og:description" content="{{ config.extra.site_description }}">
     <meta property="og:image" content="{{ get_url(path='/img/logo@2x.png') }}">
-    <meta property="og:image:width" content="1024">
-    <meta property="og:image:height" content="1024">
+    <meta property="og:image:width" content="560">
+    <meta property="og:image:height" content="900">
 
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="{% if page?.title %}{{ page.title }} | {{ config.title }}{% else %}{{ config.title }}{% endif %}">
@@ -145,7 +144,9 @@
                     <circle cx="12" cy="12" r="6" fill="currentColor"></circle>
                     <path d="m5.6 5.6-2.1-2.1m15 2.1 2.1-2.1m-15 15-2.1 2.1m15-2.1 2.1 2.1M12 4V2.8m0 17.2v1.2M4 12H2.8m17.2 0h1.2" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
                 </svg>
-                <i class="fas fa-moon dark-icon" aria-hidden="true"></i>
+                <svg class="dark-icon theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"></path>
+                </svg>
             </button>
         </nav>
 
@@ -154,7 +155,9 @@
                 <circle cx="12" cy="12" r="6" fill="currentColor"></circle>
                 <path d="m5.6 5.6-2.1-2.1m15 2.1 2.1-2.1m-15 15-2.1 2.1m15-2.1 2.1 2.1M12 4V2.8m0 17.2v1.2M4 12H2.8m17.2 0h1.2" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
             </svg>
-            <i class="fas fa-moon dark-icon" aria-hidden="true"></i>
+            <svg class="dark-icon theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"></path>
+            </svg>
         </button>
     </header>
 

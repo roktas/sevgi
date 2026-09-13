@@ -2,7 +2,7 @@
 title = "Compose"
 weight = 11
 [extra]
-group = "Core"
+group = "Guides"
 +++
 
 Composition combines drawing parts without creating a new document type. Existing elements work well for fixed
