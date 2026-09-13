@@ -7,10 +7,11 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Changed
 
+- Allowed Canvas and Paper values as the first `SVG` argument when using the default document profile.
 - Made element `dup` and `clone` own independent subtrees while retaining IDs and Ruby copy semantics.
 - Made Segment equality compare length and direction; ordering still compares length only.
 - Limited Tile cell, row, and column queries to the requested geometry and accelerated XML character validation.
-- Simplified the first-run guide, aligned library constructor examples, and added a full-size Protractor view and Arc caption.
+- Simplified the first-run guide and aligned library constructor examples.
 - Updated the packaged skill for canvas origins, alignment, Paper lookup, curved geometry, and export constraints.
 - Revised DSL catalog examples and packaged Sevgi skill guidance to use statement-style calls and show inspection results.
 - Refined Showcase example tabs, made Ruby and XML views fill their panels, and hid executable preambles from Ruby views.

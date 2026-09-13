@@ -25,7 +25,7 @@ fade = proc do |tile, x:, y:, **|
   tile[:opacity] = opacities.fetch(x + y)
 end
 
-SVG :default, width: 260, height: 135, viewBox: "0 0 260 135" do
+SVG width: 260, height: 135, viewBox: "0 0 260 135" do
   css STYLE
   rect width: 260, height: 135, fill: "#222222"
 

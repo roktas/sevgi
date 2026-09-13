@@ -19,7 +19,7 @@ top-level words, and the script usually ends with an [output operation](@/output
 
 canvas = Canvas width: 24, height: 24, unit: :px
 
-SVG :default, canvas do
+SVG canvas do
   circle cx: 12, cy: 12, r: 10, fill: "tomato"
 end.Save "badge.svg"
 ```
@@ -31,7 +31,7 @@ require "sevgi"
 
 canvas = SVG.Canvas width: 24, height: 24, unit: :px
 
-drawing = SVG :default, canvas do
+drawing = SVG canvas do
   circle cx: 12, cy: 12, r: 10, fill: "tomato"
 end
 
@@ -64,8 +64,9 @@ words. The script needs neither `require "sevgi"` nor an `SVG.` prefix:
 
 ```ruby
 Paper 85, 55, :card
+canvas = Canvas :card
 
-SVG :default, :card do
+SVG canvas do
   rect width: "100%", height: "100%", rx: 3
 end.Save
 ```
@@ -121,7 +122,7 @@ keeps Sevgi helpers out of the application's general method scope.
 require "sevgi"
 
 canvas = SVG.Canvas width: 24, height: 24, unit: :px
-drawing = SVG(:default, canvas) { circle cx: 12, cy: 12, r: 10 }
+drawing = SVG(canvas) { circle cx: 12, cy: 12, r: 10 }
 
 canvas.is_a?(SVG::Canvas) # => true
 drawing.Render
@@ -143,7 +144,7 @@ require "sevgi"
 SVG.Paper 85, 55, :card
 canvas = SVG.Canvas :card, margins: 4
 
-card = SVG :default, canvas do
+card = SVG canvas do
   rect width: "100%", height: "100%", rx: 3
 end
 
@@ -164,7 +165,7 @@ badge = Class.new do
   include Sevgi
 
   def render(label)
-    SVG(:default) { text label, x: 4, y: 14 }.Render
+    SVG { text label, x: 4, y: 14 }.Render
   end
 end
 
@@ -183,7 +184,7 @@ does not install the full `SVG` facade:
 require "sevgi/graphics"
 
 canvas = Sevgi::Graphics.canvas width: 24, height: 24, unit: :px
-drawing = Sevgi::Graphics.SVG(:default, canvas) { circle cx: 12, cy: 12, r: 10 }
+drawing = Sevgi::Graphics.SVG(canvas) { circle cx: 12, cy: 12, r: 10 }
 ```
 
 Use this form when the smaller gem dependency is the goal. `SVG.Canvas` is the corresponding full-toolkit spelling.
@@ -195,7 +196,7 @@ already lives in a `.sevgi` file. Both return a result instead of raising failur
 
 ```ruby
 result = Sevgi.execute(
-  'SVG(:default) { circle r: 4 }.Render',
+  'SVG { circle r: 4 }.Render',
   file: "inline-icon.sevgi",
   line: 12
 )
@@ -244,7 +245,7 @@ Dir.mktmpdir do |dir|
   File.write File.join(dir, "palette.sevgi"), '@ink = "tomato"'
   File.write(
     File.join(dir, "icon.sevgi"),
-    "Load 'palette'\nSVG(:default) { circle r: 4, fill: @ink }.Render\n"
+    "Load 'palette'\nSVG { circle r: 4, fill: @ink }.Render\n"
   )
 
   result = Sevgi.execute_file File.join(dir, "icon.sevgi")

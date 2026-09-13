@@ -18,7 +18,8 @@ SVG = Sevgi::SVG
 
 # @overload SVG(document = :default, canvas = Undefined, **attributes, &block)
 #   Builds an SVG document through the default top-level DSL entrypoint.
-#   @param document [Symbol, String, Class] document profile name or document class
+#   @param document [Symbol, String, Class, Sevgi::Graphics::Canvas, Sevgi::Graphics::Paper] document profile,
+#     document class, or canvas input that uses the default profile
 #   @param canvas [Sevgi::Graphics::Canvas, Sevgi::Graphics::Paper, Symbol, String, Sevgi::Undefined, nil] optional
 #     canvas or paper profile
 #   @param attributes [Hash] root SVG attributes

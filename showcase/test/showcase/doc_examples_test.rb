@@ -25,7 +25,7 @@ describe "documentation examples" do
       File.join(directory, "card.sevgi"),
       <<~RUBY
         raise "Wrong arguments" unless ARGA == ["front"] && ARGH == {theme: :dark}
-        SVG(:default, width: 85, height: 55) { rect width: 85, height: 55 }.Save "card.svg"
+        SVG(width: 85, height: 55) { rect width: 85, height: 55 }.Save "card.svg"
       RUBY
     )
   end

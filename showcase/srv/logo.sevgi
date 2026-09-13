@@ -33,7 +33,7 @@ module Logo
   end
 end
 
-SVG :default, width: 120, height: 120, viewBox: "-1 -1 62 62" do
+SVG width: 120, height: 120, viewBox: "-1 -1 62 62" do
   rect x: -1, y: -1, width: 62, height: 62, fill: "white"
   Call Logo
 end.Save

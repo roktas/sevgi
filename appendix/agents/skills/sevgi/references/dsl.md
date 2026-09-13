@@ -43,7 +43,7 @@ Executable script:
 
 canvas = Canvas width: 24, height: 24, unit: :px
 
-SVG :default, canvas do
+SVG canvas do
   circle cx: 12, cy: 12, r: 10, fill: "tomato"
 end.Save "badge.svg"
 ```
@@ -54,7 +54,7 @@ Ruby library:
 require "sevgi"
 
 canvas = SVG.Canvas width: 24, height: 24, unit: :px
-drawing = SVG :default, canvas do
+drawing = SVG canvas do
   circle cx: 12, cy: 12, r: 10, fill: "tomato"
 end
 
@@ -72,9 +72,10 @@ Keep physical size and serialization dialect independent:
 | Build one drawing surface | `SVG.Canvas` / script `Canvas` | size, margins, unit, name, and resulting `viewBox` |
 | Define or select an SVG document profile | `SVG.Document` / script `Document` | root attributes and preambles |
 
-The first argument to `SVG` selects a document profile. The optional second argument supplies a canvas. Use an
-anonymous `Document` for one-off metadata. Use a named profile only for shared process-wide vocabulary. Prefer
-non-bang registration. Use `Paper!` or `Document!` only for an intentional overwrite.
+Omitting the profile selects `:default`. A Canvas or Paper can be the first argument when the default profile is
+suitable. Otherwise, the first argument selects a document profile and the optional second argument supplies the
+canvas. Use an anonymous `Document` for one-off metadata. Use a named profile only for shared process-wide vocabulary.
+Prefer non-bang registration. Use `Paper!` or `Document!` only for an intentional overwrite.
 
 A canvas's `viewBox` starts at the negative left and top margins. Drawing coordinates remain relative to the inner
 area. For example, `SVG.Canvas(width: 40, height: 20, unit: :px, margins: 2)` starts at `(-2, -2)`.

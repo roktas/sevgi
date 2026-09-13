@@ -19,10 +19,10 @@ module Sevgi
     # The native source callback runs after insertion and before conversion. External backends have no such callback.
     #
     # @example Export SVG source to a sized PNG
-    #   svg = Sevgi::Graphics.SVG(:default, width: 10, height: 10) { circle cx: 5, cy: 5, r: 4 }.Render
+    #   svg = Sevgi::Graphics.SVG(width: 10, height: 10) { circle cx: 5, cy: 5, r: 4 }.Render
     #   Sevgi::Sundries::Export.call(svg, "drawing.png", width: 320)
     # @example Infer PDF output and inject export-only CSS
-    #   svg = Sevgi::Graphics.SVG(:default, width: 10, height: 10) { circle class: "accent", cx: 5, cy: 5, r: 4 }.Render
+    #   svg = Sevgi::Graphics.SVG(width: 10, height: 10) { circle class: "accent", cx: 5, cy: 5, r: 4 }.Render
     #   Sevgi::Sundries::Export.call(svg, "drawing.pdf", css: ".accent { fill: tomato; }")
     # @see https://sevgi.roktas.dev/output/#export Export guide
     module Export

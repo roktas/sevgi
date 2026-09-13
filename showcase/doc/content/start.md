@@ -20,7 +20,7 @@ Save this script as `badge.sevgi`:
 ```ruby
 #!/usr/bin/env -S ruby -S sevgi
 
-SVG :default, width: 120, height: 60 do
+SVG width: 120, height: 60 do
   rect x: 4, y: 4, width: 112, height: 52, rx: 8, fill: "gold"
   circle cx: 60, cy: 30, r: 16, fill: "tomato"
 end.Save "badge.svg"
@@ -33,7 +33,7 @@ sevgi badge.sevgi
 ```
 
 Open `badge.svg` in a browser. The gold panel contains a centered red circle.
-The `:default` profile supplies the SVG namespace for a standalone file.
+Omitting the profile uses `:default`, which supplies the SVG namespace for a standalone file.
 
 For Ruby application use, see [Usage](@/usage.md#libraries). That page explains the shared drawing syntax and the
 different script and library operations.

@@ -30,16 +30,6 @@
     }
 
     container.dataset.currentTemplate = templateId;
-    var base = container.closest('[data-tab-base]');
-    var link = base && document.querySelector('[data-svg-view="' + base.dataset.tabBase + '"]');
-    if (link) {
-      if (link.href) URL.revokeObjectURL(link.href);
-      // Standalone SVG viewers have no site background, so use the light rendition.
-      var svg = document.getElementById(container.dataset.lightTemplate).content.querySelector('svg');
-      link.href = URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(svg)], {
-        type: 'image/svg+xml'
-      }));
-    }
   }
 
   function replace(node) {

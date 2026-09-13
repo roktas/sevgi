@@ -38,7 +38,7 @@ Build a 120-by-60 SVG document and save it as `badge.svg`:
 ```ruby
 require "sevgi"
 
-drawing = SVG :default, width: 120, height: 60 do
+drawing = SVG width: 120, height: 60 do
   rect x: 4, y: 4, width: 112, height: 52, rx: 8, fill: "gold"
   circle cx: 60, cy: 30, r: 16, fill: "tomato"
 end

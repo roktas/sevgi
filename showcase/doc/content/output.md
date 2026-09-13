@@ -25,7 +25,7 @@ Library code commonly keeps the document and passes `Render` to its own storage 
 ```ruby
 require "sevgi"
 
-drawing = SVG(:default, width: 24, height: 24) { circle cx: 12, cy: 12, r: 10 }
+drawing = SVG(width: 24, height: 24) { circle cx: 12, cy: 12, r: 10 }
 File.write "badge.svg", drawing.Render
 ```
 
@@ -34,7 +34,7 @@ Executable drawings can let the runner derive a path from the source name:
 ```ruby
 #!/usr/bin/env -S ruby -S sevgi
 
-SVG :default, width: 24, height: 24 do
+SVG width: 24, height: 24 do
   circle cx: 12, cy: 12, r: 10
 end.Save
 ```
@@ -73,7 +73,7 @@ operations:
 require "sevgi"
 
 canvas = SVG.Canvas width: 40, height: 40, unit: :px
-drawing = SVG :default, canvas do
+drawing = SVG canvas do
   circle cx: 20, cy: 20, r: 16, fill: "tomato"
 end
 
@@ -88,7 +88,7 @@ the format when `format:` is omitted, and the return value is the expanded outpu
 require "sevgi"
 
 canvas = SVG.Canvas width: 40, height: 40, unit: :px
-drawing = SVG(:default, canvas) { circle cx: 20, cy: 20, r: 16, fill: "tomato" }
+drawing = SVG(canvas) { circle cx: 20, cy: 20, r: 16, fill: "tomato" }
 Sevgi::Sundries::Export.call drawing.Render, "badge.png", width: 320
 ```
 
@@ -107,7 +107,7 @@ in a PDF without changing the saved SVG:
 ```ruby
 require "sevgi"
 
-drawing = SVG :default, width: 40, height: 40 do
+drawing = SVG width: 40, height: 40 do
   rect width: 40, height: 40, fill: "gold"
   circle class: "guide", cx: 20, cy: 20, r: 16, fill: "none", stroke: "black"
 end

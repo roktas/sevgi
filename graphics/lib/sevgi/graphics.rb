@@ -135,15 +135,20 @@ module Sevgi
 
     # Builds an SVG root element tree without rendering it.
     #
-    # The first argument selects root metadata. The second supplies physical
-    # canvas attributes. Keyword attributes are applied to the root after both.
-    # @param document [Symbol, String, Class] document profile name or document class
+    # The first argument selects root metadata, or supplies the canvas while using the default profile. The second
+    # supplies canvas attributes when the first argument is a profile. Keyword attributes are applied after both.
+    # @param document [Symbol, String, Class, Sevgi::Graphics::Canvas, Sevgi::Graphics::Paper] document profile,
+    #   document class, or canvas input that uses the default profile
     # @param canvas [Sevgi::Graphics::Canvas, Sevgi::Graphics::Paper, Symbol, String, Sevgi::Undefined, nil] canvas input
     # @yield evaluates the drawing DSL in the root element
     # @yieldreturn [Object] ignored block result
     # @return [Sevgi::Graphics::Document::Proto] SVG root element
     # @raise [Sevgi::ArgumentError] when the document/canvas profile or root XML attributes are invalid
     def SVG(document = :default, canvas = Undefined, **, &block)
+      if canvas.equal?(Undefined) && (document.is_a?(Canvas) || document.is_a?(Paper))
+        document, canvas = :default, document
+      end
+
       Graphics::Document.(document, canvas, **, &block)
     end
 

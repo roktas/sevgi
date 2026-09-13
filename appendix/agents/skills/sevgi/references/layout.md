@@ -53,7 +53,7 @@ An object with `position` must supply finite numeric `x` and `y` coordinates:
 ```ruby
 inner = Sevgi::Geometry::Rect[8, 4, position: [2, 3]]
 outer = Sevgi::Geometry::Rect[40, 20, position: [5, 5]]
-drawing = SVG :default, width: 50, height: 30 do
+drawing = SVG width: 50, height: 30 do
   shape = rect x: 2, y: 3, width: 8, height: 4
   shape.Align :center, inner:, outer:
 end

@@ -21,7 +21,7 @@ For a document, use the convenience operation:
 
 ```ruby
 canvas = SVG.Canvas width: 40, height: 40, unit: :px
-drawing = SVG :default, canvas do
+drawing = SVG canvas do
   circle cx: 20, cy: 20, r: 16, fill: "tomato"
 end
 
@@ -32,7 +32,7 @@ For an application that owns the rendered SVG and output policy separately:
 
 ```ruby
 canvas = SVG.Canvas width: 40, height: 40, unit: :px
-svg = SVG :default, canvas do
+svg = SVG canvas do
   circle cx: 20, cy: 20, r: 16, fill: "tomato"
 end.Render
 Sevgi::Sundries::Export.call(svg, "badge.pdf")

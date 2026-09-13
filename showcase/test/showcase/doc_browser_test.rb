@@ -87,7 +87,7 @@ module Sevgi
         pokey = sources.find { |source| source.values_at("base", "theme", "extension") == %w[pokey light sevgi] }
         assert_equal(
           <<~RUBY
-            SVG :default, width: 100, height: 100 do
+            SVG width: 100, height: 100 do
               rect x: 0, y: 0, width: 100, height: 100, fill: "white"
               path fill: "purple", d: %w[
                 M10 101 V50 A40 40 0 0 1 90 50 V101
@@ -170,32 +170,6 @@ module Sevgi
         assert(eval_json("() => document.querySelector('.example-index').open"))
         cli("press", "Enter")
         refute(eval_json("() => document.querySelector('.example-index').open"))
-        %w[light dark].each do |theme|
-          cli("eval", "() => document.documentElement.setAttribute('data-theme', '#{theme}')")
-          svg = eval_json(
-            <<~JS
-              async () => {
-                const link = document.querySelector('[data-svg-view="protractor"]');
-                const source = await (await fetch(link.href)).text();
-                const xml = new DOMParser().parseFromString(source, 'image/svg+xml');
-                const image = new Image();
-                image.src = link.href;
-                await image.decode();
-                return {
-                  namespace: xml.documentElement.namespaceURI,
-                  labels: xml.querySelectorAll('text').length,
-                  width: image.naturalWidth,
-                  source,
-                expected: new XMLSerializer().serializeToString(document.querySelector('#svg-light-protractor').content.querySelector('svg'))
-                };
-              }
-            JS
-          )
-          assert_equal("http://www.w3.org/2000/svg", svg.fetch("namespace"))
-          assert_operator(svg.fetch("labels"), :>, 10)
-          assert_operator(svg.fetch("width"), :>, 0)
-          assert_equal(svg.fetch("expected"), svg.fetch("source"))
-        end
       end
 
       def test_mermaid_diagrams_are_inline

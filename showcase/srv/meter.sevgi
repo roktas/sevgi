@@ -10,7 +10,7 @@ dim = proc do |led, x:, **|
   led[:"fill-opacity"] = 0.3 if x >= 7
 end
 
-SVG :default, width: TOTAL_WIDTH, height: 30, viewBox: "0 0 #{TOTAL_WIDTH} 30" do
+SVG width: TOTAL_WIDTH, height: 30, viewBox: "0 0 #{TOTAL_WIDTH} 30" do
   rect x: 2, y: 2, width: TOTAL_WIDTH - 4, height: 26,
        rx: 4, fill: "none", stroke: "#666"
 

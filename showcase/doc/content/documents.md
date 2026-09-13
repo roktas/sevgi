@@ -14,7 +14,7 @@ reusable drawing code that does not belong to one document type.
 ```ruby
 require "sevgi"
 
-drawing = SVG :default, width: 32, height: 20 do
+drawing = SVG width: 32, height: 20 do
   g id: "badge" do
     rect width: 32, height: 20, rx: 4, fill: "gold"
     text "S", x: 16, y: 14, "text-anchor": "middle"
@@ -39,7 +39,7 @@ require "sevgi"
 
 canvas = SVG.Canvas :a4, margins: [12, 10]
 
-drawing = SVG :default, canvas do
+drawing = SVG canvas do
   rect width: canvas.inner.width, height: canvas.inner.height
 end
 ```
@@ -60,8 +60,9 @@ All four profiles use the same validation and lint lifecycle.
 | `:html` | none | SVG namespace | common document DSL |
 | `:inkscape` | XML declaration | SVG and editor namespaces with crisp edges | `Draw`, `Hatch`, and editor/RDF helpers |
 
-Use `:minimal` for syntax examples or XML fragments, `:default` for a standalone SVG file, `:html` for SVG embedded in HTML, and
-`:inkscape` when editor metadata or its additional helpers belong to the drawing.
+Omit the profile for a standalone SVG file; this selects `:default`. Use `:minimal` for syntax examples or XML
+fragments, `:html` for SVG embedded in HTML, and `:inkscape` when editor metadata or its additional helpers belong
+to the drawing.
 The Inkscape root adds Sevgi, Inkscape, and Sodipodi namespaces plus `shape-rendering="crispEdges"`. The presence of
 `Draw` and `Hatch` on `:inkscape` is a convenience default, not an Inkscape format requirement.
 

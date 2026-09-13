@@ -59,6 +59,17 @@ module Sevgi
         end
       end
 
+      def test_svg_uses_default_profile_for_canvas_input
+        canvas = Canvas.call(width: 10, height: 5, unit: :px)
+
+        [canvas, canvas.size].each do |input|
+          source = Graphics.SVG(input).Render()
+          assert_includes(source, "xmlns=\"http://www.w3.org/2000/svg\"")
+          assert_includes(source, "width=\"10.0px\"")
+          assert_includes(source, "height=\"5.0px\"")
+        end
+      end
+
       def test_mixtures_keep_private_surface_small
         expected = [
           [:Call, [], []],

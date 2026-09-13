@@ -28,7 +28,7 @@ Sevgi in parallel.
 Keep the editor file as the geometry source and compose a selected group in Sevgi:
 
 ```ruby
-SVG :default do
+SVG do
   Include "brand.svg", "logo", omit: :id
 end.Save "badge.svg"
 ```
