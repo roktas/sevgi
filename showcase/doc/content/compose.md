@@ -2,7 +2,7 @@
 title = "Compose"
 weight = 11
 [extra]
-group = "Guides"
+group = "Core"
 +++
 
 Composition combines drawing parts without creating a new document type. Existing elements work well for fixed
@@ -129,7 +129,7 @@ end.Render
 can use drawing words such as `circle` and `text`.
 
 Constants assigned directly inside an `SVG.Module` block belong to the surrounding Ruby scope, not to the module it
-creates. In the explicit declaration above, `RADIUS` belongs to `DrawingParts::Marker`, and bare `RADIUS` inside `call`
+creates. In the `DrawingParts::Marker` declaration, `RADIUS` belongs to that module, and bare `RADIUS` inside `call`
 finds it there. `SVG.Module` yields the new module as a block argument, so `mod::NAME = value` is possible. A normal
 `def` does not capture that block argument or change where Ruby looks for constants, so the explicit form is clearer
 when methods refer to module-owned constants.

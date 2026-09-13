@@ -2,12 +2,12 @@
 title = "Documents"
 weight = 10
 [extra]
-group = "Guides"
+group = "Core"
 +++
 
-Documents are SVG element trees built with a canvas and a document profile. This page explains both parts. It also
-shows application-specific profiles, document types, and checks that run before output. [Compose](@/compose.md) covers
-reusable drawing code that does not belong to one document type.
+An SVG document is an element tree built with a canvas and a document profile. The canvas defines its dimensions.
+The profile defines its metadata and available methods. [Compose](@/compose.md) covers reusable drawing code that does
+not belong to one document type.
 
 ## Construct a document
 

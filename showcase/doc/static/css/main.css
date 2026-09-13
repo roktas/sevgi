@@ -501,20 +501,9 @@ main {
   border-radius: 0 0.5rem 0.5rem 0;
   box-shadow: 0 2px 8px var(--wt-shadow-soft), 0 1px 2px var(--wt-shadow-medium);
 }
-/* Demo GIFs - shrink to min-width, then horizontal scroll */
-.content figure.demo {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  margin-top: 0.25rem;
-}
-.content figure.demo img {
-  min-width: 800px;
-}
 /* Tighten spacing between paragraphs and code blocks */
 .content p + pre,
-.content p + .terminal,
-.content pre + p,
-.content .terminal + p {
+.content pre + p {
   margin-top: 0.5rem;
 }
 .content a {
@@ -560,8 +549,6 @@ main {
 .giallo-l:last-child:empty {
   display: none;
 }
-/* Shared styles for code blocks and terminal output */
-.terminal,
 .content pre {
   position: relative;
   background-color: var(--wt-color-code-bg);
@@ -574,12 +561,10 @@ main {
   box-shadow: 0 2px 8px var(--wt-shadow-soft), 0 1px 2px var(--wt-shadow-medium);
   transition: box-shadow 50ms;
 }
-.terminal:hover,
 .content pre:hover {
   box-shadow: 0 0 0 1px var(--wt-color-accent-soft),
     0 4px 16px var(--wt-shadow-accent), 0 2px 8px var(--wt-shadow-medium);
 }
-.terminal code,
 .content pre code {
   background-color: rgba(0, 0, 0, 0);
   padding: 0;
@@ -616,48 +601,9 @@ main {
 .content pre:hover .code-copy-btn {
   opacity: 1;
 }
-/* Terminal output styling (ANSI colors) */
-.terminal {
-  font-family: var(--wt-font-mono);
-  font-size: 0.875rem;
-  line-height: 1.5;
-  color: var(--wt-color-text); /* Default text color for terminal (not syntax-highlighted) */
-}
-.terminal .prompt {
-  color: var(--wt-color-text-soft);
-}
-/* Command text after prompt */
-.terminal .cmd {
-  color: var(--wt-color-accent);
-  font-weight: 600;
-}
-/* Softer bold for table headers and branch names */
-.terminal b {
-  font-weight: 550;
-}
-/* ANSI color classes for terminal output */
-.terminal .d {
-  opacity: 0.67;
-}
-.terminal .g {
-  color: var(--green, #0a0);
-}
-.terminal .r {
-  color: var(--red, #a00);
-}
-.terminal .c {
-  color: var(--cyan, #0aa);
-}
-/* Gutter spans - extend vertically to form continuous line */
-.terminal span[style*="background:var(--bright-white"] {
-  display: inline-block;
-  margin: -0.25em 0;
-  padding: 0.25em 0;
-}
-
 /*
  * -----------------------------------------------------------------------------
- * Code Blocks - Distinctive card style with left accent (Blockquotes)
+ * Blockquotes
  * -----------------------------------------------------------------------------
  */
 
@@ -730,11 +676,6 @@ main {
 /* But allow multiline code blocks in tables to wrap */
 :is(.content, .example-index) > table td pre code {
   white-space: pre;
-}
-/* Plain multiline code without block styling */
-:is(.content, .example-index) > table td code.multiline {
-  white-space: pre;
-  display: block;
 }
 :is(.content, .example-index) > table td:first-child {
   font-weight: 550;
@@ -1092,30 +1033,6 @@ footer {
   align-items: center;
   gap: 0.5rem;
 }
-.hero .explore-more {
-  position: absolute;
-  bottom: 3.5rem;
-  left: 50%;
-  transform: translateX(-50%);
-  color: var(--wt-color-text-muted);
-  cursor: pointer;
-  transition: color 150ms;
-  animation: float 3s ease-in-out infinite;
-}
-.hero .explore-more:hover {
-  color: var(--wt-color-text);
-  animation-play-state: paused;
-}
-@keyframes float {
-  0%,
-  100% {
-    transform: translateX(-50%) translateY(0);
-  }
-  50% {
-    transform: translateX(-50%) translateY(-6px);
-  }
-}
-
 /*
  * Features Grid System
  */
@@ -1176,13 +1093,6 @@ footer {
 .button-secondary:hover {
   background: var(--wt-color-bg);
 }
-/* Reset button styles for non-button buttons */
-button.explore-more {
-  background: none;
-  border: none;
-  font: inherit;
-}
-
 /*
  * -----------------------------------------------------------------------------
  * Lists
@@ -1539,20 +1449,6 @@ header .logo:hover svg {
   filter: drop-shadow(0 0 8px var(--wt-shadow-accent-strong));
   transition: filter 200ms ease;
 }
-/* Explore more bounce animation */
-@keyframes gentle-bounce {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(4px);
-  }
-}
-button.explore-more {
-  animation: gentle-bounce 2s ease-in-out infinite;
-}
-
 /*
  * -----------------------------------------------------------------------------
  * Dark Mode Adjustments
@@ -1617,8 +1513,7 @@ button.explore-more {
   }
   /* Code blocks - keep together, remove decorative elements
      Use !important to override dark mode variables that might bleed through */
-  .content pre,
-  .terminal {
+  .content pre {
     border: 1px solid #ccc !important;
     box-shadow: none !important;
     page-break-inside: avoid;
@@ -2164,7 +2059,7 @@ html[data-theme="dark"] .tabs .theme-dark {
 
 /*
  * -----------------------------------------------------------------------------
- * TABLET AND MOBILE - MAIN BREAKPOINT (Final Overrides)
+ * Tablet and mobile final overrides
  * -----------------------------------------------------------------------------
  */
 
@@ -2176,83 +2071,54 @@ html[data-theme="dark"] .tabs .theme-dark {
   body {
     font-size: 16px;
   }
-  
-  /* Header Layout: Flexbox container */
+
   header {
     height: calc(var(--wt-header-height) + env(safe-area-inset-top, 0px));
     padding: 10px 20px;
     padding-top: calc(env(safe-area-inset-top, 0px) + 10px);
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    /* Spacing between left (menu) and right (logo/toggle) */
-    justify-content: space-between;
-    gap: 0;
   }
 
-  /* Hide desktop navigation */
   header nav {
     display: none;
   }
 
-  /* Hamburger Menu (Left) */
   .mobile-menu-toggle {
     display: flex;
-    /* Pushes everything else to the right, just in case */
-    margin-right: auto;
-  }
-  
-  /* Hide the text next to the logo on mobile */
-  .logo .logo-text {
-    display: none !important;
-  }
-  
-  /* Logo Link Wrapper - ensure it's flex to remove weird anchor spacing */
-  header > a {
-    display: flex;
-    align-items: center;
-    text-decoration: none;
   }
 
-  /* Logo Container */
-  .logo {
-    display: flex;
-    align-items: center;
-    margin: 0;
+  .logo .logo-text {
+    display: none;
   }
-  
-  /* Logo Icon Sizing - slightly smaller on mobile for better proportions */
+
+  header > a {
+    display: flex;
+  }
+
   .logo svg {
-    height: 32px; 
+    height: 32px;
     width: auto;
   }
 
-  /* Theme Toggle Button (Right) */
   .mobile-theme-toggle {
     display: flex;
-    /* Reasonable gap between logo and toggle */
-    margin-left: 1.5rem; 
+    margin-left: 1.5rem;
   }
 
-  /* Main Content Adjustments */
   main {
     padding: var(--wt-main-padding-top);
     flex-direction: column;
   }
   .content {
     padding: 1rem 16px;
-    border-radius: 12px;
   }
-  
-  /* Typography Adjustments */
-  h1, .heading-text {
+
+  h1,
+  .heading-text {
     font-size: 1.5rem;
   }
   h2 {
     font-size: 1.25rem;
   }
-  
-  /* Hero Section Adjustments */
   .hero {
     min-height: calc(var(--vh-full, 100lvh) - var(--wt-header-height) - env(safe-area-inset-top, 0px));
     padding: 2rem 20px;
@@ -2260,8 +2126,6 @@ html[data-theme="dark"] .tabs .theme-dark {
   .hero .heading-text {
     font-size: 2rem;
   }
-  
-  /* Hide Table of Contents */
   .toc {
     display: none;
   }

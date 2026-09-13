@@ -5,7 +5,7 @@ weight = 1
 group = "Start"
 +++
 
-Sevgi creates SVG with Ruby. Install the command-line toolkit, save the example below, and open its output in a browser.
+Sevgi creates SVG with Ruby. Install the command-line toolkit. Then save and run the first drawing.
 
 ## Install and run
 
@@ -40,7 +40,7 @@ different script and library operations.
 
 ## See a complete drawing
 
-The tabs below use the same files as the test suite. The Ruby tab contains the script. The SVG tab contains its output.
+The example tabs use the same files as the test suite. The Ruby tab contains the script. The SVG tab contains its output.
 
 {{<tabs base="meter" dir="../showcase" />}}
 
@@ -91,8 +91,7 @@ Libraries that need fewer dependencies can install focused component gems:
 For example, a service that only builds SVG can install `sevgi-graphics` and use
 `Sevgi::Graphics.SVG(...)`. The full `SVG` facade and the `sevgi` executable belong to the umbrella gem. Add
 `sevgi-standard` to validate element and attribute names. Bundler installs shared support gems such as
-`sevgi-function` as transitive dependencies. The umbrella gem adds `sevgi --skill` to locate the matching Appendix
-skill.
+`sevgi-function` as transitive dependencies.
 
 SVG-only library use needs no native graphics packages. The Homebrew package already installs the PDF and PNG
 dependencies. Applications that install gems directly must provide the optional `cairo`, `rsvg2`, and `hexapdf` gems

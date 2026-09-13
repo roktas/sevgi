@@ -6,8 +6,8 @@ group = "Start"
 +++
 
 Sevgi can run a drawing as an executable `.sevgi` program or build it inside a Ruby application. The drawing block is
-the same in both forms. The host determines which surrounding names exist and who owns the result. This page also
-explains how an application runs complete, trusted Sevgi source.
+the same in both forms. The host determines which surrounding names exist and who owns the result. Applications can
+also run complete, trusted Sevgi source.
 
 ## Choose a form
 
@@ -114,7 +114,7 @@ gives the script `ARGA == ["front"]` and `ARGH == {theme: :dark}`. `ARGA` keeps 
 keeps keyword arguments by name. The script reads both as frozen Ruby values.
 
 If the script fails, the Rake helper raises `Sevgi::Executor::Error`. Rake stops dependent tasks.
-The public execution methods below instead return a result that the application must inspect.
+The public methods in [Execute source](#execute) return a result that the application must inspect.
 
 ## Libraries {{ "{#libraries}" }}
 

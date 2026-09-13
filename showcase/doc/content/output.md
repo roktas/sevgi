@@ -2,12 +2,11 @@
 title = "Output"
 weight = 15
 [extra]
-group = "Guides"
+group = "Toolkit"
 +++
 
-This page explains how a finished document reaches a Ruby application, a file, or a shell pipeline. Sevgi can return
-SVG text, write SVG directly, or convert the rendered document to PDF or PNG. Fix the canvas and visible geometry
-before output begins.
+A finished document can return SVG text, write SVG to a file or shell pipeline, or convert to PDF or PNG. Set the
+canvas and visible geometry before output begins.
 
 ## SVG {{ "{#svg}" }}
 

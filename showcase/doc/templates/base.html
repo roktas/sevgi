@@ -59,10 +59,10 @@
     <link rel="stylesheet" href="{{ normalize_css | safe }}">
     <link rel="preload" href="{{ main_css | safe }}" as="style">
     <link rel="stylesheet" href="{{ main_css | safe }}">
-    
+
     <link rel="stylesheet" href="{{ get_url(path='giallo-light.css', cachebust=true) | safe }}" id="syntax-light">
     <link rel="stylesheet" href="{{ get_url(path='giallo-dark.css', cachebust=true) | safe }}" id="syntax-dark">
-    
+
     <script src="{{ get_url(path='js/toggle.js', cachebust=true) | safe }}"></script>
     {% set dsl_catalog = load_data(path="data/dsl.yml") %}
     <script>

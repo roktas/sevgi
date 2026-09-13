@@ -17,6 +17,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Refined Showcase example tabs, made Ruby and XML views fill their panels, and hid executable preambles from Ruby views.
 - Documented non-rendering element data and clarified the related DSL catalog examples.
 - Refined Showcase heading spacing, page-title colors, and DSL catalog cards across light and dark themes.
+- Split the documentation guides into Core and Toolkit groups, removed an obsolete ruler example, and deleted unused
+  site code.
 
 ### Fixed
 

@@ -1,5 +1,4 @@
 // Copy-to-clipboard for code blocks
-// Strips leading `$ ` from terminal blocks
 
 document.addEventListener('DOMContentLoaded', function() {
   const codeBlocks = document.querySelectorAll('.content pre');
@@ -14,10 +13,9 @@ document.addEventListener('DOMContentLoaded', function() {
       // Check if this is a bash/shell code block (has language-bash class on code element)
       const codeEl = block.querySelector('code');
       const isBash = codeEl && /language-(bash|sh|shell|zsh)/.test(codeEl.className);
-      const isTerminal = block.classList.contains('terminal');
       let text = block.textContent;
 
-      if (isBash || isTerminal) {
+      if (isBash) {
         // Strip leading `$ ` from each line
         text = text.split('\n').map(function(line) {
           return line.replace(/^\$ /, '');

@@ -23,32 +23,31 @@
     var systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     updateSyntaxTheme(systemTheme);
   }
-  
+
   function getEffectiveTheme() {
     var attr = html.getAttribute('data-theme');
     if (attr) return attr;
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   }
-  
+
   function toggle() {
     var current = getEffectiveTheme();
     var next = current === 'dark' ? 'light' : 'dark';
-    
+
     html.setAttribute('data-theme', next);
     localStorage.setItem('theme', next);
     updateSyntaxTheme(next);
   }
-  
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
     init();
   }
-  
+
   function init() {
     var btns = document.querySelectorAll('.theme-toggle');
     btns.forEach(function(btn) {
-      btn.removeEventListener('click', toggle);
       btn.addEventListener('click', toggle);
     });
   }
