@@ -123,12 +123,12 @@ Closed shapes distinguish interior, boundary, and exterior points. Open paths ha
 
 ```ruby
 box = Sevgi::Geometry::Rect[40, 24, position: [6, 8]]
-open_path = Sevgi::Geometry::Polyline.([0, 0], [8, 0], [8, 5])
+path = Sevgi::Geometry::Polyline.([0, 0], [8, 0], [8, 5])
 
 box.inside?([20, 20])     # => true
 box.on?([6, 20])          # => true
 box.outside?([50, 20])    # => true
-open_path.inside?([4, 2]) # => false
+path.inside?([4, 2])      # => false
 ```
 
 A rectangle exposes its geometric center directly. For any other element, use the center of its bounding box when that
@@ -137,12 +137,12 @@ axis-aligned rectangle:
 
 ```ruby
 box = Sevgi::Geometry::Rect[40, 24, position: [6, 8]]
-open_path = Sevgi::Geometry::Polyline.([0, 0], [8, 0], [8, 5])
+path = Sevgi::Geometry::Polyline.([0, 0], [8, 0], [8, 5])
 
 box.center           # => Point[26.0, 20.0]
-open_path.box.center # => Point[4.0, 2.5]
+path.box.center      # => Point[4.0, 2.5]
 
-combined = Sevgi::Geometry::Operation.box(box, open_path)
+combined = Sevgi::Geometry::Operation.box(box, path)
 combined.position # => Point[0.0, 0.0]
 combined.width    # => 46.0
 combined.height   # => 32.0
