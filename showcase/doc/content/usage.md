@@ -79,13 +79,10 @@ level, inside an `SVG` block, or on the `SVG` facade. Every entry includes a run
 
 ### Load {{ "{#load}" }}
 
-`Load` evaluates another `.sevgi` source during the current script execution. It accepts a source name, such as
-`Load "palette"`.
-
-This call loads `palette.sevgi` from the directory that contains the active source. The name `palette` has no special
-meaning. `Load` does not resolve the file from the process working directory. A drawing split across several files can
-then move as one directory. Repeated non-recursive loads run again. Loading a source that is already active in the same
-chain raises a captured cycle error.
+`Load "palette"` evaluates another `.sevgi` source during the current script execution (`palette` is only an example).
+This call loads `palette.sevgi` from the directory that contains the active source. `Load` does not resolve the file from
+the process working directory. A drawing split across several files can then move as one directory. Repeated
+non-recursive loads run again. Loading a source that is already active in the same chain raises a captured cycle error.
 
 An active load chain supports up to 128 sources, including the entry source. An attempt to exceed this limit raises
 a captured `Executor::LoadDepthError`. This limit counts sources, not Ruby stack frames. Script calls can exhaust
