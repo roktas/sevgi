@@ -10,11 +10,23 @@
   viewBox="0 0 150 100"
 >
   <g fill="none" stroke="slategray" stroke-width="0.3" stroke-dasharray="2 2">
-    <ellipse cx="75.0" cy="48.0" rx="55.0" ry="30.0" transform="rotate(-15.0 75.0 48.0)"/>
-    <rect x="21.309666" y="15.714585" width="107.38066800000001" height="46.520462"/>
+    <path id="arc-remainder" d="M 7.385192159765225 68.11733315717646 A 70 40 -15 0 0 138.73252216369696 53.62844576284043"/>
+    <rect x="6.597208" y="7.326143" width="136.805584" height="60.79119"/>
   </g>
-  <path d="M 21.874079554101243 62.23504748063864 A 55 30 -15 1 1 124.89068238211725 50.16097465202529" fill="none" stroke="purple" stroke-width="1"/>
-  <circle cx="21.874079554101243" cy="62.23504748063864" r="1.5" fill="purple"/>
-  <circle cx="124.89068238211725" cy="50.16097465202529" r="1.5" fill="purple"/>
-  <circle cx="75.0" cy="48.0" r="1" fill="black"/>
+  <path
+    id="arc-route"
+    d="M 7.385192159765225 68.11733315717646 A 70 40 -15 1 1 138.73252216369696 53.62844576284043"
+    fill="none"
+    stroke="purple"
+    stroke-width="1"
+  />
+  <text dy="7" fill="black" font-family="monospace" font-size="5">
+    <textPath href="#arc-route" startOffset="50%" text-anchor="middle">198.7</textPath>
+  </text>
+  <text dy="-4" fill="slategray" font-family="monospace" font-size="5">
+    <textPath href="#arc-remainder" startOffset="50%" text-anchor="middle">153.3</textPath>
+  </text>
+  <circle cx="7.385192159765225" cy="68.11733315717646" r="1.5" fill="purple"/>
+  <circle cx="138.73252216369696" cy="53.62844576284043" r="1.5" fill="purple"/>
+  <circle cx="75.0" cy="50.0" r="1" fill="black"/>
 </svg>

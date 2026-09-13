@@ -1,0 +1,14 @@
+#!/usr/bin/env -S ruby -S sevgi
+# frozen_string_literal: true
+
+SVG width: 150, height: 100, viewBox: "0 0 150 100" do
+  defs do
+    radialGradient id: "orb", cx: "35%", cy: "30%", r: "65%" do
+      stop offset: 0, "stop-color": "#f0d6b8"
+      stop offset: 0.5, "stop-color": "#e5c39c"
+      stop offset: 1, "stop-color": "#2c251e"
+    end
+  end
+
+  circle cx: 75, cy: 50, r: 43, fill: "url(#orb)"
+end.Save

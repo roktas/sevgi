@@ -1890,10 +1890,9 @@ html[data-theme="dark"] .tabs .tabs-title-link:not(:hover):not(:focus-visible) {
 .tabs .label:active {
   background: var(--wt-color-bg-elevated);
 }
-/* FontAwesome icon styling */
-.tabs .label i {
-  color: inherit;
-  font-size: inherit;
+.tabs .label svg {
+  width: 1em;
+  height: 1em;
 }
 .showcase-flow > .tabs:has(.input:not(:checked) + .label:hover) .input:checked + .label {
   background: var(--wt-color-bg-soft);
@@ -1922,6 +1921,13 @@ html[data-theme="dark"] .tabs .tabs-title-link:not(:hover):not(:focus-visible) {
   border: 0;
   border-radius: 0;
   box-shadow: none;
+}
+.showcase-flow .tabs .panel.code-panel > div {
+  height: 100%;
+}
+.showcase-flow .tabs .panel.code-panel pre {
+  box-sizing: border-box;
+  min-height: 100%;
 }
 /* SVG render panel - center the image */
 .tabs .panel.svg-panel {

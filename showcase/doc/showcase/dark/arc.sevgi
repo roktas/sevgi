@@ -2,15 +2,24 @@
 # frozen_string_literal: true
 
 SVG :inkscape, width: "150mm", height: "100mm", viewBox: "0 0 150 100" do
-  ellipse = Geometry::Ellipse[55, 30, position: [75, 48], rotation: -15]
+  ellipse = Geometry::Ellipse[70, 40, position: [75, 50], rotation: -15]
   arc = ellipse.arc starting_angle: 180, extent: 210
+  remainder = ellipse.arc starting_angle: arc.starting_angle, extent: arc.extent - 360
 
   g fill: "none", stroke: "silver", "stroke-width": 0.3, "stroke-dasharray": "2 2" do
-    Draw ellipse
+    Draw remainder, id: "arc-remainder"
     Draw arc.box
   end
 
-  Draw arc, fill: "none", stroke: "#e5c39c", "stroke-width": 1
+  Draw arc, id: "arc-route", fill: "none", stroke: "#e5c39c", "stroke-width": 1
+
+  text dy: 7, fill: "white", "font-family": "monospace", "font-size": 5 do
+    textPath arc.length.round(1).to_s, href: "#arc-route", startOffset: "50%", "text-anchor": "middle"
+  end
+
+  text dy: -4, fill: "silver", "font-family": "monospace", "font-size": 5 do
+    textPath remainder.length.round(1).to_s, href: "#arc-remainder", startOffset: "50%", "text-anchor": "middle"
+  end
 
   [arc.starting, arc.reverse.starting].each do |point|
     circle cx: point.x, cy: point.y, r: 1.5, fill: "#e5c39c"

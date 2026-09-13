@@ -47,8 +47,10 @@ visible intent.
    Compare the output against the original acceptance criteria. For size, alignment, clipping, density, or visual-regression
    evidence, read [inspection.md](references/inspection.md) before choosing a measurement tool.
    Do not require visual measurements for source-only changes with no effect on rendering.
-10. Re-read the finished source for raw-XML detours, avoidable calculations, magic offsets, duplicated helpers, and
-    stale artifacts.
+10. Re-read the finished source for raw-XML detours, avoidable calculations, magic offsets, duplicated geometry or
+    paint passes, duplicated helpers, and stale artifacts. Emit each semantic shape once by default. Collapse repeated
+    draws when one SVG element can carry the required fill and stroke. Add another paint pass only when the visible
+    requirement or inspection proves that separate z-order is necessary; make each pass's role evident in the source.
 
 ## References
 

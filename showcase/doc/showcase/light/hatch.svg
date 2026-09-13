@@ -1,0 +1,30 @@
+<?xml version="1.0" standalone="no"?>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:_="http://sevgi.roktas.dev"
+  xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+  xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+  shape-rendering="crispEdges"
+  width="150"
+  height="100"
+  viewBox="0 0 150 100"
+>
+  <ellipse cx="75.0" cy="50.0" rx="70.0" ry="40.0" fill="#f8e6f8" stroke="blue" stroke-width="1.5"/>
+  <path d="M 8.083983 61.742081 L 41.452937 85.107274" stroke="purple" stroke-width="0.5"/>
+  <path d="M 5.120097 52.342098 L 56.974708 88.651087" stroke="purple" stroke-width="0.5"/>
+  <path d="M 5.489812 45.276328 L 69.162877 89.860688" stroke="purple" stroke-width="0.5"/>
+  <path d="M 7.516638 39.370879 L 79.693937 89.909968" stroke="purple" stroke-width="0.5"/>
+  <path d="M 10.657929 34.245787 L 89.110531 89.17889" stroke="purple" stroke-width="0.5"/>
+  <path d="M 14.660149 29.723524 L 97.666196 87.844984" stroke="purple" stroke-width="0.5"/>
+  <path d="M 19.386506 25.708308 L 105.497723 86.004031" stroke="purple" stroke-width="0.5"/>
+  <path d="M 24.76021 22.146368 L 112.681905 83.709801" stroke="purple" stroke-width="0.5"/>
+  <path d="M 30.741521 19.009879 L 119.258479 80.990121" stroke="purple" stroke-width="0.5"/>
+  <path d="M 37.318095 16.290199 L 125.23979 77.853632" stroke="purple" stroke-width="0.5"/>
+  <path d="M 44.502277 13.995969 L 130.613494 74.291692" stroke="purple" stroke-width="0.5"/>
+  <path d="M 52.333804 12.155016 L 135.339851 70.276476" stroke="purple" stroke-width="0.5"/>
+  <path d="M 60.889469 10.82111 L 139.342071 65.754213" stroke="purple" stroke-width="0.5"/>
+  <path d="M 70.306063 10.090032 L 142.483362 60.629121" stroke="purple" stroke-width="0.5"/>
+  <path d="M 80.837123 10.139312 L 144.510188 54.723672" stroke="purple" stroke-width="0.5"/>
+  <path d="M 93.025292 11.348913 L 144.879903 47.657902" stroke="purple" stroke-width="0.5"/>
+  <path d="M 108.547063 14.892726 L 141.916017 38.257919" stroke="purple" stroke-width="0.5"/>
+</svg>

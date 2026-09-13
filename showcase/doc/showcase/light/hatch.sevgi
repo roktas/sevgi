@@ -1,0 +1,9 @@
+#!/usr/bin/env -S ruby -S sevgi
+# frozen_string_literal: true
+
+SVG :inkscape, width: 150, height: 100, viewBox: "0 0 150 100" do
+  ellipse = Geometry::Ellipse[70, 40, position: [75, 50]]
+
+  Draw ellipse, fill: "#f8e6f8", stroke: "blue", "stroke-width": 1.5
+  Hatch ellipse, angle: 35, step: 6, stroke: "purple", "stroke-width": 0.5
+end.Save

@@ -5,6 +5,10 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## Unreleased
 
+### Added
+
+- Added Hatch and Orb Showcase examples and displayed both arc lengths in the Arc example.
+
 ### Changed
 
 - Allowed Canvas and Paper values as the first `SVG` argument when using the default document profile.
@@ -18,6 +22,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Documented non-rendering element data and clarified the related DSL catalog examples.
 - Refined Showcase heading spacing, page-title colors, and DSL catalog cards across light and dark themes.
 - Removed an obsolete ruler example and unused site code.
+- Kept the Squared and Copperplate guidesheet examples together at the end of the Showcase.
+- Updated the packaged skill to avoid duplicate semantic shapes and unnecessary paint passes.
 
 ### Fixed
 
@@ -31,6 +37,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Prevented avoidable overflow and underflow in point distances.
 - Corrected browser source-panel expectations and added executable documentation, YARD, and packaged-skill checks.
 - Rendered inline code in DSL catalog summaries and kept linked task themes visible below the sticky header.
+- Restored Showcase tab icons with embedded Font Awesome SVGs.
 
 ## 0.100.0 - 2026-09-09
 

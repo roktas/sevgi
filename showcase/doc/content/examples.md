@@ -26,9 +26,11 @@ Start with [Pokey](#pokey) for basic SVG elements.
 | [Logo](#logo) | A reusable path |
 | [Logos](#logos) | Repeated drawing parts assembled into several related marks |
 | [Checkers](#checkers) | Ruby data and callable modules separating board construction from piece placement |
+| [Orb](#orb) | A radial gradient turns one circle into a shaded orb |
 | [Ruler](#ruler) | Ruby ranges, nested layers, labels, and a final element transform in one physical-size drawing |
 | [Protractor](#protractor) | SVG rotation places angular marks from Ruler divisions without trigonometry in Ruby |
-| [Arc](#arc) | Geometry calculates a finite elliptical arc, its endpoints, and bounds |
+| [Arc](#arc) | Geometry calculates a finite elliptical arc, its length, endpoints, and bounds |
+| [Hatch](#hatch) | Geometry hatches an ellipse with explicit finite line segments |
 | [Squared](#squared) | A Grid defines a squared guidesheet |
 | [Copperplate](#copperplate) | The same Grid contract adds row-bounded hatching |
 
@@ -48,9 +50,11 @@ Start with [Pokey](#pokey) for basic SVG elements.
 {{<tabs base="logo" dir="../showcase" title="Logo" />}}
 {{<tabs base="logos" dir="../showcase" title="Logos" />}}
 {{<tabs base="checkers" dir="../showcase" title="Checkers" />}}
+{{<tabs base="orb" dir="../showcase" title="Orb" />}}
 {{<tabs base="ruler" dir="../showcase" title="Ruler" />}}
 {{<tabs base="protractor" dir="../showcase" title="Protractor" />}}
 {{<tabs base="arc" dir="../showcase" title="Arc" />}}
+{{<tabs base="hatch" dir="../showcase" title="Hatch" />}}
 {{<tabs base="squared" dir="../showcase" title="Squared" />}}
 {{<tabs base="copperplate" dir="../showcase" title="Copperplate" />}}
 </div>
