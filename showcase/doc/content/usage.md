@@ -103,8 +103,15 @@ file "card.svg" => "card.sevgi" do
 end
 ```
 
-The call above gives the script `ARGA == ["front"]` and `ARGH == {theme: :dark}`. `ARGA` keeps positional arguments in
-order. `ARGH` keeps keyword arguments by name. The script can read them like ordinary frozen Ruby values.
+Run this file task from the directory that contains the Rakefile:
+
+```bash
+bundle exec rake card.svg
+```
+
+If `card.svg` is missing or older than `card.sevgi`, Rake runs the block. The `sevgi` helper then runs `card.sevgi` and
+gives the script `ARGA == ["front"]` and `ARGH == {theme: :dark}`. `ARGA` keeps positional arguments in order, and `ARGH`
+keeps keyword arguments by name. The script reads both as frozen Ruby values.
 
 If the script fails, the Rake helper raises `Sevgi::Executor::Error`. Rake stops dependent tasks.
 The public execution methods below instead return a result that the application must inspect.
