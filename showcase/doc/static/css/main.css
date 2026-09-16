@@ -1928,6 +1928,11 @@ html[data-theme="dark"] .tabs .tabs-title-link:not(:hover):not(:focus-visible) {
 .showcase-flow .tabs .panel.code-panel pre {
   box-sizing: border-box;
   min-height: 100%;
+  overflow-x: scroll;
+  scrollbar-color: var(--wt-color-text-soft) rgba(0, 0, 0, 0);
+}
+.showcase-flow .tabs .panel.code-panel pre::-webkit-scrollbar-thumb {
+  background: var(--wt-color-text-soft);
 }
 /* SVG render panel - center the image */
 .tabs .panel.svg-panel {
