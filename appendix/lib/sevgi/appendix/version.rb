@@ -3,6 +3,6 @@
 module Sevgi
   module Appendix
     # Appendix package version.
-    VERSION = "0.100.0"
+    VERSION = "1.0.0"
   end
 end
