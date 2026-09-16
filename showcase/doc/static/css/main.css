@@ -384,7 +384,7 @@ main {
   display: block;
   box-sizing: border-box;
   width: 100%;
-  max-width: 922px;
+  max-width: 1180px;
   min-width: 0;
   overflow-x: auto;
   padding: 1.5rem 30px;
@@ -396,7 +396,6 @@ main {
   scroll-margin-top: calc(var(--wt-header-height) + var(--wt-main-padding-top));
 }
 .content.home-content {
-  max-width: 1180px;
   overflow-x: visible;
   padding-top: 0.75rem;
   background-color: transparent;
@@ -412,7 +411,6 @@ main {
 .home-content > p {
   font-size: 1.025rem;
   line-height: 1.7;
-  max-width: none;
 }
 .showcase-flow {
   display: grid;
@@ -1140,7 +1138,6 @@ figcaption {
     gap: 1.5rem;
   }
   .content {
-    max-width: 100%;
     padding: 1.5rem 24px;
   }
 }
