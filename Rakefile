@@ -75,21 +75,26 @@ module SevgiRelease
       Archive.validate!(root:, package_dir:, version:)
     end
 
-    def assert_remote!(names:, version:, runner: method(:remote_query))
+    def assert_remote!(names:, version:, runner: method(:remote_query), allow_published: false)
       names.each do |name|
         output, error, status = runner.call(name)
         raise_error("cannot query RubyGems for #{name}: #{error}") unless status.success?
 
-        if output.match?(/\A#{Regexp.escape(name)} \((?=.*\b#{Regexp.escape(version)}\b)/)
+        if !allow_published && output.match?(/\A#{Regexp.escape(name)} \((?=.*\b#{Regexp.escape(version)}\b)/)
           raise_error("#{name} #{version} is already published")
         end
       end
     end
 
-    def preflight!(root:, ref:, package_dir:, remote_runner: method(:remote_query))
+    def preflight!(root:, ref:, package_dir:, remote_runner: method(:remote_query), allow_published: false)
       version = guard!(root:, ref:)
       archives = validate_archives!(root:, package_dir:, version:)
-      assert_remote!(names: archives.map { |archive| archive.fetch(:name) }, version:, runner: remote_runner)
+      assert_remote!(
+        names: archives.map { |archive| archive.fetch(:name) },
+        version:,
+        runner: remote_runner,
+        allow_published:
+      )
       {version:, archives:}
     end
 
@@ -596,7 +601,12 @@ namespace(:release) do
 
   desc("Validate built release archives")
   task(:verify) do
-    result = SevgiRelease::Preflight.preflight!(root: rootdir, ref: ENV.fetch("GITHUB_REF"), package_dir: pkgdir)
+    result = SevgiRelease::Preflight.preflight!(
+      root: rootdir,
+      ref: ENV.fetch("GITHUB_REF"),
+      package_dir: pkgdir,
+      allow_published: ENV["RELEASE_ALLOW_PUBLISHED"] == "1"
+    )
     SevgiRelease::Manifest.write!(package_dir: pkgdir, archives: result.fetch(:archives))
   end
 

@@ -495,6 +495,15 @@ module Sevgi
       assert_match(/already published/, error.message)
     end
 
+    def test_remote_preflight_allows_existing_version_when_requested
+      runner = -> (_name) { ["demo (1.2.3)", "", status(true)] }
+
+      assert_equal(
+        ["demo"],
+        Preflight.assert_remote!(names: ["demo"], version: "1.2.3", runner:, allow_published: true)
+      )
+    end
+
     def test_remote_failure_is_reported
       error = assert_raises(Preflight::Error) do
         Preflight.assert_remote!(

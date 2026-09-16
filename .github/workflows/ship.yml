@@ -52,6 +52,8 @@ jobs:
     - name: Build 📦
       run: bundle exec rake build
     - name: Package and remote preflight 🧪
+      env:
+        RELEASE_ALLOW_PUBLISHED: "1"
       run: bundle exec rake release:verify
     - name: Upload immutable packages 📤
       uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -85,6 +87,8 @@ jobs:
     - name: Configure RubyGems trusted publishing 🔑
       uses: rubygems/configure-rubygems-credentials@dc5a8d8553e6ee01fc26761a49e99e733d17954a # v2.1.0
     - name: Verify and push packages 💎
+      env:
+        RELEASE_ALLOW_PUBLISHED: "1"
       run: |
         set -Eeuo pipefail
         unset CDPATH
@@ -100,5 +104,12 @@ jobs:
           sha256sum -c SHA256SUMS
         )
         for archive in "${archives[@]}"; do
+          version="${archive##*-}"
+          version="${version%.gem}"
+          name="${archive%-$version.gem}"
+          if gem list --remote --exact --all "$name" | grep -Fq "($version"; then
+            printf 'Skipping already published %s %s\n' "$name" "$version"
+            continue
+          fi
           gem push "pkg/$archive"
         done
