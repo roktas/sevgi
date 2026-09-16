@@ -29,7 +29,7 @@ Keep the editor file as the geometry source and compose a selected group in Sevg
 
 ```ruby
 SVG do
-  Include "brand.svg", "logo", omit: :id
+  Include "brand.svg", "logo"
 end.Save "badge.svg"
 ```
 
@@ -44,7 +44,7 @@ drawing.Render
 Generate Ruby for review and integration into the maintained source instead:
 
 ```ruby
-source = SVG.DerenderFile "brand.svg", id: "logo", omit: :id
+source = SVG.DerenderFile "brand.svg", id: "logo"
 puts source
 ```
 
@@ -52,6 +52,9 @@ At the command line, `igves` prints generated Sevgi source. Use `igsev` from the
 result is normalized SVG produced by a complete SVG-to-Sevgi-to-SVG round trip. Both commands accept repeatable
 `--omit ATTRIBUTE` and read standard input when the file is omitted or `-`. `igsev` is a structural formatter, not a
 byte-preserving XML rewrite.
+
+Derender reads the XML encoding declaration or byte-order mark. Generated Ruby and rendered XML use UTF-8.
+The declaration keeps its version and standalone flag, with any encoding field changed to UTF-8.
 
 A selected subtree can produce a fragment rather than a standalone `.sevgi` script. Review the conversion. Then place
 it inside the document or callable module that owns it. Do not rename an arbitrary fragment to `.sevgi`.
@@ -64,10 +67,15 @@ Whole-document conversion rejects nodes after the root except whitespace. Explic
 
 - Give reusable editor groups stable IDs and select one with `id:`. `Include` takes that ID as its second positional
   argument.
+- Selection preserves namespace scope, but does not copy ancestor transforms, inherited styles, or definitions outside the subtree.
+  Include the required context explicitly or select a self-contained ancestor.
+- `IncludeChildren` and `EvaluateChildren*` omit the selected wrapper, including its transform and style attributes.
+  Use the whole-node form when the wrapper affects appearance.
 - Inspect an SVG tree with `SVG.DecompileFile` (or component-level `Sevgi::Derender.decompile_file`) before falling back
   to text search. Grep can mistake editor helpers, generated IDs, metadata, or unrelated layers for reusable artwork.
 - Use `omit:` with one String/Symbol or an Array of exact, case-sensitive attribute names. Selection happens before
-  omission, so the selecting ID can be removed.
+  omission. The omission applies throughout the selected subtree, not only to its root.
+  Removing IDs can break `href`, `url(#...)`, and CSS references. Keep referenced IDs or update their consumers together.
 - Namespace declarations remain intact, and omitting the `style` attribute does not remove `style` elements. Omit
   style, transform, or geometry attributes only when their behavior is intentionally replaced.
 - Expect paths and other low-level editor geometry to remain low-level. Derender preserves the SVG tree. It cannot

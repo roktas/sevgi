@@ -11,6 +11,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Changed
 
+- Clarified the packaged skill's script invocation, subtree copying, and Derender selection and encoding rules.
 - Allowed Canvas and Paper values as the first `SVG` argument when using the default document profile.
 - Made element `dup` and `clone` own independent subtrees while retaining IDs and Ruby copy semantics.
 - Made Segment equality compare length and direction; ordering still compares length only.

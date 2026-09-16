@@ -24,12 +24,16 @@ text "Ready", x: 12, y: 16, "text-anchor": "middle", "font-weight": "bold"
 
 | Host | Load | Vocabulary |
 | --- | --- | --- |
-| Executable script | `ruby -S sevgi` through the `.sevgi` shebang | bare promoted operations such as `Canvas`, `Paper`, and `Grid` |
+| Executable script | `sevgi file.sevgi` or an executable `.sevgi` shebang | bare promoted operations such as `Canvas`, `Paper`, and `Grid` |
 | Full-toolkit library | `require "sevgi"` | `SVG(...)` plus facade operations such as `SVG.Canvas` and `SVG.Grid` |
 | Focused graphics library | `require "sevgi/graphics"` | `Sevgi::Graphics.SVG` and lowercase component constructors without the full `SVG` facade |
 
 Follow the consumer's declared gems and existing dialect. Do not require the full toolkit merely to obtain facade
 spelling, and do not use facade operations when only a focused component is installed.
+
+When the project bundle owns the dependencies, use `bundle exec sevgi file.sevgi`.
+The `#!/usr/bin/env -S ruby -S sevgi` shebang helps editors detect Ruby syntax.
+The shorter `#!/usr/bin/env sevgi` also works, but some editors do not recognize it as Ruby.
 
 `SVG(...)` is the default constructor in library code as well as scripts. If another method shadows that name, use
 `Sevgi.SVG(...)`. The explicit receiver is supported but not required. `SVG.Canvas(...)` is a separate facade operation.

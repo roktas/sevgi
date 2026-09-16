@@ -3,6 +3,8 @@
 require_relative "test_helper"
 require "sevgi"
 require "nokogiri"
+require "open3"
+require "rbconfig"
 require "tmpdir"
 
 class SkillTest < Minitest::Test
@@ -27,8 +29,13 @@ class SkillTest < Minitest::Test
       |
       Dir.mktmpdir do |dir|
         Dir.chdir(dir) do
-          result = Sevgi.execute(example(name, index), file: "recipe.sevgi")
-          raise result.error if result.error?
+          if name == "dsl" && index == 1
+            result = Sevgi.execute(example(name, index), file: "recipe.sevgi")
+            raise result.error if result.error?
+          else
+            run_library(example(name, index))
+          end
+
           xml = Nokogiri::XML(File.read(output), &:strict)
           assert_equal("http://www.w3.org/2000/svg", xml.root.namespace.href)
           assert_operator(xml.root["width"].to_f, :>, 0)
@@ -38,26 +45,60 @@ class SkillTest < Minitest::Test
     end
   end
 
-  def test_positioned_alignment_recipe
-    result = Sevgi.execute(example("layout", 0), file: "alignment.sevgi")
-    raise result.error if result.error?
-    xml = Nokogiri::XML(result.value, &:strict)
-    assert_equal("translate(19 10)", xml.at_xpath("//*[local-name()='rect']")["transform"])
+  def test_library_recipes_render_expected_attributes
+    [
+      ["layout", 0, "rect", "transform", "translate(19 10)"],
+      ["ruby", 2, "text", "class", "badge"],
+      ["derender", 1, "circle", "r", "4"]
+    ].each do |name, index, shape, attribute, expected|
+      output = run_library("puts begin\n#{example(name, index)}\nend")
+      xml = Nokogiri::XML(output, &:strict)
+      assert_equal(expected, xml.at_xpath("//*[local-name()='#{shape}']")[attribute])
+    end
   end
 
   def test_pdf_recipes
     2.times do |index|
       Dir.mktmpdir do |dir|
         Dir.chdir(dir) do
-          result = Sevgi.execute(example("output", index), file: "recipe.sevgi")
-          raise result.error if result.error?
+          run_library(example("output", index))
           assert_equal("%PDF-", File.binread("badge.pdf", 5))
         end
       end
     end
   end
 
+  def test_include_recipe_preserves_internal_references
+    Dir.mktmpdir do |dir|
+      Dir.chdir(dir) do
+        File.write(
+          "brand.svg",
+          <<~SVG
+            <svg xmlns="http://www.w3.org/2000/svg">
+              <g id="logo" transform="translate(2 3)">
+                <defs><path id="mark" d="M 0 0 L 4 4"/></defs>
+                <use href="#mark"/>
+              </g>
+            </svg>
+          SVG
+        )
+        run_library(example("derender", 0))
+        xml = Nokogiri::XML(File.read("badge.svg"), &:strict)
+        assert_equal("translate(2 3)", xml.at_css("g#logo")["transform"])
+        assert_equal("mark", xml.at_css("defs path")["id"])
+        assert_equal("#mark", xml.at_css("use")["href"])
+      end
+    end
+  end
+
   private
+
+  def run_library(source)
+    output, error, status = Open3.capture3(RbConfig.ruby, "-rsevgi", "-e", source)
+    assert_predicate(status, :success?, error)
+    assert_empty(error)
+    output
+  end
 
   def example(name, index)
     File.read(File.join(ROOT, "references", "#{name}.md")).scan(/^```ruby\n(.*?)^```$/m).fetch(index).first
