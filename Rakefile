@@ -86,7 +86,13 @@ module SevgiRelease
       end
     end
 
-    def preflight!(root:, ref:, package_dir:, remote_runner: method(:remote_query), allow_published: false)
+    def preflight!(
+      root:,
+      ref:,
+      package_dir:,
+      remote_runner: method(:remote_query),
+      allow_published: ENV["RELEASE_ALLOW_PUBLISHED"] == "1"
+    )
       version = guard!(root:, ref:)
       archives = validate_archives!(root:, package_dir:, version:)
       assert_remote!(
@@ -601,12 +607,7 @@ namespace(:release) do
 
   desc("Validate built release archives")
   task(:verify) do
-    result = SevgiRelease::Preflight.preflight!(
-      root: rootdir,
-      ref: ENV.fetch("GITHUB_REF"),
-      package_dir: pkgdir,
-      allow_published: ENV["RELEASE_ALLOW_PUBLISHED"] == "1"
-    )
+    result = SevgiRelease::Preflight.preflight!(root: rootdir, ref: ENV.fetch("GITHUB_REF"), package_dir: pkgdir)
     SevgiRelease::Manifest.write!(package_dir: pkgdir, archives: result.fetch(:archives))
   end
 
