@@ -16,8 +16,8 @@ Sevgi DSL. Convert inline content or a file, generate source, include part of it
 
 {{<mermaid name="derender" />}}
 
-The conversion keeps element names, attributes, text, comments, CDATA, processing instructions, and child order. It represents the XML tree as
-Ruby. It cannot recover loops, helper methods, or other higher-level source code from the original file.
+The conversion keeps element names, attributes, text, comments, CDATA, processing instructions, and child order.
+It represents the XML tree as Ruby. It cannot recover loops, helper methods, or other higher-level source code.
 
 Processing instructions retain their target and data as XML markup. Sevgi does not execute them.
 Custom entity references in the selected subtree raise `Sevgi::ArgumentError` before inclusion changes the target.
@@ -25,6 +25,9 @@ Predefined references such as `&amp;` and numeric references such as `&#65;` rem
 
 Whole-document conversion rejects comments and processing instructions after the root element. Trailing whitespace is
 valid. An explicit `id:` selects only that subtree and ignores unrelated document siblings.
+
+Derender reads the XML encoding declaration or byte-order mark. Generated Ruby and rendered XML use UTF-8.
+The declaration keeps its version and standalone flag, with any encoding field changed to UTF-8.
 
 | Operation family | Inline input | File input | Result | Existing target |
 | --- | --- | --- | --- | --- |
@@ -73,25 +76,26 @@ The optional id selects one subtree. Without it, the conversion uses the documen
 array to `omit` to remove unwanted editor metadata:
 
 ```ruby
-source = DerenderFile "badge.svg", id: "mark", omit: %i[id style]
+source = DerenderFile "badge.svg", id: "mark", omit: "data-editor-label"
 ```
 
-Attribute names can be strings or symbols. They match exactly across the selected subtree. Selection happens before
-omission, so an id can select a node without appearing in the result. Attribute omission preserves namespace
-declarations and `style` elements.
+Attribute names can be strings or symbols. They match exactly throughout the selected subtree. Selection happens before
+omission. Removing IDs can break `href`, `url(#...)`, and CSS references. Keep referenced IDs or update their consumers
+together. Removing `style`, `transform`, or geometry attributes can change the result. Attribute omission preserves
+namespace declarations and `style` elements.
 
 The companion `igves` (`sevgi` reversed) command prints a file conversion from the shell and accepts a repeatable
 option:
 
 ```text
-igves --omit id --omit style badge.svg
+igves --omit data-editor-label --omit data-editor-name badge.svg
 ```
 
 Both conversion commands read standard input when the file is omitted or `-`, which makes the same conversion usable
 in a pipeline:
 
 ```text
-igves --omit id < badge.svg
+igves --omit data-editor-label < badge.svg
 ```
 
 When normalized SVG is the desired result rather than generated Ruby, the umbrella `sevgi` gem provides `igsev`
@@ -99,7 +103,7 @@ When normalized SVG is the desired result rather than generated Ruby, the umbrel
 option:
 
 ```text
-igsev --omit id --omit style badge.svg > normalized.svg
+igsev --omit data-editor-label badge.svg > normalized.svg
 ```
 
 This is a structural formatter, not a byte-preserving XML rewrite. Sevgi rendering determines declarations,
@@ -154,9 +158,15 @@ because their target is already the current element:
 
 ```ruby
 SVG do
-  Include "badge.svg", "mark", omit: %i[id style]
+  Include "badge.svg", "mark"
 end
 ```
+
+Selection preserves namespace scope. It does not copy ancestor transforms, inherited styles, or definitions outside
+the selected subtree. Select a self-contained ancestor or include the required context explicitly.
+
+`IncludeChildren` and `EvaluateChildren*` omit the selected wrapper. Its transform and style attributes do not reach
+the imported children. Use the whole-node form when the wrapper affects appearance.
 
 Applications depending only on `sevgi-derender` can use the lowercase API under `Sevgi::Derender`. `decompile`,
 `derender`, `evaluate`, and `evaluate_children` accept content. Their `_file` counterparts accept paths.
