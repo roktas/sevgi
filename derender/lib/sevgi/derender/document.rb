@@ -20,7 +20,7 @@ module Sevgi
 
         ArgumentError.("File not found: #{path}") unless ::File.exist?(entry)
 
-        content = ::File.read(entry)
+        content = ::File.binread(entry)
         new(content)
       end
 
@@ -30,7 +30,7 @@ module Sevgi
       # @raise [Sevgi::ArgumentError] when content is not well-formed XML
       # @raise [Sevgi::ArgumentError] when content has no root element
       def self.parse(content)
-        Nokogiri::XML(content.to_s.lstrip, &:strict).tap do |doc|
+        Nokogiri::XML(content.to_s.b.sub(/\A[ \t\r\n]+/, ""), &:strict).tap do |doc|
           ArgumentError.("XML document has no root element") unless doc.root
         end
 
@@ -38,20 +38,26 @@ module Sevgi
         raise ArgumentError, "Malformed XML: #{e.message.lines.first.strip}", cause: e
       end
 
-      # Extracts the XML declaration from SVG/XML content.
+      # Extracts the XML declaration and aligns its encoding with UTF-8 output.
       # @param content [String] SVG/XML source content
+      # @param encoding [String, nil] source encoding reported by the XML parser
       # @return [String, nil] XML declaration line, if present
-      def self.declaration(content)
-        return unless (content = content.to_s.lstrip).start_with?("<?xml ")
+      def self.declaration(content, encoding: nil)
+        content = content.to_s.b
+        encoding ||= content.start_with?("\xFF\xFE".b, "\xFE\xFF".b) ? "UTF-16" : "UTF-8"
+        content = content.encode("UTF-8", encoding).delete_prefix("\uFEFF").lstrip
+        declaration = content[/\A<\?xml[ \t\r\n].*?\?>/m]
 
-        content[/\A<\?xml\b.*?\?>/m]
+        declaration&.sub(/encoding\s*=\s*(["']).*?\1/, "encoding=\"UTF-8\"")
+      rescue EncodingError, ::ArgumentError => e
+        raise ArgumentError, "Invalid XML encoding: #{e.message}", cause: e
       end
 
       # Returns the parsed XML document.
       # @return [Nokogiri::XML::Document]
       attr_reader :doc
 
-      # Returns the source XML declaration when present.
+      # Returns the XML declaration with its encoding field normalized to UTF-8, when present.
       # @return [String, nil]
       attr_reader :decl
 
@@ -62,7 +68,8 @@ module Sevgi
       # @raise [Sevgi::ArgumentError] when content has no root element
       def initialize(content)
         @doc = self.class.parse(content)
-        @decl = self.class.declaration(content)
+        @decl = self.class.declaration(content, encoding: doc.encoding)
+        @doc.encoding = "UTF-8"
       end
 
       # Converts the root or selected node into a derender node.
@@ -83,8 +90,8 @@ module Sevgi
         Node.send(:new, element, pres, namespaces: namespace_scope(element), omit: omissions(omit))
       end
 
-      # Returns XML declaration and pre-root nodes preserved for root decompilation. The result contains only String
-      # lines and omits the declaration when the source did not provide one.
+      # Returns the XML declaration and pre-root nodes as UTF-8 for root decompilation.
+      # The result omits the declaration when the source did not provide one.
       # @return [Array<String>] preamble XML lines
       def pres
         @pres ||= [].tap do |lines|

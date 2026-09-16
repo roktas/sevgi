@@ -30,6 +30,8 @@ module Sevgi
   # Processing instructions retain their target, data, and order as inert XML markup. Custom entity references in the
   # selected subtree are rejected before inclusion changes a target. Predefined and numeric references remain valid.
   # Whole-document conversion rejects nodes after the root. Explicit id selection ignores unrelated document siblings.
+  # Input uses the XML encoding declaration or byte-order mark. Generated source and rendered XML use UTF-8.
+  # The XML declaration retains its version and standalone flag, with any encoding field changed to UTF-8.
   #
   # Namespace dispatch treats qualified and foreign elements as ordinary XML nodes. Their element identity, namespace
   # declarations, qualified attributes, significant text, and nested `svg` elements survive source generation and direct

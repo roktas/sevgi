@@ -48,6 +48,28 @@ module Sevgi
         end
       end
 
+      def test_executable_transcodes_declared_encodings_to_utf8
+        [
+          ["encoding=\"ISO-8859-1\"", "café", "ISO-8859-1"],
+          ["encoding = 'ISO-8859-1'", "caf&#233;", "US-ASCII"],
+          ["encoding=\"UTF-16\"", "café", "UTF-16"]
+        ].each do |declaration, text, encoding|
+          source = "<?xml version=\"1.0\" #{declaration} standalone=\"yes\"?><svg><text>#{text}</text></svg>".encode(
+            encoding
+          )
+
+          with_svg(source) do |file|
+            [run_igsev(file), run_igsev(stdin_data: source)].each do |out, err, status|
+              assert_predicate(status, :success?, err)
+              assert_empty(err)
+              assert_includes(out, "encoding=\"UTF-8\"")
+              assert_includes(out, "standalone=\"yes\"")
+              assert_equal("café", Nokogiri::XML(out.b, &:strict).at_css("text").text)
+            end
+          end
+        end
+      end
+
       def test_executable_loads_required_library
         with_svg("<svg xmlns=\"http://www.w3.org/2000/svg\"><circle r=\"4\"/></svg>") do |file|
           library = ::File.join(::File.dirname(file), "required.rb")

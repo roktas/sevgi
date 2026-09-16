@@ -19,16 +19,23 @@ require "sevgi/derender"
 ```ruby
 source = "<svg><rect width=\"3\" height=\"5\"/></svg>"
 puts Sevgi::Derender.derender(source)
-# rect width: 3, height: 5
+# SVG do
+#   rect width: 3, height: 5
+# end
 
 source = '<svg><rect id="mark" style="fill: red" width="3"/></svg>'
 puts Sevgi::Derender.derender(source, omit: %i[id style])
-# rect width: 3
+# SVG do
+#   rect width: 3
+# end
 ```
 
 Use `decompile` to inspect an immutable parsed node. Use `evaluate` to add a selected node directly to an existing
 Sevgi document. Generated source is ordinary Ruby. Review it and integrate it statically instead of evaluating it
 dynamically.
+
+Derender reads the XML encoding declaration or byte-order mark. Generated Ruby and rendered XML use UTF-8.
+The XML declaration keeps its version and standalone flag, with any encoding field changed to UTF-8.
 
 ## Executable
 

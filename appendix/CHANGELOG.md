@@ -27,6 +27,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Fixed
 
+- Read Derender input in its declared XML encoding and normalized generated source, XML declarations, and markup to UTF-8.
 - Preserved open-path endpoints and derived edges independently of display precision.
 - Kept near-axis and near-parallel line equations and intersections independent of angle and slope rounding.
 - Corrected the Showcase social image dimensions.

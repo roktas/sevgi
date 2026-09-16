@@ -58,6 +58,41 @@ module Sevgi
         end
       end
 
+      def test_conversions_normalize_xml_encodings
+        %w[UTF-8 ISO-8859-1 UTF-16 UTF-16LE UTF-16BE].each do |encoding|
+          xml = <<~SVG
+            <?xml version="1.0" encoding="#{encoding}" standalone="yes"?>
+            <!--café--><?app café?>
+            <svg xmlns="http://www.w3.org/2000/svg"><text>café</text><?label café?></svg>
+          SVG
+            .encode(encoding)
+            .b
+          source = Derender.derender(xml)
+          generated = instance_eval(source, "generated.sevgi").Render()
+          evaluated = Derender.evaluate(xml, SVG(:minimal)).Render()
+
+          assert_equal(Encoding::UTF_8, source.encoding)
+          assert_includes(generated, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>")
+          assert_includes(generated, "<!--café-->")
+          assert_includes(generated, "<?app café?>")
+          [generated, evaluated].each do |output|
+            parsed = Nokogiri::XML(output.b, &:strict)
+            assert_equal("café", parsed.at_css("text").text)
+            assert_equal("café", parsed.at_xpath("//processing-instruction(\"label\")").content)
+          end
+        end
+      end
+
+      def test_conversions_accept_bom_without_a_declaration
+        xml = "<svg><text>café</text></svg>"
+        ["\uFEFF#{xml}".b, xml.encode("UTF-16").b].each do |input|
+          source = Derender.derender(input)
+          generated = instance_eval(source, "generated.sevgi").Render()
+
+          assert_equal("café", Nokogiri::XML(generated.b, &:strict).at_css("text").text)
+        end
+      end
+
       def test_conversions_accept_symbol_ids
         svg = "<svg><g id=\"mark\"><rect/></g></svg>"
 
