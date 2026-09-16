@@ -31,7 +31,6 @@ group :test, :development do
 end
 
 group :development do
-  gem "irb"
   gem "rubocop-md"
   gem "rubocop-packaging"
   gem "rubocop-rake"

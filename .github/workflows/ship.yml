@@ -15,7 +15,7 @@ jobs:
     - name: Ruby 🥁
       uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
       with:
-        ruby-version: "4.0.6"
+        ruby-version: "4.0.7"
     - name: Guard ref and versions 🧯
       run: ruby -rrake -e 'load "Rakefile"; Rake::Task["release:guard"].invoke'
 
@@ -41,7 +41,7 @@ jobs:
     - name: Ruby 🥁
       uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
       with:
-        ruby-version: "4.0.6"
+        ruby-version: "4.0.7"
         bundler-cache: true
     - name: Lint 🔬
       run: bundle exec rake lint
@@ -81,7 +81,7 @@ jobs:
     - name: Ruby 🥁
       uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
       with:
-        ruby-version: "4.0.6"
+        ruby-version: "4.0.7"
     - name: Configure RubyGems trusted publishing 🔑
       uses: rubygems/configure-rubygems-credentials@dc5a8d8553e6ee01fc26761a49e99e733d17954a # v2.1.0
     - name: Verify and push packages 💎

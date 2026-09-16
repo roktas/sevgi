@@ -2,6 +2,7 @@
 --hide-api private
 --readme README.md
 --db .local/var/ruby/yardoc
+--load support/yard.rb
 --output-dir .local/var/ruby/doc/api
 function/lib/**/*.rb
 geometry/lib/**/*.rb
