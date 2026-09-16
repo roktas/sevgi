@@ -66,6 +66,54 @@ module Sevgi
         end
       end
 
+      def test_near_axis_lines_keep_their_equations_and_intersections
+        [
+          [[1_000_000, 0.005], Equation.vertical(500_000), [500_000, 0.0025]],
+          [[0.005, 1_000_000], Equation.horizontal(500_000), [0.0025, 500_000]]
+        ].each do |ending, axis, expected|
+          [0, 6, 10].each do |precision|
+            line = Line.([0, 0], ending)
+            F.with_precision(precision) do
+              assert_instance_of(Equation::Linear::Diagonal, line.equation)
+              assert(line.on?(line.ending))
+              intersections = line.intersection(axis, precision: 10)
+              assert_equal(1, intersections.size)
+              assert_in_delta(expected[0], intersections.first.x, 1e-9)
+              assert_in_delta(expected[1], intersections.first.y, 1e-9)
+            end
+          end
+        end
+      end
+
+      def test_point_equations_do_not_round_angles
+        F.with_precision(0) do
+          [1e-7, -1e-7, 90 - 1e-7, 90 + 1e-7].each do |angle|
+            assert_instance_of(Equation::Linear::Diagonal, Origin.equation(angle))
+          end
+
+          assert_instance_of(Equation::Linear::Horizontal, Origin.equation(180))
+          assert_instance_of(Equation::Linear::Vertical, Origin.equation(-90))
+        end
+
+        [nil, "0", Float::INFINITY, Complex(1, 2)].each do |angle|
+          assert_raises(Error) { Origin.equation(angle) }
+        end
+      end
+
+      def test_near_parallel_equations_still_intersect
+        delta = 2.0 ** -22
+        left = Equation.diagonal(slope: 1, intercept: 0)
+        right = Equation.diagonal(slope: 1 + delta, intercept: -delta)
+
+        [0, 6, 12].each do |precision|
+          F.with_precision(precision) do
+            assert_equal([Point[1, 1]], left.intersect(right))
+            assert_equal([Point[1, 1]], right.intersect(left))
+            assert_empty(left.intersect(Equation.diagonal(slope: 1, intercept: 2)))
+          end
+        end
+      end
+
       def test_linear_equation_categories_are_semantic_siblings
         diagonal = Equation.diagonal(slope: 1, intercept: 0)
         horizontal = Equation.horizontal(1)

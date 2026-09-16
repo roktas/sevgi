@@ -210,6 +210,30 @@ module Sevgi
         assert_equal("No point exists for index: 99", point_error.message)
       end
 
+      def test_open_segments_preserve_endpoints_at_any_precision
+        [[0, 0.4], [6, 1e-7]].each do |precision, length|
+          shapes = F.with_precision(precision) { [Line[length, 0], Polyline[[length, 0]]] }
+
+          shapes.each do |shape|
+            assert_equal([Point[0, 0], Point[length, 0]], shape.points)
+            assert_equal(length, shape.length)
+            assert_equal(length, shape.box.width)
+            assert_equal(Point[length, 0], shape.head.ending(shape.starting))
+          end
+        end
+      end
+
+      def test_lines_preserve_stored_endpoints
+        [0, 6, 12].each do |precision|
+          shape = Polyline.([0, 0], [0.4, 0], [1_000_000, 0.005])
+          lines = F.with_precision(precision) { shape.lines }
+
+          assert_equal([Point[0, 0], Point[0.4, 0]], lines.first.points)
+          assert_equal([Point[0.4, 0], Point[1_000_000, 0.005]], lines.last.points)
+          assert_equal(lines, shape.lines)
+        end
+      end
+
       def test_lined_english_factories_follow_subclasses
         calls = []
         klass = Class.new(Polyline) do

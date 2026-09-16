@@ -492,14 +492,19 @@ module Sevgi
         # @return [Sevgi::Geometry::Segment]
         def head = @head ||= segments.first
 
-        # Returns immutable boundary lines derived from segments and points.
+        # Returns immutable boundary lines with the stored endpoints and segments.
         # @return [Array<Sevgi::Geometry::Line>] frozen line collection
         def lines
-          @lines ||= segments
-            .zip(points[...segments.size])
-            .map { |segment, position|
-              segment.line(position)
-            }
+          @lines ||= points
+            .each_cons(2)
+            .zip(segments)
+            .map do |points, segment|
+              # Rebuilding from either view alone loses stored endpoints or input angles.
+              Line.send(:new) do
+                @points = points
+                @segments = [segment]
+              end
+            end
             .freeze
         end
 
@@ -556,8 +561,7 @@ module Sevgi
           Error.("No segments found") unless segments
 
           [point = position, *segments.map { point = it.ending(point) }].tap do |points|
-            # Share the first point object when the path closes within the current precision.
-            points[-1] = points.first if points.first.eq?(points.last)
+            points[-1] = points.first if closed? && points.first.eq?(points.last)
           end
         end
 

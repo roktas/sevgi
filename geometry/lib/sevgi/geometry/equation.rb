@@ -6,8 +6,8 @@ module Sevgi
     #
     # Public factories build linear and implicit quadratic equations.
     # Linear/quadratic intersection is supported in either order. {#intersect} returns an Array: no intersection is
-    # `[]`, while one crossing is a one-item Array. Coincident parallel lines do
-    # not represent a finite intersection and also return an empty Array.
+    # `[]`, while one crossing is a one-item Array. Parallel and coincident lines return an empty Array.
+    # Linear equation construction and intersection do not round angles or slopes to the display precision.
     # @example Intersect two linear equations
     #   diagonal = Sevgi::Geometry::Equation.diagonal(slope: 1, intercept: 0)
     #   vertical = Sevgi::Geometry::Equation.vertical(3)
@@ -97,7 +97,7 @@ module Sevgi
       end
 
       def nonvertical_vs_nonvertical(left, right)
-        return nil if F.eq?(left.slope, right.slope)
+        return nil if left.slope == right.slope
 
         x = (right.intercept - left.intercept) / (left.slope - right.slope)
 
@@ -125,18 +125,28 @@ module Sevgi
       #   point.equation(90).x(20) # => 4.0
       # @param angle [Numeric] clockwise angle in degrees
       # @return [Sevgi::Geometry::Equation::Linear]
+      # @raise [Sevgi::Geometry::Error] when angle is not a finite real number
       def equation(angle)
-        return Equation.horizontal(y) if F.zero?(angle % 180.0)
-        return Equation.vertical(x) if F.zero?(angle % 90.0)
+        angle = Real[:angle, angle]
+        return Equation.horizontal(y) if (angle % 180.0).zero?
+        return Equation.vertical(x) if (angle % 90.0).zero?
 
         Equation.diagonal(slope: (slope = F.tan(angle)), intercept: y - (slope * x))
       end
     end
 
     class Line
-      # Returns the linear equation containing this line.
+      # Returns the linear equation through the stored endpoints without a polar conversion.
       # @return [Sevgi::Geometry::Equation::Linear]
-      def equation = position.equation(angle)
+      def equation
+        x, y = starting.deconstruct
+        dx, dy = ending.x - x, ending.y - y
+        return Equation.horizontal(y) if dy.zero?
+        return Equation.vertical(x) if dx.zero?
+
+        slope = dy / dx
+        Equation.diagonal(slope:, intercept: y - (slope * x))
+      end
     end
 
     require_relative "equation/linear"

@@ -27,6 +27,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Fixed
 
+- Preserved open-path endpoints and derived edges independently of display precision.
+- Kept near-axis and near-parallel line equations and intersections independent of angle and slope rounding.
 - Corrected the Showcase social image dimensions.
 - Added SVG namespaces to standalone drawing examples and regenerated their outputs.
 - Made failed Sevgi Rake tasks stop dependent tasks and captured required-library failures in executor results.
