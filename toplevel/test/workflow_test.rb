@@ -67,7 +67,9 @@ module Sevgi
           <<~BASH
             #!/usr/bin/env bash
             set -Eeuo pipefail
-            printf '%s\n' "$2" >> "$PUSH_LOG"
+            if [[ $1 == push ]]; then
+              printf '%s\n' "$2" >> "$PUSH_LOG"
+            fi
           BASH
         )
         FileUtils.chmod("+x", File.join(bin, "gem"))
