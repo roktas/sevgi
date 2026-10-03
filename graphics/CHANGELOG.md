@@ -3,6 +3,12 @@
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) and follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## Unreleased
+
+### Fixed
+
+- Stamp code placeholders in nested and shared PDF Forms, with cycle-safe resource traversal.
+
 ## 1.0.0 - 2026-09-16
 
 ### Added

@@ -83,6 +83,29 @@ module Sevgi
         output
       end
 
+      # @api private
+      def stamp_forms(document, stamp:, placeholder:)
+        pending = document.pages.flat_map { |page| page[:Resources][:XObject]&.each&.map { |_name, value| value } || [] }
+        seen = {}
+        replacements = 0
+        until pending.empty?
+          form = pending.pop
+          next unless form[:Subtype] == :Form
+          identity = [form.oid, form.gen]
+          next if seen[identity]
+          seen[identity] = true
+          objects = form[:Resources]&.[](:XObject)
+          pending.concat(objects ? objects.each.map { |_name, value| value } : [])
+          data, count = stamp_stream(form.stream, stamp:, placeholder:)
+          next if count.zero?
+          replacements += count
+          form.stream = data
+          form.set_filter(:FlateDecode)
+        end
+        replacements
+      end
+      private :stamp_forms
+
       # Replaces exact placeholder text objects in PDF streams.
       # The placeholder must appear as a PDF literal string in a white text object matching the export stamp pattern.
       # Replacement text is escaped as a PDF literal string. When no exact match is replaced, the output file is not
@@ -107,6 +130,7 @@ module Sevgi
           doc.deref(page[:Contents]).set_filter(:FlateDecode)
         end
 
+        replacements += stamp_forms(doc, stamp:, placeholder:)
         doc.write(outfile, optimize: true) if replacements.positive?
         replacements.positive?
       rescue HexaPDF::Error, ::SystemCallError => e

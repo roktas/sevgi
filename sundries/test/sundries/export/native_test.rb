@@ -407,6 +407,29 @@ module Sevgi
           end
         end
 
+        def test_stamp_reaches_shared_nested_forms_and_stops_at_cycles
+          Dir.mktmpdir do |dir|
+            infile = File.join(dir, "in.pdf")
+            outfile = File.join(dir, "out.pdf")
+            write_pdf(infile, "1 1 1 rg BT /F1 12 Tf (old) Tj ET")
+            document = HexaPDF::Document.open(infile)
+            page = document.pages.first
+            inner = document.add(page.to_form_xobject)
+            outer = document.add({Type: :XObject, Subtype: :Form, BBox: [0, 0, 100, 100], Resources: {XObject: {Inner: inner}}}, stream: "/Inner Do")
+            inner[:Resources][:XObject] = {Cycle: outer}
+            page[:Resources][:XObject] = {Outer: outer}
+            page.contents = "q /Outer Do Q q /Outer Do Q"
+            document.write(infile, validate: false)
+
+            assert(Export.stamp(infile, outfile, stamp: "new", placeholder: "old"))
+            result = HexaPDF::Document.open(outfile).pages.first
+            assert_equal(page.contents, result.contents)
+            stream = result[:Resources][:XObject][:Outer][:Resources][:XObject][:Inner].stream
+            assert_equal(1, stream.scan("(new)").size)
+            refute_includes(stream, "(old)")
+          end
+        end
+
         def test_stamp_reuses_fill_across_graphics_state
           [
             "1 1 1 rg q BT /F1 12 Tf (old) Tj ET Q BT /F1 12 Tf (old) Tj ET",
