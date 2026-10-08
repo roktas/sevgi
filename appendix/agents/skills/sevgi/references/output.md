@@ -2,13 +2,13 @@
 
 Keep document construction and output policy separate. Choose the final operation from the artifact the caller needs:
 
-| Artifact | Use |
-| --- | --- |
-| SVG String owned by surrounding Ruby code | `Render` |
-| SVG on standard output | `Out` |
-| SVG file | `Save` |
-| PDF file | `PDF` |
-| PNG file | `PNG` |
+| Artifact                                           | Use                            |
+| -------------------------------------------------- | ------------------------------ |
+| SVG String owned by surrounding Ruby code          | `Render`                       |
+| SVG on standard output                             | `Out`                          |
+| SVG file                                           | `Save`                         |
+| PDF file                                           | `PDF`                          |
+| PNG file                                           | `PNG`                          |
 | Export an existing SVG String outside the document | `Sevgi::Sundries::Export.call` |
 
 The `sevgi` command reads standard input when no file is given. Use `sevgi --as badge` to make an implicit `Save`, `PDF`,

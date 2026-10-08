@@ -13,13 +13,13 @@ conversion, see [Output](@/output.md).
 
 Choose by the value the rest of the program needs, not only by the visible repetition:
 
-| Need | Use | Result |
-| --- | --- | --- |
-| Repeat one SVG template in the document | `Tile`, `TileX`, or `TileY` | `<defs>` plus positioned `<use>` elements |
-| Copy independently editable SVG subtrees | `Duplicate`, `DuplicateX`, or `DuplicateY` | separate element trees |
-| Inspect repeated cells and their bounds in Ruby | `Sevgi::Sundries::Tile` | geometry values without SVG output |
-| Fit major and minor intervals into one span | `Ruler` or `RulerEven` | inspectable distances and margins |
-| Combine two fitted rulers | `SVG.Grid` or `Sevgi::Sundries::Grid` | lines, points, cells, and a fitted canvas |
+| Need                                            | Use                                        | Result                                    |
+| ----------------------------------------------- | ------------------------------------------ | ----------------------------------------- |
+| Repeat one SVG template in the document         | `Tile`, `TileX`, or `TileY`                | `<defs>` plus positioned `<use>` elements |
+| Copy independently editable SVG subtrees        | `Duplicate`, `DuplicateX`, or `DuplicateY` | separate element trees                    |
+| Inspect repeated cells and their bounds in Ruby | `Sevgi::Sundries::Tile`                    | geometry values without SVG output        |
+| Fit major and minor intervals into one span     | `Ruler` or `RulerEven`                     | inspectable distances and margins         |
+| Combine two fitted rulers                       | `SVG.Grid` or `Sevgi::Sundries::Grid`      | lines, points, cells, and a fitted canvas |
 
 ## Rulers {{ "{#rulers}" }}
 
@@ -68,11 +68,11 @@ Axis names describe line direction: `grid.x` produces horizontal lines, and `gri
 positions of horizontal lines therefore come from the vertical ruler, and vice versa. Each major, minor, or halfway
 query has three representations:
 
-| Reader | Value | Typical use |
-| --- | --- | --- |
-| `lines` | geometry `Line` objects | pass a complete set to `Draw` |
+| Reader   | Value                             | Typical use                   |
+| -------- | --------------------------------- | ----------------------------- |
+| `lines`  | geometry `Line` objects           | pass a complete set to `Draw` |
 | `points` | pairs of geometry `Point` objects | place marks at both endpoints |
-| `xys` | pairs of plain coordinate Arrays | feed data-only consumers |
+| `xys`    | pairs of plain coordinate Arrays  | feed data-only consumers      |
 
 ```ruby
 canvas = SVG.Canvas width: 80, height: 50, margins: [5]

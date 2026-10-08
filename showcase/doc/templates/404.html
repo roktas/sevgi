@@ -1,6 +1,4 @@
-{% extends "base.html" %}
-
-{% block hero %}
+{% extends "base.html" %} {% block hero %}
 <style>
   .error-404 {
     display: flex;
@@ -50,7 +48,9 @@
     border-radius: 6px;
     font-weight: 500;
     text-decoration: none;
-    transition: background-color 0.15s ease, border-color 0.15s ease;
+    transition:
+      background-color 0.15s ease,
+      border-color 0.15s ease;
   }
 
   .error-actions .primary {
@@ -75,18 +75,10 @@
 <section class="error-404">
   <div class="error-code">404</div>
   <h1 class="error-title">Page not found</h1>
-  <p class="error-message">
-    The page you requested does not exist.
-  </p>
+  <p class="error-message">The page you requested does not exist.</p>
   <div class="error-actions">
     <a href="/" class="primary">Back to Home</a>
     <a href="https://github.com/roktas/sevgi" class="secondary">View on GitHub</a>
   </div>
 </section>
-{% endblock hero %}
-
-{% block toc %}
-{% endblock toc %}
-
-{% block content %}
-{% endblock content %}
+{% endblock hero %} {% block toc %} {% endblock toc %} {% block content %} {% endblock content %}

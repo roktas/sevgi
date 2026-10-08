@@ -10,14 +10,14 @@ jobs:
     permissions:
       contents: read
     steps:
-    - name: Checkout 🛎️
-      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-    - name: Ruby 🥁
-      uses: ruby/setup-ruby@984c0c890880bbf811283d6f09c4607c62d210a4 # v1.323.0
-      with:
-        ruby-version: "4.0.7"
-    - name: Guard ref and versions 🧯
-      run: ruby -rrake -e 'load "Rakefile"; Rake::Task["release:guard"].invoke'
+      - name: Checkout 🛎️
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Ruby 🥁
+        uses: ruby/setup-ruby@984c0c890880bbf811283d6f09c4607c62d210a4 # v1.323.0
+        with:
+          ruby-version: "4.0.7"
+      - name: Guard ref and versions 🧯
+        run: ruby -rrake -e 'load "Rakefile"; Rake::Task["release:guard"].invoke'
 
   verify:
     needs: guard
@@ -26,42 +26,42 @@ jobs:
     permissions:
       contents: read
     steps:
-    - name: Checkout 🛎️
-      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-    - name: Native dependencies 🧱
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y \
-          libcairo2-dev \
-          libgdk-pixbuf-2.0-dev \
-          libgirepository1.0-dev \
-          libglib2.0-dev \
-          librsvg2-dev \
-          pkg-config
-    - name: Ruby 🥁
-      uses: ruby/setup-ruby@984c0c890880bbf811283d6f09c4607c62d210a4 # v1.323.0
-      with:
-        ruby-version: "4.0.7"
-        bundler-cache: true
-    - name: Lint 🔬
-      run: bundle exec rake lint
-    - name: Unit 🔬
-      run: bundle exec rake test
-    - name: API docs 📚
-      run: bundle exec rake doc:check
-    - name: Build 📦
-      run: bundle exec rake build
-    - name: Package and remote preflight 🧪
-      env:
-        RELEASE_ALLOW_PUBLISHED: "1"
-      run: bundle exec rake release:verify
-    - name: Upload immutable packages 📤
-      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-      with:
-        name: release-packages-${{ github.sha }}
-        path: pkg/
-        if-no-files-found: error
-        overwrite: false
+      - name: Checkout 🛎️
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Native dependencies 🧱
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libcairo2-dev \
+            libgdk-pixbuf-2.0-dev \
+            libgirepository1.0-dev \
+            libglib2.0-dev \
+            librsvg2-dev \
+            pkg-config
+      - name: Ruby 🥁
+        uses: ruby/setup-ruby@984c0c890880bbf811283d6f09c4607c62d210a4 # v1.323.0
+        with:
+          ruby-version: "4.0.7"
+          bundler-cache: true
+      - name: Lint 🔬
+        run: bundle exec rake lint
+      - name: Unit 🔬
+        run: bundle exec rake test
+      - name: API docs 📚
+        run: bundle exec rake doc:check
+      - name: Build 📦
+        run: bundle exec rake build
+      - name: Package and remote preflight 🧪
+        env:
+          RELEASE_ALLOW_PUBLISHED: "1"
+        run: bundle exec rake release:verify
+      - name: Upload immutable packages 📤
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: release-packages-${{ github.sha }}
+          path: pkg/
+          if-no-files-found: error
+          overwrite: false
 
   publish:
     needs: verify
@@ -75,41 +75,41 @@ jobs:
       group: "ship-${{ github.ref }}"
       cancel-in-progress: false
     steps:
-    - name: Download immutable packages 📥
-      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
-      with:
-        name: release-packages-${{ github.sha }}
-        path: pkg
-    - name: Ruby 🥁
-      uses: ruby/setup-ruby@984c0c890880bbf811283d6f09c4607c62d210a4 # v1.323.0
-      with:
-        ruby-version: "4.0.7"
-    - name: Configure RubyGems trusted publishing 🔑
-      uses: rubygems/configure-rubygems-credentials@dc5a8d8553e6ee01fc26761a49e99e733d17954a # v2.1.0
-    - name: Verify and push packages 💎
-      env:
-        RELEASE_ALLOW_PUBLISHED: "1"
-      run: |
-        set -Eeuo pipefail
-        unset CDPATH
-        mapfile -t archives < <(awk 'NF == 2 { print $2 }' pkg/SHA256SUMS)
-        [[ ${#archives[@]} -gt 0 ]] || { printf 'Empty release manifest\n' >&2; exit 1; }
-        [[ ${#archives[@]} -eq $(wc -l < pkg/SHA256SUMS) ]] || { printf 'Malformed release manifest\n' >&2; exit 1; }
-        mapfile -t packaged < <(find pkg -maxdepth 1 -type f -name '*.gem' -printf '%f\n' | sort)
-        mapfile -t declared < <(printf '%s\n' "${archives[@]}" | sort -u)
-        [[ ${#declared[@]} -eq ${#archives[@]} ]] || { printf 'Duplicate release archive\n' >&2; exit 1; }
-        diff -u <(printf '%s\n' "${declared[@]}") <(printf '%s\n' "${packaged[@]}")
-        (
-          cd pkg
-          sha256sum -c SHA256SUMS
-        )
-        for archive in "${archives[@]}"; do
-          version="${archive##*-}"
-          version="${version%.gem}"
-          name="${archive%-$version.gem}"
-          if gem list --remote --exact --all "$name" | grep -Fq "($version"; then
-            printf 'Skipping already published %s %s\n' "$name" "$version"
-            continue
-          fi
-          gem push "pkg/$archive"
-        done
+      - name: Download immutable packages 📥
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: release-packages-${{ github.sha }}
+          path: pkg
+      - name: Ruby 🥁
+        uses: ruby/setup-ruby@984c0c890880bbf811283d6f09c4607c62d210a4 # v1.323.0
+        with:
+          ruby-version: "4.0.7"
+      - name: Configure RubyGems trusted publishing 🔑
+        uses: rubygems/configure-rubygems-credentials@dc5a8d8553e6ee01fc26761a49e99e733d17954a # v2.1.0
+      - name: Verify and push packages 💎
+        env:
+          RELEASE_ALLOW_PUBLISHED: "1"
+        run: |
+          set -Eeuo pipefail
+          unset CDPATH
+          mapfile -t archives < <(awk 'NF == 2 { print $2 }' pkg/SHA256SUMS)
+          [[ ${#archives[@]} -gt 0 ]] || { printf 'Empty release manifest\n' >&2; exit 1; }
+          [[ ${#archives[@]} -eq $(wc -l < pkg/SHA256SUMS) ]] || { printf 'Malformed release manifest\n' >&2; exit 1; }
+          mapfile -t packaged < <(find pkg -maxdepth 1 -type f -name '*.gem' -printf '%f\n' | sort)
+          mapfile -t declared < <(printf '%s\n' "${archives[@]}" | sort -u)
+          [[ ${#declared[@]} -eq ${#archives[@]} ]] || { printf 'Duplicate release archive\n' >&2; exit 1; }
+          diff -u <(printf '%s\n' "${declared[@]}") <(printf '%s\n' "${packaged[@]}")
+          (
+            cd pkg
+            sha256sum -c SHA256SUMS
+          )
+          for archive in "${archives[@]}"; do
+            version="${archive##*-}"
+            version="${version%.gem}"
+            name="${archive%-$version.gem}"
+            if gem list --remote --exact --all "$name" | grep -Fq "($version"; then
+              printf 'Skipping already published %s %s\n' "$name" "$version"
+              continue
+            fi
+            gem push "pkg/$archive"
+          done

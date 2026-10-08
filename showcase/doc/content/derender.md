@@ -29,12 +29,12 @@ valid. An explicit `id:` selects only that subtree and ignores unrelated documen
 Derender reads the XML encoding declaration or byte-order mark. Generated Ruby and rendered XML use UTF-8.
 The declaration keeps its version and standalone flag, with any encoding field changed to UTF-8.
 
-| Operation family | Inline input | File input | Result | Existing target |
-| --- | --- | --- | --- | --- |
-| Inspect | `SVG.Decompile` | `SVG.DecompileFile` | immutable `Sevgi::Derender::Node` | no |
-| Generate source | `SVG.Derender` | `SVG.DerenderFile` | formatted Ruby string | no |
-| Include selection | `SVG.Evaluate` | `SVG.EvaluateFile` | included element or `nil` | yes |
-| Include children | `SVG.EvaluateChildren` | `SVG.EvaluateChildrenFile` | frozen element snapshot | yes |
+| Operation family  | Inline input           | File input                 | Result                            | Existing target |
+| ----------------- | ---------------------- | -------------------------- | --------------------------------- | --------------- |
+| Inspect           | `SVG.Decompile`        | `SVG.DecompileFile`        | immutable `Sevgi::Derender::Node` | no              |
+| Generate source   | `SVG.Derender`         | `SVG.DerenderFile`         | formatted Ruby string             | no              |
+| Include selection | `SVG.Evaluate`         | `SVG.EvaluateFile`         | included element or `nil`         | yes             |
+| Include children  | `SVG.EvaluateChildren` | `SVG.EvaluateChildrenFile` | frozen element snapshot           | yes             |
 
 Choose source generation when the converted Ruby becomes the maintained representation. Choose evaluation or
 `Include` when the editor file remains the geometry source. Sevgi then composes it at runtime.

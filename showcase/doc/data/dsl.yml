@@ -289,7 +289,7 @@ letters:
       provider: hatch
       context: inkscape
       themes: [drawing]
-      code: 'Draw Sevgi::Geometry::Line.([4, 4], [76, 4]), class: %w[guide trim]'
+      code: "Draw Sevgi::Geometry::Line.([4, 4], [76, 4]), class: %w[guide trim]"
       see: /geometry/#drawing
       see_title: drawing geometry
     - name: Duplicate
@@ -711,7 +711,7 @@ letters:
       provider: validate
       context: inkscape
       themes: [quality, context, editors]
-      code: 'self.NS? :inkscape # => true'
+      code: "self.NS? :inkscape # => true"
 
   O:
     - name: Orphan
@@ -751,7 +751,7 @@ letters:
       provider: inkscape
       context: inkscape
       themes: [layout, editors, documents]
-      code: 'PagesTabular rows: 2, cols: 2, width: 100, height: 60, gap: 5'
+      code: "PagesTabular rows: 2, cols: 2, width: 100, height: 60, gap: 5"
     - name: Paper
       anchor: paper
       summary: Register or verify an idempotent named paper profile.
@@ -982,7 +982,7 @@ letters:
       provider: wrappers
       context: document
       themes: [drawing]
-      code: 'square x: 2, y: 2, length: 8, rx: 1'
+      code: "square x: 2, y: 2, length: 8, rx: 1"
     - name: Stay
       anchor: stay
       summary: Stop a traversal immediately and return a selected value.

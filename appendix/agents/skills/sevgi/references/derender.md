@@ -11,14 +11,14 @@ SVG/XML is a real input artifact.
 
 ## Choose the Relationship
 
-| Intent | Inline content | File | Result |
-| --- | --- | --- | --- |
-| Inspect an immutable parsed node | `SVG.Decompile` | `SVG.DecompileFile` | `Sevgi::Derender::Node` |
-| Generate editable Sevgi Ruby source | `SVG.Derender` | `SVG.DerenderFile` | formatted Ruby String |
-| Add the selected node to an existing tree | `SVG.Evaluate` | `SVG.EvaluateFile` | included element or `nil` |
-| Add only the selected node's children | `SVG.EvaluateChildren` | `SVG.EvaluateChildrenFile` | frozen child snapshot |
-| Include a selected file node inside an SVG block | — | `Include` | included element or `nil` |
-| Include only a selected file node's children inside a block | — | `IncludeChildren` | frozen child snapshot |
+| Intent                                                      | Inline content         | File                       | Result                    |
+| ----------------------------------------------------------- | ---------------------- | -------------------------- | ------------------------- |
+| Inspect an immutable parsed node                            | `SVG.Decompile`        | `SVG.DecompileFile`        | `Sevgi::Derender::Node`   |
+| Generate editable Sevgi Ruby source                         | `SVG.Derender`         | `SVG.DerenderFile`         | formatted Ruby String     |
+| Add the selected node to an existing tree                   | `SVG.Evaluate`         | `SVG.EvaluateFile`         | included element or `nil` |
+| Add only the selected node's children                       | `SVG.EvaluateChildren` | `SVG.EvaluateChildrenFile` | frozen child snapshot     |
+| Include a selected file node inside an SVG block            | —                      | `Include`                  | included element or `nil` |
+| Include only a selected file node's children inside a block | —                      | `IncludeChildren`          | frozen child snapshot     |
 
 Use `DerenderFile` when generated Ruby becomes the maintained source. Use `Include`, `EvaluateFile`, or their children
 variants when the editor file remains the geometry source. Use `DecompileFile` to inspect names, attributes,

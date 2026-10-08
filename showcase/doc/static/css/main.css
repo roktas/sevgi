@@ -82,7 +82,9 @@ h2 > a::after {
   background: var(--wt-color-accent);
   opacity: 0.35;
   border-radius: 1px;
-  transition: background 150ms ease-out, opacity 150ms ease-out;
+  transition:
+    background 150ms ease-out,
+    opacity 150ms ease-out;
 }
 h2 > a:hover::after {
   background: var(--wt-color-accent);
@@ -205,7 +207,9 @@ nav {
   color: var(--wt-color-text-muted);
   padding: 0.2rem 0.4rem;
   border-radius: 999px;
-  transition: color 150ms, background 150ms;
+  transition:
+    color 150ms,
+    background 150ms;
 }
 .nav-item:hover {
   color: var(--wt-color-text);
@@ -284,7 +288,6 @@ html[data-theme="dark"] .theme-toggle .dark-icon {
   display: none;
 }
 
-
 /*
  * -----------------------------------------------------------------------------
  * Search - Dropdown style (elasticlunr)
@@ -316,7 +319,9 @@ html[data-theme="dark"] .theme-toggle .dark-icon {
   background: var(--wt-color-bg);
   border: 1px solid var(--wt-color-border-subtle);
   border-radius: 0.35rem;
-  transition: width 150ms, border-color 150ms;
+  transition:
+    width 150ms,
+    border-color 150ms;
 }
 #userinput::placeholder {
   color: var(--wt-color-text-soft);
@@ -493,7 +498,9 @@ main {
   border: 1px solid var(--wt-color-code-border);
   border-left: 3px solid var(--wt-color-accent);
   border-radius: 0 0.5rem 0.5rem 0;
-  box-shadow: 0 2px 8px var(--wt-shadow-soft), 0 1px 2px var(--wt-shadow-medium);
+  box-shadow:
+    0 2px 8px var(--wt-shadow-soft),
+    0 1px 2px var(--wt-shadow-medium);
 }
 /* Tighten spacing between paragraphs and code blocks */
 .content p + pre,
@@ -502,7 +509,9 @@ main {
 }
 .content a {
   color: var(--wt-color-link);
-  transition: color 150ms, text-decoration 150ms;
+  transition:
+    color 150ms,
+    text-decoration 150ms;
 }
 .content a:hover {
   text-decoration: underline;
@@ -552,12 +561,16 @@ main {
   padding: 0.875rem 1rem;
   overflow-x: auto;
   margin: 1.25rem 0;
-  box-shadow: 0 2px 8px var(--wt-shadow-soft), 0 1px 2px var(--wt-shadow-medium);
+  box-shadow:
+    0 2px 8px var(--wt-shadow-soft),
+    0 1px 2px var(--wt-shadow-medium);
   transition: box-shadow 50ms;
 }
 .content pre:hover {
-  box-shadow: 0 0 0 1px var(--wt-color-accent-soft),
-    0 4px 16px var(--wt-shadow-accent), 0 2px 8px var(--wt-shadow-medium);
+  box-shadow:
+    0 0 0 1px var(--wt-color-accent-soft),
+    0 4px 16px var(--wt-shadow-accent),
+    0 2px 8px var(--wt-shadow-medium);
 }
 .content pre code {
   background-color: rgba(0, 0, 0, 0);
@@ -582,7 +595,10 @@ main {
   cursor: pointer;
   color: var(--wt-color-text-muted);
   opacity: 0;
-  transition: opacity 150ms, background 150ms, color 150ms;
+  transition:
+    opacity 150ms,
+    background 150ms,
+    color 150ms;
   line-height: 0;
 }
 .code-copy-btn:hover {
@@ -697,8 +713,7 @@ main {
   padding: 0.5rem;
   /* iOS jank fix: --vh-full set by JS, fallback to lvh. See base.html. */
   max-height: calc(
-    var(--vh-full, 100lvh) - var(--wt-header-height) -
-      var(--wt-main-padding-top) - 20px
+    var(--vh-full, 100lvh) - var(--wt-header-height) - var(--wt-main-padding-top) - 20px
   );
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -770,7 +785,9 @@ main {
   border-radius: 0.35rem;
   font-size: 0.95rem;
   color: var(--wt-color-text-muted);
-  transition: color 150ms, background 150ms;
+  transition:
+    color 150ms,
+    background 150ms;
 }
 .nav-page:hover {
   background: var(--wt-color-bg-soft);
@@ -806,7 +823,9 @@ main {
   padding: 0.3rem 0.4rem;
   border-radius: 0.25rem;
   display: block;
-  transition: color 150ms, background 150ms;
+  transition:
+    color 150ms,
+    background 150ms;
 }
 .nav-outline-link:hover,
 .nav-outline-children a:hover {
@@ -847,7 +866,9 @@ main {
   font-weight: 500;
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
-  transition: color 150ms, background 150ms;
+  transition:
+    color 150ms,
+    background 150ms;
 }
 .page-nav a:hover {
   background: var(--wt-color-accent-soft);
@@ -880,7 +901,10 @@ footer {
   color: var(--wt-color-text-muted);
   background: var(--wt-color-bg);
   border: 1px solid var(--wt-color-border-subtle);
-  transition: color 150ms, border-color 150ms, background 150ms;
+  transition:
+    color 150ms,
+    border-color 150ms,
+    background 150ms;
 }
 .footer-social a:hover,
 .footer-social a:focus-visible {
@@ -902,8 +926,7 @@ footer {
   background: var(--wt-hero-background);
   /* iOS jank fix: --vh-full set by JS, fallback to lvh. See base.html. */
   min-height: calc(
-    var(--vh-full, 100lvh) - var(--wt-header-height) -
-      env(safe-area-inset-top, 0px)
+    var(--vh-full, 100lvh) - var(--wt-header-height) - env(safe-area-inset-top, 0px)
   );
   padding: 2rem 40px 3.5rem;
   position: relative;
@@ -949,7 +972,9 @@ footer {
   aspect-ratio: 28 / 45;
   flex-shrink: 1;
   filter: drop-shadow(0 8px 24px var(--wt-hero-shadow));
-  transition: filter 300ms, transform 300ms;
+  transition:
+    filter 300ms,
+    transform 300ms;
   animation: logo-animation 2s cubic-bezier(0.25, 0.1, 0.25, 1) both;
 }
 .hero .hero-image:hover {
@@ -1074,7 +1099,9 @@ footer {
   font-size: 1rem;
   border: none;
   cursor: pointer;
-  transition: background 150ms, box-shadow 150ms;
+  transition:
+    background 150ms,
+    box-shadow 150ms;
 }
 .button:hover {
   background: var(--wt-color-accent-strong);
@@ -1200,10 +1227,7 @@ figcaption {
   left: 0;
   width: min(260px, 70vw);
   /* iOS jank fix: --vh-full set by JS, fallback to lvh. See base.html. */
-  height: calc(
-    var(--vh-full, 100lvh) - var(--wt-header-height) -
-      env(safe-area-inset-top, 0px)
-  );
+  height: calc(var(--vh-full, 100lvh) - var(--wt-header-height) - env(safe-area-inset-top, 0px));
   background: var(--wt-color-bg-elevated);
   border-right: 1px solid var(--wt-color-border-subtle);
   z-index: 200;
@@ -1231,7 +1255,9 @@ figcaption {
   font-weight: 500;
   color: var(--wt-color-text);
   border-radius: 0.375rem;
-  transition: background 150ms, color 150ms;
+  transition:
+    background 150ms,
+    color 150ms;
 }
 .mobile-nav-item:hover {
   background: var(--wt-color-bg-soft);
@@ -1328,7 +1354,10 @@ body.mobile-menu-open {
 
 button,
 .nav-item {
-  transition: color 150ms, background 150ms, box-shadow 150ms;
+  transition:
+    color 150ms,
+    background 150ms,
+    box-shadow 150ms;
 }
 /* Focus states */
 a:focus-visible,
@@ -1637,7 +1666,10 @@ header .logo:hover svg {
   background: var(--wt-color-code-bg);
   color: var(--wt-color-text-muted);
   text-decoration: none;
-  transition: border-color 150ms, background 150ms, color 150ms;
+  transition:
+    border-color 150ms,
+    background 150ms,
+    color 150ms;
 }
 .dsl-links a::after {
   display: none;
@@ -1837,7 +1869,9 @@ html[data-theme="dark"] .tabs .tabs-title-link:not(:hover):not(:focus-visible) {
   font-weight: 600;
   font-size: 1.1rem;
   color: var(--wt-color-text-muted);
-  transition: background 150ms, color 150ms;
+  transition:
+    background 150ms,
+    color 150ms;
   border-bottom: 2px solid rgba(0, 0, 0, 0);
   display: flex;
   align-items: center;
@@ -2124,7 +2158,9 @@ html[data-theme="dark"] .tabs .theme-dark {
     font-size: 1.25rem;
   }
   .hero {
-    min-height: calc(var(--vh-full, 100lvh) - var(--wt-header-height) - env(safe-area-inset-top, 0px));
+    min-height: calc(
+      var(--vh-full, 100lvh) - var(--wt-header-height) - env(safe-area-inset-top, 0px)
+    );
     padding: 2rem 20px;
   }
   .hero .heading-text {

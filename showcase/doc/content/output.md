@@ -12,12 +12,12 @@ canvas and visible geometry before output begins.
 
 Choose the operation by its destination:
 
-| Need | Use |
-| --- | --- |
-| Return an SVG String to Ruby | `Render` |
-| Write SVG beside the active `.sevgi` source | `Save` |
-| Write SVG to a specific path | `Write` or `Save` with a path |
-| Print SVG to standard output | `Out` |
+| Need                                        | Use                           |
+| ------------------------------------------- | ----------------------------- |
+| Return an SVG String to Ruby                | `Render`                      |
+| Write SVG beside the active `.sevgi` source | `Save`                        |
+| Write SVG to a specific path                | `Write` or `Save` with a path |
+| Print SVG to standard output                | `Out`                         |
 
 Library code commonly keeps the document and passes `Render` to its own storage or response layer:
 

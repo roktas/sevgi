@@ -1,14 +1,14 @@
-(function() {
+(function () {
   var root = document.documentElement;
-  var systemDark = window.matchMedia('(prefers-color-scheme: dark)');
+  var systemDark = window.matchMedia("(prefers-color-scheme: dark)");
 
   function getTheme() {
-    return root.getAttribute('data-theme') || (systemDark.matches ? 'dark' : 'light');
+    return root.getAttribute("data-theme") || (systemDark.matches ? "dark" : "light");
   }
 
   function render(container) {
     var templateId =
-      getTheme() === 'dark' ? container.dataset.darkTemplate : container.dataset.lightTemplate;
+      getTheme() === "dark" ? container.dataset.darkTemplate : container.dataset.lightTemplate;
     var template = templateId && document.getElementById(templateId);
 
     if (!template || container.dataset.currentTemplate === templateId) return;
@@ -16,14 +16,14 @@
     var content = template.content.cloneNode(true);
     normalizeSvg(content);
     var shadow =
-      container.shadowRoot || (container.attachShadow && container.attachShadow({ mode: 'open' }));
+      container.shadowRoot || (container.attachShadow && container.attachShadow({ mode: "open" }));
 
     if (shadow) {
-      var style = document.createElement('style');
+      var style = document.createElement("style");
       style.textContent = [
-        ':host{display:flex;align-items:center;justify-content:center;width:100%;height:100%;}',
-        'svg{display:block;width:100%;height:100%;max-width:100%;max-height:100%;margin:auto;}'
-      ].join('');
+        ":host{display:flex;align-items:center;justify-content:center;width:100%;height:100%;}",
+        "svg{display:block;width:100%;height:100%;max-width:100%;max-height:100%;margin:auto;}",
+      ].join("");
       replace(shadow, style, content);
     } else {
       replace(container, content);
@@ -41,20 +41,20 @@
   }
 
   function normalizeSvg(content) {
-    var svg = content.querySelector && content.querySelector('svg');
+    var svg = content.querySelector && content.querySelector("svg");
 
-    if (!svg || svg.getAttribute('viewBox')) return;
+    if (!svg || svg.getAttribute("viewBox")) return;
 
-    var width = absoluteLength(svg.getAttribute('width'));
-    var height = absoluteLength(svg.getAttribute('height'));
+    var width = absoluteLength(svg.getAttribute("width"));
+    var height = absoluteLength(svg.getAttribute("height"));
 
     if (width && height) {
-      svg.setAttribute('viewBox', '0 0 ' + formatNumber(width) + ' ' + formatNumber(height));
+      svg.setAttribute("viewBox", "0 0 " + formatNumber(width) + " " + formatNumber(height));
     }
   }
 
   function absoluteLength(value) {
-    var match = String(value || '')
+    var match = String(value || "")
       .trim()
       .match(/^((?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?)(px|pt|pc|mm|cm|in)?$/i);
 
@@ -71,16 +71,16 @@
   }
 
   function unitScale(unit) {
-    switch ((unit || 'px').toLowerCase()) {
-      case 'in':
+    switch ((unit || "px").toLowerCase()) {
+      case "in":
         return 96;
-      case 'cm':
+      case "cm":
         return 96 / 2.54;
-      case 'mm':
+      case "mm":
         return 96 / 25.4;
-      case 'pt':
+      case "pt":
         return 96 / 72;
-      case 'pc':
+      case "pc":
         return 16;
       default:
         return 1;
@@ -88,7 +88,7 @@
   }
 
   function renderAll() {
-    var outputs = document.querySelectorAll('.svg-output[data-light-template][data-dark-template]');
+    var outputs = document.querySelectorAll(".svg-output[data-light-template][data-dark-template]");
     Array.prototype.forEach.call(outputs, render);
   }
 
@@ -98,7 +98,7 @@
     if (!input) return;
 
     input.checked = true;
-    syncTabs(label.closest('.tabs'));
+    syncTabs(label.closest(".tabs"));
     if (focus) label.focus();
   }
 
@@ -108,11 +108,11 @@
 
     new MutationObserver(renderAll).observe(root, {
       attributes: true,
-      attributeFilter: ['data-theme']
+      attributeFilter: ["data-theme"],
     });
 
     if (systemDark.addEventListener) {
-      systemDark.addEventListener('change', renderAll);
+      systemDark.addEventListener("change", renderAll);
     } else if (systemDark.addListener) {
       systemDark.addListener(renderAll);
     }
@@ -120,14 +120,19 @@
 
   function initTabs() {
     var lists = document.querySelectorAll('.tabs[role="tablist"]');
-    Array.prototype.forEach.call(lists, function(tabs) {
+    Array.prototype.forEach.call(lists, function (tabs) {
       if (tabs.dataset.tabsReady) return;
 
-      tabs.dataset.tabsReady = 'true';
-      Array.prototype.forEach.call(tabLabels(tabs), function(label, index) {
+      tabs.dataset.tabsReady = "true";
+      Array.prototype.forEach.call(tabLabels(tabs), function (label, index) {
         var input = document.getElementById(label.dataset.tabInput);
-        if (input) input.addEventListener('change', function() { syncTabs(tabs); });
-        label.addEventListener('keydown', function(event) { onTabKeydown(event, tabs, index); });
+        if (input)
+          input.addEventListener("change", function () {
+            syncTabs(tabs);
+          });
+        label.addEventListener("keydown", function (event) {
+          onTabKeydown(event, tabs, index);
+        });
       });
       syncTabs(tabs);
     });
@@ -138,22 +143,22 @@
     var target = null;
 
     switch (event.key) {
-      case 'ArrowDown':
-      case 'ArrowRight':
+      case "ArrowDown":
+      case "ArrowRight":
         target = labels[(index + 1) % labels.length];
         break;
-      case 'ArrowLeft':
-      case 'ArrowUp':
+      case "ArrowLeft":
+      case "ArrowUp":
         target = labels[(index + labels.length - 1) % labels.length];
         break;
-      case 'End':
+      case "End":
         target = labels[labels.length - 1];
         break;
-      case 'Home':
+      case "Home":
         target = labels[0];
         break;
-      case ' ':
-      case 'Enter':
+      case " ":
+      case "Enter":
         target = labels[index];
         break;
       default:
@@ -165,12 +170,12 @@
   }
 
   function syncTabs(tabs) {
-    Array.prototype.forEach.call(tabLabels(tabs), function(label) {
+    Array.prototype.forEach.call(tabLabels(tabs), function (label) {
       var input = document.getElementById(label.dataset.tabInput);
       var panel = document.getElementById(label.dataset.tabPanel);
       var selected = !!(input && input.checked);
 
-      label.setAttribute('aria-selected', selected ? 'true' : 'false');
+      label.setAttribute("aria-selected", selected ? "true" : "false");
       label.tabIndex = selected ? 0 : -1;
       if (panel) panel.hidden = !selected;
     });
@@ -180,8 +185,8 @@
     return Array.prototype.slice.call(tabs.querySelectorAll('[role="tab"][data-tab-input]'));
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
   } else {
     init();
   }

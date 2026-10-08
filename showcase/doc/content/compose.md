@@ -69,12 +69,12 @@ Name the method `call` when the module has one drawing step. If it has several p
 separate step. `base` records argument-independent drawing that runs before those steps. Inherited base blocks run
 parent first, followed by local blocks in registration order. The wrapper decides how Sevgi places the result:
 
-| Wrapper | Result |
-| --- | --- |
-| `Call` | Draw directly in the current element |
-| `Group` | Draw inside a group |
-| `Layer` | Draw inside an Inkscape layer |
-| `Layer!` | Draw inside an insensitive Inkscape layer |
+| Wrapper   | Result                                      |
+| --------- | ------------------------------------------- |
+| `Call`    | Draw directly in the current element        |
+| `Group`   | Draw inside a group                         |
+| `Layer`   | Draw inside an Inkscape layer               |
+| `Layer!`  | Draw inside an insensitive Inkscape layer   |
 | `Symbols` | Turn the public steps into reusable symbols |
 
 `SVG.Module` works in both scripts and libraries. When loading only `sevgi/graphics`, create an ordinary `Module` and

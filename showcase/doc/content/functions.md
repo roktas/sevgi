@@ -9,14 +9,14 @@ group = "Reference"
 Sevgi-specific numeric, discovery, command, naming, or status behavior. It is deliberately smaller than a
 general-purpose utility library.
 
-| Need | Start with | Result or policy |
-| --- | --- | --- |
+| Need                                                 | Start with                                      | Result or policy                           |
+| ---------------------------------------------------- | ----------------------------------------------- | ------------------------------------------ |
 | Degree-based trigonometry and approximate comparison | `sin`, `cos`, `eq?`, `approx`, `with_precision` | `Function::Math.precision` is thread-local |
-| Find a `.sevgi` file while walking upward | `locate` or configurable `Function::Locate` | immutable `Function::Location` |
-| Compare or write generated files | `changed?`, `out`, `touch` | path or change status |
-| Run an argv-safe child process | `sh` or success-requiring `sh!` | immutable `Function::Shell::Result` |
-| Build Sevgi-facing names | `demodulize`, `pluralize` | string |
-| Report build progress | `do`, `mayok`, `ok`, `notok`, `ui` | status on standard error |
+| Find a `.sevgi` file while walking upward            | `locate` or configurable `Function::Locate`     | immutable `Function::Location`             |
+| Compare or write generated files                     | `changed?`, `out`, `touch`                      | path or change status                      |
+| Run an argv-safe child process                       | `sh` or success-requiring `sh!`                 | immutable `Function::Shell::Result`        |
+| Build Sevgi-facing names                             | `demodulize`, `pluralize`                       | string                                     |
+| Report build progress                                | `do`, `mayok`, `ok`, `notok`, `ui`              | status on standard error                   |
 
 In ordinary library code, spell the facade as `Sevgi::F`. Bare `F` is available to `.sevgi` scripts. It is also
 available to receivers that include the top-level DSL. `require "sevgi/function"` does not install a global `F`.

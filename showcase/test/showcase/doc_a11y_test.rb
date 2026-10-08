@@ -75,7 +75,7 @@ module Sevgi
       end
 
       def first_root
-        vars.match(/:root\s*\{(?<body>.*?)\n    \}/m)[:body]
+        vars.match(/:root\s*\{(?<body>.*?)\n\s*\}/m)[:body]
       end
 
       def hex_channels(color)
@@ -97,7 +97,7 @@ module Sevgi
       end
 
       def system_dark_root
-        vars.match(/@media \(prefers-color-scheme: dark\)\s*\{\s*:root\s*\{(?<body>.*?)\n        \}\s*\}/m)[:body]
+        vars.match(/@media \(prefers-color-scheme: dark\)\s*\{\s*:root\s*\{(?<body>.*?)\n\s*\}\s*\}/m)[:body]
       end
 
       def vars = read("doc/templates/_vars.html")
