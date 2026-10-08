@@ -16,6 +16,7 @@ module Sevgi
         mixture :Include
         mixture :Lint
         mixture :Save
+        mixture :Style
         mixture :Tile
         mixture :Transform
         mixture :Underscore

@@ -13,43 +13,13 @@ module Sevgi
   module Sundries
     module Export
       %i[
-        call
         stamp
         stamp!
       ].each { remove_method(it) if method_defined?(it) }
 
-      # Exports SVG source to a PDF or PNG file using librsvg and Cairo.
-      # @param svg [String] SVG source content
-      # Relative paths are expanded, missing parent directories are created after all render inputs validate, and an
-      # existing output file is replaced. Directory paths are not expanded to a default file name.
-      # @param output [String, #to_path] output file path
-      # @param format [Symbol, String, nil] explicit output format, or nil to infer from output extension
-      # @param width [Numeric, nil] finite positive target width in output pixels for PNG, or CSS pixels before PDF point conversion
-      # @param height [Numeric, nil] finite positive target height in output pixels for PNG, or CSS pixels before PDF point conversion
-      # @param dpi [Numeric] finite positive CSS pixel density. Omission uses {DEFAULT_DPI}, but explicit nil is invalid
-      # @param css [String, nil] CSS inserted before the closing svg tag before rendering
-      # @yield [svg] optional source transformation applied before rendering
-      # @yieldparam svg [String] SVG source after optional CSS injection
-      # @yieldreturn [String] SVG source to render
-      # @return [String] expanded output path
-      # @raise [Sevgi::ArgumentError] when output is blank, invalid, or a directory, or CSS/transformed SVG has an
-      #   invalid type
-      # @raise [Sevgi::Sundries::Export::ExportError] when format, numeric options, CSS insertion, SVG parsing, SVG dimensions, or render dimensions are invalid
-      # @raise [SystemCallError] when the output directory or file cannot be created or written
-      def call(svg, output, format: nil, width: nil, height: nil, dpi: DEFAULT_DPI, css: nil, &block)
-        ArgumentError.("SVG content must be a String") unless svg.is_a?(String)
-        output = output_path(output)
-        format = format_for(format, output)
-        width = dimension(width, "width")
-        height = dimension(height, "height")
-        dpi = dimension(dpi, "dpi", optional: false)
-        ArgumentError.("Export CSS must be a String") unless css.nil? || css.is_a?(String)
-        ArgumentError.("Export CSS must be valid text") if css && !css.valid_encoding?
-
-        svg = styled(svg, css) if css && !css.strip.empty?
-        svg = block.call(svg) if block
-        ArgumentError.("SVG content must be a String") unless svg.is_a?(String)
-
+      # Renders validated, transformed SVG through librsvg and Cairo.
+      # @api private
+      def render(svg, output, format:, width:, height:, dpi:)
         renderer = Renderer.method(format)
 
         begin
@@ -82,6 +52,7 @@ module Sevgi
 
         output
       end
+      private :render
 
       # @api private
       def stamp_forms(document, stamp:, placeholder:)
@@ -340,45 +311,6 @@ module Sevgi
 
       class << self
         private
-
-        def output_path(output)
-          ArgumentError.("Export output must be provided") if output.nil?
-
-          path = output.respond_to?(:to_path) ? output.to_path : output
-          ArgumentError.("Export output must be a String or path-like object") unless path.is_a?(::String)
-          ArgumentError.("Export output must be provided") if path.strip.empty?
-
-          path = ::File.expand_path(path)
-          ArgumentError.("Export output must name a file") if ::File.directory?(path)
-          path
-        rescue ::StandardError => e
-          raise if e.is_a?(::Sevgi::ArgumentError)
-
-          ArgumentError.("Export output must be a String or path-like object: #{e.message}")
-        end
-
-        def dimension(value, field, optional: true)
-          return if value.nil? && optional
-          ExportError.(dimension_error(field)) unless value.is_a?(::Numeric)
-
-          number = begin
-            value.to_f
-          rescue ::StandardError => e
-            ExportError.(dimension_error(field, e.message))
-          end
-
-          ExportError.(dimension_error(field)) unless number.is_a?(::Float) && number.finite? && number.positive?
-
-          number
-        end
-
-        def dimension_error(field, detail = nil)
-          message = [
-            (%w[width height].include?(field) ? "Invalid export dimensions" : "Invalid export #{field}"),
-            detail
-          ]
-          message.compact.join(": ")
-        end
 
         def intrinsic_size(handle)
           if handle.respond_to?(:intrinsic_dimensions)

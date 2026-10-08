@@ -995,6 +995,25 @@ letters:
         end
         found = Traverse { |node| Stay node if node[:id] == "target" }
         found.Classify "selected"
+    - name: Style
+      anchor: style
+      summary: Attach a producer declaration for editable PDF export without changing the SVG.
+      provider: style
+      context: document
+      themes: [output]
+      code: |
+        g id: "outline" do
+          rect width: 10, height: 10, fill: "none", stroke: "black"
+        end
+        Style do
+          Target "ink", selectors: ["#outline"]
+          Param "display", targets: ["ink"], property: "display",
+            schema: {type: "string", enum: %w[inline none]}
+          Param "opacity", targets: ["ink"], property: "stroke-opacity",
+            schema: {type: "number", minimum: 0, maximum: 1}
+        end
+      see: /output/#editable-pdf
+      see_title: editable PDF export
     - name: SVG
       anchor: svg
       summary: Create an SVG document from a profile, canvas, and drawing block.

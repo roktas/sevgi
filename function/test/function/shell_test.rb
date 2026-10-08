@@ -15,6 +15,7 @@ module Sevgi
         def test_executable_accepts_absolute_path
           with_executable("absolute-tool") do |path|
             assert(Function.executable?(path))
+            assert_equal(path, Function.executable(path))
           end
         end
 
@@ -26,6 +27,7 @@ module Sevgi
 
             Dir.chdir(dir) do
               assert(Function.executable?("./relative-tool"))
+              assert_equal(path, Function.executable("./relative-tool"))
             end
           end
         end
@@ -38,6 +40,7 @@ module Sevgi
 
             with_path(dir) do
               refute(Function.executable?("tool-dir"))
+              assert_nil(Function.executable("tool-dir"))
             end
           end
         end
@@ -52,6 +55,7 @@ module Sevgi
 
             with_path(dir) do
               assert(Function.executable?("linked-tool"))
+              assert_equal(link, Function.executable("linked-tool"))
             end
           end
         end
@@ -65,6 +69,7 @@ module Sevgi
             Dir.chdir(dir) do
               with_exact_path(["", ENV.fetch("PATH", nil)].compact.join(::File::PATH_SEPARATOR)) do
                 assert(Function.executable?("local-tool"))
+                assert_equal(path, Function.executable("local-tool"))
               end
             end
           end
@@ -76,12 +81,14 @@ module Sevgi
 
             with_exact_path("") do
               refute(Function.executable?("mutable-tool"))
+              assert_nil(Function.executable("mutable-tool"))
 
               ::File.write(path, "#!/bin/sh\n")
               FileUtils.chmod("+x", path)
               ENV["PATH"] = dir
 
               assert(Function.executable?("mutable-tool"))
+              assert_equal(path, Function.executable("mutable-tool"))
             end
           end
         end
@@ -91,6 +98,7 @@ module Sevgi
           ENV.delete("PATH")
 
           refute(Function.executable?("missing-tool"))
+          assert_nil(Function.executable("missing-tool"))
         ensure
           ENV["PATH"] = path
         end
@@ -98,6 +106,26 @@ module Sevgi
         def test_executable_rejects_blank_program
           refute(Function.executable?(nil))
           refute(Function.executable?(""))
+          assert_nil(Function.executable(nil))
+          assert_nil(Function.executable(""))
+        end
+
+        def test_executable_resolves_first_runnable_file
+          Dir.mktmpdir do |dir|
+            paths = 3.times.map do |index|
+              directory = ::File.join(dir, index.to_s)
+              ::Dir.mkdir(directory)
+              path = ::File.join(directory, "tool")
+              ::File.write(path, "#!/bin/sh\n")
+              FileUtils.chmod(index.zero? ? 0o600 : 0o700, path)
+              path
+            end
+            with_exact_path(paths.map { ::File.dirname(it) }.join(::File::PATH_SEPARATOR)) do
+              assert_equal(paths[1], Function.executable("tool"))
+              FileUtils.chmod(0o600, paths[1])
+              assert_equal(paths[2], Function.executable("tool"))
+            end
+          end
         end
 
         def test_executable_bang_raises_for_missing_program

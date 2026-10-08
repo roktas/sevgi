@@ -5,6 +5,11 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## Unreleased
 
+### Added
+
+- Generic document-local Style declarations with `Target`, `Param`, `Group`, and `Profiles`, and optional prepared PDF export through the native Mainz CLI.
+- Backend-independent `fallback: false` for export failures and `F.executable` for executable path lookup.
+
 ### Fixed
 
 - Stamp code placeholders in nested and shared PDF Forms, with cycle-safe resource traversal.

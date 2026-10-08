@@ -140,6 +140,8 @@ module Sevgi
           "default" => ["String", "#to_path", "nil"],
           "dpi" => ["Numeric"],
           "height" => %w[Numeric nil],
+          "style" => %w[Hash nil],
+          "fallback" => ["Boolean"],
           "width" => %w[Numeric nil]
         },
         raises: [
@@ -149,6 +151,7 @@ module Sevgi
           "Sevgi::MissingComponentError",
           "Sevgi::MissingComponentError",
           "Sevgi::Sundries::Export::ExportError",
+          "Sevgi::Sundries::Mainz::Error",
           "SystemCallError"
         ]
       },

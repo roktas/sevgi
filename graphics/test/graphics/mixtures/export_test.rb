@@ -62,6 +62,18 @@ module Sevgi
           end
         end
 
+        def test_pdf_passes_document_style_and_fallback
+          require "sevgi/sundries"
+          drawing = SVG(:minimal)
+          drawing.Style targets: {ink: {selectors: ["#ink"]}}, parameters: {}
+          options = nil
+          Sundries::Export.stub(:call, -> (_svg, output, **kwargs) { options = kwargs; output }) do
+            drawing.PDF("out.pdf", fallback: false)
+          end
+          assert_same(drawing.Style, options.fetch(:style))
+          assert_equal(false, options.fetch(:fallback))
+        end
+
         def test_exports_use_default_names_inside_directory
           require "sevgi/sundries"
 

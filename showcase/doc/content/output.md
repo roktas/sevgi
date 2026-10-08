@@ -95,8 +95,62 @@ Export `width` and `height` control output dimensions. They do not replace the S
 change the drawing's visible geometry. Define those relationships in the document before export. Use `css:` only for
 deliberate export-only styling, and use `dpi:` when CSS pixels need a different conversion policy.
 
-PDF and PNG output uses Cairo, librsvg, and HexaPDF. If one is missing, Sevgi raises a component error. Ordinary SVG
+Ordinary PDF and PNG output uses Cairo, librsvg, and HexaPDF. If one is missing, Sevgi raises a component error. Ordinary SVG
 rendering continues to work without these optional dependencies.
+
+### Editable PDF styles {{ "{#editable-pdf}" }}
+
+`Style` attaches a producer declaration to your document without changing its SVG.
+A prepared PDF contains editable paint controls and their original values.
+Mainz resolves the declaration and embeds those controls during PDF production.
+
+```ruby
+require "sevgi"
+
+drawing = SVG width: 20, height: 20 do
+  g id: "outline" do
+    rect width: 10, height: 10, fill: "none", stroke: "black"
+  end
+  Style do
+    Target "ink", selectors: ["#outline"]
+    Param "display", targets: ["ink"], property: "display",
+      schema: {type: "string", enum: %w[inline none]}
+    Param "opacity", targets: ["ink"], property: "stroke-opacity",
+      schema: {type: "number", minimum: 0, maximum: 1}
+    Group "Ink", parameters: ["opacity"]
+    Profiles "print", name: "Printer", parameters: ["opacity"], profiles: [
+      {id: "original", name: "Original", overrides: {}},
+      {id: "light", name: "Light", overrides: {opacity: 0.4}}
+    ]
+  end
+end
+
+drawing.PDF "drawing.pdf"
+```
+
+`PDF` attempts Mainz preparation when the document has a Style declaration.
+If Mainz is unavailable or preparation fails, the default mode warns and exports an ordinary PDF.
+`drawing.PDF "prepared.pdf", fallback: false` raises `Sevgi::Sundries::Mainz::Error` instead.
+An unstyled PDF uses ordinary export without a Mainz warning.
+Invalid arguments, filesystem failures, and interrupts remain errors in both modes.
+
+`Target` selects SVG groups or direct `use` placements with `#id` or `#id > use.class` selectors.
+Each target requires a `display` parameter. `Param` binds one supported paint property and supplies its value schema.
+Its optional `value:` assigns an override after Mainz captures the original paint.
+`Group` orders controls. `Profiles` supplies named sets of overrides, with an empty first profile for the original values.
+The lowercase `style` method still creates an SVG CSS element.
+
+`drawing.Style` returns a deeply frozen Hash with JSON String keys, or nil when no declaration is attached.
+`drawing.Style declaration_hash` accepts a declaration without a builder block.
+Applications can pass `drawing.Style` to `Sevgi::Sundries::Export.call` with `style:`.
+`Sevgi::Sundries::Mainz.produce` accepts SVG text, an output path, and `declaration:` for explicit required production.
+Declarations contain deeply frozen JSON data and remain local to each document.
+Mainz owns selector resolution, supported properties, binding admission, and PDF baselines.
+
+This feature requires the native `mainz` executable on `PATH`.
+Prepared export does not load the Mainz Ruby extension or the ordinary export gems.
+Parallel calls use separate temporary directories.
+The [Mainz declaration contract](https://github.com/roktas/mainz/blob/main/lib/mainz/README.md) defines the producer fields and limits.
 
 ### Last-minute export CSS
 
@@ -121,8 +175,8 @@ Self-closing roots, prefixed root tags, and comments after the root are unsuppor
 Sevgi raises `Sevgi::Sundries::Export::ExportError` before it changes the output file for these endings.
 Without `css:`, this insertion restriction does not apply.
 
-Sevgi escapes the CSS as XML text but does not parse or validate the stylesheet. Native `Export.call` runs its optional
-source callback after CSS insertion and before conversion. External backends do not offer that callback.
+Sevgi escapes the CSS as XML text but does not parse or validate the stylesheet.
+`Export.call` runs its optional source callback once after CSS insertion and before ordinary or prepared conversion.
 Inspect the final PDF or PNG: export CSS can change size, visibility, and clipping after document validation.
 
 ## Replace PDF placeholders {{ "{#pdf-placeholders}" }}

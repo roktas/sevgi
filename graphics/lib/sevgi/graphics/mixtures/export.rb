@@ -10,7 +10,7 @@ module Sevgi
         # Validates the closed export option channel before optional components load or rendering starts.
         # @api private
         module Options
-          KEYS = %i[css default dpi height width].freeze
+          KEYS = %i[css default dpi fallback height style width].freeze
           private_constant :KEYS
 
           # Returns validated export options.
@@ -36,6 +36,8 @@ module Sevgi
         # @option kwargs [Numeric, nil] :height finite positive target height in CSS pixels
         # @option kwargs [Numeric] :dpi (96.0) finite positive CSS pixel density
         # @option kwargs [String, nil] :css CSS inserted before rendering
+        # @option kwargs [Hash, nil] :style (document Style) producer declaration
+        # @option kwargs [Boolean] :fallback (true) warn and use ordinary PDF after preparation failure
         # @yield [svg] transforms SVG source before rendering
         # @yieldparam svg [String] rendered SVG source
         # @yieldreturn [String] transformed SVG source
@@ -46,6 +48,7 @@ module Sevgi
         # @raise [Sevgi::MissingComponentError] when sevgi/sundries is unavailable
         # @raise [Sevgi::MissingComponentError] when native export gems are unavailable
         # @raise [Sevgi::Sundries::Export::ExportError] when native export fails
+        # @raise [Sevgi::Sundries::Mainz::Error] when required preparation cannot complete
         # @raise [SystemCallError] when the output directory or file cannot be created or written
         def PDF(path = nil, **kwargs, &block)
           kwargs = Options.(kwargs)
@@ -58,6 +61,7 @@ module Sevgi
             MissingComponentError.("sevgi/sundries")
           end
 
+          kwargs[:style] = self.Style unless kwargs.key?(:style) || self.Style.nil?
           Export(path, **kwargs, format: :pdf, &block)
         end
 
