@@ -67,7 +67,7 @@ Every target requires a `display` parameter.
 `Param` accepts an optional `value:` to assign an override after Mainz captures original paint.
 For an authored hidden target, `Target` accepts `display: "none"`.
 Mainz owns selector resolution, supported properties, binding admission, and PDF baselines.
-The [declaration contract](https://github.com/roktas/mainz/blob/main/lib/mainz/README.md) defines those fields.
+The [declaration contract](https://github.com/roktas/mainz/blob/main/cli/README.md#authoring-declaration) defines those fields.
 
 `doc.Style` returns the declaration as deeply frozen JSON data with String keys.
 `doc.Style declaration_hash` accepts the same fields without a builder block.

@@ -150,7 +150,7 @@ Mainz owns selector resolution, supported properties, binding admission, and PDF
 This feature requires the native `mainz` executable on `PATH`.
 Prepared export does not load the Mainz Ruby extension or the ordinary export gems.
 Parallel calls use separate temporary directories.
-The [Mainz declaration contract](https://github.com/roktas/mainz/blob/main/lib/mainz/README.md) defines the producer fields and limits.
+The [Mainz declaration contract](https://github.com/roktas/mainz/blob/main/cli/README.md#authoring-declaration) defines the producer fields and limits.
 
 ### Last-minute export CSS
 
