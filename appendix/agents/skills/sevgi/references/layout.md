@@ -4,20 +4,20 @@ Choose by the value the caller needs after the operation, not merely by the visi
 
 ## Repetition
 
-| Need | Use | Result |
-| --- | --- | --- |
-| Repeat one SVG subtree in the rendered document | `defs`/`use`, or DSL `Tile`, `TileX`, `TileY` | SVG references with generated positions |
-| Copy and independently edit an existing subtree | `Duplicate`, `DuplicateX`, `DuplicateY` | Independent SVG element trees |
-| Copy a subtree without attachment or ID changes | `dup` or `clone` | Independent subtree with IDs preserved |
-| Inspect repeated cells or row/column bounds in Ruby | `Sevgi::Sundries::Tile` | Geometry values and boxes, no SVG elements |
+| Need                                                | Use                                           | Result                                     |
+| --------------------------------------------------- | --------------------------------------------- | ------------------------------------------ |
+| Repeat one SVG subtree in the rendered document     | `defs`/`use`, or DSL `Tile`, `TileX`, `TileY` | SVG references with generated positions    |
+| Copy and independently edit an existing subtree     | `Duplicate`, `DuplicateX`, `DuplicateY`       | Independent SVG element trees              |
+| Copy a subtree without attachment or ID changes     | `dup` or `clone`                              | Independent subtree with IDs preserved     |
+| Inspect repeated cells or row/column bounds in Ruby | `Sevgi::Sundries::Tile`                       | Geometry values and boxes, no SVG elements |
 
 The repetition APIs have different block contracts:
 
-| API channel | Runs for | Use |
-| --- | --- | --- |
-| `Tile`, `TileX`, `TileY` block | One template under `defs` | Draw the shared subtree, not each cell |
-| Tile `proc:` | Each generated `use` element | Mutate that element through the callback argument. Row and column indices are zero-based |
-| `Duplicate`, `DuplicateX`, `DuplicateY` block | Every copied element | Customize the yielded element, not a new drawing context |
+| API channel                                   | Runs for                     | Use                                                                                      |
+| --------------------------------------------- | ---------------------------- | ---------------------------------------------------------------------------------------- |
+| `Tile`, `TileX`, `TileY` block                | One template under `defs`    | Draw the shared subtree, not each cell                                                   |
+| Tile `proc:`                                  | Each generated `use` element | Mutate that element through the callback argument. Row and column indices are zero-based |
+| `Duplicate`, `DuplicateX`, `DuplicateY` block | Every copied element         | Customize the yielded element, not a new drawing context                                 |
 
 `Duplicate` moves visible `id` attributes to non-rendering `-id` metadata before customization.
 An existing `-id` takes precedence. When replacing IDs, update their references as well.
@@ -28,11 +28,11 @@ Use the exact callback keywords from the selected method's YARD contract. The Ti
 
 ## Intervals and Grids
 
-| Need | Use |
-| --- | --- |
-| Fit whole major/minor intervals into a span and inspect their distances | script `Ruler`, library `SVG.Ruler`, or component `Sevgi::Sundries::Ruler` |
-| Require an even major-interval count | `Sevgi::Sundries::RulerEven` |
-| Combine two fitted rulers and obtain lines, points, cells, or a fitted canvas | `SVG.Grid` or `Sevgi::Sundries::Grid` |
+| Need                                                                          | Use                                                                        |
+| ----------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| Fit whole major/minor intervals into a span and inspect their distances       | script `Ruler`, library `SVG.Ruler`, or component `Sevgi::Sundries::Ruler` |
+| Require an even major-interval count                                          | `Sevgi::Sundries::RulerEven`                                               |
+| Combine two fitted rulers and obtain lines, points, cells, or a fitted canvas | `SVG.Grid` or `Sevgi::Sundries::Grid`                                      |
 
 `Ruler` constructs a Ruby layout value without drawing SVG elements. `Grid` also returns a layout model.
 `Draw` materializes its geometry as SVG when lines are required. In a Grid, `grid.x` returns horizontal lines and
@@ -40,11 +40,11 @@ Use the exact callback keywords from the selected method's YARD contract. The Ti
 
 ## Alignment
 
-| Need | Use |
-| --- | --- |
-| Center known inner and outer boxes with an SVG translation | element `Align` with `:center` |
+| Need                                                               | Use                                                                          |
+| ------------------------------------------------------------------ | ---------------------------------------------------------------------------- |
+| Center known inner and outer boxes with an SVG translation         | element `Align` with `:center`                                               |
 | Align Geometry at center or an edge and return the value or offset | `Sevgi::Geometry::Operation.align` or `Sevgi::Geometry::Operation.alignment` |
-| Align rendered text or other renderer-owned content | SVG anchoring, baseline, layout, or transform semantics |
+| Align rendered text or other renderer-owned content                | SVG anchoring, baseline, layout, or transform semantics                      |
 
 Geometry alignment accepts `:center`, `:left`, `:right`, `:top`, and `:bottom`. The element DSL's narrower `Align`
 contract accepts only `:center`. Do not calculate font or painted-content bounds only to feed either API. Use these
@@ -72,11 +72,11 @@ increases downward. See [Geometry](https://sevgi.roktas.dev/geometry/#arcs-and-e
 
 ## Drawing and Hatching
 
-| Need | Use |
-| --- | --- |
-| A visual repeated fill whose individual strokes are irrelevant | SVG `pattern` that the renderer repeats and clips |
-| Explicit finite hatch segments that must remain separate geometry/SVG paths | Geometry sweep or `Hatch` |
-| Existing Geometry values rendered as SVG elements | `Draw` |
+| Need                                                                        | Use                                               |
+| --------------------------------------------------------------------------- | ------------------------------------------------- |
+| A visual repeated fill whose individual strokes are irrelevant              | SVG `pattern` that the renderer repeats and clips |
+| Explicit finite hatch segments that must remain separate geometry/SVG paths | Geometry sweep or `Hatch`                         |
+| Existing Geometry values rendered as SVG elements                           | `Draw`                                            |
 
 `Hatch` computes finite segments and emits each as a separate SVG path. Use it for editable, inspectable, plotter-like,
 or otherwise explicit line geometry. Do not use it only because a region needs stripes. `Draw` and `Hatch` are included

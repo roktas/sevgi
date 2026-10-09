@@ -18,5 +18,6 @@ Gem::Specification.new do |s|
   s.metadata["bug_tracker_uri"] = "https://github.com/roktas/sevgi/issues"
   s.metadata["rubygems_mfa_required"] = "true"
 
+  s.add_dependency("json", ">= 3.0")
   s.add_dependency("sevgi-function", version)
 end

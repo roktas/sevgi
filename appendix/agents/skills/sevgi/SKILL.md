@@ -54,14 +54,14 @@ visible intent.
 
 ## References
 
-| Need | Read |
-| --- | --- |
-| Choose script/library syntax, profiles, SVG elements, or Sevgi DSL words | [dsl.md](references/dsl.md) |
-| Choose a component and locate user, YARD, or checkout documentation | [toolkit.md](references/toolkit.md) |
-| Structure `.sevgi` and library code as idiomatic Ruby | [ruby.md](references/ruby.md) |
-| Apply the renderer/program ownership boundary and diagnose visual mismatches | [drawing.md](references/drawing.md) |
-| Measure SVG geometry, browser layout, or painted pixels | [inspection.md](references/inspection.md) |
-| Find an SVG capability and its authoritative specification | [svg.md](references/svg.md) |
-| Choose repetition, tiling, ruler, grid, Draw, pattern, or Hatch | [layout.md](references/layout.md) |
-| Integrate editor-authored SVG/XML through Derender | [derender.md](references/derender.md) |
-| Render, save, or export SVG, PDF, or PNG | [output.md](references/output.md) |
+| Need                                                                         | Read                                      |
+| ---------------------------------------------------------------------------- | ----------------------------------------- |
+| Choose script/library syntax, profiles, SVG elements, or Sevgi DSL words     | [dsl.md](references/dsl.md)               |
+| Choose a component and locate user, YARD, or checkout documentation          | [toolkit.md](references/toolkit.md)       |
+| Structure `.sevgi` and library code as idiomatic Ruby                        | [ruby.md](references/ruby.md)             |
+| Apply the renderer/program ownership boundary and diagnose visual mismatches | [drawing.md](references/drawing.md)       |
+| Measure SVG geometry, browser layout, or painted pixels                      | [inspection.md](references/inspection.md) |
+| Find an SVG capability and its authoritative specification                   | [svg.md](references/svg.md)               |
+| Choose repetition, tiling, ruler, grid, Draw, pattern, or Hatch              | [layout.md](references/layout.md)         |
+| Integrate editor-authored SVG/XML through Derender                           | [derender.md](references/derender.md)     |
+| Render, save, or export SVG, PDF, or PNG                                     | [output.md](references/output.md)         |

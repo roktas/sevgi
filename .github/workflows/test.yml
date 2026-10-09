@@ -1,5 +1,5 @@
 name: Test
-on:   [push, pull_request, workflow_dispatch]
+on: [push, pull_request, workflow_dispatch]
 
 permissions:
   contents: read
@@ -14,61 +14,61 @@ jobs:
       matrix:
         ruby: ["3.4", "4.0.7"]
     steps:
-    - name: Checkout 🛎️
-      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-    - name: Native dependencies 🧱
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y \
-          libcairo2-dev \
-          libgdk-pixbuf-2.0-dev \
-          libgirepository1.0-dev \
-          libglib2.0-dev \
-          librsvg2-dev \
-          pkg-config
-    - name: Ruby 🥁
-      uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1.327.0
-      with:
-        ruby-version: ${{ matrix.ruby }}
-        bundler-cache: true
-    - name: Unit 🔬
-      run: bundle exec rake test
-    - name: API docs 📚
-      run: bundle exec rake doc:check
-    - name: Upload API docs 📚
-      if: matrix.ruby == '4.0.7'
-      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-      with:
-        name: api-docs
-        path: .local/var/ruby/doc/api
-    - name: Build 📦
-      run: bundle exec rake build
+      - name: Checkout 🛎️
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Native dependencies 🧱
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libcairo2-dev \
+            libgdk-pixbuf-2.0-dev \
+            libgirepository1.0-dev \
+            libglib2.0-dev \
+            librsvg2-dev \
+            pkg-config
+      - name: Ruby 🥁
+        uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1.327.0
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+      - name: Unit 🔬
+        run: bundle exec rake test
+      - name: API docs 📚
+        run: bundle exec rake doc:check
+      - name: Upload API docs 📚
+        if: matrix.ruby == '4.0.7'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: api-docs
+          path: .local/var/ruby/doc/api
+      - name: Build 📦
+        run: bundle exec rake build
   coverage:
     runs-on: ubuntu-latest
     permissions:
       contents: read
     steps:
-    - name: Checkout 🛎️
-      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-    - name: Native dependencies 🧱
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y \
-          libcairo2-dev \
-          libgdk-pixbuf-2.0-dev \
-          libgirepository1.0-dev \
-          libglib2.0-dev \
-          librsvg2-dev \
-          pkg-config
-    - name: Ruby 🥁
-      uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1.327.0
-      with:
-        ruby-version: "4.0.7"
-        bundler-cache: true
-    - name: Coverage 🧮
-      run: bundle exec rake coverage
-    - name: Upload coverage 🧮
-      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-      with:
-        name: coverage
-        path: .local/var/ruby/coverage
+      - name: Checkout 🛎️
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Native dependencies 🧱
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libcairo2-dev \
+            libgdk-pixbuf-2.0-dev \
+            libgirepository1.0-dev \
+            libglib2.0-dev \
+            librsvg2-dev \
+            pkg-config
+      - name: Ruby 🥁
+        uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1.327.0
+        with:
+          ruby-version: "4.0.7"
+          bundler-cache: true
+      - name: Coverage 🧮
+        run: bundle exec rake coverage
+      - name: Upload coverage 🧮
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: coverage
+          path: .local/var/ruby/coverage

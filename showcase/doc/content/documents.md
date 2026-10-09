@@ -53,11 +53,11 @@ sizes.
 A profile controls document metadata and extra DSL capabilities. It does not control canvas size or checking policy.
 All four profiles use the same validation and lint lifecycle.
 
-| Profile | Preamble | Root metadata | Additional DSL |
-| --- | --- | --- | --- |
-| `:minimal` | none | none | common document DSL |
-| `:default` | XML declaration | SVG namespace | common document DSL |
-| `:html` | none | SVG namespace | common document DSL |
+| Profile     | Preamble        | Root metadata                              | Additional DSL                          |
+| ----------- | --------------- | ------------------------------------------ | --------------------------------------- |
+| `:minimal`  | none            | none                                       | common document DSL                     |
+| `:default`  | XML declaration | SVG namespace                              | common document DSL                     |
+| `:html`     | none            | SVG namespace                              | common document DSL                     |
 | `:inkscape` | XML declaration | SVG and editor namespaces with crisp edges | `Draw`, `Hatch`, and editor/RDF helpers |
 
 Omit the profile for a standalone SVG file. This selects `:default`. Use `:minimal` for syntax examples or XML
@@ -136,11 +136,11 @@ private helpers directly. Their names become methods of this document type.
 
 The choice depends on what the application is defining:
 
-| Need | Use | Effect |
-| --- | --- | --- |
-| Different root metadata or preambles | `SVG.Document` | Creates an anonymous or registered profile class |
-| A new document type that always owns certain methods | subclass `SVG::Document::Base` | Methods belong to the type and its subclasses |
-| Add named or application-defined methods to an existing type | `SVG.Mixin` | Methods join the target type and its subclasses |
+| Need                                                         | Use                            | Effect                                           |
+| ------------------------------------------------------------ | ------------------------------ | ------------------------------------------------ |
+| Different root metadata or preambles                         | `SVG.Document`                 | Creates an anonymous or registered profile class |
+| A new document type that always owns certain methods         | subclass `SVG::Document::Base` | Methods belong to the type and its subclasses    |
+| Add named or application-defined methods to an existing type | `SVG.Mixin`                    | Methods join the target type and its subclasses  |
 
 `SVG.Mixin` also accepts Sevgi's named mixtures. For example, a private type can use `Hatch` without adopting the
 Inkscape profile's metadata:
@@ -179,13 +179,13 @@ end.Render
 Ordinary String arguments are XML text-encoded automatically. Use a `Content` constructor only when content needs a
 different serialization channel.
 
-| Input | Use | Behavior |
-| --- | --- | --- |
-| Ordinary text argument | `text "A & B"` | encoded automatically |
-| Explicit reusable text content | `Content.encoded` | XML text-encoded |
-| Literal text body in a CDATA section | `Content.cdata` | CDATA terminators split safely |
-| CSS rules expressed as a Hash | `Content.css` | rendered as CSS inside CDATA |
-| Already serialized trusted markup | `Content.verbatim` | unescaped markup whose caller owns well-formedness and escaping |
+| Input                                | Use                | Behavior                                                        |
+| ------------------------------------ | ------------------ | --------------------------------------------------------------- |
+| Ordinary text argument               | `text "A & B"`     | encoded automatically                                           |
+| Explicit reusable text content       | `Content.encoded`  | XML text-encoded                                                |
+| Literal text body in a CDATA section | `Content.cdata`    | CDATA terminators split safely                                  |
+| CSS rules expressed as a Hash        | `Content.css`      | rendered as CSS inside CDATA                                    |
+| Already serialized trusted markup    | `Content.verbatim` | unescaped markup whose caller owns well-formedness and escaping |
 
 ```ruby
 drawing = SVG :minimal do

@@ -3,6 +3,23 @@
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) and follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## Unreleased
+
+### Added
+
+- Generic document-local Style declarations with `Target`, `Param`, `Group`, and `Profiles`, and optional prepared PDF export through the native Mainz CLI.
+- Backend-independent `fallback: false` for export failures and `F.executable` for executable path lookup.
+- `F.path` for path validation and expansion, and `F.output_path` for default output names and directory targets.
+
+### Changed
+
+- Moved Graphics XML validation into auxiliary helpers and kept built-in paper dimensions in `Paper`.
+- Shared path validation between Graphics writers and Sundries exports while preserving output paths and error messages.
+
+### Fixed
+
+- Stamp code placeholders in nested and shared PDF Forms, with cycle-safe resource traversal.
+
 ## 1.0.0 - 2026-09-16
 
 ### Added

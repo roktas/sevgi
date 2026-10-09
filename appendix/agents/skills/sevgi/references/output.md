@@ -2,13 +2,13 @@
 
 Keep document construction and output policy separate. Choose the final operation from the artifact the caller needs:
 
-| Artifact | Use |
-| --- | --- |
-| SVG String owned by surrounding Ruby code | `Render` |
-| SVG on standard output | `Out` |
-| SVG file | `Save` |
-| PDF file | `PDF` |
-| PNG file | `PNG` |
+| Artifact                                           | Use                            |
+| -------------------------------------------------- | ------------------------------ |
+| SVG String owned by surrounding Ruby code          | `Render`                       |
+| SVG on standard output                             | `Out`                          |
+| SVG file                                           | `Save`                         |
+| PDF file                                           | `PDF`                          |
+| PNG file                                           | `PNG`                          |
 | Export an existing SVG String outside the document | `Sevgi::Sundries::Export.call` |
 
 The `sevgi` command reads standard input when no file is given. Use `sevgi --as badge` to make an implicit `Save`, `PDF`,
@@ -48,8 +48,38 @@ Self-closing or prefixed roots and comments after the root are unsupported with 
 does not apply. Sevgi escapes CSS as XML text but does not validate the stylesheet. Native `Export.call` runs its source
 callback after insertion and before conversion. Inspect the final output for changed visibility, size, and clipping.
 
-SVG output has no native graphics dependency. PDF and PNG export lazily require Cairo, RSVG, and HexaPDF. Report a
-missing optional component rather than replacing the path with an unrequested external command or raster workaround.
+SVG output has no native graphics dependency. Ordinary PDF and PNG export lazily require Cairo, RSVG, and HexaPDF.
+Report a missing optional component rather than substituting an unrequested command or raster workaround.
+
+### Editable styles
+
+Use the document's `Style` operation when the caller needs editable PDF paint controls:
+
+```ruby
+drawing.Style do
+  Target "ink", selectors: ["#outline"]
+  Param "display", targets: ["ink"], property: "display",
+    schema: {type: "string", enum: %w[inline none]}
+  Param "opacity", targets: ["ink"], property: "stroke-opacity",
+    schema: {type: "number", minimum: 0, maximum: 1}
+end
+drawing.PDF "prepared.pdf", fallback: false
+```
+
+The SVG must contain the selected group or direct `use` placement. Each target needs a `display` parameter.
+Keep JSON Schema names such as `minimum` and `maximum`. `Group` orders controls; `Profiles` declares named overrides.
+`Style` changes export metadata, not SVG appearance. Lowercase `style` remains the SVG CSS element.
+
+`drawing.Style` returns a deeply frozen Hash with JSON String keys, or nil when no declaration is attached.
+Pass this Hash as `style:` to `Sevgi::Sundries::Export.call` when the application owns the SVG separately.
+For explicit required production, use `Sevgi::Sundries::Mainz.produce(svg, output, declaration: drawing.Style)`.
+
+Styled PDF export uses the native `mainz` executable on `PATH`. It does not load the Mainz extension or ordinary export
+gems. By default, missing Mainz or failed preparation warns and falls back to ordinary PDF export.
+Use `fallback: false` when the prepared contract is required; preparation failures then raise
+`Sevgi::Sundries::Mainz::Error`. Unstyled exports remain ordinary in either mode.
+Invalid arguments, filesystem failures, and interrupts propagate in both modes. Parallel exports use separate staging.
+Mainz owns selector admission, supported paint properties, and PDF baselines. Publication policy stays with the caller.
 
 ## Verification
 

@@ -9,26 +9,26 @@ jobs:
     permissions:
       contents: read
     steps:
-    - name: Checkout 🛎️
-      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-    - name: Native dependencies 🧱
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y \
-          libcairo2-dev \
-          libgdk-pixbuf-2.0-dev \
-          libgirepository1.0-dev \
-          libglib2.0-dev \
-          librsvg2-dev \
-          pkg-config
-    - name: Ruby 🥁
-      uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1.327.0
-      with: { bundler-cache: true }
-    - name: Lint 🔬
-      run: bundle exec rake lint
-    - name: Unit 🔬
-      run: bundle exec rake test
-    - name: API docs 📚
-      run: bundle exec rake doc:check
-    - name: Build 📦
-      run: bundle exec rake build
+      - name: Checkout 🛎️
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Native dependencies 🧱
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libcairo2-dev \
+            libgdk-pixbuf-2.0-dev \
+            libgirepository1.0-dev \
+            libglib2.0-dev \
+            librsvg2-dev \
+            pkg-config
+      - name: Ruby 🥁
+        uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1.327.0
+        with: { bundler-cache: true }
+      - name: Lint 🔬
+        run: bundle exec rake lint
+      - name: Unit 🔬
+        run: bundle exec rake test
+      - name: API docs 📚
+        run: bundle exec rake doc:check
+      - name: Build 📦
+        run: bundle exec rake build

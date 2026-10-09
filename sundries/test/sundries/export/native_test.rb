@@ -216,8 +216,23 @@ module Sevgi
         end
 
         def test_call_rejects_invalid_raw_output_paths
-          [nil, false, "", " \t", Object.new, BrokenPath.new].each do |output|
-            assert_raises(ArgumentError) { Export.call(svg(width: 10, height: 10), output) }
+          [
+            nil,
+            "Export output must be provided",
+            false,
+            "Export output must be a String or path-like object",
+            "",
+            "Export output must be provided",
+            " \t",
+            "Export output must be provided",
+            Object.new,
+            "Export output must be a String or path-like object",
+            BrokenPath.new,
+            "Export output must be a String or path-like object: broken path"
+          ].each_slice(2) do |output, message|
+            error = assert_raises(ArgumentError) { Export.call(svg(width: 10, height: 10), output) }
+
+            assert_equal(message, error.message)
           end
         end
 
@@ -404,6 +419,29 @@ module Sevgi
               ],
               pdf_streams(outfile)
             )
+          end
+        end
+
+        def test_stamp_reaches_shared_nested_forms_and_stops_at_cycles
+          Dir.mktmpdir do |dir|
+            infile = File.join(dir, "in.pdf")
+            outfile = File.join(dir, "out.pdf")
+            write_pdf(infile, "1 1 1 rg BT /F1 12 Tf (old) Tj ET")
+            document = HexaPDF::Document.open(infile)
+            page = document.pages.first
+            inner = document.add(page.to_form_xobject)
+            outer = document.add({Type: :XObject, Subtype: :Form, BBox: [0, 0, 100, 100], Resources: {XObject: {Inner: inner}}}, stream: "/Inner Do")
+            inner[:Resources][:XObject] = {Cycle: outer}
+            page[:Resources][:XObject] = {Outer: outer}
+            page.contents = "q /Outer Do Q q /Outer Do Q"
+            document.write(infile, validate: false)
+
+            assert(Export.stamp(infile, outfile, stamp: "new", placeholder: "old"))
+            result = HexaPDF::Document.open(outfile).pages.first
+            assert_equal(page.contents, result.contents)
+            stream = result[:Resources][:XObject][:Outer][:Resources][:XObject][:Inner].stream
+            assert_equal(1, stream.scan("(new)").size)
+            refute_includes(stream, "(old)")
           end
         end
 

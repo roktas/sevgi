@@ -3,6 +3,8 @@
 require "sevgi/function"
 
 require_relative "export/system"
+require_relative "export/input"
+require_relative "mainz"
 
 module Sevgi
   module Sundries
@@ -16,7 +18,7 @@ module Sevgi
     # Export-only CSS is a last-minute adjustment, not a replacement for document styles or validation. Insertion
     # requires well-formed SVG ending in an unprefixed `</svg>` followed only by XML whitespace. Self-closing roots,
     # prefixed roots, and trailing comments are unsupported with CSS. CSS is XML-escaped but not parsed or validated.
-    # The native source callback runs after insertion and before conversion. External backends have no such callback.
+    # The source callback runs after insertion and before ordinary or prepared conversion.
     #
     # @example Export SVG source to a sized PNG
     #   svg = Sevgi::Graphics.SVG(width: 10, height: 10) { circle cx: 5, cy: 5, r: 4 }.Render
@@ -51,27 +53,40 @@ module Sevgi
 
       private_constant :NATIVE_COMPONENTS
 
-      # @overload call(svg, output, format: nil, width: nil, height: nil, dpi: DEFAULT_DPI, css: nil)
-      #   Exports SVG source to a PDF or PNG file using the optional native export gems.
-      #   @param svg [String] SVG source content
-      #   Relative paths are expanded, missing parent directories are created after all render inputs validate, and an
-      #   existing output file is replaced. Directory paths are not expanded to a default file name.
-      #   @param output [String, #to_path] output file path
-      #   @param format [Symbol, String, nil] explicit output format, or nil to infer from output extension
-      #   @param width [Numeric, nil] target width in output pixels for PNG, or CSS pixels before PDF point conversion
-      #   @param height [Numeric, nil] target height in output pixels for PNG, or CSS pixels before PDF point conversion
-      #   @param dpi [Numeric] finite positive CSS pixel density. Omission uses {DEFAULT_DPI}, but explicit nil is invalid
-      #   @param css [String, nil] CSS inserted before the closing svg tag before rendering
-      #   @yield [svg] optional source transformation applied before rendering
-      #   @yieldparam svg [String] SVG source after optional CSS injection
-      #   @yieldreturn [String] SVG source to render
-      #   @return [String] expanded output path
-      #   @raise [Sevgi::ArgumentError] when SVG content is not a string or output is blank, invalid, or a directory
-      #   @raise [Sevgi::MissingComponentError] when cairo, hexapdf, or rsvg2 is unavailable
-      #   @raise [Sevgi::Sundries::Export::ExportError] when format, CSS insertion, SVG parsing, SVG dimensions, or
-      #     render dimensions are invalid
-      #   @raise [SystemCallError] when the output directory or file cannot be created or written
-      def call(*args, **kwargs, &block) = native!.call(*args, **kwargs, &block)
+      # rubocop:disable Metrics/ParameterLists
+
+      # Exports SVG source through ordinary rendering or optional Mainz preparation.
+      # Style selects Mainz automatically for PDF output. Unstyled documents use ordinary export.
+      # Fallback warns and uses ordinary PDF export after a preparation failure.
+      # CSS and the source callback run once before either backend receives the source.
+      # @param svg [String] SVG source content
+      # @param output [String, #to_path] output file path
+      # @param format [Symbol, String, nil] explicit output format, or nil to infer from output extension
+      # @param width [Numeric, nil] target width in output pixels for PNG, or CSS pixels before PDF point conversion
+      # @param height [Numeric, nil] target height in output pixels for PNG, or CSS pixels before PDF point conversion
+      # @param dpi [Numeric] finite positive CSS pixel density. Omission uses {DEFAULT_DPI}, but explicit nil is invalid
+      # @param css [String, nil] CSS inserted before the closing svg tag before rendering
+      # @param style [Hash, nil] optional JSON authoring declaration
+      # @param fallback [Boolean] permit ordinary export after prepared export fails
+      # @yield [svg] optional source transformation before rendering
+      # @yieldparam svg [String] SVG source after optional CSS insertion
+      # @yieldreturn [String] SVG source to render
+      # @return [String] expanded output path
+      # @raise [Sevgi::ArgumentError] when the source, path, declaration, or fallback value is invalid
+      # @raise [Sevgi::MissingComponentError] when ordinary export requires unavailable native gems
+      # @raise [Sevgi::Sundries::Export::ExportError] when format, dimensions, CSS insertion, or ordinary rendering fails
+      # @raise [Sevgi::Sundries::Mainz::Error] when preparation fails and fallback is false
+      # @raise [SystemCallError] when the output directory or file cannot be written
+      def call(svg, output, format: nil, width: nil, height: nil, dpi: DEFAULT_DPI, css: nil,
+        style: nil, fallback: true, &block)
+        output = output_path(output)
+        format = format_for(format, output)
+        input = Input.new(svg, {width:, height:, dpi:, css:, style:, fallback:}, &block)
+        return output if format == :pdf && prepared(input, output)
+        native!
+        render(input.svg, output, format:, **input.dimensions)
+      end
+      # rubocop:enable Metrics/ParameterLists
 
       def format_for(format, output)
         if format
@@ -134,6 +149,26 @@ module Sevgi
 
       class << self
         private
+
+        def prepared(input, output)
+          return false unless input.style
+          Mainz.send(:write, input, output)
+          true
+        rescue Mainz::Error => e
+          raise unless input.fallback
+          warn("#{e.message}; exporting an ordinary PDF without editable styles")
+          false
+        end
+
+        def output_path(output)
+          ArgumentError.("Export output must be provided") if output.nil?
+          path = F.path(output, context: "Export output")
+          ArgumentError.("Export output must name a file") if ::File.directory?(path)
+          path
+        rescue ::StandardError => e
+          raise if e.is_a?(::Sevgi::ArgumentError)
+          ArgumentError.("Export output must be a String or path-like object: #{e.message}")
+        end
 
         def native!
           require_relative "export/native"

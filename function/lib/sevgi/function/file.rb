@@ -93,6 +93,40 @@ module Sevgi
         end
       end
 
+      # Resolves an output path, using the default when value is nil or an existing directory.
+      # The default is validated only when used. This method does not create files or directories.
+      # @param value [String, #to_path, nil] explicit output path or directory
+      # @param default [String, #to_path] default output path; its basename is used for a directory target
+      # @param context [String] public operation named in errors
+      # @return [String] expanded output path
+      # @raise [Sevgi::ArgumentError] when a selected path/default is blank, invalid, or cannot be converted
+      def output_path(value, default:, context: "Output")
+        return path(default, context: "#{context} default") if value.nil?
+
+        output = path(value, context: "#{context} path")
+        return output unless ::File.directory?(output)
+
+        default = path(default, context: "#{context} default")
+        ::File.join(output, ::File.basename(default))
+      end
+
+      # Converts a non-blank path to an expanded String without requiring it to exist.
+      # @param value [String, #to_path] raw path value
+      # @param context [String] error-message subject
+      # @return [String] expanded path
+      # @raise [Sevgi::ArgumentError] when value is blank, has an invalid type, or path conversion fails
+      def path(value, context: "Path")
+        path = value.respond_to?(:to_path) ? value.to_path : value
+        ArgumentError.("#{context} must be a String or path-like object") unless path.is_a?(::String)
+        ArgumentError.("#{context} must be provided") if path.strip.empty?
+
+        ::File.expand_path(path)
+      rescue ::Sevgi::ArgumentError
+        raise
+      rescue ::StandardError => e
+        ArgumentError.("#{context} must be a String or path-like object: #{e.message}")
+      end
+
       # Adds a default extension when a path has no extension.
       # @param file [String] file path
       # @param default_extension [String] extension to append without a leading dot

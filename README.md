@@ -3,7 +3,7 @@
 
 # Sevgi
 
-*Scalable Executable Vector Graphics Interface*
+_Scalable Executable Vector Graphics Interface_
 
 Sevgi is a Ruby toolkit for creating SVG through a compact DSL. It uses SVG element names directly. Drawings stay
 close to their output while retaining Ruby's composition and reuse.
@@ -68,14 +68,14 @@ gem "sevgi"
 
 The components are also published as separate gems for libraries that need a smaller dependency surface:
 
-| Scenario | Install | Entry point |
-| --- | --- | --- |
-| Build and render SVG only | `sevgi-graphics` | `require "sevgi/graphics"` |
-| Build and validate SVG without the full toolkit | `sevgi-graphics sevgi-standard` | `require "sevgi/graphics"` |
-| Use geometry values and transformations without the DSL | `sevgi-geometry` | `require "sevgi/geometry"` |
-| Convert SVG or XML back into Sevgi source | `sevgi-derender` | `require "sevgi/derender"` |
-| Use grids, rulers, tiles, or export integrations | `sevgi-sundries` | `require "sevgi/sundries"` |
-| Package the agent skill or lint `.sevgi` source | `sevgi-appendix` | `require "sevgi/appendix"` or the RuboCop plugin |
+| Scenario                                                | Install                         | Entry point                                      |
+| ------------------------------------------------------- | ------------------------------- | ------------------------------------------------ |
+| Build and render SVG only                               | `sevgi-graphics`                | `require "sevgi/graphics"`                       |
+| Build and validate SVG without the full toolkit         | `sevgi-graphics sevgi-standard` | `require "sevgi/graphics"`                       |
+| Use geometry values and transformations without the DSL | `sevgi-geometry`                | `require "sevgi/geometry"`                       |
+| Convert SVG or XML back into Sevgi source               | `sevgi-derender`                | `require "sevgi/derender"`                       |
+| Use grids, rulers, tiles, or export integrations        | `sevgi-sundries`                | `require "sevgi/sundries"`                       |
+| Package the agent skill or lint `.sevgi` source         | `sevgi-appendix`                | `require "sevgi/appendix"` or the RuboCop plugin |
 
 For example, a service that only builds SVG can install `sevgi-graphics`. Its focused API is
 `Sevgi::Graphics.SVG(...)`. The full `SVG` facade and the `sevgi` executable belong to the umbrella gem. Add

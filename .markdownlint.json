@@ -4,9 +4,7 @@
     "siblings_only": true
   },
   "MD033": {
-    "allowed_elements": [
-      "div"
-    ]
+    "allowed_elements": ["div"]
   },
   "MD034": true,
   "MD051": true

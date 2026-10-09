@@ -28,6 +28,35 @@ grid.canvas.margin.to_a # => [5.0, 5.0, 5.0, 5.0]
 Rulers, grids, and tiles are inspectable Ruby values. They create no SVG elements by themselves. Pass their geometry
 to Sevgi Graphics when the document needs it.
 
+## Prepared PDF export
+
+Sevgi uses the native Mainz CLI for PDF input with a Style declaration.
+Mainz receives private temporary files through argument arrays and publishes one prepared PDF.
+Successful preparation replaces the destination atomically.
+Parallel calls use separate temporary directories and share no producer state.
+
+```ruby
+require "sevgi/sundries"
+
+Sevgi::Sundries::Export.call(svg, "drawing.pdf", style: declaration)
+Sevgi::Sundries::Export.call(svg, "prepared.pdf", style: declaration, fallback: false)
+Sevgi::Sundries::Mainz.produce(svg, "prepared.pdf", declaration: declaration)
+Sevgi::Sundries::Mainz.available?
+```
+
+`declaration` is a JSON-compatible Hash. `drawing.Style` returns its deeply frozen Hash representation.
+The default `fallback: true` warns and uses ordinary PDF export if Mainz cannot prepare the document.
+`fallback: false` raises `Sevgi::Sundries::Mainz::Error` if preparation fails. An unstyled document uses ordinary export.
+`Mainz.produce` always requires preparation and uses the same export validation.
+Invalid arguments and filesystem failures remain errors in both modes.
+Interrupts cancel export without fallback.
+CSS insertion and the source callback run once, including after a fallback.
+
+Mainz is optional. Install its native `mainz` executable on `PATH` to enable preparation.
+This path does not load the Mainz Ruby extension or the `cairo`, `rsvg2`, and `hexapdf` Ruby gems.
+Ordinary PDF/PNG export and PDF stamping retain their optional Ruby dependencies.
+`Mainz.fingerprint` returns the executable digest and native dependency report for output caches, or nil when Mainz is absent.
+
 ## Ruby compatibility
 
 Requires Ruby 3.4.0 or newer. CI verifies the current Ruby 3.4 release and the development Ruby from `.ruby-version`.
@@ -37,7 +66,7 @@ Requires Ruby 3.4.0 or newer. CI verifies the current Ruby 3.4 release and the d
 Basic ruler, grid, and tile helpers need only Ruby dependencies. Installing `sevgi-sundries` does not install native
 export gems.
 
-PDF/PNG export helpers load the optional Ruby gems `cairo`, `rsvg2`, and `hexapdf` only when export is used. Install
+Ordinary PDF/PNG export helpers load the optional Ruby gems `cairo`, `rsvg2`, and `hexapdf` only when export is used. Install
 their system libraries and gems separately:
 
 ```sh

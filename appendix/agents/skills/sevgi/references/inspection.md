@@ -9,14 +9,14 @@ environment contract, then fix that owner.
 
 State the question before selecting a tool:
 
-| Question | Evidence | Space |
-| --- | --- | --- |
-| Is the declared coordinate model correct? | `viewBox`, viewport dimensions, `preserveAspectRatio` | SVG user units and viewport policy |
-| What geometry does this SVG element contain? | Browser `getBBox()` | SVG user units |
-| Where does it appear after layout and transforms? | Browser `getBoundingClientRect()` or an equivalent automation API | Viewport-relative CSS pixels |
-| What is a path's renderer-computed length or point? | `getTotalLength()` or `getPointAtLength()` | SVG user units |
-| Which pixels were actually painted? | A deterministic PNG or browser screenshot inspected as raster data | Raster pixels |
-| Does the result have the intended balance or density? | Visual inspection at representative outputs | Perceptual because no single bounding box proves it |
+| Question                                              | Evidence                                                           | Space                                               |
+| ----------------------------------------------------- | ------------------------------------------------------------------ | --------------------------------------------------- |
+| Is the declared coordinate model correct?             | `viewBox`, viewport dimensions, `preserveAspectRatio`              | SVG user units and viewport policy                  |
+| What geometry does this SVG element contain?          | Browser `getBBox()`                                                | SVG user units                                      |
+| Where does it appear after layout and transforms?     | Browser `getBoundingClientRect()` or an equivalent automation API  | Viewport-relative CSS pixels                        |
+| What is a path's renderer-computed length or point?   | `getTotalLength()` or `getPointAtLength()`                         | SVG user units                                      |
+| Which pixels were actually painted?                   | A deterministic PNG or browser screenshot inspected as raster data | Raster pixels                                       |
+| Does the result have the intended balance or density? | Visual inspection at representative outputs                        | Perceptual because no single bounding box proves it |
 
 Do not compare values from different spaces as if they shared units. Label every recorded measurement with:
 

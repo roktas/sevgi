@@ -2,17 +2,17 @@
 
 ## Choose the Owner
 
-| Need | Component / entry point | Boundary |
-| --- | --- | --- |
-| Build SVG documents and element trees | Graphics with `SVG(...)` and SVG element calls | Default starting point for every drawing |
-| Choose paper size, canvas geometry, or root serialization metadata | `SVG.Paper`, `SVG.Canvas`, `SVG.Document` | Keep physical size, drawing surface, and document profile independent |
-| Validate SVG vocabulary and nesting | Standard | Use validation instead of hand-maintained element/attribute allowlists |
-| Calculate geometry SVG cannot supply | `Sevgi::Geometry` | Use for constructed values, intersections, sweeps, and algorithmic bounds—not renderer layout |
-| Inspect circle, ellipse, or finite arc geometry | `Sevgi::Geometry::Circle`, `Ellipse`, `Arc` | See `layout.md` for the distinction from renderer-owned `ArcTo` and `ArcBy` |
-| Fit rulers, grids, and reusable tile layouts | `Sevgi::Sundries`, `SVG.Grid` | Choose the exact model through `layout.md` |
-| Reuse supported cross-component helpers | `Sevgi::F` | Use it before adding a project-local Sevgi helper. Do not treat it as a general utility library |
-| Import or inspect existing SVG/XML | Derender facade methods | Choose the source/evaluation relationship through `derender.md` |
-| Render SVG as PDF or PNG | Sundries export / document `PDF` and `PNG` | Choose the output boundary through `output.md` |
+| Need                                                               | Component / entry point                        | Boundary                                                                                        |
+| ------------------------------------------------------------------ | ---------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Build SVG documents and element trees                              | Graphics with `SVG(...)` and SVG element calls | Default starting point for every drawing                                                        |
+| Choose paper size, canvas geometry, or root serialization metadata | `SVG.Paper`, `SVG.Canvas`, `SVG.Document`      | Keep physical size, drawing surface, and document profile independent                           |
+| Validate SVG vocabulary and nesting                                | Standard                                       | Use validation instead of hand-maintained element/attribute allowlists                          |
+| Calculate geometry SVG cannot supply                               | `Sevgi::Geometry`                              | Use for constructed values, intersections, sweeps, and algorithmic bounds—not renderer layout   |
+| Inspect circle, ellipse, or finite arc geometry                    | `Sevgi::Geometry::Circle`, `Ellipse`, `Arc`    | See `layout.md` for the distinction from renderer-owned `ArcTo` and `ArcBy`                     |
+| Fit rulers, grids, and reusable tile layouts                       | `Sevgi::Sundries`, `SVG.Grid`                  | Choose the exact model through `layout.md`                                                      |
+| Reuse supported cross-component helpers                            | `Sevgi::F`                                     | Use it before adding a project-local Sevgi helper. Do not treat it as a general utility library |
+| Import or inspect existing SVG/XML                                 | Derender facade methods                        | Choose the source/evaluation relationship through `derender.md`                                 |
+| Render SVG as PDF or PNG                                           | Sundries export / document `PDF` and `PNG`     | Choose the output boundary through `output.md`                                                  |
 
 Before reimplementing shared behavior, check `Sevgi::F` for degree trigonometry and precision, `.sevgi` discovery,
 generated-file I/O, argv-safe child processes, Sevgi-facing names, and status output.
@@ -21,13 +21,13 @@ generated-file I/O, argv-safe child processes, Sevgi-facing names, and status ou
 
 When a Sevgi checkout is available, prefer its canonical sources:
 
-| Need | Source |
-| --- | --- |
-| Machine-readable DSL inventory and examples | `showcase/doc/data/dsl.yml` |
-| Task-oriented user semantics | `showcase/doc/content/` |
-| Runnable complete drawings | examples under `showcase/srv` that are linked from the user docs or DSL catalog |
-| Exact public contracts | the owning component's `lib/` YARD comments |
-| Rendered local YARD | `.local/var/ruby/doc/api` after `bundle exec rake doc` |
+| Need                                        | Source                                                                          |
+| ------------------------------------------- | ------------------------------------------------------------------------------- |
+| Machine-readable DSL inventory and examples | `showcase/doc/data/dsl.yml`                                                     |
+| Task-oriented user semantics                | `showcase/doc/content/`                                                         |
+| Runnable complete drawings                  | examples under `showcase/srv` that are linked from the user docs or DSL catalog |
+| Exact public contracts                      | the owning component's `lib/` YARD comments                                     |
+| Rendered local YARD                         | `.local/var/ruby/doc/api` after `bundle exec rake doc`                          |
 
 ## Installed Gems
 
@@ -45,14 +45,14 @@ Do not assume that the latest online API exists in the installed version.
 4. Read YARD for signatures, return values, and failure contracts.
 5. Read MDN or the SVG specification for renderer behavior.
 
-| Topic | User guide | YARD |
-| --- | --- | --- |
-| Script and library forms | [Getting Started](https://sevgi.roktas.dev/start/), [Usage](https://sevgi.roktas.dev/usage/) | [`sevgi`](https://www.rubydoc.info/gems/sevgi) |
-| SVG documents and composition | [Documents](https://sevgi.roktas.dev/documents/), [Compose](https://sevgi.roktas.dev/compose/), [DSL Catalog](https://sevgi.roktas.dev/dsl/) | [`sevgi-graphics`](https://www.rubydoc.info/gems/sevgi-graphics) |
-| Geometry | [Geometry](https://sevgi.roktas.dev/geometry/) | [`sevgi-geometry`](https://www.rubydoc.info/gems/sevgi-geometry) |
-| Rulers, grids, and tiles | [Layout](https://sevgi.roktas.dev/layout/) | [`sevgi-sundries`](https://www.rubydoc.info/gems/sevgi-sundries) |
-| SVG, PDF, and PNG output | [Output](https://sevgi.roktas.dev/output/) | [`sevgi-graphics`](https://www.rubydoc.info/gems/sevgi-graphics), [`sevgi-sundries`](https://www.rubydoc.info/gems/sevgi-sundries) |
-| Shared helpers | [Functions](https://sevgi.roktas.dev/functions/) | [`sevgi-function`](https://www.rubydoc.info/gems/sevgi-function) |
-| SVG/XML import and round trip | [Derender](https://sevgi.roktas.dev/derender/) | [`sevgi-derender`](https://www.rubydoc.info/gems/sevgi-derender) |
+| Topic                         | User guide                                                                                                                                   | YARD                                                                                                                               |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Script and library forms      | [Getting Started](https://sevgi.roktas.dev/start/), [Usage](https://sevgi.roktas.dev/usage/)                                                 | [`sevgi`](https://www.rubydoc.info/gems/sevgi)                                                                                     |
+| SVG documents and composition | [Documents](https://sevgi.roktas.dev/documents/), [Compose](https://sevgi.roktas.dev/compose/), [DSL Catalog](https://sevgi.roktas.dev/dsl/) | [`sevgi-graphics`](https://www.rubydoc.info/gems/sevgi-graphics)                                                                   |
+| Geometry                      | [Geometry](https://sevgi.roktas.dev/geometry/)                                                                                               | [`sevgi-geometry`](https://www.rubydoc.info/gems/sevgi-geometry)                                                                   |
+| Rulers, grids, and tiles      | [Layout](https://sevgi.roktas.dev/layout/)                                                                                                   | [`sevgi-sundries`](https://www.rubydoc.info/gems/sevgi-sundries)                                                                   |
+| SVG, PDF, and PNG output      | [Output](https://sevgi.roktas.dev/output/)                                                                                                   | [`sevgi-graphics`](https://www.rubydoc.info/gems/sevgi-graphics), [`sevgi-sundries`](https://www.rubydoc.info/gems/sevgi-sundries) |
+| Shared helpers                | [Functions](https://sevgi.roktas.dev/functions/)                                                                                             | [`sevgi-function`](https://www.rubydoc.info/gems/sevgi-function)                                                                   |
+| SVG/XML import and round trip | [Derender](https://sevgi.roktas.dev/derender/)                                                                                               | [`sevgi-derender`](https://www.rubydoc.info/gems/sevgi-derender)                                                                   |
 
 When working in a Sevgi checkout, prefer the checked-out docs and source over an installed gem's online YARD version.

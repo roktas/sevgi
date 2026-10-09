@@ -2,16 +2,16 @@
 
 ## Renderer First
 
-Treat SVG as the rendering model, not merely as an output format. The governing question is not whether Ruby *can*
+Treat SVG as the rendering model, not merely as an output format. The governing question is not whether Ruby _can_
 calculate a value, but which layer has the knowledge and responsibility to determine it.
 
 Use this ownership boundary:
 
-| Owner | Test | Action |
-| --- | --- | --- |
-| SVG renderer | SVG can state the intent and the final result depends on rendering context | Encode the intent with SVG elements, attributes, CSS, or transforms |
-| Sevgi | Sevgi already names the SVG operation or supplies the required layout abstraction | Use the DSL or helper instead of rebuilding it |
-| Program | The value must exist before rendering and SVG neither derives nor exposes it | Compute it with ordinary Ruby or `Sevgi::Geometry` |
+| Owner        | Test                                                                              | Action                                                              |
+| ------------ | --------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| SVG renderer | SVG can state the intent and the final result depends on rendering context        | Encode the intent with SVG elements, attributes, CSS, or transforms |
+| Sevgi        | Sevgi already names the SVG operation or supplies the required layout abstraction | Use the DSL or helper instead of rebuilding it                      |
+| Program      | The value must exist before rendering and SVG neither derives nor exposes it      | Compute it with ordinary Ruby or `Sevgi::Geometry`                  |
 
 Before computing, first ask whether SVG can state the desired relationship rather than its current numeric result. If
 it can, keep that relationship declarative. Then check whether Sevgi already wraps it. Compute only when the program

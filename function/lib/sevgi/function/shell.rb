@@ -8,19 +8,29 @@ module Sevgi
     # Command methods promoted to {Sevgi::F}. This module owns the public immutable {Shell::Result} value but is not
     # otherwise a consumer mixin contract.
     module Shell
+      # Returns the absolute path of the first executable regular file, or nil.
+      # @param program [Object] program name, absolute path, or relative slash-containing path
+      # @return [String, nil] absolute executable path, preserving a selected symlink
+      # @note PATH is evaluated on every call. Empty PATH segments mean the current directory.
+      def executable(program)
+        program = program.to_s
+        return if program.empty?
+        if slash_path?(program)
+          return executable_file?(program) ? ::File.expand_path(program) : nil
+        end
+
+        ENV.fetch("PATH", "").split(::File::PATH_SEPARATOR, -1).each do |dir|
+          path = ::File.expand_path(program, dir.empty? ? "." : dir)
+          return path if executable_file?(path)
+        end
+        nil
+      end
+
       # Checks whether a program exists and is executable.
       # @param program [Object] program name, absolute path, or relative slash-containing path
       # @return [Boolean] true when an executable regular file is found
-      # @note PATH is evaluated on every call. Empty PATH segments mean the current directory.
-      def executable?(program)
-        program = program.to_s
-        return false if program.empty?
-        return executable_file?(program) if slash_path?(program)
-
-        ENV.fetch("PATH", "").split(::File::PATH_SEPARATOR, -1).any? do |dir|
-          executable_file?(::File.join(dir.empty? ? "." : dir, program))
-        end
-      end
+      # @see #executable
+      def executable?(program) = !executable(program).nil?
 
       # Requires the first command argument to name an executable program.
       # @param args [Array<Object>] command arguments

@@ -30,6 +30,7 @@ PATH
   remote: graphics
   specs:
     sevgi-graphics (1.0.0)
+      json (>= 3.0)
       sevgi-function (= 1.0.0)
 
 PATH
@@ -48,6 +49,7 @@ PATH
   remote: sundries
   specs:
     sevgi-sundries (1.0.0)
+      json (>= 3.0)
       sevgi-function (= 1.0.0)
       sevgi-geometry (= 1.0.0)
       sevgi-graphics (= 1.0.0)

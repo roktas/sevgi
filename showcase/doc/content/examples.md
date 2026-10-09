@@ -11,28 +11,28 @@ Start with [Pokey](#pokey) for basic SVG elements.
 <details class="example-index">
 <summary>Explore examples</summary>
 
-| Example | What to inspect |
-| --- | --- |
-| [Pokey](#pokey) | Basic SVG elements and a path |
-| [Grid](#grid) | Nested Ruby loops, derived coordinates, and data-driven color selection |
-| [Stars](#stars) | A symbol repeated in a tile grid |
-| [Snowflake](#snowflake) | Repeated branches and rotation |
-| [Clover](#clover) | Repeated shapes and transforms |
-| [Tulips](#tulips) | Repeated flower shapes |
-| [Pacman](#pacman) | Plain SVG elements, nested groups, transforms, and repeated scene objects in a compact script |
-| [Meter](#meter) | Repeated LEDs with position-dependent opacity |
-| [Heart](#heart) | A curved path used as a mask |
-| [Gear](#gear) | Repeated teeth around a circle |
-| [Logo](#logo) | A reusable path |
-| [Logos](#logos) | Repeated drawing parts assembled into several related marks |
-| [Checkers](#checkers) | Ruby data and callable modules separating board construction from piece placement |
-| [Orb](#orb) | A radial gradient turns one circle into a shaded orb |
-| [Ruler](#ruler) | Ruby ranges, nested layers, labels, and a final element transform in one physical-size drawing |
-| [Protractor](#protractor) | SVG rotation places angular marks from Ruler divisions without trigonometry in Ruby |
-| [Arc](#arc) | Geometry calculates a finite elliptical arc, its length, endpoints, and bounds |
-| [Hatch](#hatch) | Geometry hatches an ellipse with explicit finite line segments |
-| [Squared](#squared) | A Grid defines a squared guidesheet |
-| [Copperplate](#copperplate) | The same Grid contract adds row-bounded hatching |
+| Example                     | What to inspect                                                                                |
+| --------------------------- | ---------------------------------------------------------------------------------------------- |
+| [Pokey](#pokey)             | Basic SVG elements and a path                                                                  |
+| [Grid](#grid)               | Nested Ruby loops, derived coordinates, and data-driven color selection                        |
+| [Stars](#stars)             | A symbol repeated in a tile grid                                                               |
+| [Snowflake](#snowflake)     | Repeated branches and rotation                                                                 |
+| [Clover](#clover)           | Repeated shapes and transforms                                                                 |
+| [Tulips](#tulips)           | Repeated flower shapes                                                                         |
+| [Pacman](#pacman)           | Plain SVG elements, nested groups, transforms, and repeated scene objects in a compact script  |
+| [Meter](#meter)             | Repeated LEDs with position-dependent opacity                                                  |
+| [Heart](#heart)             | A curved path used as a mask                                                                   |
+| [Gear](#gear)               | Repeated teeth around a circle                                                                 |
+| [Logo](#logo)               | A reusable path                                                                                |
+| [Logos](#logos)             | Repeated drawing parts assembled into several related marks                                    |
+| [Checkers](#checkers)       | Ruby data and callable modules separating board construction from piece placement              |
+| [Orb](#orb)                 | A radial gradient turns one circle into a shaded orb                                           |
+| [Ruler](#ruler)             | Ruby ranges, nested layers, labels, and a final element transform in one physical-size drawing |
+| [Protractor](#protractor)   | SVG rotation places angular marks from Ruler divisions without trigonometry in Ruby            |
+| [Arc](#arc)                 | Geometry calculates a finite elliptical arc, its length, endpoints, and bounds                 |
+| [Hatch](#hatch)             | Geometry hatches an ellipse with explicit finite line segments                                 |
+| [Squared](#squared)         | A Grid defines a squared guidesheet                                                            |
+| [Copperplate](#copperplate) | The same Grid contract adds row-bounded hatching                                               |
 
 </details>
 

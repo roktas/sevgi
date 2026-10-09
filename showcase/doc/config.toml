@@ -1,16 +1,14 @@
-base_url                   = "https://sevgi.roktas.dev/"
-title                      = "Sevgi"
-build_search_index         = true
+base_url = "https://sevgi.roktas.dev/"
+title = "Sevgi"
+build_search_index = true
 [markdown]
-insert_anchor_links        = "heading"
+insert_anchor_links = "heading"
 [markdown.highlighting]
-style                      = "class"
-light_theme                = "github-light"
-dark_theme                 = "github-dark"
+style = "class"
+light_theme = "github-light"
+dark_theme = "github-dark"
 [extra]
-logo_name                  = "Sevgi"
-site_description           = "Create SVG with Ruby."
-nav_groups                 = ["Start", "Guides", "Reference"]
-extra_menu                 = [
-  { title = "Reference", link = "/api/" },
-]
+logo_name = "Sevgi"
+site_description = "Create SVG with Ruby."
+nav_groups = ["Start", "Guides", "Reference"]
+extra_menu = [{ title = "Reference", link = "/api/" }]

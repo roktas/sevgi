@@ -79,14 +79,14 @@ The umbrella gem is the right choice for most applications and drawing scripts. 
 
 Libraries that need fewer dependencies can install focused component gems:
 
-| Scenario | Install | Require |
-| --- | --- | --- |
-| Build and render SVG only | `sevgi-graphics` | `require "sevgi/graphics"` |
-| Build and validate SVG without the full toolkit | `sevgi-graphics sevgi-standard` | `require "sevgi/graphics"` |
-| Use geometry values and transformations without the DSL | `sevgi-geometry` | `require "sevgi/geometry"` |
-| Convert SVG or XML back into Sevgi source | `sevgi-derender` | `require "sevgi/derender"` |
-| Use grids, rulers, tiles, or export integrations | `sevgi-sundries` | `require "sevgi/sundries"` |
-| Package the agent skill or lint `.sevgi` source | `sevgi-appendix` | `require "sevgi/appendix"` or the RuboCop plugin |
+| Scenario                                                | Install                         | Require                                          |
+| ------------------------------------------------------- | ------------------------------- | ------------------------------------------------ |
+| Build and render SVG only                               | `sevgi-graphics`                | `require "sevgi/graphics"`                       |
+| Build and validate SVG without the full toolkit         | `sevgi-graphics sevgi-standard` | `require "sevgi/graphics"`                       |
+| Use geometry values and transformations without the DSL | `sevgi-geometry`                | `require "sevgi/geometry"`                       |
+| Convert SVG or XML back into Sevgi source               | `sevgi-derender`                | `require "sevgi/derender"`                       |
+| Use grids, rulers, tiles, or export integrations        | `sevgi-sundries`                | `require "sevgi/sundries"`                       |
+| Package the agent skill or lint `.sevgi` source         | `sevgi-appendix`                | `require "sevgi/appendix"` or the RuboCop plugin |
 
 For example, a service that only builds SVG can install `sevgi-graphics` and use
 `Sevgi::Graphics.SVG(...)`. The full `SVG` facade and the `sevgi` executable belong to the umbrella gem. Add

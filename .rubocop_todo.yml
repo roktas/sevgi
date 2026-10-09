@@ -10,83 +10,84 @@
 # Configuration parameters: AllowedMethods, AllowedPatterns, CountRepeatedAttributes, Max.
 Metrics/AbcSize:
   Exclude:
-    - 'derender/lib/sevgi/derender/attributes.rb'
-    - 'geometry/lib/sevgi/geometry/element.rb'
-    - 'geometry/lib/sevgi/geometry/operation/align.rb'
-    - 'graphics/lib/sevgi/graphics/mixtures/call.rb'
-    - 'graphics/lib/sevgi/graphics/mixtures/rdf.rb'
-    - 'graphics/lib/sevgi/graphics/mixtures/render.rb'
-    - 'graphics/lib/sevgi/graphics/mixtures/tile.rb'
-    - 'standard/lib/sevgi/standard/conform.rb'
-    - 'sundries/lib/sevgi/sundries/export/native.rb'
-    - 'sundries/lib/sevgi/sundries/export/system.rb'
-    - 'toplevel/lib/sevgi/binaries/sevgi.rb'
+    - "derender/lib/sevgi/derender/attributes.rb"
+    - "geometry/lib/sevgi/geometry/element.rb"
+    - "geometry/lib/sevgi/geometry/operation/align.rb"
+    - "graphics/lib/sevgi/graphics/mixtures/call.rb"
+    - "graphics/lib/sevgi/graphics/mixtures/rdf.rb"
+    - "graphics/lib/sevgi/graphics/mixtures/render.rb"
+    - "graphics/lib/sevgi/graphics/mixtures/tile.rb"
+    - "standard/lib/sevgi/standard/conform.rb"
+    - "sundries/lib/sevgi/sundries/export/native.rb"
+    - "sundries/lib/sevgi/sundries/export/system.rb"
+    - "toplevel/lib/sevgi/binaries/sevgi.rb"
 
 # Offense count: 2
 # Configuration parameters: CountComments, Max, CountAsOne.
 Metrics/ClassLength:
   Exclude:
-    - 'geometry/lib/sevgi/geometry/element.rb'
-    - 'graphics/lib/sevgi/graphics/mixtures/render.rb'
+    - "geometry/lib/sevgi/geometry/element.rb"
+    - "graphics/lib/sevgi/graphics/mixtures/render.rb"
 
 # Offense count: 9
 # Configuration parameters: AllowedMethods, AllowedPatterns, Max.
 Metrics/CyclomaticComplexity:
   Exclude:
-    - 'derender/lib/sevgi/derender/attributes.rb'
-    - 'graphics/lib/sevgi/graphics/mixtures/call.rb'
-    - 'graphics/lib/sevgi/graphics/mixtures/rdf.rb'
-    - 'standard/test/standard/data/specification_test.rb'
-    - 'sundries/lib/sevgi/sundries/export/native.rb'
-    - 'sundries/lib/sevgi/sundries/export/system.rb'
+    - "derender/lib/sevgi/derender/attributes.rb"
+    - "graphics/lib/sevgi/graphics/mixtures/call.rb"
+    - "graphics/lib/sevgi/graphics/mixtures/rdf.rb"
+    - "standard/test/standard/data/specification_test.rb"
+    - "sundries/lib/sevgi/sundries/export/native.rb"
+    - "sundries/lib/sevgi/sundries/export/system.rb"
 
 # Offense count: 26
 # Configuration parameters: CountComments, Max, CountAsOne, AllowedMethods, AllowedPatterns.
 Metrics/MethodLength:
   Exclude:
-    - 'derender/lib/sevgi/derender/attributes.rb'
-    - 'derender/lib/sevgi/derender/node.rb'
-    - 'function/lib/sevgi/function/shell.rb'
-    - 'geometry/lib/sevgi/geometry/equation.rb'
-    - 'geometry/lib/sevgi/geometry/operation/align.rb'
-    - 'graphics/lib/sevgi/graphics/element.rb'
-    - 'graphics/lib/sevgi/graphics/auxiliary/content.rb'
-    - 'graphics/lib/sevgi/graphics/mixtures/core.rb'
-    - 'graphics/lib/sevgi/graphics/mixtures/rdf.rb'
-    - 'graphics/lib/sevgi/graphics/mixtures/render.rb'
-    - 'graphics/lib/sevgi/graphics/mixtures/save.rb'
-    - 'graphics/lib/sevgi/graphics/mixtures/tile.rb'
-    - 'sundries/lib/sevgi/sundries/export/native.rb'
-    - 'sundries/lib/sevgi/sundries/export/system.rb'
-    - 'toplevel/lib/sevgi/binaries/sevgi.rb'
+    - "derender/lib/sevgi/derender/attributes.rb"
+    - "derender/lib/sevgi/derender/node.rb"
+    - "function/lib/sevgi/function/shell.rb"
+    - "geometry/lib/sevgi/geometry/equation.rb"
+    - "geometry/lib/sevgi/geometry/operation/align.rb"
+    - "graphics/lib/sevgi/graphics/element.rb"
+    - "graphics/lib/sevgi/graphics/auxiliary/content.rb"
+    - "graphics/lib/sevgi/graphics/mixtures/core.rb"
+    - "graphics/lib/sevgi/graphics/mixtures/rdf.rb"
+    - "graphics/lib/sevgi/graphics/mixtures/render.rb"
+    - "graphics/lib/sevgi/graphics/mixtures/save.rb"
+    - "graphics/lib/sevgi/graphics/mixtures/tile.rb"
+    - "sundries/lib/sevgi/sundries/export/native.rb"
+    - "sundries/lib/sevgi/sundries/export/system.rb"
+    - "toplevel/lib/sevgi/binaries/sevgi.rb"
 
 # Offense count: 6
 # Configuration parameters: Max, CountKeywordArgs.
 Metrics/ParameterLists:
   Exclude:
-    - 'graphics/lib/sevgi/graphics/mixtures/inkscape.rb'
-    - 'graphics/lib/sevgi/graphics/mixtures/tile.rb'
-    - 'sundries/lib/sevgi/sundries/export/native.rb'
-    - 'sundries/lib/sevgi/sundries/export/system.rb'
+    - "graphics/lib/sevgi/graphics/mixtures/inkscape.rb"
+    - "graphics/lib/sevgi/graphics/mixtures/tile.rb"
+    - "sundries/lib/sevgi/sundries/export/native.rb"
+    - "sundries/lib/sevgi/sundries/export/system.rb"
 
 # Offense count: 6
 # Configuration parameters: Max.
 Metrics/PerceivedComplexity:
   Exclude:
-    - 'derender/lib/sevgi/derender/attributes.rb'
-    - 'graphics/lib/sevgi/graphics/mixtures/rdf.rb'
-    - 'sundries/lib/sevgi/sundries/export/native.rb'
-    - 'sundries/lib/sevgi/sundries/export/system.rb'
+    - "derender/lib/sevgi/derender/attributes.rb"
+    - "graphics/lib/sevgi/graphics/mixtures/rdf.rb"
+    - "sundries/lib/sevgi/sundries/export/native.rb"
+    - "sundries/lib/sevgi/sundries/export/system.rb"
 
-# Offense count: 5
+# Offense count: 6
 # Configuration parameters: CountComments, Max, CountAsOne.
 Metrics/ModuleLength:
   Exclude:
-    - 'standard/lib/sevgi/standard/data/attribute.rb'
-    - 'standard/lib/sevgi/standard/data/color.rb'
-    - 'standard/lib/sevgi/standard/data/element.rb'
-    - 'standard/lib/sevgi/standard/data/specification.rb'
-    - 'sundries/lib/sevgi/sundries/export/native.rb'
+    - "graphics/lib/sevgi/graphics/auxiliary/paper.rb"
+    - "standard/lib/sevgi/standard/data/attribute.rb"
+    - "standard/lib/sevgi/standard/data/color.rb"
+    - "standard/lib/sevgi/standard/data/element.rb"
+    - "standard/lib/sevgi/standard/data/specification.rb"
+    - "sundries/lib/sevgi/sundries/export/native.rb"
 
 # YARD coverage is enforced by `rake doc:check`; RuboCop's class/module-only documentation check is redundant here.
 Style/Documentation:

@@ -41,11 +41,11 @@ File.write "badge.svg", drawing.Render
 The document constructor is `SVG` in both forms. Other operations are bare words in
 a script and capitalized methods on the `SVG` facade in library code. Types keep their double-colon spelling:
 
-| Role | `.sevgi` script | Ruby library |
-| --- | --- | --- |
-| Document | `SVG(...)` | `SVG(...)` |
-| Canvas | `Canvas(...)` | `SVG.Canvas(...)` |
-| Canvas type | `SVG::Canvas` | `SVG::Canvas` |
+| Role            | `.sevgi` script      | Ruby library         |
+| --------------- | -------------------- | -------------------- |
+| Document        | `SVG(...)`           | `SVG(...)`           |
+| Canvas          | `Canvas(...)`        | `SVG.Canvas(...)`    |
+| Canvas type     | `SVG::Canvas`        | `SVG::Canvas`        |
 | Callable module | `SVG.Module { ... }` | `SVG.Module { ... }` |
 
 Both forms are ordinary Ruby. Use local variables, constants, methods, modules, loops, and data structures wherever
@@ -228,14 +228,14 @@ The public result/error types are `Sevgi::Executor::Result`, `Sevgi::Executor::E
 
 ### Source context
 
-| Option | Meaning |
-| --- | --- |
-| `file:` | Diagnostic name and relative-load origin for inline source |
-| `line:` | Starting line used in inline-source errors and backtraces |
-| `as:` | Basename used by `execute_file` for evaluation, diagnostics, and caller-derived output defaults |
-| `require:` | Ruby library loaded before the Sevgi source |
-| `main: false` | Default isolated module scope without the DSL on Ruby's main object |
-| `main: true` | Command-line-compatible main-object mode for consumers that deliberately need it |
+| Option        | Meaning                                                                                         |
+| ------------- | ----------------------------------------------------------------------------------------------- |
+| `file:`       | Diagnostic name and relative-load origin for inline source                                      |
+| `line:`       | Starting line used in inline-source errors and backtraces                                       |
+| `as:`         | Basename used by `execute_file` for evaluation, diagnostics, and caller-derived output defaults |
+| `require:`    | Ruby library loaded before the Sevgi source                                                     |
+| `main: false` | Default isolated module scope without the DSL on Ruby's main object                             |
+| `main: true`  | Command-line-compatible main-object mode for consumers that deliberately need it                |
 
 `execute_file` also accepts `as:`. Its extension becomes `.sevgi`, while the physical input directory and load-cycle
 identity remain intact. An implicit output operation uses this logical name but still writes beside the input file.
