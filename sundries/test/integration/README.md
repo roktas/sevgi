@@ -8,7 +8,7 @@ Generated PDFs stay in Sundries' ignored `.local/mainz/` directory.
 Build the sibling Mainz checkout's native preset first, then run from the Sevgi root:
 
 ```sh
-rtk proxy direnv exec . env PATH="$PWD/../mainz/.local/build/native:$PATH" bundle exec ./sundries/test/integration/mainz.rb
+direnv exec . env PATH="$PWD/../mainz/.local/var/cpp/build/native:$PATH" bundle exec ./sundries/test/integration/mainz.rb
 ```
 
 The component unit tests run with `bundle exec rake sundries:test graphics:test`.
