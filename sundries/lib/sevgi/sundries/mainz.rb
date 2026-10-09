@@ -8,7 +8,6 @@ require "tmpdir"
 module Sevgi
   module Sundries
     # Optional CLI boundary for Mainz prepared PDF production.
-    # This component does not load the Mainz Ruby extension or native export gems.
     module Mainz
       COMMAND = "mainz"
       private_constant :COMMAND
