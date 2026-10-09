@@ -78,10 +78,11 @@ Metrics/PerceivedComplexity:
     - "sundries/lib/sevgi/sundries/export/native.rb"
     - "sundries/lib/sevgi/sundries/export/system.rb"
 
-# Offense count: 5
+# Offense count: 6
 # Configuration parameters: CountComments, Max, CountAsOne.
 Metrics/ModuleLength:
   Exclude:
+    - "graphics/lib/sevgi/graphics/auxiliary/paper.rb"
     - "standard/lib/sevgi/standard/data/attribute.rb"
     - "standard/lib/sevgi/standard/data/color.rb"
     - "standard/lib/sevgi/standard/data/element.rb"

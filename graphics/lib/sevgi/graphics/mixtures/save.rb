@@ -74,7 +74,7 @@ module Sevgi
         # @see Sevgi::Graphics::Document::Proto#call
         def Save(path = nil, default: nil, backup_suffix: nil, **kwargs, &filter)
           default = F.subext(EXT, caller_locations(1..1).first.path) if default.nil?
-          path = Path.resolve(path, default:, context: "Save")
+          path = F.output_path(path, default:, context: "Save")
 
           Writer.(path, self.(**kwargs), backup_suffix:, &filter)
         end
@@ -94,7 +94,7 @@ module Sevgi
         # @raise [SystemCallError] when the destination cannot be read or written
         # @see Sevgi::Graphics::Document::Proto#call
         def Write(path, **kwargs, &filter)
-          path = Path.(path, context: "Write path")
+          path = F.path(path, context: "Write path")
           ArgumentError.("Write path must name a file") if ::File.directory?(path)
 
           Writer.(path, self.(**kwargs), &filter)

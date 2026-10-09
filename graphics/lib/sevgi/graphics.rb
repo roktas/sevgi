@@ -2,9 +2,8 @@
 
 require "sevgi/function"
 
-require_relative "graphics/xml"
-require_relative "graphics/attribute"
 require_relative "graphics/auxiliary"
+require_relative "graphics/attribute"
 require_relative "graphics/element"
 require_relative "graphics/mixtures"
 

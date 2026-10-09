@@ -84,6 +84,62 @@ module Sevgi
           end
         end
 
+        def test_output_path_resolves_defaults_and_directories
+          ::Dir.mktmpdir do |dir|
+            default = ::File.join(dir, "nested", "drawing.svg")
+            expected = ::File.join(dir, "drawing.svg")
+
+            assert_equal(default, F.output_path(nil, default: Pathname(default)))
+            assert_equal(expected, F.output_path(Pathname(dir), default: Pathname(default)))
+            assert_equal(expected, F.output_path(Pathname(expected), default: nil))
+            refute(::File.exist?(expected))
+            refute(::File.directory?(::File.dirname(default)))
+          end
+        end
+
+        def test_output_path_rejects_invalid_selected_defaults
+          ::Dir.mktmpdir do |dir|
+            [nil, false, "", " \t"].each do |default|
+              [nil, dir].each do |value|
+                error = assert_raises(Sevgi::ArgumentError) { F.output_path(value, default:) }
+
+                assert_match(/\AOutput default must be /, error.message)
+              end
+            end
+          end
+        end
+
+        def test_path_expands_strings_and_pathlike_values
+          expected = ::File.join(::Dir.pwd, "drawing.svg")
+
+          ["drawing.svg", Pathname("drawing.svg")].each do |value|
+            assert_equal(expected, F.path(value))
+          end
+        end
+
+        def test_path_rejects_invalid_values_with_context
+          wrong = Object.new.tap { it.define_singleton_method(:to_path) { false } }
+
+          [nil, false, Object.new, wrong, "", " \t"].each do |value|
+            error = assert_raises(Sevgi::ArgumentError) { F.path(value, context: "Input path") }
+            reason = value.is_a?(::String) ? "must be provided" : "must be a String or path-like object"
+
+            assert_equal("Input path #{reason}", error.message)
+          end
+        end
+
+        def test_path_wraps_conversion_errors
+          broken = Object.new.tap { it.define_singleton_method(:to_path) { raise "broken path" } }
+          error = assert_raises(Sevgi::ArgumentError) { F.path(broken) }
+
+          assert_equal("Path must be a String or path-like object: broken path", error.message)
+
+          original = Sevgi::ArgumentError.new("invalid source")
+          rejected = Object.new.tap { it.define_singleton_method(:to_path) { raise original } }
+
+          assert_same(original, assert_raises(Sevgi::ArgumentError) { F.path(rejected) })
+        end
+
         def test_qualify_adds_default_extension
           assert_equal("source.sevgi", Function.qualify("source", "sevgi"))
           assert_equal("source.rb", Function.qualify("source.rb", "sevgi"))

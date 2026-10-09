@@ -160,14 +160,9 @@ module Sevgi
           false
         end
 
-        # Preserve the existing path and conversion-error contract.
-        # rubocop:disable-next Metrics/AbcSize, Metrics/CyclomaticComplexity
         def output_path(output)
           ArgumentError.("Export output must be provided") if output.nil?
-          path = output.respond_to?(:to_path) ? output.to_path : output
-          ArgumentError.("Export output must be a String or path-like object") unless path.is_a?(::String)
-          ArgumentError.("Export output must be provided") if path.strip.empty?
-          path = ::File.expand_path(path)
+          path = F.path(output, context: "Export output")
           ArgumentError.("Export output must name a file") if ::File.directory?(path)
           path
         rescue ::StandardError => e

@@ -216,8 +216,23 @@ module Sevgi
         end
 
         def test_call_rejects_invalid_raw_output_paths
-          [nil, false, "", " \t", Object.new, BrokenPath.new].each do |output|
-            assert_raises(ArgumentError) { Export.call(svg(width: 10, height: 10), output) }
+          [
+            nil,
+            "Export output must be provided",
+            false,
+            "Export output must be a String or path-like object",
+            "",
+            "Export output must be provided",
+            " \t",
+            "Export output must be provided",
+            Object.new,
+            "Export output must be a String or path-like object",
+            BrokenPath.new,
+            "Export output must be a String or path-like object: broken path"
+          ].each_slice(2) do |output, message|
+            error = assert_raises(ArgumentError) { Export.call(svg(width: 10, height: 10), output) }
+
+            assert_equal(message, error.message)
           end
         end
 

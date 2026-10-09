@@ -108,7 +108,7 @@ module Sevgi
             default = F.subext(extension, caller_locations(2..2).first.path)
           end
 
-          path = Path.resolve(path, default:, context: "Export")
+          path = F.output_path(path, default:, context: "Export")
 
           Sundries::Export.(call, path, **kwargs, &block)
         end
