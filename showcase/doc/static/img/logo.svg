@@ -19,12 +19,13 @@
     />
   </defs>
   <g
+    id="SCUR"
     transform="translate(-10.86,-1.25)"
     fill="none"
     stroke-linecap="round"
     stroke-width="6"
   >
-    <use href="#master" class="passive" transform="matrix(-1,0,0,1,60,0)" />
-    <use href="#master" class="active" />
+    <use id="SCVN" href="#master" class="passive" transform="matrix(-1,0,0,1,60,0)" />
+    <use id="SCVP" href="#master" class="active" />
   </g>
 </svg>
