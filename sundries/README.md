@@ -66,6 +66,8 @@ Requires Ruby 3.4.0 or newer. CI verifies the current Ruby 3.4 release and the d
 Basic ruler, grid, and tile helpers need only Ruby dependencies. Installing `sevgi-sundries` does not install native
 export gems.
 
+The `a5_on_a4` helpers require the `pdfcpu` command. They use its built-in defaults without personal pdfcpu configuration.
+
 Ordinary PDF/PNG export helpers load the optional Ruby gems `cairo`, `rsvg2`, and `hexapdf` only when export is used. Install
 their system libraries and gems separately:
 
