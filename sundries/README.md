@@ -30,7 +30,7 @@ to Sevgi Graphics when the document needs it.
 
 ## Prepared PDF export
 
-Sevgi uses the native Mainz CLI for PDF input with a Style declaration.
+Sevgi uses the native Mainz CLI for SVG sources with a Style declaration.
 Mainz receives private temporary files through argument arrays and publishes one prepared PDF.
 Successful preparation replaces the destination atomically.
 Parallel calls use separate temporary directories and share no producer state.
@@ -53,7 +53,13 @@ Interrupts cancel export without fallback.
 CSS insertion and the source callback run once, including after a fallback.
 
 Mainz is optional. Install its native `mainz` executable on `PATH` to enable preparation.
-This path does not load the Mainz Ruby extension or the `cairo`, `rsvg2`, and `hexapdf` Ruby gems.
+Install [Mainz 1.0.0](https://github.com/roktas/mainz/releases/tag/v1.0.0) through Homebrew:
+
+```sh
+brew install roktas/tap/mainz
+```
+
+Prepared export invokes the CLI without the `cairo`, `rsvg2`, and `hexapdf` Ruby gems.
 Ordinary PDF/PNG export and PDF stamping retain their optional Ruby dependencies.
 `Mainz.fingerprint` returns the executable digest and native dependency report for output caches, or nil when Mainz is absent.
 

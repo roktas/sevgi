@@ -74,8 +74,8 @@ Keep JSON Schema names such as `minimum` and `maximum`. `Group` orders controls;
 Pass this Hash as `style:` to `Sevgi::Sundries::Export.call` when the application owns the SVG separately.
 For explicit required production, use `Sevgi::Sundries::Mainz.produce(svg, output, declaration: drawing.Style)`.
 
-Styled PDF export uses the native `mainz` executable on `PATH`. It does not load the Mainz extension or ordinary export
-gems. By default, missing Mainz or failed preparation warns and falls back to ordinary PDF export.
+Styled PDF export invokes the native `mainz` executable on `PATH` without ordinary export gems.
+By default, missing Mainz or failed preparation warns and falls back to ordinary PDF export.
 Use `fallback: false` when the prepared contract is required; preparation failures then raise
 `Sevgi::Sundries::Mainz::Error`. Unstyled exports remain ordinary in either mode.
 Invalid arguments, filesystem failures, and interrupts propagate in both modes. Parallel exports use separate staging.

@@ -148,9 +148,9 @@ Declarations contain deeply frozen JSON data and remain local to each document.
 Mainz owns selector resolution, supported properties, binding admission, and PDF baselines.
 
 This feature requires the native `mainz` executable on `PATH`.
-Prepared export does not load the Mainz Ruby extension or the ordinary export gems.
+Prepared export invokes the CLI without the ordinary export gems.
 Parallel calls use separate temporary directories.
-The [Mainz declaration contract](https://github.com/roktas/mainz/blob/main/lib/doc/SPEC.md#71-svg-declarations) defines the producer fields and limits.
+The [Mainz declaration contract](https://github.com/roktas/mainz/blob/v1.0.0/lib/doc/SPEC.md#71-svg-declarations) defines the producer fields and limits.
 
 ### Last-minute export CSS
 
