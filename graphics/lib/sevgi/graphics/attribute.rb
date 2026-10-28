@@ -166,6 +166,13 @@ module Sevgi
         XML.text(text, context: "XML attribute value")
       end
 
+      # Returns distinct class names in rendered order from nested attribute values.
+      # @param values [Array<Object>] class values to combine
+      # @return [Array<String>] owned class-name snapshot
+      # @raise [Sevgi::ArgumentError] when a value is invalid, cyclic, or cannot be stringified as XML
+      # @api private
+      def self.classes(*values) = xml_text(values).split.uniq
+
       # Mutable backing store for SVG attributes.
       # @api private
       class Store

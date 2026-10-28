@@ -175,6 +175,15 @@ letters:
       code: |
         label = text "Total", "$48"
         label.CData # => "Total\n$48"
+    - name: Classes
+      anchor: classes
+      summary: Read distinct CSS class names without changing the element.
+      provider: core
+      context: document
+      themes: [composition]
+      code: |
+        row = g class: [:invoice, "overdue invoice"]
+        text row.Classes.join(" "), y: 12
     - name: Classify
       anchor: classify
       summary: Add CSS class tokens without duplicating existing values.

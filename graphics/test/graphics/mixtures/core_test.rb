@@ -6,6 +6,46 @@ module Sevgi
   module Graphics
     module Mixtures
       class CoreTreeTest < Minitest::Test
+        def test_classes_reads_tokens_without_changing_svg
+          {
+            nil => [],
+            :primary => %w[primary],
+            "primary selected primary" => %w[primary selected],
+            [:primary, "secondary tertiary", [nil, :primary, :last]] => %w[primary secondary tertiary last]
+          }.each do |value, expected|
+            document = SVG { rect class: value }
+            before = document.call
+
+            assert_equal(expected, document.children.first.Classes)
+            assert_equal(before, document.call)
+          end
+        end
+
+        def test_classes_returns_owned_names
+          classes = [+"primary", ["secondary tertiary"]]
+          element = SVG { rect class: classes }.children.first
+          names = element.Classes
+          names.first.replace("changed")
+
+          assert_equal(%w[primary secondary tertiary], element.Classes)
+          assert_equal(["primary", ["secondary tertiary"]], classes)
+          element.Classify "later"
+          assert_equal(%w[changed secondary tertiary], names)
+          assert_equal(%w[primary secondary tertiary later], element.Classes)
+        end
+
+        def test_classify_rejects_invalid_values_atomically
+          cycle = []
+          cycle << cycle
+          document = SVG { rect class: "primary" }
+          before = document.call
+
+          [cycle, "invalid\x00"].each do |value|
+            assert_raises(Sevgi::ArgumentError) { document.children.first.Classify value }
+            assert_equal(before, document.call)
+          end
+        end
+
         def test_classify_appends_to_string_attribute
           element = SVG do
             rect(class: "primary").Classify("selected", "primary")

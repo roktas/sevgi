@@ -93,24 +93,19 @@ module Sevgi
           tap { Adoption.batch(elements, self, front: false) }
         end
 
+        # Returns distinct CSS class names without changing this element.
+        # An absent class attribute returns an empty Array. Strings are split on whitespace and nested Arrays are flattened.
+        # @return [Array<String>] owned class-name snapshot in rendered order
+        # @see #Classify
+        def Classes = Attribute.classes(self[:class])
+
         # Adds CSS classes without duplicating existing values.
         # @param classes [Array<String, Symbol, Array>] class tokens. Strings are split on whitespace
         # @return [Sevgi::Graphics::Element] self
+        # @raise [Sevgi::ArgumentError] when a class value is invalid, cyclic, or cannot be stringified as XML
+        # @see #Classes
         def Classify(*classes)
-          tap do
-            tokens = proc do |value|
-              case value
-              when nil
-                []
-              when ::Array
-                value.flat_map { tokens.call(it) }
-              else
-                value.to_s.split
-              end
-            end
-
-            self[:class] = [*tokens.call(self[:class]), *tokens.call(classes)].uniq
-          end
+          tap { self[:class] = Attribute.classes(self[:class], classes) }
         end
 
         # Assigns default attributes only when they are absent.

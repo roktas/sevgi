@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Added
 
+- `Classes` returns an element's distinct CSS class names without changing the element; `Classify` shares its attribute normalization.
 - Generic document-local Style declarations with `Target`, `Param`, `Group`, and `Profiles`, and optional prepared PDF export through the native Mainz CLI.
 - Backend-independent `fallback: false` for export failures and `F.executable` for executable path lookup.
 - `F.path` for path validation and expansion, and `F.output_path` for default output names and directory targets.
