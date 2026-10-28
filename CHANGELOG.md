@@ -5,6 +5,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## Unreleased
 
+## 1.1.0 - 2026-10-29
+
 ### Added
 
 - `Classes` returns an element's distinct CSS class names without changing the element; `Classify` shares its attribute normalization.
