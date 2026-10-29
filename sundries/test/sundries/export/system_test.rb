@@ -16,9 +16,9 @@ module Sevgi
           assert_equal(
             [
               "pdfcpu",
+              "nup",
               "--conf",
               "disable",
-              "nup",
               "--",
               "form:A4L, border:off",
               "out.pdf",

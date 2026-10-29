@@ -5,6 +5,12 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## Unreleased
 
+## 1.1.1 - 2026-10-29
+
+### Fixed
+
+- Pass the configuration flag after the pdfcpu subcommand so A5-on-A4 export works.
+
 ## 1.1.0 - 2026-10-29
 
 ### Added
