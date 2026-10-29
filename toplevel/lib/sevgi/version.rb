@@ -2,5 +2,5 @@
 
 module Sevgi
   # Current version of the Sevgi top-level gem.
-  VERSION = "1.1.0"
+  VERSION = "1.1.1"
 end
