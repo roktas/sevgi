@@ -80,7 +80,7 @@ module Sevgi
           source, definitions, result = %w[source.svg style.json output.pdf].map { ::File.join(directory, it) }
           ::File.binwrite(source, svg)
           ::File.write(definitions, declaration)
-          run(program, "produce", source, "--declaration", definitions, "--output", result, *dimensions)
+          run(program, "imprint", source, "--declaration", definitions, "--output", result, *dimensions)
           result
         end
 

@@ -197,7 +197,7 @@ module Sevgi
             exit 0
           end
           command, source, *arguments = ARGV
-          abort "unexpected command" unless command == "produce"
+          abort "unexpected command" unless command == "imprint"
           options = arguments.each_slice(2).to_h
           output = options.fetch("--output")
           File.write(output, "%PDF-1.7\n" + JSON.generate(
