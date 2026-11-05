@@ -51,6 +51,19 @@ callback after insertion and before conversion. Inspect the final output for cha
 SVG output has no native graphics dependency. Ordinary PDF and PNG export lazily require Cairo, RSVG, and HexaPDF.
 Report a missing optional component rather than substituting an unrequested command or raster workaround.
 
+### Document metadata
+
+Use root SVG RDF for the document's title, description, creator, and rights.
+On an `:inkscape` document, `License title: "Practice", creator: "A. Creator", rights: "All rights reserved."`
+authors these fields without assigning a license URL. `description` holds text that accompanies the title.
+Use a named `License_CC_*` helper only when that license is intended.
+
+Ordinary and prepared PDF export transfer root RDF to XMP. Nested artwork metadata stays local to the artwork.
+The transfer lazily requires `nokogiri` and `hexapdf`, including for prepared export.
+For a composed publication, call `Sevgi::Sundries::Export.metadata!(path, title: title, description: description,
+creator: creator, rights: rights)` after assembly. It preserves unrelated XMP and attachments and replaces the file
+atomically. It does not infer dates or license terms.
+
 ### PDF page metadata and controls
 
 Use the document's `Imprint` operation for PDF page metadata and editable paint controls:
@@ -77,7 +90,8 @@ Pass PNG thumbnail bytes separately with `drawing.PDF "drawing.pdf", preview: pn
 Pass this Hash as `declaration:` to `Sevgi::Sundries::Export.call` when the application owns the SVG separately.
 For explicit required production, use `Sevgi::Sundries::Imprint.call(svg, output, declaration: drawing.Imprint)`.
 
-PDF export with a declaration or preview invokes the native `mainz` executable on `PATH` without ordinary export gems.
+PDF export with a declaration or preview invokes the native `mainz` executable on `PATH`.
+Without document RDF, this path needs no ordinary export gems.
 By default, missing Mainz or failed preparation warns and falls back to ordinary PDF export.
 Use `fallback: false` when the prepared contract is required; preparation failures then raise
 `Sevgi::Sundries::Imprint::Error`. Exports without a declaration or preview remain ordinary in either mode.

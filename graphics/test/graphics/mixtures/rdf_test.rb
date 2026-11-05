@@ -6,6 +6,12 @@ module Sevgi
   module Graphics
     module Mixtures
       class RDFTest < Minitest::Test
+        def test_rights_statement_does_not_add_a_license
+          document = SVG(:inkscape) { License(title: "Practice", rights: "Copyright © 2026 Recai Oktaş. All rights reserved.") }
+          assert_includes(document.Render, "<dc:rights>Copyright © 2026 Recai Oktaş. All rights reserved.</dc:rights>")
+          refute_includes(document.Render, "cc:license")
+        end
+
         def test_license_cc0_renders_rdf_work
           actual = SVG(:inkscape) do
             License_CC0(title: "Demo", creator: "Author")

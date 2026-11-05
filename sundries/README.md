@@ -60,9 +60,41 @@ CSS insertion and the source callback run once, including after a fallback.
 Mainz is optional. Prepared export requires a native `mainz` executable on `PATH`
 with support for the `imprint` command and its `--preview` option.
 
-Prepared export invokes the CLI without the `cairo`, `rsvg2`, and `hexapdf` Ruby gems.
+Prepared export without document RDF invokes the CLI without the `cairo`, `rsvg2`, and `hexapdf` Ruby gems.
 Ordinary PDF/PNG export and PDF stamping retain their optional Ruby dependencies.
 `Imprint.fingerprint` returns the executable digest and native dependency report for output caches, or nil when Mainz is absent.
+
+## Document metadata
+
+PDF export reads document-root SVG RDF and writes equivalent XMP in ordinary and
+prepared output. It accepts the `dc:title`, `dc:description`, `dc:creator`,
+`dc:publisher`, `dc:date`, `dc:language`, `dc:rights`, and `cc:license` fields.
+Nested artwork metadata is not used. Literal text, RDF arrays, and a single
+`x-default` language alternative are supported. Duplicate document fields and other
+language alternatives raise `Sevgi::ArgumentError` instead of discarding information.
+
+For a composed PDF, supply its publication metadata after assembly:
+
+```ruby
+Sevgi::Sundries::Export.metadata("assembled.pdf", "publication.pdf",
+  title: "Stroke Practice", description: "A collection of practice sheets.",
+  creator: "A. Creator", rights: "Copyright © 2026 A. Creator. All rights reserved.")
+Sevgi::Sundries::Export.metadata!("publication.pdf", title: "Revised Title")
+```
+
+The supported keyword names match the RDF fields without namespace prefixes.
+`creator`, `publisher`, `date`, and `language` accept a String or an Array of Strings.
+Other fields accept a String. Supplied fields replace the corresponding document
+properties. Other XMP, pages, and attachments are retained. Title, description, and
+creator also update the PDF Info title, subject, and author. No dates are added.
+The destination is replaced atomically after a successful write.
+
+RDF transfer and PDF metadata editing lazily require `nokogiri` and `hexapdf`.
+Install them separately when using these features:
+
+```sh
+gem install nokogiri hexapdf
+```
 
 ## Ruby compatibility
 

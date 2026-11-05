@@ -1,9 +1,12 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/ModuleLength
+
 require "sevgi/function"
 
 require_relative "export/system"
 require_relative "export/input"
+require_relative "export/metadata"
 require_relative "imprint"
 
 module Sevgi
@@ -94,10 +97,12 @@ module Sevgi
       )
         output = output_path(output)
         format = format_for(format, output)
-        input = Input.new(svg, {width:, height:, dpi:, css:, declaration:, preview:, fallback:}, &block)
-        return output if format == :pdf && prepared(input, output)
-        native!
-        render(input.svg, output, format:, **input.dimensions)
+        input = Input.new(svg, {format:, width:, height:, dpi:, css:, declaration:, preview:, fallback:}, &block)
+        if format == :pdf && !input.metadata.empty?
+          Metadata.export(output, input.metadata) { |path| produce(input, path, format:) }
+        else
+          produce(input, output, format:)
+        end
       end
       # rubocop:enable Metrics/ParameterLists
 
@@ -158,10 +163,52 @@ module Sevgi
       # @note Streams with unbalanced graphics-state or text-object operators are left unchanged.
       def stamp!(infile, stamp:, placeholder:) = native!.stamp!(infile, stamp:, placeholder:)
 
+      # Writes supplied publication metadata to PDF XMP and matching legacy Info entries.
+      # The destination is replaced only after the PDF and metadata have been written.
+      # @param infile [String] existing PDF
+      # @param outfile [String] destination PDF
+      # @param fields [Hash] title, description, creator, publisher, date, language, license, rights
+      # @option fields [String] :title document title
+      # @option fields [String] :description document description
+      # @option fields [String, Array<String>] :creator ordered creator names
+      # @option fields [String, Array<String>] :publisher publisher names
+      # @option fields [String, Array<String>] :date authored dates
+      # @option fields [String, Array<String>] :language language tags
+      # @option fields [String] :license license URL
+      # @option fields [String] :rights rights statement
+      # @return [String] expanded destination path
+      # @raise [Sevgi::ArgumentError] when fields or existing XMP are invalid
+      # @raise [Sevgi::MissingComponentError] when nokogiri or hexapdf is unavailable
+      # @raise [Sevgi::Sundries::Export::ExportError] when the PDF cannot be read or rewritten
+      # @raise [SystemCallError] when the destination cannot be staged or replaced
+      def metadata(infile, outfile, **fields)
+        fields = Metadata.capture(fields)
+        source = F.path(infile, context: "PDF metadata input")
+        output = output_path(outfile)
+        Metadata.export(output, fields) { |path| FileUtils.cp(source, path) }
+      end
+
+      # Writes publication metadata atomically to an existing PDF.
+      # @param infile [String] existing PDF
+      # @param fields [Hash] publication metadata
+      # @return [String] expanded PDF path
+      # @raise [Sevgi::ArgumentError] when fields or existing XMP are invalid
+      # @raise [Sevgi::MissingComponentError] when nokogiri or hexapdf is unavailable
+      # @raise [Sevgi::Sundries::Export::ExportError] when the PDF cannot be read or rewritten
+      # @raise [SystemCallError] when the PDF cannot be staged or replaced
+      # @see #metadata
+      def metadata!(infile, **fields) = metadata(infile, infile, **fields)
+
       extend self
 
       class << self
         private
+
+        def produce(input, output, format:)
+          return output if format == :pdf && prepared(input, output)
+          native!
+          render(input.svg, output, format:, **input.dimensions)
+        end
 
         def prepared(input, output)
           return false unless input.declaration
@@ -196,3 +243,5 @@ module Sevgi
     end
   end
 end
+
+# rubocop:enable Metrics/ModuleLength

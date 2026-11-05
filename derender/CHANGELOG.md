@@ -7,6 +7,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Added
 
+- RDF rights statements and automatic document RDF transfer to PDF XMP in ordinary and prepared exports.
+- Atomic PDF publication metadata editing through `Export.metadata` and `Export.metadata!`.
 - PDF page names and tags through `Page` inside `Imprint`, and PNG thumbnails through the separate `preview:` export option.
 
 ### Changed

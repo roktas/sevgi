@@ -8,7 +8,7 @@ module Sevgi
       # Validated inputs shared by ordinary and prepared export.
       # @api private
       class Input
-        attr_reader :declaration, :dimensions, :fallback, :preview, :svg
+        attr_reader :declaration, :dimensions, :fallback, :metadata, :preview, :svg
 
         # Keep all captured export inputs together before the source callback can change them.
         # rubocop:disable-next Metrics/AbcSize
@@ -22,6 +22,7 @@ module Sevgi
           @preview = image(options[:preview])
           @declaration = capture(options[:declaration])
           @svg = source(svg, options[:css], &block).dup.freeze
+          @metadata = options[:format] == :pdf ? Metadata.from_svg(@svg) : {}.freeze
         end
 
         private

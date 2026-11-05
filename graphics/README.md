@@ -24,6 +24,31 @@ puts doc.Render
 This focused gem exposes `Sevgi::Graphics.SVG` and lowercase component constructors. Install the umbrella `sevgi` gem
 when you need the global `SVG` facade or the `.sevgi` script runner.
 
+## Document RDF and PDF XMP
+
+Use `License` on an `:inkscape` document to author root RDF metadata:
+
+```ruby
+doc = Sevgi::Graphics.SVG :inkscape, width: 40, height: 30 do
+  rect width: 20, height: 10
+  License title: "Stroke Practice", description: "Printable practice sheets.",
+    creator: "A. Creator", rights: "Copyright © 2026 A. Creator. All rights reserved."
+end
+
+doc.PDF "practice.pdf"
+```
+
+`License` accepts `title`, `description`, `creator`, `publisher`, `date`, `language`,
+`rights`, and an optional license URL. It does not assign a license unless one is
+supplied. The `License_CC_*` helpers assign their named Creative Commons license.
+Use `description` for descriptive text that accompanies the title.
+
+Sevgi transfers document-root RDF to PDF XMP through ordinary and prepared export.
+Title, description, and rights use language alternatives; creator and date use ordered
+arrays; publisher and language use unordered arrays. Metadata on nested artwork
+does not become the document's metadata. No dates or license terms are inferred.
+This transfer requires the optional `nokogiri` and `hexapdf` gems.
+
 ## PDF page metadata and controls
 
 `Imprint` attaches an immutable producer declaration to an SVG document.

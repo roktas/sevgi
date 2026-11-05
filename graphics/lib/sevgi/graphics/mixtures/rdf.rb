@@ -10,7 +10,7 @@ module Sevgi
       #     License_CC0 title: "Example", creator: "A. Creator"
       #   end
       module RDF
-        WORK_OPTIONS = %i[title description creator publisher date language license].freeze
+        WORK_OPTIONS = %i[title description creator publisher date language license rights].freeze
         private_constant :WORK_OPTIONS
 
         # Adds RDF license metadata inside a metadata element.
@@ -143,6 +143,7 @@ module Sevgi
         # @option kwargs [String] :date date
         # @option kwargs [String] :language language
         # @option kwargs [String] :license license URL
+        # @option kwargs [String] :rights rights statement
         #
         # | Option | RDF element |
         # | --- | --- |
@@ -153,6 +154,7 @@ module Sevgi
         # | `date` | `dc:date` |
         # | `language` | `dc:language` |
         # | `license` | `cc:license` resource |
+        # | `rights` | `dc:rights` |
         # @yield evaluates additional RDF work metadata
         # @yieldreturn [Object] ignored block result
         # @return [Sevgi::Graphics::Element] RDF element
@@ -172,6 +174,7 @@ module Sevgi
               Element(:"dc:date", kwargs[:date]) if kwargs[:date]
               Element(:"dc:language", kwargs[:language]) if kwargs[:language]
               Element(:"cc:license", "rdf:resource": kwargs[:license]) if kwargs[:license]
+              Element(:"dc:rights", kwargs[:rights]) if kwargs[:rights]
 
               Within(&block) if block
             end
