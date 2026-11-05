@@ -5,6 +5,19 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## Unreleased
 
+### Added
+
+- PDF page names and tags through `Page` inside `Imprint`, and PNG thumbnails through the separate `preview:` export option.
+
+### Changed
+
+- Rename the `Style` DSL operation to `Imprint` and its PDF export option from `style:` to `declaration:`.
+- Replace `Mainz.produce` with `Imprint.call` and use the native `mainz imprint` command.
+
+### Fixed
+
+- Reject invalid PDF declarations even when a preview is supplied, preserving existing output files.
+
 ## 1.1.1 - 2026-10-29
 
 ### Fixed

@@ -30,38 +30,39 @@ to Sevgi Graphics when the document needs it.
 
 ## Prepared PDF export
 
-Sevgi uses the native Mainz CLI for SVG sources with a Style declaration.
-Mainz receives private temporary files through argument arrays and publishes one prepared PDF.
+Sevgi uses the native Mainz CLI for SVG sources with an Imprint declaration or a PNG preview.
+Mainz receives private temporary files through argument arrays and publishes one PDF with the declared metadata and paint controls.
 Successful preparation replaces the destination atomically.
 Parallel calls use separate temporary directories and share no producer state.
 
 ```ruby
 require "sevgi/sundries"
 
-Sevgi::Sundries::Export.call(svg, "drawing.pdf", style: declaration)
-Sevgi::Sundries::Export.call(svg, "prepared.pdf", style: declaration, fallback: false)
-Sevgi::Sundries::Mainz.produce(svg, "prepared.pdf", declaration: declaration)
-Sevgi::Sundries::Mainz.available?
+Sevgi::Sundries::Export.call(svg, "drawing.pdf", declaration: declaration)
+Sevgi::Sundries::Export.call(svg, "prepared.pdf", declaration: declaration, fallback: false)
+Sevgi::Sundries::Imprint.call(svg, "prepared.pdf", declaration: declaration)
+Sevgi::Sundries::Imprint.available?
 ```
 
-`declaration` is a JSON-compatible Hash. `drawing.Style` returns its deeply frozen Hash representation.
+`declaration` is a JSON-compatible Hash. `drawing.Imprint` returns its deeply frozen Hash representation.
+The declaration's optional `page` object carries `name` and `tags`. The Imprint DSL builds it with `Page`.
+Use `preview: png_bytes` for a separate PNG thumbnail. Page annotations and previews also work without editable paint;
+the `targets` and `parameters` maps are then empty.
 The default `fallback: true` warns and uses ordinary PDF export if Mainz cannot prepare the document.
-`fallback: false` raises `Sevgi::Sundries::Mainz::Error` if preparation fails. An unstyled document uses ordinary export.
-`Mainz.produce` always requires preparation and uses the same export validation.
+Ordinary PDF export omits declared page metadata, editable controls, and previews.
+`fallback: false` raises `Sevgi::Sundries::Imprint::Error` if preparation fails.
+A document without a declaration or preview uses ordinary export.
+`Imprint.call` always requires a successful Mainz export and uses the same input validation.
 Invalid arguments and filesystem failures remain errors in both modes.
 Interrupts cancel export without fallback.
 CSS insertion and the source callback run once, including after a fallback.
 
-Mainz is optional. Install its native `mainz` executable on `PATH` to enable preparation.
-Install [Mainz 1.0.0](https://github.com/roktas/mainz/releases/tag/v1.0.0) through Homebrew:
-
-```sh
-brew install roktas/tap/mainz
-```
+Mainz is optional. Prepared export requires a native `mainz` executable on `PATH`
+with support for the `imprint` command and its `--preview` option.
 
 Prepared export invokes the CLI without the `cairo`, `rsvg2`, and `hexapdf` Ruby gems.
 Ordinary PDF/PNG export and PDF stamping retain their optional Ruby dependencies.
-`Mainz.fingerprint` returns the executable digest and native dependency report for output caches, or nil when Mainz is absent.
+`Imprint.fingerprint` returns the executable digest and native dependency report for output caches, or nil when Mainz is absent.
 
 ## Ruby compatibility
 

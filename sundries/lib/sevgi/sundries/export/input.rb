@@ -8,26 +8,38 @@ module Sevgi
       # Validated inputs shared by ordinary and prepared export.
       # @api private
       class Input
-        attr_reader :dimensions, :fallback, :style, :svg
+        attr_reader :declaration, :dimensions, :fallback, :preview, :svg
 
+        # Keep all captured export inputs together before the source callback can change them.
+        # rubocop:disable-next Metrics/AbcSize
         def initialize(svg, options, &block)
           @fallback = options.fetch(:fallback)
-          ArgumentError.("Export fallback must be true or false") unless [true, false].any? { it.equal?(fallback) }
+          ArgumentError.("Export fallback must be true or false") unless [true, false].include?(fallback)
           @dimensions = %i[width height dpi].to_h do |key|
             [key, dimension(options[key], key.to_s, optional: key != :dpi)]
           end
-          @style = declaration(options[:style])
+
+          @preview = image(options[:preview])
+          @declaration = capture(options[:declaration])
           @svg = source(svg, options[:css], &block).dup.freeze
         end
 
         private
 
-        def declaration(value)
+        def capture(value)
+          value = {targets: {}, parameters: {}} if value.nil? && preview
           return if value.nil?
-          ArgumentError.("Export Style must be a Hash") unless value.is_a?(::Hash)
+          ArgumentError.("Export declaration must be a Hash") unless value.is_a?(::Hash)
           JSON.generate(value, strict: true, max_nesting: 32).freeze
         rescue JSON::JSONError => e
-          ArgumentError.("Invalid Style JSON: #{e.message}")
+          ArgumentError.("Invalid declaration JSON: #{e.message}")
+        end
+
+        def image(value)
+          return if value.nil?
+          ArgumentError.("Export preview must contain PNG bytes") unless value.is_a?(::String)
+          ArgumentError.("Export preview exceeds 128 MiB") if value.bytesize > 128 * 1024 * 1024
+          value.dup.freeze
         end
 
         def source(svg, css)
@@ -56,6 +68,7 @@ module Sevgi
           rescue ::StandardError => e
             ExportError.(dimension_error(field, e.message))
           end
+
           ExportError.(dimension_error(field)) unless number.is_a?(::Float) && number.finite? && number.positive?
           number
         end

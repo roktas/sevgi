@@ -51,12 +51,13 @@ callback after insertion and before conversion. Inspect the final output for cha
 SVG output has no native graphics dependency. Ordinary PDF and PNG export lazily require Cairo, RSVG, and HexaPDF.
 Report a missing optional component rather than substituting an unrequested command or raster workaround.
 
-### Editable styles
+### PDF page metadata and controls
 
-Use the document's `Style` operation when the caller needs editable PDF paint controls:
+Use the document's `Imprint` operation for PDF page metadata and editable paint controls:
 
 ```ruby
-drawing.Style do
+drawing.Imprint do
+  Page name: "Practice", tags: ["guide"]
   Target "ink", selectors: ["#outline"]
   Param "display", targets: ["ink"], property: "display",
     schema: {type: "string", enum: %w[inline none]}
@@ -66,18 +67,20 @@ end
 drawing.PDF "prepared.pdf", fallback: false
 ```
 
-The SVG must contain the selected group or direct `use` placement. Each target needs a `display` parameter.
+The SVG must contain the selected group or direct `use` placement. Each target needs at least one parameter binding.
 Keep JSON Schema names such as `minimum` and `maximum`. `Group` orders controls; `Profiles` declares named overrides.
-`Style` changes export metadata, not SVG appearance. Lowercase `style` remains the SVG CSS element.
+`Imprint` changes export metadata, not SVG appearance. Lowercase `style` remains the SVG CSS element.
+`Page` accepts `name:` and `tags:` and also works alone in an Imprint block.
+Pass PNG thumbnail bytes separately with `drawing.PDF "drawing.pdf", preview: png_bytes, fallback: false`.
 
-`drawing.Style` returns a deeply frozen Hash with JSON String keys, or nil when no declaration is attached.
-Pass this Hash as `style:` to `Sevgi::Sundries::Export.call` when the application owns the SVG separately.
-For explicit required production, use `Sevgi::Sundries::Mainz.produce(svg, output, declaration: drawing.Style)`.
+`drawing.Imprint` returns a deeply frozen Hash with JSON String keys, or nil when no declaration is attached.
+Pass this Hash as `declaration:` to `Sevgi::Sundries::Export.call` when the application owns the SVG separately.
+For explicit required production, use `Sevgi::Sundries::Imprint.call(svg, output, declaration: drawing.Imprint)`.
 
-Styled PDF export invokes the native `mainz` executable on `PATH` without ordinary export gems.
+PDF export with a declaration or preview invokes the native `mainz` executable on `PATH` without ordinary export gems.
 By default, missing Mainz or failed preparation warns and falls back to ordinary PDF export.
 Use `fallback: false` when the prepared contract is required; preparation failures then raise
-`Sevgi::Sundries::Mainz::Error`. Unstyled exports remain ordinary in either mode.
+`Sevgi::Sundries::Imprint::Error`. Exports without a declaration or preview remain ordinary in either mode.
 Invalid arguments, filesystem failures, and interrupts propagate in both modes. Parallel exports use separate staging.
 Mainz owns selector admission, supported paint properties, and PDF baselines. Publication policy stays with the caller.
 

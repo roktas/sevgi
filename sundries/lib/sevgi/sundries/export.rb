@@ -4,7 +4,7 @@ require "sevgi/function"
 
 require_relative "export/system"
 require_relative "export/input"
-require_relative "mainz"
+require_relative "imprint"
 
 module Sevgi
   module Sundries
@@ -56,7 +56,8 @@ module Sevgi
       # rubocop:disable Metrics/ParameterLists
 
       # Exports SVG source through ordinary rendering or optional Mainz preparation.
-      # Style selects Mainz automatically for PDF output. Unstyled documents use ordinary export.
+      # An Imprint declaration or preview selects Mainz automatically for PDF output.
+      # A preview alone uses an empty target and parameter declaration. Other documents use ordinary export.
       # Fallback warns and uses ordinary PDF export after a preparation failure.
       # CSS and the source callback run once before either backend receives the source.
       # @param svg [String] SVG source content
@@ -66,22 +67,34 @@ module Sevgi
       # @param height [Numeric, nil] target height in output pixels for PNG, or CSS pixels before PDF point conversion
       # @param dpi [Numeric] finite positive CSS pixel density. Omission uses {DEFAULT_DPI}, but explicit nil is invalid
       # @param css [String, nil] CSS inserted before the closing svg tag before rendering
-      # @param style [Hash, nil] optional JSON authoring declaration
+      # @param declaration [Hash, nil] optional JSON authoring declaration
+      # @param preview [String, nil] PNG bytes for the saved PDF page's thumbnail
       # @param fallback [Boolean] permit ordinary export after prepared export fails
       # @yield [svg] optional source transformation before rendering
       # @yieldparam svg [String] SVG source after optional CSS insertion
       # @yieldreturn [String] SVG source to render
       # @return [String] expanded output path
-      # @raise [Sevgi::ArgumentError] when the source, path, declaration, or fallback value is invalid
+      # @raise [Sevgi::ArgumentError] when the source, path, CSS, declaration, preview, or fallback is invalid
       # @raise [Sevgi::MissingComponentError] when ordinary export requires unavailable native gems
       # @raise [Sevgi::Sundries::Export::ExportError] when format, dimensions, CSS insertion, or ordinary rendering fails
-      # @raise [Sevgi::Sundries::Mainz::Error] when preparation fails and fallback is false
+      # @raise [Sevgi::Sundries::Imprint::Error] when preparation fails and fallback is false
       # @raise [SystemCallError] when the output directory or file cannot be written
-      def call(svg, output, format: nil, width: nil, height: nil, dpi: DEFAULT_DPI, css: nil,
-        style: nil, fallback: true, &block)
+      def call(
+        svg,
+        output,
+        format: nil,
+        width: nil,
+        height: nil,
+        dpi: DEFAULT_DPI,
+        css: nil,
+        declaration: nil,
+        preview: nil,
+        fallback: true,
+        &block
+      )
         output = output_path(output)
         format = format_for(format, output)
-        input = Input.new(svg, {width:, height:, dpi:, css:, style:, fallback:}, &block)
+        input = Input.new(svg, {width:, height:, dpi:, css:, declaration:, preview:, fallback:}, &block)
         return output if format == :pdf && prepared(input, output)
         native!
         render(input.svg, output, format:, **input.dimensions)
@@ -151,12 +164,12 @@ module Sevgi
         private
 
         def prepared(input, output)
-          return false unless input.style
-          Mainz.send(:write, input, output)
+          return false unless input.declaration
+          Imprint.send(:write, input, output)
           true
-        rescue Mainz::Error => e
+        rescue Imprint::Error => e
           raise unless input.fallback
-          warn("#{e.message}; exporting an ordinary PDF without editable styles")
+          warn("#{e.message}; exporting an ordinary PDF without declared metadata or paint controls")
           false
         end
 

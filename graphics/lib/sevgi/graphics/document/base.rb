@@ -13,10 +13,10 @@ module Sevgi
         mixture :Duplicate
         mixture :Export
         mixture :Identify
+        mixture :Imprint
         mixture :Include
         mixture :Lint
         mixture :Save
-        mixture :Style
         mixture :Tile
         mixture :Transform
         mixture :Underscore

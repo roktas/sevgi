@@ -98,11 +98,11 @@ deliberate export-only styling, and use `dpi:` when CSS pixels need a different 
 Ordinary PDF and PNG output uses Cairo, librsvg, and HexaPDF. If one is missing, Sevgi raises a component error. Ordinary SVG
 rendering continues to work without these optional dependencies.
 
-### Editable PDF styles {{ "{#editable-pdf}" }}
+### PDF page metadata and controls {{ "{#editable-pdf}" }}
 
-`Style` attaches a producer declaration to your document without changing its SVG.
-A prepared PDF contains editable paint controls and their original values.
-Mainz resolves the declaration and embeds those controls during PDF production.
+`Imprint` attaches a producer declaration to your document without changing its SVG.
+The declaration contains page metadata, editable paint controls, or both.
+Mainz resolves the declaration during PDF production.
 
 ```ruby
 require "sevgi"
@@ -111,7 +111,8 @@ drawing = SVG width: 20, height: 20 do
   g id: "outline" do
     rect width: 10, height: 10, fill: "none", stroke: "black"
   end
-  Style do
+  Imprint do
+    Page name: "Practice", tags: ["guide"]
     Target "ink", selectors: ["#outline"]
     Param "display", targets: ["ink"], property: "display",
       schema: {type: "string", enum: %w[inline none]}
@@ -128,29 +129,31 @@ end
 drawing.PDF "drawing.pdf"
 ```
 
-`PDF` attempts Mainz preparation when the document has a Style declaration.
+`PDF` attempts Mainz preparation when the document has an Imprint declaration or a preview is supplied.
 If Mainz is unavailable or preparation fails, the default mode warns and exports an ordinary PDF.
-`drawing.PDF "prepared.pdf", fallback: false` raises `Sevgi::Sundries::Mainz::Error` instead.
-An unstyled PDF uses ordinary export without a Mainz warning.
+`drawing.PDF "prepared.pdf", fallback: false` raises `Sevgi::Sundries::Imprint::Error` instead.
+A PDF without a declaration or preview uses ordinary export without a Mainz warning.
 Invalid arguments, filesystem failures, and interrupts remain errors in both modes.
 
 `Target` selects SVG groups or direct `use` placements with `#id` or `#id > use.class` selectors.
-Each target requires a `display` parameter. `Param` binds one supported paint property and supplies its value schema.
+Each target requires at least one parameter binding. `Param` binds one supported paint property and supplies its value schema.
 Its optional `value:` assigns an override after Mainz captures the original paint.
 `Group` orders controls. `Profiles` supplies named sets of overrides, with an empty first profile for the original values.
 The lowercase `style` method still creates an SVG CSS element.
 
-`drawing.Style` returns a deeply frozen Hash with JSON String keys, or nil when no declaration is attached.
-`drawing.Style declaration_hash` accepts a declaration without a builder block.
-Applications can pass `drawing.Style` to `Sevgi::Sundries::Export.call` with `style:`.
-`Sevgi::Sundries::Mainz.produce` accepts SVG text, an output path, and `declaration:` for explicit required production.
+`drawing.Imprint` returns a deeply frozen Hash with JSON String keys, or nil when no declaration is attached.
+`drawing.Imprint declaration_hash` accepts a declaration without a builder block.
+`Page` accepts `name:` and `tags:` and also works alone in an Imprint block.
+Pass PNG thumbnail bytes separately with `drawing.PDF "drawing.pdf", preview: png_bytes, fallback: false`.
+Applications can pass `drawing.Imprint` to `Sevgi::Sundries::Export.call` with `declaration:`.
+`Sevgi::Sundries::Imprint.call` accepts SVG text, an output path, and `declaration:` for explicit required production.
 Declarations contain deeply frozen JSON data and remain local to each document.
 Mainz owns selector resolution, supported properties, binding admission, and PDF baselines.
 
 This feature requires the native `mainz` executable on `PATH`.
 Prepared export invokes the CLI without the ordinary export gems.
 Parallel calls use separate temporary directories.
-The [Mainz declaration contract](https://github.com/roktas/mainz/blob/v1.0.0/lib/doc/SPEC.md#71-svg-declarations) defines the producer fields and limits.
+The [Mainz declaration contract](https://github.com/roktas/mainz/blob/main/lib/doc/SPEC.md#71-svg-declarations) defines the producer fields and limits.
 
 ### Last-minute export CSS
 

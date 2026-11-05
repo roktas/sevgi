@@ -7,8 +7,8 @@ require "tmpdir"
 
 module Sevgi
   module Sundries
-    # Optional CLI boundary for Mainz prepared PDF production.
-    module Mainz
+    # Converts SVG and declarations to PDFs through the native Mainz CLI.
+    module Imprint
       COMMAND = "mainz"
       private_constant :COMMAND
 
@@ -23,7 +23,7 @@ module Sevgi
       # PATH is resolved on each call. Absence returns nil.
       # @return [Hash{String => Object}, nil] executable SHA-256 and native dependency report
       # @raise [SystemCallError] when the executable cannot be read
-      # @raise [Sevgi::Sundries::Mainz::Error] when the version command fails or its report is invalid
+      # @raise [Sevgi::Sundries::Imprint::Error] when the version command fails or its report is invalid
       def fingerprint
         path = F.executable(COMMAND)
         return unless path
@@ -45,18 +45,20 @@ module Sevgi
       # @option options [Numeric, nil] :height output height in CSS pixels
       # @option options [Numeric] :dpi (96.0) positive CSS pixel density
       # @option options [String, nil] :css export-only CSS
+      # @option options [String, nil] :preview separate PNG thumbnail bytes
       # @yield [svg] transforms the source once before production
       # @yieldparam svg [String] SVG after optional CSS insertion
       # @yieldreturn [String] source to render
       # @return [String] expanded destination path
-      # @raise [Sevgi::ArgumentError] when the source, path, or declaration is invalid
-      # @raise [Sevgi::Sundries::Mainz::Error] when Mainz is missing or preparation fails
+      # @raise [Sevgi::ArgumentError] when the source, path, declaration, CSS, preview, or option name is invalid
+      # @raise [Sevgi::Sundries::Export::ExportError] when dimensions or CSS insertion are invalid
+      # @raise [Sevgi::Sundries::Imprint::Error] when Mainz is missing or preparation fails
       # @raise [SystemCallError] when staging or installation fails
-      def produce(svg, output, declaration:, **options, &block)
-        ArgumentError.("Mainz declaration must be a Hash") unless declaration.is_a?(::Hash)
-        unknown = options.keys - %i[css dpi height width]
-        ArgumentError.("Unknown Mainz option: #{unknown.first}") unless unknown.empty?
-        Export.call(svg, output, format: :pdf, style: declaration, fallback: false, **options, &block)
+      def call(svg, output, declaration:, **options, &block)
+        ArgumentError.("Imprint declaration must be a Hash") unless declaration.is_a?(::Hash)
+        unknown = options.keys - %i[css dpi height width preview]
+        ArgumentError.("Unknown Imprint option: #{unknown.first}") unless unknown.empty?
+        Export.call(svg, output, format: :pdf, declaration:, fallback: false, **options, &block)
       end
 
       extend self
@@ -70,23 +72,33 @@ module Sevgi
           parent = ::File.dirname(parent) until ::File.directory?(parent)
           dimensions = input.dimensions.flat_map { |key, value| value.nil? ? [] : ["--#{key}", value.to_s] }
           ::Dir.mktmpdir(".sevgi-mainz-", parent) do |directory|
-            result = prepare(program, directory, input.svg, input.style, dimensions)
+            result = prepare(program, directory, input, dimensions)
             install(result, output)
           end
+
           output
         end
 
-        def prepare(program, directory, svg, declaration, dimensions)
-          source, definitions, result = %w[source.svg style.json output.pdf].map { ::File.join(directory, it) }
-          ::File.binwrite(source, svg)
-          ::File.write(definitions, declaration)
+        def prepare(program, directory, input, dimensions)
+          source, definitions, result = %w[source.svg declaration.json output.pdf].map { ::File.join(directory, it) }
+          ::File.binwrite(source, input.svg)
+          ::File.write(definitions, input.declaration)
+          if input.preview
+            image = ::File.join(directory, "preview.png")
+            ::File.binwrite(image, input.preview)
+            dimensions += ["--preview", image]
+          end
+
           run(program, "imprint", source, "--declaration", definitions, "--output", result, *dimensions)
           result
         end
 
         def run(*arguments)
           process = F.sh(*arguments)
-          raise ::Interrupt if Signal.list.values_at("INT", "TERM", "KILL").include?(process.signal) || process.exit_code == 130
+          if Signal.list.values_at("INT", "TERM", "KILL").include?(process.signal) || process.exit_code == 130
+            raise ::Interrupt
+          end
+
           Error.("Mainz preparation failed: #{process.err}") unless process.ok?
           process
         rescue Errno::ENOENT => e
@@ -97,6 +109,7 @@ module Sevgi
           unless ::File.file?(result) && !::File.symlink?(result) && ::File.size(result).positive?
             Error.("Mainz produced no PDF")
           end
+
           ::FileUtils.mkdir_p(::File.dirname(output))
           ::File.rename(result, output)
         end

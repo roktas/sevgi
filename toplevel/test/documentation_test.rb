@@ -140,7 +140,8 @@ module Sevgi
           "default" => ["String", "#to_path", "nil"],
           "dpi" => ["Numeric"],
           "height" => %w[Numeric nil],
-          "style" => %w[Hash nil],
+          "declaration" => %w[Hash nil],
+          "preview" => %w[String nil],
           "fallback" => ["Boolean"],
           "width" => %w[Numeric nil]
         },
@@ -151,7 +152,7 @@ module Sevgi
           "Sevgi::MissingComponentError",
           "Sevgi::MissingComponentError",
           "Sevgi::Sundries::Export::ExportError",
-          "Sevgi::Sundries::Mainz::Error",
+          "Sevgi::Sundries::Imprint::Error",
           "SystemCallError"
         ]
       },

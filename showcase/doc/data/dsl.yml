@@ -482,6 +482,26 @@ letters:
           circle id: "dot", r: 2
         end
         art.Identifiers["dot"].Classify "indexed"
+    - name: Imprint
+      anchor: imprint
+      summary: Declare PDF page metadata and editable paint controls without changing the SVG.
+      provider: imprint
+      context: document
+      themes: [output]
+      code: |
+        g id: "outline" do
+          rect width: 10, height: 10, fill: "none", stroke: "black"
+        end
+        Imprint do
+          Page name: "Practice", tags: ["guide"]
+          Target "ink", selectors: ["#outline"]
+          Param "display", targets: ["ink"], property: "display",
+            schema: {type: "string", enum: %w[inline none]}
+          Param "opacity", targets: ["ink"], property: "stroke-opacity",
+            schema: {type: "number", minimum: 0, maximum: 1}
+        end
+      see: /output/#editable-pdf
+      see_title: editable PDF export
     - name: Include
       anchor: include
       summary: Import one selected SVG/XML node, optionally omitting unwanted attributes.
@@ -1004,25 +1024,6 @@ letters:
         end
         found = Traverse { |node| Stay node if node[:id] == "target" }
         found.Classify "selected"
-    - name: Style
-      anchor: style
-      summary: Attach a producer declaration for editable PDF export without changing the SVG.
-      provider: style
-      context: document
-      themes: [output]
-      code: |
-        g id: "outline" do
-          rect width: 10, height: 10, fill: "none", stroke: "black"
-        end
-        Style do
-          Target "ink", selectors: ["#outline"]
-          Param "display", targets: ["ink"], property: "display",
-            schema: {type: "string", enum: %w[inline none]}
-          Param "opacity", targets: ["ink"], property: "stroke-opacity",
-            schema: {type: "number", minimum: 0, maximum: 1}
-        end
-      see: /output/#editable-pdf
-      see_title: editable PDF export
     - name: SVG
       anchor: svg
       summary: Create an SVG document from a profile, canvas, and drawing block.

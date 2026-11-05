@@ -62,16 +62,19 @@ module Sevgi
           end
         end
 
-        def test_pdf_passes_document_style_and_fallback
+        def test_pdf_passes_document_imprint_and_fallback
           require "sevgi/sundries"
           drawing = SVG(:minimal)
-          drawing.Style targets: {ink: {selectors: ["#ink"]}}, parameters: {}
+          drawing.Imprint targets: {ink: {selectors: ["#ink"]}}, parameters: {}, page: {name: "Practice"}
+          preview = "\x89PNG\r\n\x1a\n".b
           options = nil
           Sundries::Export.stub(:call, -> (_svg, output, **kwargs) { options = kwargs; output }) do
-            drawing.PDF("out.pdf", fallback: false)
+            drawing.PDF("out.pdf", preview:, fallback: false)
           end
-          assert_same(drawing.Style, options.fetch(:style))
+          assert_same(drawing.Imprint, options.fetch(:declaration))
           assert_equal(false, options.fetch(:fallback))
+          assert_equal("Practice", options.fetch(:declaration).fetch("page").fetch("name"))
+          assert_same(preview, options.fetch(:preview))
         end
 
         def test_exports_use_default_names_inside_directory
