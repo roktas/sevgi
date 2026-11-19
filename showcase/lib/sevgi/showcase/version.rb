@@ -4,6 +4,6 @@ module Sevgi
   # Showcase component namespace.
   module Showcase
     # Current showcase component version.
-    VERSION = "1.1.1"
+    VERSION = "2.0.0"
   end
 end

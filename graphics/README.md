@@ -95,7 +95,7 @@ Every target requires at least one parameter binding.
 `Param` accepts an optional `value:` to assign an override after Mainz captures original paint.
 For an authored hidden target, `Target` accepts `display: "none"`.
 Mainz owns selector resolution, supported properties, binding admission, and PDF baselines.
-The [declaration contract](https://github.com/roktas/mainz/blob/main/lib/doc/SPEC.md#71-svg-declarations) defines those fields.
+The [Mainz 1.0.0 declaration contract](https://github.com/roktas/mainz/blob/v1.0.0/doc/spec/lib.md#svg-declarations) defines those fields.
 
 `doc.Imprint` returns the declaration as deeply frozen JSON data with String keys.
 `doc.Imprint declaration_hash` accepts the same fields without a builder block.

@@ -57,8 +57,8 @@ Invalid arguments and filesystem failures remain errors in both modes.
 Interrupts cancel export without fallback.
 CSS insertion and the source callback run once, including after a fallback.
 
-Mainz is optional. Prepared export requires a native `mainz` executable on `PATH`
-with support for the `imprint` command and its `--preview` option.
+Mainz is optional. Prepared export requires the native [Mainz 1.0.0](https://github.com/roktas/mainz/releases/tag/v1.0.0)
+CLI on `PATH`. Sevgi uses `mainz imprint` and passes `--preview` when you supply a PNG.
 
 Prepared export without document RDF invokes the CLI without the `cairo`, `rsvg2`, and `hexapdf` Ruby gems.
 Ordinary PDF/PNG export and PDF stamping retain their optional Ruby dependencies.

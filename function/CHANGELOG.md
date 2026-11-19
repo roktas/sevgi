@@ -5,6 +5,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## Unreleased
 
+## 2.0.0 - 2026-11-20
+
 ### Added
 
 - RDF rights statements and automatic document RDF transfer to PDF XMP in ordinary and prepared exports.

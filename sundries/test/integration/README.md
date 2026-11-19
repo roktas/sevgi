@@ -1,6 +1,6 @@
 # Mainz export integration
 
-`mainz.rb` exports four independent Graphics Imprint declarations concurrently through Sundries and the native Mainz CLI.
+`mainz.rb` exports four independent Graphics Imprint declarations concurrently through Sundries and the Mainz 1.0.0 CLI.
 It checks renderer identity, controls, profiles, page metadata, dimensions, QPDF structure, and Mainz validation.
 It also exports a metadata-only page with a PNG preview.
 Prepared export must not load the ordinary Cairo, RSVG2, or HexaPDF export path.

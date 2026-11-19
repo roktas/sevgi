@@ -153,7 +153,7 @@ Mainz owns selector resolution, supported properties, binding admission, and PDF
 This feature requires the native `mainz` executable on `PATH`.
 Prepared export invokes the CLI without the ordinary export gems.
 Parallel calls use separate temporary directories.
-The [Mainz declaration contract](https://github.com/roktas/mainz/blob/main/lib/doc/SPEC.md#71-svg-declarations) defines the producer fields and limits.
+The [Mainz 1.0.0 declaration contract](https://github.com/roktas/mainz/blob/v1.0.0/doc/spec/lib.md#svg-declarations) defines the fields and limits.
 
 ### Last-minute export CSS
 
