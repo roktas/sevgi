@@ -13,9 +13,9 @@ jobs:
       - name: Checkout 🛎️
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Ruby 🥁
-        uses: ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199 # v1.338.0
+        uses: ruby/setup-ruby@f9c4492e86def3e644ab32a0ef185eda5b0c20d0 # v1.342.0
         with:
-          ruby-version: "4.0.9"
+          ruby-version: "4.0.10"
       - name: Guard ref and versions 🧯
         run: ruby -rrake -e 'load "Rakefile"; Rake::Task["release:guard"].invoke'
 
@@ -39,9 +39,9 @@ jobs:
             librsvg2-dev \
             pkg-config
       - name: Ruby 🥁
-        uses: ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199 # v1.338.0
+        uses: ruby/setup-ruby@f9c4492e86def3e644ab32a0ef185eda5b0c20d0 # v1.342.0
         with:
-          ruby-version: "4.0.9"
+          ruby-version: "4.0.10"
           bundler-cache: true
       - name: Lint 🔬
         run: bundle exec rake lint
@@ -81,9 +81,9 @@ jobs:
           name: release-packages-${{ github.sha }}
           path: pkg
       - name: Ruby 🥁
-        uses: ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199 # v1.338.0
+        uses: ruby/setup-ruby@f9c4492e86def3e644ab32a0ef185eda5b0c20d0 # v1.342.0
         with:
-          ruby-version: "4.0.9"
+          ruby-version: "4.0.10"
       - name: Configure RubyGems trusted publishing 🔑
         uses: rubygems/configure-rubygems-credentials@dc5a8d8553e6ee01fc26761a49e99e733d17954a # v2.1.0
       - name: Verify and push packages 💎
