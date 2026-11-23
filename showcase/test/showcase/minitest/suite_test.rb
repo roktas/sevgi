@@ -45,6 +45,22 @@ module Sevgi
           end
         end
 
+        def test_suite_filters_relative_to_rootdir
+          Dir.mktmpdir do |dir|
+            root = File.join(dir, "lib", "showcase")
+            executable(File.join(root, "valid", "one.sevgi"))
+            executable(File.join(root, "valid", "_helper.sevgi"))
+            executable(File.join(root, "_hidden", "two.sevgi"))
+            executable(File.join(root, "lib", "three.sevgi"))
+            executable(File.join(root, "library", "four.sevgi"))
+
+            suite = Suite.new(root)
+
+            assert_equal(["valid"], suite.suites)
+            assert_equal(["one"], suite.valids.map(&:name))
+          end
+        end
+
         private
 
         def executable(file)

@@ -238,7 +238,7 @@ module Sevgi
         turn = degrees % 360
         return yield unless (turn % 90).zero?
 
-        values[(turn / 90).to_i]
+        values[(turn / 90).to_i % 4]
       end
 
       def radians(degrees) = degrees / 180 * ::Math::PI

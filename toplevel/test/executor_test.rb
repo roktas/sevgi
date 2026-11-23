@@ -340,6 +340,21 @@ module Sevgi
       assert_equal([true, []], result.value)
     end
 
+    def test_svg_load_resolves_relative_to_caller_script
+      Dir.mktmpdir do |dir|
+        helper = ::File.join(dir, "helper.sevgi")
+        main = ::File.join(dir, "main.sevgi")
+        ::File.write(helper, "HELPER_LOADED = :ok\n")
+        ::File.write(main, "SVG.Load(\"helper\")\nHELPER_LOADED\n")
+
+        result = Sevgi.execute_file(main)
+
+        assert_predicate(result, :success?, result.error&.message)
+        assert_equal([main, helper], result.stack)
+        assert_equal(:ok, result.value)
+      end
+    end
+
     def test_empty_source_and_file_entrypoints_are_strict_noops
       Dir.mktmpdir do |dir|
         file = ::File.join(dir, "empty.sevgi")

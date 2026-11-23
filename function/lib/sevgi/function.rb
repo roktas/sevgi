@@ -31,5 +31,5 @@ module Sevgi
   end
 
   # Supported helper facade for Sevgi extensions and advanced consumers.
-  F = Function unless defined?(F)
+  F = Function unless defined?(self::F)
 end

@@ -32,12 +32,18 @@ module Sevgi
       end
 
       def test_define_rejects_reserved_methods
-        error = assert_raises(ArgumentError) do
-          Paper.define(:define, width: 3, height: 5)
+        %i[define register normalize].each do |name|
+          error = assert_raises(Sevgi::ArgumentError) do
+            Paper.define(name, width: 3, height: 5)
+          end
+
+          assert_match(/\breserved\b/, error.message)
+          assert_instance_of(::Method, Paper.method(name))
         end
 
-        assert_match(/\breserved\b/, error.message)
-        assert_instance_of(::Method, Paper.method(:define))
+        profile = Paper.define(:paper_after_reserved, width: 3, height: 5)
+
+        assert_same(profile, Paper.paper_after_reserved)
       end
 
       def test_invalid_inputs_raise_sevgi_argument_error

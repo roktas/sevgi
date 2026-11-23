@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "sevgi"
+require "sevgi/derender"
 
 module Sevgi
   # Command-line entrypoint implementations shipped with Sevgi.
@@ -80,7 +80,7 @@ module Sevgi
       def dispatch(argv)
         options = Options.parse(argv)
         return puts(help) if options.help
-        return puts(::Sevgi::VERSION) if options.version
+        return puts(::Sevgi::Derender::VERSION) if options.version
 
         print_file(operand(argv), options)
       rescue Binaries::Igves::Error

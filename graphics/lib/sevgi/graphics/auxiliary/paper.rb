@@ -178,7 +178,7 @@ module Sevgi
         end
       end
 
-      @reserved = methods.map(&:to_sym).freeze
+      @reserved = (methods | private_methods).to_set.freeze
 
       {
         a0: [841, 1189, "mm"],

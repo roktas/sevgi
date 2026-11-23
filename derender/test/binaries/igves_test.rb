@@ -86,6 +86,28 @@ module Sevgi
         end
       end
 
+      def test_executable_reports_derender_version
+        out, err, status = run_igves("--version")
+
+        assert_predicate(status, :success?)
+        assert_equal("#{Sevgi::Derender::VERSION}\n", out)
+        assert_empty(err)
+      end
+
+      def test_binary_loads_without_toplevel
+        lib = ::File.expand_path("../../lib", __dir__)
+        script = <<~RUBY
+          $LOAD_PATH.reject! { it.include?("/toplevel/") }
+          require "sevgi/binaries/igves"
+          Sevgi.const_get(:Binaries, false)::Igves.(["--version"])
+        RUBY
+        out, err, status = ::Open3.capture3(::RbConfig.ruby, "-I#{lib}", "-e", script)
+
+        assert_predicate(status, :success?, err)
+        assert_equal("#{Sevgi::Derender::VERSION}\n", out)
+        assert_empty(err)
+      end
+
       private
 
       def run_igves(*args, chdir: nil, stdin_data: "")

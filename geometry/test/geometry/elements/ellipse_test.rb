@@ -118,6 +118,12 @@ module Sevgi
           assert_in_delta(20, aligned.box.position.x + aligned.box.width, 1e-10)
         end
       end
+
+      def test_skew_x_handles_right_angle
+        skewed = Ellipse[4, 2].skew_x(90)
+
+        assert_instance_of(Ellipse, skewed)
+      end
     end
   end
 end

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "open3"
+require "rbconfig"
 require "tmpdir"
 
 require_relative "../test_helper"
@@ -56,6 +58,58 @@ module RuboCop
           SEVGI
           source
         )
+      end
+
+      def test_plugin_autocorrects_without_style_conflicts
+        lib = File.expand_path("../../../lib", __dir__)
+
+        Dir.mktmpdir do |dir|
+          file = File.join(dir, "drawing.sevgi")
+          config = File.join(dir, ".rubocop.yml")
+          File.write(config, "AllCops:\n  NewCops: enable\nplugins:\n  - sevgi-appendix\n")
+          File.write(
+            file,
+            <<~SEVGI
+              # frozen_string_literal: true
+
+              SVG(:minimal) {
+                rect(width: 4, height: 4, fill: 'red')
+              }
+            SEVGI
+          )
+
+          out, err, status = Open3.capture3(
+            RbConfig.ruby,
+            "-I#{lib}",
+            "-rrubocop",
+            "-e",
+            "exit(RuboCop::CLI.new.run(ARGV))",
+            "--",
+            "drawing.sevgi",
+            "--config",
+            ".rubocop.yml",
+            "--autocorrect-all",
+            "--format",
+            "simple",
+            "--cache",
+            "false",
+            chdir: dir
+          )
+          output = "#{out}#{err}"
+
+          assert_predicate(status, :success?, output)
+          refute_includes(output, "Infinite loop detected")
+          assert_equal(
+            <<~SEVGI,
+              # frozen_string_literal: true
+
+              SVG :minimal do
+                rect width: 4, height: 4, fill: "red"
+              end
+            SEVGI
+            File.read(file)
+          )
+        end
       end
 
       private

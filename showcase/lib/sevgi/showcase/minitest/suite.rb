@@ -48,7 +48,11 @@ module Sevgi
         private
 
         def load(rootdir)
-          ::Dir["#{rootdir}/**/*.sevgi"].grep_v(%r{(/_|/lib/|/library/)}).map { Script.new(it) }
+          ::Dir
+            .glob("**/*.sevgi", base: rootdir)
+            .sort
+            .grep_v(%r{(?:\A|/)(?:_|lib/|library/)})
+            .map { Script.new(::File.join(rootdir, it)) }
         end
       end
     end

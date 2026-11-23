@@ -1,3 +1,8 @@
+inherit_mode:
+  merge:
+    - Include
+    - Exclude
+
 AllCops:
   Include:
     - "**/*.sevgi"
@@ -65,3 +70,15 @@ Sevgi/StringLiterals:
     - double_quotes
   ConsistentQuotesInMultiline: false
   VersionAdded: "0.97.0"
+
+Style/BlockDelimiters:
+  Exclude:
+    - "**/*.sevgi"
+
+Style/MethodCallWithArgsParentheses:
+  Exclude:
+    - "**/*.sevgi"
+
+Style/StringLiterals:
+  Exclude:
+    - "**/*.sevgi"

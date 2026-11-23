@@ -224,6 +224,10 @@ module Sevgi
         assert_equal([Point[0, 3], Point[1, 2]], [point, Point[0, 3]].sort)
         assert(Point[1, 2].between?(Point[1, 1], Point[1, 3]))
       end
+
+      def test_point_rotate_handles_tiny_negative_angles
+        assert_equal(Point[1.0, 0.0], Point[1, 0].rotate(-1e-16).approx)
+      end
     end
   end
 end

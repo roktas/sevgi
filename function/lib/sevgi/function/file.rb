@@ -149,7 +149,7 @@ module Sevgi
 
         ext = ".#{ext}" unless ext.empty? || ext.start_with?(".")
 
-        Pathname.new(path).sub_ext(ext).to_s
+        "#{path.delete_suffix(::File.extname(path))}#{ext}"
       end
 
       # Creates a file and any missing parent directories.

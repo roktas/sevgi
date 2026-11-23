@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require "open3"
+require "rbconfig"
+
 require_relative "test_helper"
 
 module Sevgi
@@ -44,6 +47,20 @@ module Sevgi
     def test_undefined_map_skips_sentinel
       assert_same(Undefined, Undefined.map(Undefined) { :mapped })
       assert_equal(:mapped, Undefined.map(:value) { :mapped })
+    end
+
+    def test_sevgi_constants_ignore_top_level_collisions
+      lib = ::File.expand_path("../../lib", __dir__)
+      script = <<~RUBY
+        ::Error = Class.new(StandardError)
+        ::F = :external
+        require "sevgi/function"
+        print [Sevgi.const_defined?(:Error, false), Sevgi.const_defined?(:F, false)].join(",")
+      RUBY
+      out, err, status = ::Open3.capture3(::RbConfig.ruby, "-I#{lib}", "-e", script)
+
+      assert_predicate(status, :success?, err)
+      assert_equal("true,true", out)
     end
   end
 end

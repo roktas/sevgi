@@ -7,7 +7,7 @@ module Sevgi
   # Default file extension for Sevgi scripts.
   EXTENSION = "sevgi"
 
-  unless defined?(Error)
+  unless defined?(self::Error)
     # Base error class for Sevgi failures.
     class Error < StandardError
       # @overload call(*args, **kwargs, &block)

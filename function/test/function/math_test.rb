@@ -250,6 +250,13 @@ module Sevgi
           assert_equal([8, true], result)
           assert_equal(original, Function::Math.precision)
         end
+
+        def test_trig_handles_tiny_negative_angles
+          [-1e-17, -::Float::EPSILON / 100].each do |angle|
+            assert_equal(1.0, Function.cos(angle))
+            assert_equal(0.0, Function.sin(angle))
+          end
+        end
       end
     end
   end

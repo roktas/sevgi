@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "open3"
+require "rbconfig"
 require "tmpdir"
 
 require_relative "../test_helper"
@@ -148,6 +150,8 @@ module Sevgi
         def test_subext_replaces_and_removes_extensions
           assert_equal("icon.svg", Function.subext("svg", "icon.png"))
           assert_equal("icon", Function.subext("", "icon.png"))
+          assert_equal(".bashrc.svg", Function.subext("svg", ".bashrc.bak"))
+          assert_equal("dir.v1/foo.svg", Function.subext("svg", "dir.v1/foo"))
           assert_equal(".", Function.subext("svg", "."))
           assert_equal("..", Function.subext("svg", ".."))
         end
@@ -159,6 +163,20 @@ module Sevgi
             assert_equal(file, Function.touch(file))
             assert(::File.exist?(file))
           end
+        end
+
+        def test_subext_works_standalone
+          lib = ::File.expand_path("../../../lib", __dir__)
+          out, err, status = ::Open3.capture3(
+            ::RbConfig.ruby,
+            "-I#{lib}",
+            "-rsevgi/function",
+            "-e",
+            "print Sevgi::F.subext(\".svg\", \"drawing.txt\")"
+          )
+
+          assert_predicate(status, :success?, err)
+          assert_equal("drawing.svg", out)
         end
       end
     end

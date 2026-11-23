@@ -5,7 +5,12 @@ require "sevgi/executor"
 module Sevgi
   BootBlock = proc { send(is_a?(::Module) ? :extend : :include, ::Sevgi) }
 
-  private_constant :BootBlock
+  LOAD_WRAPPERS = [
+    __FILE__,
+    ::File.expand_path("../svg.rb", __dir__)
+  ].freeze
+
+  private_constant :BootBlock, :LOAD_WRAPPERS
 
   # Executes Sevgi script source with the full top-level DSL installed.
   #
@@ -64,7 +69,13 @@ module Sevgi
     ::File.join(::File.dirname(file), F.subext(".sevgi", name))
   end
 
-  private_class_method :execution_receiver, :source_name
+  def self.load_directory(locations)
+    location = locations.find { !LOAD_WRAPPERS.include?(it.absolute_path || it.path) } || locations.first
+
+    ::File.dirname(location.path)
+  end
+
+  private_class_method :execution_receiver, :source_name, :load_directory
 
   module Toplevel
     # Loads one or more Sevgi files relative to the caller's source file.
@@ -77,7 +88,7 @@ module Sevgi
     # @see Sevgi.Load
     # @see Sevgi.execute_file
     def Load(*files)
-      start = ::File.dirname(caller_locations(1..1).first.path)
+      start = ::Sevgi.__send__(:load_directory, caller_locations(1))
 
       files.each do |file|
         location = F.locate(file, start)
