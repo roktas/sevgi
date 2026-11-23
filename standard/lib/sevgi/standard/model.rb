@@ -117,12 +117,12 @@ module Sevgi
         # @return [nil]
         # @raise [Sevgi::UnallowedCDataError] when character data is present
         # @raise [Sevgi::UnallowedElementsError] when unallowed child elements are present
-        # @raise [Sevgi::UnmetConditionError] when more than one `font-face` child is present
+        # @raise [Sevgi::UnmetConditionError] when more than one `font-face-src` child is present
         def apply(cdata:, elements:)
           UnallowedCDataError.(element, cdata) if cdata
 
-          if (font_face_elements = elements.select { |element| element == :"font-face" }).size > 1
-            UnmetConditionError.(element, "At most one font-face element allowed")
+          if (font_face_elements = elements.select { |element| element == :"font-face-src" }).size > 1
+            UnmetConditionError.(element, "At most one font-face-src element allowed")
           end
 
           unless (unallowed = Element.unpick(elements - font_face_elements, :Descriptive)).empty?

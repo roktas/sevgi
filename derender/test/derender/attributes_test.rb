@@ -92,6 +92,11 @@ module Sevgi
 
         assert_equal(expected, actual)
       end
+
+      def test_decompile_quotes_digit_prefixed_and_empty_keys
+        assert_equal("\"123\": \"red\", \"\": \"blank\"", Attributes.decompile("123" => "red", "" => "blank"))
+        assert_includes(Derender.derender("<svg><rect style=\"123: red\"/></svg>"), "\"123\": \"red\"")
+      end
     end
   end
 end

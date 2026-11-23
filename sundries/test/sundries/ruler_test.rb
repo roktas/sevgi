@@ -517,6 +517,13 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
 
+      def test_ruler_clamps_two_ulp_overshoot_for_grid_canvas
+        ruler = Ruler.new(brut: 3.3, unit: 0.1, multiple: 3)
+
+        assert_equal([0.0, 0.0, 0.0], [ruler.start, ruler.finish, ruler.waste])
+        assert_equal([0.0, 0.0, 0.0, 0.0], Grid[ruler, ruler].canvas.margin.to_a)
+      end
+
       private
 
       def length_object(length) = Data.define(:length).new(length)

@@ -34,7 +34,12 @@ module Sevgi
         def id(given)
           (@id ||= {})[given] ||= begin
             name = updateable?(given) ? key(given).delete_suffix(Attributes::UPDATE_SUFFIX) : key(given)
-            XML.name(name, context: "XML attribute name") unless internal?(given)
+            if internal?(given)
+              XML.text(name, context: "XML attribute name")
+            else
+              XML.name(name, context: "XML attribute name")
+            end
+
             name.to_sym
           end
         end
@@ -107,7 +112,10 @@ module Sevgi
 
           def normalize_key(key)
             normalized = key.to_sym if key.respond_to?(:to_sym)
-            return normalized if normalized.is_a?(::Symbol)
+            if normalized.is_a?(::Symbol)
+              XML.text(normalized, context: "XML attribute value")
+              return normalized
+            end
 
             ArgumentError.("Attribute Hash keys must normalize to Symbols")
           rescue Sevgi::ArgumentError

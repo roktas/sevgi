@@ -245,7 +245,7 @@ module Sevgi
       # Returns the unfitted distance distributed outside the fitted span.
       # @return [Float]
       def waste
-        @waste ||= (brut - d).then { it.negative? && d.prev_float <= brut ? 0.0 : it }
+        @waste ||= (brut - d).then { it.negative? ? 0.0 : it }
       end
 
       # Returns the source subinterval count.
@@ -264,7 +264,7 @@ module Sevgi
 
       def fitted_margins(start, finish, span)
         extra = span - d
-        extra = 0.0 if extra.negative? && d.prev_float <= span
+        extra = 0.0 if extra.negative?
         extra /= 2.0
         [start + extra, finish + extra]
       end

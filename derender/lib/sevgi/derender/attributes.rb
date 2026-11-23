@@ -51,7 +51,7 @@ module Sevgi
               value
             end => value
 
-            key.match?(/\W/) ? "#{Ruby.literal(key)}: #{value}" : "#{key}: #{value}"
+            key.match?(/\A[A-Za-z_][A-Za-z0-9_]*\z/) ? "#{key}: #{value}" : "#{Ruby.literal(key)}: #{value}"
           end
           .join(", ")
       end

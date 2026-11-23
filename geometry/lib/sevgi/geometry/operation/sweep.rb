@@ -31,8 +31,8 @@ module Sevgi
           equation = Tuple[Point, initial].equation(angle)
 
           [
-            *unisweep(element, equation.shift(-step), -step, limit:).reverse,
-            *unisweep(element, equation, step, limit:)
+            *sweep_rows(element, equation.shift(-step), -step, limit:).reverse.flatten(1),
+            *sweep_rows(element, equation, step, limit:).flatten(1)
           ].tap do |lines|
             yield(lines) if block
           end
@@ -75,19 +75,7 @@ module Sevgi
         # @raise [Sevgi::Geometry::Error] when step or limit is invalid
         # @raise [Sevgi::Geometry::Operation::OperationError] when iteration reaches the limit
         def unisweep(element, equation, step, limit: LIMIT)
-          step = validate_arguments(step, limit)
-          lines = []
-
-          limit.times do
-            points = element.intersection(equation)
-            return lines if points.empty?
-
-            lines.concat(interior_lines(element, equation, points))
-
-            equation = equation.shift(step)
-          end
-
-          OperationError.("Loop limit reached: #{limit}")
+          sweep_rows(element, equation, step, limit:).flatten(1)
         end
 
         private :unisweep
@@ -101,6 +89,23 @@ module Sevgi
         end
 
         private
+
+        def sweep_rows(element, equation, step, limit:)
+          step = validate_arguments(step, limit)
+          rows = []
+
+          limit.times do
+            points = element.intersection(equation)
+            return rows if points.empty?
+
+            lines = interior_lines(element, equation, points)
+            rows << lines unless lines.empty?
+
+            equation = equation.shift(step)
+          end
+
+          OperationError.("Loop limit reached: #{limit}")
+        end
 
         def validate_arguments(step, limit)
           step = Real[:step, step]

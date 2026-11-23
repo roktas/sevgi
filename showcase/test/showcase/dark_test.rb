@@ -33,6 +33,20 @@ module Sevgi
         assert_includes(result, "stroke: \"#222\"")
       end
 
+      def test_apply_preserves_swapped_percent_word_and_escaped_quote_values
+        source = <<~RUBY
+          COLORS = %w[black white].freeze
+          label = "keep \\"black\\" intact"
+          border = 'black'
+        RUBY
+
+        result = Dark.apply(source, {"black" => "white", "white" => "#222"})
+
+        assert_includes(result, "%w[white #222]")
+        assert_includes(result, "label = \"keep \\\"black\\\" intact\"")
+        assert_includes(result, "border = 'white'")
+      end
+
       def test_apply_rejects_unapplied_mappings
         error = assert_raises(ArgumentError) { Dark.apply("fill: 'black'", {"yellow" => "purple"}) }
 

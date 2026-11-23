@@ -10,7 +10,7 @@ module Sevgi
         # @return [Array<String>] unformatted Ruby source lines
         def decompile(*, namespaces: self.namespaces())
           if children.any?
-            text_leaf? ? Array(leaf(Ruby.literal(content), namespaces:)) : tree(namespaces)
+            text_leaf? && !root? ? Array(leaf(Ruby.literal(content), namespaces:)) : tree(namespaces)
           else
             Array(leaf(namespaces:))
           end
@@ -36,7 +36,7 @@ module Sevgi
         end
 
         def tree(namespaces)
-          opening = inline_content? ? leaf(Ruby.literal(""), namespaces:) : leaf(namespaces:)
+          opening = !root? && inline_content? ? leaf(Ruby.literal(""), namespaces:) : leaf(namespaces:)
 
           [
             "#{opening} do",

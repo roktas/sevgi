@@ -42,6 +42,13 @@ module Sevgi
           [[1.0, 2.0, 3.0, 4.0], [1, 2, 3, 4]]
         ].each { |expected, values| assert_equal(expected, Margin[*values].to_a) }
       end
+
+      def test_margin_supports_keyword_arguments_and_rejects_nils
+        assert_equal([0.0, 0.0, 0.0, 10.0], Margin.new(left: 10).to_a)
+        assert_equal([5.0, 0.0, 0.0, 10.0], Margin.new(top: 5, left: 10).to_a)
+        assert_raises(Sevgi::ArgumentError) { Margin[1, 2, 3, 4].with(left: nil) }
+        assert_raises(Sevgi::ArgumentError) { Margin[nil] }
+      end
     end
   end
 end

@@ -435,6 +435,23 @@ module Sevgi
           refute(Element.method_defined?(:svg))
           assert(Element.method_defined?(:marker))
         end
+
+        def test_external_private_and_kernel_method_calls_raise_nomethod_error
+          klass = Class.new(Document::Minimal) do
+            private
+
+            def marker = :hidden
+          end
+
+          doc = klass.root
+
+          refute_respond_to(doc, :marker)
+          refute_respond_to(doc, :puts)
+          assert_raises(NoMethodError) { doc.marker }
+          assert_raises(NoMethodError) { doc.puts("x") }
+          refute(Element.method_defined?(:marker))
+          refute(Element.method_defined?(:puts))
+        end
       end
     end
   end

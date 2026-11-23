@@ -52,16 +52,21 @@ module Sevgi
 
         output
       end
+
       private :render
 
       # @api private
       def stamp_forms(document, stamp:, placeholder:)
-        pending = document.pages.flat_map { |page| page[:Resources][:XObject]&.each&.map { |_name, value| value } || [] }
+        pending = document.pages.flat_map do |page|
+          objects = page[:Resources]&.[](:XObject)
+          objects ? objects.each.map { |_name, value| value } : []
+        end
+
         seen = {}
         replacements = 0
         until pending.empty?
           form = pending.pop
-          next unless form[:Subtype] == :Form
+          next unless form.is_a?(HexaPDF::Stream) && form[:Subtype] == :Form
           identity = [form.oid, form.gen]
           next if seen[identity]
           seen[identity] = true
@@ -73,8 +78,10 @@ module Sevgi
           form.stream = data
           form.set_filter(:FlateDecode)
         end
+
         replacements
       end
+
       private :stamp_forms
 
       # Replaces exact placeholder text objects in PDF streams.
@@ -153,13 +160,18 @@ module Sevgi
 
         private_constant :PDF_LITERAL_ESCAPE
 
-        def replace(data, stamp:, placeholder:)
-          replacements, count = replacements(data, stamp:, placeholder:)
-          stamped = data.dup
+        PDF_SEPARATOR = %r{\A[\s\x00()<>\[\]{}/%]}n
+        private_constant :PDF_SEPARATOR
 
-          replacements.sort_by { |span, _replacement| span.first }.reverse_each do |span, replacement|
-            stamped[span.first...span.last] = replacement
-          end
+        def replace(data, stamp:, placeholder:)
+          binary = data.b
+          edits, count = replacements(binary, stamp:, placeholder:)
+          stamped = binary.dup
+
+          edits
+            .each_with_index
+            .sort_by { |(start, _finish, _text), index| [-start, -index] }
+            .each { |(start, finish, text), _index| stamped[start...finish] = text }
 
           [stamped, count]
         end
@@ -181,7 +193,7 @@ module Sevgi
             stack: [],
             valid: true
           }
-          replacements = {}
+          edits = []
           count = 0
 
           loop do
@@ -197,7 +209,7 @@ module Sevgi
 
             # Inline image bytes are not PDF tokens; never interpret them as operators.
             operator = object.to_sym
-            return [{}, 0] if operator == :BI || !HexaPDF::Content::Processor::OPERATOR_MESSAGE_NAME_MAP.key?(operator)
+            return [[], 0] if operator == :BI || !HexaPDF::Content::Processor::OPERATOR_MESSAGE_NAME_MAP.key?(operator)
 
             count += process_operator(
               operator,
@@ -208,16 +220,16 @@ module Sevgi
               placeholder:,
               serializer:,
               state:,
-              replacements:
+              edits:
             )
 
             operands.clear
           end
 
-          state[:valid] && state[:stack].empty? && !state[:in_text] ? [replacements, count] : [{}, 0]
+          state[:valid] && state[:stack].empty? && !state[:in_text] ? [edits, count] : [[], 0]
         end
 
-        def process_operator(operator, operands, finish, data, stamp:, placeholder:, serializer:, state:, replacements:)
+        def process_operator(operator, operands, finish, data, stamp:, placeholder:, serializer:, state:, edits:)
           case operator
           when :q
             state[:stack] << state.values_at(:fill_white, :font_size)
@@ -245,7 +257,7 @@ module Sevgi
               placeholder:,
               serializer:,
               state:,
-              replacements:
+              edits:
             )
           end
 
@@ -269,7 +281,7 @@ module Sevgi
           placeholder:,
           serializer:,
           state:,
-          replacements:
+          edits:
         )
           replacement = text_replacement(data, operator, operands, stamp:, placeholder:, serializer:, state:)
           return 0 unless replacement
@@ -277,14 +289,20 @@ module Sevgi
           start, text_finish, text = replacement
           color_start = operands.first.fetch(1)
           text = " 0.101961 0.101961 0.101961 rg#{text}" if start == color_start
-          replacements[[start, text_finish]] = text
-          add_color_replacement(color_start, replacements) unless start == color_start
-          replacements[[operator_finish, operator_finish]] ||= " 1 1 1 rg"
+          edits << [start, text_finish, text.b]
+          add_color_replacement(color_start, data, edits) unless start == color_start
+          edits << [operator_finish, operator_finish, " 1 1 1 rg#{suffix_space(data, operator_finish)}".b]
           1
         end
 
-        def add_color_replacement(start, replacements)
-          replacements[[start, start]] ||= " 0.101961 0.101961 0.101961 rg"
+        def add_color_replacement(start, data, edits)
+          edits << [start, start, " 0.101961 0.101961 0.101961 rg#{suffix_space(data, start)}".b]
+        end
+
+        def suffix_space(data, pos)
+          return "" unless pos < data.bytesize
+
+          PDF_SEPARATOR.match?(data.byteslice(pos, 1)) ? "" : " "
         end
 
         def text_replacement(data, operator, operands, stamp:, placeholder:, serializer:, state:)

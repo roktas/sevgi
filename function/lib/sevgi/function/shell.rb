@@ -23,6 +23,7 @@ module Sevgi
           path = ::File.expand_path(program, dir.empty? ? "." : dir)
           return path if executable_file?(path)
         end
+
         nil
       end
 
@@ -38,8 +39,9 @@ module Sevgi
       # @raise [Sevgi::Error] when the program cannot be found in PATH
       # @note The first argument is checked as one exact argv entry. It is never shell-split.
       def executable!(*args)
-        program = args.first.to_s
-        Error.("Missing executable: #{program}") unless executable?(program)
+        env, program, rest = Command.parse(args)
+        ArgumentError.("Shell command required") if env && rest.empty?
+        Error.("Missing executable: #{program}") if rest.empty? || !executable?(program)
       end
 
       # Immutable result returned by shell commands.
@@ -222,6 +224,38 @@ module Sevgi
 
       private_constant :Signals
 
+      # Normalizes command arguments into environment, program, and argv.
+      # @api private
+      module Command
+        extend self
+
+        def parse(args)
+          if args.first.is_a?(::Hash)
+            env = args.first
+            rest = args[1..]
+          else
+            env = nil
+            rest = args
+          end
+
+          return [env, nil, []] if rest.empty?
+
+          entry = rest.first
+          program = entry.is_a?(::Array) ? entry.first : entry
+          [env, program, rest]
+        end
+
+        def argv(program, rest) = [program, *rest[1..]]
+
+        def popen(env, program, rest)
+          entry = rest.first.is_a?(::Array) ? rest.first : [program, program]
+          commands = [entry, *rest[1..]]
+          env ? [env, *commands] : commands
+        end
+      end
+
+      private_constant :Command
+
       # Runs shell commands and captures stdout, stderr, and exit status.
       # @api private
       class Runner
@@ -239,24 +273,24 @@ module Sevgi
         # @raise [Sevgi::ArgumentError] when no command is given
         # @raise [Errno::ENOENT] when the executable cannot be spawned
         def call(*args, &input)
-          ArgumentError.("Shell command required") if args.empty?
+          env, program, rest = Command.parse(args)
+          ArgumentError.("Shell command required") if rest.empty?
 
           @coathooks = 0
-          outs, errs, status = Open3.popen3(*command(args)) do |stdin, stdout, stderr, wait_thread|
+          outs, errs, status = Open3.popen3(*Command.popen(env, program, rest)) do |stdin, stdout, stderr, wait_thread|
             capture(stdin, stdout, stderr, wait_thread, &input)
           end
 
-          Result.new(args:, outs:, errs:, exit_code: status.exitstatus, signal: status.termsig)
+          Result.new(
+            args: Command.argv(program, rest),
+            outs:,
+            errs:,
+            exit_code: status.exitstatus,
+            signal: status.termsig
+          )
         end
 
         private
-
-        def command(args)
-          args = args.dup
-          index = args.first.is_a?(::Hash) ? 1 : 0
-          args[index] = [args[index], args[index]] unless args[index].is_a?(::Array)
-          args
-        end
 
         # rubocop:disable-next Lint/RescueException
         def capture(stdin, stdout, stderr, wait_thread, &input)

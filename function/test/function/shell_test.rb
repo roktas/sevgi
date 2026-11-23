@@ -120,6 +120,7 @@ module Sevgi
               FileUtils.chmod(index.zero? ? 0o600 : 0o700, path)
               path
             end
+
             with_exact_path(paths.map { ::File.dirname(it) }.join(::File::PATH_SEPARATOR)) do
               assert_equal(paths[1], Function.executable("tool"))
               FileUtils.chmod(0o600, paths[1])
@@ -183,6 +184,8 @@ module Sevgi
         def test_sh_rejects_empty_command
           assert_raises(ArgumentError) { Function.sh }
           assert_raises(ArgumentError) { Function.sh! }
+          assert_raises(ArgumentError) { Function.sh({"FOO" => "1"}) }
+          assert_raises(ArgumentError) { Function.sh!({"FOO" => "1"}) }
         end
 
         def test_sh_preserves_literal_executable_paths
@@ -214,6 +217,18 @@ module Sevgi
           with_executable("tool with spaces") do |path|
             assert_predicate(Function.sh({}, path), :ok?)
           end
+        end
+
+        def test_sh_bang_supports_leading_env_and_argv0
+          env_result = Function.sh!({"SEVGI_ENV" => "yes"}, RbConfig.ruby, "-e", "puts ENV.fetch('SEVGI_ENV')")
+
+          assert_equal("yes", env_result.out)
+          assert_equal([RbConfig.ruby, "-e", "puts ENV.fetch('SEVGI_ENV')"], env_result.args)
+
+          aliased = Function.sh!([RbConfig.ruby, "custom-ruby"], "-e", "print 1")
+
+          assert_equal("1", aliased.out)
+          assert_equal([RbConfig.ruby, "-e", "print 1"], aliased.args)
         end
 
         def test_result_reports_exit_and_signal_status

@@ -149,15 +149,15 @@ module Sevgi
         assert_equal("feSpecularLighting: Element(s) not allowed: 'rect'", error.message)
       end
 
-      def test_special_font_face_rejects_duplicate_font_face
-        assert(Conform.(:"font-face", elements: %i[desc font-face title]))
+      def test_special_font_face_rejects_duplicate_font_face_src
+        assert(Conform.(:"font-face", elements: %i[desc font-face-src title]))
 
         error = assert_raises(UnmetConditionError) do
-          Conform.(:"font-face", elements: %i[font-face font-face])
+          Conform.(:"font-face", elements: %i[font-face-src font-face-src])
         end
 
         assert_equal(
-          "font-face: Condition unmet for the element: 'At most one font-face element allowed'",
+          "font-face: Condition unmet for the element: 'At most one font-face-src element allowed'",
           error.message
         )
       end
@@ -168,6 +168,14 @@ module Sevgi
         end
 
         assert_equal("font-face: Element(s) not allowed: 'rect'", error.message)
+      end
+
+      def test_child_only_and_hatch_group_constraints
+        assert_raises(UnallowedElementsError) { Conform.(:svg, elements: %i[stop]) }
+        assert_raises(UnallowedElementsError) { Conform.(:svg, elements: %i[mpath]) }
+        assert_raises(UnallowedElementsError) { Conform.(:filter, elements: %i[feMergeNode]) }
+        assert(Conform.(:defs, elements: %i[hatch]))
+        assert(Conform.(:hatch, elements: %i[hatchpath]))
       end
     end
   end

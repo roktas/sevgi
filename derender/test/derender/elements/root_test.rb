@@ -135,6 +135,20 @@ module Sevgi
           assert_equal(expected, actual)
           assert_equal(svg, instance_eval(actual, "generated.sevgi").Render())
         end
+
+        def test_root_decompiles_text_and_mixed_content_inside_block
+          [
+            ["<svg>hello</svg>", "SVG do\n  _ \"hello\"\nend\n", false],
+            ["<svg>\n  hello\n  <rect/>\n</svg>", "SVG do\n  _ \"hello\"\n  rect\nend\n", true]
+          ].each do |svg, expected, has_rect|
+            source = Derender.derender(svg)
+            rendered = instance_eval(source, "generated.sevgi").Render()
+
+            assert_equal(expected, source)
+            assert_includes(rendered, "hello")
+            assert_equal(has_rect, rendered.include?("<rect/>"))
+          end
+        end
       end
     end
   end

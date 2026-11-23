@@ -865,7 +865,7 @@ module Sevgi
 
           elements: nil,
 
-          # Any number of Descriptive elements and at most one font-face element in any order.
+          # Any number of Descriptive elements and at most one font-face-src element in any order.
           model: :SpecialFontFace
         },
 

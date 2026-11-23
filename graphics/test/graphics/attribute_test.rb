@@ -302,6 +302,11 @@ module Sevgi
         end
       end
 
+      def test_xml_validation_rejects_null_bytes_in_internal_and_style_keys
+        assert_raises(Sevgi::ArgumentError) { Attributes.new("-\0" => "val") }
+        assert_raises(Sevgi::ArgumentError) { Attributes.new(style: {"bad\0key" => "red"}) }
+      end
+
       private
 
       def render_attributes(attributes)

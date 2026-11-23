@@ -206,6 +206,8 @@ module Sevgi
       # @raise [NameError] when the name is not a valid SVG element
       # @raise [Sevgi::ArgumentError] when an argument cannot be parsed as attributes or content
       def method_missing(name, *arguments, &block)
+        return super if singleton_class.private_method_defined?(name) || singleton_class.protected_method_defined?(name)
+
         Element.valid?(tag = Element.send(:id, name)) ? Dispatch.(self, name, tag, *arguments, &block) : super
       end
 
@@ -215,6 +217,8 @@ module Sevgi
       # @return [Boolean]
       # @api private
       def respond_to_missing?(name, include_private = false)
+        return false if singleton_class.private_method_defined?(name) || singleton_class.protected_method_defined?(name)
+
         Element.valid?(Element.send(:id, name)) || super
       end
 
@@ -225,27 +229,36 @@ module Sevgi
       module Dispatch
         extend self
 
+        MUTEX = ::Mutex.new
+        private_constant :MUTEX
+
         # Dispatches an element DSL call.
         # @param element [Sevgi::Graphics::Element] parent element
         # @param method [Symbol] Ruby method name
         # @param tag [Symbol] SVG element name
         # @return [Sevgi::Graphics::Element]
         def call(element, method, tag, *, &)
-          unless Element.method_defined?(method)
-            Element.class_exec do
-              define_method(method) { |*args, &block| self.class.element(tag, *args, parent: self, &block) }
-            end
+          MUTEX.synchronize do
+            unless Element.method_defined?(method) ||
+                Element.private_method_defined?(method) ||
+                Element.protected_method_defined?(method)
+              Element.class_exec do
+                define_method(method) { |*args, &block| self.class.element(tag, *args, parent: self, &block) }
+              end
 
-            (@methods ||= {})[method] = Element.instance_method(method)
+              (@methods ||= {})[method] = Element.instance_method(method)
+            end
           end
 
-          element.public_send(method, *, &)
+          element.class.element(tag, *, parent: element, &)
         end
 
         def cached?(method)
-          cached = @methods&.[](method)
+          MUTEX.synchronize do
+            cached = @methods&.[](method)
 
-          cached && Element.method_defined?(method) && Element.instance_method(method) == cached
+            cached && Element.method_defined?(method) && Element.instance_method(method) == cached
+          end
         end
 
         # Parses element DSL arguments.

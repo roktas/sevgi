@@ -177,6 +177,15 @@ module Sevgi
         assert(Line[0, 0].ignorable?)
         refute(line345.ignorable?)
       end
+
+      def test_line_over_and_intersection_handle_negative_slope_endpoints
+        line = Line.([0, 100], [0.001, 0])
+        point = Point[0.0000002, 99.98]
+
+        assert(line.over?(point))
+        refute_empty(line.intersection(Equation.horizontal(99.98)))
+        assert_equal([point], line.intersection(Equation.horizontal(99.98), precision: 7))
+      end
     end
   end
 end

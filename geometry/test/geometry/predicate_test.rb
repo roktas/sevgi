@@ -159,6 +159,14 @@ module Sevgi
         refute(polygon.convex?(precision: 4))
         assert(polygon.concave?(precision: 4))
       end
+
+      def test_polygon_small_degenerate_triangle_is_neither_convex_nor_concave
+        polygon = Polygon.([0, 0], [0.0001, 0.00002], [0.00002, 0.0001])
+
+        assert_predicate(polygon, :simple?)
+        refute_predicate(polygon, :convex?)
+        refute_predicate(polygon, :concave?)
+      end
     end
   end
 end

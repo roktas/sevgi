@@ -35,6 +35,10 @@ module Sevgi
         !turns.empty? && turns.uniq.one?
       end
 
+      def concave_turns?(vertices, precision: nil)
+        turn_orientations(vertices, precision:).uniq.size > 1
+      end
+
       def edges(vertices)
         vertices.each_index.map { |i| [vertices[i], vertices[(i + 1) % vertices.size]] }
       end
@@ -169,7 +173,7 @@ module Sevgi
       # @return [Boolean]
       # @raise [Sevgi::ArgumentError] when precision is not an Integer or nil
       def concave?(precision: nil)
-        simple?(precision:) && !Predicate.convex_turns?(vertices, precision:)
+        simple?(precision:) && Predicate.concave_turns?(vertices, precision:)
       end
     end
   end

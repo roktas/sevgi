@@ -183,6 +183,21 @@ module Sevgi
           assert_equal(5, Operation.sweep!(rect345, initial: rect345.position, angle: 0.0, step: 1.0).size)
         end
 
+        def test_sweep_negative_branch_keeps_row_span_order
+          lines = Operation.sweep(concave_u, initial: [0, 0.5], angle: 0, step: 1.5)
+
+          assert_equal(
+            [
+              [[0.0, 3.5], [1.0, 3.5]],
+              [[3.0, 3.5], [4.0, 3.5]],
+              [[0.0, 2.0], [1.0, 2.0]],
+              [[3.0, 2.0], [4.0, 2.0]],
+              [[4.0, 0.5], [0.0, 0.5]]
+            ],
+            line_points(lines)
+          )
+        end
+
         private
 
         def concave_u = Polygon.(*concave_u_points)

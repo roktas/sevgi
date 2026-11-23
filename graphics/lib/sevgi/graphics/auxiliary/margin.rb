@@ -6,10 +6,10 @@ module Sevgi
     # @!parse
     #   class Margin
     #     # Creates a margin from one to four CSS-like shorthand values.
-    #     # @param top [Numeric, nil] top value or all-sides shorthand
-    #     # @param right [Numeric, nil] right value or horizontal shorthand
-    #     # @param bottom [Numeric, nil] bottom value
-    #     # @param left [Numeric, nil] left value
+    #     # @param top [Numeric, Sevgi::Undefined] top value or all-sides shorthand
+    #     # @param right [Numeric, Sevgi::Undefined] right value or horizontal shorthand
+    #     # @param bottom [Numeric, Sevgi::Undefined] bottom value
+    #     # @param left [Numeric, Sevgi::Undefined] left value
     #     # @return [Sevgi::Graphics::Margin]
     #     # @raise [Sevgi::ArgumentError] when a supplied value is not a finite, non-negative real number
     #     # @example Create a vertical and horizontal margin
@@ -30,13 +30,13 @@ module Sevgi
 
       # Creates a margin from one to four shorthand values. Values must be finite real numbers greater than or equal to
       # zero.
-      # @param top [Numeric, nil] top value or all-sides shorthand
-      # @param right [Numeric, nil] right value or horizontal shorthand
-      # @param bottom [Numeric, nil] bottom value
-      # @param left [Numeric, nil] left value
+      # @param top [Numeric, Sevgi::Undefined] top value or all-sides shorthand
+      # @param right [Numeric, Sevgi::Undefined] right value or horizontal shorthand
+      # @param bottom [Numeric, Sevgi::Undefined] bottom value
+      # @param left [Numeric, Sevgi::Undefined] left value
       # @return [void]
       # @raise [Sevgi::ArgumentError] when a supplied margin is not a finite, non-negative real number
-      def initialize(top: nil, right: nil, bottom: nil, left: nil)
+      def initialize(top: Undefined, right: Undefined, bottom: Undefined, left: Undefined)
         super(**normalize(top, right, bottom, left))
       end
 
@@ -84,28 +84,25 @@ module Sevgi
       private
 
       def normalize(top, right, bottom, left)
-        values = [top, right, bottom, left]
-
         Margin
           .members
           .zip(
-            values_for(values.compact.size, values).map do |value|
+            values_for(top, right, bottom, left).map do |value|
               Scalar.finite(value, context: "margin", field: :value, nonnegative: true)
             end
           )
           .to_h
       end
 
-      def values_for(size, values)
-        top, right, bottom = values
+      def values_for(top, right, bottom, left)
+        values = [top, right, bottom, left]
+        indices = {
+          [true, false, false, false] => [0, 0, 0, 0],
+          [true, true, false, false] => [0, 1, 0, 1],
+          [true, true, true, false] => [0, 1, 2, 1]
+        }[values.map { !it.equal?(Undefined) }]
 
-        [
-          [0, 0, 0, 0],
-          [top, top, top, top],
-          [top, right, top, right],
-          [top, right, bottom, right]
-        ][size] ||
-          values
+        (indices ? values.values_at(*indices) : values).map { it.equal?(Undefined) ? 0 : it }
       end
     end
   end

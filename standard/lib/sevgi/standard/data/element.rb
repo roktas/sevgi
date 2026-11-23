@@ -9,7 +9,6 @@ module Sevgi
           animateMotion
           animateTransform
           discard
-          mpath
           set
         ],
 
@@ -70,14 +69,9 @@ module Sevgi
           feDisplacementMap
           feDropShadow
           feFlood
-          feFuncA
-          feFuncB
-          feFuncG
-          feFuncR
           feGaussianBlur
           feImage
           feMerge
-          feMergeNode
           feMorphology
           feOffset
           feSpecularLighting
@@ -105,7 +99,6 @@ module Sevgi
         Gradient: %i[
           linearGradient
           radialGradient
-          stop
         ],
 
         Graphics: %i[
@@ -221,6 +214,7 @@ module Sevgi
           font
           font-face
           foreignObject
+          hatch
           image
           marker
           mask
@@ -241,7 +235,9 @@ module Sevgi
           filter
           foreignObject
           hatchpath
+          mpath
           script
+          stop
           style
           view
         ],

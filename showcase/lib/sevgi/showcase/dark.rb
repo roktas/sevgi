@@ -41,18 +41,22 @@ module Sevgi
       private
 
       def replace_percent_words(source, mapping, applied)
-        source.gsub(/%[wW]\[[^\]]*\]/m) do |literal|
-          mapping.reduce(literal) do |text, (key, value)|
-            text.gsub(/(^|[\s\[])(#{Regexp.escape(key)})(?=$|[\s\]])/) do
-              applied[key] += 1
-              "#{Regexp.last_match(1)}#{value}"
-            end
-          end
+        source.gsub(/(%[wW]\[)([^\]]*)(\])/m) do
+          "#{Regexp.last_match(1)}#{replace_tokens(Regexp.last_match(2), mapping, applied)}#{Regexp.last_match(3)}"
+        end
+      end
+
+      def replace_tokens(body, mapping, applied)
+        body.gsub(/\S+/) do |token|
+          next token unless (value = mapping[token])
+
+          applied[token] += 1
+          value
         end
       end
 
       def replace_quoted(source, mapping, applied)
-        source.gsub(/(?<quote>["'])(?<value>.*?)\k<quote>/) do |literal|
+        source.gsub(/(?<quote>["'])(?<value>(?:\\.|(?!\k<quote>).)*)\k<quote>/) do |literal|
           key = Regexp.last_match[:value]
           value = mapping[key]
           next literal unless value

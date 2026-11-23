@@ -130,10 +130,8 @@ module Sevgi
       end
 
       def within_range?(point)
-        point = point.approx
-        points = [starting.approx, ending.approx]
-
-        point.between?(points.min, points.max)
+        Predicate.between?(point.x, starting.x, ending.x) &&
+          Predicate.between?(point.y, starting.y, ending.y)
       end
     end
   end

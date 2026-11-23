@@ -633,6 +633,18 @@ module Sevgi
         assert_equal(before, Document.keys)
       end
 
+      def test_document_call_merges_update_suffixes_across_layers
+        profile = Graphics.document(
+          :registered_layered_updates,
+          attributes: {class: "card", style: {fill: "white"}}
+        )
+
+        root = SVG(profile, "class+": "active", "style+": {stroke: "black"})
+
+        assert_equal("card active", root.attributes[:class])
+        assert_equal({fill: "white", stroke: "black"}, root.attributes[:style])
+      end
+
       def test_document_rejects_invalid_xml_metadata
         current = Graphics.document(:registered_xml_safe, attributes: {fill: "red"})
         before = Document.keys

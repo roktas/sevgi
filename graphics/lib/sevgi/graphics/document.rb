@@ -115,6 +115,7 @@ module Sevgi
       # Builds a root SVG element from a document profile.
       # @param document [Symbol, String, Class] profile name or document class
       # @param canvas [Sevgi::Graphics::Canvas, Sevgi::Graphics::Paper, Symbol, String, Sevgi::Undefined, nil] canvas input
+      # @param attributes [Hash] optional root XML attributes
       # @yield evaluates the drawing DSL in the new root element
       # @yieldreturn [Object] ignored block result
       # @return [Sevgi::Graphics::Document::Proto] SVG root element
@@ -122,7 +123,7 @@ module Sevgi
       # @example Build from a scoped Base-derived profile
       #   Card = Class.new(Sevgi::Graphics::Document::Base)
       #   Sevgi::Graphics::Document.(Card) { rect width: 10, height: 5 }
-      def self.call(document, canvas = Undefined, **, &block)
+      def self.call(document, canvas = Undefined, **attributes, &block)
         klass = case document
         when ::Class
           document if document <= Proto
@@ -132,7 +133,7 @@ module Sevgi
 
         ArgumentError.("Unknown document profile: #{document}") unless klass
 
-        klass.root(**klass.attributes, **canvas_attributes(canvas), **, &block)
+        klass.root(klass.attributes, canvas_attributes(canvas), attributes, &block)
       end
 
       def self.canvas_attributes(canvas)

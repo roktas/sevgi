@@ -430,7 +430,10 @@ module Sevgi
             document = HexaPDF::Document.open(infile)
             page = document.pages.first
             inner = document.add(page.to_form_xobject)
-            outer = document.add({Type: :XObject, Subtype: :Form, BBox: [0, 0, 100, 100], Resources: {XObject: {Inner: inner}}}, stream: "/Inner Do")
+            outer = document.add(
+              {Type: :XObject, Subtype: :Form, BBox: [0, 0, 100, 100], Resources: {XObject: {Inner: inner}}},
+              stream: "/Inner Do"
+            )
             inner[:Resources][:XObject] = {Cycle: outer}
             page[:Resources][:XObject] = {Outer: outer}
             page.contents = "q /Outer Do Q q /Outer Do Q"
@@ -649,6 +652,69 @@ module Sevgi
               ["1 1 1 rg BT /F1 12 Tf 0.101961 0.101961 0.101961 rg (\\\\1 $&)Tj 1 1 1 rg ET"],
               pdf_streams(outfile)
             )
+          end
+        end
+
+        def test_stamp_skips_pages_without_resources
+          Dir.mktmpdir do |dir|
+            infile = File.join(dir, "in.pdf")
+            outfile = File.join(dir, "out.pdf")
+            doc = HexaPDF::Document.new
+            empty_page = doc.pages.add
+            empty_page[:Contents] = doc.add({}, stream: "")
+            stamped_page = doc.pages.add
+            stamped_page[:Resources] = {Font: {F1: doc.fonts.add("Helvetica").pdf_object}}
+            stamped_page[:Contents] = doc.add({}, stream: "1 1 1 rg BT /F1 12 Tf (old)Tj ET")
+            doc.write(infile)
+
+            assert(Export.stamp(infile, outfile, stamp: "new", placeholder: "old"))
+            assert_includes(pdf_streams(outfile).last, "(new)Tj")
+          end
+        end
+
+        def test_stamp_handles_adjacent_matches_and_delimiter_free_operators
+          [
+            ["1 1 1 rg BT /F1 12 Tf (old)Tj 0 0 (old) \" ET", %i[Tj "]],
+            ["1 1 1 rg BT /F1 12 Tf (old)Tj(old)Tj ET", %i[Tj Tj]]
+          ].each do |source, expected_ops|
+            Dir.mktmpdir do |dir|
+              infile = File.join(dir, "in.pdf")
+              outfile = File.join(dir, "out.pdf")
+              write_pdf(infile, source)
+
+              assert(Export.stamp(infile, outfile, stamp: "new", placeholder: "old"))
+
+              stream = pdf_streams(outfile).fetch(0)
+              assert_valid_content_stream(stream)
+              page = HexaPDF::Document.open(outfile).pages[0]
+              processor = HexaPDF::Content::Processor.new(page.resources)
+              fills = []
+              HexaPDF::Content::Parser.parse(stream) do |operator, operands|
+                processor.process(operator, operands)
+                next unless %i[Tj "].include?(operator)
+
+                fills << [operator, operands.last, processor.graphics_state.fill_color.components]
+              end
+
+              assert_equal(
+                expected_ops.map { [it, "new", [0.101961, 0.101961, 0.101961]] },
+                fills
+              )
+            end
+          end
+        end
+
+        def test_stamp_handles_utf8_text_and_preceding_multibyte_streams
+          Dir.mktmpdir do |dir|
+            infile = File.join(dir, "in.pdf")
+            outfile = File.join(dir, "out.pdf")
+            write_pdf(infile, "1 1 1 rg BT /F1 12 Tf (İğne) Tj (old) Tj ET".b)
+
+            assert(Export.stamp(infile, outfile, stamp: "Oktaş", placeholder: "old"))
+
+            stream = pdf_streams(outfile).fetch(0)
+            assert_valid_content_stream(stream)
+            assert_includes(stream.b, "(Oktaş) Tj".b)
           end
         end
 
