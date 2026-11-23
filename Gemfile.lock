@@ -69,9 +69,10 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    addressable (2.9.2)
+    addressable (2.10.0)
       public_suffix (>= 2.0.2, < 8.0)
-    ansi (1.6.0)
+    ansi (1.6.1)
+      logger
     ast (2.4.3)
     bigdecimal (4.1.3)
     builder (3.3.0)
@@ -104,10 +105,15 @@ GEM
       openssl (>= 2.2.1)
       strscan (>= 3.1.2)
     json (3.1.0)
+    kramdown (2.6.1)
+      rexml (>= 3.4.4)
+    kramdown-parser-gfm (1.1.0)
+      kramdown (~> 2.0)
     language_server-protocol (3.17.0.6)
     lint_roller (1.1.0)
     logger (1.7.0)
     matrix (0.4.3)
+    mini_portile2 (2.8.9)
     minitest (5.27.0)
     minitest-focus (1.4.1)
       minitest (> 5.0)
@@ -117,6 +123,9 @@ GEM
       minitest (>= 5.0, < 7)
       ruby-progressbar
     native-package-installer (1.1.9)
+    nokogiri (1.19.7)
+      mini_portile2 (~> 2.8.2)
+      racc (~> 1.4)
     nokogiri (1.19.7-aarch64-linux-gnu)
       racc (~> 1.4)
     nokogiri (1.19.7-aarch64-linux-musl)
@@ -135,10 +144,10 @@ GEM
       racc (~> 1.4)
     openssl (4.0.2)
     parallel (2.3.0)
-    parser (3.3.13.0)
+    parser (3.3.14.0)
       ast (~> 2.4.1)
       racc
-    pkg-config (1.6.7)
+    pkg-config (1.6.8)
     prism (1.9.0)
     public_suffix (7.0.5)
     racc (1.8.1)
@@ -151,12 +160,13 @@ GEM
     red-colors (0.5.0)
       json
       matrix
-    regexp_parser (2.13.1)
+    regexp_parser (2.13.4)
+    rexml (3.4.4)
     rsvg2 (4.4.0)
       cairo-gobject (= 4.4.0)
       gdk_pixbuf2 (= 4.4.0)
       rake
-    rubocop (1.92.2)
+    rubocop (1.92.3)
       json (>= 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
@@ -167,10 +177,14 @@ GEM
       rubocop-ast (>= 1.49.0, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 4.0)
-    rubocop-ast (1.50.0)
+    rubocop-ast (1.53.0)
+      ast (~> 2.4)
       parser (>= 3.3.7.2)
-      prism (~> 1.7)
-    rubocop-md (2.0.4)
+      prism (>= 1.7)
+      racc
+    rubocop-md (3.0.0)
+      kramdown (~> 2.4)
+      kramdown-parser-gfm (~> 1.1)
       lint_roller (~> 1.1)
       rubocop (>= 1.72.1)
     rubocop-packaging (0.6.0)
@@ -239,8 +253,8 @@ DEPENDENCIES
   yard (~> 0.9)
 
 CHECKSUMS
-  addressable (2.9.2) sha256=9117c7e7d6ee07230e75ce41fb9401ae55354dc654fcd0e862ba41d539e9a610
-  ansi (1.6.0) sha256=ac9ea0c0ea8d32fb4e271348e609963ac78882f34b73836c2a02b3622e666658
+  addressable (2.10.0) sha256=5e13b9c001adf01dd65ad6e0d2a91d2bc07885c0ff2b83f48cbcd95e08d9de62
+  ansi (1.6.1) sha256=0465a830a375a15f513096d7bbc1ff9fd49e5db94b6c598e5c25e63d1f3e55a9
   ast (2.4.3) sha256=954615157c1d6a382bc27d690d973195e79db7f55e9765ac7c481c60bdb4d383
   bigdecimal (4.1.3) sha256=61ebe1e5e559bdc3cc6f2c0ee7f427321fc838f59611c294356eb04d6e21cf66
   builder (3.3.0) sha256=497918d2f9dca528fdca4b88d84e4ef4387256d984b8154e9d5d3fe5a9c8835f
@@ -257,14 +271,18 @@ CHECKSUMS
   gobject-introspection (4.4.0) sha256=c94fe81dd945a80ad87881734d90b54709eeec61af1a76ddfecbf1fb4180520c
   hexapdf (1.11.2) sha256=c69ea394cc1c4b291ee17cbf2707956ad975948db4f9cf7b9d9d3bfca87b5f1c
   json (3.1.0) sha256=3ce7ccf8fde58960177a3a756c31f292a4c1e1dedee884547096a5b0604e3bd8
+  kramdown (2.6.1) sha256=fbef3479b69c875aacb118dde77a40d6cc3a91e2c1d505a4c3f3f9e92d142641
+  kramdown-parser-gfm (1.1.0) sha256=fb39745516427d2988543bf01fc4cf0ab1149476382393e0e9c48592f6581729
   language_server-protocol (3.17.0.6) sha256=5ef2c0c138f8267e1bc631d3328347d354f96724b0af22f2c79516120443b7f0
   lint_roller (1.1.0) sha256=2c0c845b632a7d172cb849cc90c1bce937a28c5c8ccccb50dfd46a485003cc87
   logger (1.7.0) sha256=196edec7cc44b66cfb40f9755ce11b392f21f7967696af15d274dde7edff0203
   matrix (0.4.3) sha256=a0d5ab7ddcc1973ff690ab361b67f359acbb16958d1dc072b8b956a286564c5b
+  mini_portile2 (2.8.9) sha256=0cd7c7f824e010c072e33f68bc02d85a00aeb6fce05bb4819c03dfd3c140c289
   minitest (5.27.0) sha256=2d3b17f8a36fe7801c1adcffdbc38233b938eb0b4966e97a6739055a45fa77d5
   minitest-focus (1.4.1) sha256=394517cbe2dcb2d992d8ffc41a3b2b6315777a4daa69239de4fefe7110dd810e
   minitest-reporters (1.8.0) sha256=8ce5280fb73ad3178ae525454df169b6f28c1b38b1d088ea91815d3a370ba384
   native-package-installer (1.1.9) sha256=fbb41b6b22750791a4304f0a0aeea3dd837668892117f49c4caf2e8e0f4e792f
+  nokogiri (1.19.7) sha256=abe94507c54cb18f872777b16bdca4aad32b1abdc4c52fe843f1c80fbdf992b8
   nokogiri (1.19.7-aarch64-linux-gnu) sha256=8f5e15d299602456406e1f03a9f3456cceb33a0722811e818d2ee2214eb4c84a
   nokogiri (1.19.7-aarch64-linux-musl) sha256=efe0c3602e6e54521bc21c681930ce5568e2d11203de17400710b2b3ca2e4cb4
   nokogiri (1.19.7-arm-linux-gnu) sha256=7fd1907125691aa89e838cc91161761c758b4e17bb32f0dd9b5515a82cc759af
@@ -275,8 +293,8 @@ CHECKSUMS
   nokogiri (1.19.7-x86_64-linux-musl) sha256=464d1f3dfb0d53cf54c0c6a7e23e8e91cf68ec3cafc2b27dc4a7682f2d9bf546
   openssl (4.0.2) sha256=1037ad2868ae58df9ad917891c0c0f9815a1172f6846d4bcdd508e4c2ee747c2
   parallel (2.3.0) sha256=f75a3e904101ce6a1ccb6b8dc800cbafd42166d83330192438dcf29395167a6f
-  parser (3.3.13.0) sha256=e02f9b63c2fe05b0c68f692ba4df89b3cb113b663964f75d988fbebfd6c3deca
-  pkg-config (1.6.7) sha256=0415eff78595da55a60d1ba4e9098572c73afbe6b4c06ec50ded1972f1e1070b
+  parser (3.3.14.0) sha256=62f8f76af7b919425ee2d811880e9dcb8011ab40bfd59970dfb583141697e58f
+  pkg-config (1.6.8) sha256=7045fa6e185929fa7329f39c6fac934b0df70d643f3e0954c4a2e592355ea2e8
   prism (1.9.0) sha256=7b530c6a9f92c24300014919c9dcbc055bf4cdf51ec30aed099b06cd6674ef85
   public_suffix (7.0.5) sha256=1a8bb08f1bbea19228d3bed6e5ed908d1cb4f7c2726d18bd9cadf60bc676f623
   racc (1.8.1) sha256=4a7f6929691dbec8b5209a0b373bc2614882b55fc5d2e447a21aaa691303d62f
@@ -284,11 +302,12 @@ CHECKSUMS
   rake (13.4.2) sha256=cb825b2bd5f1f8e91ca37bddb4b9aaf345551b4731da62949be002fa89283701
   rbs (4.2.0) sha256=51f7b886dcc05bc09e10b901daa6a81829f6adc03101d6ca9ea4aac6103e0674
   red-colors (0.5.0) sha256=0a33f603d1843035fe467485ba4461022e3b5a2de9a0f0371e7cc0939b99ad19
-  regexp_parser (2.13.1) sha256=5aedb6b7c35688f51e86eef17a15374dfd287c83f4ca644b2c5f3ec50a33b44b
+  regexp_parser (2.13.4) sha256=1d0547814f57e6f00946957bd0ca201bc42f42cfb08eee89df60998aedcd8a3b
+  rexml (3.4.4) sha256=19e0a2c3425dfbf2d4fc1189747bdb2f849b6c5e74180401b15734bc97b5d142
   rsvg2 (4.4.0) sha256=30793faf9071a0df0dae51df9fdbd40e1b095292e5781a1dcf2b9706e28b243a
-  rubocop (1.92.2) sha256=14fb31eed143a0dc6f78186c550c1715e81cd38f59d05d1165050e445c1f5382
-  rubocop-ast (1.50.0) sha256=b9ca88300da0803ee222ad20cdb30494c0a784eed06fdc35d254b06d662788db
-  rubocop-md (2.0.4) sha256=0d076b6b5e99dea2ddc928c4bd702497decb9a8400da7808091e02ebcafcfb93
+  rubocop (1.92.3) sha256=fd77feac46e8e91c3a534f868a1702c59f5bf8173515fd00a3c6ce1198672ff6
+  rubocop-ast (1.53.0) sha256=027984d28485d6502ae4c72f9341080f54f538599f5dbb54f81875a4ddcad574
+  rubocop-md (3.0.0) sha256=d2e43f9af97268a1204a0e071ef541a47d6cdd43717b7511a3c0471b785bddb1
   rubocop-packaging (0.6.0) sha256=fb92bd0fb48e6f8cdb1648d2249b0cd51c2497dcc87340132d22f01edbf558a7
   rubocop-rake (0.7.1) sha256=3797f2b6810c3e9df7376c26d5f44f3475eda59eb1adc38e6f62ecf027cbae4d
   rubocop-rubyfmt (0.1.1) sha256=46dc8c4ff8a437f6f9436c6e467880a02092a154a104db8ba0ba5e3f6c624aee
