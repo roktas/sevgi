@@ -84,6 +84,18 @@ module Sevgi
           assert_equal(%w[primary selected], element[:class])
         end
 
+        def test_classify_without_tokens_omits_empty_class_attribute
+          elements = SVG do
+            rect.Classify
+            circle.Classify("", "   ", [])
+          end.children
+
+          elements.each do |element|
+            refute(element.attributes.key?(:class))
+            refute_includes(element.Render, "class=")
+          end
+        end
+
         def test_defaults_preserves_false_attribute
           element = SVG do
             rect(hidden: false).Defaults(hidden: true)

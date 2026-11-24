@@ -185,9 +185,9 @@ module Sevgi
         # @raise [Sevgi::ArgumentError] when update syntax receives an unsupported value type
         # @raise [Sevgi::ArgumentError] when a name/value is invalid, cyclic, colliding, or cannot be converted
         def []=(key, value)
+          id = Attribute.id(key)
           return if value.nil?
 
-          id = Attribute.id(key)
           value = Attribute.capture(value, normalize_keys: value.is_a?(::Hash))
           @store[id] = @store.key?(id) && Attribute.updateable?(key) ? update(@store[id], value) : value
         end
@@ -270,9 +270,9 @@ module Sevgi
 
           identities = {}
           attributes.filter_map do |key, value|
+            id = Attribute.id(key)
             next if value.nil?
 
-            id = Attribute.id(key)
             ArgumentError.("Attribute names collide after normalization: #{id}") if identities.key?(id)
 
             identities[id] = true

@@ -107,7 +107,10 @@ module Sevgi
         # @raise [Sevgi::ArgumentError] when a class value is invalid, cyclic, or cannot be stringified as XML
         # @see #Classes
         def Classify(*classes)
-          tap { self[:class] = Attribute.classes(self[:class], classes) }
+          tap do
+            tokens = Attribute.classes(self[:class], classes)
+            self[:class] = tokens unless tokens.empty?
+          end
         end
 
         # Assigns default attributes only when they are absent.

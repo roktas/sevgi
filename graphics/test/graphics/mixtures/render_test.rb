@@ -455,6 +455,13 @@ module Sevgi
           assert_render("<svg>\n  <text>foo<tspan>bar</tspan></text>\n</svg>", nested_inline)
         end
 
+        def test_render_on_child_element_omits_document_preambles
+          doc = SVG(:default) { rect(id: "r") }
+
+          assert_includes(doc.Render(), "<?xml")
+          assert_render("<rect id=\"r\"/>", doc.children.first.Render())
+        end
+
         private
 
         def assert_render(expected, actual, fragment: false)

@@ -104,7 +104,7 @@ module Sevgi
 
           attr_reader :root, :options
 
-          def self.call(root, **) = new(root, **).call(*root.class.preambles)
+          def self.call(root, **) = root.Root?() ? new(root, **).call(*root.class.preambles) : fragment(root, **)
           def self.fragment(root, **options) = new(root, **options).call
 
           def initialize(root, **)

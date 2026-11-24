@@ -336,6 +336,11 @@ module Sevgi
         assert_equal([:id], attrs.keys)
       end
 
+      def test_invalid_attribute_name_with_nil_value_is_rejected
+        assert_raises(Sevgi::ArgumentError) { Attributes.new("bad name" => nil) }
+        assert_raises(Sevgi::ArgumentError) { Attributes.new["bad name"] = nil }
+      end
+
       private
 
       def render_attributes(attributes)

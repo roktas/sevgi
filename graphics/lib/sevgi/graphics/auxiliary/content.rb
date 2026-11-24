@@ -163,6 +163,7 @@ module Sevgi
           validate_styles(content)
 
           super
+          validate_declarations(payload)
         end
 
         # Renders CSS content.
@@ -199,11 +200,27 @@ module Sevgi
 
         def validate_styles(content)
           content.each_value do |styles|
-            next if styles.is_a?(::Hash) || styles.is_a?(::String) || styles.is_a?(::Symbol) || styles.is_a?(::Numeric)
+            next if styles.is_a?(::Hash) || scalar_value?(styles)
 
             ArgumentError.("Malformed style type: #{styles.class}")
           end
         end
+
+        def validate_declarations(content)
+          content.each_value do |styles|
+            next unless styles.is_a?(::Hash)
+
+            styles.each_value do |value|
+              next if scalar_value?(value)
+
+              ArgumentError.("Malformed style value: #{value.inspect}")
+            end
+          end
+        end
+
+        def scalar_value?(value) = value.is_a?(::String) || value.is_a?(::Symbol) || finite_real?(value)
+
+        def finite_real?(value) = value.is_a?(::Numeric) && !value.is_a?(::Complex) && value.finite?
       end
 
       # XML text-encoded content backed by an immutable payload snapshot. Mutable leaf objects are stringified during

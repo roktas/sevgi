@@ -291,6 +291,15 @@ module Sevgi
         assert_predicate(encoded.dup, :frozen?)
       end
 
+      def test_css_rejects_non_finite_complex_and_container_declaration_values
+        [Float::NAN, Float::INFINITY, -Float::INFINITY, Complex(1, 0), [1, 2], {nested: 1}, nil, true].each do |value|
+          assert_raises(Sevgi::ArgumentError, value.inspect) { Content.css(".a" => {opacity: value}) }
+        end
+        [Float::NAN, Float::INFINITY, Complex(1, 0)].each do |value|
+          assert_raises(Sevgi::ArgumentError, value.inspect) { Content.css(opacity: value) }
+        end
+      end
+
       private
 
       def invalid_content_operations(value)
