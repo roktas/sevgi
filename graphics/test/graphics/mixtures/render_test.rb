@@ -403,6 +403,58 @@ module Sevgi
           end
         end
 
+        def test_render_empty_inline_tag_stays_on_own_line
+          expected = <<~SVG
+            <svg>
+              <title/>
+              <rect id="r"/>
+            </svg>
+          SVG
+            .chomp
+
+          actual = SVG(DOC) do
+            title
+            rect(id: "r")
+          end
+            .Render()
+
+          assert_render(expected, actual)
+          assert_render("<svg>\n  <title/>\n</svg>", SVG(DOC) { title }.Render())
+        end
+
+        def test_render_inline_child_keeps_attribute_spacing_with_block_zero_indent
+          actual = SVG(DOC) do
+            text("foo") { tspan("bar", id: "x") }
+          end
+            .Render(style: :block, indent: "")
+
+          assert_render("<svg>\n<text>foo<tspan id=\"x\">bar</tspan></text>\n</svg>", actual)
+        end
+
+        def test_render_floating_underscore_preserves_child_closing_tag_and_content_protocol
+          actual = SVG(DOC) do
+            Element(:_, "x") { text("y") }
+          end
+            .Render()
+
+          assert_render("<svg>\n  x\n    <text>y</text>\n</svg>", actual)
+
+          cdata_actual = SVG(DOC) do
+            _(Content.cdata("a & b"))
+          end
+            .Render()
+
+          assert_render("<svg>\n  <![CDATA[\n    a & b\n  ]]>\n</svg>", cdata_actual)
+        end
+
+        def test_render_inline_cdata_and_nested_underscore_omit_indentation
+          cdata_inline = SVG(DOC) { text(Content.cdata("a & b")) }.Render()
+          nested_inline = SVG(DOC) { text("foo") { tspan { _("bar") } } }.Render()
+
+          assert_render("<svg>\n  <text><![CDATA[a & b]]></text>\n</svg>", cdata_inline)
+          assert_render("<svg>\n  <text>foo<tspan>bar</tspan></text>\n</svg>", nested_inline)
+        end
+
         private
 
         def assert_render(expected, actual, fragment: false)

@@ -5,275 +5,221 @@ module Sevgi
     module Mixtures
       # DSL helpers for rendering SVG documents and children.
       module Render
-        # SVG source renderer.
+        # Validates SVG renderer formatting options.
         # @api private
-        class Renderer
-          # Default renderer options.
+        module Options
           DEFAULTS = {indent: "  ", linelength: 140, style: :hybrid}.freeze
           STYLES = %i[hybrid inline block].freeze
-          SVG_NAMESPACE = "http://www.w3.org/2000/svg"
+          private_constant :STYLES
 
-          ELEMENTS_WITH_INLINE_CONTENT = %i[title].freeze
-          ELEMENTS_WITH_BLOCK_CONTENT = %i[style].freeze
-          SEPARATOR = "\n"
-
-          private_constant(
-            :ELEMENTS_WITH_INLINE_CONTENT,
-            :ELEMENTS_WITH_BLOCK_CONTENT,
-            :SEPARATOR,
-            :STYLES,
-            :SVG_NAMESPACE
-          )
-
-          # @return [Sevgi::Graphics::Element] root element
-          attr_reader :root
-
-          # @return [Hash] renderer options
-          attr_reader :options
-
-          # @return [Array<Array<String>>] buffered output lines
-          attr_reader :output
-
-          # Inline-content output splice helper.
-          # @api private
-          class Inlines
-            # Inline mark with start, stop, and depth.
-            Mark = Struct.new(:start, :stop, :depth)
-
-            def initialize
-              @marks = []
-              @stack = []
-            end
-
-            def start(index, depth)
-              Mark.new(start: index, depth:).tap do |mark|
-                @marks << mark
-                @stack << mark
-              end
-            end
-
-            def stop(index)
-              mark = @stack.pop
-              PanicError.("Inline content range was not opened") unless mark
-
-              mark.stop = index
-            end
-
-            def join(output, indent:, separator:)
-              return if @marks.empty?
-
-              @marks.reverse_each { |mark| join_mark(output, mark, indent:, separator:) }
-
-              output.compact!
-            end
-
-            private
-
-            def join_mark(output, mark, indent:, separator:)
-              PanicError.("Inline content range was not closed") unless mark.stop
-
-              ((mark.start + 1)..mark.stop).each do |index|
-                lines = output[index]
-                next unless lines
-
-                lines.map! { |line| line.delete_prefix(indent * (mark.depth + 1)) }
-                output[mark.start][-1] += lines.join(separator)
-                output[index] = nil
-              end
-            end
-          end
-
-          # @overload initialize(root, **options)
-          #   Creates a renderer.
-          #   @param root [Sevgi::Graphics::Element] root element
-          #   @param options [Hash] renderer options
-          #   @option options [String] :indent indentation unit
-          #   @option options [Integer] :linelength hybrid attribute line length
-          #   @option options [Symbol] :style attribute style, one of :hybrid, :inline, or :block
-          #   @return [void]
-          #   @raise [Sevgi::ArgumentError] when an option is unknown, malformed, missing, or unsupported
-          def initialize(root, **)
-            @root = root
-            @options = self.class.send(:validate, **)
-            @output = []
-            @inlines = Inlines.new
-            unclosed
-          end
-
-          # @overload call(root, **options)
-          #   Renders a root element.
-          #   @param root [Sevgi::Graphics::Element] root element
-          #   @param options [Hash] renderer options
-          #   @return [String] SVG source
-          #   @raise [Sevgi::ArgumentError] when options, preambles, names, attributes, or content are invalid XML
-          def self.call(root, **) = new(root, **).call(*root.class.preambles)
-
-          # Renders a root element without document preambles.
-          # @param root [Sevgi::Graphics::Element] root element
-          # @param options [Hash] renderer options
-          # @return [String] SVG fragment source
-          # @raise [Sevgi::ArgumentError] when options, names, attributes, or content are invalid XML
-          def self.fragment(root, **options) = new(root, **options).call
-
+          # Validates and normalizes renderer formatting options.
+          # @param options [Hash] caller options
+          # @return [Hash] frozen normalized options
+          # @raise [Sevgi::ArgumentError] when an option is invalid
           def self.validate(**options)
             options = DEFAULTS.merge(options)
+            validate_keys!(options)
+            options[:indent] = valid_indent(options[:indent])
+            validate_linelength!(options[:linelength])
+            validate_style!(options[:style])
+            options.freeze
+          end
+
+          def self.validate_keys!(options)
             unknown = options.keys - DEFAULTS.keys
             ArgumentError.("Unknown renderer options: #{unknown.join(", ")}") unless unknown.empty?
+          end
 
-            indent = options[:indent]
+          def self.valid_indent(indent)
             unless indent.is_a?(::String) && /\A[\t\n\r ]*\z/.match?(indent)
               ArgumentError.("Renderer indent must contain only XML whitespace")
             end
 
-            options[:indent] = XML.text(indent, context: "Renderer indent")
-            linelength = options[:linelength]
-            unless linelength.is_a?(::Integer) && linelength >= 0
-              ArgumentError.("Renderer linelength must be a non-negative Integer")
-            end
-
-            ArgumentError.("Unrecognized style: #{options[:style]}") unless STYLES.include?(options[:style])
-
-            options.freeze
+            XML.text(indent, context: "Renderer indent")
           end
 
-          private_class_method :validate
+          def self.validate_linelength!(linelength)
+            return if linelength.is_a?(::Integer) && linelength >= 0
 
-          # Appends rendered lines to the output buffer.
-          # @param depth [Integer, nil] indentation depth
-          # @param lines [Array<String>] rendered lines
-          # @return [Array<Array<String>>, nil]
-          def append(depth, *lines)
-            return if lines.empty?
-
-            output.append(lines.map { "#{indent(depth) if depth}#{it}" })
+            ArgumentError.("Renderer linelength must be a non-negative Integer")
           end
 
-          # Renders the document.
-          # @param preambles [Array<String>] preamble lines
-          # @return [String] SVG source
-          # @raise [Sevgi::ArgumentError] when a preamble or rendered value is not valid XML text
-          def call(*preambles)
-            output.append(preambles.map { XML.text(it, context: "XML preamble") }) unless preambles.empty?
+          def self.validate_style!(style)
+            ArgumentError.("Unrecognized style: #{style}") unless STYLES.include?(style)
+          end
 
-            root.Traverse(
-              0,
-              proc { |element, depth| render_leave(element, depth) }
-            ) { |element, depth| render_enter(element, depth) }
+          private_class_method :valid_indent, :validate_keys!, :validate_linelength!, :validate_style!
+        end
 
-            join
+        # Renders inline element contents and children directly into one line buffer.
+        # @api private
+        class InlineBuffer
+          SEPARATOR = "\n"
+          private_constant :SEPARATOR
+
+          def initialize(buffer)
+            @buffer = buffer
+          end
+
+          def append(_depth, *lines)
+            @buffer << lines.join(SEPARATOR) unless lines.empty?
+          end
+
+          def render(element, contents, children, depth)
+            contents.each { it.render(self, depth) }
+            children.each { render_child(it, depth + 1) }
+            @buffer << "</#{element.name}>"
           end
 
           private
 
-          attr_reader :inlines
+          def render_child(element, depth)
+            children = Element.send(:tree_children, element)
+            contents = element.contents
+            return render_floating(contents, children, depth) if element.name == :_
 
-          def attributes(element, depth)
+            tag = inline_tag(element)
+            return @buffer << "<#{tag}/>" if children.empty? && contents.empty?
+
+            @buffer << "<#{tag}>"
+            render(element, contents, children, depth)
+          end
+
+          def render_floating(contents, children, depth)
+            contents.each { it.render(self, depth) }
+            children.each { render_child(it, depth + 1) }
+          end
+
+          def inline_tag(element)
             lines = element.attributes.send(:xml_lines)
-            block = options[:style] == :block ||
-              (options[:style] == :hybrid && indent(depth).length + lines.sum(&:length) > options[:linelength])
-
-            block ? attributes_block(element, depth, lines) : attributes_inline(element, depth, lines)
+            lines.empty? ? element.name.to_s : "#{element.name} #{lines.join(" ")}"
           end
-
-          def attributes_block(element, depth, lines)
-            return attributes_inline(element, depth, lines) if lines.empty?
-
-            append(depth, "<#{element.name}")
-            append(depth + 1, *lines)
-            append(depth, ">") unless childless?(element)
-          end
-
-          def attributes_inline(element, depth, lines)
-            line = "<#{[element.name, *lines].join(" ")}"
-
-            if childless?(element)
-              closed
-              append(depth, "#{line}/>")
-            else
-              append(depth, "#{line}>")
-            end
-          end
-
-          def childless?(element)
-            element.children.empty? && element.contents.empty?
-          end
-
-          def block_content?(element)
-            return false unless ELEMENTS_WITH_BLOCK_CONTENT.include?(element.name)
-
-            namespace = default_namespace(element)
-            namespace.nil? || namespace.to_s.empty? || namespace == SVG_NAMESPACE
-          end
-
-          def closed = @closed = true
-
-          def closed? = @closed.tap { unclosed }
-
-          def default_namespace(element)
-            current = element
-
-            while current.is_a?(Element)
-              return current.attributes[:xmlns] if current.attributes.has?(:xmlns)
-
-              current = current.parent
-            end
-
-            nil
-          end
-
-          def contents(element, depth)
-            return if element.contents.empty?
-
-            if floating?(element)
-              append(depth, *element.contents.map(&:to_s))
-              closed
-            else
-              element.contents.each { |content| content.render(self, depth) }
-            end
-          end
-
-          def floating?(element) = element.Is?(:_)
-
-          def inline_content?(element)
-            return false if block_content?(element)
-            return false if floating?(element)
-
-            element.contents.any? || ELEMENTS_WITH_INLINE_CONTENT.include?(element.name)
-          end
-
-          def indent(depth)
-            options[:indent] * depth
-          end
-
-          def join
-            inlines.join(output, indent: options[:indent], separator: SEPARATOR)
-            XML.text(output.join(SEPARATOR), context: "SVG output")
-          end
-
-          def render_enter(element, depth)
-            attributes(element, depth) unless floating?(element)
-            inlines.start(output.size - 1, depth) if inline_content?(element)
-            contents(element, depth)
-          end
-
-          def render_leave(element, depth)
-            inlines.stop(output.size) if (inlined = inline_content?(element))
-            return if closed? || floating?(element)
-
-            if childless?(element)
-              append(depth, "/>")
-            elsif inlined
-              append(nil, "</#{element.name}>")
-            else
-              append(depth, "</#{element.name}>")
-            end
-          end
-
-          def unclosed = @closed = false
-
         end
 
-        private_constant :Renderer
+        # Direct recursive SVG source renderer without post-pass inline splicing.
+        # @api private
+        class Renderer
+          SVG_NAMESPACE = "http://www.w3.org/2000/svg"
+          ELEMENTS_WITH_INLINE_CONTENT = %i[title].freeze
+          ELEMENTS_WITH_BLOCK_CONTENT = %i[style].freeze
+          SEPARATOR = "\n"
+          private_constant :ELEMENTS_WITH_BLOCK_CONTENT, :ELEMENTS_WITH_INLINE_CONTENT, :SEPARATOR, :SVG_NAMESPACE
+
+          attr_reader :root, :options
+
+          def self.call(root, **) = new(root, **).call(*root.class.preambles)
+          def self.fragment(root, **options) = new(root, **options).call
+          def self.validate(**options) = Options.validate(**options)
+          private_class_method :validate
+
+          def initialize(root, **)
+            @root = root
+            @options = Options.validate(**)
+            @lines = []
+            @indents = Hash.new { |cache, depth| cache[depth] = @options[:indent] * depth }
+          end
+
+          def append(depth, *lines)
+            return if lines.empty?
+
+            prefix = depth && depth >= 0 ? indent(depth) : ""
+            @lines.concat(lines.map { "#{prefix}#{it}" })
+          end
+
+          def call(*preambles)
+            @lines.concat(preambles.map { XML.text(it, context: "XML preamble") }) unless preambles.empty?
+            render_block(@root, 0, parent_default_namespace(@root.parent))
+            XML.text(@lines.join(SEPARATOR), context: "SVG output")
+          end
+
+          private
+
+          def render_block(element, depth, default_ns)
+            ns = element_namespace(element, default_ns)
+            children = Element.send(:tree_children, element)
+            return render_floating(element.contents, children, depth, ns) if element.name == :_
+
+            contents = element.contents
+            return @lines << emit_tag(element, depth, "/>") if children.empty? && contents.empty?
+
+            emit_element(element, contents, children, depth, ns)
+          end
+
+          def emit_element(element, contents, children, depth, ns)
+            open_line = emit_tag(element, depth, ">")
+            return emit_inline(element, open_line, contents, children, depth) if inline_content?(element, contents, ns)
+
+            @lines << open_line
+            contents.each { it.render(self, depth) }
+            children.each { render_block(it, depth + 1, ns) }
+            @lines << "#{indent(depth)}</#{element.name}>"
+          end
+
+          def emit_inline(element, open_line, contents, children, depth)
+            buffer = +open_line
+            InlineBuffer.new(buffer).render(element, contents, children, depth)
+            @lines << buffer
+          end
+
+          def render_floating(contents, children, depth, ns)
+            contents.each { it.render(self, depth - 1) }
+            children.each { render_block(it, depth + 1, ns) }
+          end
+
+          def emit_tag(element, depth, suffix)
+            attrs = element.attributes.send(:xml_lines)
+            if block_attributes?(depth, attrs)
+              emit_block_attributes(element.name, attrs, depth)
+              "#{indent(depth)}#{suffix}"
+            else
+              "#{indent(depth)}<#{inline_tag(element.name, attrs)}#{suffix}"
+            end
+          end
+
+          def emit_block_attributes(name, attrs, depth)
+            @lines << "#{indent(depth)}<#{name}"
+            attrs.each { @lines << "#{indent(depth + 1)}#{it}" }
+          end
+
+          def inline_tag(name, attrs)
+            attrs.empty? ? name.to_s : "#{name} #{attrs.join(" ")}"
+          end
+
+          def block_attributes?(depth, attrs)
+            return false if attrs.empty?
+
+            @options[:style] == :block ||
+              (@options[:style] == :hybrid && indent(depth).length + attrs.sum(&:length) > @options[:linelength])
+          end
+
+          def inline_content?(element, contents, ns)
+            return false if block_content?(element, ns)
+
+            contents.any? || ELEMENTS_WITH_INLINE_CONTENT.include?(element.name)
+          end
+
+          def block_content?(element, ns)
+            return false unless ELEMENTS_WITH_BLOCK_CONTENT.include?(element.name)
+
+            ns.nil? || ns.to_s.empty? || ns == SVG_NAMESPACE
+          end
+
+          def element_namespace(element, inherited)
+            element.attributes.has?(:xmlns) ? element.attributes[:xmlns] : inherited
+          end
+
+          def parent_default_namespace(element)
+            while element.is_a?(Element)
+              return element.attributes[:xmlns] if element.attributes.has?(:xmlns)
+
+              element = element.parent
+            end
+          end
+
+          def indent(depth) = @indents[depth]
+        end
+
+        private_constant :InlineBuffer, :Options, :Renderer
 
         # @overload Render(**options)
         #   Renders this element as SVG source.

@@ -14,18 +14,16 @@ Metrics/AbcSize:
     - "geometry/lib/sevgi/geometry/element/lined.rb"
     - "geometry/lib/sevgi/geometry/operation/align.rb"
     - "graphics/lib/sevgi/graphics/mixtures/call.rb"
-    - "graphics/lib/sevgi/graphics/mixtures/render.rb"
     - "graphics/lib/sevgi/graphics/mixtures/tile.rb"
     - "standard/lib/sevgi/standard/conform.rb"
     - "sundries/lib/sevgi/sundries/export/system.rb"
     - "toplevel/lib/sevgi/binaries/sevgi.rb"
 
-# Offense count: 2
+# Offense count: 1
 # Configuration parameters: CountComments, Max, CountAsOne.
 Metrics/ClassLength:
   Exclude:
     - "geometry/lib/sevgi/geometry/element/lined.rb"
-    - "graphics/lib/sevgi/graphics/mixtures/render.rb"
 
 # Offense count: 9
 # Configuration parameters: AllowedMethods, AllowedPatterns, Max.
@@ -48,7 +46,6 @@ Metrics/MethodLength:
     - "graphics/lib/sevgi/graphics/element.rb"
     - "graphics/lib/sevgi/graphics/auxiliary/content.rb"
     - "graphics/lib/sevgi/graphics/mixtures/core.rb"
-    - "graphics/lib/sevgi/graphics/mixtures/render.rb"
     - "graphics/lib/sevgi/graphics/mixtures/save.rb"
     - "graphics/lib/sevgi/graphics/mixtures/tile.rb"
     - "sundries/lib/sevgi/sundries/export/system.rb"
