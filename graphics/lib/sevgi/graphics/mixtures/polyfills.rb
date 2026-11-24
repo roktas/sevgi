@@ -12,6 +12,13 @@ module Sevgi
         #   @return [Sevgi::Graphics::Element] group element
         def layer(...) = g(...)
 
+        # @overload layer!(*args, **attributes)
+        #   Builds a generic group as an insensitive layer fallback.
+        #   @param args [Array<Object>] group content arguments
+        #   @param attributes [Hash] group attributes
+        #   @return [Sevgi::Graphics::Element] group element
+        def layer!(...) = g(...)
+
         # @overload symbol!(*args, **attributes)
         #   Builds a regular symbol as a fallback for hidden symbols.
         #   @param args [Array<Object>] symbol content arguments

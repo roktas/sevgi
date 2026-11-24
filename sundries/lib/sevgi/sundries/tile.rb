@@ -71,6 +71,20 @@ module Sevgi
       # @raise [Sevgi::ArgumentError] when the index is not an Integer
       def [](i) = row(i)
 
+      # Returns the cell at the given row and column index.
+      # Negative indices count from the end. Out-of-range indices return nil.
+      # @param row [Integer] row index
+      # @param col [Integer] column index
+      # @return [Sevgi::Geometry::Element, nil]
+      # @raise [Sevgi::ArgumentError] when row or col is not an Integer
+      def at(row, col)
+        r = index(row, ny)
+        c = index(col, nx)
+        return unless r && c
+
+        @rows ? @rows[r][c] : cell_at(r, c)
+      end
+
       # Returns the bounding rectangle of the whole tile.
       # @return [Sevgi::Geometry::Rect]
       def box = @box ||= Geometry::Rect[nx * @bounds.width, ny * @bounds.height, position:]

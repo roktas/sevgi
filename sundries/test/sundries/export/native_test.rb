@@ -798,6 +798,29 @@ module Sevgi
           end
         end
 
+        def test_renderer_pdf_finishes_surface_on_failure
+          Dir.mktmpdir do |dir|
+            output = File.join(dir, "out.pdf")
+            surface = Cairo::PDFSurface.new(output, 10, 10)
+            finished = false
+            surface.define_singleton_method(:finish) do
+              finished = true
+              super()
+            end
+
+            renderer = Export.const_get(:Renderer, false)
+            handle = Rsvg::Handle.new_from_data(svg(width: 10, height: 10))
+
+            Cairo::PDFSurface.stub(:new, surface) do
+              handle.stub(:render_document, -> (*) { raise Cairo::Error, "boom" }) do
+                assert_raises(Cairo::Error) { renderer.pdf(handle:, output:, tw: 10, th: 10, dpi: 96) }
+              end
+            end
+
+            assert(finished)
+          end
+        end
+
         Box = Data.define(:x, :y, :width, :height)
 
         private

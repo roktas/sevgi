@@ -20,7 +20,7 @@ module Sevgi
   # @param string [String] source to evaluate
   # @param file [String, nil] source file name used for errors and backtraces
   # @param line [Integer, nil] starting source line used for errors and backtraces
-  # @param require [String, nil] optional Ruby library to require before execution
+  # @param require [String, Array<String>, nil] optional Ruby library or libraries to require before execution
   # @param main [Boolean] whether to install the DSL through Ruby's top-level main object
   # @return [Sevgi::Executor::Result] immutable execution result
   # @raise [Sevgi::ArgumentError] when source, file, line, required library, or main mode is invalid
@@ -39,7 +39,7 @@ module Sevgi
   # @param file [String] source file to read and execute
   # @param as [String, nil] source basename used for evaluation, diagnostics, and caller-derived output defaults.
   #   its extension is replaced with `.sevgi` and the input file's directory is retained
-  # @param require [String, nil] optional Ruby library to require before execution
+  # @param require [String, Array<String>, nil] optional Ruby library or libraries to require before execution
   # @param main [Boolean] whether to install the DSL through Ruby's top-level main object
   # @return [Sevgi::Executor::Result] immutable execution result
   # @raise [Sevgi::ArgumentError] when file, logical source name, required library, or main mode is invalid
@@ -64,7 +64,8 @@ module Sevgi
   def self.source_name(file, name)
     ArgumentError.("Sevgi file must be a String") unless file.is_a?(::String)
     ArgumentError.("Sevgi file name must be a non-empty String") unless name.is_a?(::String) && !name.empty?
-    ArgumentError.("Sevgi file name must not include a directory") unless ::File.basename(name) == name
+    valid = ::File.basename(name) == name && !%w[. ..].include?(name)
+    ArgumentError.("Sevgi file name must not include a directory") unless valid
 
     ::File.join(::File.dirname(file), F.subext(".sevgi", name))
   end

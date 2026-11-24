@@ -264,6 +264,18 @@ module Sevgi
           assert_equal(["pdfunite", "a.pdf", "b.pdf", "out.pdf"], result[:sh].first)
         end
 
+        def test_rsvg_and_inkscape_derive_extension_from_format
+          Dir.mktmpdir do |dir|
+            infile = svg_file(dir)
+
+            rsvg_result = capture_system_commands { Export.rsvg(infile, format: :png) }
+            inkscape_result = capture_system_commands { Export.inkscape(infile, format: :png) }
+
+            assert_includes(rsvg_result[:sh].first, "--output=#{File.join(dir, "input.png")}")
+            assert_includes(inkscape_result[:sh].first, "--export-filename=#{File.join(dir, "input.png")}")
+          end
+        end
+
         private
 
         def capture_sh(&block)

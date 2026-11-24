@@ -71,6 +71,10 @@ module Sevgi
       # @return [Float]
       def vertical = top + bottom
 
+      # Reports whether all four margin sides are zero.
+      # @return [Boolean]
+      def zero? = top.zero? && right.zero? && bottom.zero? && left.zero?
+
       alias_method :==, :eql?
 
       # Returns margin values in top, right, bottom, left order.

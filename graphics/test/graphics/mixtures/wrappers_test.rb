@@ -118,10 +118,12 @@ module Sevgi
               x: Rational(1, 2),
               y: BigDecimal("1.5")
             )
+            LineBy(angle: 90, length: 5)
           end
             .Render()
 
           assert_match(/d="M 0.5 1.5 l 2 0"/, actual)
+          assert_match(/d="M 0 0 l 0 5"/, actual)
           refute_match(%r{(?:1/2|0\.\d+e\d+)}, actual)
         end
 
@@ -204,6 +206,18 @@ module Sevgi
           assert_equal(expected, actual)
         end
 
+        def test_symbol_wrapper_rejects_invalid_name_or_missing_block_atomically
+          [nil, :icon, "", "   "].each do |name|
+            doc = SVG(DOC)
+            assert_raises(Sevgi::ArgumentError) { doc.Symbol(name) { rect } }
+            assert_empty(doc.children)
+          end
+
+          doc = SVG(DOC)
+          assert_raises(Sevgi::ArgumentError) { doc.Symbol("Valid Name") }
+          assert_empty(doc.children)
+        end
+
         def test_css_wrapper_renders_cdata_style
           expected = <<~SVG
             <svg>
@@ -240,6 +254,9 @@ module Sevgi
           error = assert_raises(ArgumentError) { doc.css(rect: Object.new) }
 
           assert_match(/\bMalformed style\b/, error.message)
+          assert_empty(doc.children)
+
+          assert_raises(ArgumentError) { doc.css(false) }
           assert_empty(doc.children)
         end
       end

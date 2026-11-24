@@ -29,7 +29,8 @@ module Sevgi
         # @param name [Symbol, String] namespace suffix without xmlns:
         # @return [Boolean]
         def NS?(name)
-          self.class.attributes.key?(key = :"xmlns:#{name}") || TraverseUp { Stay(true) if it.has?(key) } || false
+          key = :"xmlns:#{name}"
+          TraverseUp { Stay(true) if it.has?(key) } || false
         end
 
         require "sevgi/standard"

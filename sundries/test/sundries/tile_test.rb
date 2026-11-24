@@ -228,6 +228,27 @@ module Sevgi
           ti.colbox
         ].each_slice(2) { |expected, actual| assert_geometry_equal(expected, actual) }
       end
+
+      def test_tile_at_returns_indexed_cell_and_validates_indices
+        ti = Tile.new(Geometry::Rect[3, 5], nx: 2, ny: 3, position: Geometry::Point[1, 2])
+
+        [
+          Geometry::Rect[3, 5, position: [1, 2]],
+          ti.at(0, 0),
+          Geometry::Rect[3, 5, position: [4, 7]],
+          ti.at(1, 1),
+          Geometry::Rect[3, 5, position: [4, 12]],
+          ti.at(-1, -1)
+        ].each_slice(2) { |expected, actual| assert_geometry_equal(expected, actual) }
+
+        [[3, 0], [0, 2], [-4, 0], [0, -3]].each { |r, c| assert_nil(ti.at(r, c)) }
+        [["0", 0], [0, "0"], [nil, 0], [99, "bad"]].each do |r, c|
+          assert_raises(Sevgi::ArgumentError) { ti.at(r, c) }
+        end
+
+        assert_geometry_equal(Geometry::Rect[3, 5, position: [4, 7]], ti.at(1, 1))
+        assert_same(ti.rows[1][1], ti.at(1, 1))
+      end
     end
   end
 end

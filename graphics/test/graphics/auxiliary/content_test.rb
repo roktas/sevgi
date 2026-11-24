@@ -272,6 +272,25 @@ module Sevgi
         assert_raises(Sevgi::ArgumentError) { Content.encoded({"a" => 1, :a => 2}) }
       end
 
+      def test_content_is_frozen_and_implements_value_semantics
+        encoded = Content.encoded("hello")
+        same = Content.encoded("hello")
+        verbatim = Content.verbatim("hello")
+
+        assert_predicate(encoded, :frozen?)
+        assert_equal(same, encoded)
+        assert(encoded.eql?(same))
+        assert_equal(same.hash, encoded.hash)
+        refute_equal(verbatim, encoded)
+
+        assert_predicate(Content.encoded(""), :empty?)
+        assert_predicate(Content.cdata([]), :empty?)
+        assert_predicate(Content.css({}), :empty?)
+        refute_predicate(encoded, :empty?)
+
+        assert_predicate(encoded.dup, :frozen?)
+      end
+
       private
 
       def invalid_content_operations(value)

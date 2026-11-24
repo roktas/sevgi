@@ -51,21 +51,28 @@ module Sevgi
           end
         end
 
+        def libraries = self[:require]&.one? ? self[:require].first : self[:require]
+
         class << self
           private
 
           def option(argv, options)
             arg = argv.shift
-            if (flag = FLAGS[arg])
-              options[flag] = true
-            elsif ["-r", "--require"].include?(arg)
-              options.require = argv.shift || Error.("Option requires a library: #{arg}")
-            elsif arg == "--as"
-              options.as = argv.shift
-              Error.("Option requires a name: --as") if options.as.nil? || options.as.empty?
-            else
-              Error.("Not a valid option: #{arg}")
-            end
+            return options[FLAGS[arg]] = true if FLAGS.key?(arg)
+            return append_require(options, argv, arg) if %w[-r --require].include?(arg)
+            return assign_as(options, argv) if arg == "--as"
+
+            Error.("Not a valid option: #{arg}")
+          end
+
+          def append_require(options, argv, flag)
+            (options.require ||= []) << (argv.shift || Error.("Option requires a library: #{flag}"))
+          end
+
+          def assign_as(options, argv)
+            value = argv.shift
+            Error.("Option requires a name: --as") if value.nil? || value.empty?
+            options.as = value
           end
         end
       end
@@ -78,7 +85,7 @@ module Sevgi
       # @raise [Sevgi::Executor::Error] when `--exception` or `SEVGI_VOMIT` requests raw executor errors
       # @raise [SystemExit] when argv does not match `[options...] [--] [file|-]` or script execution aborts
       def call(argv)
-        return puts(help) if (options = Options.parse(argv = Array(argv))).help
+        return puts(help) if (options = Options.parse(argv = Array(argv).dup)).help
         return puts(Skill.path) if options.skill
         return puts(::Sevgi::VERSION) if options.version
 
@@ -133,21 +140,18 @@ module Sevgi
         file unless file == "-"
       end
 
-      def execute_file(file, options)
-        name = source_name(options.as) if options.as
-        ::Sevgi.execute_file(file, as: name, require: options.require, main: true)
-      end
-
       def run(file, options)
-        return execute_file(file, options) if file
+        name = source_name(options.as)
+        return ::Sevgi.execute_file(file, as: (name if options.as), require: options.libraries, main: true) if file
 
-        ::Sevgi.execute($stdin.read, file: source_name(options.as), require: options.require, main: true)
+        ::Sevgi.execute($stdin.read, file: name, require: options.libraries, main: true)
       end
 
       def source_name(name)
         return STDIN_NAME unless name
 
-        Error.("Option requires a name, not a path: --as") unless ::File.basename(name) == name
+        valid = ::File.basename(name) == name && !%w[. ..].include?(name)
+        Error.("Option requires a name, not a path: --as") unless valid
         F.subext(".sevgi", name)
       end
     end

@@ -47,7 +47,33 @@ module Sevgi
       # @api private
       def initialize(content)
         @content = Snapshot.capture(content, context: "XML content", freeze: true)
+        freeze
       end
+
+      # Reports whether the captured payload is empty.
+      # @return [Boolean]
+      def empty?
+        value = payload
+        value.respond_to?(:empty?) ? value.empty? : to_s.empty?
+      end
+
+      # Reports strict content equality by concrete class and captured payload.
+      # @param other [Object] comparison target
+      # @return [Boolean]
+      def eql?(other) = self.class == other.class && payload == other.send(:payload)
+
+      # Returns a hash compatible with strict equality.
+      # @return [Integer]
+      def hash = [self.class, payload].hash
+
+      alias == eql?
+
+      def initialize_copy(original)
+        super
+        freeze
+      end
+
+      private :initialize_copy
 
       # Appends this content's serialized XML lines to rendering output.
       # The output collaborator responds to `append(depth, *lines)`, where `depth` is an Integer or nil and every line

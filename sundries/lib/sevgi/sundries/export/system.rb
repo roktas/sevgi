@@ -30,7 +30,7 @@ module Sevgi
 
       # Exports an SVG file through Inkscape.
       # @param infile [String] source SVG file path
-      # @param outfile [String, nil] output path, defaulting to infile with a .pdf extension
+      # @param outfile [String, nil] output path, defaulting to infile with the format extension (or .pdf when format is omitted)
       # @param format [Symbol, String, nil] explicit output format, or nil to infer from outfile
       # @param background [String, nil] export background color
       # @param opacity [Numeric, nil] export background opacity
@@ -56,10 +56,7 @@ module Sevgi
         page: nil,
         css: nil
       )
-        infile = File.expand_path(infile)
-        outfile ||= F.subext(".pdf", infile)
-        outfile = File.expand_path(outfile)
-        format = format_for(format, outfile)
+        infile, outfile, format = prepare_paths(infile, outfile, format)
 
         with_staged_svg(infile, css) do |source|
           F.sh!(
@@ -84,7 +81,7 @@ module Sevgi
 
       # Exports an SVG file through rsvg-convert.
       # @param infile [String] source SVG file path
-      # @param outfile [String, nil] output path, defaulting to infile with a .pdf extension
+      # @param outfile [String, nil] output path, defaulting to infile with the format extension (or .pdf when format is omitted)
       # @param format [Symbol, String, nil] explicit output format, or nil to infer from outfile
       # @param background [String, nil] export background color
       # @param width [Numeric, nil] target export width
@@ -106,10 +103,7 @@ module Sevgi
         id: nil,
         css: nil
       )
-        infile = File.expand_path(infile)
-        outfile ||= F.subext(".pdf", infile)
-        outfile = File.expand_path(outfile)
-        format = format_for(format, outfile)
+        infile, outfile, format = prepare_paths(infile, outfile, format)
 
         with_staged_svg(infile, css) do |source|
           F.sh!(
@@ -127,6 +121,18 @@ module Sevgi
         end
       end
 
+      def prepare_paths(infile, outfile, format)
+        infile = File.expand_path(infile)
+
+        if outfile
+          outfile = File.expand_path(outfile)
+          [infile, outfile, format_for(format, outfile)]
+        else
+          format = format ? format_for(format, nil) : :pdf
+          [infile, F.subext(AVAILABLE.fetch(format), infile), format]
+        end
+      end
+
       def with_staged_svg(infile, css)
         return yield(infile) unless css
 
@@ -137,7 +143,7 @@ module Sevgi
         end
       end
 
-      private :with_staged_svg
+      private :prepare_paths, :with_staged_svg
 
       # Merges PDF files with pdfunite.
       # @param sources [Array<String>] source PDF file paths

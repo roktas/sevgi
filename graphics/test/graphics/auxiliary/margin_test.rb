@@ -49,6 +49,12 @@ module Sevgi
         assert_raises(Sevgi::ArgumentError) { Margin[1, 2, 3, 4].with(left: nil) }
         assert_raises(Sevgi::ArgumentError) { Margin[nil] }
       end
+
+      def test_zero_margin_predicate
+        assert_predicate(Margin.zero, :zero?)
+        assert_predicate(Margin[0, 0], :zero?)
+        refute_predicate(Margin[1, 0, 0, 0], :zero?)
+      end
     end
   end
 end

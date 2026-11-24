@@ -72,7 +72,7 @@ module Sevgi
         call(Source.load(file), &block)
       rescue ::SystemCallError => e
         capture(Source.new(string: "", file:, line: 1), e)
-        throw(:result, self)
+        throw(self, self)
       end
 
       # Returns the unique source stack for this execution.
@@ -143,7 +143,7 @@ module Sevgi
         # rubocop:disable-next Lint/RescueException
       rescue Exception => e
         @error = e
-        throw(:result, self)
+        throw(self, self)
       ensure
         leave(active)
       end

@@ -818,6 +818,43 @@ module Sevgi
       assert(result.error.message.start_with?("test.rb:12:"))
     end
 
+    def test_execute_allows_script_throw_result_without_hijacking_scope
+      result = Sevgi.execute("catch(:result) { throw(:result, :ok) }")
+      assert(result.success?)
+      assert_equal(:ok, result.value)
+
+      uncaught = Sevgi.execute("throw(:result, :escaped)")
+      assert(uncaught.error?)
+      assert_instance_of(::UncaughtThrowError, uncaught.error.cause)
+    end
+
+    def test_execute_file_rejects_dot_and_dotdot_as_names
+      Dir.mktmpdir do |dir|
+        file = ::File.join(dir, "drawing.sevgi")
+        ::File.write(file, "1\n")
+
+        %w[. ..].each do |bad|
+          assert_raises(Sevgi::ArgumentError) { Sevgi.execute_file(file, as: bad) }
+        end
+      end
+    end
+
+    def test_execute_requires_array_of_libraries
+      Dir.mktmpdir do |dir|
+        a = ::File.join(dir, "a.rb")
+        b = ::File.join(dir, "b.rb")
+        ::File.write(a, "Thread.current[:executor_order] = [:a]")
+        ::File.write(b, "Thread.current[:executor_order] << :b")
+
+        result = Sevgi.execute("Thread.current[:executor_order]", require: [a, b])
+
+        assert(result.success?)
+        assert_equal(%i[a b], result.value)
+      ensure
+        Thread.current[:executor_order] = nil
+      end
+    end
+
     private
 
     def execute(...) = Executor.__send__(:execute, ...)

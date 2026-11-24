@@ -9,9 +9,9 @@ module Sevgi
       private_constant :PATTERN
 
       # Reports whether a string is a supported SVG-style name token.
-      # @param name [String] candidate name
+      # @param name [String, Symbol] candidate name
       # @return [Boolean]
-      def self.valid?(name) = !!PATTERN.match?(name)
+      def self.valid?(name) = name.valid_encoding? && !!PATTERN.match?(name)
 
       # Normalizes one public name to the registry symbol form.
       # @param value [String, Symbol] public name
@@ -32,14 +32,14 @@ module Sevgi
       end
 
       # Normalizes a list of public names.
-      # @param values [Array<String, Symbol>, String, Symbol, nil] public names
+      # @param values [Array<String, Symbol>, Set<String, Symbol>, String, Symbol, nil] public names
       # @param context [String] name context for error messages
       # @return [Array<Symbol>, nil] normalized names
       # @raise [Sevgi::ArgumentError] when any value is not a valid public name
       def self.list!(values, context:)
         return if values.nil?
 
-        values = [values] unless values.is_a?(::Array)
+        values = [values] unless values.is_a?(::Array) || values.is_a?(::Set)
         values.map { normalize!(it, context:) }
       end
     end

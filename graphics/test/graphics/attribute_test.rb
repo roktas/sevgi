@@ -322,6 +322,20 @@ module Sevgi
         assert_raises(Sevgi::ArgumentError) { Attribute.updateable?(Object.new) }
       end
 
+      def test_empty_size_and_key_predicate
+        empty = Attributes.new
+        assert_predicate(empty, :empty?)
+        assert_equal(0, empty.size)
+        refute(empty.key?(:id))
+
+        attrs = Attributes.new(id: "mark", "-source": "orig")
+        refute_predicate(attrs, :empty?)
+        assert_equal(2, attrs.size)
+        assert(attrs.key?(:id))
+        assert(attrs.key?(:"-source"))
+        assert_equal([:id], attrs.keys)
+      end
+
       private
 
       def render_attributes(attributes)

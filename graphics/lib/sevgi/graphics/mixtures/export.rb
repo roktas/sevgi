@@ -7,24 +7,65 @@ module Sevgi
       # Export CSS is a late adjustment after document checks. Its supported XML endings and cascade limitations are
       # documented in {Sevgi::Sundries::Export}. The source callback receives SVG after CSS insertion.
       module Export
-        # Validates the closed export option channel before optional components load or rendering starts.
+        # Validates export options and executes export after loading optional dependencies.
         # @api private
-        module Options
-          KEYS = %i[css declaration default dpi fallback height preview width].freeze
-          private_constant :KEYS
+        module Runner
+          PDF_KEYS = %i[css declaration default dpi fallback height preview width].freeze
+          PNG_KEYS = %i[css default dpi height width].freeze
+          KEYS = {pdf: PDF_KEYS, png: PNG_KEYS}.freeze
+          private_constant :KEYS, :PDF_KEYS, :PNG_KEYS
 
-          # Returns validated export options.
-          # @param options [Hash] export options
-          # @return [Hash] original options
-          # @raise [Sevgi::ArgumentError] when an option is unknown
-          def self.call(options)
-            unknown = options.keys - KEYS
-            ArgumentError.("Unknown export option: #{unknown.first}") unless unknown.empty?
-            options
+          # Validates options, ensures optional sundries loading, and invokes the exporter.
+          # @param element [Sevgi::Graphics::Element] document or element to export
+          # @param path [String, #to_path, nil] output path or existing directory
+          # @param format [Symbol] target export format (`:pdf` or `:png`)
+          # @param caller_path [String, nil] caller source path for default naming
+          # @param kwargs [Hash] export options
+          # @yield [svg] optional SVG post-processor
+          # @return [String] expanded output path
+          # @raise [Sevgi::ArgumentError] when an option or path is invalid
+          # @raise [Sevgi::MissingComponentError] when sevgi/sundries is unavailable
+          def self.call(element, path, format:, caller_path:, **kwargs, &block)
+            validate_options!(kwargs, format)
+            load_sundries!
+            kwargs = with_declaration(element, format, kwargs)
+            output = resolve_output(path, format, caller_path, kwargs)
+
+            Sundries::Export.(element.call, output, **kwargs, format:, &block)
           end
+
+          def self.validate_options!(kwargs, format)
+            unknown = kwargs.keys - KEYS.fetch(format)
+            ArgumentError.("Unknown export option: #{unknown.first}") unless unknown.empty?
+          end
+
+          def self.with_declaration(element, format, kwargs)
+            return kwargs unless format == :pdf && !kwargs.key?(:declaration)
+            return kwargs unless element.Root?() && element.respond_to?(:Imprint)
+
+            imprint = element.Imprint()
+            imprint.nil? ? kwargs : kwargs.merge(declaration: imprint)
+          end
+
+          def self.resolve_output(path, format, caller_path, kwargs)
+            default = kwargs.delete(:default)
+            default = F.subext(".#{format}", caller_path) if default.nil?
+            F.output_path(path, default:, context: "Export")
+          end
+
+          def self.load_sundries!
+            require "sevgi/sundries"
+
+          rescue ::LoadError => e
+            raise unless e.path == "sevgi/sundries"
+
+            MissingComponentError.("sevgi/sundries")
+          end
+
+          private_class_method :load_sundries!, :resolve_output, :validate_options!, :with_declaration
         end
 
-        private_constant :Options
+        private_constant :Runner
 
         # Exports the document as PDF.
         # Relative paths are expanded, missing parent directories are created after export validation, and an existing
@@ -52,18 +93,7 @@ module Sevgi
         # @raise [Sevgi::Sundries::Imprint::Error] when required preparation cannot complete
         # @raise [SystemCallError] when the output directory or file cannot be created or written
         def PDF(path = nil, **kwargs, &block)
-          kwargs = Options.(kwargs)
-          begin
-            require "sevgi/sundries"
-
-          rescue ::LoadError => e
-            raise unless e.path == "sevgi/sundries"
-
-            MissingComponentError.("sevgi/sundries")
-          end
-
-          kwargs[:declaration] = self.Imprint() unless kwargs.key?(:declaration) || self.Imprint.nil?
-          Export(path, **kwargs, format: :pdf, &block)
+          Runner.(self, path, caller_path: caller_locations(1, 1).first&.path, **kwargs, format: :pdf, &block)
         end
 
         # Exports the document as PNG.
@@ -88,30 +118,7 @@ module Sevgi
         # @raise [Sevgi::Sundries::Export::ExportError] when native export fails
         # @raise [SystemCallError] when the output directory or file cannot be created or written
         def PNG(path = nil, **kwargs, &block)
-          kwargs = Options.(kwargs)
-          begin
-            require "sevgi/sundries"
-
-          rescue ::LoadError => e
-            raise unless e.path == "sevgi/sundries"
-
-            MissingComponentError.("sevgi/sundries")
-          end
-
-          Export(path, **kwargs, format: :png, &block)
-        end
-
-        private
-
-        def Export(path = nil, default: nil, **kwargs, &block)
-          if default.nil?
-            extension = kwargs[:format] ? ".#{kwargs[:format]}" : ".pdf"
-            default = F.subext(extension, caller_locations(2..2).first.path)
-          end
-
-          path = F.output_path(path, default:, context: "Export")
-
-          Sundries::Export.(call, path, **kwargs, &block)
+          Runner.(self, path, caller_path: caller_locations(1, 1).first&.path, **kwargs, format: :png, &block)
         end
       end
     end

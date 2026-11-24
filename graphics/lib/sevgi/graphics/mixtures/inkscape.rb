@@ -8,12 +8,16 @@ module Sevgi
         # Normalizes callable wrapper attributes outside the DSL method surface.
         # @api private
         module Wrapper
-          # Returns owned wrapper attributes with a stable default id when the module is named.
+          # Returns validated wrapper attributes with a stable default id when the module is named.
           # @param mod [Module] callable drawing module
           # @param attributes [Hash] wrapper attributes
+          # @param kind [String] wrapper label used in validation errors
           # @return [Hash{Symbol => Object}] normalized attributes
-          # @raise [Sevgi::ArgumentError] when attributes contains colliding names
-          def self.attributes(mod, attributes)
+          # @raise [Sevgi::ArgumentError] when mod is not callable, attributes is not a Hash, or names collide
+          def self.attributes(mod, attributes, kind: "Wrapper")
+            Graphics::Module.__send__(:callables, mod)
+            ArgumentError.("#{kind} attributes must be a Hash") unless attributes.is_a?(::Hash)
+
             defaults = mod.name ? {id: F.demodulize(mod.name).to_sym} : {}
             Attribute.defaults(attributes, **defaults)
           end
@@ -55,10 +59,7 @@ module Sevgi
         # @return [Sevgi::Graphics::Element] group element
         # @raise [Sevgi::ArgumentError] when mod is not a callable drawing module or attributes is not a Hash
         def Group(mod, *args, attributes: {}, **kwargs, &block)
-          Graphics::Module.__send__(:callables, mod)
-          ArgumentError.("Group attributes must be a Hash") unless attributes.is_a?(::Hash)
-          attributes = Wrapper.attributes(mod, attributes)
-          g(**attributes) { Call(mod, *args, **kwargs, &block) }
+          g(**Wrapper.attributes(mod, attributes, kind: "Group")) { Call(mod, *args, **kwargs, &block) }
         end
 
         # Renders a callable module inside an Inkscape layer.
@@ -72,10 +73,7 @@ module Sevgi
         # @return [Sevgi::Graphics::Element] layer element
         # @raise [Sevgi::ArgumentError] when mod is not a callable drawing module or attributes is not a Hash
         def Layer(mod, *args, attributes: {}, **kwargs, &block)
-          Graphics::Module.__send__(:callables, mod)
-          ArgumentError.("Layer attributes must be a Hash") unless attributes.is_a?(::Hash)
-          attributes = Wrapper.attributes(mod, attributes)
-          layer(**attributes) { Call(mod, *args, **kwargs, &block) }
+          layer(**Wrapper.attributes(mod, attributes, kind: "Layer")) { Call(mod, *args, **kwargs, &block) }
         end
 
         # Renders a callable module inside an insensitive Inkscape layer.
@@ -89,10 +87,7 @@ module Sevgi
         # @return [Sevgi::Graphics::Element] layer element
         # @raise [Sevgi::ArgumentError] when mod is not a callable drawing module or attributes is not a Hash
         def Layer!(mod, *args, attributes: {}, **kwargs, &block)
-          Graphics::Module.__send__(:callables, mod)
-          ArgumentError.("Layer attributes must be a Hash") unless attributes.is_a?(::Hash)
-          attributes = Wrapper.attributes(mod, attributes)
-          layer!(**attributes) { Call(mod, *args, **kwargs, &block) }
+          layer!(**Wrapper.attributes(mod, attributes, kind: "Layer")) { Call(mod, *args, **kwargs, &block) }
         end
 
         # @overload layer(**attributes)
@@ -298,7 +293,9 @@ module Sevgi
           if Is?(:defs)
             g(role: "inkscape:symbol", **, &block)
           else
-            defs { g(role: "inkscape:symbol", **, &block) }
+            symbol_element = nil
+            defs { symbol_element = g(role: "inkscape:symbol", **, &block) }
+            symbol_element
           end
         end
 

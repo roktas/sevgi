@@ -179,6 +179,32 @@ module Sevgi
         Export.metadata!(@output, title: "Updated Title")
         assert_equal(expected_mode, File.stat(@output).mode & 0o777)
       end
+
+      def test_metadata_preserves_non_rdf_namespace_prefix
+        Export.call(@drawing.Render(), @output)
+        doc = HexaPDF::Document.open(@output)
+        doc.catalog[:Metadata] = doc.add(
+          {Type: :Metadata, Subtype: :XML},
+          stream: <<~XML
+            <x:xmpmeta xmlns:x="adobe:ns:meta/">
+              <r:RDF xmlns:r="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <r:Description r:about=""/>
+              </r:RDF>
+            </x:xmpmeta>
+          XML
+        )
+        doc.write(@output, validate: false, update_fields: false)
+
+        Export.metadata!(@output, title: "Prefixed", license: "https://example.test/r-license")
+
+        reloaded = Nokogiri::XML(HexaPDF::Document.open(@output).catalog[:Metadata].stream) { it.strict.nonet }
+        ns = {"r" => NS.fetch("rdf"), "dc" => NS.fetch("dc"), "cc" => "http://creativecommons.org/ns#"}
+        assert_equal("Prefixed", reloaded.at_xpath("//r:Description[@r:about='']/dc:title/r:Alt/r:li", ns).text)
+        assert_equal(
+          "https://example.test/r-license",
+          reloaded.at_xpath("//r:Description[@r:about='']/cc:license/@r:resource", ns).value
+        )
+      end
     end
   end
 end

@@ -46,10 +46,14 @@ module Sevgi
             Result.new(nil)
           }
         ) do
-          _out, _err = capture_io { Sevgi.(["-r", "json", "script.sevgi"]) }
+          argv = %w[-r json script.sevgi]
+          snapshot = argv.dup
+          _out, _err = capture_io { Sevgi.(argv) }
+          assert_equal(snapshot, argv)
+          _out, _err = capture_io { Sevgi.(%w[-r json -r pathname script.sevgi]) }
         end
 
-        assert_equal([["script.sevgi", "json", true]], calls)
+        assert_equal([["script.sevgi", "json", true], ["script.sevgi", %w[json pathname], true]], calls)
       end
 
       def test_call_reports_executor_error
@@ -105,15 +109,17 @@ module Sevgi
               spec
             }
           ) do
-            with_env("SEVGI_SKILL", nil) do
-              out, err = capture_io { Sevgi.(["--skill"]) }
+            [nil, "", "   "].each do |value|
+              with_env("SEVGI_SKILL", value) do
+                out, err = capture_io { Sevgi.(["--skill"]) }
 
-              assert_equal("#{skill}\n", out)
-              assert_empty(err)
+                assert_equal("#{skill}\n", out)
+                assert_empty(err)
+              end
             end
           end
 
-          assert_equal([["sevgi-appendix", "= #{::Sevgi::VERSION}"]], requests)
+          assert_equal(Array.new(3, ["sevgi-appendix", "= #{::Sevgi::VERSION}"]), requests)
         end
       end
 
@@ -381,6 +387,8 @@ module Sevgi
           [["--require"], /Option requires a library: --require/],
           [["--as"], /Option requires a name: --as/],
           [["--as", "build/badge"], /Option requires a name, not a path: --as/],
+          [["--as", "."], /Option requires a name, not a path: --as/],
+          [["--as", ".."], /Option requires a name, not a path: --as/],
           [%w[first.sevgi second.sevgi], /Unexpected argument: second\.sevgi/]
         ].each do |args, message|
           out, err, status = run_sevgi(*args)

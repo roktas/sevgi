@@ -4,6 +4,15 @@ require_relative "../test_helper"
 
 module Sevgi
   module Standard
+    class InternalNameTest < Minitest::Test
+      def test_name_list_accepts_sets_and_rejects_invalid_encoding
+        assert_equal(%i[rect circle], Name.list!(Set["rect", :circle], context: "element"))
+
+        invalid = +"rect\xFF"
+        assert_raises(Sevgi::ArgumentError) { Name.normalize!(invalid, context: "element") }
+      end
+    end
+
     class InternalListTest < Minitest::Test
       def test_import_sets_list_entries
         mod = Module.new.extend(List)

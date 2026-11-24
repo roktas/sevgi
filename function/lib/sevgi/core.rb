@@ -83,7 +83,7 @@ module Sevgi
 
       # Returns the sentinel itself.
       # @return [Sevgi::Undefined]
-      def undefined.clone = self
+      def undefined.clone(**) = self
 
       # Returns the first argument that is not {Sevgi::Undefined}.
       # @param args [Array<Object>] candidate values

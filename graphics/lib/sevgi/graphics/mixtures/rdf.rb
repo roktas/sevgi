@@ -10,8 +10,37 @@ module Sevgi
       #     License_CC0 title: "Example", creator: "A. Creator"
       #   end
       module RDF
-        WORK_OPTIONS = %i[title description creator publisher date language license rights].freeze
-        private_constant :WORK_OPTIONS
+        WORK_ELEMENTS = {
+          title: [:"dc:title", false],
+          description: [:"dc:description", false],
+          creator: [:"dc:creator", false],
+          publisher: [:"dc:publisher", false],
+          date: [:"dc:date", false],
+          language: [:"dc:language", false],
+          license: [:"cc:license", true],
+          rights: [:"dc:rights", false]
+        }.freeze
+        WORK_OPTIONS = WORK_ELEMENTS.keys.freeze
+        private_constant :WORK_ELEMENTS, :WORK_OPTIONS
+
+        # Validates and populates `cc:Work` RDF metadata options.
+        # @api private
+        module Work
+          def self.validate!(kwargs, label:)
+            unknown = kwargs.keys - WORK_OPTIONS
+            ArgumentError.("Unknown #{label} options: #{unknown.join(", ")}") unless unknown.empty?
+          end
+
+          def self.populate(work, kwargs)
+            WORK_ELEMENTS.each do |option, (tag, resource)|
+              next unless (value = kwargs[option])
+
+              resource ? work.Element(tag, "rdf:resource": value) : work.Element(tag, value)
+            end
+          end
+        end
+
+        private_constant :Work
 
         # Adds RDF license metadata inside a metadata element.
         # @param kwargs [Hash] RDF work options
@@ -21,8 +50,7 @@ module Sevgi
         # @raise [Sevgi::ArgumentError] when an option is unknown
         # @see #RDFWork
         def License(**kwargs, &block)
-          unknown = kwargs.keys - WORK_OPTIONS
-          ArgumentError.("Unknown license options: #{unknown.join(", ")}") unless unknown.empty?
+          Work.validate!(kwargs, label: "license")
 
           metadata { RDFWork(**kwargs, &block) }
         end
@@ -160,22 +188,13 @@ module Sevgi
         # @return [Sevgi::Graphics::Element] RDF element
         # @raise [Sevgi::ArgumentError] when an option is unknown
         def RDFWork(**kwargs, &block)
-          unknown = kwargs.keys - WORK_OPTIONS
-          ArgumentError.("Unknown RDF work options: #{unknown.join(", ")}") unless unknown.empty?
+          Work.validate!(kwargs, label: "RDF work")
 
           RDF do
             Element(:"cc:Work", "rdf:about": "") do
               Element(:"dc:format", "image/svg+xml")
               Element(:"dc:type", "rdf:resource": "http://purl.org/dc/dcmitype/StillImage")
-              Element(:"dc:title", kwargs[:title]) if kwargs[:title]
-              Element(:"dc:description", kwargs[:description]) if kwargs[:description]
-              Element(:"dc:creator", kwargs[:creator]) if kwargs[:creator]
-              Element(:"dc:publisher", kwargs[:publisher]) if kwargs[:publisher]
-              Element(:"dc:date", kwargs[:date]) if kwargs[:date]
-              Element(:"dc:language", kwargs[:language]) if kwargs[:language]
-              Element(:"cc:license", "rdf:resource": kwargs[:license]) if kwargs[:license]
-              Element(:"dc:rights", kwargs[:rights]) if kwargs[:rights]
-
+              Work.populate(self, kwargs)
               Within(&block) if block
             end
           end

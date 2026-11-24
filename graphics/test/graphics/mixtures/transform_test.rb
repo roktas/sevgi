@@ -196,6 +196,26 @@ module Sevgi
 
           assert_equal("translate(1) scale(1, -1)", element[:transform])
         end
+
+        def test_skew_skips_identity_rejects_degenerate_angles_and_normalizes
+          element = SVG { rect }.children.first
+
+          element.Skew(0, 0)
+          assert_nil(element[:transform])
+
+          [
+            [90, 0],
+            [0, -90],
+            [270, 0],
+            [0, -270]
+          ].each do |ax, ay|
+            assert_raises(Sevgi::ArgumentError) { element.Skew(ax, ay) }
+            assert_nil(element[:transform])
+          end
+
+          element.Skew(45, 0)
+          assert_match(/\Amatrix\(1 0 1(?:\.0+)? 1 0 0\)\z|\Amatrix\(1 0 0\.999/, element[:transform])
+        end
       end
     end
   end

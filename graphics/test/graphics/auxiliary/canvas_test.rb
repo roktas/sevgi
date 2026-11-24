@@ -192,6 +192,20 @@ module Sevgi
         assert_equal([210.0, 297.0, [3.0, 5.0, 3.0, 5.0]], [source.width, source.height, source.margin.to_a])
         assert_equal([100.0, 200.0, [1.0, 1.0, 1.0, 1.0]], [updated.width, updated.height, updated.margin.to_a])
       end
+
+      def test_canvas_orientation_rotate_and_to_h
+        portrait = Canvas.call(width: 20, height: 40, unit: :mm, name: :card, margins: [1, 2, 3, 4])
+        landscape = portrait.landscape
+
+        assert_same(portrait, portrait.portrait)
+        assert_same(landscape, landscape.landscape)
+        assert_equal([40.0, 20.0, [4.0, 1.0, 2.0, 3.0]], [landscape.width, landscape.height, landscape.margin.to_a])
+        assert_equal(Canvas.call(**portrait.to_h), portrait)
+        assert_equal({width: 20.0, height: 40.0, unit: :mm, name: :card, margins: [1.0, 2.0, 3.0, 4.0]}, portrait.to_h)
+
+        overflow = assert_raises(Sevgi::ArgumentError) { Canvas.call(width: 10, height: 10, margins: [6]) }
+        assert_match(/positive inner area/, overflow.message)
+      end
     end
 
   end

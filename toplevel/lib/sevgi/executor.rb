@@ -72,7 +72,7 @@ module Sevgi
     # @param string [String] source to evaluate
     # @param file [String, nil] source file name used for errors and backtraces
     # @param line [Integer, nil] starting source line used for errors and backtraces
-    # @param require [String, nil] optional Ruby library to require before execution
+    # @param require [String, Array<String>, nil] optional Ruby library or libraries to require before execution
     # @param receiver [Object, nil] receiver used verbatim while booting the DSL. Nil selects the isolated execution
     #   module, while false and other executable objects remain explicit receivers
     # @yield optional boot block that installs DSL methods before evaluation
@@ -95,7 +95,7 @@ module Sevgi
     # Executes a file inside a managed Sevgi script scope.
     # @param file [String] source file to read and execute
     # @param as [String, nil] logical source name used for evaluation and diagnostics
-    # @param require [String, nil] optional Ruby library to require before execution
+    # @param require [String, Array<String>, nil] optional Ruby library or libraries to require before execution
     # @param receiver [Object, nil] receiver used verbatim while booting the DSL. Nil selects the isolated execution
     #   module, while false and other executable objects remain explicit receivers
     # @yield optional boot block that installs DSL methods before evaluation
@@ -136,18 +136,19 @@ module Sevgi
       end
 
       def execute_source(source, require:, receiver:, &block)
-        return Result.new(value: nil, error: nil, stack: []) if source.string.empty? && require.nil?
+        libraries = Array(require)
+        return Result.new(value: nil, error: nil, stack: []) if source.string.empty? && libraries.empty?
 
         scope = STATE.create
-        catch(:result) { run_source(scope, source, require, receiver, &block) }
+        catch(scope) { run_source(scope, source, libraries, receiver, &block) }
         scope.result
 
       ensure
         STATE.shutdown(scope) if scope
       end
 
-      def run_source(scope, source, library, receiver, &block)
-        ::Kernel.require(library) if library
+      def run_source(scope, source, libraries, receiver, &block)
+        libraries.each { ::Kernel.require(it) }
         scope.call(source, receiver, &block)
         # Required libraries use the same failure policy as executable script source.
         # rubocop:disable-next Lint/RescueException
@@ -155,8 +156,12 @@ module Sevgi
         scope.capture(source, e)
       end
 
+      def valid_library?(library)
+        library.nil? || library.is_a?(::String) || (library.is_a?(::Array) && library.all?(::String))
+      end
+
       def validate_context!(library, receiver)
-        ArgumentError.("Executor library must be a String or nil") unless library.nil? || library.is_a?(::String)
+        ArgumentError.("Executor library must be a String, Array of Strings, or nil") unless valid_library?(library)
 
         valid = (receiver in ::Object) && receiver.respond_to?(:public_send) && receiver.respond_to?(:instance_exec)
         ArgumentError.("Executor receiver must be an executable Object or nil") unless valid

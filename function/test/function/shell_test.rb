@@ -305,6 +305,16 @@ module Sevgi
           assert_equal(200_000, result.err.size)
         end
 
+        def test_sh_ignores_epipe_when_child_exits_before_reading_stdin
+          payload = "x" * (2 * 1024 * 1024)
+          result = Timeout.timeout(3) do
+            Function.sh(RbConfig.ruby, "-e", "exit 0") { payload }
+          end
+
+          assert_predicate(result, :ok?)
+          assert_equal(0, result.exit_code)
+        end
+
         def test_sh_handles_full_duplex_large_io
           size = 2 * 1024 * 1024
           script = <<~RUBY

@@ -72,14 +72,21 @@ module Sevgi
 
       def test_executable_loads_required_library
         with_svg("<svg xmlns=\"http://www.w3.org/2000/svg\"><circle r=\"4\"/></svg>") do |file|
-          library = ::File.join(::File.dirname(file), "required.rb")
-          ::File.write(library, "warn \"igsev required library\"")
+          first = ::File.join(::File.dirname(file), "first.rb")
+          second = ::File.join(::File.dirname(file), "second.rb")
+          ::File.write(first, "warn \"first\"")
+          ::File.write(second, "warn \"second\"")
 
-          out, err, status = run_igsev("--require", library, file)
+          argv = ["--require", first, "-r", second, file]
+          snapshot = argv.dup
+          _out, _err = capture_io { ::Sevgi.const_get(:Binaries, false)::Igsev.(argv) }
+          assert_equal(snapshot, argv)
+
+          out, err, status = run_igsev("--require", first, "-r", second, file)
 
           assert_predicate(status, :success?)
           assert_match(%r{<circle r="4"/>}, out)
-          assert_equal("igsev required library\n", err)
+          assert_equal("first\nsecond\n", err)
         end
       end
 

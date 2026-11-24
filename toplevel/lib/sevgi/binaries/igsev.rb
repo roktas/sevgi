@@ -47,19 +47,25 @@ module Sevgi
           end
         end
 
+        def libraries = self[:require]&.one? ? self[:require].first : self[:require]
+
         class << self
           private
 
           def option(argv, options)
             arg = argv.shift
             return options[FLAGS[arg]] = true if FLAGS.key?(arg)
-            if ["-r", "--require"].include?(arg)
-              return options.require = argv.shift || Error.("Option requires a library: #{arg}")
+            if %w[-r --require].include?(arg)
+              return append_value(options, :require, argv, "Option requires a library: #{arg}")
             end
 
-            return (options.omit ||= []) << (argv.shift || Error.("No attribute given for --omit")) if arg == "--omit"
+            return append_value(options, :omit, argv, "No attribute given for --omit") if arg == "--omit"
 
             Error.("Not a valid option: #{arg}")
+          end
+
+          def append_value(options, field, argv, message)
+            (options[field] ||= []) << (argv.shift || Error.(message))
           end
         end
       end
@@ -72,7 +78,7 @@ module Sevgi
       # @raise [StandardError] when `--exception` or `SEVGI_VOMIT` requests raw errors
       # @raise [SystemExit] when argv does not match `[options...] [--] [file|-]` or conversion aborts
       def call(argv)
-        dispatch(Array(argv))
+        dispatch(Array(argv).dup)
       rescue Binaries::Igsev::Error => e
         abort("#{e.message}\n\n#{help}")
       end
@@ -80,9 +86,7 @@ module Sevgi
       private
 
       def backtrace(error)
-        return error.load_backtrace if error.respond_to?(:load_backtrace)
-
-        error.backtrace || []
+        error.respond_to?(:load_backtrace) ? error.load_backtrace : (error.backtrace || [])
       end
 
       def die(error)
@@ -109,13 +113,11 @@ module Sevgi
 
       def emit(file, options)
         result = run(file, options)
-        unless result.success?
-          raise result.error if raw_error?(options)
+        return result.value.Out() if result.success?
 
-          die(result.error)
-        end
+        raise result.error if raw_error?(options)
 
-        result.value.Out()
+        die(result.error)
       end
 
       def help
@@ -146,13 +148,9 @@ module Sevgi
       def raw_error?(options) = options&.vomit || ENV.fetch(ENVVOMIT, nil)
 
       def run(file, options)
-        source = if file
-          ::Sevgi::Derender.derender_file(file, omit: options.omit)
-        else
-          ::Sevgi::Derender.derender($stdin.read, omit: options.omit)
-        end
-
-        ::Sevgi.execute(source, require: options.require)
+        reader = file ? :derender_file : :derender
+        source = ::Sevgi::Derender.public_send(reader, file || $stdin.read, omit: options.omit)
+        ::Sevgi.execute(source, require: options.libraries)
       end
     end
   end

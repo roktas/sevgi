@@ -144,6 +144,10 @@ module Sevgi
       # @return [Array<Sevgi::Graphics::Content>] frozen content snapshot
       def contents = @contents.dup.freeze
 
+      # Returns a concise summary of the element type, id, and child count.
+      # @return [String]
+      def inspect = Dispatch.summary(self, @attributes, @children)
+
       # Returns the parent element.
       # @return [Sevgi::Graphics::Element, nil] parent element, or nil for a root or detached element
       # @note Use `Root?` to distinguish a document root from a detached subtree root.
@@ -283,6 +287,16 @@ module Sevgi
           end
 
           {attributes:, contents:}
+        end
+
+        # Returns a concise summary string for Element#inspect without expanding subtrees.
+        # @param element [Sevgi::Graphics::Element] element to describe
+        # @param attributes [Sevgi::Graphics::Attributes, nil] backing attribute facade
+        # @param children [Array<Sevgi::Graphics::Element>, nil] child list
+        # @return [String]
+        def summary(element, attributes, children)
+          id = (" ##{attributes[:id]}" if attributes&.has?(:id))
+          "#<#{element.class} <#{element.name}>#{id} children=#{children&.size || 0}>"
         end
 
         # Parses element DSL arguments.

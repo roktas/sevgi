@@ -36,6 +36,17 @@ module Sevgi
             false,
             descendant.NS?(:missing)
           ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
+
+          doc.attributes.delete(:"xmlns:inkscape")
+
+          [
+            false,
+            doc.NS?(:inkscape),
+            false,
+            child.NS?(:inkscape),
+            false,
+            descendant.NS?(:inkscape)
+          ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
         end
 
         def test_validate_rejects_invalid_attributes

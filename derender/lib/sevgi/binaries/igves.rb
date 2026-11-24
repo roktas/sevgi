@@ -70,7 +70,7 @@ module Sevgi
       # @raise [StandardError] when `--exception` or `SEVGI_VOMIT` requests raw errors
       # @raise [SystemExit] when argv does not match `[options...] [--] [file|-]` or command-line usage aborts
       def call(argv)
-        dispatch(Array(argv))
+        dispatch(Array(argv).dup)
       rescue Binaries::Igves::Error => e
         abort("#{e.message}\n\n#{help}")
       end
@@ -99,11 +99,7 @@ module Sevgi
         exit(1)
       end
 
-      def backtrace(error)
-        return error.backtrace! if error.respond_to?(:backtrace!)
-
-        error.backtrace || []
-      end
+      def backtrace(error) = error.backtrace || []
 
       def help
         <<~HELP

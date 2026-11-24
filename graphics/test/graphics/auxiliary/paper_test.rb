@@ -157,6 +157,28 @@ module Sevgi
           Paper.a10.deconstruct
         ].each_slice(2) { |expected, actual| assert_equal(expected, actual) }
       end
+
+      def test_orientation_predicates_transforms_and_aspect_ratio
+        portrait = Paper[20, 40, :mm, :card]
+        landscape = portrait.rotate
+        square = Paper[10, 10, :px, :icon]
+
+        assert_predicate(portrait, :portrait?)
+        refute_predicate(portrait, :landscape?)
+        refute_predicate(portrait, :square?)
+        assert_equal(0.5, portrait.aspect_ratio)
+        assert_same(portrait, portrait.portrait)
+        assert_equal([40.0, 20.0, :mm, :card], landscape.deconstruct)
+        assert_predicate(landscape, :landscape?)
+        assert_same(landscape, landscape.landscape)
+        assert_equal(2.0, landscape.aspect_ratio)
+        assert_equal(portrait, landscape.portrait)
+
+        assert_predicate(square, :square?)
+        refute_predicate(square, :landscape?)
+        refute_predicate(square, :portrait?)
+        assert_equal(1.0, square.aspect_ratio)
+      end
     end
   end
 end

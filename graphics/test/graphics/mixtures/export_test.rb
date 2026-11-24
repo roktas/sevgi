@@ -64,14 +64,22 @@ module Sevgi
 
         def test_pdf_passes_document_imprint_and_fallback
           require "sevgi/sundries"
+
           drawing = SVG(:minimal)
-          drawing.Imprint targets: {ink: {selectors: ["#ink"]}}, parameters: {}, page: {name: "Practice"}
+          drawing.Imprint(targets: {ink: {selectors: ["#ink"]}}, parameters: {}, page: {name: "Practice"})
           preview = "\x89PNG\r\n\x1a\n".b
           options = nil
-          Sundries::Export.stub(:call, -> (_svg, output, **kwargs) { options = kwargs; output }) do
+          Sundries::Export.stub(
+            :call,
+            -> (_svg, output, **kwargs) {
+              options = kwargs
+              output
+            }
+          ) do
             drawing.PDF("out.pdf", preview:, fallback: false)
           end
-          assert_same(drawing.Imprint, options.fetch(:declaration))
+
+          assert_same(drawing.Imprint(), options.fetch(:declaration))
           assert_equal(false, options.fetch(:fallback))
           assert_equal("Practice", options.fetch(:declaration).fetch("page").fetch("name"))
           assert_same(preview, options.fetch(:preview))
@@ -204,11 +212,41 @@ module Sevgi
             Sundries::Export.stub(:call, -> (*) { exported = true }) do
               assert_raises(Sevgi::ArgumentError) { document.PDF("out.pdf", typo: true) }
               assert_raises(Sevgi::ArgumentError) { document.PNG("out.png", typo: true) }
+              assert_raises(Sevgi::ArgumentError) { document.PNG("out.png", declaration: {}) }
+              assert_raises(Sevgi::ArgumentError) { document.PNG("out.png", preview: "x") }
+              assert_raises(Sevgi::ArgumentError) { document.PNG("out.png", fallback: false) }
             end
           end
 
           refute(rendered)
           refute(exported)
+        end
+
+        def test_pdf_ignores_imprint_when_called_without_imprint_or_root
+          require "sevgi/sundries"
+
+          doc_without_imprint = Class.new(Graphics::Document::Proto) do
+            document(nil, register: false)
+            mixture(:Export)
+            mixture(:Render)
+          end
+
+          calls = []
+          exporter = proc do |_svg, _output, **kwargs|
+            calls << kwargs
+            "out.pdf"
+          end
+
+          root = doc_without_imprint.root
+          child = SVG(:minimal) { rect(id: "child") }.children.first
+
+          Sundries::Export.stub(:call, exporter) do
+            root.PDF("root.pdf")
+            child.stub(:call, "<rect/>") { child.PDF("child.pdf") }
+          end
+
+          refute(calls[0].key?(:declaration))
+          refute(calls[1].key?(:declaration))
         end
       end
     end

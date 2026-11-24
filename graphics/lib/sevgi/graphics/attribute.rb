@@ -241,6 +241,14 @@ module Sevgi
           export.map { |id, value| to_xml(id, value) }
         end
 
+        # Reports whether any attributes or metadata entries are stored.
+        # @return [Boolean]
+        def empty? = @store.empty?
+
+        # Returns the number of stored attributes and metadata entries.
+        # @return [Integer]
+        def size = @store.size
+
         protected
 
         attr_reader :store
@@ -337,11 +345,18 @@ module Sevgi
       # @raise [Sevgi::ArgumentError] when key is not a valid attribute name
       def delete(key) = snapshot(@store.delete(key))
 
+      # Reports whether any attributes or non-rendering metadata entries are stored.
+      # Consistent with {#has?} and {#to_h}, this reflects stored entries including non-rendering metadata.
+      # @return [Boolean]
+      def empty? = @store.empty?
+
       # Reports whether an attribute exists.
       # @param key [String, Symbol] attribute key
       # @return [Boolean]
       # @raise [Sevgi::ArgumentError] when key is not a valid attribute name
       def has?(key) = @store.has?(key)
+
+      alias key? has?
 
       # Copies the facade with recursively independent values.
       # @param original [Sevgi::Graphics::Attributes] facade to copy
@@ -368,6 +383,11 @@ module Sevgi
         @store.import(attributes)
         self
       end
+
+      # Returns the number of stored attributes, including non-rendering metadata.
+      # Consistent with {#has?} and {#to_h}, this count includes entries prefixed with {META_PREFIX}.
+      # @return [Integer]
+      def size = @store.size
 
       # Returns a recursively owned Hash snapshot including non-rendering metadata.
       # @return [Hash{Symbol => Object}] owned attribute and metadata snapshot

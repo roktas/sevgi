@@ -53,6 +53,10 @@ module Sevgi
         deconstruct <=> other.deconstruct if other.is_a?(self.class)
       end
 
+      # Returns the width-to-height ratio.
+      # @return [Float]
+      def aspect_ratio = width.fdiv(height)
+
       # Reports strict paper equality.
       # @param other [Object] object to compare
       # @return [Boolean]
@@ -62,13 +66,39 @@ module Sevgi
       # @return [Integer]
       def hash = [self.class, *deconstruct].hash
 
+      # Returns a landscape orientation of this paper.
+      # Returns self when already landscape, or swaps width and height.
+      # @return [Sevgi::Graphics::Paper]
+      def landscape = landscape? ? self : rotate
+
+      # Reports whether width exceeds height.
+      # @return [Boolean]
+      def landscape? = width > height
+
       # Returns the longer side.
       # @return [Float]
       def longest = [width, height].max
 
+      # Returns a portrait orientation of this paper.
+      # Returns self when already portrait, or swaps width and height.
+      # @return [Sevgi::Graphics::Paper]
+      def portrait = portrait? ? self : rotate
+
+      # Reports whether height exceeds width.
+      # @return [Boolean]
+      def portrait? = height > width
+
+      # Returns a paper with width and height swapped.
+      # @return [Sevgi::Graphics::Paper]
+      def rotate = with(width: height, height: width)
+
       # Returns the shorter side.
       # @return [Float]
       def shortest = [width, height].min
+
+      # Reports whether width equals height.
+      # @return [Boolean]
+      def square? = width == height
 
       alias_method :==, :eql?
 

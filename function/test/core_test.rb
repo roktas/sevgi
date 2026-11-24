@@ -49,6 +49,12 @@ module Sevgi
       assert_equal(:mapped, Undefined.map(:value) { :mapped })
     end
 
+    def test_undefined_clone_accepts_freeze_keyword
+      assert_same(Undefined, Undefined.clone)
+      assert_same(Undefined, Undefined.clone(freeze: true))
+      assert_same(Undefined, Undefined.clone(freeze: false))
+    end
+
     def test_sevgi_constants_ignore_top_level_collisions
       lib = ::File.expand_path("../../lib", __dir__)
       script = <<~RUBY

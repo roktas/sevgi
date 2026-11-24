@@ -15,6 +15,8 @@ module Sevgi
       def test_color_hex_resolves_named_color
         assert_equal("#FFFACD", Color[:lemonchiffon])
         assert_equal(Color[:lemonchiffon], Color.lemonchiffon)
+        assert_equal("#663399", Color[:rebeccapurple])
+        assert(Color.valid?(:rebeccapurple))
       end
     end
   end

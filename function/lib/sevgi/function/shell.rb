@@ -134,22 +134,23 @@ module Sevgi
         end
 
         WAKE = "."
-
-        private_constant :WAKE
+        MUTEX = ::Mutex.new
+        @entries = {}
+        private_constant :MUTEX, :WAKE
 
         class << self
           def register(runner, pid)
-            mutex.synchronize do
-              install unless entries.any?
-              entries[runner] = Entry.new(runner, pid)
+            MUTEX.synchronize do
+              install unless @entries.any?
+              @entries[runner] = Entry.new(runner, pid)
             end
           end
 
           def unregister(runner)
-            worker = mutex.synchronize do
-              next unless entries.delete(runner)
+            worker = MUTEX.synchronize do
+              next unless @entries.delete(runner)
 
-              restore unless entries.any?
+              restore unless @entries.any?
             end
 
             worker.join if worker && worker != Thread.current
@@ -158,7 +159,7 @@ module Sevgi
           private
 
           def dispatch
-            active = mutex.synchronize { entries.values.dup }
+            active = MUTEX.synchronize { @entries.values.dup }
             active.each { dispatch_entry(it) }
           end
 
@@ -191,10 +192,6 @@ module Sevgi
           ensure
             close_io(reader)
           end
-
-          def mutex = @mutex ||= Mutex.new
-
-          def entries = @entries ||= {}
 
           def notify(writer)
             writer.write_nonblock(WAKE, exception: false)
@@ -351,6 +348,8 @@ module Sevgi
 
           content = yield
           stdin.write(content) if content
+        rescue Errno::EPIPE
+          nil
         end
 
         def close_input(stdin)

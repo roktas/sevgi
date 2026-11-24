@@ -151,7 +151,10 @@ module Sevgi
       # @raise [Sevgi::MissingComponentError] when native export gems are unavailable
       # @raise [Sevgi::Sundries::Export::ExportError] when the PDF cannot be read, rewritten, or stamped
       # @note Streams with unbalanced graphics-state or text-object operators are left unchanged.
-      def stamp(infile, outfile, stamp:, placeholder:) = native!.stamp(infile, outfile, stamp:, placeholder:)
+      def stamp(infile, outfile, stamp:, placeholder:)
+        native!
+        Stamp.stamp(infile, outfile, stamp:, placeholder:)
+      end
 
       # Replaces exact placeholder text objects inside a PDF file in place.
       # The input file changes only after at least one exact match produces a nonempty output file.
@@ -162,7 +165,10 @@ module Sevgi
       # @raise [Sevgi::MissingComponentError] when native export gems are unavailable
       # @raise [Sevgi::Sundries::Export::ExportError] when the PDF cannot be read, rewritten, stamped, or replaced
       # @note Streams with unbalanced graphics-state or text-object operators are left unchanged.
-      def stamp!(infile, stamp:, placeholder:) = native!.stamp!(infile, stamp:, placeholder:)
+      def stamp!(infile, stamp:, placeholder:)
+        native!
+        Stamp.stamp!(infile, stamp:, placeholder:)
+      end
 
       # Writes supplied publication metadata to PDF XMP and matching legacy Info entries.
       # The destination is replaced only after the PDF and metadata have been written.
@@ -207,8 +213,9 @@ module Sevgi
 
         def produce(input, output, format:)
           return output if format == :pdf && prepared(input, output)
+
           native!
-          render(input.svg, output, format:, **input.dimensions)
+          Render.call(input.svg, output, format:, dimensions: input.dimensions)
         end
 
         def prepared(input, output)

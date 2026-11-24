@@ -26,14 +26,34 @@ module Sevgi
         end
 
         def test_layer_and_symbol_bang_render_inkscape_elements
+          created = []
           actual = SVG(:inkscape) do
             layer(id: "layer1") { rect(id: "rect") }
-            symbol!(id: "glyph") { rect(width: 1) }
+            created << symbol!(id: "outside") { rect(width: 1) }
+            defs { created << symbol!(id: "inside") { rect(width: 2) } }
           end
             .Render()
 
           assert_match(/<g id="layer1" inkscape:groupmode="layer">/, actual)
-          assert_match(/<g id="glyph" role="inkscape:symbol">/, actual)
+          assert_match(/<g id="outside" role="inkscape:symbol">/, actual)
+          assert_match(/<g id="inside" role="inkscape:symbol">/, actual)
+          assert_equal(%i[g g], created.map(&:name))
+          assert_equal(%w[outside inside], created.map { it[:id] })
+        end
+
+        def test_polyfills_fallback_for_layer_bang_and_symbol_bang
+          doc_class = Class.new(Graphics::Document::Default)
+          actual = doc_class
+            .root do
+              layer(id: "plain") { rect }
+              layer!(id: "locked") { rect }
+              symbol!(id: "sym") { rect }
+            end
+            .Render()
+
+          assert_match(/<g id="plain">/, actual)
+          assert_match(/<g id="locked">/, actual)
+          assert_match(/<symbol id="sym">/, actual)
         end
 
         def test_group_and_layer_default_to_module_name

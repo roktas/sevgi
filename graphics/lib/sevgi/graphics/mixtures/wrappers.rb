@@ -92,8 +92,15 @@ module Sevgi
         # @yield evaluates the drawing DSL in the symbol element
         # @yieldreturn [Object] ignored block result
         # @return [Sevgi::Graphics::Element] symbol element
+        # @raise [Sevgi::ArgumentError] when name is not a non-blank String or no block is given
         def Symbol(name, **kwargs, &block)
-          id = (words = name.split).map(&:downcase).join("-")
+          unless name.is_a?(::String) && !(words = name.split).empty?
+            ArgumentError.("Symbol name must be a non-empty String")
+          end
+
+          ArgumentError.("Block required") unless block
+
+          id = words.map(&:downcase).join("-")
           title = words.map(&:capitalize).join(" ")
 
           symbol(id:, **kwargs) do
@@ -125,13 +132,7 @@ module Sevgi
         # @raise [Sevgi::ArgumentError] when an operand is not a finite real number
         def LineBy(angle:, length:, x: 0, y: 0, **)
           angle, length, x, y = Scalar.numbers([angle, length, x, y], context: "relative line")
-          dx, dy = Scalar.numbers(
-            [
-              length * ::Math.cos(angle.to_f / 180 * ::Math::PI),
-              length * ::Math.sin(angle.to_f / 180 * ::Math::PI)
-            ],
-            context: "relative line result"
-          )
+          dx, dy = Scalar.numbers([length * F.cos(angle), length * F.sin(angle)], context: "relative line result")
 
           path(d: "M #{x} #{y} l #{dx} #{dy}", **)
         end
@@ -143,7 +144,7 @@ module Sevgi
         # @raise [Sevgi::ArgumentError] when CSS rules are malformed, cyclic, cannot be stringified, or contain invalid
         #   encoding or illegal XML 1.0 characters
         def css(hash = nil, **attributes)
-          hash, attributes = attributes, {} unless hash
+          hash, attributes = attributes, {} if hash.nil?
 
           style(Content.css(hash), type: "text/css", **attributes)
         end

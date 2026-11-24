@@ -20,6 +20,14 @@ module Sevgi
           assert_match(/\bid\b.*\brequired\b/, error.message)
         end
 
+        def test_tile_rejects_blank_id
+          ["", "   "].each do |blank|
+            doc = SVG(DOC)
+            assert_raises(ArgumentError) { doc.Tile(blank, nx: 1, dx: 1, ny: 1, dy: 4) }
+            assert_empty(doc.children)
+          end
+        end
+
         def test_tile_zero_nx_raises_exception
           error = assert_raises(ArgumentError) do
             SVG(DOC) do
@@ -230,6 +238,14 @@ module Sevgi
           end
 
           assert_match(/\bid\b.*\brequired\b/, error.message)
+        end
+
+        def test_tile_x_rejects_blank_id
+          ["", "   "].each do |blank|
+            doc = SVG(DOC)
+            assert_raises(ArgumentError) { doc.TileX(blank, n: 1, d: 1) }
+            assert_empty(doc.children)
+          end
         end
 
         def test_tile_x_zero_n_raises_exception
@@ -461,6 +477,14 @@ module Sevgi
             .Render()
 
           assert_equal(expected, actual)
+        end
+
+        def test_tile_y_rejects_blank_id
+          ["", "   "].each do |blank|
+            doc = SVG(DOC)
+            assert_raises(ArgumentError) { doc.TileY(blank, n: 1, d: 1) }
+            assert_empty(doc.children)
+          end
         end
       end
     end

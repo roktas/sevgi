@@ -87,6 +87,11 @@ module Sevgi
       end
 
       def test_executable_reports_derender_version
+        argv = %w[--version]
+        snapshot = argv.dup
+        _out, _err = capture_io { Sevgi.const_get(:Binaries, false)::Igves.(argv) }
+        assert_equal(snapshot, argv)
+
         out, err, status = run_igves("--version")
 
         assert_predicate(status, :success?)

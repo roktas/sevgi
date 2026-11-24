@@ -137,6 +137,26 @@ module Sevgi
 
       alias == eql?
 
+      # Returns a landscape canvas, rotating dimensions and margins when width does not exceed height.
+      # @return [Sevgi::Graphics::Canvas]
+      def landscape = size.landscape? ? self : rotate
+
+      # Returns a portrait canvas, rotating dimensions and margins when height does not exceed width.
+      # @return [Sevgi::Graphics::Canvas]
+      def portrait = size.portrait? ? self : rotate
+
+      # Returns a canvas with width and height swapped and margins rotated 90 degrees clockwise.
+      # Margins rotate from `[top, right, bottom, left]` to `[left, top, right, bottom]` so vertical and horizontal
+      # margin sums swap alongside width and height.
+      # @return [Sevgi::Graphics::Canvas]
+      def rotate
+        self.class.new(**size.rotate.to_h, margins: [margin.left, margin.top, margin.right, margin.bottom])
+      end
+
+      # Returns canvas fields as a Hash compatible with {Canvas.call}.
+      # @return [Hash{Symbol => Object}]
+      def to_h = {**size.to_h, margins: margin.to_a}
+
       # Returns SVG width and height attributes.
       # @return [Hash{Symbol => String}] SVG width and height attributes
       def viewport = {width: "#{width}#{unit}", height: "#{height}#{unit}"}
@@ -178,14 +198,12 @@ module Sevgi
       private
 
       def compute
-        @inner = size.with(**inner_size)
-        ensure_inner_area
-      end
+        dimensions = inner_size
+        unless dimensions[:width].positive? && dimensions[:height].positive?
+          ArgumentError.("Canvas margins must leave a positive inner area")
+        end
 
-      def ensure_inner_area
-        return if @inner.width.positive? && @inner.height.positive?
-
-        ArgumentError.("Canvas margins must leave a positive inner area")
+        @inner = size.with(**dimensions)
       end
 
       def inner_size

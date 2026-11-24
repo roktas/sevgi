@@ -11,8 +11,46 @@ module Sevgi
       #     rect(width: 8, height: 4).Translate(12, 6).Rotate(15, 4, 2)
       #   end
       module Transform
-        # Keep box validation here: mixture helper methods would also enter the SVG DSL namespace.
-        # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
+        # Validates and calculates alignment offsets outside the DSL method surface.
+        # @api private
+        module Alignment
+          # Returns `[dx, dy]` translation offsets for an alignment or nil when inputs are incomplete.
+          # @param position [Symbol, String, nil] alignment name
+          # @param inner [#width, #height, nil] inner box
+          # @param outer [#width, #height, nil] outer box
+          # @return [Array(Float, Float), nil]
+          # @raise [Sevgi::ArgumentError] when alignment or box geometry is invalid
+          def self.offset(position, inner:, outer:)
+            return unless position && inner && outer
+            ArgumentError.("Unsupported alignment: #{position}") unless position.to_sym == :center
+
+            iw, ih, ow, oh = dimensions_for(inner, outer)
+            (ix, iy), (ox, oy) = box_origin(inner), box_origin(outer)
+
+            [ox - ix + ((ow - iw) / 2.0), oy - iy + ((oh - ih) / 2.0)]
+          end
+
+          def self.dimensions_for(inner, outer)
+            [inner.width, inner.height, outer.width, outer.height].map do |dimension|
+              Scalar.number(dimension, context: "alignment", field: :dimension)
+            end
+          end
+
+          def self.box_origin(box)
+            return [0, 0] unless box.respond_to?(:position)
+
+            origin = box.position
+            unless origin.respond_to?(:x) && origin.respond_to?(:y)
+              ArgumentError.("Alignment box position must expose x and y")
+            end
+
+            [origin.x, origin.y].map { Scalar.number(it, context: "alignment", field: :position) }
+          end
+
+          private_class_method :box_origin, :dimensions_for
+        end
+
+        private_constant :Alignment
 
         # Aligns an inner box inside an outer box.
         # @param position [Symbol, String, nil] alignment name
@@ -24,31 +62,11 @@ module Sevgi
         # @raise [Sevgi::ArgumentError] when a supplied box position does not expose finite real x and y coordinates
         # @note Size-only boxes have origin (0, 0). Positions describe known box geometry, not renderer-computed bounds.
         def Align(position, inner:, outer:)
-          return self unless position && inner && outer
+          offset = Alignment.offset(position, inner:, outer:)
+          return self unless offset
 
-          case position.to_sym
-          when :center
-            dimensions = [inner.width, inner.height, outer.width, outer.height]
-            iw, ih, ow, oh = dimensions.map { Scalar.number(it, context: "alignment", field: :dimension) }
-            origins = [inner, outer].map do |box|
-              next [0, 0] unless box.respond_to?(:position)
-
-              origin = box.position
-              unless origin.respond_to?(:x) && origin.respond_to?(:y)
-                ArgumentError.("Alignment box position must expose x and y")
-              end
-
-              [origin.x, origin.y].map { Scalar.number(it, context: "alignment", field: :position) }
-            end
-
-            (ix, iy), (ox, oy) = origins
-            Translate(ox - ix + ((ow - iw) / 2.0), oy - iy + ((oh - ih) / 2.0))
-          else
-            ArgumentError.("Unsupported alignment: #{position}")
-          end
+          Translate(*offset)
         end
-
-        # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
 
         # Appends a scale(-1, -1) transform.
         # @return [Sevgi::Graphics::Element] self
@@ -136,11 +154,18 @@ module Sevgi
         # @param ax [Numeric] finite x skew angle in degrees, normalized before calculation
         # @param ay [Numeric] finite y skew angle in degrees, normalized before calculation
         # @return [Sevgi::Graphics::Element] self
-        # @raise [Sevgi::ArgumentError] when an angle is not a finite real number
+        # @raise [Sevgi::ArgumentError] when an angle is not a finite real number or is congruent to 90 degrees modulo 180
         def Skew(ax, ay)
           ax = Scalar.number(ax, context: "skew", field: :x)
           ay = Scalar.number(ay, context: "skew", field: :y)
-          Matrix(1.0, ::Math.tan(ay / 180.0 * ::Math::PI), ::Math.tan(ax / 180.0 * ::Math::PI), 1.0, 0.0, 0.0)
+
+          [ax, ay].each do |angle|
+            ArgumentError.("Skew angle must not be +/-90 (mod 180): #{angle}") if ((angle % 180) - 90).zero?
+          end
+
+          return self if ax.zero? && ay.zero?
+
+          Matrix(1.0, F.tan(ay), F.tan(ax), 1.0, 0.0, 0.0)
         end
 
         # Appends an SVG skewX transform.

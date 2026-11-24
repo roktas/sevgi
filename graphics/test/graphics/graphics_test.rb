@@ -75,7 +75,7 @@ module Sevgi
           [:Call, [], []],
           [:Core, [], []],
           [:Duplicate, [], []],
-          [:Export, [:Export], []],
+          [:Export, [], []],
           [:Hatch, [], []],
           [:Identify, [], []],
           [:Include, [], []],

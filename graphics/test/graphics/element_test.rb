@@ -468,6 +468,17 @@ module Sevgi
           refute(Element.method_defined?(:marker))
           refute(Element.method_defined?(:puts))
         end
+
+        def test_inspect_summarizes_element_without_expanding_subtree
+          doc = SVG(:minimal, id: "canvas") do
+            rect(id: "box")
+            circle
+          end
+
+          assert_match(/\A#<Sevgi::Graphics::Document::Minimal <svg> #canvas children=2>\z/, doc.inspect)
+          assert_match(/\A#<Sevgi::Graphics::Document::Minimal <rect> #box children=0>\z/, doc.children[0].inspect)
+          assert_match(/\A#<Sevgi::Graphics::Document::Minimal <circle> children=0>\z/, doc.children[1].inspect)
+        end
       end
     end
   end

@@ -89,23 +89,7 @@ module Sevgi
         # @return [Sevgi::Graphics::Element] self
         # @raise [Sevgi::ArgumentError] when a required tile argument is missing or invalid
         def TileX(id = Undefined, n: Undefined, d: Undefined, o: 0, proc: nil, &block)
-          id, n, d, o, callback = Helper.normalize(id:, n:, d:, o:, proc:).values_at(:id, :n, :d, :o, :proc)
-
-          defs { g(id:, &block) } if block
-
-          Within do
-            n.times do |x|
-              cs = Helper.classify(as: "col", index: x, upper: n)
-
-              element = use(
-                id: [id, x + 1].join("-"),
-                href: "##{id}",
-                class: cs.join(" "),
-                **Helper.coordinates(x: Scalar.number((x * d) + o, context: "tile", field: :x))
-              )
-              callback&.call(element, x:, n:)
-            end
-          end
+          Helper.axis(self, axis: :x, role: "col", id:, n:, d:, o:, callback: proc, &block)
         end
 
         # Builds a one-dimensional vertical tile column.
@@ -123,23 +107,7 @@ module Sevgi
         # @return [Sevgi::Graphics::Element] self
         # @raise [Sevgi::ArgumentError] when a required tile argument is missing or invalid
         def TileY(id = Undefined, n: Undefined, d: Undefined, o: 0, proc: nil, &block)
-          id, n, d, o, callback = Helper.normalize(id:, n:, d:, o:, proc:).values_at(:id, :n, :d, :o, :proc)
-
-          defs { g(id:, &block) } if block
-
-          Within do
-            n.times do |y|
-              rs = Helper.classify(as: "row", index: y, upper: n)
-
-              element = use(
-                id: [id, y + 1].join("-"),
-                href: "##{id}",
-                class: rs.join(" "),
-                **Helper.coordinates(y: Scalar.number((y * d) + o, context: "tile", field: :y))
-              )
-              callback&.call(element, y:, n:)
-            end
-          end
+          Helper.axis(self, axis: :y, role: "row", id:, n:, d:, o:, callback: proc, &block)
         end
 
         # Tile argument validation and class helpers.
@@ -151,12 +119,44 @@ module Sevgi
 
           # Argument validators for tile helpers.
           ASSERTION = {
-            id: proc { |name, value| "Argument '#{name}' must be a string" unless value.is_a?(::String) },
+            id: proc do |name, value|
+              "Argument '#{name}' must be a non-empty string" unless value.is_a?(::String) && !value.strip.empty?
+            end,
             n: proc { |name, value| positive_integer_issue(name, value) },
             nx: proc { |name, value| positive_integer_issue(name, value) },
             ny: proc { |name, value| positive_integer_issue(name, value) },
             proc: proc { |name, value| "Argument '#{name}' must be a proc" unless value.nil? || value.is_a?(::Proc) }
           }.freeze
+
+          # Generates one-dimensional tile instances along axis (:x or :y) on target.
+          # @param target [Sevgi::Graphics::Element] receiving element
+          # @param axis [Symbol] coordinate axis (`:x` or `:y`)
+          # @param role [String] CSS class axis label (`"col"` or `"row"`)
+          # @param id [String, Object] template id
+          # @param n [Integer, Object] tile count
+          # @param d [Numeric, Object] spacing
+          # @param o [Numeric, Object] offset
+          # @param callback [Proc, nil] optional per-use callback
+          # @return [Sevgi::Graphics::Element] target
+          def axis(target, axis:, role:, id:, n:, d:, o:, callback:, &block)
+            id, n, d, o, callback = normalize(id:, n:, d:, o:, proc: callback).values_at(:id, :n, :d, :o, :proc)
+
+            target.defs { g(id:, &block) } if block
+
+            target.Within() do
+              n.times do |index|
+                classes = Helper.classify(as: role, index:, upper: n)
+                coordinate = Scalar.number((index * d) + o, context: "tile", field: axis)
+                element = use(
+                  id: [id, index + 1].join("-"),
+                  href: "##{id}",
+                  class: classes.join(" "),
+                  **Helper.coordinates(axis => coordinate)
+                )
+                callback&.call(element, axis => index, :n => n)
+              end
+            end
+          end
 
           # Returns a validation issue unless value is a positive integer.
           # @param name [Symbol] argument name
