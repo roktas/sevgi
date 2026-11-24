@@ -564,9 +564,9 @@ letters:
         end.Render
     - name: layer!
       anchor: layer-bang
-      summary: Build an Inkscape layer marked insensitive to editor interaction.
+      summary: Build a generic group, or an Inkscape layer marked insensitive to editor interaction.
       provider: inkscape
-      context: inkscape
+      context: document
       themes: [composition, editors]
       code: |
         layer! id: "locked" do

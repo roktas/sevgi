@@ -138,14 +138,15 @@ pitch, and indexing is row-first:
 cell = Sevgi::Geometry::Rect[8, 4]
 tile = Sevgi::Sundries::Tile.new(cell, position: [10, 20], nx: 3, ny: 2)
 
-tile[1][2].position # row 1, column 2
-tile.rowbox(1)      # bounds of the second row
-tile.colbox(2)      # bounds of the third column
-tile.box            # bounds of the complete layout
+tile.at(1, 2).position # direct cell lookup (row 1, column 2)
+tile[1][2].position    # row 1, column 2
+tile.rowbox(1)         # bounds of the second row
+tile.colbox(2)         # bounds of the third column
+tile.box               # bounds of the complete layout
 ```
 
 Use this Ruby object when later calculations need the cells or their bounds. Use the DSL words `Tile`, `TileX`, or
 `TileY` when the output needs one SVG template and repeated `<use>` elements.
 
-`row`, `col`, `[]`, `rowbox`, and `colbox` accept Integer indices. Negative indices count from the end.
+`at`, `row`, `col`, `[]`, `rowbox`, and `colbox` accept Integer indices. Negative indices count from the end.
 Out-of-range indices return `nil`. Other index types raise `Sevgi::ArgumentError`.

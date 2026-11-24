@@ -9,7 +9,7 @@ Choose by the value the caller needs after the operation, not merely by the visi
 | Repeat one SVG subtree in the rendered document     | `defs`/`use`, or DSL `Tile`, `TileX`, `TileY` | SVG references with generated positions    |
 | Copy and independently edit an existing subtree     | `Duplicate`, `DuplicateX`, `DuplicateY`       | Independent SVG element trees              |
 | Copy a subtree without attachment or ID changes     | `dup` or `clone`                              | Independent subtree with IDs preserved     |
-| Inspect repeated cells or row/column bounds in Ruby | `Sevgi::Sundries::Tile`                       | Geometry values and boxes, no SVG elements |
+| Inspect repeated cells or row/column bounds in Ruby | `Sevgi::Sundries::Tile` (`at`, `row`, `col`)  | Geometry values and boxes, no SVG elements |
 
 The repetition APIs have different block contracts:
 

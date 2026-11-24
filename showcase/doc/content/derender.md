@@ -99,8 +99,8 @@ igves --omit data-editor-label < badge.svg
 ```
 
 When normalized SVG is the desired result rather than generated Ruby, the umbrella `sevgi` gem provides `igsev`
-(`igves` + `sevgi`). It performs the complete SVG-to-Sevgi-to-SVG round trip and accepts the same repeatable omission
-option:
+(`igves` + `sevgi`). It performs the complete SVG-to-Sevgi-to-SVG round trip and accepts repeatable `--omit` and
+`-r`/`--require` options:
 
 ```text
 igsev --omit data-editor-label badge.svg > normalized.svg

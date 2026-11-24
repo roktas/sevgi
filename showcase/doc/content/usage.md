@@ -54,7 +54,8 @@ they make the drawing clearer.
 ## Scripts {{ "{#scripts}" }}
 
 A `.sevgi` file is ordinary Ruby run by the `sevgi` command. Before evaluation, the runner installs Sevgi's DSL words
-in the managed top-level scope. A typical script ends its `SVG` block with `Save`, `Write`, or `Out`.
+in the managed top-level scope. Pass repeatable `-r` or `--require` flags to load Ruby libraries before the script
+runs. A typical script ends its `SVG` block with `Save`, `Write`, or `Out`.
 
 The examples use `#!/usr/bin/env -S ruby -S sevgi` so editors can detect Ruby syntax. The shorter
 `#!/usr/bin/env sevgi` is the direct executable form, but some editors do not recognize the file as Ruby.
@@ -233,7 +234,7 @@ The public result/error types are `Sevgi::Executor::Result`, `Sevgi::Executor::E
 | `file:`       | Diagnostic name and relative-load origin for inline source                                      |
 | `line:`       | Starting line used in inline-source errors and backtraces                                       |
 | `as:`         | Basename used by `execute_file` for evaluation, diagnostics, and caller-derived output defaults |
-| `require:`    | Ruby library loaded before the Sevgi source                                                     |
+| `require:`    | Ruby library or Array of libraries loaded before the Sevgi source                               |
 | `main: false` | Default isolated module scope without the DSL on Ruby's main object                             |
 | `main: true`  | Command-line-compatible main-object mode for consumers that deliberately need it                |
 

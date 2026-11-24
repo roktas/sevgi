@@ -98,6 +98,18 @@ deliberate export-only styling, and use `dpi:` when CSS pixels need a different 
 Ordinary PDF and PNG output uses Cairo, librsvg, and HexaPDF. If one is missing, Sevgi raises a component error. Ordinary SVG
 rendering continues to work without these optional dependencies.
 
+### Document metadata {{ "{#document-metadata}" }}
+
+Use root SVG RDF for document title, description, creator, and rights. On an `:inkscape` document, `License` authors
+these fields without requiring a license URL. Use a named `License_CC_*` helper only when that license applies.
+
+Ordinary and prepared PDF exports transfer root RDF to PDF XMP and matching Info entries. Nested artwork metadata stays
+local to the artwork. The transfer lazily requires `nokogiri` and `hexapdf`.
+
+For a composed publication, call `Sevgi::Sundries::Export.metadata` or `Sevgi::Sundries::Export.metadata!` after
+assembly. Both methods preserve unrelated XMP and attachments, replace the target file atomically, and never infer dates
+or license terms.
+
 ### PDF page metadata and controls {{ "{#editable-pdf}" }}
 
 `Imprint` attaches a producer declaration to your document without changing its SVG.

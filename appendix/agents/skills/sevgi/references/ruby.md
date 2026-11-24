@@ -79,8 +79,8 @@ end.Render
 
 `Call` draws directly. On an Inkscape profile, `Group`, `Layer`, and `Layer!` wrap the same invocation in a group,
 normal layer, or insensitive layer. `Symbols` expands the public steps into reusable symbols. Lowercase `layer` and
-`layer!` instead open explicit layer blocks without invoking a module. Use `SVG::Modules` only when one namespace owns
-a nested family of callable modules.
+`layer!` open explicit layer blocks in `:inkscape` and fall back to plain `g` groups in other profiles. Use
+`SVG::Modules` only when one namespace owns a nested family of callable modules.
 
 Ruby arithmetic is appropriate for domain data and values the program must know. It does not supersede the renderer
 ownership rule in [drawing.md](drawing.md): idiomatic Ruby can still be the wrong layer for a rendering calculation.

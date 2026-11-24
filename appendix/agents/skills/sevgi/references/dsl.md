@@ -80,6 +80,7 @@ Omitting the profile selects `:default`. A Canvas or Paper can be the first argu
 suitable. Otherwise, the first argument selects a document profile and the optional second argument supplies the
 canvas. Use an anonymous `Document` for one-off metadata. Use a named profile only for shared process-wide vocabulary.
 Prefer non-bang registration. Use `Paper!` or `Document!` only for an intentional overwrite.
+Use `landscape`, `portrait`, and `rotate` on `Paper` or `Canvas` instead of swapping width and height manually.
 
 A canvas's `viewBox` starts at the negative left and top margins. Drawing coordinates remain relative to the inner
 area. For example, `SVG.Canvas(width: 40, height: 20, unit: :px, margins: 2)` starts at `(-2, -2)`.

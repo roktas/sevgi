@@ -48,6 +48,11 @@ The canvas describes physical size and drawing coordinates. A profile describes 
 available document methods. Keep them separate when several profiles share one page size or one profile uses several
 sizes.
 
+`Paper` and `Canvas` provide orientation helpers: `landscape`, `portrait`, and `rotate` return rotated copies without
+mutating the original. `Paper` also provides `aspect_ratio`, `landscape?`, `portrait?`, and `square?`, and `Canvas#to_h`
+returns constructor fields. `Margin` accepts keyword arguments such as `SVG::Margin.new(left: 10)` and reports all-zero
+margins with `zero?`.
+
 ## Profiles {{ "{#profiles}" }}
 
 A profile controls document metadata and extra DSL capabilities. It does not control canvas size or checking policy.
@@ -201,7 +206,8 @@ drawing.Render
 
 Advanced consumers can subclass `SVG::Content` and implement `render(output, depth)`. The rendering engine ignores the
 method's return value. A custom implementation must escape all data that it inserts into markup. Use
-`SVG::Content.encoded(...).to_s` instead of interpolating caller text directly.
+`SVG::Content.encoded(...).to_s` instead of interpolating caller text directly. Built-in `Content` values are frozen
+and support `empty?`, `==`, `eql?`, and `hash`.
 
 ## Validation lifecycle
 

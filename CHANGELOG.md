@@ -5,6 +5,26 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## Unreleased
 
+### Added
+
+- `Paper` orientation and dimension helpers (`aspect_ratio`, `landscape`, `landscape?`, `portrait`, `portrait?`, `rotate`, and `square?`), `Canvas` orientation and serialization helpers (`landscape`, `portrait`, `rotate`, and `to_h`), and `Margin#zero?`.
+- `Attributes#empty?`, `Attributes#size`, `Attributes#key?`, frozen `Content` value equality (`==`, `eql?`, `hash`, `empty?`), and concise `Element#inspect`.
+- `Mixtures::Polyfills#layer!` so `layer!` works across non-Inkscape document profiles.
+- `Sundries::Tile#at(row, col)` for direct cell lookup without building an entire row.
+- Repeatable `-r` / `--require` options in the `sevgi` and `igsev` executables.
+
+### Changed
+
+- Rewrote `Mixtures::Render::Renderer` for direct inline-aware serialization without post-pass splicing.
+- Consolidated Graphics snapshot capture into a shared internal `Snapshot` helper, cached callable module context classes, and released Nokogiri DOM nodes after `Derender::Node` capture.
+- Accelerated `Geometry::Element::Lined#intersection`, memoized `Line#equation`, and replaced per-query copying in `Standard` with frozen internal sets.
+- Standardized atomic temporary-directory staging across `Sundries::Export` paths.
+
+### Fixed
+
+- Protected `Paper.define` against overwriting private singleton helpers, fixed `F.cos`/`F.sin` on tiny negative angles, fixed `SVG.Load` caller resolution, and excluded `**/*.sevgi` from conflicting built-in RuboCop cops in `sevgi-appendix`.
+- Fixed `Margin` keyword construction and `Margin#with`, `Document.call` layered `+` attribute updates, `Element#method_missing` private-method recursion, `Line#within_range?` on negative slopes, `Polygon#concave?` on degenerate polygons, `Ruler` 2-ULP margin clamping, `Standard::Model::SpecialFontFace`, `Export.stamp` byte offsets and missing `/Resources`, `Derender` root text and digit-prefixed CSS keys, `igves` standalone loading, `F.sh!` with leading env hashes, `Showcase::Test::Suite` gem path filtering, and `Showcase::Dark.apply` multi-pass word replacement.
+
 ## 2.0.0 - 2026-11-20
 
 ### Added
