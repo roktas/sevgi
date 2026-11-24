@@ -24,72 +24,6 @@ module Sevgi
     #
     # @see https://sevgi.roktas.dev/documents/#profiles Document profiles guide
     module Document
-      # Defensive copy helper for profile metadata snapshots.
-      # @api private
-      module Snapshot
-        SCALARS = [::NilClass, ::TrueClass, ::FalseClass, ::Symbol, ::Integer, ::Float, ::Rational, ::Complex].freeze
-        private_constant :SCALARS
-
-        class << self
-          # Captures recursively immutable profile metadata. Mutable non-container values are stringified once.
-          # @param value [Object] value to capture
-          # @param seen [Hash] container identities on the current traversal path
-          # @return [Object] immutable captured value
-          # @raise [Sevgi::ArgumentError] when metadata is cyclic, has colliding keys, or cannot be stringified
-          def capture(value, seen = {}.compare_by_identity)
-            case value
-            when ::Hash
-              nested(value, seen) { capture_hash(value, seen) }.freeze
-            when ::Array
-              nested(value, seen) { value.map { capture(it, seen) } }.freeze
-            else
-              capture_value(value)
-            end
-          end
-
-          # Returns a recursively caller-owned copy of captured metadata.
-          # @param value [Object] captured value to copy
-          # @return [Object] caller-owned copy
-          def copy(value)
-            case value
-            when ::String
-              value.dup
-            when ::Hash
-              value.to_h { |key, item| [copy(key), copy(item)] }
-            when ::Array
-              value.map { copy(it) }
-            else
-              value
-            end
-          end
-
-          private
-
-          def capture_hash(value, seen)
-            value.each_with_object({}) do |(key, item), captured|
-              key = capture(key, seen)
-              ArgumentError.("Document profile metadata keys collide after stringification") if captured.key?(key)
-
-              captured[key] = capture(item, seen)
-            end
-          end
-
-          def nested(value, seen)
-            ArgumentError.("Cyclic document profile metadata is not supported") if seen.key?(value)
-
-            seen[value] = true
-            yield
-          ensure
-            seen.delete(value)
-          end
-
-          def capture_value(value)
-            text = XML.text(value, context: "Document profile metadata")
-            SCALARS.include?(value.class) ? value : text.freeze
-          end
-        end
-      end
-
       # Document profile name normalization.
       # @api private
       module Name
@@ -110,7 +44,7 @@ module Sevgi
         def self.normalize!(name) = normalize(name) || ArgumentError.("Invalid document profile: #{name}")
       end
 
-      private_constant :Name, :Snapshot
+      private_constant :Name
 
       # Builds a root SVG element from a document profile.
       # @param document [Symbol, String, Class] profile name or document class
@@ -364,16 +298,22 @@ module Sevgi
         private
 
         def capture_attribute(key, value, identities)
-          update = Attribute.updateable?(key)
           id = Attribute.id(key)
-          if identities.key?(id)
-            ArgumentError.("Document profile attribute names collide after normalization: #{id}")
-          end
+          ArgumentError.("Document profile attribute names collide after normalization: #{id}") if identities.key?(id)
 
           identities[id] = true
-          key = update ? :"#{id}#{Attributes::UPDATE_SUFFIX}" : id
-          value = Snapshot.capture(value)
-          [key, Attribute.capture(value, normalize_keys: value.is_a?(::Hash))]
+          normalized_key = Attribute.updateable?(key) ? :"#{id}#{Attributes::UPDATE_SUFFIX}" : id
+          [normalized_key, capture_profile_value(value)]
+        end
+
+        def capture_profile_value(value)
+          captured = Snapshot.capture(value, context: "Document profile metadata", freeze: true)
+          Snapshot.capture(
+            captured,
+            context: "XML attribute value",
+            freeze: true,
+            normalize_keys: captured.is_a?(::Hash)
+          )
         end
 
         def capture_attributes(attributes)
@@ -387,7 +327,7 @@ module Sevgi
             capture_attribute(key, value, identities)
           end
 
-          Snapshot.capture(captured.to_h)
+          captured.to_h.freeze
         end
 
         def capture_preambles(preambles)
@@ -397,7 +337,7 @@ module Sevgi
             ArgumentError.("Document profile preambles must be an Array of Strings")
           end
 
-          Snapshot.capture(preambles)
+          Snapshot.capture(preambles, context: "Document profile metadata", freeze: true)
         end
       end
 

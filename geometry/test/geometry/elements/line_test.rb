@@ -186,6 +186,14 @@ module Sevgi
         refute_empty(line.intersection(Equation.horizontal(99.98)))
         assert_equal([point], line.intersection(Equation.horizontal(99.98), precision: 7))
       end
+
+      def test_line_equation_memoizes_and_supports_frozen_lines
+        line = Line.([0, 0], [3, 4])
+        assert_same(line.equation, line.equation)
+
+        frozen = Line.([1, 2], [4, 6]).freeze
+        assert_equal(Equation.diagonal(slope: 4.0 / 3.0, intercept: 2.0 - (4.0 / 3.0)), frozen.equation)
+      end
     end
   end
 end

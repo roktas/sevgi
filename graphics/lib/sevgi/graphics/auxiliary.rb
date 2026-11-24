@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "auxiliary/xml"
+require_relative "auxiliary/snapshot"
 require_relative "auxiliary/scalar"
 require_relative "auxiliary/margin"
 require_relative "auxiliary/paper"

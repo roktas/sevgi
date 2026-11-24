@@ -177,6 +177,19 @@ module Sevgi
         assert(Conform.(:defs, elements: %i[hatch]))
         assert(Conform.(:hatch, elements: %i[hatchpath]))
       end
+
+      def test_conform_deduplicates_repeated_invalid_names
+        attr_error = assert_raises(InvalidAttributesError) do
+          Conform.(:rect, attributes: %i[notAllowed notAllowed])
+        end
+
+        elem_error = assert_raises(UnallowedElementsError) do
+          Conform.(:svg, elements: %i[stop stop])
+        end
+
+        assert_equal("rect: Invalid attribute(s): 'notAllowed'", attr_error.message)
+        assert_equal("svg: Element(s) not allowed: 'stop'", elem_error.message)
+      end
     end
   end
 end

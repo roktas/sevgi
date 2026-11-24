@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require "fileutils"
-require "tempfile"
-
 module Sevgi
   module Sundries
     module Export
@@ -23,13 +20,12 @@ module Sevgi
       # @raise [Sevgi::Error] when pdfcpu is missing or the command fails
       # @raise [Errno::ENOENT] when the executable cannot be spawned
       def a5_on_a4!(infile)
-        temp = Tempfile.new(%w[output .pdf], File.dirname(infile))
-        outfile = temp.path
-        temp.close!
-        a5_on_a4(infile, outfile)
-        FileUtils.mv(outfile, infile)
-      ensure
-        temp&.close!
+        Staging.replace(infile, prefix: ".sevgi-nup-", filename: "output.pdf") do |outfile|
+          a5_on_a4(infile, outfile)
+          true
+        end
+
+        nil
       end
 
       # Exports an SVG file through Inkscape.
@@ -65,31 +61,25 @@ module Sevgi
         outfile = File.expand_path(outfile)
         format = format_for(format, outfile)
 
-        if css
-          temp = Tempfile.new(%w[input .svg], File.dirname(infile))
-          ::File.write(temp.path, styled(::File.read(infile), css))
-          infile = temp.path
+        with_staged_svg(infile, css) do |source|
+          F.sh!(
+            *[
+              "inkscape",
+              "--batch-process",
+              "--actions=select-by-class:text,object-to-path",
+              "--export-type=#{format}",
+              ("--export-background=#{background}" if background),
+              ("--export-background-opacity=#{opacity}" if opacity),
+              ("--export-width=#{width}" if width),
+              ("--export-height=#{height}" if height),
+              ("--export-id=#{id}" if id),
+              ("--export-id-only" if id),
+              ("--export-page=#{page}" if page),
+              "--export-filename=#{outfile}",
+              source
+            ].compact
+          )
         end
-
-        F.sh!(
-          *[
-            "inkscape",
-            "--batch-process",
-            "--actions=select-by-class:text,object-to-path",
-            "--export-type=#{format}",
-            ("--export-background=#{background}" if background),
-            ("--export-background-opacity=#{opacity}" if opacity),
-            ("--export-width=#{width}" if width),
-            ("--export-height=#{height}" if height),
-            ("--export-id=#{id}" if id),
-            ("--export-id-only" if id),
-            ("--export-page=#{page}" if page),
-            "--export-filename=#{outfile}",
-            infile
-          ].compact
-        )
-      ensure
-        temp&.close!
       end
 
       # Exports an SVG file through rsvg-convert.
@@ -121,27 +111,33 @@ module Sevgi
         outfile = File.expand_path(outfile)
         format = format_for(format, outfile)
 
-        if css
-          temp = Tempfile.new(%w[input .svg], File.dirname(infile))
-          ::File.write(temp.path, styled(::File.read(infile), css))
-          infile = temp.path
+        with_staged_svg(infile, css) do |source|
+          F.sh!(
+            *[
+              "rsvg-convert",
+              "--format=#{format}",
+              ("--background-color=#{background}" if background),
+              ("--width=#{width}" if width),
+              ("--height=#{height}" if height),
+              ("--export-id=#{id}" if id),
+              "--output=#{outfile}",
+              source
+            ].compact
+          )
         end
-
-        F.sh!(
-          *[
-            "rsvg-convert",
-            "--format=#{format}",
-            ("--background-color=#{background}" if background),
-            ("--width=#{width}" if width),
-            ("--height=#{height}" if height),
-            ("--export-id=#{id}" if id),
-            "--output=#{outfile}",
-            infile
-          ].compact
-        )
-      ensure
-        temp&.close!
       end
+
+      def with_staged_svg(infile, css)
+        return yield(infile) unless css
+
+        Staging.workspace(infile, prefix: ".sevgi-css-") do |directory|
+          staged = ::File.join(directory, "input.svg")
+          ::File.write(staged, styled(::File.read(infile), css))
+          yield(staged)
+        end
+      end
+
+      private :with_staged_svg
 
       # Merges PDF files with pdfunite.
       # @param sources [Array<String>] source PDF file paths

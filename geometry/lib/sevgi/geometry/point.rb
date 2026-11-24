@@ -26,7 +26,8 @@ module Sevgi
       # @raise [Sevgi::Geometry::Error] when angle is not a finite real number
       def rotate(a)
         a = Real[:angle, a]
-        with(x: (x * F.cos(a)) - (y * F.sin(a)), y: (x * F.sin(a)) + (y * F.cos(a)))
+        cos, sin = F.cos(a), F.sin(a)
+        with(x: (x * cos) - (y * sin), y: (x * sin) + (y * cos))
       end
 
       # Scales a point from the origin.

@@ -87,10 +87,14 @@ module Sevgi
       end
 
       def test_model_predicate_matches_requested_models
+        clear_cache
+        cache = Specification.instance_variable_get(:@spec)
+
         assert(Standard.model?(:svg, :SomeElements))
         assert(Standard.model?(:text, :NoneElements, :CDataOrSomeElements))
         refute(Standard.model?(:text, :SomeElements))
         refute(Standard.model?(:missing, :SomeElements))
+        assert_empty(cache)
       end
 
       def test_missing_lookup_doesnt_pollute_cache

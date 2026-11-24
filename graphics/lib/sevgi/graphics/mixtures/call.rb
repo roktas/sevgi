@@ -100,6 +100,7 @@ module Sevgi
           base.instance_variable_set(:@sevgi_bases, [])
           base.instance_variable_set(:@sevgi_callables, base.public_instance_methods(false))
           base.instance_variable_set(:@sevgi_configuration_owner, base.object_id)
+          base.instance_variable_set(:@sevgi_context_class, ::Class.new(Context) { include(base) })
         end
 
         # Returns an owned snapshot of inherited and local base blocks in execution order.
@@ -134,16 +135,14 @@ module Sevgi
           invoke(context, receiver, methods, ...)
         end
 
-        # Returns the executable drawing methods for a callable module.
+        # Returns the executable drawing method names for a callable module.
         # @param mod [Module] module extended with {Sevgi::Graphics::Module}
-        # @return [Array<UnboundMethod>]
+        # @return [Array<Symbol>]
         # @raise [Sevgi::ArgumentError] when mod is not a callable drawing module
         def callables(mod)
           validate(mod)
 
-          callable_names(mod).uniq.filter_map do |name|
-            mod.instance_method(name) if mod.public_method_defined?(name)
-          end
+          callable_names(mod).uniq.select { mod.public_method_defined?(it) }
         end
 
         def callable_names(mod)
@@ -157,11 +156,11 @@ module Sevgi
         end
 
         def context(mod, receiver)
-          ::Class.new(Context) { include(mod) }.new(mod, receiver)
+          mod.instance_variable_get(:@sevgi_context_class).new(mod, receiver)
         end
 
         def invoke(context, receiver, methods, ...)
-          result = methods.map { context.__send__(it.name, ...) }.last
+          result = methods.map { context.__send__(it, ...) }.last
           result.equal?(context) ? receiver : result
         end
 
@@ -180,17 +179,21 @@ module Sevgi
       # @api private
       def initialize_copy(original)
         super
+        mod = self
         @sevgi_bases = original.instance_variable_get(:@sevgi_bases).dup
         @sevgi_callables = original.instance_variable_get(:@sevgi_callables).dup
         @sevgi_configuration_owner = object_id
+        @sevgi_context_class = ::Class.new(Context) { include(mod) }
       end
 
       def own_configuration
         return if @sevgi_configuration_owner == object_id
 
+        mod = self
         @sevgi_bases = @sevgi_bases.dup
         @sevgi_callables = @sevgi_callables.dup
         @sevgi_configuration_owner = object_id
+        @sevgi_context_class = ::Class.new(Context) { include(mod) }
       end
 
       # Tracks newly defined methods as callable drawing candidates.

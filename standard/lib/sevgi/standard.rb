@@ -41,7 +41,7 @@ module Sevgi
     # @return [Boolean]
     # @raise [Sevgi::ArgumentError] when name is not a String or Symbol
     # @raise [Sevgi::ArgumentError] when name is not a valid SVG-style name
-    def attribute?(name) = Attribute.all.include?(Name.normalize!(name, context: "attribute"))
+    def attribute?(name) = Attribute.include?(Name.normalize!(name, context: "attribute"))
 
     # @overload conform(element, attributes: nil, cdata: nil, elements: nil)
     #   Validates an SVG element usage against the standard data.
@@ -77,7 +77,7 @@ module Sevgi
     # @return [Boolean]
     # @raise [Sevgi::ArgumentError] when name is not a String or Symbol
     # @raise [Sevgi::ArgumentError] when name is not a valid SVG-style name
-    def element?(name) = Element.all.include?(Name.normalize!(name, context: "element"))
+    def element?(name) = Element.include?(Name.normalize!(name, context: "element"))
 
     # @overload model?(name, *models)
     #   Checks whether an element uses one of the requested content models.

@@ -8,7 +8,7 @@ module Sevgi
       SVG = "http://www.w3.org/2000/svg"
       private_constant :SVG
 
-      def self.foreign?(node) = node.namespace && node.namespace.href != SVG
+      def self.foreign?(node) = !node.namespace.nil? && node.namespace.href != SVG
 
       def self.svg?(node, name)
         namespace = node.namespace
@@ -18,6 +18,61 @@ module Sevgi
     end
 
     private_constant :Namespace
+
+    # Stateless Nokogiri DOM inspection helpers for {Capture}.
+    # @api private
+    module DOM
+      class << self
+        def attribute_key(attribute) = [attribute.namespace&.prefix, attribute.name].compact.join(":")
+
+        def local_namespaces(node)
+          return {} unless node.respond_to?(:namespace_definitions)
+
+          node.namespace_definitions.to_h do |namespace|
+            [namespace.prefix ? "xmlns:#{namespace.prefix}" : "xmlns", namespace.href]
+          end
+        end
+
+        def mixed?(node)
+          node.children.any? { it.element? || it.cdata? || it.comment? || it.processing_instruction? }
+        end
+
+        def parent_mixed?(node) = node.parent ? mixed?(node.parent) : false
+
+        def preserve_space?(node, inherited)
+          own = space_flag(node)
+          return own unless own.nil?
+          return inherited unless inherited.nil?
+
+          each_ancestor(node) do |current|
+            flag = space_flag(current)
+            return flag unless flag.nil?
+          end
+
+          false
+        end
+
+        private
+
+        def each_ancestor(node)
+          current = node.respond_to?(:parent) ? node.parent : nil
+
+          while current
+            yield current
+            current = current.respond_to?(:parent) ? current.parent : nil
+          end
+        end
+
+        def space_flag(current)
+          return unless current.respond_to?(:attribute_nodes)
+
+          attribute = current.attribute_nodes.find { it.name == "space" && it.namespace&.prefix == "xml" }
+          {"preserve" => true, "default" => false}[attribute&.value]
+        end
+      end
+    end
+
+    private_constant :DOM
 
     META_NAMESPACE = "_:"
     private_constant :META_NAMESPACE
@@ -35,46 +90,91 @@ module Sevgi
 
       private
 
-      def capture_context(pres, namespaces)
+      def capture_children(node)
+        child_context = [@preserve_space, DOM.mixed?(node)]
+        children = node.children.map { self.class.send(:new, it, omit: @omit, inherited: child_context) }
+        @children = children.reject { ignorable_child?(it) }.freeze
+      end
+
+      def capture_context(node, pres, namespaces, inherited)
+        capture_flags(node, inherited)
         @pres = pres.map { it.to_s.dup.freeze }.freeze
-        @namespaces = snapshot(namespaces || local_namespaces)
+        @namespaces = snapshot(namespaces || DOM.local_namespaces(node))
         @scope = snapshot(node.namespaces)
-        @type = dispatch
+        @type = dispatch(node)
         singleton_class.send(:private, :decompile)
       end
 
-      def capture_children
-        @children = node
-          .children
-          .map { self.class.send(:new, it, omit: @omit, top: false) }
-          .reject { ignorable_child?(it) }
-          .freeze
+      def capture_flags(node, inherited)
+        preserve_space, mixed_parent = inherited
+        @text = node.text?
+        @foreign = Namespace.foreign?(node)
+        @preserve_space = DOM.preserve_space?(node, preserve_space)
+        @mixed_text = @text && (mixed_parent.nil? ? DOM.parent_mixed?(node) : mixed_parent)
+        @inline_text = @mixed_text && !node.content.match?(/[\r\n]/)
       end
 
-      def capture_values
+      def capture_identity(node)
+        raw_content = node.content
+        @inline_content = inline_parent_content?(node)
+        @css_source = raw_content.dup.freeze if @type == :CSS
+        @content = captured_content(node, raw_content).dup.freeze
+        @name = [node.namespace&.prefix, node.name].compact.join(":").freeze
+      end
+
+      def capture_values(node)
         @attributes = snapshot(
           node.attribute_nodes.filter_map do |attribute|
-            key = attribute_key(attribute)
+            key = DOM.attribute_key(attribute)
             [key, attribute.value] unless @omit.key?(key)
           end
         )
         @meta = snapshot(attributes.filter_map { |key, value| metadata(key, value) })
       end
 
-      def capture_identity
-        @content = captured_content.dup.freeze
-
-        @name = [node.namespace&.prefix, node.name].compact.join(":").freeze
-      end
-
-      def captured_content
+      def captured_content(node, raw_content)
         return node.to_xml if node.processing_instruction?
 
-        literal_content? || preserve_space? ? node.content : normalized_content
+        literal_content?(node) || @preserve_space ? raw_content : normalized_content(raw_content)
       end
+
+      def dispatch(node)
+        type = NODE_TYPES[node.type]
+        type ||= if Namespace.svg?(node, "style") && node.children.all? { it.text? || it.cdata? }
+          :CSS
+        elsif @top && Namespace.svg?(node, "svg")
+          :Root
+        else
+          :Any
+        end
+
+        type.tap { extend(Elements.const_get(it)) }
+      end
+
+      def ignorable_child?(child)
+        child.send(:text?) &&
+          child.content.strip.empty? &&
+          !child.send(:preserve_space?) &&
+          !child.send(:inline_text?)
+      end
+
+      def inline_parent_content?(node)
+        return false unless children.any? { it.send(:text?) || it.send(:type) == :CData }
+
+        @preserve_space || node.children.none? { it.text? && it.content.match?(/[\r\n]/) }
+      end
+
+      def literal_content?(node) = node.cdata? || node.comment?
 
       def metadata(key, value)
         [key.delete_prefix(META_NAMESPACE), value] if key.start_with?(META_NAMESPACE)
+      end
+
+      def normalized_content(raw_content)
+        return raw_content if @mixed_text && @inline_text
+        return raw_content.strip unless @mixed_text
+
+        raw_content.sub(/\A[ \t]*\r?\n[ \t]*/, "").sub(/[ \t]*\r?\n[ \t]*\z/, "")
       end
 
       def snapshot(pairs)
@@ -126,17 +226,16 @@ module Sevgi
       # @param pres [Array<String>] preamble XML lines carried by the root node
       # @param namespaces [Hash{String => String}, nil] namespace declarations to emit on this node
       # @param omit [Hash{String => Boolean}, nil] normalized attribute omission set shared by the captured subtree
-      # @param top [Boolean] true when this node is the root of the current conversion
+      # @param inherited [Array<Boolean>, nil] inherited `[preserve_space, mixed_parent]` flags from the parent
       # @return [void]
       # @api private
-      def initialize(node, pres = [], namespaces: nil, omit: nil, top: true)
-        @node = node
+      def initialize(node, pres = [], namespaces: nil, omit: nil, inherited: nil)
         @omit = omit || {}.freeze
-        @top = top
-        capture_context(pres, namespaces)
-        capture_values
-        capture_children
-        capture_identity
+        @top = inherited.nil?
+        capture_context(node, pres, namespaces, inherited)
+        capture_values(node)
+        capture_children(node)
+        capture_identity(node)
         freeze
       end
 
@@ -183,97 +282,23 @@ module Sevgi
 
       private
 
-      attr_reader :node, :type
+      attr_reader :css_source, :type
 
       def all_attributes(namespaces = self.namespaces()) = {**attributes, **namespaces}.freeze
 
-      def attribute_key(attribute) = [attribute.namespace&.prefix, attribute.name].compact.join(":")
-
-      def dispatch
-        type = NODE_TYPES[node.type]
-        type ||= if Namespace.svg?(node, "style") && node.children.all? { it.text? || it.cdata? }
-          :CSS
-        elsif @top && Namespace.svg?(node, "svg")
-          :Root
-        else
-          :Any
-        end
-
-        type.tap { extend(Elements.const_get(it)) }
-      end
-
       def element = name
 
-      def ignorable_child?(child)
-        child.send(:text?) &&
-          child.content.strip.empty? &&
-          !child.send(:preserve_space?) &&
-          !child.send(:inline_text?)
-      end
+      def foreign? = @foreign
 
-      def literal_content? = node.cdata? || node.comment?
+      def inline_content? = @inline_content
 
-      def preserve_space?
-        each_node do |current|
-          case xml_space(current)
-          when "preserve"
-            return true
-          when "default"
-            return false
-          end
-        end
+      def inline_text? = @inline_text
 
-        false
-      end
+      def preserve_space? = @preserve_space
 
-      def inline_text? = mixed_text? && !node.content.match?(/[\r\n]/)
-
-      def inline_content?
-        return false unless children.any? { it.send(:text?) || it.send(:type) == :CData }
-
-        preserve_space? || node.children.none? { it.text? && it.content.match?(/[\r\n]/) }
-      end
-
-      def normalized_content
-        return node.content if mixed_text? && inline_text?
-        return node.content.strip unless mixed_text?
-
-        node.content.sub(/\A[ \t]*\r?\n[ \t]*/, "").sub(/[ \t]*\r?\n[ \t]*\z/, "")
-      end
-
-      def mixed_text?
-        node.text? &&
-          node.parent&.children&.any? { it.element? || it.cdata? || it.comment? || it.processing_instruction? }
-      end
-
-      def local_namespaces
-        return {} unless node.respond_to?(:namespace_definitions)
-
-        node.namespace_definitions.to_h do |namespace|
-          [namespace.prefix ? "xmlns:#{namespace.prefix}" : "xmlns", namespace.href]
-        end
-      end
-
-      def each_node
-        current = node
-
-        while current
-          yield current
-          current = current.respond_to?(:parent) ? current.parent : nil
-        end
-      end
-
-      def text? = node.text?
+      def text? = @text
 
       def text_leaf? = children.one? && children.first.send(:text?)
-
-      def xml_space(current)
-        return unless current.respond_to?(:attribute_nodes)
-
-        current.attribute_nodes.find { xml_space_attribute?(it) }&.value
-      end
-
-      def xml_space_attribute?(attribute) = attribute.name == "space" && attribute.namespace&.prefix == "xml"
     end
   end
 end

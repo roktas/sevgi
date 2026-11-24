@@ -104,7 +104,7 @@ module Sevgi
         def validate_string(value, context:)
           ArgumentError.("#{context} must be valid UTF-8") unless value.valid_encoding?
 
-          text = value.encode("UTF-8")
+          text = value.encoding == ::Encoding::UTF_8 ? value : value.encode(::Encoding::UTF_8)
           if (match = ILLEGAL_CHARACTER.match(text))
             ArgumentError.("#{context} contains illegal character U+#{format("%04X", match[0].ord)}")
           end

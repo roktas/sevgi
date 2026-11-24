@@ -48,6 +48,20 @@ module Sevgi
           end
         end
 
+        def test_a5_on_a4_bang_cleans_up_temp_on_failure
+          Dir.mktmpdir do |dir|
+            infile = File.join(dir, "in.pdf")
+            File.write(infile, "old")
+
+            Export.stub(:a5_on_a4, -> (*) { raise ::Sevgi::Error, "pdfcpu failed" }) do
+              assert_raises(::Sevgi::Error) { Export.a5_on_a4!(infile) }
+            end
+
+            assert_equal("old", File.read(infile))
+            assert_equal(["in.pdf"], Dir.children(dir))
+          end
+        end
+
         def test_rsvg_defaults_to_pdf_output
           Dir.mktmpdir do |dir|
             infile = svg_file(dir)

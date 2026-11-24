@@ -4,6 +4,7 @@
 
 require "sevgi/function"
 
+require_relative "export/staging"
 require_relative "export/system"
 require_relative "export/input"
 require_relative "export/metadata"

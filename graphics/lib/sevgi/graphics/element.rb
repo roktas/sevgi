@@ -28,7 +28,7 @@ module Sevgi
       # @raise [Sevgi::ArgumentError] when the element name or an attribute is not valid XML
       def self.element(name, *arguments, parent:, &block)
         validate_parent_class(self, parent)
-        new(name, **Dispatch.parse(name, *arguments), parent:, &block)
+        new(name, **Dispatch.capture(name, *arguments), parent:, &block)
       end
 
       # Builds an SVG root element.
@@ -170,7 +170,7 @@ module Sevgi
         end
 
         @name = XML.name(name, context: "XML element name").to_sym
-        @attributes = Attributes.new(attributes)
+        @attributes = attributes.is_a?(Attributes) ? attributes : Attributes.new(attributes)
         @children = []
         @contents = contents.dup
         @parent = parent
@@ -261,12 +261,12 @@ module Sevgi
           end
         end
 
-        # Parses element DSL arguments.
+        # Captures element DSL arguments without copying the resulting attribute facade back into a Hash.
         # @param name [Symbol] SVG element name
         # @param args [Array<Object>] positional DSL arguments. Hashes are imported from left to right
-        # @return [Hash] parsed :attributes and :contents
+        # @return [Hash] captured :attributes facade and :contents array
         # @raise [Sevgi::ArgumentError] when an argument is not a Hash, String, or Content
-        def parse(name, *args)
+        def capture(name, *args)
           attributes, contents = Attributes.new, []
 
           args.each do |arg|
@@ -282,7 +282,16 @@ module Sevgi
             end
           end
 
-          {attributes: attributes.to_h, contents:}
+          {attributes:, contents:}
+        end
+
+        # Parses element DSL arguments.
+        # @param name [Symbol] SVG element name
+        # @param args [Array<Object>] positional DSL arguments. Hashes are imported from left to right
+        # @return [Hash] parsed :attributes and :contents
+        # @raise [Sevgi::ArgumentError] when an argument is not a Hash, String, or Content
+        def parse(name, *args)
+          capture(name, *args).tap { it[:attributes] = it[:attributes].to_h }
         end
       end
 

@@ -516,6 +516,38 @@ module Sevgi
             assert_empty(doc.children)
           end
         end
+
+        def test_call_reuses_context_class_and_tracks_late_module_composition
+          helper = ::Module.new do
+            private
+
+            def helper_rect = rect(id: "included")
+          end
+
+          override = ::Module.new do
+            def step = rect(id: "prepended")
+          end
+
+          mod = ::Module.new do
+            extend(Graphics::Module)
+
+            def step = rect(id: "original")
+
+            def call = helper_rect
+          end
+
+          doc = SVG(:minimal)
+          context_class = mod.instance_variable_get(:@sevgi_context_class)
+          assert_instance_of(::Class, context_class)
+
+          mod.include(helper)
+          mod.prepend(override)
+          2.times { doc.Call(mod) }
+
+          assert_same(context_class, mod.instance_variable_get(:@sevgi_context_class))
+          assert_equal(%w[prepended included prepended included], doc.children.map { it[:id] })
+          assert_same(context_class, mod.freeze.instance_variable_get(:@sevgi_context_class))
+        end
       end
     end
   end

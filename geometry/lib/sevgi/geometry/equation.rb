@@ -139,6 +139,13 @@ module Sevgi
       # Returns the linear equation through the stored endpoints without a polar conversion.
       # @return [Sevgi::Geometry::Equation::Linear]
       def equation
+        return @equation if defined?(@equation)
+
+        result = compute_equation
+        frozen? ? result : (@equation = result)
+      end
+
+      def compute_equation
         x, y = starting.deconstruct
         dx, dy = ending.x - x, ending.y - y
         return Equation.horizontal(y) if dy.zero?
@@ -147,6 +154,8 @@ module Sevgi
         slope = dy / dx
         Equation.diagonal(slope:, intercept: y - (slope * x))
       end
+
+      private :compute_equation
     end
 
     require_relative "equation/linear"

@@ -267,6 +267,11 @@ module Sevgi
         assert_render("<svg>\n  <text>\t\n\r text 😀</text>\n</svg>", actual)
       end
 
+      def test_content_validates_symbols_and_stringified_key_collisions_on_capture
+        assert_raises(Sevgi::ArgumentError) { Content.encoded(:"bad\x00symbol") }
+        assert_raises(Sevgi::ArgumentError) { Content.encoded({"a" => 1, :a => 2}) }
+      end
+
       private
 
       def invalid_content_operations(value)

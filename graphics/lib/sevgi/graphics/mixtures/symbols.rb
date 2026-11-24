@@ -40,7 +40,7 @@ module Sevgi
 
           # Adds bases and symbols to a defs element.
           # @param defs [Sevgi::Graphics::Element] defs element
-          # @param methods [Array<UnboundMethod>] callable methods
+          # @param methods [Array<Symbol>] callable method names
           # @param ids [#call, nil] symbol id mapper
           # @return [void]
           def populate(defs, methods, ids)
@@ -51,15 +51,14 @@ module Sevgi
 
           # Adds one callable symbol.
           # @param defs [Sevgi::Graphics::Element] defs element
-          # @param method [UnboundMethod] callable method
+          # @param name [Symbol] callable method name
           # @param ids [#call, nil] symbol id mapper
           # @return [Object, nil] callable return value
-          def draw(defs, method, ids)
-            name = method.name
+          def draw(defs, name, ids)
             symbol = defs.symbol(id: ids ? ids.call(name) : name.to_s.tr("_", "-"))
             symbol.title(name.to_s.split("_").map(&:capitalize).join(" "))
             context = Graphics::Module.__send__(:context, @mod, symbol)
-            Graphics::Module.__send__(:invoke, context, symbol, [method], *@args, **@kwargs, &@block)
+            Graphics::Module.__send__(:invoke, context, symbol, [name], *@args, **@kwargs, &@block)
           end
         end
 

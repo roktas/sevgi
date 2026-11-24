@@ -34,74 +34,6 @@ module Sevgi
     class Content
       private_class_method :new
 
-      # Immutable payload capture and caller-owned copy helpers.
-      # @api private
-      module Snapshot
-        SCALARS = [::NilClass, ::TrueClass, ::FalseClass, ::Symbol, ::Integer, ::Float, ::Rational, ::Complex].freeze
-        private_constant :SCALARS
-
-        class << self
-          def capture(value, seen = {}.compare_by_identity)
-            case value
-            when ::String
-              XML.text(value).freeze
-            when ::Hash
-              nested(value, seen) { capture_hash(value, seen) }.freeze
-            when ::Array
-              nested(value, seen) { value.map { capture(it, seen) } }.freeze
-            else
-              SCALARS.include?(value.class) ? value : stringify(value).freeze
-            end
-          end
-
-          def copy(value)
-            case value
-            when ::String
-              value.dup
-            when ::Hash
-              value.to_h { |key, item| [copy(key), copy(item)] }
-            when ::Array
-              value.map { copy(it) }
-            else
-              value
-            end
-          end
-
-          private
-
-          def capture_hash(value, seen)
-            value.each_with_object({}) do |(key, item), captured|
-              key = capture(key, seen)
-              ArgumentError.("XML content keys collide after stringification") if captured.key?(key)
-
-              captured[key] = capture(item, seen)
-            end
-          end
-
-          def nested(value, seen)
-            ArgumentError.("Cyclic XML content is not supported") if seen.key?(value)
-
-            seen[value] = true
-            yield
-          ensure
-            seen.delete(value)
-          end
-
-          def stringify(value)
-            text = value.to_s
-            ArgumentError.("XML content stringification must return a String") unless text.is_a?(::String)
-
-            XML.text(text)
-          rescue Sevgi::ArgumentError
-            raise
-          rescue ::StandardError => e
-            ArgumentError.("XML content cannot be stringified: #{e.class}: #{e.message}")
-          end
-        end
-      end
-
-      private_constant :Snapshot
-
       # Returns a recursively independent, caller-owned payload snapshot.
       # @return [Object] wrapped content snapshot
       def content = Snapshot.copy(@content)
@@ -114,8 +46,7 @@ module Sevgi
       #   characters, contains cycles, or has keys that collide after stringification
       # @api private
       def initialize(content)
-        @content = Snapshot.capture(content)
-        XML.validate(@content)
+        @content = Snapshot.capture(content, context: "XML content", freeze: true)
       end
 
       # Appends this content's serialized XML lines to rendering output.

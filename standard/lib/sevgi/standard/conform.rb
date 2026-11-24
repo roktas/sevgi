@@ -22,7 +22,10 @@ module Sevgi
       def initialize(element)
         element = Name.normalize!(element, context: "element")
 
-        InvalidElementsError.(element) unless (@spec = Specification[@element = element])
+        InvalidElementsError.(element) unless (@spec = Specification.raw(@element = element))
+
+        @allowed_attributes = Set[*spec[:attributes]].freeze
+        @allowed_elements = spec[:elements] ? Set[*spec[:elements]].freeze : nil
 
         PanicError.("No model specified: #{element}") unless spec[:model]
         PanicError.("Model unimplemented: #{spec[:model]}") unless Model.const_defined?(spec[:model])
@@ -42,7 +45,8 @@ module Sevgi
       # @raise [Sevgi::ValidationError] when the usage violates the standard data
       def call(attributes: nil, cdata: nil, elements: nil)
         if attributes
-          unrecognized = attributes - spec[:attributes]
+          unrecognized = attributes.reject { allowed_attributes.include?(it) }
+          unrecognized.uniq! unless unrecognized.empty?
 
           InvalidAttributesError.(element, unrecognized) unless unrecognized.empty?
         end
@@ -51,6 +55,10 @@ module Sevgi
 
         true
       end
+
+      attr_reader :allowed_attributes, :allowed_elements
+
+      private :allowed_attributes, :allowed_elements
 
       @cache = {}
 

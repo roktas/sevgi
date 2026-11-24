@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require "fileutils"
-require "tempfile"
-
 module Sevgi
   module Sundries
     module Export
@@ -23,17 +20,18 @@ module Sevgi
         # rubocop:disable-next Metrics/ClassLength
         class << self
           # Captures the same scalar/list field contract used by both authoring paths.
-          # rubocop:disable-next Metrics/AbcSize, Metrics/CyclomaticComplexity
           def capture(fields)
             ArgumentError.("PDF metadata must be a Hash") unless fields.is_a?(Hash)
             unknown = fields.keys - FIELDS
             ArgumentError.("Unknown PDF metadata field: #{unknown.first}") unless unknown.empty?
-            fields.to_h do |key, value|
-              values = ARRAYS.key?(key) ? Array(value) : [value]
-              ArgumentError.("Empty PDF metadata: #{key}") if values.empty?
-              values = values.map { |text| text_value(text, key).freeze }.freeze
-              [key, ARRAYS.key?(key) ? values : values.first]
-            end.freeze
+            fields.to_h { |key, value| [key, capture_field(key, value)] }.freeze
+          end
+
+          def capture_field(key, value)
+            values = ARRAYS.key?(key) ? Array(value) : [value]
+            ArgumentError.("Empty PDF metadata: #{key}") if values.empty?
+            captured = values.map { |text| text_value(text, key).freeze }.freeze
+            ARRAYS.key?(key) ? captured : captured.first
           end
 
           def from_svg(svg)
@@ -42,19 +40,17 @@ module Sevgi
             resources = document.xpath("/svg:svg/svg:metadata/rdf:RDF/*", NS).select do |node|
               ["", nil].include?(node.attribute_with_ns("about", RDF)&.value)
             end
+
             capture(FIELDS.filter_map { |field| read(resources, field) }.to_h)
           end
 
           def export(output, fields)
-            parent = File.dirname(output)
-            parent = File.dirname(parent) until File.directory?(parent)
-            Tempfile.create([".sevgi-xmp-", ".pdf"], parent) do |temporary|
-              temporary.close
-              yield temporary.path
-              write(temporary.path, fields)
-              FileUtils.mkdir_p(File.dirname(output))
-              File.rename(temporary.path, output)
+            Staging.replace(output, prefix: ".sevgi-xmp-", filename: "output.pdf") do |staged|
+              yield staged
+              write(staged, fields)
+              true
             end
+
             output
           end
 
@@ -62,6 +58,7 @@ module Sevgi
           # rubocop:disable-next Metrics/AbcSize, Metrics/MethodLength
           def write(path, fields)
             require "hexapdf"
+
             document = HexaPDF::Document.open(path)
             payload = packet(document.catalog[:Metadata]&.stream, fields)
             document.catalog[:Metadata] = document.add({Type: :Metadata, Subtype: :XML}, stream: payload)
@@ -70,11 +67,12 @@ module Sevgi
               document.trailer[:Info] ||= {}
               document.trailer[:Info][entry] = Array(fields.fetch(key)).join("; ")
             end
-            Tempfile.create([".sevgi-xmp-", ".pdf"], File.dirname(path)) do |temporary|
-              temporary.close
-              document.write(temporary.path, validate: false, update_fields: false)
-              File.rename(temporary.path, path)
+
+            Staging.replace(path, prefix: ".sevgi-xmp-", filename: "output.pdf") do |staged|
+              document.write(staged, validate: false, update_fields: false)
+              true
             end
+
           rescue LoadError => e
             raise unless e.path == "hexapdf"
             MissingComponentError.("hexapdf")
@@ -99,20 +97,24 @@ module Sevgi
             return values.map(&:text) if values.any?
             alternatives = node.xpath("./rdf:Alt/rdf:li", NS)
             return node.text if alternatives.empty?
-            alternate = node.at_xpath('./rdf:Alt/rdf:li[@xml:lang="x-default"]', NS)
+            alternate = node.at_xpath("./rdf:Alt/rdf:li[@xml:lang=\"x-default\"]", NS)
             unless alternatives.length == 1 && alternate
               ArgumentError.("SVG RDF #{field} requires one x-default language alternative")
             end
+
             alternate.text
           end
 
           # Keep unrelated XMP namespaces and resources when replacing document properties.
           # rubocop:disable-next Metrics/AbcSize, Metrics/MethodLength
           def packet(previous, fields)
-            xml = parse(previous || '<x:xmpmeta xmlns:x="adobe:ns:meta/"><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/></x:xmpmeta>')
+            xml = parse(
+              previous ||
+                "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\"><rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"/></x:xmpmeta>"
+            )
             rdf = xml.at_xpath("//rdf:RDF", NS)
             ArgumentError.("PDF XMP must contain RDF") unless rdf
-            descriptions = rdf.xpath('./rdf:Description[not(@rdf:about) or @rdf:about=""]', NS)
+            descriptions = rdf.xpath("./rdf:Description[not(@rdf:about) or @rdf:about=\"\"]", NS)
             description = descriptions.first || element(rdf, "Description", rdf.namespace)
             description["rdf:about"] = ""
             description.add_namespace_definition("dc", DC)
@@ -122,17 +124,28 @@ module Sevgi
               descriptions.each { it.xpath("./#{prefix}:#{key} | ./@#{prefix}:#{key}", NS).remove }
               append(description, key, value)
             end
+
             payload = xml.to_xml
             ArgumentError.("PDF XMP exceeds 16 MiB") if payload.bytesize > LIMIT
             payload
           end
 
           def text_value(value, field)
-            ArgumentError.("PDF metadata #{field} must be nonblank text") unless value.is_a?(String) && value.valid_encoding? && !value.strip.empty?
-            ArgumentError.("PDF metadata #{field} exceeds 1 MiB") if value.bytesize > 1024 * 1024
-            text = value.encode(Encoding::UTF_8)
-            ArgumentError.("Invalid XML text in PDF metadata #{field}") if text.match?(/[\x00-\x08\x0b\x0c\x0e-\x1f\uFFFE\uFFFF]/)
+            text = utf8_text(value, field)
+            if text.match?(/[\x00-\x08\x0b\x0c\x0e-\x1f\uFFFE\uFFFF]/)
+              ArgumentError.("Invalid XML text in PDF metadata #{field}")
+            end
+
             text.dup
+          end
+
+          def utf8_text(value, field)
+            unless value.is_a?(String) && value.valid_encoding? && !value.strip.empty?
+              ArgumentError.("PDF metadata #{field} must be nonblank text")
+            end
+
+            ArgumentError.("PDF metadata #{field} exceeds 1 MiB") if value.bytesize > 1024 * 1024
+            value.encode(Encoding::UTF_8)
           rescue EncodingError
             ArgumentError.("Invalid text encoding in PDF metadata #{field}")
           end
@@ -141,6 +154,7 @@ module Sevgi
           # rubocop:disable-next Metrics/AbcSize, Metrics/CyclomaticComplexity
           def parse(source, limit: LIMIT)
             require "nokogiri"
+
             ArgumentError.("Metadata XML exceeds 16 MiB") if limit && source.bytesize > limit
             document = Nokogiri::XML(source) { |config| config.strict.nonet }
             ArgumentError.("Metadata XML cannot declare entities") if document.internal_subset&.entities&.any?
@@ -161,6 +175,7 @@ module Sevgi
               node["rdf:resource"] = value
               return
             end
+
             container = element(node, ARRAYS.fetch(key, "Alt"), parent.namespace)
             Array(value).each do |text|
               item = element(container, "li", parent.namespace)

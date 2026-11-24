@@ -288,6 +288,22 @@ module Sevgi
             assert(Standard.conform(name, attributes: element.attributes.keys, elements: element.children.map(&:name)))
           end
         end
+
+        def test_element_captures_attribute_values_in_a_single_pass
+          calls = 0
+          value = Object.new
+          value.define_singleton_method(:to_s) {
+            calls += 1
+            "red"
+          }
+
+          root = Element.root do
+            rect(fill: value)
+          end
+
+          assert_equal(1, calls)
+          assert_equal("red", root.children.first.attributes[:fill])
+        end
       end
 
       class ElementMethodMissingTest < Minitest::Test

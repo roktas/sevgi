@@ -763,7 +763,7 @@ module Sevgi
             infile = File.join(dir, "in.pdf")
             File.write(infile, "pdf")
 
-            FileUtils.stub(:mv, -> (*) { raise Errno::EACCES, infile }) do
+            File.stub(:rename, -> (*) { raise Errno::EACCES, infile }) do
               Export.stub(
                 :stamp,
                 -> (_infile, outfile, **) {
@@ -778,6 +778,23 @@ module Sevgi
                 assert_match(/\APDF stamp error:/, error.message)
               end
             end
+          end
+        end
+
+        def test_render_preserves_existing_output_on_failure
+          Dir.mktmpdir do |dir|
+            output = File.join(dir, "out.png")
+            File.write(output, "previous")
+
+            renderer = Export.const_get(:Renderer, false)
+            renderer.stub(:png, -> (*) { raise Cairo::Error, "simulated cairo failure" }) do
+              assert_raises(ExportError) do
+                Export.call(svg(width: 10, height: 10), output)
+              end
+            end
+
+            assert_equal("previous", File.read(output))
+            assert_equal(["out.png"], Dir.children(dir))
           end
         end
 

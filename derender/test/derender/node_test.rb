@@ -151,6 +151,49 @@ module Sevgi
 
         assert_equal(expected, actual)
       end
+
+      def test_node_releases_nokogiri_nodes_across_tree
+        svg = "<svg><style>.a { fill: red; }</style><g id=\"layer\"><text xml:space=\"preserve\">  hi  <tspan>there</tspan></text></g></svg>"
+        root = Document.new(svg).decompile
+
+        queue = [root]
+        until queue.empty?
+          current = queue.shift
+          refute_includes(current.instance_variables, :@node)
+          current.instance_variables.each do |ivar|
+            value = current.instance_variable_get(ivar)
+            refute_kind_of(Nokogiri::XML::Node, value)
+            refute_kind_of(Nokogiri::XML::Document, value)
+          end
+
+          queue.concat(current.children)
+        end
+      end
+
+      def test_node_preserves_nested_xml_space_and_mixed_text_without_source_node
+        svg = <<~SVG
+          <svg xmlns="http://www.w3.org/2000/svg">
+            <g xml:space="preserve">
+              <text id="keep">  a  <tspan>b</tspan>  </text>
+              <g xml:space="default">
+                <text id="trim">  c  </text>
+                <text id="mixed-inline">x <tspan>y</tspan></text>
+                <text id="mixed-multi">
+                  <tspan>p</tspan>
+                  q
+                </text>
+              </g>
+            </g>
+          </svg>
+        SVG
+
+        root = Document.new(svg).decompile
+
+        assert_equal("  a  ", root.find("keep").children.first.content)
+        assert_equal("c", root.find("trim").content)
+        assert_equal("x ", root.find("mixed-inline").children.first.content)
+        assert_equal("q", root.find("mixed-multi").children.last.content.strip)
+      end
     end
   end
 end

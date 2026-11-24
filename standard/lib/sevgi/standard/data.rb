@@ -39,19 +39,34 @@ module Sevgi
     # Shared set operations for SVG standard data lists.
     # @api private
     module Common
+      include List
+
       # Returns every known name in this data list.
       # @return [Set<Symbol>] mutation-isolated set snapshot
-      def all = Snapshot.copy(@all ||= Set[*data.values.flatten.uniq.sort])
+      def all = Snapshot.copy(all_set)
 
       # Returns accepted group names for this data list.
       # @return [Set<Symbol>] frozen group-name snapshot
       def groups = @groups ||= Set[*data.keys.sort].freeze
 
+      # Imports entries and invalidates derived lookup caches.
+      # @param kwargs [Hash] entries to import
+      # @return [Hash] backing data hash
+      def import(**kwargs)
+        @all_set = @groups = @group_sets = nil
+        super
+      end
+
+      # Reports whether a name belongs to this data list.
+      # @param name [Symbol] item name
+      # @return [Boolean]
+      def include?(name) = all_set.include?(name)
+
       # Checks whether a name belongs to a group.
       # @param name [Symbol] item name
       # @param group [Symbol] group name
       # @return [Boolean]
-      def is?(name, group) = self[group].include?(name)
+      def is?(name, group) = group_set(group)&.include?(name) || false
 
       # Keeps names that belong to any requested group.
       # @param names [Array<Symbol>] names to filter
@@ -74,6 +89,14 @@ module Sevgi
       # @return [Array<Symbol>] filtered names
       def unpick(names, *groups) = names.reject { |name| groups.any? { is?(name, it) } }
 
+      def all_set = @all_set ||= Set[*data.values.flatten.uniq.sort].freeze
+
+      def group_set(group)
+        return unless (items = self[group])
+
+        (@group_sets ||= {})[group] ||= Set[*items].freeze
+      end
+
       def groups!(groups)
         groups = groups.map { Name.normalize!(it, context: "group") }
         unknown = groups.reject { data.key?(it) }
@@ -82,7 +105,7 @@ module Sevgi
         groups
       end
 
-      private :groups!
+      private :all_set, :group_set, :groups!
 
       # Removes ignored names from a list.
       # @param names [Array<Symbol>, nil] names to filter
@@ -93,7 +116,7 @@ module Sevgi
       # @param base [Module] data module receiving helpers
       # @return [void]
       # @api private
-      def self.extended(base) = base.extend(List)
+      def self.extended(base) = List.send(:extended, base)
     end
 
     private_constant :Common
@@ -146,9 +169,15 @@ module Sevgi
       def model?(name, *models)
         name = Name.normalize!(name, context: "element")
         models = models.map { Name.normalize!(it, context: "model") }
+        model = data.dig(name, :model)
 
-        models.any? { (self[name] || {})[:model] == it }
+        !!model && models.include?(model)
       end
+
+      # Returns cached internal specification data without defensive copying.
+      # @param name [Symbol] SVG element name
+      # @return [Hash, nil] cached specification hash
+      def raw(name) = expand(name)
 
       private
 

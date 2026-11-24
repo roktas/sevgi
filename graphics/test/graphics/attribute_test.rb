@@ -307,6 +307,21 @@ module Sevgi
         assert_raises(Sevgi::ArgumentError) { Attributes.new(style: {"bad\0key" => "red"}) }
       end
 
+      def test_attribute_predicates_detect_internal_and_updateable_keys_without_caching_false
+        assert(Attribute.internal?(:"-source"))
+        assert(Attribute.internal?("-source"))
+        refute(Attribute.internal?(:fill))
+        refute(Attribute.internal?("fill"))
+
+        assert(Attribute.updateable?(:"class+"))
+        assert(Attribute.updateable?("class+"))
+        refute(Attribute.updateable?(:fill))
+        refute(Attribute.updateable?("fill"))
+
+        assert_raises(Sevgi::ArgumentError) { Attribute.internal?(Object.new) }
+        assert_raises(Sevgi::ArgumentError) { Attribute.updateable?(Object.new) }
+      end
+
       private
 
       def render_attributes(attributes)

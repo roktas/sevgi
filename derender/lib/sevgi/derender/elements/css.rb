@@ -29,7 +29,7 @@ module Sevgi
         end
 
         def css_lines
-          return unless (hash = Css.rules(node.content))
+          return unless (hash = Css.rules(css_source))
 
           hash
             .map do |selector, declarations|
@@ -43,7 +43,7 @@ module Sevgi
         end
 
         def raw_style(namespaces)
-          arguments = ["Sevgi::Graphics::Content.cdata(#{Ruby.literal(node.content)})"]
+          arguments = ["Sevgi::Graphics::Content.cdata(#{Ruby.literal(css_source)})"]
           attributes = all_attributes(namespaces)
           arguments << Attributes.decompile(attributes) if attributes.any?
 

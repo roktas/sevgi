@@ -21,112 +21,65 @@ module Sevgi
       # Attribute identifier helpers.
       # @api private
       module Ident
+        def self.extended(base)
+          base.instance_variable_set(:@ids, {})
+          base.instance_variable_set(:@id_mutex, ::Mutex.new)
+        end
+
         # Reports whether an attribute is internal to Sevgi rendering.
         # @param given [String, Symbol] attribute name
         # @return [Boolean]
         def internal?(given)
-          (@internal ||= {})[given] ||= key(given).start_with?(Attributes::META_PREFIX)
+          return given.start_with?(Attributes::META_PREFIX) if given.is_a?(::Symbol)
+
+          key(given).start_with?(Attributes::META_PREFIX)
         end
 
         # Returns the normalized attribute id.
         # @param given [String, Symbol] attribute name
         # @return [Symbol]
         def id(given)
-          (@id ||= {})[given] ||= begin
-            name = updateable?(given) ? key(given).delete_suffix(Attributes::UPDATE_SUFFIX) : key(given)
-            if internal?(given)
-              XML.text(name, context: "XML attribute name")
-            else
-              XML.name(name, context: "XML attribute name")
-            end
+          return resolve_id(given) unless given.is_a?(::Symbol)
 
-            name.to_sym
-          end
+          @id_mutex.synchronize { @ids[given] } ||
+            begin
+              resolved = resolve_id(given)
+              @id_mutex.synchronize { @ids[given] = resolved }
+            end
         end
 
         # Reports whether an attribute uses merge/update syntax.
         # @param given [String, Symbol] attribute name
         # @return [Boolean]
         def updateable?(given)
-          (@updateable ||= {})[given] ||= key(given).end_with?(Attributes::UPDATE_SUFFIX)
+          return given.end_with?(Attributes::UPDATE_SUFFIX) if given.is_a?(::Symbol)
+
+          key(given).end_with?(Attributes::UPDATE_SUFFIX)
         end
 
         private
 
         def key(given)
-          return given.to_s if given.is_a?(::String) || given.is_a?(::Symbol)
+          return given if given.is_a?(::String)
+          return given.to_s if given.is_a?(::Symbol)
 
           ArgumentError.("XML attribute name must be a String or Symbol")
+        end
+
+        def resolve_id(given)
+          text = key(given)
+          name = text.end_with?(Attributes::UPDATE_SUFFIX) ? text.delete_suffix(Attributes::UPDATE_SUFFIX) : text
+          if text.start_with?(Attributes::META_PREFIX)
+            XML.text(name, context: "XML attribute name")
+          else
+            XML.name(name, context: "XML attribute name")
+          end
+
+          name.to_sym
         end
       end
 
       extend Ident
-
-      # Owned mutable snapshots for values entering an attribute store.
-      # @api private
-      module Snapshot
-        SCALARS = [::NilClass, ::TrueClass, ::FalseClass, ::Symbol, ::Integer, ::Float, ::Rational, ::Complex].freeze
-        private_constant :SCALARS
-
-        class << self
-          def capture(value, normalize_keys: false, seen: {}.compare_by_identity)
-            case value
-            when ::Hash
-              nested(value, seen) { capture_hash(value, normalize_keys:, seen:) }
-            when ::Array
-              nested(value, seen) { value.map { capture(it, seen:) } }
-            else
-              capture_value(value)
-            end
-          end
-
-          private
-
-          def capture_hash(value, normalize_keys:, seen:)
-            identities = {}
-            value.each_with_object({}) do |(key, item), captured|
-              key = normalize_keys ? normalize_key(key) : capture(key, seen:)
-              identity = normalize_keys ? key : XML.snapshot(key, context: "XML attribute value")
-              if captured.key?(key) || identities.key?(identity)
-                ArgumentError.("Attribute keys collide after normalization or stringification")
-              end
-
-              identities[identity] = true
-              captured[key] = capture(item, seen:)
-            end
-          end
-
-          def capture_value(value)
-            text = XML.text(value, context: "XML attribute value")
-            SCALARS.include?(value.class) ? value : text
-          end
-
-          def nested(value, seen)
-            ArgumentError.("Cyclic XML attribute value is not supported") if seen.key?(value)
-
-            seen[value] = true
-            yield
-          ensure
-            seen.delete(value)
-          end
-
-          def normalize_key(key)
-            normalized = key.to_sym if key.respond_to?(:to_sym)
-            if normalized.is_a?(::Symbol)
-              XML.text(normalized, context: "XML attribute value")
-              return normalized
-            end
-
-            ArgumentError.("Attribute Hash keys must normalize to Symbols")
-          rescue Sevgi::ArgumentError
-            raise
-          rescue ::StandardError => e
-            ArgumentError.("Attribute Hash key cannot be normalized: #{e.class}: #{e.message}")
-          end
-        end
-      end
-
-      private_constant :Snapshot
 
       # Captures a caller-independent attribute value.
       # @param value [Object] value to capture
@@ -134,7 +87,9 @@ module Sevgi
       # @return [Object] owned mutable snapshot
       # @raise [Sevgi::ArgumentError] when value is invalid, cyclic, collides, or cannot be converted
       # @api private
-      def self.capture(value, normalize_keys: false) = Snapshot.capture(value, normalize_keys:)
+      def self.capture(value, normalize_keys: false)
+        Snapshot.capture(value, context: "XML attribute value", freeze: false, normalize_keys:)
+      end
 
       # Returns normalized owned attributes with defaults for absent names.
       # @param attributes [Hash] source attributes

@@ -4,6 +4,7 @@ require "hexapdf"
 require "nokogiri"
 require "stringio"
 require "tmpdir"
+
 require_relative "../test_helper"
 
 module Sevgi
@@ -17,10 +18,16 @@ module Sevgi
       def setup
         @directory = Dir.mktmpdir("sevgi-xmp")
         @output = File.join(@directory, "output.pdf")
-        @fields = {title: "Arches & Loops", description: "Stroke practice.", creator: "Recai Oktaş", rights: "Copyright © 2026 Recai Oktaş. All rights reserved."}
+        @fields = {
+          title: "Arches & Loops",
+          description: "Stroke practice.",
+          creator: "Recai Oktaş",
+          rights: "Copyright © 2026 Recai Oktaş. All rights reserved."
+        }
         @drawing = Graphics.SVG(:inkscape, width: 40, height: 30) do
           g(id: "ink") { rect(width: 10, height: 10, fill: "none", stroke: "black") }
         end
+
         @drawing.License(**@fields)
       end
 
@@ -29,7 +36,12 @@ module Sevgi
       def test_rdf_reaches_xmp_in_ordinary_and_prepared_exports
         declaration = {
           targets: {ink: {selectors: ["#ink"]}},
-          parameters: {opacity: {schema: {type: "number", minimum: 0, maximum: 1}, binding: {targets: ["ink"], property: "stroke-opacity"}}}
+          parameters: {
+            opacity: {
+              schema: {type: "number", minimum: 0, maximum: 1},
+              binding: {targets: ["ink"], property: "stroke-opacity"}
+            }
+          }
         }
         # ImprintTest covers the optional CLI transport; this fixture isolates PDF metadata rewriting.
         producer = -> (_input, path) do
@@ -38,14 +50,16 @@ module Sevgi
           document.files.add(StringIO.new("controls"), name: "controls.txt")
           document.write(path)
         end
+
         Imprint.stub(:write, producer) do
           [nil, declaration].each do |controls|
-            Export.call(@drawing.Render, @output, declaration: controls, fallback: false)
+            Export.call(@drawing.Render(), @output, declaration: controls, fallback: false)
             document = HexaPDF::Document.open(@output)
             xmp = Nokogiri::XML(document.catalog[:Metadata].stream)
             {title: "Alt", description: "Alt", creator: "Seq", rights: "Alt"}.each do |key, kind|
               assert_equal(@fields.fetch(key), xmp.at_xpath("//dc:#{key}/rdf:#{kind}/rdf:li", NS).text)
             end
+
             assert_equal("Arches & Loops", document.trailer[:Info][:Title])
             assert_equal("Stroke practice.", document.trailer[:Info][:Subject])
             assert_equal("Recai Oktaş", document.trailer[:Info][:Author])
@@ -56,7 +70,7 @@ module Sevgi
       end
 
       def test_publication_metadata_preserves_other_xmp_and_attachments
-        Export.call(@drawing.Render, @output)
+        Export.call(@drawing.Render(), @output)
         document = HexaPDF::Document.open(@output)
         document.files.add(StringIO.new("notes"), name: "notes.txt")
         xml = Nokogiri::XML(document.catalog[:Metadata].stream)
@@ -89,19 +103,26 @@ module Sevgi
 
       def test_all_rdf_fields_use_their_xmp_types_without_adding_dates
         @drawing = Graphics.SVG(:inkscape, width: 20, height: 20) { rect(width: 10, height: 10) }
-        @drawing.License(**@fields, publisher: "Publisher", date: "2026-11-05", language: "en", license: "https://example.test/license")
-        Export.call(@drawing.Render, @output)
+        @drawing.License(
+          **@fields,
+          publisher: "Publisher",
+          date: "2026-11-05",
+          language: "en",
+          license: "https://example.test/license"
+        )
+        Export.call(@drawing.Render(), @output)
         xml = Nokogiri::XML(HexaPDF::Document.open(@output).catalog[:Metadata].stream)
         {publisher: "Bag", date: "Seq", language: "Bag"}.each do |field, kind|
           assert_equal(1, xml.xpath("//dc:#{field}/rdf:#{kind}/rdf:li", NS).length)
         end
+
         license = xml.at_xpath("//*[local-name()='license']")
         assert_equal("https://example.test/license", license.attribute_with_ns("resource", NS.fetch("rdf")).value)
         assert_empty(xml.xpath("//*[local-name()='CreateDate' or local-name()='ModifyDate']"))
       end
 
       def test_unsupported_language_alternatives_preserve_existing_output
-        svg = @drawing.Render.sub("Arches &amp; Loops", '<rdf:Alt><rdf:li xml:lang="tr">Başlık</rdf:li></rdf:Alt>')
+        svg = @drawing.Render.sub("Arches &amp; Loops", "<rdf:Alt><rdf:li xml:lang=\"tr\">Başlık</rdf:li></rdf:Alt>")
         File.write(@output, "previous output")
         assert_raises(Sevgi::ArgumentError) { Export.call(svg, @output) }
         assert_equal("previous output", File.read(@output))
@@ -119,9 +140,10 @@ module Sevgi
         producer = -> (*) { raise Imprint::Error, "Failed preparation" }
         Imprint.stub(:write, producer) do
           assert_raises(Imprint::Error) do
-            Export.call(@drawing.Render, output, declaration: {targets: {}, parameters: {}}, fallback: false)
+            Export.call(@drawing.Render(), output, declaration: {targets: {}, parameters: {}}, fallback: false)
           end
         end
+
         refute_path_exists(File.dirname(output))
         assert_empty(Dir.children(@directory))
       end
@@ -129,7 +151,7 @@ module Sevgi
       def test_ambiguous_root_rdf_fails_before_export
         @drawing.License(title: "Another title")
         File.write(@output, "previous output")
-        assert_raises(Sevgi::ArgumentError) { Export.call(@drawing.Render, @output) }
+        assert_raises(Sevgi::ArgumentError) { Export.call(@drawing.Render(), @output) }
         assert_equal("previous output", File.read(@output))
       end
 
@@ -138,10 +160,24 @@ module Sevgi
           g do
             License(title: "Other work")
           end
+
           rect(width: 10, height: 10)
         end
-        Export.call(drawing.Render, @output)
+
+        Export.call(drawing.Render(), @output)
         assert_nil(HexaPDF::Document.open(@output).catalog[:Metadata])
+      end
+
+      def test_staged_pdf_writes_follow_default_file_permissions
+        probe = File.join(@directory, "probe.pdf")
+        File.write(probe, "probe")
+        expected_mode = File.stat(probe).mode & 0o777
+
+        Export.call(@drawing.Render(), @output)
+        assert_equal(expected_mode, File.stat(@output).mode & 0o777)
+
+        Export.metadata!(@output, title: "Updated Title")
+        assert_equal(expected_mode, File.stat(@output).mode & 0o777)
       end
     end
   end

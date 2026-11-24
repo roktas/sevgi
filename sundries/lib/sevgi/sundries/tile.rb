@@ -61,6 +61,8 @@ module Sevgi
 
         @nx = nx
         @ny = ny
+        @row_cache = {}
+        @col_cache = {}
       end
 
       # Returns a row by index.
@@ -100,7 +102,7 @@ module Sevgi
         i = index(i, nx)
         return unless i
 
-        @cols ? @cols[i] : Array.new(ny) { |j| cell_at(j, i) }.freeze
+        @cols ? @cols[i] : (@col_cache[i] ||= Array.new(ny) { |j| cell_at(j, i) }.freeze)
       end
 
       # Iterates over rows.
@@ -125,7 +127,7 @@ module Sevgi
         i = index(i, ny)
         return unless i
 
-        @rows ? @rows[i] : Array.new(nx) { |j| cell_at(i, j) }.freeze
+        @rows ? @rows[i] : (@row_cache[i] ||= Array.new(nx) { |j| cell_at(i, j) }.freeze)
       end
 
       # Returns the bounding rectangle of a row.
@@ -141,7 +143,7 @@ module Sevgi
       # Returns cells grouped by row.
       # The outer and nested collections are frozen and must be treated as immutable.
       # @return [Array<Array<Sevgi::Geometry::Element>>] frozen rows
-      def rows = @rows ||= (0...ny).map { |i| (0...nx).map { |j| cell_at(i, j) }.freeze }.freeze
+      def rows = @rows ||= Array.new(ny) { |i| @row_cache[i] || Array.new(nx) { |j| cell_at(i, j) }.freeze }.freeze
 
       # Iterates over rows.
       # @return [Enumerator, Array<Array<Sevgi::Geometry::Element>>] enumerator without a block, otherwise rows

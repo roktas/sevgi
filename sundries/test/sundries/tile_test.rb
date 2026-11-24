@@ -190,6 +190,19 @@ module Sevgi
         ].each_slice(2) { |expected, actual| assert_same(expected, actual) }
       end
 
+      def test_tile_lazily_memoizes_individual_rows_and_columns
+        ti = Tile.new(Geometry::Rect[3, 5], nx: 2, ny: 3)
+        row = ti[1]
+        col = ti.col(0)
+
+        assert_same(row, ti.row(1))
+        assert_same(row, ti[1])
+        assert_same(col, ti.col(0))
+        assert_predicate(row, :frozen?)
+        assert_predicate(col, :frozen?)
+        assert_same(row, ti.rows[1])
+      end
+
       def test_tile_collections_are_immutable
         tile = Tile.new(Geometry::Rect[3, 5], nx: 2, ny: 3)
 

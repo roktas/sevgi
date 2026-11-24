@@ -29,7 +29,8 @@ module Sevgi
         def apply(cdata:, elements:)
           _cdata = cdata
 
-          unallowed = elements - spec[:elements]
+          unallowed = elements.reject { allowed_elements.include?(it) }
+          unallowed.uniq! unless unallowed.empty?
           UnallowedElementsError.(element, unallowed) unless unallowed.empty?
         end
       end
@@ -60,7 +61,8 @@ module Sevgi
         def apply(cdata:, elements:)
           UnallowedCDataError.(element, cdata) if cdata
 
-          unallowed = elements - spec[:elements]
+          unallowed = elements.reject { allowed_elements.include?(it) }
+          unallowed.uniq! unless unallowed.empty?
           UnallowedElementsError.(element, unallowed) unless unallowed.empty?
         end
       end

@@ -66,7 +66,10 @@ module Sevgi
       # Reports whether the element has zero bounding width and height.
       # @param precision [Integer, nil] decimal precision, or nil for the current function default
       # @return [Boolean]
-      def ignorable?(precision: nil) = F.zero?(box.width, precision:) && F.zero?(box.height, precision:)
+      def ignorable?(precision: nil)
+        bounds = box
+        F.zero?(bounds.width, precision:) && F.zero?(bounds.height, precision:)
+      end
 
       # Intersects the element boundary with an equation.
       #
@@ -470,6 +473,29 @@ module Sevgi
         # @return [Array<Sevgi::Geometry::Equation::Linear>] frozen equation collection
         def equations = @equations ||= lines.map(&:equation).freeze
 
+        # Intersects the lined element boundary with an equation.
+        #
+        # Precision controls boundary membership, returned-coordinate rounding, and duplicate collapse.
+        # A nil precision uses the current thread's function precision for all three stages.
+        # @example Intersect a rectangle with a vertical line
+        #   rect = Sevgi::Geometry::Rect[8, 4]
+        #   axis = Sevgi::Geometry::Equation.vertical(3)
+        #   rect.intersection(axis).map(&:deconstruct) # => [[3.0, 0.0], [3.0, 4.0]]
+        # @param equation [Sevgi::Geometry::Equation] equation to intersect with
+        # @param precision [Integer, nil] coordinate precision, or nil for the current function default
+        # @return [Array<Sevgi::Geometry::Point>] unique boundary intersection points
+        # @raise [Sevgi::Geometry::Error] when equation is not an equation
+        # @raise [Sevgi::PanicError] when the equation combination is not implemented
+        def intersection(equation, precision: nil)
+          Error.("Must be an equation: #{equation}") unless equation.is_a?(Equation)
+
+          points = lines.flat_map do |line|
+            equation.intersect(line.equation).select { |point| line_point?(line, point, precision) }
+          end
+
+          points.map { |point| point.approx(precision) }.uniq
+        end
+
         # Properties
 
         # Returns a line by index.
@@ -574,6 +600,12 @@ module Sevgi
         def freeze_geometry!
           @points = @points.dup.freeze
           @segments = @segments.dup.freeze
+        end
+
+        def line_point?(line, point, precision)
+          return line.over?(point) if precision.nil?
+
+          F.with_precision(precision) { line.over?(point) }
         end
 
         # rubocop:disable Metrics/MethodLength

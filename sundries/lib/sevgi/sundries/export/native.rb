@@ -3,11 +3,9 @@
 require_relative "../export"
 
 require "cairo"
-require "fileutils"
 require "hexapdf"
 require "rsvg2"
 require "stringio"
-require "tempfile"
 
 module Sevgi
   module Sundries
@@ -36,16 +34,19 @@ module Sevgi
           tw, th = target_size(iw, ih, width, height)
           ExportError.("Invalid export dimensions") unless target_size?(format, tw, th)
 
-          ::FileUtils.mkdir_p(::File.dirname(output))
-          renderer.call(
-            handle: handle,
-            output: output,
-            iw: iw,
-            ih: ih,
-            tw: tw,
-            th: th,
-            dpi: dpi
-          )
+          Staging.replace(output, prefix: ".sevgi-render-", filename: "output.#{format}") do |staged|
+            renderer.call(
+              handle: handle,
+              output: staged,
+              iw: iw,
+              ih: ih,
+              tw: tw,
+              th: th,
+              dpi: dpi
+            )
+            true
+          end
+
         rescue Rsvg::Error, Cairo::Error => e
           ExportError.("Render error: #{e.message}")
         end
@@ -125,21 +126,22 @@ module Sevgi
       # @raise [Sevgi::Sundries::Export::ExportError] when the PDF cannot be read, rewritten, stamped, or replaced
       # @note Pages with inline images, unknown operators, or unbalanced graphics-state/text-object operators are left unchanged.
       def stamp!(infile, stamp:, placeholder:)
-        temp = Tempfile.new(%w[stamp .pdf], File.dirname(infile))
-        stamped = stamp(infile, temp.path, stamp:, placeholder:)
-        if stamped
-          if File.exist?(temp.path) && File.empty?(temp.path)
-            warn("Skipping 0 byte file which was produced during stamping")
-          else
-            FileUtils.mv(temp.path, infile)
+        stamped = false
+        Staging.workspace(infile, prefix: ".sevgi-stamp-") do |directory|
+          staged = ::File.join(directory, "output.pdf")
+          stamped = stamp(infile, staged, stamp:, placeholder:)
+          if stamped
+            if ::File.exist?(staged) && ::File.empty?(staged)
+              warn("Skipping 0 byte file which was produced during stamping")
+            else
+              ::File.rename(staged, infile)
+            end
           end
         end
 
         stamped
       rescue ::SystemCallError => e
         ExportError.("PDF stamp error: #{e.message}")
-      ensure
-        temp&.close!
       end
 
       # Parses and rewrites supported PDF text operators without crossing text objects.
