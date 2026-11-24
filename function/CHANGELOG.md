@@ -5,13 +5,51 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## Unreleased
 
+## 2.1.0 - 2026-11-24
+
+### Added
+
+- `Paper` orientation and dimension helpers (`aspect_ratio`, `landscape`, `landscape?`, `portrait`, `portrait?`,
+  `rotate`, and `square?`), `Canvas` orientation and serialization helpers (`landscape`, `portrait`, `rotate`, and
+  `to_h`), and `Margin#zero?`.
+- `Attributes#empty?`, `Attributes#size`, `Attributes#key?`, frozen `Content` value equality (`==`, `eql?`, `hash`,
+  `empty?`), and concise `Element#inspect`.
+- `Mixtures::Polyfills#layer!` so `layer!` works across non-Inkscape document profiles.
+- `Sundries::Tile#at(row, col)` for direct cell lookup without building an entire row.
+- Repeatable `-r` / `--require` options in the `sevgi` and `igsev` executables.
+
+### Changed
+
+- Rewrote `Mixtures::Render` for direct inline-aware serialization without post-pass splicing.
+- Consolidated Graphics snapshot capture into a shared internal `Snapshot` helper, cached callable module context
+  classes, and released Nokogiri DOM nodes after `Derender::Node` capture.
+- Accelerated `Geometry::Element::Lined#intersection`, memoized `Line#equation`, and replaced per-query copying in
+  `Standard` with frozen internal sets.
+- Standardized atomic temporary-directory staging across `Sundries::Export` paths.
+
+### Fixed
+
+- Protected `Paper.define` against overwriting private singleton helpers, fixed `F.cos`/`F.sin` on tiny negative angles,
+  fixed `SVG.Load` caller resolution, and excluded `**/*.sevgi` from conflicting built-in RuboCop cops in
+  `sevgi-appendix`.
+- Fixed `Margin` keyword construction and `Margin#with`, `Document.call` layered `+` attribute updates,
+  `Element#method_missing` private-method recursion, `Line#within_range?` on negative slopes, `Polygon#concave?` on
+  degenerate polygons, `Ruler` 2-ULP margin clamping, `Standard::Model::SpecialFontFace`, `Export.stamp` byte offsets
+  and missing `/Resources`, `Derender` root text and digit-prefixed CSS keys, `igves` standalone loading, `F.sh!` with
+  leading env hashes, `Showcase::Test::Suite` gem path filtering, and `Showcase::Dark.apply` multi-pass word
+  replacement.
+- Validated XML attribute names before ignoring `nil` values, rejected non-finite, `Complex`, and container CSS
+  declaration values, made `Standard::Color` lookup and validation case-insensitive, omitted XML preambles when
+  rendering non-root elements, and prevented `Classify` from emitting empty `class` attributes.
+
 ## 2.0.0 - 2026-11-20
 
 ### Added
 
 - RDF rights statements and automatic document RDF transfer to PDF XMP in ordinary and prepared exports.
 - Atomic PDF publication metadata editing through `Export.metadata` and `Export.metadata!`.
-- PDF page names and tags through `Page` inside `Imprint`, and PNG thumbnails through the separate `preview:` export option.
+- PDF page names and tags through `Page` inside `Imprint`, and PNG thumbnails through the separate `preview:` export
+  option.
 
 ### Changed
 
@@ -32,8 +70,10 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Added
 
-- `Classes` returns an element's distinct CSS class names without changing the element; `Classify` shares its attribute normalization.
-- Generic document-local Style declarations with `Target`, `Param`, `Group`, and `Profiles`, and optional prepared PDF export through the native Mainz CLI.
+- `Classes` returns an element's distinct CSS class names without changing the element; `Classify` shares its attribute
+  normalization.
+- Generic document-local Style declarations with `Target`, `Param`, `Group`, and `Profiles`, and optional prepared PDF
+  export through the native Mainz CLI.
 - Backend-independent `fallback: false` for export failures and `F.executable` for executable path lookup.
 - `F.path` for path validation and expansion, and `F.output_path` for default output names and directory targets.
 
@@ -63,8 +103,10 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Limited Tile cell, row, and column queries to the requested geometry and accelerated XML character validation.
 - Simplified the first-run guide and aligned library constructor examples.
 - Updated the packaged skill for canvas origins, alignment, Paper lookup, curved geometry, and export constraints.
-- Revised DSL catalog examples and packaged Sevgi skill guidance to use statement-style calls and show inspection results.
-- Refined Showcase example tabs, made Ruby and XML views fill their panels, and hid executable preambles from Ruby views.
+- Revised DSL catalog examples and packaged Sevgi skill guidance to use statement-style calls and show inspection
+  results.
+- Refined Showcase example tabs, made Ruby and XML views fill their panels, and hid executable preambles from Ruby
+  views.
 - Documented non-rendering element data and clarified the related DSL catalog examples.
 - Refined Showcase heading spacing, page-title colors, and DSL catalog cards across light and dark themes.
 - Removed an obsolete ruler example and unused site code.
@@ -74,7 +116,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Fixed
 
 - Kept horizontal scrollbars visible in Showcase example code panels.
-- Read Derender input in its declared XML encoding and normalized generated source, XML declarations, and markup to UTF-8.
+- Read Derender input in its declared XML encoding and normalized generated source, XML declarations, and markup to
+  UTF-8.
 - Preserved open-path endpoints and derived edges independently of display precision.
 - Kept near-axis and near-parallel line equations and intersections independent of angle and slope rounding.
 - Corrected the Showcase social image dimensions.
@@ -82,7 +125,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Made failed Sevgi Rake tasks stop dependent tasks and captured required-library failures in executor results.
 - Removed executor signal-handler replacement so the host and shell retain SIGINT ownership.
 - Escaped late export CSS as XML text and inserted it only at a supported final root closing tag.
-- Preserved Derender processing instructions and rejected custom entity references and unsupported trailing document nodes before inclusion.
+- Preserved Derender processing instructions and rejected custom entity references and unsupported trailing document
+  nodes before inclusion.
 - Included both box origins in `Align`, unified Tile index validation, and isolated custom numeric attribute snapshots.
 - Prevented avoidable overflow and underflow in point distances.
 - Corrected browser source-panel expectations and added executable documentation, YARD, and packaged-skill checks.
@@ -109,15 +153,19 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Fixed
 
 - Preserved Showcase card HTML through Markdown rendering so all examples and their tabs remain visible.
-- Preserved XML declarations, pre-root comments, CDATA sections, inline comments, and namespace-only leaves in
-  Derender output and evaluation.
+- Preserved XML declarations, pre-root comments, CDATA sections, inline comments, and namespace-only leaves in Derender
+  output and evaluation.
 - Limited PDF stamp recoloring to replaced text and carried graphics state across a page's content streams.
 - Corrected decimal interval fitting and made Grid point queries honor the active numeric precision.
-- Prevented implicit shell interpretation of single executable arguments in `F.sh` and `F.sh!`, including paths with spaces or shell metacharacters.
-- Preserved inherited namespaces on detached Derender nodes in generated source and direct evaluation, including imports through `EvaluateChildren` and `IncludeChildren`.
+- Prevented implicit shell interpretation of single executable arguments in `F.sh` and `F.sh!`, including paths with
+  spaces or shell metacharacters.
+- Preserved inherited namespaces on detached Derender nodes in generated source and direct evaluation, including imports
+  through `EvaluateChildren` and `IncludeChildren`.
 - Prevented sweep and Hatch lines from crossing the exterior between two tangent vertices of a concave polygon.
-- Aligned Tile cells with their declared bounds for circles, rotated shapes, and polygons whose first vertex differs from their bounding-box origin.
-- Limited `Load` chains to 128 active sources with `Executor::LoadDepthError`, preserving cycle detection and nested load diagnostics.
+- Aligned Tile cells with their declared bounds for circles, rotated shapes, and polygons whose first vertex differs
+  from their bounding-box origin.
+- Limited `Load` chains to 128 active sources with `Executor::LoadDepthError`, preserving cycle detection and nested
+  load diagnostics.
 - Rejected nil and false aggregate-box inputs with the documented geometry error.
 - Restored precision-aware rejection of zero-length Triangle sides.
 - Made point-set collinearity independent of input order and removed eager polygon edge-pair storage.
@@ -164,8 +212,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Added
 
 - Added standard-input support to `sevgi`, `igves`, and `igsev`; `sevgi --as NAME` and
-  `Sevgi.execute_file(..., as: NAME)` supply the logical source basename used by implicit SVG, PDF, and PNG
-  destinations without changing physical load identity.
+  `Sevgi.execute_file(..., as: NAME)` supply the logical source basename used by implicit SVG, PDF, and PNG destinations
+  without changing physical load identity.
 
 ## 0.97.0 - 2026-07-19
 
@@ -197,20 +245,20 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Changed
 
 - Breaking: replaced the `SVG = Sevgi::Graphics` alias with an independent SVG facade. Facade operations now use
-  capitalized names such as `SVG.Canvas` and `SVG.Document`; lowercase component helpers remain on
-  `Sevgi::Graphics`, and the stuttering `SVG.SVG` form was removed.
-- Breaking: made low-level `Executor.execute` and `execute_file` runners private; consumers use
-  `Sevgi.execute` and `Sevgi.execute_file` while retaining the public result and error types.
+  capitalized names such as `SVG.Canvas` and `SVG.Document`; lowercase component helpers remain on `Sevgi::Graphics`,
+  and the stuttering `SVG.SVG` form was removed.
+- Breaking: made low-level `Executor.execute` and `execute_file` runners private; consumers use `Sevgi.execute` and
+  `Sevgi.execute_file` while retaining the public result and error types.
 - Breaking: removed the abstract `Document::Base` layer from the selectable document-profile registry; `Minimal` and
   `Default` are now sibling concrete profiles, and custom profile hierarchies should derive from `Base`.
-- Breaking: renamed Parallelogram segment and constraint arguments by geometric role: `base`, `side`, and
-  `constraint` replace axis-implying constructor names.
+- Breaking: renamed Parallelogram segment and constraint arguments by geometric role: `base`, `side`, and `constraint`
+  replace axis-implying constructor names.
 - Made degree-based sine and cosine exact at integer quarter turns, eliminating cardinal Geometry residue.
 - Documented complete file-system failure families for file comparison, output, touch, and upward location helpers.
 - Formalized generated Tile ids, positional CSS classes, template placement, and per-use callback signatures.
 - Formalized String and Symbol ids across Derender selection APIs and documented file-read failures consistently.
-- Breaking: made top-level `Decompile`, `Derender`, `Evaluate`, and `EvaluateChildren` consume inline SVG/XML;
-  file inputs now use the corresponding `File`-suffixed entrypoints.
+- Breaking: made top-level `Decompile`, `Derender`, `Evaluate`, and `EvaluateChildren` consume inline SVG/XML; file
+  inputs now use the corresponding `File`-suffixed entrypoints.
 - Breaking: replaced callable drawing module `call` block registration with argument-independent `base` blocks;
   inherited bases run parent-first, and modules with one drawing method conventionally name it `call`.
 - Breaking: made bracket and call notation the canonical Geometry constructors. Among Data value types, bracket notation
@@ -219,7 +267,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Breaking: aligned Point and Segment comparison with Ruby `Comparable`; malformed or unrelated comparison operands now
   return nil from `<=>`.
 - Breaking: executor entrypoints now return immutable `Executor::Result` values and expose only `execute` and
-  `execute_file`; inspect `result.error`, `result.stack`, and `result.value` instead of executor scopes or lifecycle state.
+  `execute_file`; inspect `result.error`, `result.stack`, and `result.value` instead of executor scopes or lifecycle
+  state.
 - Breaking: wrapper attributes and callable arguments use distinct channels, `With` rejects parentless receivers, and
   unsupported direct constructors are private; use the documented factories for Content, concrete Geometry lined
   elements, and Grid query values.
@@ -239,8 +288,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Preserved source Canvas units and names when deriving fitted Grid canvases.
 - Prevented stale documentation assets from mixing old layouts with new HTML, and moved sidebar navigation into the
   tablet menu at 1024px and below.
-- Normalized numeric slots owned by path, shape, transform, tile, and Inkscape page helpers to finite SVG number spelling;
-  arbitrary user-supplied attributes remain untouched.
+- Normalized numeric slots owned by path, shape, transform, tile, and Inkscape page helpers to finite SVG number
+  spelling; arbitrary user-supplied attributes remain untouched.
 - Made named callable wrapper and symbol ids stable while omitting defaults for anonymous modules, and indexed every
   rendered id value, including false and numeric values, through its serialized string.
 - Preserved signed Geometry constraint directions, rejected invalid sweep/export channels through Sevgi error families,
@@ -271,8 +320,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Security
 
-- Validated XML-bound names, metadata, content, attributes, comments, preambles, and renderer inputs before serialization;
-  mutable content and attribute inputs can no longer invalidate an earlier check.
+- Validated XML-bound names, metadata, content, attributes, comments, preambles, and renderer inputs before
+  serialization; mutable content and attribute inputs can no longer invalidate an earlier check.
 - Emitted collision-safe Derender source and preserved qualified or foreign nodes without dispatching them through
   same-named Ruby or DSL methods.
 - Verified physical gem payloads and checksums, then published immutable archives in dependency order from one manifest
@@ -306,11 +355,11 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Made multi-element append/prepend ordered and atomic, document and paper registration coherent under contention, and
   copied graphics trees independent of their sources.
 - Corrected PDF stamping across nested graphics-state restoration and duplicate stream rewrites.
-- Made SIGINT forwarding trap-safe, balanced executor signal guards for empty scripts, and rejected recursive script-load
-  cycles without losing the original executor context.
-- Packaged canonical README, LICENSE, and CHANGELOG files in every component gem, made manifests and release verification
-  independent of the working directory, validated physical package members, and preserved dependency order through the
-  production publishing path.
+- Made SIGINT forwarding trap-safe, balanced executor signal guards for empty scripts, and rejected recursive
+  script-load cycles without losing the original executor context.
+- Packaged canonical README, LICENSE, and CHANGELOG files in every component gem, made manifests and release
+  verification independent of the working directory, validated physical package members, and preserved dependency order
+  through the production publishing path.
 - Made Showcase shell and browser cleanup failure-safe and kept generated examples stable across browser layouts.
 
 ### Removed
@@ -399,8 +448,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Fixed
 
 - Corrected the SVG standard `seashell` color value.
-- Deferred `sevgi-sundries` export loading in graphics so optional native export dependencies are only loaded when
-  `PDF` or `PNG` export is used.
+- Deferred `sevgi-sundries` export loading in graphics so optional native export dependencies are only loaded when `PDF`
+  or `PNG` export is used.
 - Removed a shadowed block parameter in graphics dispatch.
 - Fixed component lint task execution from the repository root.
 
