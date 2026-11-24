@@ -244,9 +244,7 @@ module Sevgi
 
       # Returns the unfitted distance distributed outside the fitted span.
       # @return [Float]
-      def waste
-        @waste ||= (brut - d).then { it.negative? ? 0.0 : it }
-      end
+      def waste = @waste ||= (brut - d).then { it.negative? ? 0.0 : it }
 
       # Returns the source subinterval count.
       # @return [Integer]

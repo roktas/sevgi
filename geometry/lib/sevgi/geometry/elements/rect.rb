@@ -154,13 +154,6 @@ module Sevgi
 
       private_class_method :construct, :from_points, :from_segments
 
-      # Draws the rectangle into a graphics node.
-      # @param node [Object] graphics node receiving the drawing command
-      # @return [Object] graphics node command result
-      def draw!(node, **) = node.rect(x: position.x, y: position.y, width: width, height: height, **)
-
-      private :draw!
-
       # Returns the rectangle center.
       # @return [Sevgi::Geometry::Point]
       def center = Point.midpoint(top_left, bottom_right)
@@ -214,6 +207,11 @@ module Sevgi
       end
 
       private
+
+      # Draws the rectangle into a graphics node.
+      # @param node [Object] graphics node receiving the drawing command
+      # @return [Object] graphics node command result
+      def draw!(node, **) = node.rect(x: position.x, y: position.y, width: width, height: height, **)
 
       def validate_geometry!
         left, right, top, bottom = self.class.send(:bounds, points)

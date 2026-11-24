@@ -16,7 +16,7 @@ module Sevgi
       # @return [Sevgi::Graphics::Element, nil] included element, or nil when the node does not produce graphics output
       def append(node, namespaces: node.namespaces)
         type = node.send(:type)
-        return append_css(node, namespaces) if type == :CSS
+        return append_style(node, namespaces) if type == :Style
         return build(:_, node.content) if type == :Text
         return append_cdata(node) if type == :CData
         return build(:_, Graphics::Content.verbatim("<!--#{node.content}-->")) if type == :Comment
@@ -34,8 +34,8 @@ module Sevgi
         build(:_, Graphics::Content.verbatim("<![CDATA[#{body}]]>"))
       end
 
-      def append_css(node, namespaces)
-        content = if (hash = Css.rules(node.content))
+      def append_style(node, namespaces)
+        content = if (hash = CSS.rules(node.content))
           Graphics::Content.css(hash)
         else
           Graphics::Content.cdata(node.content)
@@ -55,7 +55,7 @@ module Sevgi
       def attributes(node, namespaces)
         attributes = node.send(:all_attributes, namespaces)
         return attributes unless (style = attributes["style"])
-        return attributes unless (declarations = Css.declarations(style))
+        return attributes unless (declarations = CSS.declarations(style))
 
         {**attributes, "style" => declarations}
       end

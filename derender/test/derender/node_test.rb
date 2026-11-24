@@ -27,8 +27,8 @@ module Sevgi
 
       def test_dispatch_respects_namespace_and_conversion_root
         cases = {
-          "<style>.a { fill: red; }</style>" => :CSS,
-          "<style xmlns=\"http://www.w3.org/2000/svg\">.a { fill: red; }</style>" => :CSS,
+          "<style>.a { fill: red; }</style>" => :Style,
+          "<style xmlns=\"http://www.w3.org/2000/svg\">.a { fill: red; }</style>" => :Style,
           "<s:style xmlns:s=\"http://www.w3.org/2000/svg\"/>" => :Any,
           "<f:style xmlns:f=\"urn:foreign\"/>" => :Any,
           "<style xmlns=\"urn:foreign\"/>" => :Any,

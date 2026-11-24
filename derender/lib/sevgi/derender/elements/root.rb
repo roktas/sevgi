@@ -20,6 +20,12 @@ module Sevgi
           lines.unshift(preamble_lines(pres))
         end
 
+        # Returns the root DSL word.
+        # @return [String]
+        def element = "SVG"
+
+        private
+
         def document_call(line)
           return line.sub("SVG", "SVG document") if ["SVG", "SVG do"].include?(line)
 
@@ -29,13 +35,6 @@ module Sevgi
         def preamble_lines(pres)
           ["document = SVG.Document preambles: [", *pres.map { "#{Ruby.literal(it)}," }, "]", ""]
         end
-
-        private :document_call, :preamble_lines
-
-        # Returns the root DSL word.
-        # @return [String]
-        def element = "SVG"
-
       end
     end
   end

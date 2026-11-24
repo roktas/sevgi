@@ -9,7 +9,6 @@ module Sevgi
     # @api private
     class Scope
       MAX_LOAD_DEPTH = 128
-      private_constant :MAX_LOAD_DEPTH
 
       # @!attribute [r] scope
       #   @return [Module] isolated module where script source is evaluated

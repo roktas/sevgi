@@ -107,39 +107,6 @@ module Sevgi
       end
       # rubocop:enable Metrics/ParameterLists
 
-      def format_for(format, output)
-        if format
-          format = normalize_format(format)
-          ExportError.("Unsupported export format: #{format}") unless AVAILABLE.key?(format)
-
-          format
-        else
-          ext = File.extname(output.to_s).downcase
-          ExportError.("Unrecognized file extension: #{ext}") unless EXTENSIONS.key?(ext)
-
-          EXTENSIONS[ext]
-        end
-      end
-
-      def styled(svg, css)
-        ArgumentError.("Export CSS must be valid text") unless css.is_a?(::String) && css.valid_encoding?
-        closing = %r{</svg>[ \t\r\n]*\z}
-        ExportError.("Cannot insert CSS: expected final </svg> root closing tag") unless closing.match?(svg)
-
-        text = css.gsub(/[&<>]/, "&" => "&amp;", "<" => "&lt;", ">" => "&gt;")
-        svg.sub(closing) { |suffix| "<style>#{text}</style>#{suffix}" }
-      end
-
-      def normalize_format(format)
-        unless format.is_a?(::String) || format.is_a?(::Symbol)
-          ExportError.("Export format must be a String or Symbol: #{format.inspect}")
-        end
-
-        format.to_sym
-      end
-
-      private :format_for, :normalize_format, :styled
-
       # Replaces exact placeholder text objects in PDF streams.
       # The placeholder must be a PDF literal string inside a white text object that matches Sevgi's stamp pattern.
       # Replacement text is escaped as a PDF literal string. When no match exists, the method writes no output file.
@@ -205,6 +172,39 @@ module Sevgi
       # @raise [SystemCallError] when the PDF cannot be staged or replaced
       # @see #metadata
       def metadata!(infile, **fields) = metadata(infile, infile, **fields)
+
+      private
+
+      def format_for(format, output)
+        if format
+          format = normalize_format(format)
+          ExportError.("Unsupported export format: #{format}") unless AVAILABLE.key?(format)
+
+          format
+        else
+          ext = File.extname(output.to_s).downcase
+          ExportError.("Unrecognized file extension: #{ext}") unless EXTENSIONS.key?(ext)
+
+          EXTENSIONS[ext]
+        end
+      end
+
+      def styled(svg, css)
+        ArgumentError.("Export CSS must be valid text") unless css.is_a?(::String) && css.valid_encoding?
+        closing = %r{</svg>[ \t\r\n]*\z}
+        ExportError.("Cannot insert CSS: expected final </svg> root closing tag") unless closing.match?(svg)
+
+        text = css.gsub(/[&<>]/, "&" => "&amp;", "<" => "&lt;", ">" => "&gt;")
+        svg.sub(closing) { |suffix| "<style>#{text}</style>#{suffix}" }
+      end
+
+      def normalize_format(format)
+        unless format.is_a?(::String) || format.is_a?(::Symbol)
+          ExportError.("Export format must be a String or Symbol: #{format.inspect}")
+        end
+
+        format.to_sym
+      end
 
       extend self
 

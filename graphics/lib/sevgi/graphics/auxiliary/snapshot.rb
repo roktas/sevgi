@@ -10,7 +10,6 @@ module Sevgi
         "Document profile metadata" => "Document profile metadata keys collide after stringification"
       }.freeze
       SAFE_SCALARS = [::NilClass, ::TrueClass, ::FalseClass, ::Integer, ::Float, ::Rational, ::Complex].freeze
-      private_constant :COLLISIONS, :SAFE_SCALARS
 
       class << self
         # Captures a recursively independent snapshot of a value.

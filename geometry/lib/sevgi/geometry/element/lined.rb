@@ -33,12 +33,12 @@ module Sevgi
           # @return [Sevgi::Geometry::Element::Lined]
           def reverse = self.class.send(:new_by_points!, *points.reverse)
 
+          private
+
           # Draws the element as an SVG polyline.
           # @param node [Object] graphics node receiving the drawing command
           # @return [Object] graphics node command result
           def draw!(node, **) = node.polyline(points: points.map { it.deconstruct.join(",") }, **)
-
-          private :draw!
         end
 
         # Closed lined element base class.
@@ -50,18 +50,18 @@ module Sevgi
           # @raise [Sevgi::Geometry::Error] when any point cannot be coerced
           def self.new_by_points(*points) = super(*points, points.first)
 
+          private_class_method :new_by_points
+
           # Returns the closed path perimeter.
           # @return [Float]
           def perimeter = length
+
+          private
 
           # Draws the element as an SVG polygon.
           # @param node [Object] graphics node receiving the drawing command
           # @return [Object] graphics node command result
           def draw!(node, **) = node.polygon(points: points.map { it.deconstruct.join(",") }, **)
-
-          private :draw!
-
-          private_class_method :new_by_points
         end
 
         # Class methods
@@ -526,9 +526,7 @@ module Sevgi
           rounded.freeze
         end
 
-        def rounded_segments(precision)
-          rounded_points(precision).each_cons(2).map { Segment.(*it) }.freeze
-        end
+        def rounded_segments(precision) = rounded_points(precision).each_cons(2).map { Segment.(*it) }.freeze
 
         def sanitize
           np = self.class.send(:poly?) ? points.size : self.class.send(:size) + 1

@@ -55,28 +55,30 @@ module Sevgi
     Executor.__send__(:execute_file, file, as:, require:, receiver: execution_receiver(main), &BootBlock)
   end
 
-  def self.execution_receiver(main)
-    ArgumentError.("Sevgi main mode must be true or false") unless [true, false].include?(main)
+  class << self
+    private
 
-    TOPLEVEL_BINDING.receiver if main
+    def execution_receiver(main)
+      ArgumentError.("Sevgi main mode must be true or false") unless [true, false].include?(main)
+
+      TOPLEVEL_BINDING.receiver if main
+    end
+
+    def source_name(file, name)
+      ArgumentError.("Sevgi file must be a String") unless file.is_a?(::String)
+      ArgumentError.("Sevgi file name must be a non-empty String") unless name.is_a?(::String) && !name.empty?
+      valid = ::File.basename(name) == name && !%w[. ..].include?(name)
+      ArgumentError.("Sevgi file name must not include a directory") unless valid
+
+      ::File.join(::File.dirname(file), F.subext(".sevgi", name))
+    end
+
+    def load_directory(locations)
+      location = locations.find { !LOAD_WRAPPERS.include?(it.absolute_path || it.path) } || locations.first
+
+      ::File.dirname(location.path)
+    end
   end
-
-  def self.source_name(file, name)
-    ArgumentError.("Sevgi file must be a String") unless file.is_a?(::String)
-    ArgumentError.("Sevgi file name must be a non-empty String") unless name.is_a?(::String) && !name.empty?
-    valid = ::File.basename(name) == name && !%w[. ..].include?(name)
-    ArgumentError.("Sevgi file name must not include a directory") unless valid
-
-    ::File.join(::File.dirname(file), F.subext(".sevgi", name))
-  end
-
-  def self.load_directory(locations)
-    location = locations.find { !LOAD_WRAPPERS.include?(it.absolute_path || it.path) } || locations.first
-
-    ::File.dirname(location.path)
-  end
-
-  private_class_method :execution_receiver, :source_name, :load_directory
 
   module Toplevel
     # Loads one or more Sevgi files relative to the caller's source file.

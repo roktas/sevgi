@@ -464,7 +464,7 @@ module Sevgi
           )
           assert_equal(generated.at_css("style").text, evaluated.at_css("style").text)
 
-          assert_css_fallback(style, generated) unless Css.rules(style)
+          assert_css_fallback(style, generated) unless CSS.rules(style)
         end
       end
 
@@ -485,8 +485,8 @@ module Sevgi
           evaluated_style = Nokogiri::XML(evaluated).at_css("rect")["style"]
 
           assert_equal(generated_style, evaluated_style)
-          if Css.declarations(style)
-            assert_equal(Css.to_h!(style), Css.to_h!(generated_style))
+          if CSS.declarations(style)
+            assert_equal(CSS.to_h!(style), CSS.to_h!(generated_style))
           else
             assert_equal(style, generated_style)
           end

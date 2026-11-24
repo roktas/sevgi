@@ -10,7 +10,6 @@ module Sevgi
         module Options
           DEFAULTS = {indent: "  ", linelength: 140, style: :hybrid}.freeze
           STYLES = %i[hybrid inline block].freeze
-          private_constant :STYLES
 
           # Validates and normalizes renderer formatting options.
           # @param options [Hash] caller options
@@ -25,41 +24,40 @@ module Sevgi
             options.freeze
           end
 
-          def self.validate_keys!(options)
-            unknown = options.keys - DEFAULTS.keys
-            ArgumentError.("Unknown renderer options: #{unknown.join(", ")}") unless unknown.empty?
-          end
+          class << self
+            private
 
-          def self.valid_indent(indent)
-            unless indent.is_a?(::String) && /\A[\t\n\r ]*\z/.match?(indent)
-              ArgumentError.("Renderer indent must contain only XML whitespace")
+            def validate_keys!(options)
+              unknown = options.keys - DEFAULTS.keys
+              ArgumentError.("Unknown renderer options: #{unknown.join(", ")}") unless unknown.empty?
             end
 
-            XML.text(indent, context: "Renderer indent")
+            def valid_indent(indent)
+              unless indent.is_a?(::String) && /\A[\t\n\r ]*\z/.match?(indent)
+                ArgumentError.("Renderer indent must contain only XML whitespace")
+              end
+
+              XML.text(indent, context: "Renderer indent")
+            end
+
+            def validate_linelength!(linelength)
+              return if linelength.is_a?(::Integer) && linelength >= 0
+
+              ArgumentError.("Renderer linelength must be a non-negative Integer")
+            end
+
+            def validate_style!(style)
+              ArgumentError.("Unrecognized style: #{style}") unless STYLES.include?(style)
+            end
           end
-
-          def self.validate_linelength!(linelength)
-            return if linelength.is_a?(::Integer) && linelength >= 0
-
-            ArgumentError.("Renderer linelength must be a non-negative Integer")
-          end
-
-          def self.validate_style!(style)
-            ArgumentError.("Unrecognized style: #{style}") unless STYLES.include?(style)
-          end
-
-          private_class_method :valid_indent, :validate_keys!, :validate_linelength!, :validate_style!
         end
 
         # Renders inline element contents and children directly into one line buffer.
         # @api private
         class InlineBuffer
           SEPARATOR = "\n"
-          private_constant :SEPARATOR
 
-          def initialize(buffer)
-            @buffer = buffer
-          end
+          def initialize(buffer) = @buffer = buffer
 
           def append(_depth, *lines)
             @buffer << lines.join(SEPARATOR) unless lines.empty?
@@ -103,14 +101,11 @@ module Sevgi
           ELEMENTS_WITH_INLINE_CONTENT = %i[title].freeze
           ELEMENTS_WITH_BLOCK_CONTENT = %i[style].freeze
           SEPARATOR = "\n"
-          private_constant :ELEMENTS_WITH_BLOCK_CONTENT, :ELEMENTS_WITH_INLINE_CONTENT, :SEPARATOR, :SVG_NAMESPACE
 
           attr_reader :root, :options
 
           def self.call(root, **) = new(root, **).call(*root.class.preambles)
           def self.fragment(root, **options) = new(root, **options).call
-          def self.validate(**options) = Options.validate(**options)
-          private_class_method :validate
 
           def initialize(root, **)
             @root = root
@@ -181,9 +176,7 @@ module Sevgi
             attrs.each { @lines << "#{indent(depth + 1)}#{it}" }
           end
 
-          def inline_tag(name, attrs)
-            attrs.empty? ? name.to_s : "#{name} #{attrs.join(" ")}"
-          end
+          def inline_tag(name, attrs) = attrs.empty? ? name.to_s : "#{name} #{attrs.join(" ")}"
 
           def block_attributes?(depth, attrs)
             return false if attrs.empty?
@@ -255,7 +248,7 @@ module Sevgi
           ArgumentError.("SVG fragment separator must be a String") unless separator.is_a?(::String)
 
           separator = XML.text(separator, context: "SVG fragment separator")
-          Renderer.send(:validate, **options)
+          Options.validate(**options)
           children.map { Renderer.fragment(it, **options) }.join(separator)
         end
       end

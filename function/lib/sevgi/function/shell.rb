@@ -136,7 +136,6 @@ module Sevgi
         WAKE = "."
         MUTEX = ::Mutex.new
         @entries = {}
-        private_constant :MUTEX, :WAKE
 
         class << self
           def register(runner, pid)

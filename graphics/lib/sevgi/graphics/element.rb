@@ -45,10 +45,6 @@ module Sevgi
       # @return [Boolean]
       def self.root?(element) = Element.send(:tree_parent, element).equal?(RootParent)
 
-      def self.element_method?(name) = Dispatch.cached?(name)
-
-      private_class_method :element_method?
-
       class << self
         private
 
@@ -63,6 +59,8 @@ module Sevgi
           tree_children(parent).delete(element) if parent.is_a?(element.class)
           element.instance_variable_set(:@parent, DetachedParent)
         end
+
+        def element_method?(name) = Dispatch.cached?(name)
 
         def tree_children(element) = element.instance_variable_get(:@children)
 
@@ -184,6 +182,8 @@ module Sevgi
         instance_exec(&block) if block
       end
 
+      private
+
       # Copies owned storage and reconnects child copies without attaching to the source tree.
       # @param original [Sevgi::Graphics::Element] source node
       # @return [void]
@@ -197,8 +197,6 @@ module Sevgi
           child.dup.tap { it.instance_variable_set(:@parent, self) }
         end
       end
-
-      private :initialize_copy
 
       # Dispatches SVG element DSL calls and caches valid element methods.
       # @param name [Symbol] missing method name
@@ -226,15 +224,12 @@ module Sevgi
         Element.valid?(Element.send(:id, name)) || super
       end
 
-      private :method_missing, :respond_to_missing?
-
       # Element method-missing parser and cache.
       # @api private
       module Dispatch
         extend self
 
         MUTEX = ::Mutex.new
-        private_constant :MUTEX
 
         # Dispatches an element DSL call.
         # @param element [Sevgi::Graphics::Element] parent element
@@ -304,9 +299,7 @@ module Sevgi
         # @param args [Array<Object>] positional DSL arguments. Hashes are imported from left to right
         # @return [Hash] parsed :attributes and :contents
         # @raise [Sevgi::ArgumentError] when an argument is not a Hash, String, or Content
-        def parse(name, *args)
-          capture(name, *args).tap { it[:attributes] = it[:attributes].to_h }
-        end
+        def parse(name, *args) = capture(name, *args).tap { it[:attributes] = it[:attributes].to_h }
       end
 
       private_constant :Dispatch

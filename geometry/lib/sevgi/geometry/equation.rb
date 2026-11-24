@@ -141,11 +141,13 @@ module Sevgi
       def equation
         return @equation if defined?(@equation)
 
-        result = compute_equation
+        result = compute
         frozen? ? result : (@equation = result)
       end
 
-      def compute_equation
+      private
+
+      def compute
         x, y = starting.deconstruct
         dx, dy = ending.x - x, ending.y - y
         return Equation.horizontal(y) if dy.zero?
@@ -154,8 +156,6 @@ module Sevgi
         slope = dy / dx
         Equation.diagonal(slope:, intercept: y - (slope * x))
       end
-
-      private :compute_equation
     end
 
     require_relative "equation/linear"

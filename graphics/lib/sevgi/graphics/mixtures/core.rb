@@ -28,17 +28,19 @@ module Sevgi
           end
         end
 
-        def self.stop(value)
-          throw(:traversal, value.value) if value.is_a?(Stop)
-        end
+        class << self
+          private
 
-        def self.visit(element, depth, leave, &block)
-          stop(block.call(element, depth))
-          element.children.each { |child| visit(child, depth + 1, leave, &block) }
-          stop(leave.call(element, depth)) if leave
-        end
+          def stop(value)
+            throw(:traversal, value.value) if value.is_a?(Stop)
+          end
 
-        private_class_method :stop, :visit
+          def visit(element, depth, leave, &block)
+            stop(block.call(element, depth))
+            element.children.each { |child| visit(child, depth + 1, leave, &block) }
+            stop(leave.call(element, depth)) if leave
+          end
+        end
       end
 
       private_constant :Traversal

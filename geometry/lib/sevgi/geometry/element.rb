@@ -66,10 +66,7 @@ module Sevgi
       # Reports whether the element has zero bounding width and height.
       # @param precision [Integer, nil] decimal precision, or nil for the current function default
       # @return [Boolean]
-      def ignorable?(precision: nil)
-        bounds = box
-        F.zero?(bounds.width, precision:) && F.zero?(bounds.height, precision:)
-      end
+      def ignorable?(precision: nil) = box.then { F.zero?(it.width, precision:) && F.zero?(it.height, precision:) }
 
       # Intersects the element boundary with an equation.
       #
@@ -108,13 +105,13 @@ module Sevgi
       # @raise [Sevgi::PanicError] when a subclass does not implement translate
       def translate(_x, _y) = PanicError.("#{self.class}#translate must be implemented")
 
+      private
+
       def boundary_point?(point, precision)
         return on?(point) if precision.nil?
 
         F.with_precision(precision) { on?(point) }
       end
-
-      private :boundary_point?
     end
 
     require_relative "element/lined"

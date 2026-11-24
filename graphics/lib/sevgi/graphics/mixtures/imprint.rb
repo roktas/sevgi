@@ -115,8 +115,6 @@ module Sevgi
 
             private_class_method :freeze_tree
           end
-
-          private_constant :Builder, :Snapshot
         end
         private_constant :Declaration
 

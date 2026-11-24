@@ -13,7 +13,6 @@ module Sevgi
           PDF_KEYS = %i[css declaration default dpi fallback height preview width].freeze
           PNG_KEYS = %i[css default dpi height width].freeze
           KEYS = {pdf: PDF_KEYS, png: PNG_KEYS}.freeze
-          private_constant :KEYS, :PDF_KEYS, :PNG_KEYS
 
           # Validates options, ensures optional sundries loading, and invokes the exporter.
           # @param element [Sevgi::Graphics::Element] document or element to export
@@ -34,35 +33,37 @@ module Sevgi
             Sundries::Export.(element.call, output, **kwargs, format:, &block)
           end
 
-          def self.validate_options!(kwargs, format)
-            unknown = kwargs.keys - KEYS.fetch(format)
-            ArgumentError.("Unknown export option: #{unknown.first}") unless unknown.empty?
+          class << self
+            private
+
+            def validate_options!(kwargs, format)
+              unknown = kwargs.keys - KEYS.fetch(format)
+              ArgumentError.("Unknown export option: #{unknown.first}") unless unknown.empty?
+            end
+
+            def with_declaration(element, format, kwargs)
+              return kwargs unless format == :pdf && !kwargs.key?(:declaration)
+              return kwargs unless element.Root?() && element.respond_to?(:Imprint)
+
+              imprint = element.Imprint()
+              imprint.nil? ? kwargs : kwargs.merge(declaration: imprint)
+            end
+
+            def resolve_output(path, format, caller_path, kwargs)
+              default = kwargs.delete(:default)
+              default = F.subext(".#{format}", caller_path) if default.nil?
+              F.output_path(path, default:, context: "Export")
+            end
+
+            def load_sundries!
+              require "sevgi/sundries"
+
+            rescue ::LoadError => e
+              raise unless e.path == "sevgi/sundries"
+
+              MissingComponentError.("sevgi/sundries")
+            end
           end
-
-          def self.with_declaration(element, format, kwargs)
-            return kwargs unless format == :pdf && !kwargs.key?(:declaration)
-            return kwargs unless element.Root?() && element.respond_to?(:Imprint)
-
-            imprint = element.Imprint()
-            imprint.nil? ? kwargs : kwargs.merge(declaration: imprint)
-          end
-
-          def self.resolve_output(path, format, caller_path, kwargs)
-            default = kwargs.delete(:default)
-            default = F.subext(".#{format}", caller_path) if default.nil?
-            F.output_path(path, default:, context: "Export")
-          end
-
-          def self.load_sundries!
-            require "sevgi/sundries"
-
-          rescue ::LoadError => e
-            raise unless e.path == "sevgi/sundries"
-
-            MissingComponentError.("sevgi/sundries")
-          end
-
-          private_class_method :load_sundries!, :resolve_output, :validate_options!, :with_declaration
         end
 
         private_constant :Runner

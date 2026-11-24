@@ -21,7 +21,6 @@ module Sevgi
         PDF_SEPARATOR = %r{\A[\s\x00()<>\[\]{}/%]}n
         STAMP_GRAY = "0.101961 0.101961 0.101961"
         STAMP_WHITE = "1 1 1"
-        private_constant :PDF_LITERAL_ESCAPE, :PDF_SEPARATOR, :STAMP_GRAY, :STAMP_WHITE
 
         # Rewrites exact placeholder matches inside a single PDF content stream.
         # @param data [String] raw PDF content stream bytes
@@ -82,9 +81,7 @@ module Sevgi
           [pos, pos, " #{white ? STAMP_WHITE : STAMP_GRAY} rg#{suffix_space(data, pos)}".b]
         end
 
-        def suffix_space(data, pos)
-          pos < data.bytesize && !PDF_SEPARATOR.match?(data.byteslice(pos, 1)) ? " " : ""
-        end
+        def suffix_space(data, pos) = pos < data.bytesize && !PDF_SEPARATOR.match?(data.byteslice(pos, 1)) ? " " : ""
 
         private
 
@@ -148,11 +145,9 @@ module Sevgi
 
       private_constant :Stamp
 
-      def stamp_stream(data, stamp:, placeholder:)
-        Stamp.replace(data, stamp:, placeholder:)
-      end
+      private
 
-      private :stamp_stream
+      def stamp_stream(data, stamp:, placeholder:) = Stamp.replace(data, stamp:, placeholder:)
     end
   end
 end

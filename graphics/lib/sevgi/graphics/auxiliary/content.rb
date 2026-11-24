@@ -34,66 +34,6 @@ module Sevgi
     class Content
       private_class_method :new
 
-      # Returns a recursively independent, caller-owned payload snapshot.
-      # @return [Object] wrapped content snapshot
-      def content = Snapshot.copy(@content)
-
-      # Creates immutable content from a deep payload snapshot. Strings and containers are copied recursively. Mutable
-      # non-container objects are stringified once during construction. The caller's objects are never retained.
-      # @param content [Object] wrapped content
-      # @return [void]
-      # @raise [Sevgi::ArgumentError] when content cannot be stringified, contains invalid encoding or illegal XML
-      #   characters, contains cycles, or has keys that collide after stringification
-      # @api private
-      def initialize(content)
-        @content = Snapshot.capture(content, context: "XML content", freeze: true)
-        freeze
-      end
-
-      # Reports whether the captured payload is empty.
-      # @return [Boolean]
-      def empty?
-        value = payload
-        value.respond_to?(:empty?) ? value.empty? : to_s.empty?
-      end
-
-      # Reports strict content equality by concrete class and captured payload.
-      # @param other [Object] comparison target
-      # @return [Boolean]
-      def eql?(other) = self.class == other.class && payload == other.send(:payload)
-
-      # Returns a hash compatible with strict equality.
-      # @return [Integer]
-      def hash = [self.class, payload].hash
-
-      alias == eql?
-
-      def initialize_copy(original)
-        super
-        freeze
-      end
-
-      private :initialize_copy
-
-      # Appends this content's serialized XML lines to rendering output.
-      # The output collaborator responds to `append(depth, *lines)`, where `depth` is an Integer or nil and every line
-      # is a String containing valid serialized XML text. The rendering engine ignores both `append` and `render` return
-      # values. Custom content is responsible for escaping data that it inserts into markup.
-      # @abstract Subclasses implement content rendering.
-      # @param _output [#append] rendering output collaborator
-      # @param _depth [Integer] current render depth
-      # @return [Object] ignored by the rendering engine
-      # @raise [Sevgi::PanicError] when a subclass does not implement render
-      def render(_output, _depth) = PanicError.("#{self.class}#render must be implemented")
-
-      # Returns content as a string.
-      # @return [String]
-      def to_s = XML.text(payload)
-
-      def payload = @content
-
-      private :payload
-
       # @overload cdata(content)
       #   Builds CDATA content.
       #   Mutable objects are stringified during construction, and embedded CDATA terminators are split safely.
@@ -129,6 +69,61 @@ module Sevgi
       #   @raise [Sevgi::ArgumentError] when content cannot be stringified, contains invalid encoding or illegal XML 1.0
       #     characters, contains cycles, or has keys that collide after stringification
       def self.verbatim(...) = Verbatim.send(:new, ...)
+
+      # Returns a recursively independent, caller-owned payload snapshot.
+      # @return [Object] wrapped content snapshot
+      def content = Snapshot.copy(@content)
+
+      # Creates immutable content from a deep payload snapshot. Strings and containers are copied recursively. Mutable
+      # non-container objects are stringified once during construction. The caller's objects are never retained.
+      # @param content [Object] wrapped content
+      # @return [void]
+      # @raise [Sevgi::ArgumentError] when content cannot be stringified, contains invalid encoding or illegal XML
+      #   characters, contains cycles, or has keys that collide after stringification
+      # @api private
+      def initialize(content)
+        @content = Snapshot.capture(content, context: "XML content", freeze: true)
+        freeze
+      end
+
+      # Reports whether the captured payload is empty.
+      # @return [Boolean]
+      def empty? = payload.respond_to?(:empty?) ? payload.empty? : to_s.empty?
+
+      # Reports strict content equality by concrete class and captured payload.
+      # @param other [Object] comparison target
+      # @return [Boolean]
+      def eql?(other) = self.class == other.class && payload == other.send(:payload)
+
+      # Returns a hash compatible with strict equality.
+      # @return [Integer]
+      def hash = [self.class, payload].hash
+
+      alias == eql?
+
+      # Appends this content's serialized XML lines to rendering output.
+      # The output collaborator responds to `append(depth, *lines)`, where `depth` is an Integer or nil and every line
+      # is a String containing valid serialized XML text. The rendering engine ignores both `append` and `render` return
+      # values. Custom content is responsible for escaping data that it inserts into markup.
+      # @abstract Subclasses implement content rendering.
+      # @param _output [#append] rendering output collaborator
+      # @param _depth [Integer] current render depth
+      # @return [Object] ignored by the rendering engine
+      # @raise [Sevgi::PanicError] when a subclass does not implement render
+      def render(_output, _depth) = PanicError.("#{self.class}#render must be implemented")
+
+      # Returns content as a string.
+      # @return [String]
+      def to_s = XML.text(payload)
+
+      private
+
+      def initialize_copy(original)
+        super
+        freeze
+      end
+
+      def payload = @content
 
       # CDATA section content backed by an immutable payload snapshot. Mutable leaf objects are stringified during
       # construction. Embedded terminators are split during rendering.

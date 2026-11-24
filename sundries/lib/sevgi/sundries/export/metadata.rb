@@ -14,7 +14,6 @@ module Sevgi
         ARRAYS = {creator: "Seq", publisher: "Bag", date: "Seq", language: "Bag"}.freeze
         LIMIT = 16 * 1024 * 1024
         BLANK_XMP = "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\"><rdf:RDF xmlns:rdf=\"#{RDF}\"/></x:xmpmeta>".freeze
-        private_constant :ARRAYS, :BLANK_XMP, :CC, :DC, :FIELDS, :LIMIT, :NS, :RDF
 
         class << self
           # Normalizes and validates caller-supplied PDF metadata fields.

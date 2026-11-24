@@ -13,8 +13,6 @@ module Sevgi
       QNAME = /\A#{NCNAME}(?::#{NCNAME})?\z/u
       ILLEGAL_CHARACTER = /[^\u0009\u000A\u000D\u0020-\uD7FF\uE000-\uFFFD\u{10000}-\u{10FFFF}]/u
 
-      private_constant :NCNAME, :NCNAME_CHAR, :NCNAME_START, :QNAME, :ILLEGAL_CHARACTER
-
       class << self
         # Validates an XML 1.0 string representation.
         # @param value [Object] value to stringify and validate

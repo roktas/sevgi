@@ -121,6 +121,17 @@ module Sevgi
         end
       end
 
+      # Merges PDF files with pdfunite.
+      # @param sources [Array<String>] source PDF file paths
+      # @param outfile [String] destination PDF file path
+      # @return [Sevgi::Function::Shell::Result] command result
+      # @raise [Sevgi::Error] when pdfunite is missing or the command fails
+      # @raise [Errno::ENOENT] when the executable cannot be spawned
+      # @see https://poppler.freedesktop.org/ Poppler
+      def unite(sources, outfile) = F.sh!("pdfunite", *sources, outfile)
+
+      private
+
       def prepare_paths(infile, outfile, format)
         infile = File.expand_path(infile)
 
@@ -142,17 +153,6 @@ module Sevgi
           yield(staged)
         end
       end
-
-      private :prepare_paths, :with_staged_svg
-
-      # Merges PDF files with pdfunite.
-      # @param sources [Array<String>] source PDF file paths
-      # @param outfile [String] destination PDF file path
-      # @return [Sevgi::Function::Shell::Result] command result
-      # @raise [Sevgi::Error] when pdfunite is missing or the command fails
-      # @raise [Errno::ENOENT] when the executable cannot be spawned
-      # @see https://poppler.freedesktop.org/ Poppler
-      def unite(sources, outfile) = F.sh!("pdfunite", *sources, outfile)
 
       extend self
     end

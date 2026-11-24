@@ -5,7 +5,7 @@ module Sevgi
     module Elements
       # Element strategy for SVG style elements.
       # @api private
-      module CSS
+      module Style
         # Converts a style node into unformatted Sevgi DSL lines.
         # @return [Array<String>] unformatted Ruby source lines
         def decompile(*, namespaces: self.namespaces())
@@ -29,13 +29,13 @@ module Sevgi
         end
 
         def css_lines
-          return unless (hash = Css.rules(css_source))
+          return unless (hash = CSS.rules(css))
 
           hash
             .map do |selector, declarations|
               [
                 "#{Ruby.literal(selector)}: {",
-                *declarations.map { |key, value| "#{Css.to_key_value(key, value)}," },
+                *declarations.map { |key, value| "#{CSS.to_key_value(key, value)}," },
                 "},"
               ]
             end
@@ -43,7 +43,7 @@ module Sevgi
         end
 
         def raw_style(namespaces)
-          arguments = ["Sevgi::Graphics::Content.cdata(#{Ruby.literal(css_source)})"]
+          arguments = ["Sevgi::Graphics::Content.cdata(#{Ruby.literal(css)})"]
           attributes = all_attributes(namespaces)
           arguments << Attributes.decompile(attributes) if attributes.any?
 

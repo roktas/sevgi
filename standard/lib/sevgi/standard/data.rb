@@ -23,15 +23,17 @@ module Sevgi
         end
       end
 
-      def self.hash(value) = value.to_h { |key, item| [key, copy(item)] }
+      class << self
+        private
 
-      def self.duplicate(value)
-        value.dup
-      rescue ::TypeError
-        value
+        def hash(value) = value.to_h { |key, item| [key, copy(item)] }
+
+        def duplicate(value)
+          value.dup
+        rescue ::TypeError
+          value
+        end
       end
-
-      private_class_method :duplicate, :hash
     end
 
     private_constant :Snapshot
@@ -89,6 +91,19 @@ module Sevgi
       # @return [Array<Symbol>] filtered names
       def unpick(names, *groups) = names.reject { |name| groups.any? { is?(name, it) } }
 
+      # Removes ignored names from a list.
+      # @param names [Array<Symbol>, nil] names to filter
+      # @return [Array<Symbol>, nil] names selected for validation
+      def concerns(names) = names ? names.reject { ignore?(it) } : names
+
+      # Installs low-level list helpers into data modules.
+      # @param base [Module] data module receiving helpers
+      # @return [void]
+      # @api private
+      def self.extended(base) = List.send(:extended, base)
+
+      private
+
       def all_set = @all_set ||= Set[*data.values.flatten.uniq.sort].freeze
 
       def group_set(group)
@@ -104,19 +119,6 @@ module Sevgi
 
         groups
       end
-
-      private :all_set, :group_set, :groups!
-
-      # Removes ignored names from a list.
-      # @param names [Array<Symbol>, nil] names to filter
-      # @return [Array<Symbol>, nil] names selected for validation
-      def concerns(names) = names ? names.reject { ignore?(it) } : names
-
-      # Installs low-level list helpers into data modules.
-      # @param base [Module] data module receiving helpers
-      # @return [void]
-      # @api private
-      def self.extended(base) = List.send(:extended, base)
     end
 
     private_constant :Common

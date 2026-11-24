@@ -11,7 +11,6 @@ module Sevgi
 
           XML_ILLEGAL = /[\x00-\x08\x0b\x0c\x0e-\x1f\uFFFE\uFFFF]/
           MAX_VALUE_BYTES = 1024 * 1024
-          private_constant :MAX_VALUE_BYTES, :XML_ILLEGAL
 
           # Normalizes and validates caller-supplied PDF metadata fields.
           # @param fields [Hash] metadata fields
@@ -84,8 +83,6 @@ module Sevgi
             ArgumentError.("Invalid text encoding in PDF metadata #{field}")
           end
         end
-
-        private_constant :Fields
       end
     end
   end

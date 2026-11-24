@@ -77,8 +77,6 @@ module Sevgi
         end
       end
 
-      private_constant :FLAGS, :Options, :STDIN_NAME
-
       # Runs the `sevgi` command-line interface.
       # @param argv [Array<String>, String, nil] command-line arguments
       # @return [nil]

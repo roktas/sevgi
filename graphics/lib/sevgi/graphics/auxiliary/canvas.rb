@@ -149,9 +149,7 @@ module Sevgi
       # Margins rotate from `[top, right, bottom, left]` to `[left, top, right, bottom]` so vertical and horizontal
       # margin sums swap alongside width and height.
       # @return [Sevgi::Graphics::Canvas]
-      def rotate
-        self.class.new(**size.rotate.to_h, margins: [margin.left, margin.top, margin.right, margin.bottom])
-      end
+      def rotate = self.class.new(**size.rotate.to_h, margins: [margin.left, margin.top, margin.right, margin.bottom])
 
       # Returns canvas fields as a Hash compatible with {Canvas.call}.
       # @return [Hash{Symbol => Object}]

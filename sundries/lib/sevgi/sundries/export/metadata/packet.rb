@@ -103,9 +103,7 @@ module Sevgi
             append_items(node, key, value, rdf_ns)
           end
 
-          def set_license(node, parent, value, rdf_ns)
-            node["#{rdf_prefix_for(parent, rdf_ns)}:resource"] = value
-          end
+          def set_license(node, parent, value, rdf_ns) = node["#{rdf_prefix_for(parent, rdf_ns)}:resource"] = value
 
           def append_items(node, key, value, rdf_ns)
             container = element(node, ARRAYS.fetch(key, "Alt"), rdf_ns)
@@ -123,8 +121,6 @@ module Sevgi
             end
           end
         end
-
-        private_constant :Packet, :XML
       end
     end
   end

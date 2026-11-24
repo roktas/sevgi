@@ -155,9 +155,7 @@ module Sevgi
           end
         end
 
-        def context(mod, receiver)
-          mod.instance_variable_get(:@sevgi_context_class).new(mod, receiver)
-        end
+        def context(mod, receiver) = mod.instance_variable_get(:@sevgi_context_class).new(mod, receiver)
 
         def invoke(context, receiver, methods, ...)
           result = methods.map { context.__send__(it, ...) }.last

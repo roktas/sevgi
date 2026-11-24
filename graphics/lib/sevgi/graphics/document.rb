@@ -70,19 +70,6 @@ module Sevgi
         klass.root(klass.attributes, canvas_attributes(canvas), attributes, &block)
       end
 
-      def self.canvas_attributes(canvas)
-        case canvas
-        when Undefined, ::NilClass
-          {}
-        when Canvas
-          canvas.attributes
-        else
-          Canvas.from_paper(canvas).attributes
-        end
-      end
-
-      private_class_method :canvas_attributes
-
       # Returns a registered document class by profile name.
       # @param name [Symbol, String] profile name
       # @return [Class] registered subclass of {Sevgi::Graphics::Document::Proto}
@@ -165,6 +152,17 @@ module Sevgi
         def anonymous(attributes:, preambles:)
           attributes, preambles = defaults(attributes:, preambles:)
           Class.new(Base) { document(Undefined, preambles:, attributes:, register: false) }
+        end
+
+        def canvas_attributes(canvas)
+          case canvas
+          when Undefined, ::NilClass
+            {}
+          when Canvas
+            canvas.attributes
+          else
+            Canvas.from_paper(canvas).attributes
+          end
         end
 
         def defaults(attributes:, preambles:)
@@ -344,6 +342,8 @@ module Sevgi
       # Class-level DSL used while defining document classes.
       # @api private
       module DSL
+        private
+
         # Sets document profile metadata on a class.
         # @param name [Object] profile name
         # @param attributes [Hash, nil] default root attributes
@@ -372,8 +372,6 @@ module Sevgi
           include(mod = ns.const_get(mixture))
           extend(mod::ClassMethods) if defined?(mod::ClassMethods)
         end
-
-        private :document, :mixture
       end
 
       private_constant :DSL

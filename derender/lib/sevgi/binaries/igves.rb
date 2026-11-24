@@ -25,7 +25,6 @@ module Sevgi
         "-v" => :version,
         "-x" => :vomit
       }.freeze
-      private_constant :FLAGS
 
       # Parsed command-line options for the `igves` executable.
       # @api private
@@ -59,8 +58,6 @@ module Sevgi
           end
         end
       end
-
-      private_constant :Options
 
       # Runs the `igves` command-line interface.
       # @param argv [Array<String>, String, nil] command-line arguments

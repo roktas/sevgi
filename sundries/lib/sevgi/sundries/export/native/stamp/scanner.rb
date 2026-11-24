@@ -126,8 +126,6 @@ module Sevgi
             end
           end
         end
-
-        private_constant :Scanner
       end
     end
   end

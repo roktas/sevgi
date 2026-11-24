@@ -6,7 +6,7 @@ module Sevgi
   module Derender
     # CSS parser and formatter helpers used while derendering attributes and style nodes.
     # @api private
-    module Css
+    module CSS
       require "css_parser"
 
       # Parses CSS rules into a selector/declaration hash.
@@ -106,7 +106,7 @@ module Sevgi
       extend self
     end
 
-    private_constant :Css
+    private_constant :CSS
 
     # Ruby source formatting helpers used by the derender pipeline.
     # @api private
@@ -155,8 +155,6 @@ module Sevgi
         yield
       ]
         .freeze
-
-      private_constant :IDENTIFIER, :KEYWORDS
 
       # Reports whether an XML element name can be emitted as a bare DSL call.
       # @param name [String] XML element name

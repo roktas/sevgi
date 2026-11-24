@@ -12,6 +12,6 @@ end
 require_relative "elements/any"
 require_relative "elements/comment"
 require_relative "elements/instruction"
-require_relative "elements/css"
 require_relative "elements/root"
+require_relative "elements/style"
 require_relative "elements/text"

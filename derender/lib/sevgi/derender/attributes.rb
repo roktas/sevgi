@@ -37,14 +37,14 @@ module Sevgi
           .map do |key, value|
 
             if key == "style"
-              style = Css.declarations(value)
+              style = CSS.declarations(value)
               if style
                 style.empty? ? "{}" : "{ #{Attributes.decompile(style)} }"
               else
                 Ruby.literal(value)
               end
             elsif value.is_a?(::String)
-              Css.to_value(value)
+              CSS.to_value(value)
             elsif value.is_a?(::Hash)
               "{ #{Attributes.decompile(value)} }"
             else

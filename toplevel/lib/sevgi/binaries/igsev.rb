@@ -25,7 +25,6 @@ module Sevgi
         "-v" => :version,
         "-x" => :vomit
       }.freeze
-      private_constant :FLAGS
 
       # Parsed command-line options for the `igsev` executable.
       # @api private
@@ -64,13 +63,9 @@ module Sevgi
             Error.("Not a valid option: #{arg}")
           end
 
-          def append_value(options, field, argv, message)
-            (options[field] ||= []) << (argv.shift || Error.(message))
-          end
+          def append_value(options, field, argv, message) = (options[field] ||= []) << (argv.shift || Error.(message))
         end
       end
-
-      private_constant :Options
 
       # Runs the `igsev` command-line interface.
       # @param argv [Array<String>, String, nil] command-line arguments
@@ -85,9 +80,7 @@ module Sevgi
 
       private
 
-      def backtrace(error)
-        error.respond_to?(:load_backtrace) ? error.load_backtrace : (error.backtrace || [])
-      end
+      def backtrace(error) = error.respond_to?(:load_backtrace) ? error.load_backtrace : (error.backtrace || [])
 
       def die(error)
         warn(error.message)

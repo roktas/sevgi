@@ -6,7 +6,6 @@ module Sevgi
     # @api private
     module Name
       PATTERN = /\A[A-Za-z_][A-Za-z0-9_.-]*(?::[A-Za-z_][A-Za-z0-9_.-]*)?\z/
-      private_constant :PATTERN
 
       # Reports whether a string is a supported SVG-style name token.
       # @param name [String, Symbol] candidate name

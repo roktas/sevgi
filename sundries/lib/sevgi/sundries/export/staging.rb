@@ -36,9 +36,7 @@ module Sevgi
           # @yield [directory] receives the temporary directory path
           # @yieldparam directory [String] temporary directory path
           # @return [Object] block return value
-          def workspace(near, prefix: ".sevgi-export-", &)
-            ::Dir.mktmpdir(prefix, parent_directory(near), &)
-          end
+          def workspace(near, prefix: ".sevgi-export-", &) = ::Dir.mktmpdir(prefix, parent_directory(near), &)
 
           private
 

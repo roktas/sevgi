@@ -56,10 +56,6 @@ module Sevgi
         true
       end
 
-      attr_reader :allowed_attributes, :allowed_elements
-
-      private :allowed_attributes, :allowed_elements
-
       @cache = {}
 
       # Validates one SVG element usage, using cached element validators.
@@ -108,6 +104,10 @@ module Sevgi
           cdata unless cdata == ""
         end
       end
+
+      private
+
+      attr_reader :allowed_attributes, :allowed_elements
     end
 
     private_constant :Conform, :Model

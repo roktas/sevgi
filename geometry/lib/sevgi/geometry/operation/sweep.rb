@@ -63,23 +63,6 @@ module Sevgi
           end
         end
 
-        # Sweeps parallel lines in one signed direction from an equation.
-        #
-        # Generated lines are boundary-to-boundary interior spans. A single
-        # sweep position can produce multiple lines for closed concave elements. Open paths produce no interior lines.
-        # @param element [Sevgi::Geometry::Element] element to intersect
-        # @param equation [Sevgi::Geometry::Equation] initial sweep equation
-        # @param step [Numeric] signed distance between sweep lines
-        # @param limit [Integer] maximum iterations
-        # @return [Array<Sevgi::Geometry::Line>] generated sweep lines
-        # @raise [Sevgi::Geometry::Error] when step or limit is invalid
-        # @raise [Sevgi::Geometry::Operation::OperationError] when iteration reaches the limit
-        def unisweep(element, equation, step, limit: LIMIT)
-          sweep_rows(element, equation, step, limit:).flatten(1)
-        end
-
-        private :unisweep
-
         # Reports whether the sweep handler can operate on an element.
         # @api private
         # @param element [Object] candidate element
@@ -91,7 +74,6 @@ module Sevgi
         private
 
         def sweep_rows(element, equation, step, limit:)
-          step = validate_arguments(step, limit)
           rows = []
 
           limit.times do

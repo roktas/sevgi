@@ -30,24 +30,26 @@ module Sevgi
             [ox - ix + ((ow - iw) / 2.0), oy - iy + ((oh - ih) / 2.0)]
           end
 
-          def self.dimensions_for(inner, outer)
-            [inner.width, inner.height, outer.width, outer.height].map do |dimension|
-              Scalar.number(dimension, context: "alignment", field: :dimension)
-            end
-          end
+          class << self
+            private
 
-          def self.box_origin(box)
-            return [0, 0] unless box.respond_to?(:position)
-
-            origin = box.position
-            unless origin.respond_to?(:x) && origin.respond_to?(:y)
-              ArgumentError.("Alignment box position must expose x and y")
+            def dimensions_for(inner, outer)
+              [inner.width, inner.height, outer.width, outer.height].map do |dimension|
+                Scalar.number(dimension, context: "alignment", field: :dimension)
+              end
             end
 
-            [origin.x, origin.y].map { Scalar.number(it, context: "alignment", field: :position) }
-          end
+            def box_origin(box)
+              return [0, 0] unless box.respond_to?(:position)
 
-          private_class_method :box_origin, :dimensions_for
+              origin = box.position
+              unless origin.respond_to?(:x) && origin.respond_to?(:y)
+                ArgumentError.("Alignment box position must expose x and y")
+              end
+
+              [origin.x, origin.y].map { Scalar.number(it, context: "alignment", field: :position) }
+            end
+          end
         end
 
         private_constant :Alignment

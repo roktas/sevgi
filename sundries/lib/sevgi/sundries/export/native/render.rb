@@ -8,6 +8,15 @@ module Sevgi
       module Render
         extend self
 
+        UNIT_SCALES = {
+          Rsvg::Unit::PX => 1.0,
+          Rsvg::Unit::IN => DEFAULT_DPI,
+          Rsvg::Unit::CM => DEFAULT_DPI / 2.54,
+          Rsvg::Unit::MM => DEFAULT_DPI / 25.4,
+          Rsvg::Unit::PT => DEFAULT_DPI / 72.0,
+          Rsvg::Unit::PC => DEFAULT_DPI / 6.0
+        }.freeze
+
         # Renders SVG content to an output file via atomic staging.
         # @param svg [String] SVG source content
         # @param output [String] destination file path
@@ -92,16 +101,6 @@ module Sevgi
 
           [viewbox.width.to_f, viewbox.height.to_f]
         end
-
-        UNIT_SCALES = {
-          Rsvg::Unit::PX => 1.0,
-          Rsvg::Unit::IN => DEFAULT_DPI,
-          Rsvg::Unit::CM => DEFAULT_DPI / 2.54,
-          Rsvg::Unit::MM => DEFAULT_DPI / 25.4,
-          Rsvg::Unit::PT => DEFAULT_DPI / 72.0,
-          Rsvg::Unit::PC => DEFAULT_DPI / 6.0
-        }.freeze
-        private_constant :UNIT_SCALES
 
         def to_px(dimension)
           scale = UNIT_SCALES[dimension.unit]

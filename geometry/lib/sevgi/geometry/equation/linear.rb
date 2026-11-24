@@ -9,13 +9,13 @@ module Sevgi
       # canonical direction only to select a normal: increasing x for non-vertical equations and increasing y for
       # vertical equations. Positive distance moves to screen-left of that canonical direction.
       class Linear < Equation
+        private
+
         def shift_values(distance, dx, dy)
           [[:distance, distance], [:dx, dx], [:dy, dy]].map do |field, value|
             value.nil? ? 0.0 : Real[field, value]
           end
         end
-
-        private :shift_values
 
         # Shared behavior for equations that map x coordinates to y coordinates.
         # @api private

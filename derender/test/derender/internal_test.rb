@@ -4,7 +4,7 @@ require_relative "../test_helper"
 
 module Sevgi
   module Derender
-    class CssTest < Minitest::Test
+    class CSSTest < Minitest::Test
       def test_css_to_h_parses_rule_blocks
         string = <<~STRING
           * {
@@ -28,7 +28,7 @@ module Sevgi
         STRING
           .chomp
 
-        actual = Css.to_h(string)
+        actual = CSS.to_h(string)
 
         expected = {
           "*" => {
@@ -60,7 +60,7 @@ module Sevgi
         STRING
           .chomp
 
-        actual = Css.to_h!(string)
+        actual = CSS.to_h!(string)
 
         expected = {
           "stroke" => "#606060",
@@ -74,25 +74,25 @@ module Sevgi
       end
 
       def test_rules_accepts_only_lossless_hash_conversions
-        assert_equal({".mark" => {"fill" => "red"}}, Css.rules(".mark { fill: red; }"))
+        assert_equal({".mark" => {"fill" => "red"}}, CSS.rules(".mark { fill: red; }"))
 
         [
           "@media print { .mark { fill: black; } }",
           ".mark { display: block; display: grid; }",
           ".mark { --Tone: red; }",
           ".mark { malformed }"
-        ].each { assert_nil(Css.rules(it)) }
+        ].each { assert_nil(CSS.rules(it)) }
       end
 
       def test_declarations_accepts_only_lossless_hash_conversions
-        assert_equal({"fill" => "red"}, Css.declarations("fill: red"))
-        assert_equal({}, Css.declarations(""))
+        assert_equal({"fill" => "red"}, CSS.declarations("fill: red"))
+        assert_equal({}, CSS.declarations(""))
 
         [
           "display: block; display: grid",
           "--Tone: red",
           "malformed"
-        ].each { assert_nil(Css.declarations(it)) }
+        ].each { assert_nil(CSS.declarations(it)) }
       end
 
       def test_to_value_quotes_non_numeric_values
@@ -104,7 +104,7 @@ module Sevgi
           "foo bar",
           "\"foo bar\""
         ].each_slice(2) do |value, expected|
-          actual = Css.to_value(value)
+          actual = CSS.to_value(value)
 
           assert_equal(expected, actual)
         end
@@ -119,7 +119,7 @@ module Sevgi
           "quoted",
           "\"a\\\"b\": \"quoted\""
         ].each_slice(3) do |key, value, expected|
-          actual = Css.to_key_value(key, value)
+          actual = CSS.to_key_value(key, value)
 
           assert_equal(expected, actual)
         end

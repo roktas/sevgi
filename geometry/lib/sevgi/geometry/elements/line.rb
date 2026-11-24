@@ -92,13 +92,6 @@ module Sevgi
       # @raise [Sevgi::Geometry::Error] when point cannot be coerced
       def right?(point) = F.gt?(side(point), 0.0)
 
-      # Draws the line into a graphics node.
-      # @param node [Object] graphics node receiving the drawing command
-      # @return [Object] graphics node command result
-      def draw!(node, **) = node.LineTo(x1: position.x, y1: position.y, x2: ending.x, y2: ending.y, **)
-
-      private :draw!
-
       # Reports whether a point lies on the finite line segment.
       # @param point [Sevgi::Geometry::Point, Array<Numeric>] point to test
       # @return [Boolean]
@@ -123,6 +116,11 @@ module Sevgi
       private
 
       def delta(from, to) = [to.x - from.x, to.y - from.y]
+
+      # Draws the line into a graphics node.
+      # @param node [Object] graphics node receiving the drawing command
+      # @return [Object] graphics node command result
+      def draw!(node, **) = node.LineTo(x1: position.x, y1: position.y, x2: ending.x, y2: ending.y, **)
 
       def side(point)
         point = Tuple[Point, point]

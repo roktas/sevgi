@@ -6,7 +6,6 @@ module Sevgi
     # @api private
     module Namespace
       SVG = "http://www.w3.org/2000/svg"
-      private_constant :SVG
 
       def self.foreign?(node) = !node.namespace.nil? && node.namespace.href != SVG
 
@@ -33,9 +32,7 @@ module Sevgi
           end
         end
 
-        def mixed?(node)
-          node.children.any? { it.element? || it.cdata? || it.comment? || it.processing_instruction? }
-        end
+        def mixed?(node) = node.children.any? { it.element? || it.cdata? || it.comment? || it.processing_instruction? }
 
         def parent_mixed?(node) = node.parent ? mixed?(node.parent) : false
 
@@ -86,7 +83,6 @@ module Sevgi
         Nokogiri::XML::Node::COMMENT_NODE => :Comment,
         Nokogiri::XML::Node::PI_NODE => :Instruction
       }.freeze
-      private_constant :NODE_TYPES
 
       private
 
@@ -117,7 +113,7 @@ module Sevgi
       def capture_identity(node)
         raw_content = node.content
         @inline_content = inline_parent_content?(node)
-        @css_source = raw_content.dup.freeze if @type == :CSS
+        @css = raw_content.dup.freeze if @type == :Style
         @content = captured_content(node, raw_content).dup.freeze
         @name = [node.namespace&.prefix, node.name].compact.join(":").freeze
       end
@@ -141,7 +137,7 @@ module Sevgi
       def dispatch(node)
         type = NODE_TYPES[node.type]
         type ||= if Namespace.svg?(node, "style") && node.children.all? { it.text? || it.cdata? }
-          :CSS
+          :Style
         elsif @top && Namespace.svg?(node, "svg")
           :Root
         else
@@ -282,7 +278,7 @@ module Sevgi
 
       private
 
-      attr_reader :css_source, :type
+      attr_reader :css, :type
 
       def all_attributes(namespaces = self.namespaces()) = {**attributes, **namespaces}.freeze
 

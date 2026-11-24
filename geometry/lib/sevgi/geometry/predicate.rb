@@ -35,9 +35,7 @@ module Sevgi
         !turns.empty? && turns.uniq.one?
       end
 
-      def concave_turns?(vertices, precision: nil)
-        turn_orientations(vertices, precision:).uniq.size > 1
-      end
+      def concave_turns?(vertices, precision: nil) = turn_orientations(vertices, precision:).uniq.size > 1
 
       def edges(vertices)
         vertices.each_index.map { |i| [vertices[i], vertices[(i + 1) % vertices.size]] }

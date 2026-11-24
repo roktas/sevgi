@@ -181,20 +181,6 @@ module Sevgi
             coordinates.reject { |_, value| value.zero? }
           end
 
-          def normalize_value(name, value)
-            return number(name, value) if FINITE.include?(name)
-            return value unless (assertion = ASSERTION[name])
-            return value unless (issue = assertion.call(name, value))
-
-            ArgumentError.(issue)
-          end
-
-          def number(name, value)
-            Scalar.number(value, context: "tile", field: name)
-          rescue ::Sevgi::ArgumentError
-            ArgumentError.("Argument '#{name}' must be a finite real number")
-          end
-
           # Returns positional tile CSS classes.
           # @param as [String] class axis label
           # @param index [Integer] zero-based index
@@ -208,7 +194,21 @@ module Sevgi
             end
           end
 
-          private :normalize_value, :number
+          private
+
+          def normalize_value(name, value)
+            return number(name, value) if FINITE.include?(name)
+            return value unless (assertion = ASSERTION[name])
+            return value unless (issue = assertion.call(name, value))
+
+            ArgumentError.(issue)
+          end
+
+          def number(name, value)
+            Scalar.number(value, context: "tile", field: name)
+          rescue ::Sevgi::ArgumentError
+            ArgumentError.("Argument '#{name}' must be a finite real number")
+          end
         end
 
         private_constant :Helper

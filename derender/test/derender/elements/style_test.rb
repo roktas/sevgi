@@ -5,7 +5,7 @@ require_relative "../../test_helper"
 module Sevgi
   module Derender
     module Elements
-      class CSSTest < Minitest::Test
+      class StyleTest < Minitest::Test
         def test_style_element_decompiles_to_css_call
           svg = <<~SVG
             <svg id="Root" shape-rendering="crispEdges" width="60.0mm" height="60.0mm" viewBox="0 0 60 60">

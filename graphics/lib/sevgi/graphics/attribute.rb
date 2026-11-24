@@ -60,8 +60,7 @@ module Sevgi
         private
 
         def key(given)
-          return given if given.is_a?(::String)
-          return given.to_s if given.is_a?(::Symbol)
+          return given.to_s if given.is_a?(::String) || given.is_a?(::Symbol)
 
           ArgumentError.("XML attribute name must be a String or Symbol")
         end
@@ -139,6 +138,13 @@ module Sevgi
       # Mutable backing store for SVG attributes.
       # @api private
       class Store
+        UPDATER = {
+          ::String => proc { |old_value, new_value| [old_value, new_value].reject(&:empty?).join(" ") },
+          ::Symbol => proc { |old_value, new_value| [old_value, new_value].reject(&:empty?).join(" ").to_sym },
+          ::Array => proc { |old_value, new_value| old_value + new_value },
+          ::Hash => proc { |old_value, new_value| old_value.merge(new_value) }
+        }.freeze
+
         # Creates an attribute store from recursively owned snapshots. Mutable non-container leaves are stringified
         # once. Later caller mutation cannot change the store.
         # @param attributes [Hash] initial attributes
@@ -255,13 +261,6 @@ module Sevgi
 
         private
 
-        UPDATER = {
-          ::String => proc { |old_value, new_value| [old_value, new_value].reject(&:empty?).join(" ") },
-          ::Symbol => proc { |old_value, new_value| [old_value, new_value].reject(&:empty?).join(" ").to_sym },
-          ::Array => proc { |old_value, new_value| old_value + new_value },
-          ::Hash => proc { |old_value, new_value| old_value.merge(new_value) }
-        }.freeze
-
         def assign(store, key, id, value)
           store[id] = store.key?(id) && Attribute.updateable?(key) ? update(store[id], value) : value
         end
@@ -292,8 +291,6 @@ module Sevgi
 
           [old_value, new_value]
         end
-
-        private_constant :UPDATER
 
         def to_xml(id, value)
           name = XML.name(id, context: "XML attribute name")
@@ -358,18 +355,6 @@ module Sevgi
 
       alias key? has?
 
-      # Copies the facade with recursively independent values.
-      # @param original [Sevgi::Graphics::Attributes] facade to copy
-      # @return [void]
-      # @raise [Sevgi::ArgumentError] when stored values became invalid
-      # @api private
-      def initialize_copy(original)
-        super
-        @store = original.store.dup
-      end
-
-      private :initialize_copy
-
       # Returns rendering attribute names, excluding non-rendering metadata.
       # @return [Array<Symbol>] frozen name snapshot
       def keys = @store.list.freeze
@@ -394,6 +379,16 @@ module Sevgi
       def to_h = snapshot(@store.to_h)
 
       private
+
+      # Copies the facade with recursively independent values.
+      # @param original [Sevgi::Graphics::Attributes] facade to copy
+      # @return [void]
+      # @raise [Sevgi::ArgumentError] when stored values became invalid
+      # @api private
+      def initialize_copy(original)
+        super
+        @store = original.store.dup
+      end
 
       def snapshot(value) = Attribute.capture(value)
 
