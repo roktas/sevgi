@@ -19,7 +19,7 @@ module Sevgi
         document = YAML.safe_load_file(file, aliases: true)
         assert_kind_of(Hash, document, file)
 
-        File.read(file).scan(/^\s+uses:\s+([^\s]+)$/).flatten.each do |reference|
+        File.read(file).scan(/^\s+(?:-\s+)?uses:\s+([^\s#]+)/).flatten.each do |reference|
           assert_match(ACTION, reference, "unpinned action in #{file}: #{reference}")
         end
       end
@@ -33,8 +33,7 @@ module Sevgi
 
         jobs.each do |name, job|
           permissions = job["permissions"] || global
-          expected = name == "deploy" && file.end_with?("/site.yml") ? "write" : "read"
-          assert_equal(expected, permissions.fetch("contents"), "unexpected permission for #{name} in #{file}")
+          assert_equal("read", permissions.fetch("contents"), "unexpected permission for #{name} in #{file}")
         end
       end
     end
@@ -45,8 +44,10 @@ module Sevgi
 
       assert_includes(ship, "environment: release")
       assert_includes(ship, "id-token: write")
-      assert_includes(site, "environment: site")
-      WORKFLOWS.reject { |file| file.end_with?("/ship.yml") }.each do |file|
+      assert_includes(site, "name: github-pages")
+      deploy = YAML.safe_load(site).fetch("jobs").fetch("deploy")
+      assert_equal({"contents" => "read", "id-token" => "write", "pages" => "write"}, deploy.fetch("permissions"))
+      WORKFLOWS.reject { |file| file.end_with?("/ship.yml", "/site.yml") }.each do |file|
         refute_includes(File.read(file), "id-token: write", file)
       end
 
@@ -60,7 +61,7 @@ module Sevgi
         bin = File.join(dir, "bin")
         log = File.join(dir, "pushes")
         FileUtils.mkdir_p([package_dir, bin])
-        archives = %w[zeta-1.2.3.gem alpha-1.2.3.gem]
+        archives = %w[zeta-1.2.3.gem alpha-1.2.3.gem beta-1.2.3.gem]
 
         File.write(
           File.join(bin, "gem"),
@@ -69,6 +70,12 @@ module Sevgi
             set -Eeuo pipefail
             if [[ $1 == push ]]; then
               printf '%s\n' "$2" >> "$PUSH_LOG"
+            elif [[ ${FAIL_QUERY:-0} == 1 ]]; then
+              exit 1
+            elif [[ ${!#} == alpha ]]; then
+              printf '\n*** REMOTE GEMS ***\n\nalpha (1.3.0, 1.2.3, 1.2.2)\n'
+            elif [[ ${!#} == zeta ]]; then
+              printf 'zeta (1.2.30, 1.2.2)\n'
             fi
           BASH
         )
@@ -84,9 +91,13 @@ module Sevgi
         out, err, status = Open3.capture3(env, script, chdir: dir)
 
         assert(status.success?, "stdout:\n#{out}\nstderr:\n#{err}")
-        assert_equal(archives.map { "pkg/#{it}" }, File.readlines(log, chomp: true))
+        assert_equal(%w[pkg/zeta-1.2.3.gem pkg/beta-1.2.3.gem], File.readlines(log, chomp: true))
 
         FileUtils.rm(log)
+        _out, _err, status = Open3.capture3(env.merge("FAIL_QUERY" => "1"), script, chdir: dir)
+        refute(status.success?)
+        refute_path_exists(log)
+
         File.write(File.join(package_dir, "extra-1.2.3.gem"), "extra")
         _out, _err, status = Open3.capture3(env, script, chdir: dir)
 

@@ -26,10 +26,11 @@ module Sevgi
         # @param data [String] raw PDF content stream bytes
         # @param stamp [String] replacement text
         # @param placeholder [String] placeholder text to replace
+        # @param resources [HexaPDF::Type::Resources] PDF resources in scope
         # @return [Array(String, Integer)] rewritten stream bytes and replacement count
-        def replace(data, stamp:, placeholder:)
+        def replace(data, stamp:, placeholder:, resources:)
           binary = data.b
-          edits, count = Scanner.new(binary, stamp:, placeholder:).scan
+          edits, count = Scanner.new(binary, stamp:, placeholder:, resources:).scan
           stamped = binary.dup
 
           edits
@@ -95,7 +96,7 @@ module Sevgi
 
         def stamp_pages(doc, stamp:, placeholder:)
           doc.pages.sum do |page|
-            data, count = replace(page.contents, stamp:, placeholder:)
+            data, count = replace(page.contents, stamp:, placeholder:, resources: page.resources)
             next 0 if count.zero?
 
             page.contents = data
@@ -105,16 +106,16 @@ module Sevgi
         end
 
         def stamp_forms(document, stamp:, placeholder:)
-          pending = form_xobjects(document.pages)
-          seen = {}
-          replacements = 0
+          pending = document.pages.flat_map { |page| form_xobjects(page[:Resources]) }
+          seen, replacements = {}, 0
 
           until pending.empty?
-            form = pending.pop
+            form, inherited = pending.pop
             next unless form_xobject?(form, seen)
 
-            pending.concat(form_xobjects([form]))
-            replacements += rewrite_form(form, stamp:, placeholder:)
+            resources = form[:Resources] || inherited
+            pending.concat(form_xobjects(resources))
+            replacements += rewrite_form(form, stamp:, placeholder:, resources:)
           end
 
           replacements
@@ -127,12 +128,13 @@ module Sevgi
           seen[identity] ? false : seen[identity] = true
         end
 
-        def form_xobjects(owners)
-          owners.flat_map { |owner| (objs = owner[:Resources]&.[](:XObject)) ? objs.each.map { _2 } : [] }
+        def form_xobjects(resources)
+          objects = resources&.[](:XObject)
+          objects ? objects.each.map { [_2, resources] } : []
         end
 
-        def rewrite_form(form, stamp:, placeholder:)
-          data, count = replace(form.stream, stamp:, placeholder:)
+        def rewrite_form(form, stamp:, placeholder:, resources:)
+          data, count = replace(form.stream, stamp:, placeholder:, resources:)
           return 0 if count.zero?
 
           form.stream = data
@@ -144,10 +146,6 @@ module Sevgi
       require_relative "stamp/scanner"
 
       private_constant :Stamp
-
-      private
-
-      def stamp_stream(data, stamp:, placeholder:) = Stamp.replace(data, stamp:, placeholder:)
     end
   end
 end

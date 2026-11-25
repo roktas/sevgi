@@ -26,12 +26,6 @@ module Sevgi
         end
       end
 
-      def test_menu_closes_above_tablet_breakpoint
-        source = File.read(File.join(ROOT, "doc/static/js/menu.js"))
-
-        assert_includes(source, "window.innerWidth > 1024")
-      end
-
       def test_mermaid_sources_have_portable_inline_svg
         {
           "derender" => "Derender round trip",

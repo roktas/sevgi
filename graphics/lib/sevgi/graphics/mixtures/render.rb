@@ -98,7 +98,7 @@ module Sevgi
         # @api private
         class Renderer
           SVG_NAMESPACE = "http://www.w3.org/2000/svg"
-          ELEMENTS_WITH_INLINE_CONTENT = %i[title].freeze
+          ELEMENTS_WITH_INLINE_CONTENT = %i[title text textPath tspan].freeze
           ELEMENTS_WITH_BLOCK_CONTENT = %i[style].freeze
           SEPARATOR = "\n"
 
@@ -186,16 +186,28 @@ module Sevgi
           end
 
           def inline_content?(element, contents, ns)
-            return false if block_content?(element, ns)
+            name = svg_name(element, ns)
+            return false if ELEMENTS_WITH_BLOCK_CONTENT.include?(name)
 
-            contents.any? || ELEMENTS_WITH_INLINE_CONTENT.include?(element.name)
+            contents.any? || ELEMENTS_WITH_INLINE_CONTENT.include?(name)
           end
 
-          def block_content?(element, ns)
-            return false unless ELEMENTS_WITH_BLOCK_CONTENT.include?(element.name)
+          def svg_name(element, default_ns)
+            name = element.name
+            qualified = name.to_s
+            unless qualified.include?(":")
+              return name if svg_namespace?(default_ns)
 
-            ns.nil? || ns.to_s.empty? || ns == SVG_NAMESPACE
+              return
+            end
+
+            prefix, local = qualified.split(":", 2)
+            key = :"xmlns:#{prefix}"
+            namespace = element.TraverseUp() { |ancestor| ancestor.Stay(ancestor[key]) if ancestor.has?(key) }
+            local.to_sym if namespace == SVG_NAMESPACE
           end
+
+          def svg_namespace?(ns) = ns.nil? || ns.to_s.empty? || ns == SVG_NAMESPACE
 
           def element_namespace(element, inherited)
             element.attributes.has?(:xmlns) ? element.attributes[:xmlns] : inherited

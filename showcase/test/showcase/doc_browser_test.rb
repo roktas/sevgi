@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "json"
+require "uri"
 
 require_relative "../test_helper"
 require_relative "browser"
@@ -17,13 +18,13 @@ module Sevgi
         @browser = Browser.new(root: File.join(ROOT, "doc"))
         @browser.start
       rescue Browser::Unavailable => e
-        skip("browser prerequisites unavailable: #{e.message}")
+        browser_unavailable(e)
       end
 
       def teardown
         @browser&.stop
       rescue Browser::Unavailable => e
-        skip("browser prerequisites unavailable: #{e.message}")
+        browser_unavailable(e)
       rescue Browser::Error => e
         flunk(e.message)
       end
@@ -151,6 +152,34 @@ module Sevgi
         assert_equal(0, state.fetch("rawMarkdown"))
         assert(state.fetch("themeVisible"))
         assert_equal(0, state.fetch("trailing"))
+      end
+
+      def test_mobile_menu_keeps_focus_and_searches_documentation
+        cli("resize", *VIEWPORT.map(&:to_s))
+        cli("goto", "http://127.0.0.1:#{@browser.port}/start/")
+        cli("click", ".mobile-menu-toggle")
+        assert_equal("userinput", eval_json("() => document.activeElement.id"))
+        cli("press", "Shift+Tab")
+        cli("press", "Shift+Tab")
+        assert_equal(true, eval_json("() => !!document.activeElement.closest('#mobile-menu')"))
+        cli("press", "Tab")
+        assert_equal("mobile-menu-toggle", eval_json("() => document.activeElement.className"))
+        cli("press", "Tab")
+        cli("type", "IncludeChildren")
+        cli("press", "ArrowDown")
+        href = eval_json("() => document.activeElement.href")
+        assert_includes(["/derender/", "/compose/", "/dsl/"], URI(href).path)
+        cli("press", "Escape")
+        assert_equal("mobile-menu-toggle", eval_json("() => document.activeElement.className"))
+        assert_equal(false, eval_json("() => document.querySelector('main').inert"))
+
+        cli("click", ".mobile-menu-toggle")
+        cli("resize", "1280", "800")
+        assert_equal(
+          "false",
+          eval_json("() => document.querySelector('.mobile-menu-toggle').getAttribute('aria-expanded')")
+        )
+        assert_equal(true, eval_json("() => !!document.querySelector('header #userinput')"))
       end
 
       def test_example_index_toggles_and_links_to_every_card
@@ -336,9 +365,14 @@ module Sevgi
       def cli(*args)
         @browser.command(*args)
       rescue Browser::Unavailable => e
-        skip("browser prerequisites unavailable: #{e.message}")
+        browser_unavailable(e)
       rescue Browser::Error => e
         flunk(e.message)
+      end
+
+      def browser_unavailable(error)
+        message = "browser prerequisites unavailable: #{error.message}"
+        ENV.fetch("CI", nil) == "true" ? flunk(message) : skip(message)
       end
 
       def eval_json(source)

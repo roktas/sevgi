@@ -127,7 +127,7 @@
   <body>
     <div class="ios-chrome-scrim" aria-hidden="true"></div>
     <header>
-      <button class="mobile-menu-toggle" aria-label="Open menu" aria-expanded="false">
+      <button class="mobile-menu-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
         <svg
           class="menu-icon"
           aria-hidden="true"
@@ -261,7 +261,7 @@
     </header>
 
     <div class="mobile-menu-overlay" aria-hidden="true"></div>
-    <nav class="mobile-menu" aria-hidden="true">
+    <nav id="mobile-menu" class="mobile-menu" aria-label="Documentation" aria-hidden="true">
       <div class="mobile-menu-content">
         {% if config.extra.extra_menu | length > 0 %}
         <div class="mobile-menu-section">

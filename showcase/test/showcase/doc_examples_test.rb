@@ -30,6 +30,16 @@ describe "documentation examples" do
     )
   end
 
+  def prepare_certificate(directory)
+    require "hexapdf"
+
+    document = HexaPDF::Document.new
+    page = document.pages.add
+    page[:Resources] = {Font: {F1: document.fonts.add("Helvetica").pdf_object}}
+    page.contents = "1 1 1 rg BT /F1 12 Tf (RECIPIENT) Tj ET"
+    document.write(File.join(directory, "certificate.pdf"))
+  end
+
   def execute(file, code)
     if code.include?("sevgi/binaries/rake")
       require "rake"
@@ -85,7 +95,12 @@ describe "documentation examples" do
     it "runs #{File.basename(file)} example #{index}" do
       Dir.mktmpdir("sevgi-doc-") do |directory|
         prepare(directory)
-        Dir.chdir(directory) { capture_io { execute(file, code) } }
+        certificate = code.include?("Export.stamp(")
+        prepare_certificate(directory) if certificate
+        Dir.chdir(directory) do
+          capture_io { execute(file, code) }
+          assert_equal("%PDF-", File.binread("certificate-jane-doe.pdf", 5)) if certificate
+        end
       end
     end
   end

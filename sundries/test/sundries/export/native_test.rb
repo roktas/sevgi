@@ -204,6 +204,23 @@ module Sevgi
           end
         end
 
+        def test_call_derives_the_missing_dimension_from_the_viewbox
+          Dir.mktmpdir do |dir|
+            [%w[width 200], %w[height 75]].zip([[200, 100], [150, 75]]).each do |(dimension, value), size|
+              drawing = "<svg xmlns=\"http://www.w3.org/2000/svg\" #{dimension}=\"#{value}\" viewBox=\"0 0 20 10\">
+                <rect width=\"20\" height=\"10\"/>
+              </svg>"
+              png = File.join(dir, "out.png")
+              pdf = File.join(dir, "out.pdf")
+              Export.call(drawing, png)
+              Export.call(drawing, pdf)
+              assert_equal(size, File.binread(png, 8, 16).unpack("N2"))
+              box = HexaPDF::Document.open(pdf).pages.first.box(:media)
+              assert_equal(size.map { it * 0.75 }, [box.width, box.height])
+            end
+          end
+        end
+
         def test_call_exports_png_with_viewbox_dimensions
           Dir.mktmpdir do |dir|
             output = File.join(dir, "out.png")
@@ -458,18 +475,15 @@ module Sevgi
             Dir.mktmpdir do |dir|
               infile = File.join(dir, "in.pdf")
               outfile = File.join(dir, "out.pdf")
-              rewritten, count = Export.send(:stamp_stream, stream, stamp: "new", placeholder: "old")
+              write_pdf(infile, stream)
+              assert(Export.stamp(infile, outfile, stamp: "new", placeholder: "old"))
+              rewritten = pdf_streams(outfile).fetch(0)
+              count = stream.scan("(old)").size
 
-              assert_equal(stream.scan("(old)").size, count)
               assert_equal(count, rewritten.scan("0.101961 0.101961 0.101961 rg").size)
               assert_equal(count + 1, rewritten.scan("1 1 1 rg").size)
               refute_includes(rewritten, "(old)")
               assert_valid_content_stream(rewritten)
-
-              write_pdf(infile, stream)
-              assert(Export.stamp(infile, outfile, stamp: "new", placeholder: "old"))
-
-              assert_equal([rewritten], pdf_streams(outfile))
             end
           end
         end
@@ -704,17 +718,32 @@ module Sevgi
           end
         end
 
-        def test_stamp_handles_utf8_text_and_preceding_multibyte_streams
+        def test_stamp_encodes_text_for_the_selected_font
           Dir.mktmpdir do |dir|
             infile = File.join(dir, "in.pdf")
             outfile = File.join(dir, "out.pdf")
-            write_pdf(infile, "1 1 1 rg BT /F1 12 Tf (İğne) Tj (old) Tj ET".b)
+            write_pdf(infile, "1 1 1 rg BT /F1 12 Tf (\\351) Tj (old) Tj [(ol) -10 (d)] TJ ET")
+            document = HexaPDF::Document.open(infile)
+            document.pages.first.resources[:Font][:F1][:Encoding] = :WinAnsiEncoding
+            document.write(infile)
 
-            assert(Export.stamp(infile, outfile, stamp: "Oktaş", placeholder: "old"))
+            assert(Export.stamp(infile, outfile, stamp: "José", placeholder: "old"))
 
-            stream = pdf_streams(outfile).fetch(0)
-            assert_valid_content_stream(stream)
-            assert_includes(stream.b, "(Oktaş) Tj".b)
+            page = HexaPDF::Document.open(outfile).pages.first
+            font = page.resources[:Font][:F1]
+            strings = []
+            HexaPDF::Content::Parser.parse(page.contents) do |operator, operands|
+              strings.concat(Array(operands.last).grep(String)) if %i[Tj TJ].include?(operator)
+            end
+
+            assert_equal(
+              %w[é José José],
+              strings.map { |text| font.decode(text).map { font.to_utf8(it) }.join }
+            )
+
+            before = File.binread(outfile)
+            assert_raises(ExportError) { Export.stamp(infile, outfile, stamp: "Oktaş", placeholder: "old") }
+            assert_equal(before, File.binread(outfile))
           end
         end
 

@@ -253,6 +253,18 @@ module Sevgi
           assert_equal(Signal.list.fetch("TERM"), signaled.signal)
         end
 
+        def test_sh_bang_searches_the_child_path
+          parent_path = ENV.fetch("PATH", nil)
+          with_executable("sevgi-path-test") do |path|
+            with_exact_path(parent_path) do
+              environment = {"PATH" => ::File.dirname(path)}
+              refute(Function.executable?(::File.basename(path)))
+              assert_predicate(Function.sh!(environment, ::File.basename(path)), :ok?)
+              assert_raises(Sevgi::Error) { Function.sh!(environment, "missing-sevgi-path-test") }
+            end
+          end
+        end
+
         def test_result_owns_inputs_and_escapes_display
           command = +"two words"
           output = +"out"

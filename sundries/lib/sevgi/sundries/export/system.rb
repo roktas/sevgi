@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "tempfile"
+
 module Sevgi
   module Sundries
     module Export
@@ -147,10 +149,10 @@ module Sevgi
       def with_staged_svg(infile, css)
         return yield(infile) unless css
 
-        Staging.workspace(infile, prefix: ".sevgi-css-") do |directory|
-          staged = ::File.join(directory, "input.svg")
-          ::File.write(staged, styled(::File.read(infile), css))
-          yield(staged)
+        ::Tempfile.create([".sevgi-css-", ".svg"], ::File.dirname(infile)) do |staged|
+          staged.write(styled(::File.read(infile), css))
+          staged.close
+          yield(staged.path)
         end
       end
 

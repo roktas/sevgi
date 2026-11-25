@@ -867,7 +867,7 @@ letters:
       code: 'RDFWork title: "Badge", creator: "Sevgi"'
     - name: Render
       anchor: render
-      summary: Serialize a checked document, element, or subtree as SVG/XML.
+      summary: Serialize a document, element, or subtree as SVG/XML without running the document checks.
       provider: render
       context: script
       themes: [output, quality]

@@ -62,6 +62,28 @@ module Sevgi
 
           assert_match(/foo="bar"/, actual)
         end
+
+        def test_validate_applies_svg_rules_by_namespace_inside_foreign_object
+          drawing = SVG do
+            foreignObject(width: 100, height: 30) do
+              Element(:div, xmlns: "http://www.w3.org/1999/xhtml") do
+                g("xmlns:vector": "http://www.w3.org/2000/svg") do
+                  Element(:"vector:rect", width: 1)
+                end
+              end
+            end
+          end
+
+          assert_includes(drawing.call, "<vector:rect")
+
+          drawing.foreignObject do
+            Element(:div, xmlns: "http://www.w3.org/1999/xhtml") do
+              g(xmlns: "http://www.w3.org/2000/svg") { rect(unknown: true) }
+            end
+          end
+
+          assert_raises(InvalidAttributesError) { drawing.call }
+        end
       end
     end
   end

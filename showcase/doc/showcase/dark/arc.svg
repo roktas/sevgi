@@ -20,12 +20,8 @@
     stroke="#e5c39c"
     stroke-width="1"
   />
-  <text dy="7" fill="white" font-family="monospace" font-size="5">
-    <textPath href="#arc-route" startOffset="50%" text-anchor="middle">198.7</textPath>
-  </text>
-  <text dy="-4" fill="silver" font-family="monospace" font-size="5">
-    <textPath href="#arc-remainder" startOffset="50%" text-anchor="middle">153.3</textPath>
-  </text>
+  <text dy="7" fill="white" font-family="monospace" font-size="5"><textPath href="#arc-route" startOffset="50%" text-anchor="middle">198.7</textPath></text>
+  <text dy="-4" fill="silver" font-family="monospace" font-size="5"><textPath href="#arc-remainder" startOffset="50%" text-anchor="middle">153.3</textPath></text>
   <circle cx="7.385192159765225" cy="68.11733315717646" r="1.5" fill="#e5c39c"/>
   <circle cx="138.73252216369696" cy="53.62844576284043" r="1.5" fill="#e5c39c"/>
   <circle cx="75.0" cy="50.0" r="1" fill="white"/>

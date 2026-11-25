@@ -114,6 +114,20 @@ module Sevgi
         end
       end
 
+      def test_executable_preserves_text_and_attribute_whitespace
+        source = <<~SVG
+          <svg xmlns="http://www.w3.org/2000/svg">
+            <text xml:space="preserve" data-note="A&#9;B&#10;C&#13;D"><tspan>A</tspan><tspan>B</tspan></text>
+          </svg>
+        SVG
+
+        out, err, status = run_igsev("-", stdin_data: source)
+        assert(status.success?, err)
+        text = Nokogiri::XML(out, &:strict).at_css("text")
+        assert_equal("AB", text.content)
+        assert_equal("A\tB\nC\rD", text["data-note"])
+      end
+
       def test_executable_rejects_invalid_argv_grammar
         [
           [["--unknown"], /Not a valid option: --unknown/],

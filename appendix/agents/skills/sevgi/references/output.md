@@ -26,6 +26,7 @@ drawing = SVG canvas do
 end
 
 drawing.PDF "badge.pdf"
+drawing.PNG "badge.png", width: 160
 ```
 
 For an application that owns the rendered SVG and output policy separately:
@@ -91,6 +92,8 @@ Pass this Hash as `declaration:` to `Sevgi::Sundries::Export.call` when the appl
 For explicit required production, use `Sevgi::Sundries::Imprint.call(svg, output, declaration: drawing.Imprint)`.
 
 PDF export with a declaration or preview invokes the native `mainz` executable on `PATH`.
+Run `mainz --help` and look for `imprint`. For the first required export, use `fallback: false` and run
+`mainz describe prepared.pdf` to read the declared page name.
 Without document RDF, this path needs no ordinary export gems.
 By default, missing Mainz or failed preparation warns and falls back to ordinary PDF export.
 Use `fallback: false` when the prepared contract is required; preparation failures then raise

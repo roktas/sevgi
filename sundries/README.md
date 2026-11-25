@@ -59,6 +59,9 @@ CSS insertion and the source callback run once, including after a fallback.
 
 Mainz is optional. Prepared export requires the native [Mainz 1.0.0](https://github.com/roktas/mainz/releases/tag/v1.0.0)
 CLI on `PATH`. Sevgi uses `mainz imprint` and passes `--preview` when you supply a PNG.
+Run `mainz --help` and make sure that it lists the `imprint` command. Export a test PDF with `fallback: false`
+and use `mainz describe prepared.pdf` to read the page name. `Imprint.available?` reports whether the executable
+is on `PATH`.
 
 Prepared export without document RDF invokes the CLI without the `cairo`, `rsvg2`, and `hexapdf` Ruby gems.
 Ordinary PDF/PNG export and PDF stamping retain their optional Ruby dependencies.

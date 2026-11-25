@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "etc"
 require "open3"
 require "shellwords"
 
@@ -12,20 +13,7 @@ module Sevgi
       # @param program [Object] program name, absolute path, or relative slash-containing path
       # @return [String, nil] absolute executable path, preserving a selected symlink
       # @note PATH is evaluated on every call. Empty PATH segments mean the current directory.
-      def executable(program)
-        program = program.to_s
-        return if program.empty?
-        if slash_path?(program)
-          return executable_file?(program) ? ::File.expand_path(program) : nil
-        end
-
-        ENV.fetch("PATH", "").split(::File::PATH_SEPARATOR, -1).each do |dir|
-          path = ::File.expand_path(program, dir.empty? ? "." : dir)
-          return path if executable_file?(path)
-        end
-
-        nil
-      end
+      def executable(program) = find_executable(program, ENV.fetch("PATH", ""))
 
       # Checks whether a program exists and is executable.
       # @param program [Object] program name, absolute path, or relative slash-containing path
@@ -41,7 +29,7 @@ module Sevgi
       def executable!(*args)
         env, program, rest = Command.parse(args)
         ArgumentError.("Shell command required") if env && rest.empty?
-        Error.("Missing executable: #{program}") if rest.empty? || !executable?(program)
+        Error.("Missing executable: #{program}") if rest.empty? || !find_executable(program, command_path(env))
       end
 
       # Immutable result returned by shell commands.
@@ -420,6 +408,29 @@ module Sevgi
       end
 
       private
+
+      def command_path(environment)
+        path = (environment || {}).fetch("PATH") { ENV.fetch("PATH", nil) }
+        return path if path
+
+        Etc.const_defined?(:CS_PATH) ? Etc.confstr(Etc::CS_PATH).to_s : ""
+      end
+
+      def find_executable(program, search_path)
+        program = program.to_s
+        return if program.empty?
+        if slash_path?(program)
+          return executable_file?(program) ? ::File.expand_path(program) : nil
+        end
+
+        directories = search_path.empty? ? ["."] : search_path.split(::File::PATH_SEPARATOR, -1)
+        directories.each do |dir|
+          path = ::File.expand_path(program, dir)
+          return path if executable_file?(path)
+        end
+
+        nil
+      end
 
       def executable_file?(path)
         ::File.file?(path) && ::File.executable?(path)

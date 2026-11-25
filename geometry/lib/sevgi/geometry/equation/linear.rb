@@ -9,6 +9,10 @@ module Sevgi
       # canonical direction only to select a normal: increasing x for non-vertical equations and increasing y for
       # vertical equations. Positive distance moves to screen-left of that canonical direction.
       class Linear < Equation
+        protected
+
+        def reference_x = @origin&.x
+
         private
 
         def shift_values(distance, dx, dy)
@@ -41,7 +45,7 @@ module Sevgi
           def self.on?(equation, point)
             point = Tuple[Point, point]
 
-            F.eq?(point.y, y(equation, point.x))
+            F.eq?(point.y, equation.y(point.x))
           end
 
           # Evaluates a nonvertical equation at an x coordinate.
@@ -69,13 +73,15 @@ module Sevgi
           # Creates a diagonal linear equation.
           # @param slope [Numeric] line slope
           # @param intercept [Numeric] y-intercept
+          # @param origin [Sevgi::Geometry::Point, nil] local evaluation origin for endpoint-derived equations
           # @return [void]
           # @raise [Sevgi::Geometry::Error] when a coefficient is not finite Numeric or slope is zero
-          def initialize(slope:, intercept:)
+          def initialize(slope:, intercept:, origin: nil)
             super()
 
             @slope = Real[:slope, slope]
             @intercept = Real[:intercept, intercept]
+            @origin = Tuple[Point, origin] if origin
             Error.("A diagonal equation requires a non-zero slope") if @slope.zero?
           end
 
@@ -114,7 +120,7 @@ module Sevgi
             dx += distance * F.sin(angle)
             dy -= distance * F.cos(angle)
 
-            Diagonal.new(slope:, intercept: intercept - (slope * dx) + dy)
+            translated(dx, dy)
           end
 
           # Formats the equation for display.
@@ -132,15 +138,29 @@ module Sevgi
           # @param y [Numeric] y coordinate
           # @return [Float]
           # @raise [Sevgi::Geometry::Error] when y is not a finite real number
-          def x(y) = (Real[:y, y] - intercept) / slope
+          def x(y)
+            y = Real[:y, y]
+            @origin ? @origin.x + ((y - @origin.y) / slope) : (y - intercept) / slope
+          end
 
           # Evaluates y for an x coordinate.
           # @param x [Numeric] x coordinate
           # @return [Float]
           # @raise [Sevgi::Geometry::Error] when x is not a finite real number
-          def y(x) = Nonvertical.y(self, x)
+          def y(x)
+            return Nonvertical.y(self, x) unless @origin
+
+            @origin.y + (slope * (Real[:x, x] - @origin.x))
+          end
 
           alias == eql?
+
+          private
+
+          def translated(dx, dy)
+            origin = Point[@origin.x + dx, @origin.y + dy] if @origin
+            Diagonal.new(slope:, intercept: intercept - (slope * dx) + dy, origin:)
+          end
         end
 
         # Horizontal linear equation in `y = c` form.

@@ -65,8 +65,6 @@ module Sevgi
           def target_description(rdf, descriptions, rdf_ns)
             description = descriptions.first || element(rdf, "Description", rdf_ns)
             description["#{rdf_prefix_for(description, rdf_ns)}:about"] = ""
-            namespace_for(description, "dc", DC)
-            namespace_for(description, "cc", CC)
             description
           end
 
@@ -91,8 +89,18 @@ module Sevgi
           end
 
           def namespace_for(node, default_prefix, uri)
-            node.namespace_scopes.find { it.href == uri && it.prefix } ||
-              node.add_namespace_definition(default_prefix, uri)
+            scopes = node.namespace_scopes
+            existing = scopes.find { it.href == uri && it.prefix }
+            return existing if existing
+
+            node.add_namespace_definition(unused_prefix(default_prefix, scopes.map(&:prefix)), uri)
+          end
+
+          def unused_prefix(preferred, occupied)
+            return preferred unless occupied.include?(preferred)
+
+            suffix = (1..).find { !occupied.include?("#{preferred}#{it}") }
+            "#{preferred}#{suffix}"
           end
 
           def append(parent, key, value, rdf_ns)

@@ -81,12 +81,21 @@ module Sevgi
 
         def explicit_or_viewbox_size(handle)
           has_width, width, has_height, height, has_viewbox, viewbox = handle.intrinsic_dimensions
-          if has_width && has_height
-            px_width, px_height = to_px(width), to_px(height)
-            return [px_width, px_height] if px_width.positive? && px_height.positive?
-          end
+          px_width = to_px(width) if has_width
+          px_height = to_px(height) if has_height
+          return [px_width, px_height] if px_width && px_height
 
-          pixel_intrinsic_size(handle) || viewbox_size(has_viewbox, viewbox)
+          pixel_intrinsic_size(handle) || size_from_viewbox(viewbox_size(has_viewbox, viewbox), px_width, px_height)
+        end
+
+        def size_from_viewbox(size, px_width, px_height)
+          return unless size
+
+          box_width, box_height = size
+          return [px_width, px_width * box_height / box_width] if px_width
+          return [px_height * box_width / box_height, px_height] if px_height
+
+          [box_width, box_height]
         end
 
         def pixel_intrinsic_size(handle)
@@ -104,7 +113,8 @@ module Sevgi
 
         def to_px(dimension)
           scale = UNIT_SCALES[dimension.unit]
-          scale ? dimension.length.to_f * scale : 0.0
+          value = dimension.length.to_f * scale if scale
+          value if value&.positive?
         end
 
         def target_size(iw, ih, width, height)

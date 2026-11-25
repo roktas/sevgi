@@ -184,6 +184,14 @@ module Sevgi
         assert_equal(3, object.calls)
       end
 
+      def test_encoded_content_uses_payload_types_for_hash_keys
+        integer = Content.encoded(1)
+        decimal = Content.encoded(1.0)
+        assert_equal(:integer, {integer => :integer}[Content.encoded(1)])
+        refute(integer.eql?(decimal))
+        assert_equal(2, [integer, decimal].uniq.size)
+      end
+
       def test_css_owns_stringified_rules
         selector = MutableText.new(".shape")
         property = MutableText.new("fill")
@@ -295,6 +303,7 @@ module Sevgi
         [Float::NAN, Float::INFINITY, -Float::INFINITY, Complex(1, 0), [1, 2], {nested: 1}, nil, true].each do |value|
           assert_raises(Sevgi::ArgumentError, value.inspect) { Content.css(".a" => {opacity: value}) }
         end
+
         [Float::NAN, Float::INFINITY, Complex(1, 0)].each do |value|
           assert_raises(Sevgi::ArgumentError, value.inspect) { Content.css(opacity: value) }
         end

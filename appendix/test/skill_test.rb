@@ -63,6 +63,10 @@ class SkillTest < Minitest::Test
         Dir.chdir(dir) do
           run_library(example("output", index))
           assert_equal("%PDF-", File.binread("badge.pdf", 5))
+          if index.zero?
+            assert_equal("\x89PNG\r\n\x1a\n".b, File.binread("badge.png", 8))
+            assert_equal([160, 160], File.binread("badge.png", 8, 16).unpack("N2"))
+          end
         end
       end
     end
@@ -87,6 +91,12 @@ class SkillTest < Minitest::Test
         assert_equal("translate(2 3)", xml.at_css("g#logo")["transform"])
         assert_equal("mark", xml.at_css("defs path")["id"])
         assert_equal("#mark", xml.at_css("use")["href"])
+
+        run_library(example("derender", 3))
+        root = Nokogiri::XML(File.read("artwork.svg"), &:strict).root
+        assert_equal(["g"], root.element_children.map(&:name))
+        assert_equal("mark", root.at_css("defs path")["id"])
+        assert_equal("#mark", root.at_css("use")["href"])
       end
     end
   end

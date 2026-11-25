@@ -1243,6 +1243,23 @@ figcaption {
 .mobile-menu-content {
   padding: 1rem 0.75rem 2rem;
 }
+.mobile-menu .search-container {
+  margin-inline-end: 0;
+  margin-block-end: 1rem;
+}
+.mobile-menu .search-container #userinput {
+  box-sizing: border-box;
+  inline-size: 100%;
+}
+.mobile-menu #suggestions {
+  position: static;
+  inline-size: auto;
+  margin-block-start: 0.5rem;
+}
+.mobile-menu .search-result:focus-visible {
+  outline: 2px solid var(--wt-color-accent);
+  outline-offset: -2px;
+}
 .mobile-menu-section {
   display: flex;
   flex-direction: column;

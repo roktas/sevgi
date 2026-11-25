@@ -99,7 +99,8 @@ module Sevgi
       def nonvertical_vs_nonvertical(left, right)
         return nil if left.slope == right.slope
 
-        x = (right.intercept - left.intercept) / (left.slope - right.slope)
+        reference = left.reference_x || right.reference_x || 0.0
+        x = reference + ((right.y(reference) - left.y(reference)) / (left.slope - right.slope))
 
         Point[x, left.y(x)]
       end
@@ -148,13 +149,15 @@ module Sevgi
       private
 
       def compute
-        x, y = starting.deconstruct
-        dx, dy = ending.x - x, ending.y - y
+        origin = starting
+        x, y = origin.deconstruct
+        last_x, last_y = ending.deconstruct
+        dx, dy = last_x - x, last_y - y
         return Equation.horizontal(y) if dy.zero?
         return Equation.vertical(x) if dx.zero?
 
         slope = dy / dx
-        Equation.diagonal(slope:, intercept: y - (slope * x))
+        Equation::Linear::Diagonal.new(slope:, intercept: y - (slope * x), origin:)
       end
     end
 

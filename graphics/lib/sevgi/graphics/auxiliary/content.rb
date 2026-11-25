@@ -93,7 +93,7 @@ module Sevgi
       # Reports strict content equality by concrete class and captured payload.
       # @param other [Object] comparison target
       # @return [Boolean]
-      def eql?(other) = self.class == other.class && payload == other.send(:payload)
+      def eql?(other) = self.class == other.class && payload.eql?(other.send(:payload))
 
       # Returns a hash compatible with strict equality.
       # @return [Integer]

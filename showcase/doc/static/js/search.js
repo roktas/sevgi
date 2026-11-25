@@ -6,6 +6,7 @@ var userinput = document.getElementById("userinput");
 document.addEventListener("keydown", function (e) {
   if (
     e.key === "/" &&
+    userinput.getClientRects().length > 0 &&
     document.activeElement.tagName !== "INPUT" &&
     document.activeElement.tagName !== "TEXTAREA"
   ) {
@@ -27,6 +28,7 @@ document.addEventListener("click", function (event) {
 document.addEventListener("keydown", function (e) {
   const focusable = suggestions.querySelectorAll("a");
   if (suggestions.style.display === "none" || focusable.length === 0) return;
+  if (document.activeElement !== userinput && !suggestions.contains(document.activeElement)) return;
 
   const index = Array.from(focusable).indexOf(document.activeElement);
 

@@ -194,6 +194,19 @@ module Sevgi
         frozen = Line.([1, 2], [4, 6]).freeze
         assert_equal(Equation.diagonal(slope: 4.0 / 3.0, intercept: 2.0 - (4.0 / 3.0)), frozen.equation)
       end
+
+      def test_translated_steep_line_keeps_its_endpoints
+        [0, 1_000_000].each do |offset|
+          start = Point[offset, 0.2]
+          finish = Point[offset + 0.001, 10.2]
+          line = Line.(start, finish)
+
+          assert(line.over?(start))
+          assert(line.over?(finish))
+          assert_equal([start], line.intersection(Equation.vertical(offset)))
+          assert_equal([start], line.intersection(Equation.horizontal(0.2)))
+        end
+      end
     end
   end
 end

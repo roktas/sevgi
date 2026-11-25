@@ -5,11 +5,13 @@ on:
     branches: ["main"]
     paths:
       - "showcase/doc/**"
+      - "showcase/test/**"
       - ".github/workflows/site.yml"
   pull_request:
     branches: ["main"]
     paths:
       - "showcase/doc/**"
+      - "showcase/test/**"
       - ".github/workflows/site.yml"
   workflow_dispatch:
 
@@ -18,37 +20,80 @@ permissions:
 
 jobs:
   build:
-    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     concurrency:
       group: "site-build-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref_name }}"
       cancel-in-progress: true
+    env:
+      ZOLA_VERSION: "0.23.6"
+      ZOLA_SHA256: "8f5132b3522412d04e395e0b25f6d68613ad272a873e54a2b3ebf664873024a4"
     steps:
-      - name: Checkout 🛎️
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Build 🥁
-        uses: shalzz/zola-deploy-action@1be083648a1db2853ce4970e381740c0e2fd06de
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install Zola
+        run: |
+          set -Eeuo pipefail
+          archive="zola-v$ZOLA_VERSION-x86_64-unknown-linux-gnu.tar.gz"
+          curl --fail --silent --show-error --location --output "$RUNNER_TEMP/$archive" \
+            "https://github.com/getzola/zola/releases/download/v$ZOLA_VERSION/$archive"
+          printf '%s  %s\n' "$ZOLA_SHA256" "$RUNNER_TEMP/$archive" | sha256sum --check
+          tar -xzf "$RUNNER_TEMP/$archive" -C "$RUNNER_TEMP" zola
+          printf '%s\n' "$RUNNER_TEMP" >> "$GITHUB_PATH"
+      - name: Build site
+        working-directory: showcase/doc
+        run: zola build
+      - name: Install native Ruby dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libcairo2-dev libgdk-pixbuf-2.0-dev libgirepository1.0-dev libglib2.0-dev librsvg2-dev pkg-config
+      - uses: ruby/setup-ruby@78c62f2208e480ce3d5ae4dfd9b9e181acf48b63 # v1.344.0
+        with:
+          ruby-version: "4.0.10"
+          bundler-cache: true
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+      - name: Install browser
+        run: |
+          npm install -g @playwright/cli@0.1.25
+          playwright-cli install-browser chrome-for-testing
+      - name: Test site in Chromium
         env:
-          BUILD_DIR: showcase/doc
-          BUILD_ONLY: true
+          BROWSER: "1"
+          CI: "true"
+        run: bundle exec ruby -Ishowcase/lib:showcase/test showcase/test/showcase/doc_browser_test.rb
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        with:
+          path: showcase/doc/public
 
   deploy:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: build
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-    environment: site
+      contents: read
+      pages: write
+      id-token: write
     concurrency:
-      group: "site-deploy-main"
+      group: site-deploy-main
       cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Checkout 🛎️
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Deploy 🥁
-        uses: shalzz/zola-deploy-action@1be083648a1db2853ce4970e381740c0e2fd06de
+      - uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
+        id: deployment
+      - name: Check published documentation
         env:
-          BUILD_DIR: showcase/doc
-          PAGES_BRANCH: site
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SITE_URL: https://sevgi.roktas.dev
+        run: |
+          set -Eeuo pipefail
+          base_url="${SITE_URL%/}"
+          check_page() {
+            curl --fail --silent --show-error --location --retry 5 --retry-all-errors --max-time 20 \
+              "$base_url$1" --output "$RUNNER_TEMP/sevgi-page.html"
+            grep -Fq "<title>$2</title>" "$RUNNER_TEMP/sevgi-page.html"
+          }
+          check_page / "Sevgi"
+          check_page /start/ "Introduction | Sevgi"
+          check_page /dsl/ "DSL Catalog | Sevgi"

@@ -10,7 +10,7 @@ module Sevgi
         #   @param kwargs [Hash] render options
         #   @return [Object] F.out return value
         #   @api private
-        def Save(*, **) = Out(**)
+        def Save(_path = nil, **kwargs) = Out(**kwargs.except(:default, :backup_suffix))
 
         # @overload Save!(*args, **kwargs)
         #   Redirects forced showcase saves to stdout during passive integration tests.

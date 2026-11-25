@@ -48,6 +48,15 @@ source = SVG.DerenderFile "brand.svg", id: "logo"
 puts source
 ```
 
+For the children of a group with an ID, call `IncludeChildren "brand.svg", "logo"` inside a drawing block.
+For an SVG root with no ID, pass the current target to `SVG.EvaluateChildrenFile` and omit `id:`.
+
+```ruby
+SVG do
+  SVG.EvaluateChildrenFile "brand.svg", self
+end.Save "artwork.svg"
+```
+
 At the command line, `igves` prints generated Sevgi source. Use `igsev` from the umbrella gem only when the intended
 result is normalized SVG produced by a complete SVG-to-Sevgi-to-SVG round trip. Both commands accept repeatable
 `--omit ATTRIBUTE` and read standard input when the file is omitted or `-`. `igsev` is a structural formatter, not a

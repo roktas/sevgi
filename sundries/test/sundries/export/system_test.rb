@@ -131,6 +131,8 @@ module Sevgi
             end
 
             refute_equal(infile, args.last)
+            assert_equal(dir, File.dirname(args.last))
+            refute_path_exists(args.last)
             assert_includes(seen, "<style>rect { fill: red; }</style>")
           end
         end

@@ -294,7 +294,8 @@ module Sevgi
 
         def to_xml(id, value)
           name = XML.name(id, context: "XML attribute name")
-          "#{name}=#{Attribute.xml_text(value).encode(xml: :attr)}"
+          text = Attribute.xml_text(value).encode(xml: :attr).gsub(/[\t\n\r]/) { "&##{it.ord};" }
+          "#{name}=#{text}"
         end
       end
     end

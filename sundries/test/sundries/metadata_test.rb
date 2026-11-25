@@ -187,8 +187,11 @@ module Sevgi
           {Type: :Metadata, Subtype: :XML},
           stream: <<~XML
             <x:xmpmeta xmlns:x="adobe:ns:meta/">
-              <r:RDF xmlns:r="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-                <r:Description r:about=""/>
+              <r:RDF xmlns:r="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:cc="urn:vendor">
+                <r:Description r:about="" xmlns:dc="urn:vendor">
+                  <dc:title>Vendor title</dc:title>
+                  <cc:license>Vendor license</cc:license>
+                </r:Description>
               </r:RDF>
             </x:xmpmeta>
           XML
@@ -204,6 +207,8 @@ module Sevgi
           "https://example.test/r-license",
           reloaded.at_xpath("//r:Description[@r:about='']/cc:license/@r:resource", ns).value
         )
+        assert_equal("Vendor title", reloaded.at_xpath("//vendor:title", {"vendor" => "urn:vendor"}).text)
+        assert_equal("Vendor license", reloaded.at_xpath("//vendor:license", {"vendor" => "urn:vendor"}).text)
       end
     end
   end

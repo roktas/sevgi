@@ -162,6 +162,10 @@ SVG do
 end
 ```
 
+Use `IncludeChildren "badge.svg", "mark"` inside the drawing block to import the children of the group with ID
+`mark`. To import the root's children from a file with no root ID, call
+`SVG.EvaluateChildrenFile "badge.svg", self` in that block.
+
 Selection preserves namespace scope. It does not copy ancestor transforms, inherited styles, or definitions outside
 the selected subtree. Select a self-contained ancestor or include the required context explicitly.
 

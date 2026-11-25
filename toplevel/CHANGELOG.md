@@ -5,6 +5,17 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## Unreleased
 
+### Fixed
+
+- Preserve SVG text spacing and XML attribute whitespace during rendering. Validate SVG elements inside foreign
+  content by XML namespace, and keep strict `Content` equality consistent with its hash.
+- Preserve one-axis SVG dimensions in PNG and PDF exports and keep relative resources available when adding CSS to
+  external exports. Encode PDF stamps with the selected font and preserve unrelated XML namespaces in PDF metadata.
+- Preserve endpoint precision for translated steep lines, search the child process path in `F.sh!`, and accept
+  file-only `Save` options in Showcase's passive mode.
+- Match exact published RubyGems versions. Restore the DSL topic links, make documentation search available on mobile,
+  and keep keyboard focus within the open mobile menu.
+
 ## 2.1.0 - 2026-11-24
 
 ### Added

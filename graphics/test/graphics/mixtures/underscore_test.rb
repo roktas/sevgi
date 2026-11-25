@@ -11,20 +11,16 @@ module Sevgi
         def test_underscore_appends_text_content
           expected = <<~SVG
             <svg>
-              <text>
-                You are
-                <tspan>not</tspan>
-                a banana
-              </text>
+              <text>You are <tspan>not</tspan> a banana</text>
             </svg>
           SVG
             .chomp
 
           actual = SVG(DOC) do
             text do
-              _("You are")
+              _("You are ")
               tspan("not")
-              _("a banana")
+              _(" a banana")
             end
           end
             .Render()
@@ -35,12 +31,7 @@ module Sevgi
         def test_comment_appends_xml_comment
           expected = <<~SVG
             <svg>
-              <text>
-                <!-- FOO -->
-                You are
-                <tspan>not</tspan>
-                a banana
-              </text>
+              <text><!-- FOO -->You are <tspan>not</tspan> a banana</text>
             </svg>
           SVG
             .chomp
@@ -48,9 +39,9 @@ module Sevgi
           actual = SVG(DOC) do
             text do
               Comment("FOO")
-              _("You are")
+              _("You are ")
               tspan("not")
-              _("a banana")
+              _(" a banana")
             end
           end
             .Render()

@@ -163,6 +163,8 @@ Declarations contain deeply frozen JSON data and remain local to each document.
 Mainz owns selector resolution, supported properties, binding admission, and PDF baselines.
 
 This feature requires the native `mainz` executable on `PATH`.
+Run `mainz --help` and make sure that it lists `imprint`. Use `fallback: false` for the first test export and run
+`mainz describe prepared.pdf` to read the page name.
 Prepared export invokes the CLI without the ordinary export gems.
 Parallel calls use separate temporary directories.
 The [Mainz 1.0.0 declaration contract](https://github.com/roktas/mainz/blob/v1.0.0/doc/spec/lib.md#svg-declarations) defines the fields and limits.
@@ -196,10 +198,19 @@ Inspect the final PDF or PNG: export CSS can change size, visibility, and clippi
 
 ## Replace PDF placeholders {{ "{#pdf-placeholders}" }}
 
-`Export.stamp` replaces exact placeholder text in a PDF. The placeholder must be a literal string inside a white text
-object that matches Sevgi's stamp pattern. For example, use
-`Export.stamp("certificate.pdf", "certificate-jane-doe.pdf", placeholder: "RECIPIENT", stamp: "Jane Doe")`.
+`Sevgi::Sundries::Export.stamp` replaces exact placeholder text in a PDF. The placeholder must be a literal string
+inside a white text object that matches Sevgi's stamp pattern. The active PDF font must support the replacement
+characters.
+
+```ruby
+require "sevgi"
+
+Sevgi::Sundries::Export.stamp(
+  "certificate.pdf", "certificate-jane-doe.pdf", placeholder: "RECIPIENT", stamp: "Jane Doe"
+)
+```
+
 A successful replacement writes the destination file and returns `true`.
 
-The method returns `false` and writes no output when it finds no match. Use `Export.stamp!` to replace the input file
-only after a successful, nonempty rewrite.
+If the method finds no match, it returns `false` and writes no file. Use `Sevgi::Sundries::Export.stamp!` to replace
+the input file after a successful rewrite.

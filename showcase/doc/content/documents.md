@@ -211,9 +211,9 @@ and support `empty?`, `==`, `eql?`, and `hash`.
 
 ## Validation lifecycle
 
-`Render`, `Save`, and `Out` prepare a document before writing it. Call `PreRender(validate: true, lint: true)` to run
-that phase yourself, or use `Validate()` and `Lint()` for an earlier check. For non-SVG XML, choose a suitable document
-profile or render directly instead of running the standard SVG checks.
+Use `drawing.call` to validate and lint a document and return its SVG as a String. `Save` and `Out` use this same
+checked path. Call `PreRender(validate: true, lint: true)` to run the checks by themselves. `Render` serializes the
+document or subtree directly, which also lets applications serialize non-SVG XML.
 
 {{<mermaid name="validation" />}}
 

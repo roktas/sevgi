@@ -107,7 +107,11 @@ jobs:
             version="${archive##*-}"
             version="${version%.gem}"
             name="${archive%-"$version".gem}"
-            if gem list --remote --exact --all "$name" | grep -Fq "($version"; then
+            published=$(gem list --remote --exact --all "$name")
+            if ruby -e 'name, version = ARGV; exit STDIN.each_line.any? { |line|
+              versions = line[/\A#{Regexp.escape(name)} \(([^)]+)\)/, 1]
+              versions && versions.split(/,\s*/).include?(version)
+            }' "$name" "$version" <<< "$published"; then
               printf 'Skipping already published %s %s\n' "$name" "$version"
               continue
             fi

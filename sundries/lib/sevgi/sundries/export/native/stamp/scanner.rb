@@ -7,13 +7,13 @@ module Sevgi
         # Tokenizes a single PDF content stream and collects byte-offset stamp edits.
         # @api private
         class Scanner
-          def initialize(data, stamp:, placeholder:)
+          def initialize(data, stamp:, placeholder:, resources:)
             @data = data
             @stamp = stamp
             @placeholder = placeholder
-            @serializer = HexaPDF::Serializer.new
+            @fonts = resources&.[](:Font)
             @operands = []
-            @state = {fill_white: false, font_size: nil, in_text: false, stack: [], valid: true}
+            @state = {fill_white: false, font_name: nil, in_text: false, stack: [], valid: true}
             @edits = []
             @count = 0
           end
@@ -29,7 +29,11 @@ module Sevgi
               return [[], 0] unless consume?(object, start, tokenizer.pos)
             end
 
-            valid_end? ? [@edits, @count] : [[], 0]
+            return [[], 0] unless valid_end?
+
+            raise @encoding_error if @encoding_error
+
+            [@edits, @count]
           end
 
           private
@@ -66,9 +70,9 @@ module Sevgi
 
           def handle_graphics_state(operator)
             if operator == :q
-              @state[:stack] << @state.values_at(:fill_white, :font_size)
+              @state[:stack] << @state.values_at(:fill_white, :font_name)
             elsif @state[:stack].any?
-              @state[:fill_white], @state[:font_size] = @state[:stack].pop
+              @state[:fill_white], @state[:font_name] = @state[:stack].pop
             else
               @state[:valid] = false
             end
@@ -85,7 +89,8 @@ module Sevgi
             when :ET
               toggle_text(false)
             when :Tf
-              @state[:font_size] = @operands.last&.first if @operands.size >= 2
+              name, size = @operands.map(&:first)
+              @state[:font_name] = name if name.is_a?(::Symbol) && size.is_a?(::Numeric)
             end
           end
 
@@ -106,7 +111,7 @@ module Sevgi
           end
 
           def text_replacement(operator)
-            return unless @state[:in_text] && @state[:fill_white] && @state[:font_size]
+            return unless @state[:in_text] && @state[:fill_white] && @state[:font_name]
 
             value, start, finish = @operands.last || []
             replacement = encoded_replacement(operator, value)
@@ -117,15 +122,84 @@ module Sevgi
           end
 
           def encoded_replacement(operator, value)
-            if operator == :TJ
-              return unless value.is_a?(::Array) && value.grep(::String).join == @placeholder
+            font = @fonts&.[](@state[:font_name])
+            return unless font
 
-              @serializer.serialize_array([@stamp])
-            elsif value.is_a?(::String) && value == @placeholder
-              Stamp.pdf_literal(@stamp)
+            FontEncoding.replacement(font, value, array: operator == :TJ, stamp: @stamp, placeholder: @placeholder)
+          rescue HexaPDF::Error => e
+            @encoding_error ||= e
+            nil
+          end
+
+        end
+
+        # Maps PDF character codes to and from Unicode for the active font.
+        # @api private
+        module FontEncoding
+          extend self
+
+          def replacement(font, value, array:, stamp:, placeholder:)
+            parts = text_parts(value, array:)
+            return unless parts && decode(font, parts) == placeholder
+
+            literal = Stamp.pdf_literal(encode(font, stamp))
+            array ? "[#{literal}]" : literal
+          end
+
+          private
+
+          def text_parts(value, array:)
+            if array
+              value.grep(::String) if value.is_a?(::Array)
+            elsif value.is_a?(::String)
+              [value]
             end
           end
+
+          def decode(font, parts)
+            codes = parts.flat_map { |part| font.decode(part) }
+            characters = codes.filter_map { |code| unicode(font, code) }
+            characters.join if characters.size == codes.size
+          rescue HexaPDF::Error
+            nil
+          end
+
+          def encode(font, text)
+            template, max_code = code_format(font)
+            codes = font.cache(:sevgi_stamp_codes) { build_map(font, max_code) }
+            text
+              .each_char
+              .map do |char|
+                codes.fetch(char) do
+                  raise HexaPDF::Error, "Stamp character #{char.inspect} is unavailable in #{font[:BaseFont]}"
+                end
+              end
+              .pack(template)
+          end
+
+          def code_format(font)
+            return ["C*", 255] if font.is_a?(HexaPDF::Type::FontSimple)
+            return ["n*", 65_535] if %i[Identity-H Identity-V].include?(font[:Encoding])
+
+            raise HexaPDF::Error, "Unsupported stamp font encoding for #{font[:BaseFont]}"
+          end
+
+          def build_map(font, max_code)
+            (0..max_code).each_with_object({}) do |code, map|
+              char = unicode(font, code)
+              map[char] ||= code if char
+            end
+          end
+
+          def unicode(font, code)
+            font.to_utf8(code)
+          rescue HexaPDF::Error
+            nil
+          end
         end
+
+        private_constant :FontEncoding
+
       end
     end
   end

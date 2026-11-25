@@ -80,7 +80,8 @@ module SevgiRelease
         output, error, status = runner.call(name)
         raise_error("cannot query RubyGems for #{name}: #{error}") unless status.success?
 
-        if !allow_published && output.match?(/\A#{Regexp.escape(name)} \((?=.*\b#{Regexp.escape(version)}\b)/)
+        published = output[/^#{Regexp.escape(name)} \(([^)]+)\)/, 1]
+        if !allow_published && published&.split(/,\s*/)&.include?(version)
           raise_error("#{name} #{version} is already published")
         end
       end
