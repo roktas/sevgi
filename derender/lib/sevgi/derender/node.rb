@@ -7,13 +7,18 @@ module Sevgi
     module Namespace
       SVG = "http://www.w3.org/2000/svg"
 
-      def self.foreign?(node) = !node.namespace.nil? && node.namespace.href != SVG
-
-      def self.svg?(node, name)
+      def self.foreign?(node, scope)
         namespace = node.namespace
-
-        node.name == name && (namespace.nil? || (namespace.prefix.nil? && namespace.href == SVG))
+        namespace ? namespace.href != SVG : scope.key?("xmlns")
       end
+
+      def self.root?(node, foreign)
+        return unqualified?(node, "svg", foreign) unless node == node.document.root
+
+        node.name == "svg" && (!node.namespace || node.namespace.href == SVG)
+      end
+
+      def self.unqualified?(node, name, foreign) = !foreign && node.name == name && node.namespace&.prefix.nil?
     end
 
     private_constant :Namespace
@@ -30,6 +35,12 @@ module Sevgi
           node.namespace_definitions.to_h do |namespace|
             [namespace.prefix ? "xmlns:#{namespace.prefix}" : "xmlns", namespace.href]
           end
+        end
+
+        def scope(node)
+          declarations = node.namespaces
+          declarations["xmlns"] ||= "" if node.document.root&.namespace&.prefix
+          declarations
         end
 
         def mixed?(node) = node.children.any? { it.element? || it.cdata? || it.comment? || it.processing_instruction? }
@@ -93,10 +104,10 @@ module Sevgi
       end
 
       def capture_context(node, pres, namespaces, inherited)
+        @scope = snapshot(DOM.scope(node))
         capture_flags(node, inherited)
         @pres = pres.map { it.to_s.dup.freeze }.freeze
         @namespaces = snapshot(namespaces || DOM.local_namespaces(node))
-        @scope = snapshot(node.namespaces)
         @type = dispatch(node)
         singleton_class.send(:private, :decompile)
       end
@@ -104,7 +115,7 @@ module Sevgi
       def capture_flags(node, inherited)
         preserve_space, mixed_parent = inherited
         @text = node.text?
-        @foreign = Namespace.foreign?(node)
+        @foreign = Namespace.foreign?(node, @scope)
         @preserve_space = DOM.preserve_space?(node, preserve_space)
         @mixed_text = @text && (mixed_parent.nil? ? DOM.parent_mixed?(node) : mixed_parent)
         @inline_text = @mixed_text && !node.content.match?(/[\r\n]/)
@@ -136,9 +147,9 @@ module Sevgi
 
       def dispatch(node)
         type = NODE_TYPES[node.type]
-        type ||= if Namespace.svg?(node, "style") && node.children.all? { it.text? || it.cdata? }
+        type ||= if Namespace.unqualified?(node, "style", @foreign) && node.children.all? { it.text? || it.cdata? }
           :Style
-        elsif @top && Namespace.svg?(node, "svg")
+        elsif @top && Namespace.root?(node, @foreign)
           :Root
         else
           :Any

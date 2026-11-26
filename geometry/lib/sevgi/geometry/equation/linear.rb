@@ -73,7 +73,7 @@ module Sevgi
           # Creates a diagonal linear equation.
           # @param slope [Numeric] line slope
           # @param intercept [Numeric] y-intercept
-          # @param origin [Sevgi::Geometry::Point, nil] local evaluation origin for endpoint-derived equations
+          # @param origin [Sevgi::Geometry::Point, nil] known point used as the local origin for evaluation
           # @return [void]
           # @raise [Sevgi::Geometry::Error] when a coefficient is not finite Numeric or slope is zero
           def initialize(slope:, intercept:, origin: nil)

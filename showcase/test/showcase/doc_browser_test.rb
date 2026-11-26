@@ -174,6 +174,13 @@ module Sevgi
         assert_equal(false, eval_json("() => document.querySelector('main').inert"))
 
         cli("click", ".mobile-menu-toggle")
+        cli("fill", "#userinput", "IncludeChildren")
+        cli("press", "ArrowDown")
+        href = eval_json("() => document.activeElement.href")
+        cli("press", "Enter")
+        assert_equal(href, eval_json("() => location.href"))
+
+        cli("click", ".mobile-menu-toggle")
         cli("resize", "1280", "800")
         assert_equal(
           "false",

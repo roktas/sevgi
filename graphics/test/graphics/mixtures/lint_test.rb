@@ -11,14 +11,13 @@ module Sevgi
         end
 
         def test_lint_rejects_duplicate_ids
-          error = assert_raises(LintError) do
-            SVG(:minimal) do
-              rect(id: "same")
-              circle(id: "same")
-            end
-              .()
+          drawing = SVG(:minimal) do
+            rect(id: "same")
+            circle(id: "same")
           end
 
+          assert_equal(2, drawing.Render.scan("id=\"same\"").size)
+          error = assert_raises(LintError) { drawing.call }
           assert_match(/\bsame\b/, error.message)
         end
 

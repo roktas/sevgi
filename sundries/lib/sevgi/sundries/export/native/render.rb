@@ -26,8 +26,9 @@ module Sevgi
         # @raise [Sevgi::Sundries::Export::ExportError] when dimensions or rendering fail
         def call(svg, output, format:, dimensions:)
           handle = Rsvg::Handle.new_from_data(svg)
-          tw, th = resolve_target_size(handle, format, dimensions)
-          render_staged(handle, output, format:, size: [tw, th], dpi: dimensions.fetch(:dpi))
+          handle.dpi = DEFAULT_DPI
+          size = resolve_target_size(handle, format, dimensions)
+          render_staged(handle, output, format:, size:, dpi: dimensions.fetch(:dpi))
           output
         rescue Rsvg::Error, Cairo::Error => e
           ExportError.("Render error: #{e.message}")
@@ -44,20 +45,15 @@ module Sevgi
 
         def render_staged(handle, output, format:, size:, dpi:)
           tw, th = size
-
           Staging.replace(output, prefix: ".sevgi-render-", filename: "output.#{format}") do |staged|
-            dispatch_renderer(format, handle:, output: staged, size: [tw, th], dpi:)
-            true
-          end
-        end
+            case format
+            when :pdf
+              Renderer.pdf(handle:, output: staged, tw:, th:, dpi:)
+            when :png
+              Renderer.png(handle:, output: staged, tw:, th:)
+            end
 
-        def dispatch_renderer(format, handle:, output:, size:, dpi:)
-          tw, th = size
-          case format
-          when :pdf
-            Renderer.pdf(handle:, output:, tw:, th:, dpi:)
-          when :png
-            Renderer.png(handle:, output:, tw:, th:)
+            true
           end
         end
 
@@ -76,11 +72,14 @@ module Sevgi
           end
 
           dimensions = handle.dimensions
-          [dimensions.width.to_f, dimensions.height.to_f]
+          # librsvg keeps the unrounded width and height in these legacy fields.
+          [dimensions.em, dimensions.ex]
         end
 
         def explicit_or_viewbox_size(handle)
           has_width, width, has_height, height, has_viewbox, viewbox = handle.intrinsic_dimensions
+          return pixel_intrinsic_size(handle) if [width, height].compact.any? { font_relative?(it) }
+
           px_width = to_px(width) if has_width
           px_height = to_px(height) if has_height
           return [px_width, px_height] if px_width && px_height
@@ -102,7 +101,7 @@ module Sevgi
           return unless handle.respond_to?(:intrinsic_size_in_pixels)
 
           has_size, width, height = handle.intrinsic_size_in_pixels
-          [width.to_f, height.to_f] if has_size && width.to_f.positive? && height.to_f.positive?
+          [width, height] if has_size
         end
 
         def viewbox_size(has_viewbox, viewbox)
@@ -113,9 +112,10 @@ module Sevgi
 
         def to_px(dimension)
           scale = UNIT_SCALES[dimension.unit]
-          value = dimension.length.to_f * scale if scale
-          value if value&.positive?
+          dimension.length.to_f * scale if scale
         end
+
+        def font_relative?(length) = [Rsvg::Unit::EM, Rsvg::Unit::EX].include?(length.unit)
 
         def target_size(iw, ih, width, height)
           if width && height

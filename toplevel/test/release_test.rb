@@ -428,9 +428,9 @@ module Sevgi
               root:,
               ref: "refs/heads/main",
               package_dir:,
-              remote_runner: -> (_name) {
+              remote_runner: -> (*) {
                 calls += 1
-                ["", "", status(true)]
+                false
               }
             )
           end
@@ -458,9 +458,9 @@ module Sevgi
             root:,
             ref: "refs/heads/main",
             package_dir:,
-            remote_runner: -> (_name) {
+            remote_runner: -> (*) {
               calls += 1
-              ["", "", status(true)]
+              false
             }
           )
         end
@@ -486,7 +486,7 @@ module Sevgi
     end
 
     def test_remote_preflight_rejects_existing_version
-      runner = -> (_name) { ["demo (1.2.3)", "", status(true)] }
+      runner = -> (*) { true }
 
       error = assert_raises(Preflight::Error) do
         Preflight.assert_remote!(names: ["demo"], version: "1.2.3", runner:)
@@ -496,7 +496,7 @@ module Sevgi
     end
 
     def test_remote_preflight_allows_existing_version_when_requested
-      runner = -> (_name) { ["demo (1.2.3)", "", status(true)] }
+      runner = -> (*) { true }
 
       assert_equal(
         ["demo"],
@@ -506,11 +506,9 @@ module Sevgi
 
     def test_remote_failure_is_reported
       error = assert_raises(Preflight::Error) do
-        Preflight.assert_remote!(
-          names: ["demo"],
-          version: "1.2.3",
-          runner: -> (_name) { ["", "network", status(false)] }
-        )
+        Net::HTTP.stub(:get_response, -> (*) { raise SocketError, "network" }) {
+          Preflight.published?("demo", "1.2.3")
+        }
       end
 
       assert_match(/cannot query RubyGems/, error.message)
@@ -526,32 +524,40 @@ module Sevgi
           root:,
           ref: "refs/heads/main",
           package_dir:,
-          remote_runner: -> (name) {
-            queried << name
-            ["#{name} (1.2.2)", "", status(true)]
+          remote_runner: -> (name, version) {
+            queried << [name, version]
+            false
           }
         )
 
         assert_equal("1.2.3", result.fetch(:version))
-        assert_equal(["demo"], queried)
+        assert_equal([["demo", "1.2.3"]], queried)
       end
     end
 
-    def test_remote_query_uses_exact_all_versions
-      args = nil
-      result = ["demo (1.2.3)", "", status(true)]
+    def test_registry_requires_a_live_exact_release
+      release = {name: "demo", version: "1.2.3", platform: "ruby", yanked: false}
+      [
+        ["200", release, true],
+        ["404", nil, false],
+        ["503", nil, :error],
+        ["200", release.merge(yanked: true), :error],
+        ["200", release.merge(version: "1.2.30"), :error],
+        ["200", {}, :error]
+      ].each do |code, body, expected|
+        request = lambda do |uri|
+          assert_equal("https://rubygems.org/api/v2/rubygems/demo/versions/1.2.3.json?platform=ruby", uri.to_s)
+          Struct.new(:code, :body).new(code, JSON.generate(body))
+        end
 
-      Open3.stub(
-        :capture3,
-        -> (*command) {
-          args = command
-          result
-        }
-      ) do
-        assert_same(result, Preflight.remote_query("demo"))
+        Net::HTTP.stub(:get_response, request) do
+          if expected == :error
+            assert_raises(Preflight::Error) { Preflight.published?("demo", "1.2.3") }
+          else
+            assert_equal(expected, Preflight.published?("demo", "1.2.3"))
+          end
+        end
       end
-
-      assert_equal(%w[gem list --remote --exact --all demo], args)
     end
 
     def test_workflow_uses_tracked_guard_and_pinned_actions
@@ -633,10 +639,6 @@ module Sevgi
           end
         RUBY
       )
-    end
-
-    def status(success)
-      Struct.new(:success?).new(success)
     end
 
     def with_release_fixture

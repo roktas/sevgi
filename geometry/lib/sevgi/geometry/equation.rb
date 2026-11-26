@@ -132,7 +132,8 @@ module Sevgi
         return Equation.horizontal(y) if (angle % 180.0).zero?
         return Equation.vertical(x) if (angle % 90.0).zero?
 
-        Equation.diagonal(slope: (slope = F.tan(angle)), intercept: y - (slope * x))
+        slope = F.tan(angle)
+        Equation::Linear::Diagonal.new(slope:, intercept: y - (slope * x), origin: self)
       end
     end
 

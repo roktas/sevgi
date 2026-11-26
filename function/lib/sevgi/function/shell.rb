@@ -410,7 +410,7 @@ module Sevgi
       private
 
       def command_path(environment)
-        path = (environment || {}).fetch("PATH") { ENV.fetch("PATH", nil) }
+        path = environment&.[]("PATH") || ENV.fetch("PATH", nil)
         return path if path
 
         Etc.const_defined?(:CS_PATH) ? Etc.confstr(Etc::CS_PATH).to_s : ""
@@ -420,12 +420,12 @@ module Sevgi
         program = program.to_s
         return if program.empty?
         if slash_path?(program)
-          return executable_file?(program) ? ::File.expand_path(program) : nil
+          return executable_file?(program) ? ::File.absolute_path(program) : nil
         end
 
         directories = search_path.empty? ? ["."] : search_path.split(::File::PATH_SEPARATOR, -1)
         directories.each do |dir|
-          path = ::File.expand_path(program, dir)
+          path = ::File.absolute_path(program, dir)
           return path if executable_file?(path)
         end
 

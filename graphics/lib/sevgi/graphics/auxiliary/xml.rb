@@ -5,6 +5,7 @@ module Sevgi
     # XML 1.0 text and qualified-name validation shared by renderer boundaries.
     # @api private
     module XML
+      SVG_NAMESPACE = "http://www.w3.org/2000/svg"
       NCNAME_START = "A-Z_a-z\u{C0}-\u{D6}\u{D8}-\u{F6}\u{F8}-\u{2FF}\u{370}-\u{37D}\u{37F}-\u{1FFF}" \
         "\u{200C}-\u{200D}\u{2070}-\u{218F}\u{2C00}-\u{2FEF}\u{3001}-\u{D7FF}\u{F900}-\u{FDCF}" \
         "\u{FDF0}-\u{FFFD}\u{10000}-\u{EFFFF}"
@@ -14,6 +15,37 @@ module Sevgi
       ILLEGAL_CHARACTER = /[^\u0009\u000A\u000D\u0020-\uD7FF\uE000-\uFFFD\u{10000}-\u{10FFFF}]/u
 
       class << self
+        # A qualified document root has no implicit default namespace.
+        def namespace(element, key)
+          loop do
+            return element.attributes[key] if element.attributes.has?(key)
+            break unless (parent = element.parent)
+
+            element = parent
+          end
+
+          "" if key == :xmlns && element.name.to_s.include?(":")
+        end
+
+        def default_namespace(element, inherited)
+          element.attributes.has?(:xmlns) ? element.attributes[:xmlns] : inherited
+        end
+
+        # Unqualified drawings without a namespace declaration use the SVG DSL's implicit namespace.
+        def svg_name(element, default_namespace)
+          name = element.name
+          if name.to_s.include?(":")
+            prefix, local = name.to_s.split(":", 2)
+            local.to_sym if namespace(element, :"xmlns:#{prefix}").to_s == SVG_NAMESPACE
+          elsif default_namespace.nil? || default_namespace.to_s == SVG_NAMESPACE
+            name
+          end
+        end
+
+        def svg_children(element, namespace)
+          element.children.filter_map { svg_name(it, default_namespace(it, namespace)) }
+        end
+
         # Validates an XML 1.0 string representation.
         # @param value [Object] value to stringify and validate
         # @param context [String] error-message subject

@@ -272,7 +272,7 @@ module Sevgi
 
         actual = SVG(:minimal) { text(Content.encoded(value)) }.Render()
 
-        assert_render("<svg>\n  <text>\t\n\r text 😀</text>\n</svg>", actual)
+        assert_equal(value, Nokogiri::XML(actual, &:strict).at_css("text").text)
       end
 
       def test_content_validates_symbols_and_stringified_key_collisions_on_capture

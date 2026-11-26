@@ -5,6 +5,13 @@ module Sevgi
     # SVG content model validators used by {Conform}.
     # @api private
     module Model
+      # Accepts any child elements and character data inside foreignObject.
+      module AnyContent
+        # Applies the unrestricted content model.
+        def apply(**)
+        end
+      end
+
       # Validates elements that allow only character data.
       module CDataOnly
         # Applies this content model.

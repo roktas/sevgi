@@ -106,35 +106,37 @@ module Sevgi
         end
 
         def stamp_forms(document, stamp:, placeholder:)
-          pending = document.pages.flat_map { |page| form_xobjects(page[:Resources]) }
-          seen, replacements = {}, 0
-
-          until pending.empty?
-            form, inherited = pending.pop
-            next unless form_xobject?(form, seen)
-
-            resources = form[:Resources] || inherited
-            pending.concat(form_xobjects(resources))
-            replacements += rewrite_form(form, stamp:, placeholder:, resources:)
+          contexts = form_resources(document)
+          contexts.sum do |form, scopes|
+            data = form.stream
+            variants = scopes.map { |resources| replace(data, stamp:, placeholder:, resources:) }.uniq
+            ExportError.("Shared PDF form requires different stamp encodings") unless variants.one?
+            rewrite_form(form, *variants.first)
           end
-
-          replacements
         end
 
-        def form_xobject?(form, seen)
-          return false unless form.is_a?(HexaPDF::Stream) && form[:Subtype] == :Form
+        def form_resources(document)
+          pending = document.pages.map(&:resources)
+          contexts = Hash.new { |forms, form| forms[form] = Set.new.compare_by_identity }
+          while (resources = pending.pop)
+            form_xobjects(resources).each do |form, scope|
+              pending << scope if contexts[form].add?(scope) && !scope.equal?(resources)
+            end
+          end
 
-          identity = [form.oid, form.gen]
-          seen[identity] ? false : seen[identity] = true
+          contexts
         end
 
         def form_xobjects(resources)
-          objects = resources&.[](:XObject)
-          objects ? objects.each.map { [_2, resources] } : []
+          objects = resources[:XObject]
+          return [] unless objects
+
+          objects.each.filter_map { |_name, form|
+            [form, form[:Resources] || resources] if form.is_a?(HexaPDF::Stream) && form[:Subtype] == :Form
+          }
         end
 
-        def rewrite_form(form, stamp:, placeholder:, resources:)
-          data, count = replace(form.stream, stamp:, placeholder:, resources:)
+        def rewrite_form(form, data, count)
           return 0 if count.zero?
 
           form.stream = data

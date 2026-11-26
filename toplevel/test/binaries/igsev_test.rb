@@ -118,14 +118,44 @@ module Sevgi
         source = <<~SVG
           <svg xmlns="http://www.w3.org/2000/svg">
             <text xml:space="preserve" data-note="A&#9;B&#10;C&#13;D"><tspan>A</tspan><tspan>B</tspan></text>
+            <text xml:space="preserve"><tspan>A&#13;B</tspan></text>
           </svg>
         SVG
 
         out, err, status = run_igsev("-", stdin_data: source)
         assert(status.success?, err)
-        text = Nokogiri::XML(out, &:strict).at_css("text")
-        assert_equal("AB", text.content)
-        assert_equal("A\tB\nC\rD", text["data-note"])
+        target = SVG()
+        SVG.EvaluateChildren(source, target)
+        [out, target.call].each do |rendered|
+          text, cr = Nokogiri::XML(rendered, &:strict).xpath("//svg:text", "svg" => "http://www.w3.org/2000/svg").to_a
+          assert_equal("AB", text.content)
+          assert_equal("A\tB\nC\rD", text["data-note"])
+          assert_equal("A\rB", cr.content)
+        end
+      end
+
+      def test_executable_checks_svg_descendants_of_foreign_objects
+        source = <<~SVG
+          <svg xmlns="http://www.w3.org/2000/svg">
+            <foreignObject>
+              <div xmlns="http://www.w3.org/1999/xhtml">Note</div>
+              <word xmlns="">Plain</word>
+              <svg><rect width="1"/></svg>
+            </foreignObject>
+          </svg>
+        SVG
+        out, err, status = run_igsev("-", stdin_data: source)
+        assert(status.success?, err)
+        children = Nokogiri::XML(out, &:strict).at_css("foreignObject").element_children
+        assert_equal(
+          ["http://www.w3.org/1999/xhtml", nil, "http://www.w3.org/2000/svg"],
+          children.map { it.namespace&.href }
+        )
+
+        out, err, status = run_igsev("-", stdin_data: source.sub("width=\"1\"", "unknown=\"1\""))
+        refute(status.success?)
+        assert_empty(out)
+        assert_match(/rect.*unknown/, err)
       end
 
       def test_executable_rejects_invalid_argv_grammar
@@ -141,6 +171,36 @@ module Sevgi
           assert_empty(out)
           assert_match(message, err)
           assert_match(/Usage: igsev \[options\.\.\.\] \[--\] \[SVG file\|-\]/, err)
+        end
+      end
+
+      def test_executable_reports_fragment_input
+        out, err, status = run_igsev("-", stdin_data: "<g/>")
+
+        refute(status.success?)
+        assert_empty(out)
+        assert_includes(err, "igsev requires an SVG document root")
+      end
+
+      def test_prefixed_document_keeps_the_root_and_unqualified_children
+        body = <<~SVG
+          <v:svg xmlns:v="http://www.w3.org/2000/svg">
+            <v:foreignObject><label>Plain</label><style>p { color: red; }</style></v:foreignObject>
+          </v:svg>
+        SVG
+        out, err, status = run_igsev("-", stdin_data: "<!--license-->\n#{body}")
+        assert(status.success?, err)
+        assert_includes(out, "<!--license-->")
+        target = SVG()
+        imported = SVG.Evaluate(body, target)
+        [out, imported.call].each do |rendered|
+          root = Nokogiri::XML(rendered, &:strict).root
+          assert_equal("v", root.namespace.prefix)
+          assert_equal("http://www.w3.org/2000/svg", root.namespace.href)
+          label, style = root.element_children.first.element_children.to_a
+          assert_nil(label.namespace)
+          assert_equal("Plain", label.text)
+          assert_equal("p { color: red; }", style.text)
         end
       end
 

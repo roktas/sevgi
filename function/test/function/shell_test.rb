@@ -265,6 +265,15 @@ module Sevgi
           end
         end
 
+        def test_sh_bang_uses_parent_lookup_when_child_unsets_path
+          with_executable("~drawing-check") do |path|
+            with_exact_path(::File.dirname(path)) do
+              assert_equal(path, Function.executable("~drawing-check"))
+              assert_predicate(Function.sh!({"PATH" => nil}, "~drawing-check"), :ok?)
+            end
+          end
+        end
+
         def test_result_owns_inputs_and_escapes_display
           command = +"two words"
           output = +"out"

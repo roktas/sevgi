@@ -79,6 +79,7 @@ class SkillTest < Minitest::Test
           "brand.svg",
           <<~SVG
             <svg xmlns="http://www.w3.org/2000/svg">
+              <title>Brand</title>
               <g id="logo" transform="translate(2 3)">
                 <defs><path id="mark" d="M 0 0 L 4 4"/></defs>
                 <use href="#mark"/>
@@ -94,7 +95,7 @@ class SkillTest < Minitest::Test
 
         run_library(example("derender", 3))
         root = Nokogiri::XML(File.read("artwork.svg"), &:strict).root
-        assert_equal(["g"], root.element_children.map(&:name))
+        assert_equal(%w[title g], root.element_children.map(&:name))
         assert_equal("mark", root.at_css("defs path")["id"])
         assert_equal("#mark", root.at_css("use")["href"])
       end

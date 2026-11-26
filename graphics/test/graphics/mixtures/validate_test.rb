@@ -84,6 +84,16 @@ module Sevgi
 
           assert_raises(InvalidAttributesError) { drawing.call }
         end
+
+        def test_qualified_root_keeps_children_without_a_default_namespace
+          root = Document::Minimal.element(:"s:svg", {"xmlns:s": "http://www.w3.org/2000/svg"}) do
+            Element(:"s:foreignObject") { Element(:label, "Plain") }
+          end
+
+          assert(root.Root?())
+          assert_includes(root.call, "<label>Plain</label>")
+          assert_same(root.children.first, root.children.first.Validate())
+        end
       end
     end
   end

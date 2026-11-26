@@ -3,6 +3,7 @@
 require "json"
 require "digest"
 require "fileutils"
+require "net/http"
 require "open3"
 require "rubygems/package"
 require "zlib"
@@ -75,13 +76,9 @@ module SevgiRelease
       Archive.validate!(root:, package_dir:, version:)
     end
 
-    def assert_remote!(names:, version:, runner: method(:remote_query), allow_published: false)
+    def assert_remote!(names:, version:, runner: method(:published?), allow_published: false)
       names.each do |name|
-        output, error, status = runner.call(name)
-        raise_error("cannot query RubyGems for #{name}: #{error}") unless status.success?
-
-        published = output[/^#{Regexp.escape(name)} \(([^)]+)\)/, 1]
-        if !allow_published && published&.split(/,\s*/)&.include?(version)
+        if runner.call(name, version) && !allow_published
           raise_error("#{name} #{version} is already published")
         end
       end
@@ -91,7 +88,7 @@ module SevgiRelease
       root:,
       ref:,
       package_dir:,
-      remote_runner: method(:remote_query),
+      remote_runner: method(:published?),
       allow_published: ENV["RELEASE_ALLOW_PUBLISHED"] == "1"
     )
       version = guard!(root:, ref:)
@@ -113,8 +110,24 @@ module SevgiRelease
       specs.sort_by { |spec| [COMPONENT_ORDER.index(spec.name) || COMPONENT_ORDER.length, spec.name] }
     end
 
-    def remote_query(name)
-      Open3.capture3("gem", "list", "--remote", "--exact", "--all", name)
+    def published?(name, version)
+      uri = URI("https://rubygems.org/api/v2/rubygems/#{name}/versions/#{version}.json?platform=ruby")
+      response = Net::HTTP.get_response(uri)
+      return false if response.code == "404"
+      raise_error("cannot query RubyGems for #{name}: HTTP #{response.code}") unless response.code == "200"
+
+      unless active_release?(JSON.parse(response.body), name, version)
+        raise_error("unexpected or yanked RubyGems release: #{name} #{version}")
+      end
+
+      true
+    rescue IOError, SocketError, SystemCallError, Timeout::Error, OpenSSL::SSL::SSLError, JSON::ParserError => e
+      raise_error("cannot query RubyGems for #{name}: #{e.message}")
+    end
+
+    def active_release?(release, name, version)
+      release.is_a?(Hash) &&
+        release.values_at("name", "version", "platform", "yanked") == [name, version, "ruby", false]
     end
 
     def raise_error(message)

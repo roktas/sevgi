@@ -100,6 +100,14 @@ module Sevgi
         end
       end
 
+      def test_steep_point_equation_passes_through_its_origin
+        point = Point[1_000_000, 0.2]
+        equation = point.equation(89.999)
+
+        assert(equation.on?(point))
+        assert_equal([point], equation.intersect(Equation.vertical(point.x)))
+      end
+
       def test_near_parallel_equations_still_intersect
         delta = 2.0 ** -22
         left = Equation.diagonal(slope: 1, intercept: 0)

@@ -229,7 +229,7 @@ module Sevgi
       class Encoded < Content
         # Returns XML text-encoded content.
         # @return [String]
-        def to_s = XML.text(payload).encode(xml: :text)
+        def to_s = XML.text(payload).encode(xml: :text).gsub("\r", "&#13;")
 
         # Renders encoded text content.
         # @param renderer [#append] rendering output collaborator

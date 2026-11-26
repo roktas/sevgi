@@ -221,6 +221,17 @@ module Sevgi
           end
         end
 
+        def test_call_resolves_font_relative_width_before_using_viewbox
+          Dir.mktmpdir do |dir|
+            pdf = File.join(dir, "out.pdf")
+            drawing = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1.5em\" font-size=\"15\" viewBox=\"0 0 2 1\"/>"
+            Export.call(drawing, pdf)
+            box = media_box(pdf)
+            assert_in_delta(16.875, box.width, 0.001)
+            assert_in_delta(8.4375, box.height, 0.001)
+          end
+        end
+
         def test_call_exports_png_with_viewbox_dimensions
           Dir.mktmpdir do |dir|
             output = File.join(dir, "out.png")
@@ -268,9 +279,17 @@ module Sevgi
         def test_call_rejects_invalid_dimensions
           Dir.mktmpdir do |dir|
             output = File.join(dir, "out.pdf")
-            error = assert_raises(ExportError) { Export.call(zero_sized_svg, output) }
+            File.write(output, "original")
+            [
+              zero_sized_svg,
+              "<svg xmlns=\"http://www.w3.org/2000/svg\" height=\"0\" width=\"100\" viewBox=\"0 0 20 10\"/>",
+              "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"0\" viewBox=\"0 0 20 10\"/>"
+            ].each do |source|
+              error = assert_raises(ExportError) { Export.call(source, output) }
+              assert_equal("Invalid SVG dimensions", error.message)
+            end
 
-            assert_equal("Invalid SVG dimensions", error.message)
+            assert_equal("original", File.binread(output))
           end
         end
 
@@ -462,6 +481,31 @@ module Sevgi
             stream = result[:Resources][:XObject][:Outer][:Resources][:XObject][:Inner].stream
             assert_equal(1, stream.scan("(new)").size)
             refute_includes(stream, "(old)")
+          end
+        end
+
+        def test_stamp_checks_inherited_fonts_for_shared_forms
+          Dir.mktmpdir do |dir|
+            infile, outfile = %w[in.pdf out.pdf].map { File.join(dir, it) }
+            doc = HexaPDF::Document.new
+            form = doc.add(
+              {Type: :XObject, Subtype: :Form, BBox: [0, 0, 200, 50]},
+              stream: "1 1 1 rg BT /F1 12 Tf 10 20 Td (NAME) Tj ET"
+            )
+            %i[WinAnsiEncoding MacRomanEncoding].each do |encoding|
+              font = doc.add({Type: :Font, Subtype: :Type1, BaseFont: :Helvetica, Encoding: encoding})
+              page = doc.pages.add
+              page[:Resources] = {Font: {F1: font}, XObject: {Label: form}}
+              page.contents = "/Label Do"
+            end
+
+            doc.write(infile)
+
+            assert(Export.stamp(infile, outfile, stamp: "Jane", placeholder: "NAME"))
+            original = File.binread(outfile)
+            error = assert_raises(ExportError) { Export.stamp(infile, outfile, stamp: "José", placeholder: "NAME") }
+            assert_match(/different stamp encodings/, error.message)
+            assert_equal(original, File.binread(outfile))
           end
         end
 
@@ -744,6 +788,37 @@ module Sevgi
             before = File.binread(outfile)
             assert_raises(ExportError) { Export.stamp(infile, outfile, stamp: "Oktaş", placeholder: "old") }
             assert_equal(before, File.binread(outfile))
+          end
+        end
+
+        def test_stamp_tracks_fonts_selected_by_graphics_state
+          Dir.mktmpdir do |dir|
+            infile, outfile = %w[in.pdf out.pdf].map { File.join(dir, it) }
+            write_pdf(
+              infile,
+              <<~STREAM
+                1 1 1 rg BT /F1 12 Tf 40 700 Td (NAME) Tj ET
+                q /Mac gs BT 40 670 Td (NAME) Tj ET Q
+                BT 40 640 Td (NAME) Tj ET
+              STREAM
+            )
+            doc = HexaPDF::Document.open(infile)
+            resources = doc.pages.first.resources
+            resources[:Font][:F1][:Encoding] = :WinAnsiEncoding
+            mac = doc.add({Type: :Font, Subtype: :Type1, BaseFont: :Helvetica, Encoding: :MacRomanEncoding})
+            resources[:ExtGState] = {Mac: {Font: [mac, 12]}}
+            doc.write(infile)
+
+            assert(Export.stamp(infile, outfile, stamp: "José", placeholder: "NAME"))
+            strings = []
+            HexaPDF::Content::Parser.parse(HexaPDF::Document.open(outfile).pages.first.contents) do |op, args|
+              strings << args.first if op == :Tj
+            end
+
+            assert_equal(["Jos\xE9".b, "Jos\x8E".b, "Jos\xE9".b], strings)
+            if F.executable?("pdftotext")
+              assert_equal(["José"] * 3, F.sh!("pdftotext", "-enc", "UTF-8", outfile, "-").out.split)
+            end
           end
         end
 

@@ -137,6 +137,36 @@ module Sevgi
           end
         end
 
+        def test_rsvg_keeps_relative_images_when_adding_css
+          skip("rsvg-convert is unavailable") unless F.executable?("rsvg-convert")
+          require "cairo"
+
+          Dir.mktmpdir do |dir|
+            image = Cairo::ImageSurface.new(:argb32, 8, 8)
+            context = Cairo::Context.new(image)
+            context.set_source_rgb(1, 0, 0)
+            context.paint
+            image.write_to_png(File.join(dir, "red.png"))
+            source = File.join(dir, "input.svg")
+            File.write(
+              source,
+              <<~SVG
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="8" height="8">
+                  <image xlink:href="red.png" width="8" height="8"/>
+                </svg>
+              SVG
+            )
+
+            [nil, "rect { fill: blue; }"].each do |css|
+              output = File.join(dir, "out.png")
+              Export.rsvg(source, output, css:)
+              surface = Cairo::ImageSurface.from_png(output)
+              pixel = surface.data.unpack1("L", offset: (4 * surface.stride) + 16)
+              assert_equal(0xff0000, pixel & 0xffffff)
+            end
+          end
+        end
+
         def test_rsvg_rejects_page_keyword
           Dir.mktmpdir do |dir|
             assert_raises(::ArgumentError) do

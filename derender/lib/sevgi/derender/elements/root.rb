@@ -26,7 +26,15 @@ module Sevgi
 
         private
 
+        def leaf(*, namespaces:)
+          return super unless name.include?(":")
+
+          attributes = Attributes.decompile(all_attributes(namespaces))
+          "SVG.Document.element(#{Ruby.literal(name)}, { #{attributes} })"
+        end
+
         def document_call(line)
+          return line.sub("SVG.Document.", "document.") if line.start_with?("SVG.Document.")
           return line.sub("SVG", "SVG document") if ["SVG", "SVG do"].include?(line)
 
           line.sub(/\ASVG /, "SVG document, ")

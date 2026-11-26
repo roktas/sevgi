@@ -52,9 +52,10 @@ module Sevgi
           private
 
           def update_descriptions(rdf, fields)
-            rdf_ns = rdf_namespace_for(rdf)
             descriptions = rdf.xpath("./rdf:Description[not(@rdf:about) or @rdf:about=\"\"]", NS)
-            description = target_description(rdf, descriptions, rdf_ns)
+            description = descriptions.first || element(rdf, "Description", rdf.namespace)
+            rdf_ns = namespace_for(description, "rdf", RDF)
+            description["#{rdf_ns.prefix}:about"] = ""
 
             fields.each do |key, value|
               remove_existing(descriptions, key)
@@ -62,30 +63,9 @@ module Sevgi
             end
           end
 
-          def target_description(rdf, descriptions, rdf_ns)
-            description = descriptions.first || element(rdf, "Description", rdf_ns)
-            description["#{rdf_prefix_for(description, rdf_ns)}:about"] = ""
-            description
-          end
-
           def remove_existing(descriptions, key)
             prefix = key == :license ? "cc" : "dc"
             descriptions.each { it.xpath("./#{prefix}:#{key} | ./@#{prefix}:#{key}", NS).remove }
-          end
-
-          def rdf_namespace_for(node)
-            return node.namespace if node.namespace&.href == RDF && node.namespace.prefix
-
-            node.namespace_scopes.find { it.href == RDF && it.prefix } ||
-              node.add_namespace_definition("rdf", RDF)
-          end
-
-          def rdf_prefix_for(node, fallback_ns)
-            namespace = (node.namespace&.href == RDF && node.namespace) || fallback_ns
-            return namespace.prefix if namespace.prefix
-
-            scoped = node.namespace_scopes.find { it.href == RDF && it.prefix }
-            scoped ? scoped.prefix : node.add_namespace_definition("rdf", RDF).prefix
           end
 
           def namespace_for(node, default_prefix, uri)
@@ -106,12 +86,12 @@ module Sevgi
           def append(parent, key, value, rdf_ns)
             ns = key == :license ? namespace_for(parent, "cc", CC) : namespace_for(parent, "dc", DC)
             node = element(parent, key.to_s, ns)
-            return set_license(node, parent, value, rdf_ns) if key == :license
-
-            append_items(node, key, value, rdf_ns)
+            if key == :license
+              node["#{rdf_ns.prefix}:resource"] = value
+            else
+              append_items(node, key, value, rdf_ns)
+            end
           end
-
-          def set_license(node, parent, value, rdf_ns) = node["#{rdf_prefix_for(parent, rdf_ns)}:resource"] = value
 
           def append_items(node, key, value, rdf_ns)
             container = element(node, ARRAYS.fetch(key, "Alt"), rdf_ns)

@@ -940,7 +940,7 @@ module Sevgi
 
           elements: nil,
 
-          model: :CDataOnly
+          model: :AnyContent
         },
 
         g: {

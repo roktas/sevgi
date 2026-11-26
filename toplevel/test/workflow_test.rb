@@ -68,18 +68,26 @@ module Sevgi
           <<~BASH
             #!/usr/bin/env bash
             set -Eeuo pipefail
-            if [[ $1 == push ]]; then
-              printf '%s\n' "$2" >> "$PUSH_LOG"
-            elif [[ ${FAIL_QUERY:-0} == 1 ]]; then
-              exit 1
-            elif [[ ${!#} == alpha ]]; then
-              printf '\n*** REMOTE GEMS ***\n\nalpha (1.3.0, 1.2.3, 1.2.2)\n'
-            elif [[ ${!#} == zeta ]]; then
-              printf 'zeta (1.2.30, 1.2.2)\n'
-            fi
+            [[ $1 == push ]]
+            printf '%s\n' "$2" >> "$PUSH_LOG"
           BASH
         )
         FileUtils.chmod("+x", File.join(bin, "gem"))
+        File.write(
+          File.join(dir, "Rakefile"),
+          <<~RUBY
+            load #{File.join(ROOT, "Rakefile").dump}
+            Net::HTTP.define_singleton_method(:get_response) do |uri|
+              name = uri.path.split("/").fetch(4)
+              versions = {"alpha" => %w[1.3.0 1.2.3 1.2.2], "zeta" => %w[1.2.30 1.2.2], "beta" => []}
+              version = File.basename(uri.path, ".json")
+              raise SocketError, "offline" if name == "beta" && ENV["FAIL_QUERY"]
+              code = versions.fetch(name).include?(version) ? "200" : "404"
+              body = JSON.generate(name: name, version: version, platform: "ruby", yanked: false)
+              Struct.new(:code, :body).new(code, body)
+            end
+          RUBY
+        )
         archives.each { File.write(File.join(package_dir, it), it) }
         checksums = archives.map { "#{Digest::SHA256.file(File.join(package_dir, it)).hexdigest}  #{it}" }
         File.write(File.join(package_dir, "SHA256SUMS"), "#{checksums.join("\n")}\n")

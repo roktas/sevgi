@@ -141,9 +141,11 @@ module Sevgi
       def raw_error?(options) = options&.vomit || ENV.fetch(ENVVOMIT, nil)
 
       def run(file, options)
-        reader = file ? :derender_file : :derender
-        source = ::Sevgi::Derender.public_send(reader, file || $stdin.read, omit: options.omit)
-        ::Sevgi.execute(source, require: options.libraries)
+        reader = file ? :decompile_file : :decompile
+        root = ::Sevgi::Derender.public_send(reader, file || $stdin.read, omit: options.omit)
+        ArgumentError.("igsev requires an SVG document root. Use igves to convert an XML fragment.") unless root.root?
+
+        ::Sevgi.execute(root.derender, require: options.libraries)
       end
     end
   end

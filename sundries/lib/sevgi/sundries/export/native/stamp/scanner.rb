@@ -9,11 +9,11 @@ module Sevgi
         class Scanner
           def initialize(data, stamp:, placeholder:, resources:)
             @data = data
-            @stamp = stamp
-            @placeholder = placeholder
-            @fonts = resources&.[](:Font)
+            @text = {stamp:, placeholder:}
+            @resources = resources
+            @fonts = resources[:Font] || {}
             @operands = []
-            @state = {fill_white: false, font_name: nil, in_text: false, stack: [], valid: true}
+            @state = {fill_white: false, font: nil, in_text: false, stack: [], valid: true}
             @edits = []
             @count = 0
           end
@@ -61,7 +61,7 @@ module Sevgi
               handle_graphics_state(operator)
             when :rg, :g, :k, :cs, :sc, :scn
               handle_color_operator(operator)
-            when :BT, :ET, :Tf
+            when :BT, :ET, :Tf, :gs
               handle_text_state(operator)
             when :Tj, :"'", :"\"", :TJ
               add_text_replacement(operator, finish)
@@ -70,9 +70,9 @@ module Sevgi
 
           def handle_graphics_state(operator)
             if operator == :q
-              @state[:stack] << @state.values_at(:fill_white, :font_name)
+              @state[:stack] << @state.values_at(:fill_white, :font)
             elsif @state[:stack].any?
-              @state[:fill_white], @state[:font_name] = @state[:stack].pop
+              @state[:fill_white], @state[:font] = @state[:stack].pop
             else
               @state[:valid] = false
             end
@@ -83,15 +83,19 @@ module Sevgi
           end
 
           def handle_text_state(operator)
-            case operator
-            when :BT
-              toggle_text(true)
-            when :ET
-              toggle_text(false)
-            when :Tf
-              name, size = @operands.map(&:first)
-              @state[:font_name] = name if name.is_a?(::Symbol) && size.is_a?(::Numeric)
+            return toggle_text(operator == :BT) if %i[BT ET].include?(operator)
+
+            name, size = @operands.map(&:first)
+            if operator == :Tf
+              @state[:font] = @fonts[name] if size.is_a?(::Numeric)
+            else
+              select_graphics_state_font(name)
             end
+          end
+
+          def select_graphics_state_font(name)
+            entry = @resources[:ExtGState]&.[](name)&.[](:Font)
+            @state[:font] = @resources.document.deref(entry[0]) if entry
           end
 
           def toggle_text(entering)
@@ -104,33 +108,25 @@ module Sevgi
 
             start, text_finish, text = replacement
             color_start = @operands.first.fetch(1)
-            @edits << [start, text_finish, (start == color_start ? " 0.101961 0.101961 0.101961 rg#{text}" : text).b]
+            @edits << [start, text_finish, (start == color_start ? " #{STAMP_GRAY} rg#{text}" : text).b]
             @edits << Stamp.tint_edit(@data, color_start) unless start == color_start
             @edits << Stamp.tint_edit(@data, finish, white: true)
             @count += 1
           end
 
           def text_replacement(operator)
-            return unless @state[:in_text] && @state[:fill_white] && @state[:font_name]
+            return unless @state[:in_text] && @state[:fill_white] && @state[:font]
 
-            value, start, finish = @operands.last || []
-            replacement = encoded_replacement(operator, value)
+            value, start, finish = @operands.last
+            replacement = FontEncoding.replacement(@state[:font], value, array: operator == :TJ, **@text)
             return unless replacement
 
             prefix = @data[start...finish].to_s[/\A\s*/]
             [start, finish, "#{prefix}#{replacement}"]
-          end
-
-          def encoded_replacement(operator, value)
-            font = @fonts&.[](@state[:font_name])
-            return unless font
-
-            FontEncoding.replacement(font, value, array: operator == :TJ, stamp: @stamp, placeholder: @placeholder)
           rescue HexaPDF::Error => e
             @encoding_error ||= e
             nil
           end
-
         end
 
         # Maps PDF character codes to and from Unicode for the active font.

@@ -19,14 +19,14 @@ module Sevgi
       # @param name [Symbol, String] SVG element name
       # @param arguments [Array<Hash, String, Sevgi::Graphics::Content>] ordered content and attribute channels. Every
       #   Hash is applied through {Sevgi::Graphics::Attributes} from left to right
-      # @param parent [Sevgi::Graphics::Element] parent element
+      # @param parent [Sevgi::Graphics::Element] parent element. Omit to build a document root
       # @yield evaluates the drawing DSL in the new element
       # @yieldreturn [Object] ignored block result
       # @return [Sevgi::Graphics::Element]
       # @raise [Sevgi::ArgumentError] when an argument cannot be parsed as attributes or content
       # @raise [Sevgi::ArgumentError] when the parent has a different concrete element class
       # @raise [Sevgi::ArgumentError] when the element name or an attribute is not valid XML
-      def self.element(name, *arguments, parent:, &block)
+      def self.element(name, *arguments, parent: RootParent, &block)
         validate_parent_class(self, parent)
         new(name, **Dispatch.capture(name, *arguments), parent:, &block)
       end

@@ -97,7 +97,6 @@ module Sevgi
         # Direct recursive SVG source renderer without post-pass inline splicing.
         # @api private
         class Renderer
-          SVG_NAMESPACE = "http://www.w3.org/2000/svg"
           ELEMENTS_WITH_INLINE_CONTENT = %i[title text textPath tspan].freeze
           ELEMENTS_WITH_BLOCK_CONTENT = %i[style].freeze
           SEPARATOR = "\n"
@@ -123,14 +122,14 @@ module Sevgi
 
           def call(*preambles)
             @lines.concat(preambles.map { XML.text(it, context: "XML preamble") }) unless preambles.empty?
-            render_block(@root, 0, parent_default_namespace(@root.parent))
+            render_block(@root, 0, XML.namespace(@root, :xmlns))
             XML.text(@lines.join(SEPARATOR), context: "SVG output")
           end
 
           private
 
           def render_block(element, depth, default_ns)
-            ns = element_namespace(element, default_ns)
+            ns = XML.default_namespace(element, default_ns)
             children = Element.send(:tree_children, element)
             return render_floating(element.contents, children, depth, ns) if element.name == :_
 
@@ -186,39 +185,10 @@ module Sevgi
           end
 
           def inline_content?(element, contents, ns)
-            name = svg_name(element, ns)
+            name = XML.svg_name(element, ns)
             return false if ELEMENTS_WITH_BLOCK_CONTENT.include?(name)
 
             contents.any? || ELEMENTS_WITH_INLINE_CONTENT.include?(name)
-          end
-
-          def svg_name(element, default_ns)
-            name = element.name
-            qualified = name.to_s
-            unless qualified.include?(":")
-              return name if svg_namespace?(default_ns)
-
-              return
-            end
-
-            prefix, local = qualified.split(":", 2)
-            key = :"xmlns:#{prefix}"
-            namespace = element.TraverseUp() { |ancestor| ancestor.Stay(ancestor[key]) if ancestor.has?(key) }
-            local.to_sym if namespace == SVG_NAMESPACE
-          end
-
-          def svg_namespace?(ns) = ns.nil? || ns.to_s.empty? || ns == SVG_NAMESPACE
-
-          def element_namespace(element, inherited)
-            element.attributes.has?(:xmlns) ? element.attributes[:xmlns] : inherited
-          end
-
-          def parent_default_namespace(element)
-            while element.is_a?(Element)
-              return element.attributes[:xmlns] if element.attributes.has?(:xmlns)
-
-              element = element.parent
-            end
           end
 
           def indent(depth) = @indents[depth]
@@ -231,7 +201,7 @@ module Sevgi
         #   Elements with inline text content can also contain inline children such as `tspan`. The renderer keeps those
         #   descendants in the same text line. Whitespace inside content objects is preserved as given, and encoded
         #   content is XML-escaped unless a verbatim content object is used. SVG `style` elements use block content.
-        #   same-named elements under a foreign default namespace retain ordinary inline text formatting.
+        #   Elements with the same name in a foreign namespace retain ordinary inline text formatting.
         #   @example Keep every attribute on the element's opening line
         #     SVG(:minimal) { rect id: "card", width: 80, height: 40 }.Render(style: :inline)
         #   @param options [Hash] renderer options

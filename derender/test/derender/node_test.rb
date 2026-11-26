@@ -34,7 +34,7 @@ module Sevgi
           "<style xmlns=\"urn:foreign\"/>" => :Any,
           "<svg/>" => :Root,
           "<svg xmlns=\"http://www.w3.org/2000/svg\"/>" => :Root,
-          "<s:svg xmlns:s=\"http://www.w3.org/2000/svg\"/>" => :Any,
+          "<s:svg xmlns:s=\"http://www.w3.org/2000/svg\"/>" => :Root,
           "<f:svg xmlns:f=\"urn:foreign\"/>" => :Any,
           "<svg xmlns=\"urn:foreign\"/>" => :Any
         }
